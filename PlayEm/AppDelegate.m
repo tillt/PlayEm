@@ -1,0 +1,55 @@
+//
+//  AppDelegate.m
+//  PlayEm
+//
+//  Created by Till Toenshoff on 30.03.20.
+//  Copyright © 2020 Till Toenshoff. All rights reserved.
+//
+
+#import "AppDelegate.h"
+
+#import <AVFoundation/AVFoundation.h>
+#import <AppKit/NSOpenPanel.h>
+
+#import "WaveWindowController.h"
+
+@interface AppDelegate ()
+
+@property (weak, nonatomic) IBOutlet NSWindow *waveWindow;
+@property (strong, nonatomic) WaveWindowController *waveController;
+
+@end
+
+
+@implementation AppDelegate
+
+- (WaveWindowController*)waveController
+{
+    if (_waveController == nil) {
+        _waveController = [WaveWindowController new];
+    }
+    return _waveController;
+}
+
+- (BOOL)application:(NSApplication*)sender openFile:(NSString*)filename
+{
+    NSError* error = nil;
+    return [[self waveController] loadDocumentFromURL:[NSURL fileURLWithPath:filename] meta:nil error:&error];
+}
+
+- (void)application:(NSApplication*)application openURLs:(NSArray<NSURL*>*)urls
+{
+    NSError* error = nil;
+    [[self waveController] loadDocumentFromURL:urls[0] meta:nil error:&error];
+}
+
+- (void)applicationDidFinishLaunching:(NSNotification*)aNotification
+{
+    [[[self waveController] window] makeKeyAndOrderFront:self];
+}
+
+- (void)applicationWillTerminate:(NSNotification*)aNotification
+{
+}
+
+@end

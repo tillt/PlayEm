@@ -58,16 +58,6 @@ int do_it(char *infile)
         return -1;
     }
 
-    /*
-    ao = out123_new();
-    if(!ao)
-    {
-        fprintf(stderr, "Cannot create output handle.\n");
-        cleanup(mh, ao);
-        return -1;
-    }
-     */
-
     /* Let mpg123 work with the file, that excludes MPG123_NEED_MORE messages. */
     if(    mpg123_open(mh, infile) != MPG123_OK
     /* Peek into track and get first output format. */
@@ -77,16 +67,8 @@ int do_it(char *infile)
         cleanup(mh);
         return -1;
     }
-    /*
-    if(out123_open(ao, driver, outfile) != OUT123_OK)
-    {
-        fprintf(stderr, "Trouble with out123: %s\n", out123_strerror(ao));
-        cleanup(mh);
-        return -1;
-    }
-     */
+
     /* It makes no sense for that to give an error now. */
-    //out123_driver_info(ao, &driver, &outfile);
     printf("Effective output driver: %s\n", driver ? driver : "<nil> (default)");
     printf("Effective output file:   %s\n", outfile ? outfile : "<nil> (default)");
 
@@ -94,19 +76,6 @@ int do_it(char *infile)
        (it might, when we allow it). */
     mpg123_format_none(mh);
     mpg123_format(mh, rate, channels, encoding);
-
-    //encname = out123_enc_name(encoding);
-    //printf( "Playing with %i channels and %li Hz, encoding %s.\n"
-    //,    channels, rate, encname ? encname : "???" );
-    /*
-    if(  out123_start(ao, rate, channels, encoding)
-      || out123_getformat(ao, NULL, NULL, NULL, &framesize) )
-    {
-        fprintf(stderr, "Cannot start output / get framesize: %s\n"
-        ,    out123_strerror(ao));
-        cleanup(mh, ao);
-        return -1;
-    }*/
 
     /* Buffer could be almost any size here, mpg123_outblock() is just some
        recommendation. The size should be a multiple of the PCM frame size. */
@@ -117,21 +86,7 @@ int do_it(char *infile)
     {
         err = mpg123_read( mh, buffer, buffer_size, &done );
         samples += buffer_size;
-        /*
-        played = out123_play(ao, buffer, done);
-        if(played != done)
-        {
-            fprintf(stderr
-            ,    "Warning: written less than gotten from libmpg123: %li != %li\n"
-            ,    (long)played, (long)done);
-        }
-        */
-        //samples += played/framesize;
-        /* We are not in feeder mode, so MPG123_OK, MPG123_ERR and
-           MPG123_NEW_FORMAT are the only possibilities.
-           We do not handle a new format, MPG123_DONE is the end... so
-           abort on anything not MPG123_OK. */
-    } while (done && err==MPG123_OK);
+    } while (done && err == MPG123_OK);
 
     free(buffer);
 
@@ -209,13 +164,13 @@ const char* longName(int encoding)
     mpg123_exit();
     
     if (self.buffer != NULL) {
-        free (self.buffer);
+        free (_buffer);
     }
 
-    self.mpg123_handle = NULL;
-    self.buffer = NULL;
-    self.buffer_size = 0;
-    self.path = @"";
+    _mpg123_handle = NULL;
+    _buffer = NULL;
+    _buffer_size = 0;
+    _path = @"";
 }
 
 - (BOOL)open:(NSString *)path error:(NSError **)error
@@ -233,7 +188,7 @@ const char* longName(int encoding)
         return NO;
     }
 
-    self.mpg123_handle = mpg123_new(NULL, &err);
+    _mpg123_handle = mpg123_new(NULL, &err);
 
     if (err != MPG123_OK) {
         NSString *message = [NSString stringWithFormat:@"mpg123_new failed with error: %s", mpg123_plain_strerror(err)];
@@ -247,10 +202,10 @@ const char* longName(int encoding)
         return NO;
     }
     
-    err = mpg123_open(self.mpg123_handle, [path cStringUsingEncoding:NSUTF8StringEncoding]);
+    err = mpg123_open(_mpg123_handle, [path cStringUsingEncoding:NSUTF8StringEncoding]);
     
     if (err != MPG123_OK) {
-        NSString *message = [NSString stringWithFormat:@"mpg123_open failed with error: %s", mpg123_strerror(self.mpg123_handle)];
+        NSString *message = [NSString stringWithFormat:@"mpg123_open failed with error: %s", mpg123_strerror(_mpg123_handle)];
         NSLog(@"Error: %@\n", message);
         if (error != nil) {
             NSMutableDictionary* details = [NSMutableDictionary dictionary];
@@ -261,17 +216,17 @@ const char* longName(int encoding)
         return NO;
     }
     
-    self.path = path;
+    _path = path;
     
-    self.channels = 0;
-    self.encoding = 0;
-    self.framesize = 1;
-    self.rate = 0;
+    _channels = 0;
+    _encoding = 0;
+    _framesize = 1;
+    _rate = 0;
     
-    err = mpg123_getformat(self.mpg123_handle, &_rate, &_channels, &_encoding);
+    err = mpg123_getformat(_mpg123_handle, &_rate, &_channels, &_encoding);
 
     if (err != MPG123_OK) {
-        NSString *message = [NSString stringWithFormat:@"mpg123_getformat failed with error: %s", mpg123_strerror(self.mpg123_handle)];
+        NSString *message = [NSString stringWithFormat:@"mpg123_getformat failed with error: %s", mpg123_strerror(_mpg123_handle)];
         NSLog(@"Error: %@\n", message);
         if (error != nil) {
             NSMutableDictionary* details = [NSMutableDictionary dictionary];
@@ -289,15 +244,15 @@ const char* longName(int encoding)
     /* Ensure that this output format will not change
        (it might, when we allow it). */
 
-    mpg123_format_none(self.mpg123_handle);
-    mpg123_format(self.mpg123_handle, _rate, _channels, _encoding);
+    mpg123_format_none(_mpg123_handle);
+    mpg123_format(_mpg123_handle, _rate, _channels, _encoding);
 
     /* Buffer could be almost any size here, mpg123_outblock() is just some
        recommendation. The size should be a multiple of the PCM frame size. */
 
-    self.buffer_size = mpg123_outblock(self.mpg123_handle);
+    _buffer_size = mpg123_outblock(_mpg123_handle);
     
-    if (self.buffer_size == 0) {
+    if (_buffer_size == 0) {
         NSString *message = [NSString stringWithFormat:@"mpg123_outblock failed"];
         NSLog(@"Error: %@\n", message);
         if (error != nil) {
@@ -309,9 +264,9 @@ const char* longName(int encoding)
         return NO;
     }
 
-    self.buffer = malloc(self.buffer_size);
+    _buffer = malloc(_buffer_size);
 
-    if (self.buffer == NULL) {
+    if (_buffer == NULL) {
         NSString *message = [NSString stringWithFormat:@"malloc failed"];
         NSLog(@"Error: %@\n", message);
         if (error != nil) {

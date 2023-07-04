@@ -847,6 +847,8 @@ float rgb_from_srgb(float c)
             
             // We try to offset around the current head -- meaning the FFT window shall
             // start half its size before the head and end with half its size ahead.
+            // This may not be a great strategy from a scientific angle - it is a straight-
+            // forward thing to do.
             unsigned long long f = frame > (kWindowSamples / 2) ? frame - (kWindowSamples / 2) : 0;
             
             float* sourceChannels[channels];

@@ -179,7 +179,9 @@
         unsigned long long displayFrameCount = MIN(framesNeeded, weakSelf.sample.frames - displaySampleFrameIndexOffset);
 
         // This may block for a loooooong time!
-        [weakSelf.sample rawSampleFromFrameOffset:displaySampleFrameIndexOffset frames:displayFrameCount outputs:data];
+        [weakSelf.sample rawSampleFromFrameOffset:displaySampleFrameIndexOffset
+                                           frames:displayFrameCount
+                                          outputs:data];
 
         //NSLog(@"This block of %lld frames is used to create visuals for %ld pixels", displayFrameCount, width);
         weakOperation.index = pageIndex;

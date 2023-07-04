@@ -88,7 +88,7 @@
    
     _coverButton = [NSButton buttonWithImage:[NSImage imageNamed:@"UnknownSong"]
                                       target:_delegate
-                                      action:@selector(showInfoshowInfo:)];
+                                      action:@selector(showInfo:)];
     _coverButton.bezelStyle = NSBezelStyleTexturedSquare;
     _coverButton.imagePosition = NSImageOnly;
     _coverButton.imageScaling = NSImageScaleProportionallyUpOrDown;

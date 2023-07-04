@@ -1017,40 +1017,6 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
                    preferredEdge:NSMinYEdge];
 }
 
-//
-//- (void)showControlPanel:(id)sender
-//{
-//    CGFloat maxX = _effectBelowPlaylist.frame.origin.x;
-//    CGFloat minX = _effectBelowInfo.frame.origin.x + _effectBelowInfo.frame.size.width;
-//
-//    BOOL isShow = _controlPanel.alphaValue == 0.0f;
-//    
-//    if (isShow) {
-//        _controlPanel.alphaValue = 1.0f;
-//    }
-//    
-//    [NSAnimationContext runAnimationGroup:^(NSAnimationContext *context) {
-//        [context setDuration:kShowHidePanelAnimationDuration];
-//        if (isShow) {
-//            _controlPanel.animator.frame = NSMakeRect(minX,
-//                                                      _belowVisuals.frame.origin.y + _belowVisuals.frame.size.height - _controlPanel.frame.size.height,
-//                                                      maxX - minX,
-//                                                      _controlPanel.frame.size.height);
-//        } else {
-//            _controlPanel.animator.frame = NSMakeRect(minX,
-//                                                      _belowVisuals.frame.origin.y + _belowVisuals.frame.size.height,
-//                                                      maxX - minX,
-//                                                      _controlPanel.frame.size.height);
-//        }
-//    } completionHandler:^{
-//        if (!isShow) {
-//            self.controlPanel.alphaValue = 0.0f;
-//        }
-//    }];
-//
-//    //_controlPanel.animator.hidden = !_controlPanel.hidden;
-//}
-
 - (void)ScrollViewStartsLiveScrolling:(NSNotification*)notification
 {
     if (notification.object == self.waveView.enclosingScrollView) {

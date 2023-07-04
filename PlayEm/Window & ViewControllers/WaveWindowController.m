@@ -29,8 +29,6 @@
 #import "Defaults.h"
 
 static const float kShowHidePanelAnimationDuration = 0.3f;
-static const float kEnoughSecondsDecoded = 3.0f;
-
 
 @interface WaveWindowController ()
 {
@@ -158,7 +156,6 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
 
 - (NSToolbarItem *)toolbar:(NSToolbar *)toolbar itemForItemIdentifier:(NSToolbarItemIdentifier)itemIdentifier willBeInsertedIntoToolbar:(BOOL)flag
 {
-    //let isBordered = true
     if (itemIdentifier == kPlaylistToolbarIdentifier) {
         NSToolbarItem* item = [[NSToolbarItem alloc] initWithItemIdentifier:itemIdentifier];
         item.target = self;

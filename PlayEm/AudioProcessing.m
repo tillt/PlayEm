@@ -267,7 +267,7 @@ void performMel(FFTSetup fft, float* values, int sampleCount, float* melData)
     
     static COMPLEX* complexData = NULL;
     if (complexData == NULL) {
-        complexData = malloc(sampleCount * sizeof(float));
+        complexData = malloc(sampleCount * sizeof(COMPLEX));
     }
 
     static float* frequencyData = NULL;

@@ -230,7 +230,7 @@
                 break;
             }
 
-            counter = 0;
+            counter -= weakSelf.framesPerPixel;
             storage->negativeAverage = negativeCount > 0 ? negativeSum / negativeCount : 0.0;
             storage->positiveAverage = positiveSum > 0 ? positiveSum / positiveCount : 0.0;
             

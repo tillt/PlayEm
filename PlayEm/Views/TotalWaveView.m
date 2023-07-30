@@ -13,7 +13,7 @@
 #import "Defaults.h"
 #import "CAShapeLayer+Path.h"
 
-const size_t kTotalWaveViewTileWidth = 8;
+const CGFloat kTotalWaveViewTileWidth = 8.0f;
 
 @interface TileView : NSView
 @property (readwrite, nonatomic) NSInteger tag;

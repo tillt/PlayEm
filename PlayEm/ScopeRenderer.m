@@ -38,7 +38,6 @@ static const double kLevelDecreaseValue = 0.042;
 @property (strong, nonatomic) NSColor* background;
 
 @property (strong, nonatomic) NSMutableData* fftWindow;
-@property (strong, nonatomic) NSMutableData* frequencyData;
 
 @property (strong, nonatomic) NSMutableArray* blockSourceChannelData;
 @property (strong, nonatomic) NSMutableData* blockFrequencyData;
@@ -142,7 +141,6 @@ static const double kLevelDecreaseValue = 0.042;
     size_t _sampleCount;
     size_t _sampleStepping;
     
-    //size_t _frequencyCount;
     size_t _frequencyStepping;
     
     size_t _alignedUSamplesSize;
@@ -194,7 +192,7 @@ static NSSize _originalSize __attribute__((unused)) = {0.0,0.0};
         _device = view.device;
         _color = color;
         _fftColor = fftColor;
-        _msaaCount = 2;
+        _msaaCount = 4;
         _background = background;
         _lineWidth = 0.0f;
         _lineAspectRatio = 0.0f;
@@ -224,9 +222,7 @@ static NSSize _originalSize __attribute__((unused)) = {0.0,0.0};
         _feedbackProjectionMatrix = matrix4x4_scale(1.0f, 1.0f, 1.0f);
 
         _fftWindow = [[NSMutableData alloc] initWithCapacity:sizeof(float) * kWindowSamples];
-        _frequencyData = [[NSMutableData alloc] initWithCapacity:sizeof(double) * kFrequencyDataLength];
-        _fftSetup = vDSP_create_fftsetup(round(log2(kWindowSamples)), kFFTRadix2);
-        
+        _fftSetup = initFFT();
         _logMap = initLogMap();
         
         _delegate = delegate;
@@ -620,7 +616,6 @@ float rgb_from_srgb(float c)
         NSData* data = [NSMutableData dataWithLength:MAX(_sampleCount, kWindowSamples) * sizeof(float)];
         [_blockSourceChannelData addObject:data];
     }
-    _blockFrequencyData = [NSMutableData dataWithCapacity:kFrequencyDataLength * sizeof(double)];
 
     _audio = audio;
     _visual = visual;
@@ -692,11 +687,70 @@ float rgb_from_srgb(float c)
     const size_t sampleFrames = _visual.sample.frames;
     const size_t channels = _visual.sample.channels;
     
+    // Fetches sample pointers from `_sourceChannelData`
     float* sourceChannels[channels];
     for (int channelIndex=0; channelIndex < channels; channelIndex++) {
         NSData* data = _sourceChannelData[channelIndex];
         sourceChannels[channelIndex] = (float*)data.bytes;
     }
+
+    dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INTERACTIVE, 0), ^{
+        /// Copy FFT data.
+        size_t frame = [self.audio currentFrame];
+
+        if (frame >= 0) {
+            // We should be kMaxBuffersInFlight * 1/60 seconds away from display.
+            //seconds += kMaxBuffersInFlight / 60.0;
+            
+            //frame = (_visual.sample.frames * seconds) / _visual.sample.duration;
+            if (frame > sampleFrames) {
+                return;
+            }
+            
+            float* window = self.fftWindow.mutableBytes;
+            
+            // We try to offset around the current head -- meaning the FFT window shall
+            // start half its size before the head and end with half its size ahead.
+            // This may not be a great strategy from a scientific angle - it is a straight-
+            // forward thing to do.
+            unsigned long long f = frame > (kWindowSamples / 2) ? frame - (kWindowSamples / 2) : 0;
+            
+            float* sourceChannels[channels];
+            for (int channelIndex=0; channelIndex < channels; channelIndex++) {
+                NSMutableData* data = self.blockSourceChannelData[channelIndex];
+                sourceChannels[channelIndex] = data.mutableBytes;
+            }
+            
+            // Gather up to one window full of mono sound data.
+            size_t samplesToGo = [self.visual.sample rawSampleFromFrameOffset:f
+                                                                       frames:kWindowSamples
+                                                                      outputs:sourceChannels];
+            
+            for (size_t i = 0; i < samplesToGo; i++) {
+                float data = 0;
+                for (size_t channelIndex = 0; channelIndex < channels; channelIndex++) {
+                    data += sourceChannels[channelIndex][i];
+                }
+                data /= channels;
+                ++f;
+                window[i] = data;
+                if (f > sampleFrames) {
+                    break;
+                }
+            }
+            
+            uint8_t bufferIndex = (_uniformBufferIndex + 1) % kMaxBuffersInFlight;
+            uint32_t frequencyBufferOffset = (uint32_t)_alignedUFrequenciesSize * bufferIndex;
+            void* frequencyBufferAddress = ((uint8_t *)_frequencyUniformBuffer.contents) + frequencyBufferOffset;
+
+//
+//            performFFT(_fftSetup, window, kWindowSamples, frequencyBufferAddress);
+//            logscaleFFT(_logMap, frequencyBufferAddress);
+            
+            performMel(_fftSetup, window, kWindowSamples / 16, frequencyBufferAddress);
+        }
+    });
+
     
     size_t previousAttemptAt = -1;
     while (bestPositiveStreakLength == 0) {
@@ -813,7 +867,11 @@ float rgb_from_srgb(float c)
             frame = _minTriggerOffset;
         }
     }
-    
+    // Make sure any remaining node is reset to silence level.
+    for (;i < _sampleCount;i++) {
+        node[i].position[1] = 0.0;
+    }
+
     /// Update the volume level display.
 
     // Use a logarithmic scale as that is much closer to what we perceive. Neatly fake
@@ -824,67 +882,6 @@ float rgb_from_srgb(float c)
     } else {
         self.level.doubleValue -= MIN(self.level.doubleValue, kLevelDecreaseValue);
     }
-
-    // Make sure any remaining node is reset to silence level.
-    for (;i < _sampleCount;i++) {
-        node[i].position[1] = 0.0;
-    }
-
-    dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INTERACTIVE, 0), ^{
-        /// Copy FFT data.
-        size_t frame = [self.audio currentFrame];
-
-        if (frame >= 0) {
-            // We should be kMaxBuffersInFlight * 1/60 seconds away from display.
-            //seconds += kMaxBuffersInFlight / 60.0;
-            
-            //frame = (_visual.sample.frames * seconds) / _visual.sample.duration;
-            if (frame > sampleFrames) {
-                return;
-            }
-            
-            float* window = self.fftWindow.mutableBytes;
-            
-            // We try to offset around the current head -- meaning the FFT window shall
-            // start half its size before the head and end with half its size ahead.
-            // This may not be a great strategy from a scientific angle - it is a straight-
-            // forward thing to do.
-            unsigned long long f = frame > (kWindowSamples / 2) ? frame - (kWindowSamples / 2) : 0;
-            
-            float* sourceChannels[channels];
-            for (int channelIndex=0; channelIndex < channels; channelIndex++) {
-                NSMutableData* data = self.blockSourceChannelData[channelIndex];
-                sourceChannels[channelIndex] = data.mutableBytes;
-            }
-            
-            size_t samplesToGo = [self.visual.sample rawSampleFromFrameOffset:f
-                                                                       frames:kWindowSamples
-                                                                      outputs:sourceChannels];
-            
-            for (size_t i = 0; i < samplesToGo; i++) {
-                float data = 0;
-                for (size_t channelIndex = 0; channelIndex < channels; channelIndex++) {
-                    data += sourceChannels[channelIndex][i];
-                }
-                data /= channels;
-                ++f;
-                window[i] = data;
-                if (f > sampleFrames) {
-                    break;
-                }
-            }
-            
-            uint8_t bufferIndex = (_uniformBufferIndex + 1) % kMaxBuffersInFlight;
-            uint32_t frequencyBufferOffset = (uint32_t)_alignedUFrequenciesSize * bufferIndex;
-            void* frequencyBufferAddress = ((uint8_t *)_frequencyUniformBuffer.contents) + frequencyBufferOffset;
-
-
-            performFFT(_fftSetup, window, kWindowSamples, frequencyBufferAddress);
-            logscaleFFT(_logMap, frequencyBufferAddress);
-            
-//            performMel(_fftSetup, window, kWindowSamples, frequencyBufferAddress);
-        }
-    });
 }
 
 - (void)drawInMTKView:(nonnull MTKView *)view
@@ -940,14 +937,14 @@ float rgb_from_srgb(float c)
     }
 
     {
-        /// Third pass rendering code: Scope bloom
+        /// Second pass rendering code: Scope bloom
         [_bloom encodeToCommandBuffer:commandBuffer
                              sourceTexture:_scopeTargetTexture
                         destinationTexture:_bufferTexture];
     }
 
     {
-        /// Second pass rendering code: Drawing the frequency pattern
+        /// Third pass rendering code: Drawing the frequency pattern
 
         id<MTLRenderCommandEncoder> renderEncoder = [commandBuffer renderCommandEncoderWithDescriptor:_frequenciesPass];
 

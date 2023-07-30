@@ -10,7 +10,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-extern const size_t kTotalWaveViewTileWidth;
+extern const CGFloat kTotalWaveViewTileWidth;
 
 @interface TotalWaveView : NSView
 

@@ -16,8 +16,14 @@ const size_t kFrequencyDataLength = kScaledFrequencyDataLength * 4;
 /// The number of mel filter banks  — the height of the spectrogram.
 const int kFilterBankCount = 40;
 
-// This is wrong but beautiful. It should be times 4.
+// This is wrong but beautiful. It should be times 4. As a result, we only see
+// half the frequency band - that is, only the lower 11khz.
 const size_t kWindowSamples = kFrequencyDataLength * 8;
+
+vDSP_DFT_Setup initDCT(void)
+{
+    return vDSP_DCT_CreateSetup(NULL, 1 << (unsigned int)(round(log2((float)kFilterBankCount))), vDSP_DCT_II);
+}
 
 FFTSetup initFFT(void)
 {
@@ -37,7 +43,7 @@ void destroyLogMap(float* map)
 
 float* initLogMap(void)
 {
-    float* map = malloc(sizeof(float) * kWindowSamples);
+    float* map = malloc(sizeof(float) * kFrequencyDataLength);
     /*
                   /  x - x0                                \
           y = 10^|  ------- * (log(y1) - log(y0)) + log(y0) |
@@ -62,12 +68,18 @@ COMPLEX_SPLIT* allocComplexSplit(size_t strideLength)
     return output;
 }
 
+void performDFT(vDSP_DFT_Setup dct, float* data, size_t numberOfFrames, float* frequencyData)
+{
+//    vDSP_DCT_Execute(dct, data, frequencyData);
+}
+
 void performFFT(FFTSetup fft, float* data, size_t numberOfFrames, float* frequencyData)
 {
+    const float fftNormFactor = 1.0f / kFrequencyDataLength;
+
     // 2^(round(log2(numberOfFrames)).
     const size_t framesOver2 = numberOfFrames / 2;
     const int bufferLog2 = round(log2(numberOfFrames));
-    const float fftNormFactor = 1.0f / kFrequencyDataLength;
 
     static COMPLEX_SPLIT* output = NULL;
     static COMPLEX_SPLIT* computeBuffer = NULL;
@@ -81,7 +93,7 @@ void performFFT(FFTSetup fft, float* data, size_t numberOfFrames, float* frequen
     // Put all of the even numbered elements into outReal and odd numbered into outImaginary.
     vDSP_ctoz((COMPLEX*)data, 2, output, 1, framesOver2);
     // For best possible speed, we are using the buffered variant of that FFT calculation.
-    vDSP_fft_zript(fft, output, 1, computeBuffer, bufferLog2, FFT_FORWARD);
+    vDSP_fft_zript(fft, output, 1, computeBuffer, bufferLog2, kFFTDirection_Forward);
     // Scale the FFT data.
     vDSP_vsmul(output->realp, 1, &fftNormFactor, output->realp, 1, kFrequencyDataLength);
     vDSP_vsmul(output->imagp, 1, &fftNormFactor, output->imagp, 1, kFrequencyDataLength);
@@ -127,27 +139,27 @@ void logscaleFFT(float* map, float* frequencyData)
     memcpy(frequencyData, buffer, kScaledFrequencyDataLength * sizeof(float));
 }
 
-float frequencyToMel(float frequency)
+float hz2mel(float frequency)
 {
-    return 2595 * log10f(1 + (frequency / 700));
+    return 2595.0f * log10f(1 + (frequency / 700.0f));
 }
 
-float melToFrequency(float mel)
+float mel2hz(float mel)
 {
-    return 700 * (powf(10, mel / 2595) - 1);
+    return 700.0f * (powf(10, mel / 2595.0f) - 1.0f);
 }
 
 /// Populates the specified `melFilterBankFrequencies` with a monotonically increasing series
 /// of indices into `frequencyDomainBuffer` that represent evenly spaced mels.
 void populateMelFilterBankFrequencies(NSRange frequencyRange, int filterBankCount, int sampleCount, NSMutableArray* melFilterBankFrequencies)
 {
-    float minMel = frequencyToMel(frequencyRange.location);
-    float maxMel = frequencyToMel(frequencyRange.location + frequencyRange.length);
+    float minMel = hz2mel(frequencyRange.location);
+    float maxMel = hz2mel(frequencyRange.location + frequencyRange.length);
     float bankWidth = (maxMel - minMel) / ((float)filterBankCount - 1);
 
     float mel = minMel;
-    for (int i = 0; i  < filterBankCount; i ++) {
-        float frequency = melToFrequency(mel);
+    for (int i = 0; i  < filterBankCount; i++) {
+        float frequency = mel2hz(mel);
         melFilterBankFrequencies[i] = @((int)((frequency / (frequencyRange.location + frequencyRange.length)) * (float)sampleCount));
         mel += bankWidth;
     }
@@ -178,7 +190,8 @@ float* makeFilterBank(NSRange frequencyRange, int sampleCount, int filterBankCou
         int startFrequency = melFilterBankFrequencies[MAX(0, i - 1)].intValue;
         int centerFrequency = melFilterBankFrequencies[i].intValue;
         int endFrequency = (i + 1) < melFilterBankFrequencies.count ?
-          melFilterBankFrequencies[i + 1].intValue : sampleCount - 1;
+                melFilterBankFrequencies[i + 1].intValue :
+                sampleCount - 1;
 
         float attackWidth = centerFrequency - startFrequency + 1;
         float decayWidth = endFrequency - centerFrequency + 1;
@@ -203,29 +216,6 @@ float* makeFilterBank(NSRange frequencyRange, int sampleCount, int filterBankCou
     return filterBank;
 }
 
-void performDFT(FFTSetup fft, float* data, size_t numberOfFrames, float* frequencyData)
-{
-    // 2^(round(log2(numberOfFrames)).
-    const size_t framesOver2 = numberOfFrames / 2;
-    const int bufferLog2 = round(log2(numberOfFrames));
-
-    static COMPLEX_SPLIT* output = NULL;
-    static COMPLEX_SPLIT* computeBuffer = NULL;
-    
-    if (output == NULL) {
-        // Altivec's functions rely on 16-byte aligned memory locations. We use `malloc` here to make
-        // sure the buffers fit that limit.
-        output = allocComplexSplit(framesOver2);
-        computeBuffer = allocComplexSplit(framesOver2);
-    }
-    
-    // Put all of the even numbered elements into outReal and odd numbered into outImaginary.
-    vDSP_ctoz((COMPLEX*)data, 2, output, 1, framesOver2);
-    // For best possible speed, we are using the buffered variant of that FFT calculation.
-    vDSP_fft_zript(fft, output, 1, computeBuffer, bufferLog2, kFFTDirection_Forward);
-    // Convert a complex-split array to a complex array.
-    vDSP_ztoc(output, 1, (COMPLEX*)frequencyData, 2, framesOver2);
-}
 
 /// Process a frame of raw audio data:
 ///
@@ -279,6 +269,7 @@ void performMel(FFTSetup fft, float* values, int sampleCount, float* melData)
     
     vDSP_vabs(frequencyData, 1, frequencyData, 1, sampleCount);
     
+    // Multiply two matrices...
     cblas_sgemm(CblasRowMajor,
                 CblasTrans,
                 CblasTrans,
@@ -301,7 +292,9 @@ void performMel(FFTSetup fft, float* values, int sampleCount, float* melData)
                 1,
                 sgemmResultCount,
                 0);
+
     float max = sqrtf(sampleCount);
+
     for (int i=0; i < kFilterBankCount; i++) {
         melData[i] = sqrtf(melData[i] / max);
     }

@@ -184,10 +184,10 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     NSLog(@"loadWindow...");
     self.window = [[NSWindow alloc] initWithContentRect:NSMakeRect(0, 0, 1180, 1050)
                                               styleMask: NSWindowStyleMaskTitled
-                   | NSWindowStyleMaskClosable
-                   | NSWindowStyleMaskUnifiedTitleAndToolbar
-                   | NSWindowStyleMaskMiniaturizable
-                   | NSWindowStyleMaskResizable
+                                                       | NSWindowStyleMaskClosable
+                                                       | NSWindowStyleMaskUnifiedTitleAndToolbar
+                                                       | NSWindowStyleMaskMiniaturizable
+                                                       | NSWindowStyleMaskResizable
                                                 backing:NSBackingStoreBuffered defer:YES];
 
     self.window.titlebarSeparatorStyle = NSTitlebarSeparatorStyleLine;
@@ -501,7 +501,9 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     _songsTable.backgroundColor = [NSColor clearColor];
     _songsTable.tag = VIEWTAG_FILTERED;
     _songsTable.menu = menu;
-    
+    _songsTable.autosaveName = @"SongsTable";
+    _songsTable.autosaveTableColumns = YES;
+
     col = [[NSTableColumn alloc] initWithIdentifier:@"TrackCell"];
     col.title = @"Track";
     col.width = trackColumnWidth - selectorColumnInset;
@@ -543,7 +545,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     col.width = addedColumnWidth - selectorColumnInset;
     col.sortDescriptorPrototype = [[NSSortDescriptor alloc] initWithKey:@"addedDate" ascending:YES selector:@selector(compare:)];
     [_songsTable addTableColumn:col];
-    
+
     sv.documentView = _songsTable;
     [_split addArrangedSubview:sv];
 
@@ -1223,9 +1225,9 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
             self.totalView.frames = sample.frames;
 
             self.waveView.frame = CGRectMake(0.0,
-                                                   0.0,
-                                                   self.visualSample.width,
-                                                   self.waveView.bounds.size.height);
+                                             0.0,
+                                             self.visualSample.width,
+                                             self.waveView.bounds.size.height);
             [self.totalView refresh];
             
             [[NSDocumentController sharedDocumentController] noteNewRecentDocumentURL:url];
@@ -1574,7 +1576,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
 
     CGContextSetLineCap(context, kCGLineCapRound);
     unsigned long int start = layer.frame.origin.x;
-    unsigned long int width = layer.bounds.size.width+1;
+    unsigned long int samplePairCount = layer.bounds.size.width + 1;
 
     NSData* buffer = nil;
     NSNumber* number = [layer valueForKey:@"isTotalView"];
@@ -1584,16 +1586,17 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
 
     if (buffer != nil) {
         CGContextSetFillColorWithColor(context, [[NSColor clearColor] CGColor]);
-        CGContextFillRect(context, CGRectMake(0.0, 0.0, width, layer.bounds.size.height));
+        CGContextFillRect(context, layer.bounds);
 
         VisualPair* data = (VisualPair*)buffer.bytes;
+        assert(samplePairCount == buffer.length / sizeof(VisualPair));
 
-        CGContextSetLineWidth(context, 3.0);
-        CGContextSetStrokeColorWithColor(context, [[_waveView.color colorWithAlphaComponent:0.22f] CGColor]);
+        CGContextSetLineWidth(context, 7.0f);
+        CGContextSetStrokeColorWithColor(context, [[_waveView.color colorWithAlphaComponent:0.40f] CGColor]);
         
         CGFloat mid = floor(layer.bounds.size.height / 2.0);
 
-        for (unsigned int sampleIndex = 0; sampleIndex < width; sampleIndex++) {
+        for (unsigned int sampleIndex = 0; sampleIndex < samplePairCount; sampleIndex++) {
             CGFloat top = (mid + ((data[sampleIndex].negativeAverage * layer.bounds.size.height) / 2.0)) - 2.0;
             CGFloat bottom = (mid + ((data[sampleIndex].positiveAverage * layer.bounds.size.height) / 2.0)) + 2.0;
 
@@ -1605,7 +1608,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
         CGContextSetLineWidth(context, 1.5);
         CGContextSetStrokeColorWithColor(context, _waveView.color.CGColor);
         
-        for (unsigned int sampleIndex = 0; sampleIndex < width; sampleIndex++) {
+        for (unsigned int sampleIndex = 0; sampleIndex < samplePairCount; sampleIndex++) {
             CGFloat top = (mid + ((data[sampleIndex].negativeAverage * layer.bounds.size.height) / 2.0)) - 1.0;
             CGFloat bottom = (mid + ((data[sampleIndex].positiveAverage * layer.bounds.size.height) / 2.0)) + 1.0;
 
@@ -1615,7 +1618,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
         }
     } else {
         CGContextSetFillColorWithColor(context, _waveView.color.CGColor);
-        CGContextFillRect(context, CGRectMake(0.0, 0.0, width, layer.bounds.size.height));
+        CGContextFillRect(context, layer.bounds);
 
         if (start >= v.width) {
             return;
@@ -1625,7 +1628,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
         
         CGFloat offset = number != nil ? 0 : _waveView.enclosingScrollView.documentVisibleRect.origin.x;
         CGFloat totalWidth = number != nil ? _totalView.frame.size.width : _waveView.enclosingScrollView.documentVisibleRect.size.width;
-        [v prepareVisualsFromOrigin:start width:width window:offset total:totalWidth callback:^(void){
+        [v prepareVisualsFromOrigin:start width:samplePairCount window:offset total:totalWidth callback:^(void){
             [layer setNeedsDisplay];
         }];
     }

@@ -13,6 +13,7 @@
 #import "WaveWindowController.h"
 #import "AudioController.h"
 #import "VisualSample.h"
+#import "BeatTrackedSample.h"
 #import "LazySample.h"
 #import "BrowserController.h"
 #import "PlaylistController.h"
@@ -20,6 +21,7 @@
 #import "MediaMetaData.h"
 #import "ScopeRenderer.h"
 #import "TotalWaveView.h"
+#import "WaveView.h"
 #import "UIView+Visibility.h"
 #import "InfoPanel.h"
 #import "ScrollingTextView.h"
@@ -27,8 +29,11 @@
 #import "ControlPanelController.h"
 #import "IdentifyController.h"
 #import "Defaults.h"
+#import "BeatLayerDelegate.h"
+#import "WaveLayerDelegate.h"
 
 static const float kShowHidePanelAnimationDuration = 0.3f;
+static const float kPixelPerSecond = 100.0f;
 
 @interface WaveWindowController ()
 {
@@ -55,6 +60,10 @@ static const float kShowHidePanelAnimationDuration = 0.3f;
 
 @property (strong, nonatomic) NSPopover* popOver;
 @property (strong, nonatomic) NSPopover* infoPopOver;
+
+@property (strong, nonatomic) BeatLayerDelegate* beatLayerDelegate;
+@property (strong, nonatomic) WaveLayerDelegate* waveLayerDelegate;
+@property (strong, nonatomic) WaveLayerDelegate* totalWaveLayerDelegate;
 
 - (void)stop;
 
@@ -114,9 +123,9 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
     }
     [_sample abortDecode];
     _sample = sample;
+    _beatSample.sample = sample;
     NSLog(@"sample assigned");
 }
-
 
 - (void)updateSongsCount:(size_t)songs
 {
@@ -203,16 +212,40 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     self.window.toolbar = toolBar;
 
     _infoPanel = [InfoPanelController new];
+    
+    _beatLayerDelegate = [BeatLayerDelegate new];
+
+    self.waveLayerDelegate = [WaveLayerDelegate new];
+    self.waveLayerDelegate.offsetBlock = ^CGFloat{
+        return self.waveView.enclosingScrollView.documentVisibleRect.origin.x;
+    };
+    self.waveLayerDelegate.widthBlock = ^CGFloat{
+        return self.waveView.enclosingScrollView.documentVisibleRect.size.width;
+    };
+
+    self.totalWaveLayerDelegate = [WaveLayerDelegate new];
+    self.totalWaveLayerDelegate.visualSample = self.totalVisual;
+    self.totalWaveLayerDelegate.offsetBlock = ^CGFloat{
+        return 0.0;
+    };
+    self.totalWaveLayerDelegate.widthBlock = ^CGFloat{
+        return self.totalView.frame.size.width;
+    };
 
     _controlPanelController = [ControlPanelController new];
     _controlPanelController.layoutAttribute = NSLayoutAttributeLeft;
     [self.window addTitlebarAccessoryViewController:_controlPanelController];
 
     _splitViewController = [NSSplitViewController new];
+    
 
     [self.window center];
     
     [self loadViews];
+    
+    _beatLayerDelegate.waveView = _waveView;
+    self.totalWaveLayerDelegate.color = _waveView.color;
+    self.waveLayerDelegate.color = _waveView.color;
 }
 
 - (void)loadViews
@@ -245,11 +278,11 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     const CGFloat progressIndicatorHeight = 32.0;
     
     const CGFloat totalHeight =
-    totalWaveViewHeight +
-    scrollingWaveViewHeight +
-    scopeViewHeight +
-    selectorTableViewHeight +
-    songsTableViewHeight;
+        totalWaveViewHeight +
+        scrollingWaveViewHeight +
+        scopeViewHeight +
+        selectorTableViewHeight +
+        songsTableViewHeight;
     
     CGFloat y = 0.0;
     
@@ -309,7 +342,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
                                                                  0.0,
                                                                  size.width,
                                                                  totalWaveViewHeight)];
-    _totalView.layerDelegate = self;
+    _totalView.layerDelegate = self.totalWaveLayerDelegate;
     _totalView.autoresizingMask = NSViewWidthSizable | NSViewMaxYMargin;
     [_belowVisuals addSubview:_totalView];
     
@@ -322,7 +355,10 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     tiledSV.verticalScrollElasticity = NSScrollElasticityNone;
 
     _waveView = [[WaveView alloc] initWithFrame:tiledSV.bounds];
-    _waveView.layerDelegate = self;
+    _waveView.waveLayerDelegate = self.waveLayerDelegate;
+    _waveView.headDelegate = tiledSV;
+    _waveView.color = [[Defaults sharedDefaults] regularBeamColor];
+    _waveView.beatLayerDelegate = self.beatLayerDelegate;
     tiledSV.documentView = _waveView;
     
     [_belowVisuals addSubview:tiledSV];
@@ -332,13 +368,6 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     line.boxType = NSBoxSeparator;
     line.autoresizingMask = NSViewWidthSizable;
     [_belowVisuals addSubview:line];
-
-    [self putScopeViewWithFrame:NSMakeRect(0.0,
-                                           totalWaveViewHeight + scrollingWaveViewHeight,
-                                           size.width,
-                                           scopeViewHeight)
-                         onView:_belowVisuals];
-    _smallScopeView = _scopeView;
 
     line = [[NSBox alloc] initWithFrame:NSMakeRect(0.0, scrollingWaveViewHeight + totalWaveViewHeight - 1, size.width, 1.0)];
 //    line.borderColor = [NSColor blackColor];
@@ -351,7 +380,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
                                                                                  playlistFxViewWidth,
                                                                                  height)];
     _effectBelowPlaylist.autoresizingMask = NSViewHeightSizable | NSViewMinXMargin;
-
+    
     NSScrollView* sv = [[NSScrollView alloc] initWithFrame:_effectBelowPlaylist.bounds];
     sv.hasVerticalScroller = YES;
     sv.autoresizingMask = kViewFullySizeable;
@@ -375,7 +404,14 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
 
     sv.documentView = _playlistTable;
     [_effectBelowPlaylist addSubview:sv];
-    
+
+    [self putScopeViewWithFrame:NSMakeRect(0.0,
+                                           totalWaveViewHeight + scrollingWaveViewHeight,
+                                           size.width,
+                                           scopeViewHeight)
+                         onView:_belowVisuals];
+    _smallScopeView = _scopeView;
+
     [_belowVisuals addSubview:_effectBelowPlaylist];
     
     [_split addArrangedSubview:_belowVisuals];
@@ -622,8 +658,6 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     
     _inTransition = NO;
    
-    _waveView.color = [[Defaults sharedDefaults] regularBeamColor];
-    
 //    _effectBelowInfo.material = NSVisualEffectMaterialMenu;
 //    _effectBelowInfo.blendingMode = NSVisualEffectBlendingModeWithinWindow;
 //    _effectBelowInfo.alphaValue = 0.0f;
@@ -654,10 +688,6 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
         _scopeView.delegate = _renderer;
         _scopeView.layer.opaque = false;
     }
-
-    [self loadProgress:self.progress state:LoadStateStopped value:0.0];
-    [self loadProgress:self.trackLoadProgress state:LoadStateStopped value:0.0];
-    [self loadProgress:self.trackRenderProgress state:LoadStateStopped value:0.0];
 
     {
         CIFilter* colorFilter = [CIFilter filterWithName:@ "CIFalseColor"];
@@ -897,7 +927,9 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
 {
     assert(frame.size.width * frame.size.height);
 
-    ScopeView* sv = [[ScopeView alloc] initWithFrame:frame device:MTLCreateSystemDefaultDevice()];
+    ScopeView* sv = [[ScopeView alloc] initWithFrame:frame
+                                              device:MTLCreateSystemDefaultDevice()];
+    assert(sv);
     //sv.colorPixelFormat = MTLPixelFormatBGRA10_XR_sRGB;
     sv.colorPixelFormat = MTLPixelFormatBGRA8Unorm;
     sv.depthStencilPixelFormat = MTLPixelFormatInvalid;
@@ -916,6 +948,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     sv.delegate = _renderer;
     sv.paused = NO;
 
+    assert(parent);
     [parent addSubview:sv];
 
     [_scopeView removeFromSuperview];
@@ -927,6 +960,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
 
     //[parent addSubview:_controlPanel positioned:NSWindowAbove relativeTo:nil];
 //    [parent addSubview:_effectBelowInfo positioned:NSWindowAbove relativeTo:nil];
+    assert(_effectBelowPlaylist);
     [parent addSubview:_effectBelowPlaylist positioned:NSWindowAbove relativeTo:nil];
 }
 
@@ -1046,6 +1080,11 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
         return [NSString stringWithFormat:@"%d:%02d:%02d", hours, minutes, seconds];
     }
     return [NSString stringWithFormat:@"%d:%02d", minutes, seconds];
+}
+
+- (void)setBPM:(float)bpm
+{
+    _controlPanelController.bpm.stringValue = [NSString stringWithFormat:@"%3f.2", bpm];
 }
 
 - (void)setCurrentFrame:(unsigned long long)frame
@@ -1195,48 +1234,46 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     // screen initializing. This may be a rather expensive operation on large files with
     // variable bitrate. We do this asynchronously to not hog the mainthread.
     [self loadTrackState:LoadStateInit value:0.0];
+    [self loadTrackState:LoadStateStopped value:0.0];
+    [self.playlist setCurrent:asyncMeta];
 
-//    dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INTERACTIVE, 0), ^{
-//        NSLog(@"now NOT gathering frame count from another thread...");
-//        // Once we requested this for the first time, further invocations are instant.
-//        //unsigned long long frames = self.sample.frames;
-//        //NSLog(@"logging frames from another thread: %lld", frames);
-//
-//        dispatch_async(dispatch_get_main_queue(), ^{
-            [self loadTrackState:LoadStateStopped value:0.0];
+    self.visualSample = [[VisualSample alloc] initWithSample:sample
+                                              pixelPerSecond:kPixelPerSecond
+                                                   tileWidth:kDirectWaveViewTileWidth];
 
-            [self.playlist setCurrent:asyncMeta];
+    NSLog(@"triggering decoder...");
+    [sample decodeAsyncWithCallback:^{
+        NSLog(@"triggering beat tracker...");
+        [self.beatSample trackBeatsAsync:self.visualSample.width callback:^{
+            [self.waveView invalidateTiles];
+        }];
+    }];
+    
+    self.waveLayerDelegate.visualSample = self.visualSample;
 
-            //NSLog(@"sample: %@", self.sample);
+    self.totalVisual = [[VisualSample alloc] initWithSample:sample
+                                             pixelPerSecond:self.totalView.bounds.size.width / sample.duration
+                                                  tileWidth:kTotalWaveViewTileWidth];
+    self.totalWaveLayerDelegate.visualSample = self.totalVisual;
 
-            NSLog(@"triggering decoder...");
-            [sample decodeAsync];
+    self.beatSample = [[BeatTrackedSample alloc] initWithSample:sample framesPerPixel:self.visualSample.framesPerPixel];
+    self.beatLayerDelegate.beatSample = self.beatSample;
 
-            self.visualSample = [[VisualSample alloc] initWithSample:sample
-                                                      pixelPerSecond:100.0f
-                                                           tileWidth:kDirectWaveViewTileWidth];
+    self.audioController.sample = sample;
+    self.waveView.frames = sample.frames;
+    self.totalView.frames = sample.frames;
 
-            self.totalVisual = [[VisualSample alloc] initWithSample:sample
-                                                     pixelPerSecond:self.totalView.bounds.size.width / sample.duration
-                                                          tileWidth:kTotalWaveViewTileWidth];
-
-            self.audioController.sample = sample;
-            self.waveView.frames = sample.frames;
-            self.totalView.frames = sample.frames;
-
-            self.waveView.frame = CGRectMake(0.0,
-                                             0.0,
-                                             self.visualSample.width,
-                                             self.waveView.bounds.size.height);
-            [self.totalView refresh];
-            
-            [[NSDocumentController sharedDocumentController] noteNewRecentDocumentURL:url];
-            
-            [self setMeta:asyncMeta];
-            
-            [self.audioController playWhenReady];
-//        });
-//    });
+    self.waveView.frame = CGRectMake(0.0,
+                                     0.0,
+                                     self.visualSample.width,
+                                     self.waveView.bounds.size.height);
+    [self.totalView refresh];
+    
+    [[NSDocumentController sharedDocumentController] noteNewRecentDocumentURL:url];
+    
+    [self setMeta:asyncMeta];
+    
+    [self.audioController playWhenReady];
 
     return YES;
 }
@@ -1350,6 +1387,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
 - (void)mouseDown:(NSEvent*)event
 {
     NSPoint locationInWindow = [event locationInWindow];
+
     NSPoint location = [_waveView convertPoint:locationInWindow fromView:nil];
     if (NSPointInRect(location, _waveView.bounds)) {
         unsigned long long seekTo = (_visualSample.sample.frames * location.x ) / _waveView.frame.size.width;
@@ -1361,6 +1399,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
         }
         return;
     }
+
     location = [_totalView convertPoint:locationInWindow fromView:nil];
     if (NSPointInRect(location, _totalView.bounds)) {
         unsigned long long seekTo = (_totalVisual.sample.frames * location.x ) / _totalView.frame.size.width;
@@ -1556,82 +1595,6 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
 - (void)playPause:(id)sender
 {
     [_audioController playPause];
-}
-
-#pragma mark Layer delegate
-
-- (void)drawLayer:(CALayer *)layer inContext:(CGContextRef)context
-{
-    if (_visualSample == nil || layer.frame.origin.x < 0) {
-        return;
-    }
-
-    /*
-      We try to fetch visual data first;
-       - when that fails, we draw a box and trigger a task preparing visual data
-       - when that works, we draw it
-     */
-//    CGContextSetAllowsAntialiasing(context, YES);
-//    CGContextSetShouldAntialias(context, YES);
-
-    CGContextSetLineCap(context, kCGLineCapRound);
-    unsigned long int start = layer.frame.origin.x;
-    unsigned long int samplePairCount = layer.bounds.size.width + 1;
-
-    NSData* buffer = nil;
-    NSNumber* number = [layer valueForKey:@"isTotalView"];
-
-    VisualSample* v = number != nil ? _totalVisual : _visualSample;
-    buffer = [v visualsFromOrigin:start];
-
-    if (buffer != nil) {
-        CGContextSetFillColorWithColor(context, [[NSColor clearColor] CGColor]);
-        CGContextFillRect(context, layer.bounds);
-
-        VisualPair* data = (VisualPair*)buffer.bytes;
-        assert(samplePairCount == buffer.length / sizeof(VisualPair));
-
-        CGContextSetLineWidth(context, 7.0f);
-        CGContextSetStrokeColorWithColor(context, [[_waveView.color colorWithAlphaComponent:0.40f] CGColor]);
-        
-        CGFloat mid = floor(layer.bounds.size.height / 2.0);
-
-        for (unsigned int sampleIndex = 0; sampleIndex < samplePairCount; sampleIndex++) {
-            CGFloat top = (mid + ((data[sampleIndex].negativeAverage * layer.bounds.size.height) / 2.0)) - 2.0;
-            CGFloat bottom = (mid + ((data[sampleIndex].positiveAverage * layer.bounds.size.height) / 2.0)) + 2.0;
-
-            CGContextMoveToPoint(context, sampleIndex, top);
-            CGContextAddLineToPoint(context, sampleIndex, bottom);
-            CGContextStrokePath(context);
-        }
-
-        CGContextSetLineWidth(context, 1.5);
-        CGContextSetStrokeColorWithColor(context, _waveView.color.CGColor);
-        
-        for (unsigned int sampleIndex = 0; sampleIndex < samplePairCount; sampleIndex++) {
-            CGFloat top = (mid + ((data[sampleIndex].negativeAverage * layer.bounds.size.height) / 2.0)) - 1.0;
-            CGFloat bottom = (mid + ((data[sampleIndex].positiveAverage * layer.bounds.size.height) / 2.0)) + 1.0;
-
-            CGContextMoveToPoint(context, sampleIndex, top);
-            CGContextAddLineToPoint(context, sampleIndex, bottom);
-            CGContextStrokePath(context);
-        }
-    } else {
-        CGContextSetFillColorWithColor(context, _waveView.color.CGColor);
-        CGContextFillRect(context, layer.bounds);
-
-        if (start >= v.width) {
-            return;
-        }
-        
-        // Once data is prepared, trigger a redraw - invoking this function again.
-        
-        CGFloat offset = number != nil ? 0 : _waveView.enclosingScrollView.documentVisibleRect.origin.x;
-        CGFloat totalWidth = number != nil ? _totalView.frame.size.width : _waveView.enclosingScrollView.documentVisibleRect.size.width;
-        [v prepareVisualsFromOrigin:start width:samplePairCount window:offset total:totalWidth callback:^(void){
-            [layer setNeedsDisplay];
-        }];
-    }
 }
 
 - (void)progressSeekTo:(unsigned long long)frame

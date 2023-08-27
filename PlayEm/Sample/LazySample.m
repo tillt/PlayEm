@@ -81,7 +81,7 @@ const size_t kMaxFramesPerBuffer = 16384;
     
 }
 
-- (void)decodeAsync
+- (void)decodeAsyncWithCallback:(void (^)(void))callback;
 {
     atomic_fetch_and(&_abortDecode, 0);
 
@@ -89,6 +89,7 @@ const size_t kMaxFramesPerBuffer = 16384;
     dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0), ^{
         NSLog(@"async sample decode...");
         [self decode];
+        callback();
     });
 }
 
@@ -235,7 +236,7 @@ const size_t kMaxFramesPerBuffer = 16384;
     float* data[_channels];
     memcpy(data, outputs, _channels * sizeof(float*));
 
-    __block float **output = data;
+    __block float** output = data;
     return [self rawSampleFromFrameOffset:offset frames:frames copy:^(unsigned long long count, size_t pageOffset, size_t channels, NSArray* buffers){
         for (int channel = 0; channel < channels; channel++) {
             NSData* buffer = buffers[channel];
@@ -310,6 +311,12 @@ const size_t kMaxFramesPerBuffer = 16384;
     assert(_rate != 0.0);
     assert(_source.length != 0);
     return _source.length / _rate;
+}
+
+- (NSTimeInterval)timeForFrame:(unsigned long long)frame
+{
+    assert(_rate != 0.0);
+    return frame / _rate;
 }
 
 - (NSString *)description

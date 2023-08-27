@@ -70,7 +70,7 @@ COMPLEX_SPLIT* allocComplexSplit(size_t strideLength)
 
 void performDFT(vDSP_DFT_Setup dct, float* data, size_t numberOfFrames, float* frequencyData)
 {
-//    vDSP_DCT_Execute(dct, data, frequencyData);
+    vDSP_DCT_Execute(dct, data, frequencyData);
 }
 
 void performFFT(FFTSetup fft, float* data, size_t numberOfFrames, float* frequencyData)
@@ -108,6 +108,8 @@ void logscaleFFT(float* map, float* frequencyData)
     float counters[kScaledFrequencyDataLength+1] = { 0.0f };
     float buffer[kScaledFrequencyDataLength+1] = { 0.0f };
     
+    // FIXME: This doesnt seem to result in a homogenous distribution!
+    //
     // Distribute velocity in two neighbouring buckets. The right gets the
     // fragment beyond the left position. The one on the left gets 1 - right
     // fragment.
@@ -242,7 +244,7 @@ float* makeFilterBank(NSRange frequencyRange, int sampleCount, int filterBankCou
 ///     (2 * 0.5 + 3 * 0.5) = 2.5,
 ///     (3 * 0.5 + 4 * 0.5) = 3.5 ]
 /// ```
-void performMel(FFTSetup fft, float* values, int sampleCount, float* melData)
+void performMel(vDSP_DFT_Setup dct, float* values, int sampleCount, float* melData)
 {
     const int signalCount = 1;
     const int sgemmResultCount = signalCount * kFilterBankCount;
@@ -265,7 +267,7 @@ void performMel(FFTSetup fft, float* values, int sampleCount, float* melData)
         frequencyData = malloc(sampleCount * sizeof(float));
     }
 
-    performDFT(fft, values, sampleCount, frequencyData);
+    performDFT(dct, values, sampleCount, frequencyData);
     
     vDSP_vabs(frequencyData, 1, frequencyData, 1, sampleCount);
     

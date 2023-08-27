@@ -203,6 +203,7 @@ const CGFloat kTotalWaveViewTileWidth = 8.0f;
     }
     for (NSView* v in [sv reverseObjectEnumerator]) {
         [self addSubview:v];
+        [v.layer setNeedsDisplay];
     }
 }
 
@@ -210,7 +211,7 @@ const CGFloat kTotalWaveViewTileWidth = 8.0f;
 {
     view.layer = [view makeBackingLayer];
     view.layerContentsRedrawPolicy = NSViewLayerContentsRedrawOnSetNeedsDisplay;
-    [view.layer setValue:[NSNumber numberWithBool:YES] forKey:@"isTotalView"];
+    //[view.layer setValue:[NSNumber numberWithBool:YES] forKey:@"isTotalView"];
 
     [super addSubview:view];
     

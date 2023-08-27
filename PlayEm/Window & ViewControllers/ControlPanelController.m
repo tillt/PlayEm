@@ -48,6 +48,9 @@
     const CGFloat timeLabelHeight = 16.0;
     const CGFloat coverButtonX = 5.0;
     
+    const CGFloat bpmLabelWidth = 100.0f;
+    const CGFloat bpmLabelHeight = 16.0f;
+
     const CGFloat sliderWidth = 100.0;
     const CGFloat sliderHeight = 20.0;
     const CGFloat levelHeight = 17.0;
@@ -62,7 +65,7 @@
     const CGFloat loopButtonY = playPauseButtonY + floor((largeSymbolFontSize -
                                                           regularSymbolFontSize) / 2.0);
 
-    NSVisualEffectView* fxView = [[NSVisualEffectView alloc] initWithFrame:NSMakeRect(0.0, 0.0, 682.0, controlPanelHeight)];
+    NSVisualEffectView* fxView = [[NSVisualEffectView alloc] initWithFrame:NSMakeRect(0.0, 0.0, 782.0, controlPanelHeight)];
     fxView.material = NSVisualEffectMaterialSheet;
     self.view = fxView;
     self.view.autoresizingMask = NSViewWidthSizable | NSViewHeightSizable;
@@ -176,7 +179,7 @@
                              timeLabelWidth,
                              timeLabelHeight);
     [self.view addSubview:_time];
-    
+   
     NSTextField* textField = [NSTextField textFieldWithString:@"-"];
     textField.bordered = NO;
     textField.textColor = [NSColor secondaryLabelColor];
@@ -261,6 +264,19 @@
     cell.minValue = 0.0;
     _level.cell = cell;
     [self.view addSubview:_level];
+    
+    _bpm = [NSTextField textFieldWithString:@"--- BPM"];
+    _bpm.bordered = NO;
+    _bpm.editable = NO;
+    _bpm.selectable = NO;
+    _bpm.drawsBackground = NO;
+    _bpm.textColor = [NSColor secondaryLabelColor];
+    _bpm.alignment = NSTextAlignmentRight;
+    _bpm.frame = NSMakeRect(_level.frame.origin.x + _level.frame.size.width,
+                            _playPause.frame.origin.y + bpmLabelHeight + 8.0,
+                            bpmLabelWidth,
+                            bpmLabelHeight);
+    [self.view addSubview:_bpm];
     
     layer = [CALayer new];
     layer.backgroundFilters = @[ intenseBloomFilter ];

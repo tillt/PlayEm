@@ -23,10 +23,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 @class MediaMetaData;
 @class VisualSample;
+@class BeatTrackedSample;
 @class TotalWaveView;
 @class ScrollingTextView;
 @class InfoPanelController;
 @class IdentifyController;
+@class WaveView;
 
 @interface WaveWindowController : NSWindowController <NSWindowDelegate,
                                                       NSToolbarDelegate,
@@ -37,14 +39,13 @@ NS_ASSUME_NONNULL_BEGIN
                                                       ScopeRendererDelegate,
                                                       ControlPanelControllerDelegate,
                                                       NSSplitViewDelegate,
-                                                      CALayerDelegate,
                                                       NSMenuDelegate>
   
 @property (nonatomic, strong) AudioController* audioController;
 
 @property (strong, nonatomic) VisualSample* totalVisual;
 @property (strong, nonatomic) VisualSample* visualSample;
-
+@property (strong, nonatomic) BeatTrackedSample* beatSample;
 
 @property (strong, nonatomic) BrowserController* browser;
 
@@ -76,7 +77,6 @@ NS_ASSUME_NONNULL_BEGIN
 @property (strong, nonatomic) IdentifyController* iffy;
 
 @property (strong, nonatomic) NSSplitViewController* splitViewController;
-
 
 - (id)init;
 - (void)setCurrentFrame:(unsigned long long)frame;

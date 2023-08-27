@@ -16,9 +16,8 @@
     // FIXME: losing the error from the previous window
 }
 
-@property (assign, nonatomic) double framesPerPixel;
 @property (assign, nonatomic) size_t tileWidth;
-
+@property (assign, nonatomic) double framesPerPixel;
 @property (strong, nonatomic) NSMutableDictionary* operations;
 @property (strong, nonatomic) NSMutableArray<NSMutableData*>* sampleBuffers;
 
@@ -107,6 +106,11 @@
     }
     //queue.operations
     return operation.data;
+}
+
+- (double)framesPerPixel
+{
+    return _framesPerPixel;
 }
 
 - (void)garbageCollectOperationsOutsideOfWindow:(size_t)window width:(size_t)width

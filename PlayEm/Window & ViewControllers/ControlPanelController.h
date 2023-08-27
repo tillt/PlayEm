@@ -25,6 +25,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (strong, nonatomic) NSButton* playPause;
 @property (strong, nonatomic) NSTextField* duration;
 @property (strong, nonatomic) NSTextField* time;
+@property (strong, nonatomic) NSTextField* bpm;
 @property (strong, nonatomic) ScrollingTextView* titleView;
 @property (strong, nonatomic) ScrollingTextView* albumArtistView;
 @property (strong, nonatomic) NSButton* coverButton;

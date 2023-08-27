@@ -169,7 +169,10 @@ static const double kLevelDecreaseValue = 0.042;
     
     NSMutableArray<NSData*>* _sourceChannelData;
     float** _source;
+    
     FFTSetup _fftSetup;
+    vDSP_DFT_Setup _dctSetup;
+    
     float* _logMap;
 }
 
@@ -223,6 +226,7 @@ static NSSize _originalSize __attribute__((unused)) = {0.0,0.0};
 
         _fftWindow = [[NSMutableData alloc] initWithCapacity:sizeof(float) * kWindowSamples];
         _fftSetup = initFFT();
+        _dctSetup = initDCT();
         _logMap = initLogMap();
         
         _delegate = delegate;
@@ -743,11 +747,10 @@ float rgb_from_srgb(float c)
             uint32_t frequencyBufferOffset = (uint32_t)_alignedUFrequenciesSize * bufferIndex;
             void* frequencyBufferAddress = ((uint8_t *)_frequencyUniformBuffer.contents) + frequencyBufferOffset;
 
-//
-//            performFFT(_fftSetup, window, kWindowSamples, frequencyBufferAddress);
-//            logscaleFFT(_logMap, frequencyBufferAddress);
+            performFFT(_fftSetup, window, kWindowSamples, frequencyBufferAddress);
+            logscaleFFT(_logMap, frequencyBufferAddress);
             
-            performMel(_fftSetup, window, kWindowSamples / 16, frequencyBufferAddress);
+//            performMel(_dctSetup, window, kWindowSamples / 16, frequencyBufferAddress);
         }
     });
 

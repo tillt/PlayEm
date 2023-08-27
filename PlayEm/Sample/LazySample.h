@@ -31,10 +31,12 @@ NS_ASSUME_NONNULL_BEGIN
 - (unsigned long long)rawSampleFromFrameOffset:(unsigned long long)offset frames:(unsigned long long)frames outputs:(float * const _Nonnull * _Nullable)outputs;
 - (unsigned long long)rawSampleFromFrameOffset:(unsigned long long)offset frames:(unsigned long long)frames data:(float *)data;
 
-- (void)decodeAsync;
+- (void)decodeAsyncWithCallback:(void (^)(void))callback;
 - (void)abortDecode;
 
 - (void)dumpToFile;
+
+- (NSTimeInterval)timeForFrame:(unsigned long long)frame;
 
 
 //TODO: NSEnumerator Support

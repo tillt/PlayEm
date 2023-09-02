@@ -24,21 +24,34 @@ typedef struct {
     float confidence;
 } BeatEvent;
 
+typedef struct {
+    size_t pageIndex;
+    size_t eventIndex;
+    BeatEvent* currentEvent;
+} BeatEventIterator;
+
+typedef struct _BeatsParserContext BeatsParserContext;
+
 @class LazySample;
 
 @interface BeatTrackedSample : NSObject
 
 @property (assign, nonatomic) double framesPerPixel;
 @property (strong, nonatomic) LazySample* sample;
-@property (strong, nonatomic) NSMutableData* beats;
+@property (strong, nonatomic) NSMutableDictionary* beats;
+@property (readonly, nonatomic) BOOL isReady;
 
 - (id)initWithSample:(LazySample*)sample framesPerPixel:(double)framesPerPixel;
+//- (float)tempoForOrigin:(size_t)origin;
 - (NSData* _Nullable)beatsFromOrigin:(size_t)origin;
-- (void)prepareBeatsFromOrigin:(size_t)origin callback:(void (^)(void))callback;
 
-- (float)tempoForOrigin:(size_t)origin;
+- (void)trackBeatsAsyncWithCallback:(nonnull void (^)(void))callback;
+- (float)tempo;
 
-- (void)trackBeatsAsync:(size_t)totalWidth callback:(nonnull void (^)(void))callback;
+- (unsigned long long)firstBarAtFrame:(nonnull BeatEventIterator*)iterator;
+- (unsigned long long)nextBarAtFrame:(nonnull BeatEventIterator*)iterator;
+- (float)currentTempo:(nonnull BeatEventIterator*)iterator;
+
 
 @end
 

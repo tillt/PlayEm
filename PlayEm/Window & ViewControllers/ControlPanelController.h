@@ -26,6 +26,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (strong, nonatomic) NSTextField* duration;
 @property (strong, nonatomic) NSTextField* time;
 @property (strong, nonatomic) NSTextField* bpm;
+@property (strong, nonatomic) NSTextField* beatIndicator;
 @property (strong, nonatomic) ScrollingTextView* titleView;
 @property (strong, nonatomic) ScrollingTextView* albumArtistView;
 @property (strong, nonatomic) NSButton* coverButton;
@@ -33,6 +34,8 @@ NS_ASSUME_NONNULL_BEGIN
 @property (strong, nonatomic) NSButton* shuffle;
 @property (strong, nonatomic) NSSlider* volumeSlider;
 @property (strong, nonatomic) NSLevelIndicator* level;
+@property (strong, nonatomic) CIFilter* zoomBlur;
+
 
 - (void)loadView;
 //- (void)tick;

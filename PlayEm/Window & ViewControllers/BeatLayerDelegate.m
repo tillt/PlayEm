@@ -35,7 +35,7 @@
     CGContextSetShouldAntialias(context, YES);
 
     CGContextSetLineCap(context, kCGLineCapRound);
-    unsigned long int start = layer.superlayer.frame.origin.x;
+    CGFloat start = layer.superlayer.frame.origin.x > 0 ? layer.superlayer.frame.origin.x : 0.0f;
 
     NSData* buffer = [_beatSample beatsFromOrigin:start];
     
@@ -49,12 +49,12 @@
         CGContextSetLineWidth(context, 2.5);
         
         //NSColor* beatColor = [[[Defaults sharedDefaults] regularBeamColor] colorWithAlphaComponent:0.4];
-        NSColor* beatColor = [[NSColor colorWithRed:1.00f green:0.540f blue:0.60f alpha:1.0f] colorWithAlphaComponent:0.4];
-        
-        CGContextSetStrokeColorWithColor(context, beatColor.CGColor);
         
         for (unsigned int beatIndex = 0; beatIndex < maxBeatCount; beatIndex++) {
             const CGFloat x = (events[beatIndex].frame / framesPerPixel) - start;
+            NSColor* beatColor = [[NSColor colorWithRed:1.00f green:0.540f blue:0.60f alpha:1.0f] colorWithAlphaComponent:0.4 * events[beatIndex].confidence];
+            assert(x <= 256.0);
+            CGContextSetStrokeColorWithColor(context, beatColor.CGColor);
             CGContextMoveToPoint(context, x, 0.0f);
             CGContextAddLineToPoint(context, x, layer.frame.size.height);
             CGContextStrokePath(context);

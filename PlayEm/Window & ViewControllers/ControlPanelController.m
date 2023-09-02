@@ -48,9 +48,12 @@
     const CGFloat timeLabelHeight = 16.0;
     const CGFloat coverButtonX = 5.0;
     
-    const CGFloat bpmLabelWidth = 100.0f;
+    const CGFloat bpmLabelWidth = 60.0f;
     const CGFloat bpmLabelHeight = 16.0f;
-
+    
+    const CGFloat beatIndicatorWidth = 16.0f;
+    const CGFloat beatIndicatorHeight = 16.0f;
+    
     const CGFloat sliderWidth = 100.0;
     const CGFloat sliderHeight = 20.0;
     const CGFloat levelHeight = 17.0;
@@ -85,9 +88,9 @@
     [intenseBloomFilter setValue: [NSNumber numberWithFloat:5.0] forKey: @"inputRadius"];
     [intenseBloomFilter setValue: [NSNumber numberWithFloat:1.5] forKey: @"inputIntensity"];
 
-    CIFilter* zoomBlur = [CIFilter filterWithName:@"CIZoomBlur"];
-    [zoomBlur setDefaults];
-    [zoomBlur setValue: [NSNumber numberWithFloat:0.5] forKey: @"inputAmount"];
+    _zoomBlur = [CIFilter filterWithName:@"CIZoomBlur"];
+    [_zoomBlur setDefaults];
+    [_zoomBlur setValue: [NSNumber numberWithFloat:0.5] forKey: @"inputAmount"];
    
     _coverButton = [NSButton buttonWithImage:[NSImage imageNamed:@"UnknownSong"]
                                       target:_delegate
@@ -100,6 +103,7 @@
                                     2.0,
                                     self.view.frame.size.height - 10.0,
                                     self.view.frame.size.height - 10.0);
+    _coverButton.wantsLayer = YES;
     [self.view addSubview:_coverButton];
 
     _coverButton.wantsLayer = YES;
@@ -107,7 +111,7 @@
     _coverButton.layer.masksToBounds = NO;
    
     CALayer* layer = [CALayer new];
-    layer.compositingFilter = @[ zoomBlur, intenseBloomFilter ];
+    layer.compositingFilter = @[ _zoomBlur, intenseBloomFilter ];
     layer.frame = NSInsetRect(_coverButton.layer.bounds, -10.0, -10.0);
     layer.masksToBounds = NO;
     layer.mask = [CAShapeLayer MaskLayerFromRect:layer.frame];
@@ -265,6 +269,29 @@
     _level.cell = cell;
     [self.view addSubview:_level];
     
+    _beatIndicator = [NSTextField textFieldWithString:@"􀀁"];
+    _beatIndicator.bordered = NO;
+    _beatIndicator.textColor = [[Defaults sharedDefaults] lightFakeBeamColor];;
+    _beatIndicator.drawsBackground = NO;
+    _beatIndicator.editable = NO;
+    _beatIndicator.selectable = NO;
+    _beatIndicator.alignment = NSTextAlignmentCenter;
+    _beatIndicator.font = [NSFont systemFontOfSize:3.0f];
+    _beatIndicator.frame = NSMakeRect(_level.frame.origin.x + _level.frame.size.width + 46.0f,
+                            _playPause.frame.origin.y + bpmLabelHeight + 1.0,
+                            beatIndicatorWidth,
+                            beatIndicatorHeight);
+    _beatIndicator.alphaValue = 0.0;
+    _beatIndicator.wantsLayer = YES;
+    [self.view addSubview:_beatIndicator];
+
+    layer = [CALayer new];
+    layer.backgroundFilters = @[ intenseBloomFilter ];
+    layer.frame = NSInsetRect(_beatIndicator.bounds, -8, -8);
+    layer.masksToBounds = NO;
+    layer.mask = [CAShapeLayer MaskLayerFromRect:layer.bounds];
+    [_beatIndicator.layer addSublayer:layer];
+
     _bpm = [NSTextField textFieldWithString:@"--- BPM"];
     _bpm.bordered = NO;
     _bpm.editable = NO;
@@ -272,7 +299,7 @@
     _bpm.drawsBackground = NO;
     _bpm.textColor = [NSColor secondaryLabelColor];
     _bpm.alignment = NSTextAlignmentRight;
-    _bpm.frame = NSMakeRect(_level.frame.origin.x + _level.frame.size.width,
+    _bpm.frame = NSMakeRect(_beatIndicator.frame.origin.x + _beatIndicator.frame.size.width,
                             _playPause.frame.origin.y + bpmLabelHeight + 8.0,
                             bpmLabelWidth,
                             bpmLabelHeight);

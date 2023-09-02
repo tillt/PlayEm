@@ -208,7 +208,7 @@
                     break;
                 }
                 
-                if (frameIndex > displayFrameCount) {
+                if (frameIndex >= displayFrameCount) {
                    break;
                 }
                    

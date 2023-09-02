@@ -33,13 +33,19 @@
 #import "WaveLayerDelegate.h"
 
 static const float kShowHidePanelAnimationDuration = 0.3f;
-static const float kPixelPerSecond = 100.0f;
+static const float kPixelPerSecond = 120.0f;
+static const NSTimeInterval kBeatEffectRampUp = 0.05f;
+static const NSTimeInterval kBeatEffectRampDown = 0.5f;
 
 @interface WaveWindowController ()
 {
     CGFloat splitPosition[2];
     CGFloat splitPositionMemory[2];
     CGFloat splitSelectorPositionMemory[5];
+    
+    BeatEventIterator _beatEffectIteratorContext;
+    unsigned long long _beatEffectAtFrame;
+    unsigned long long _beatEffectRampUpFrames;
 }
 
 @property (assign, nonatomic) CGFloat windowBarHeight;
@@ -136,6 +142,55 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
     } else {
         _songsCount.stringValue = [NSString stringWithFormat:@"%ld songs", songs];
     }
+}
+
+- (void)beatEffectStart
+{
+    //_beatEffectRampUpFrames = kBeatEffectRampUp * _sample.rate;
+    _beatEffectRampUpFrames = 0;
+    _beatEffectAtFrame = [_beatSample firstBarAtFrame:&_beatEffectIteratorContext];
+}
+
+- (BOOL)beatEffectNext
+{
+    _beatEffectAtFrame = [_beatSample nextBarAtFrame:&_beatEffectIteratorContext];
+    return _beatEffectAtFrame > 0;
+}
+
+- (void)beatEffectRun
+{
+    [self setBPM:[_beatSample currentTempo:&_beatEffectIteratorContext]];
+    CGFloat offset = 6;
+
+    [NSAnimationContext runAnimationGroup:^(NSAnimationContext *context) {
+        [context setDuration:0.1];
+        _controlPanelController.beatIndicator.animator.alphaValue = 1.0;
+        //_controlPanelController.beatIndicator.animator.alphaValue = 1.0;
+        CATransform3D tr = CATransform3DIdentity;
+        tr = CATransform3DTranslate(tr, _controlPanelController.beatIndicator.layer.bounds.size.width/2, offset+(_controlPanelController.beatIndicator.layer.bounds.size.height/2), 0);
+        tr = CATransform3DScale(tr, 2.5, 2.5, 1);
+        tr = CATransform3DTranslate(tr, -_controlPanelController.beatIndicator.layer.bounds.size.width/2, -(offset+(_controlPanelController.beatIndicator.layer.bounds.size.height/2)), 0);
+        _controlPanelController.beatIndicator.animator.layer.transform = tr;
+        //[_controlPanelController.animator.zoomBlur setValue:[NSNumber numberWithFloat:0.1] forKey: @"inputAmount"];
+
+    } completionHandler:^{
+        [NSAnimationContext runAnimationGroup:^(NSAnimationContext *innerContext) {
+            [innerContext setDuration:0.3];
+            _controlPanelController.beatIndicator.animator.alphaValue = 0.0;
+            CATransform3D tr = CATransform3DIdentity;
+            tr = CATransform3DTranslate(tr, _controlPanelController.beatIndicator.layer.bounds.size.width/2, offset+(_controlPanelController.beatIndicator.layer.bounds.size.height/2), 0);
+            tr = CATransform3DScale(tr, 1.0, 1.0, 1);
+            tr = CATransform3DTranslate(tr, -_controlPanelController.beatIndicator.layer.bounds.size.width/2, -(offset+(_controlPanelController.beatIndicator.layer.bounds.size.height/2)), 0);
+            _controlPanelController.beatIndicator.animator.layer.transform = tr;
+            //_controlPanelController.coverButton.animator.layer.opacity = 0.0;
+            //[_controlPanelController.animator.zoomBlur setValue:[NSNumber numberWithFloat:0.5] forKey: @"inputAmount"];
+//        } completionHandler:^{
+//            [NSAnimationContext runAnimationGroup:^(NSAnimationContext *innerstContext) {
+//                [innerstContext setDuration:0.3];
+//                    _controlPanelController.beatIndicator.animator.alphaValue = 0.0;
+//            }];
+        }];
+    }];
 }
 
 #pragma mark Toolbar delegate
@@ -618,11 +673,6 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     [self.window.contentView addSubview:_trackLoadProgress];
 }
 
-//- (NSNibName)windowNibName
-//{
-//    return @"WaveWindow";
-//}
-
 - (void)windowDidLoad
 {
     [super windowDidLoad];
@@ -657,20 +707,11 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     _sample = nil;
     
     _inTransition = NO;
-   
-//    _effectBelowInfo.material = NSVisualEffectMaterialMenu;
-//    _effectBelowInfo.blendingMode = NSVisualEffectBlendingModeWithinWindow;
-//    _effectBelowInfo.alphaValue = 0.0f;
 
     _effectBelowPlaylist.material = NSVisualEffectMaterialMenu;
     _effectBelowPlaylist.blendingMode = NSVisualEffectBlendingModeWithinWindow;
     _effectBelowPlaylist.alphaValue = 0.0f;
 
-
-//    _playPause.wantsLayer = YES;
-//    _playPause.layer.cornerRadius = 5;
-//    _playPause.layer.masksToBounds = YES;
-//
     _smallBelowVisualsFrame = _belowVisuals.frame;
 
     _scopeView.device = MTLCreateSystemDefaultDevice();
@@ -731,9 +772,6 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
         self.trackRenderProgress.contentFilters = @[colorFilter];
     }
 
-    //self.trackLoadProgress.controlTint = NSBlueControlTint;
-    //self.trackRenderProgress.controlTint = NSBlueControlTint;
-
     CGRect rect = CGRectMake(0.0, 0.0, self.window.frame.size.width, self.window.frame.size.height);
     CGRect contentRect = [self.window contentRectForFrameRect:rect];
     _windowBarHeight = self.window.frame.size.height - contentRect.size.height;
@@ -741,15 +779,12 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     [self.window registerForDraggedTypes:[NSArray arrayWithObjects: NSPasteboardTypeFileURL, NSPasteboardTypeSound, nil]];
     self.window.delegate = self;
 
-    //self.window.contentViewController = _browser;
-
     _playlist = [[PlaylistController alloc] initWithPlaylistTable:_playlistTable delegate:self];
     
     CGDirectDisplayID   displayID = CGMainDisplayID();
     CVReturn            error = kCVReturnSuccess;
     error = CVDisplayLinkCreateWithCGDisplay(displayID, &_displayLink);
-    if (error)
-    {
+    if (error) {
         NSLog(@"DisplayLink created with error:%d", error);
         _displayLink = NULL;
     } else {
@@ -799,7 +834,6 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     [_totalVisual setPixelPerSecond:_totalView.bounds.size.width / _sample.duration];
     [_totalView resize];
     [_totalView refresh];
-
 }
 
 - (void)windowDidResize:(NSNotification *)notification
@@ -1084,16 +1118,30 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
 
 - (void)setBPM:(float)bpm
 {
-    _controlPanelController.bpm.stringValue = [NSString stringWithFormat:@"%3f.2", bpm];
+    _controlPanelController.bpm.stringValue = [NSString stringWithFormat:@"%3.0f BPM", bpm];
 }
 
 - (void)setCurrentFrame:(unsigned long long)frame
 {
+    if (_waveView.currentFrame == frame) {
+        return;
+    }
     _controlPanelController.duration.stringValue = [self beautifulTimeWithFrame:_sample.frames - frame];
     _controlPanelController.time.stringValue = [self beautifulTimeWithFrame:frame];
-
+    
     _waveView.currentFrame = frame;
     _totalView.currentFrame = frame;
+
+    if (_beatSample.isReady) {
+        if (_beatEffectAtFrame > 0 && frame + _beatEffectRampUpFrames > _beatEffectAtFrame) {
+            [self beatEffectRun];
+            while (frame + _beatEffectRampUpFrames > _beatEffectAtFrame) {
+                if (![self beatEffectNext]) {
+                    return;
+                }
+            };
+        }
+    }
 }
 
 - (IBAction)loadITunesLibrary:(id)sender
@@ -1241,11 +1289,14 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
                                               pixelPerSecond:kPixelPerSecond
                                                    tileWidth:kDirectWaveViewTileWidth];
 
+    self.controlPanelController.bpm.stringValue = @"--- BPM";
+    
     NSLog(@"triggering decoder...");
     [sample decodeAsyncWithCallback:^{
         NSLog(@"triggering beat tracker...");
-        [self.beatSample trackBeatsAsync:self.visualSample.width callback:^{
+        [self.beatSample trackBeatsAsyncWithCallback:^{
             [self.waveView invalidateTiles];
+            [self beatEffectStart];
         }];
     }];
     
@@ -1392,7 +1443,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     if (NSPointInRect(location, _waveView.bounds)) {
         unsigned long long seekTo = (_visualSample.sample.frames * location.x ) / _waveView.frame.size.width;
         NSLog(@"mouse down in wave view %f:%f -- seeking to %lld\n", location.x, location.y, seekTo);
-        _audioController.currentFrame = seekTo;
+        [self progressSeekTo:seekTo];
         if (![_audioController playing]) {
             NSLog(@"not playing, he claims...");
             [_audioController playPause];
@@ -1404,7 +1455,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     if (NSPointInRect(location, _totalView.bounds)) {
         unsigned long long seekTo = (_totalVisual.sample.frames * location.x ) / _totalView.frame.size.width;
         NSLog(@"mouse down in total wave view %f:%f -- seeking to %lld\n", location.x, location.y, seekTo);
-        _audioController.currentFrame = seekTo;
+        [self progressSeekTo:seekTo];
         if (![_audioController playing]) {
             NSLog(@"not playing, he claims...");
             [_audioController playPause];
@@ -1434,7 +1485,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     if (NSPointInRect(location, _waveView.bounds)) {
         unsigned long long seekTo = (_visualSample.sample.frames * location.x ) / _waveView.frame.size.width;
         NSLog(@"mouse down in wave view %f:%f -- seeking to %lld\n", location.x, location.y, seekTo);
-        _audioController.currentFrame = seekTo;
+        [self progressSeekTo:seekTo];
         if (![_audioController playing]) {
             NSLog(@"not playing, he claims...");
             [_audioController playPause];
@@ -1445,7 +1496,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     if (NSPointInRect(location, _totalView.bounds)) {
         unsigned long long seekTo = (_totalVisual.sample.frames * location.x ) / _totalView.frame.size.width;
         NSLog(@"mouse down in total wave view %f:%f -- seeking to %lld\n", location.x, location.y, seekTo);
-        _audioController.currentFrame = seekTo;
+        [self progressSeekTo:seekTo];
         if (![_audioController playing]) {
             NSLog(@"not playing, he claims...");
             [_audioController playPause];
@@ -1600,6 +1651,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
 - (void)progressSeekTo:(unsigned long long)frame
 {
     _audioController.currentFrame = frame;
+    [self beatEffectStart];
 }
 
 #pragma mark -

@@ -758,7 +758,7 @@ static void* LibraryContext = &LibraryContext;
                     string = @"";
                 }
             } else if ([tableColumn.identifier isEqualToString:@"KeyCell"]) {
-                if (_filteredItems[row].> 0) {
+                if (_filteredItems[row] > 0) {
                     string = [NSString stringWithFormat:@"%d", (unsigned int)_filteredItems[row].beatsPerMinute];
                 } else {
                     string = @"";

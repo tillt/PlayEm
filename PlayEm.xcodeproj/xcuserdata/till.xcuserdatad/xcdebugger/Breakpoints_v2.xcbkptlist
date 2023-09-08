@@ -189,8 +189,8 @@
             filePath = "PlayEm/Window &amp; ViewControllers/WaveWindowController.m"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1140"
-            endingLineNumber = "1140"
+            startingLineNumber = "1141"
+            endingLineNumber = "1141"
             landmarkName = "-setCurrentFrame:"
             landmarkType = "7">
          </BreakpointContent>
@@ -205,8 +205,8 @@
             filePath = "PlayEm/Window &amp; ViewControllers/WaveWindowController.m"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1141"
-            endingLineNumber = "1141"
+            startingLineNumber = "1142"
+            endingLineNumber = "1142"
             landmarkName = "-setCurrentFrame:"
             landmarkType = "7">
          </BreakpointContent>
@@ -221,8 +221,8 @@
             filePath = "PlayEm/Window &amp; ViewControllers/WaveWindowController.m"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "967"
-            endingLineNumber = "967"
+            startingLineNumber = "968"
+            endingLineNumber = "968"
             landmarkName = "-putScopeViewWithFrame:onView:"
             landmarkType = "7">
          </BreakpointContent>

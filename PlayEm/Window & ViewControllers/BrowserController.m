@@ -270,9 +270,14 @@ static void* LibraryContext = &LibraryContext;
 }
  */
 
-- (NSArray*)filterMediaItems:(NSArray*)items genre:(NSString*)genre artist:(NSString*)artist album:(NSString*)album tempo:(NSString*)tempo
+- (NSArray*)filterMediaItems:(NSArray*)items
+                       genre:(NSString*)genre
+                      artist:(NSString*)artist
+                       album:(NSString*)album
+                       tempo:(NSString*)tempo
+                         key:(NSString*)key
 {
-    NSLog(@"filtered based on genre:%@ artist:%@ album:%@ tempo:%@", genre, artist, album, tempo);
+    NSLog(@"filtered based on genre:%@ artist:%@ album:%@ tempo:%@ key:%@", genre, artist, album, tempo, key);
     NSMutableArray* filtered = [NSMutableArray array];
 
     for (ITLibMediaItem *d in items) {
@@ -397,13 +402,15 @@ static void* LibraryContext = &LibraryContext;
             NSString* artist = nil;
             NSString* album = nil;
             NSString* tempo = nil;
+            NSString* key = nil;
 
             dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
                 weakSelf.filteredItems = [self filterMediaItems:weakSelf.library.allMediaItems
                                                           genre:genre
                                                          artist:artist
                                                           album:album
-                                                          tempo:tempo];
+                                                          tempo:tempo
+                                                            key:key];
 
                 [weakSelf columnsFromMediaItems:weakSelf.filteredItems
                                      genres:nil
@@ -448,13 +455,15 @@ static void* LibraryContext = &LibraryContext;
             NSString* artist = row > 0 ? _artists[row] : nil;
             NSString* album = nil;
             NSString* tempo = nil;
+            NSString* key = nil;
 
             dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
                 weakSelf.filteredItems = [weakSelf filterMediaItems:weakSelf.library.allMediaItems
                                                   genre:genre
                                                  artist:artist
                                                   album:album
-                                                  tempo:tempo];
+                                                  tempo:tempo
+                                                    key:nil];
                 [weakSelf columnsFromMediaItems:weakSelf.filteredItems
                                      genres:nil
                                     artists:nil
@@ -483,12 +492,15 @@ static void* LibraryContext = &LibraryContext;
             NSString* artist = _artistsTable.selectedRow > 0 ? _artists[_artistsTable.selectedRow] : nil;
             NSString* album = row > 0 ? _albums[row] : nil;
             NSString* tempo = nil;
+            NSString* key = nil;
+
             dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
                 weakSelf.filteredItems = [weakSelf filterMediaItems:weakSelf.library.allMediaItems
                                                               genre:genre
                                                              artist:artist
                                                               album:album
-                                                              tempo:tempo];
+                                                              tempo:tempo
+                                                                key:key];
 
                 dispatch_async(dispatch_get_main_queue(), ^{
                     [weakSelf.songsTable beginUpdates];
@@ -503,12 +515,36 @@ static void* LibraryContext = &LibraryContext;
             NSString* artist = _artistsTable.selectedRow > 0 ? _artists[_artistsTable.selectedRow] : nil;
             NSString* album = _albumsTable.selectedRow > 0 ? _albums[_albumsTable.selectedRow] : nil;
             NSString* tempo = row > 0 ? _tempos[row] : nil;
+            NSString* key = nil;
             dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
                 weakSelf.filteredItems = [weakSelf filterMediaItems:weakSelf.library.allMediaItems
                                                               genre:genre
                                                              artist:artist
                                                               album:album
-                                                              tempo:tempo];
+                                                              tempo:tempo
+                                                                key:key];
+
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [weakSelf.songsTable beginUpdates];
+                    [weakSelf.songsTable reloadData];
+                    [weakSelf.songsTable endUpdates];
+                });
+            });
+            return;
+        }
+        case VIEWTAG_KEY: {
+            NSString* genre = _genresTable.selectedRow > 0 ? _genres[_genresTable.selectedRow] : nil;
+            NSString* artist = _artistsTable.selectedRow > 0 ? _artists[_artistsTable.selectedRow] : nil;
+            NSString* album = _albumsTable.selectedRow > 0 ? _albums[_albumsTable.selectedRow] : nil;
+            NSString* tempo = _temposTable.selectedRow > 0 ? _tempos[row] : nil;
+            NSString* key = row > 0 ? _keys[row] : nil;
+            dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
+                weakSelf.filteredItems = [weakSelf filterMediaItems:weakSelf.library.allMediaItems
+                                                              genre:genre
+                                                             artist:artist
+                                                              album:album
+                                                              tempo:tempo
+                                                                key:key];
 
                 dispatch_async(dispatch_get_main_queue(), ^{
                     [weakSelf.songsTable beginUpdates];
@@ -717,6 +753,12 @@ static void* LibraryContext = &LibraryContext;
                 string = [self formattedDuration:_filteredItems[row].totalTime];
             } else if ([tableColumn.identifier isEqualToString:@"TempoCell"]) {
                 if (_filteredItems[row].beatsPerMinute > 0) {
+                    string = [NSString stringWithFormat:@"%d", (unsigned int)_filteredItems[row].beatsPerMinute];
+                } else {
+                    string = @"";
+                }
+            } else if ([tableColumn.identifier isEqualToString:@"KeyCell"]) {
+                if (_filteredItems[row].> 0) {
                     string = [NSString stringWithFormat:@"%d", (unsigned int)_filteredItems[row].beatsPerMinute];
                 } else {
                     string = @"";

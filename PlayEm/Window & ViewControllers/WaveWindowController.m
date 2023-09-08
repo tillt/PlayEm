@@ -313,12 +313,13 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     
     const CGFloat trackColumnWidth = 54.0;
     const CGFloat titleColumnWidth = 200.0f;
-    const CGFloat timeColumnWidth = 100.0f;
+    const CGFloat timeColumnWidth = 80.0f;
     const CGFloat artistColumnWidth = 200.0f;
     const CGFloat albumColumnWidth = 200.0f;
-    const CGFloat genreColumnWidth = 150.0f;
-    const CGFloat addedColumnWidth = 150.0f;
+    const CGFloat genreColumnWidth = 130.0f;
+    const CGFloat addedColumnWidth = 80.0f;
     const CGFloat tempoColumnWidth = 80.0f;
+    const CGFloat keyColumnWidth = 60.0f;
 
     const CGFloat progressIndicatorWidth = 32.0;
     const CGFloat progressIndicatorHeight = 32.0;
@@ -525,7 +526,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     _albumsTable.tag = VIEWTAG_ALBUMS;
     _albumsTable.backgroundColor = [NSColor clearColor];
     col = [[NSTableColumn alloc] init];
-    col.title = @"Albums";
+    col.title = @"Album";
     col.width = selectorTableViewWidth - selectorColumnInset;
     [_albumsTable addTableColumn:col];
     sv.documentView = _albumsTable;
@@ -635,11 +636,11 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     col.sortDescriptorPrototype = [[NSSortDescriptor alloc] initWithKey:@"beatsPerMinute" ascending:YES selector:@selector(compare:)];
     [_songsTable addTableColumn:col];
 
-//    col = [[NSTableColumn alloc] initWithIdentifier:@"KeyCell"];
-//    col.title = @"Key";
-//    col.width = addedColumnWidth - selectorColumnInset;
-//    col.sortDescriptorPrototype = [[NSSortDescriptor alloc] initWithKey:@"beatsPerMinute" ascending:YES selector:@selector(compare:)];
-//    [_songsTable addTableColumn:col];
+    col = [[NSTableColumn alloc] initWithIdentifier:@"KeyCell"];
+    col.title = @"Key";
+    col.width = keyColumnWidth - selectorColumnInset;
+    col.sortDescriptorPrototype = [[NSSortDescriptor alloc] initWithKey:@"beatsPerMinute" ascending:YES selector:@selector(compare:)];
+    [_songsTable addTableColumn:col];
 
     sv.documentView = _songsTable;
     [_split addArrangedSubview:sv];

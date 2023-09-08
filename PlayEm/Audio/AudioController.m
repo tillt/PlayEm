@@ -18,8 +18,7 @@
 const unsigned int kPlaybackBufferFrames = 4096;
 const unsigned int kPlaybackBufferCount = 2;
 static const float kPollInterval = 0.3f;
-static const float kEnoughSecondsDecoded = 3.0f;
-
+static const float kEnoughSecondsDecoded = 5.0f;
 
 typedef struct {
     int                         bufferIndex;
@@ -31,7 +30,6 @@ typedef struct {
     BOOL                        endOfStream;
     TapBlock                    tapBlock;
 } AudioContext;
-
 
 @interface AudioController ()
 {
@@ -50,15 +48,35 @@ typedef struct {
 
 AVAudioFramePosition currentFrame(AudioQueueRef queue, AudioContext* context)
 {
+    // Now that we have a timeline included, are we going to see time adjusted
+    // towards the playback delay introduced by the interface? That is something
+    // we should be able to do. Needs a slow bluetooth device for testing.
+    
+    AudioQueueTimelineRef timeLine;
+    OSStatus res = AudioQueueCreateTimeline(queue, &timeLine);
+    
+    if (res != noErr) {
+        return 0;
+    }
+    
     AudioTimeStamp timeStamp;
-    OSStatus res = AudioQueueGetCurrentTime(queue,
-                                            NULL,
-                                            &timeStamp,
-                                            NULL);
+    Boolean discontinued;
+    
+    res = AudioQueueGetCurrentTime(queue,
+                                   timeLine,
+                                   &timeStamp,
+                                   &discontinued);
+
+    AudioQueueDisposeTimeline(queue, timeLine);
+
     if (res) {
         return 0;
     }
     if (timeStamp.mSampleTime < 0) {
+        return 0;
+    }
+    if (discontinued) {
+        NSLog(@"discontinued queue -- needs reinitializing");
         return 0;
     }
     
@@ -212,6 +230,7 @@ void bufferCallback(void* user_data, AudioQueueRef queue, AudioQueueBufferRef bu
 
     NSLog(@"waiting for more decoded audio data...");
 
+    // TODO: We should use something more appropriate here, preventing polling.
     _timer = [NSTimer scheduledTimerWithTimeInterval:kPollInterval repeats:YES block:^(NSTimer* timer){
         if (_context.sample.decodedFrames >= _context.sample.rate * kEnoughSecondsDecoded) {
             NSLog(@"waiting done, starting playback.");
@@ -300,7 +319,6 @@ void bufferCallback(void* user_data, AudioQueueRef queue, AudioQueueBufferRef bu
         }
     }
     AudioQueueRemovePropertyListener(_queue, kAudioQueueProperty_IsRunning, propertyCallback, &_context);
-
     AudioQueueDispose(_queue, true);
     _queue = NULL;
 }
@@ -325,7 +343,7 @@ void bufferCallback(void* user_data, AudioQueueRef queue, AudioQueueBufferRef bu
     _context.nextFrame = 0;
     _context.seekFrame = 0;
 
-    // Create an audio queue with fp32 samples.
+    // Create an audio queue with 32bit floating point samples.
     AudioStreamBasicDescription fmt;
     memset(&fmt, 0, sizeof(fmt));
     fmt.mSampleRate = (Float64)sample.rate;

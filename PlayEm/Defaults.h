@@ -21,6 +21,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (strong, nonatomic) NSColor* fftColor;
 @property (strong, nonatomic) NSColor* backColor;
 @property (strong, nonatomic) NSColor* selectionBorderColor;
+@property (strong, nonatomic) NSColor* beatColor;
 
 + (id)sharedDefaults;
 

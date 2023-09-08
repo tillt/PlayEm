@@ -13,7 +13,7 @@
 #import "Defaults.h"
 #import "CAShapeLayer+Path.h"
 
-const size_t kTotalWaveViewTileWidth = 8;
+const CGFloat kTotalWaveViewTileWidth = 8.0f;
 
 @interface TileView : NSView
 @property (readwrite, nonatomic) NSInteger tag;
@@ -203,6 +203,7 @@ const size_t kTotalWaveViewTileWidth = 8;
     }
     for (NSView* v in [sv reverseObjectEnumerator]) {
         [self addSubview:v];
+        [v.layer setNeedsDisplay];
     }
 }
 
@@ -210,7 +211,7 @@ const size_t kTotalWaveViewTileWidth = 8;
 {
     view.layer = [view makeBackingLayer];
     view.layerContentsRedrawPolicy = NSViewLayerContentsRedrawOnSetNeedsDisplay;
-    [view.layer setValue:[NSNumber numberWithBool:YES] forKey:@"isTotalView"];
+    //[view.layer setValue:[NSNumber numberWithBool:YES] forKey:@"isTotalView"];
 
     [super addSubview:view];
     

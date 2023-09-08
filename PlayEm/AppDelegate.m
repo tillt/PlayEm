@@ -45,11 +45,13 @@
 
 - (void)applicationDidFinishLaunching:(NSNotification*)aNotification
 {
+    NSLog(@"%@", [[NSUserDefaults standardUserDefaults] dictionaryRepresentation]);
     [[[self waveController] window] makeKeyAndOrderFront:self];
 }
 
 - (void)applicationWillTerminate:(NSNotification*)aNotification
 {
+    NSLog(@"%@", [[NSUserDefaults standardUserDefaults] dictionaryRepresentation]);
 }
 
 @end

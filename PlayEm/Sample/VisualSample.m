@@ -16,9 +16,8 @@
     // FIXME: losing the error from the previous window
 }
 
-@property (assign, nonatomic) double framesPerPixel;
 @property (assign, nonatomic) size_t tileWidth;
-
+@property (assign, nonatomic) double framesPerPixel;
 @property (strong, nonatomic) NSMutableDictionary* operations;
 @property (strong, nonatomic) NSMutableArray<NSMutableData*>* sampleBuffers;
 
@@ -109,6 +108,11 @@
     return operation.data;
 }
 
+- (double)framesPerPixel
+{
+    return _framesPerPixel;
+}
+
 - (void)garbageCollectOperationsOutsideOfWindow:(size_t)window width:(size_t)width
 {
     const int prerenderTileDistance = 5;
@@ -179,7 +183,9 @@
         unsigned long long displayFrameCount = MIN(framesNeeded, weakSelf.sample.frames - displaySampleFrameIndexOffset);
 
         // This may block for a loooooong time!
-        [weakSelf.sample rawSampleFromFrameOffset:displaySampleFrameIndexOffset frames:displayFrameCount outputs:data];
+        [weakSelf.sample rawSampleFromFrameOffset:displaySampleFrameIndexOffset
+                                           frames:displayFrameCount
+                                          outputs:data];
 
         //NSLog(@"This block of %lld frames is used to create visuals for %ld pixels", displayFrameCount, width);
         weakOperation.index = pageIndex;
@@ -202,7 +208,7 @@
                     break;
                 }
                 
-                if (frameIndex > displayFrameCount) {
+                if (frameIndex >= displayFrameCount) {
                    break;
                 }
                    
@@ -228,7 +234,7 @@
                 break;
             }
 
-            counter = 0;
+            counter -= weakSelf.framesPerPixel;
             storage->negativeAverage = negativeCount > 0 ? negativeSum / negativeCount : 0.0;
             storage->positiveAverage = positiveSum > 0 ? positiveSum / positiveCount : 0.0;
             

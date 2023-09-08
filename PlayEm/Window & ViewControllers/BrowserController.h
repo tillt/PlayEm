@@ -17,6 +17,8 @@ NS_ASSUME_NONNULL_BEGIN
 #define VIEWTAG_GENRE    42
 #define VIEWTAG_ARTISTS  43
 #define VIEWTAG_ALBUMS   44
+#define VIEWTAG_TEMPO    45
+#define VIEWTAG_KEY      46
 #define VIEWTAG_FILTERED 50
 
 @protocol BrowserControllerDelegate <NSObject>
@@ -38,6 +40,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (id)initWithGenresTable:(NSTableView*)genresTable
              artistsTable:(NSTableView*)artistsTable
               albumsTable:(NSTableView*)albumsTable
+              temposTable:(NSTableView*)temposTable
                songsTable:(NSTableView*)songsTable
                  delegate:(id <BrowserControllerDelegate>)delegate;
 

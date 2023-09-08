@@ -24,16 +24,10 @@ const CGFloat kDirectWaveViewTileWidth = 256.0f;
 - (void)updateTiles;
 @end
 
-@interface WaveView ()
-- (void)updateHeadPosition;
-@end
-
-
 @interface WaveTileView : NSView
-@end
 
+- (CALayer*)makeOverheadLayer;
 
-@interface WaveTileView ()
 @end
 
 @implementation TiledScrollView
@@ -63,13 +57,16 @@ const CGFloat kDirectWaveViewTileWidth = 256.0f;
     
     CIFilter* vibranceFilter = [CIFilter filterWithName:@"CIColorControls"];
     [vibranceFilter setDefaults];
-    [vibranceFilter setValue:[NSNumber numberWithFloat:0.1] forKey:@"inputSaturation"];
-    [vibranceFilter setValue:[NSNumber numberWithFloat:0.001] forKey:@"inputBrightness"];
-    
+//    [vibranceFilter setValue:[NSNumber numberWithFloat:0.1] forKey:@"inputSaturation"];
+    [vibranceFilter setValue:[NSNumber numberWithFloat:0.10] forKey:@"inputSaturation"];
+//  [vibranceFilter setValue:[NSNumber numberWithFloat:0.001] forKey:@"inputBrightness"];
+    [vibranceFilter setValue:[NSNumber numberWithFloat:0.0001] forKey:@"inputBrightness"];
+
     CIFilter* darkenFilter = [CIFilter filterWithName:@"CIGammaAdjust"];
     [darkenFilter setDefaults];
+//    [darkenFilter setValue:[NSNumber numberWithFloat:2.5] forKey:@"inputPower"];
     [darkenFilter setValue:[NSNumber numberWithFloat:2.5] forKey:@"inputPower"];
-    
+
     //    CIFilter* postFilter = [CIFilter filterWithName:@"CILineOverlay"];
     //    [postFilter setDefaults];
     //    [postFilter setValue:[NSNumber numberWithFloat:0.1] forKey:@"inputThreshold"];
@@ -92,6 +89,7 @@ const CGFloat kDirectWaveViewTileWidth = 256.0f;
     _aheadVibranceFxLayer = [CALayer layer];
     _aheadVibranceFxLayer.backgroundFilters = @[ darkenFilter, vibranceFilter ];
     _aheadVibranceFxLayer.anchorPoint = CGPointMake(0.0, 0.0);
+    // FIXME: This looks weird - why 4?
     _aheadVibranceFxLayer.frame = CGRectMake(0.0, 0.0, width * 4, height);
     _aheadVibranceFxLayer.masksToBounds = NO;
     _aheadVibranceFxLayer.zPosition = 1.0;
@@ -112,6 +110,7 @@ const CGFloat kDirectWaveViewTileWidth = 256.0f;
     _trailBloomFxLayer = [CALayer layer];
     _trailBloomFxLayer.backgroundFilters = @[ trailBloomFilter ];
     _trailBloomFxLayer.anchorPoint = CGPointMake(1.0, 0.0);
+    // FIXME: This looks weird - why 4?
     _trailBloomFxLayer.frame = CGRectMake(0.0, 0.0, width * 4, height);
     _trailBloomFxLayer.masksToBounds = NO;
     _trailBloomFxLayer.zPosition = 1.9;
@@ -229,269 +228,69 @@ const CGFloat kDirectWaveViewTileWidth = 256.0f;
 
     // Add needed tiles from the to-do list.
     for (NSValue* neededFrame in neededTileFrames) {
+        CALayer* overheadLayer = nil;
         WaveTileView* view = [reusableViews lastObject];
         [reusableViews removeLastObject];
 
         // Create one if we did not find a reusable one.
         if (nil == view) {
             view = [[WaveTileView alloc] initWithFrame:NSZeroRect];
-        }
+            view.layerContentsRedrawPolicy = NSViewLayerContentsRedrawOnSetNeedsDisplay;
+            view.layer = [view makeBackingLayer];
+            view.layer.delegate = ((WaveView*)self.documentView).waveLayerDelegate;
 
-        // Place it and install it.
-        view.frame = [neededFrame rectValue];
-        //view.layer.transform = CATransform3DMakeScale(1.0, 0.1, 1.0);
+            overheadLayer = [view makeOverheadLayer];
+            overheadLayer.delegate = ((WaveView*)self.documentView).beatLayerDelegate;
+
+            [view.layer addSublayer:overheadLayer];
+        } else {
+            assert(view.layer);
+            overheadLayer = view.layer.sublayers[0];
+            assert(overheadLayer);
+        }
 
         [self.documentView addSubview:view];
 
+        // Place it and install it.
+        view.frame = [neededFrame rectValue];
+        view.layer.frame = [neededFrame rectValue];
+        overheadLayer.frame = CGRectMake(0.0, 0.0, view.frame.size.width, view.frame.size.height);
+
+        assert(view.layer);
+        [view.layer setNeedsDisplay];
+
+        assert(overheadLayer);
+        [overheadLayer setNeedsDisplay];
     }
 }
 
 - (void)updatedHeadPosition
 {
     CGFloat head = ((WaveView*)self.documentView).head;
+    _rastaLayer.frame = NSMakeRect(_rastaLayer.frame.origin.x,
+                                   _rastaLayer.frame.origin.y,
+                                   self.documentVisibleRect.size.width,
+                                   _rastaLayer.frame.size.height);
     if (NSPointInRect(NSMakePoint(head, 1.0f), self.documentVisibleRect)) {
-        _aheadVibranceFxLayer.position = CGPointMake(head + 4.0 - self.documentVisibleRect.origin.x, 0.0f);
-        _trailBloomFxLayer.position = CGPointMake((head - 4.0) - self.documentVisibleRect.origin.x, 0.0f);
-        _rastaLayer.frame = NSMakeRect(_rastaLayer.frame.origin.x,
-                                       _rastaLayer.frame.origin.y,
-                                       floor(head - self.documentVisibleRect.origin.x),
-                                       _rastaLayer.frame.size.height);
-        _rastaLayer.position = CGPointMake(head - self.documentVisibleRect.origin.x, 0.0f);
+        _aheadVibranceFxLayer.position = CGPointMake(head + 0.0 - self.documentVisibleRect.origin.x, 0.0f);
+        _trailBloomFxLayer.position = CGPointMake((head + 4.0) - self.documentVisibleRect.origin.x, 0.0f);
+//        _trailBloomFxLayer.position = CGPointMake((head - 4.0) - self.documentVisibleRect.origin.x, 0.0f);
+//        _rastaLayer.position = CGPointMake(head - self.documentVisibleRect.origin.x, 0.0f);
     } else {
         if (head < self.documentVisibleRect.origin.x) {
             _aheadVibranceFxLayer.position = CGPointMake(0.0f, 0.0f);
             _trailBloomFxLayer.position = CGPointMake(0.0f, 0.0f);
-            _rastaLayer.frame = NSMakeRect(_rastaLayer.frame.origin.x,
-                                           _rastaLayer.frame.origin.y,
-                                           self.documentView.frame.size.width,
-                                           _rastaLayer.frame.size.height);
-            _rastaLayer.position = CGPointMake(0, 0);
+//            _rastaLayer.frame = NSMakeRect(_rastaLayer.frame.origin.x,
+//                                           _rastaLayer.frame.origin.y,
+//                                           self.documentView.frame.size.width,
+//                                           _rastaLayer.frame.size.height);
+//            _rastaLayer.position = CGPointMake(0, 0);
         } else {
             _aheadVibranceFxLayer.position = CGPointMake(self.documentVisibleRect.size.width, 0.0f);
             _trailBloomFxLayer.position = CGPointMake(self.documentVisibleRect.size.width, 0.0f);
-            _rastaLayer.frame = NSMakeRect(_rastaLayer.frame.origin.x,
-                                           _rastaLayer.frame.origin.y,
-                                           self.documentView.frame.size.width,
-                                           _rastaLayer.frame.size.height);
-            _rastaLayer.position = CGPointMake(self.documentVisibleRect.size.width, 0.0f);
+//            _rastaLayer.position = CGPointMake(self.documentVisibleRect.size.width, 0.0f);
         }
     }
-}
-
-@end
-
-
-@interface WaveView () // Private
-
-@property (strong, nonatomic) NSArray* trailBloomFxLayers;
-@property (nonatomic, assign) BOOL followTime;
-@property (nonatomic, assign) BOOL userMomentum;
-
-@end
-
-@implementation WaveView
-
-- (void)viewDidMoveToSuperview
-{
-    [super viewDidMoveToSuperview];
-    
-    self.wantsLayer = YES;
-    self.layer = [self makeBackingLayer];
-    self.layer.masksToBounds = NO;
-
-    _headLayer = [CALayer layer];
-    
-    NSImage* image = [NSImage imageNamed:@"CurrentTime"];
-    image.resizingMode = NSImageResizingModeTile;
-    
-    CIFilter* clampFilter = [CIFilter filterWithName:@"CIAffineClamp"];
-    [clampFilter setDefaults];
-
-    //CGFloat scaleFactor = 1.15;
-    CGFloat scaleFactor = 1.05;
-
-    CGAffineTransform transform = CGAffineTransformScale(CGAffineTransformMakeTranslation(0.0, self.enclosingScrollView.bounds.size.height * -(scaleFactor - 1.0) / 2.0), 1.0, scaleFactor);
-    [clampFilter setValue:[NSValue valueWithBytes:&transform objCType:@encode(CGAffineTransform)] forKey:@"inputTransform"];
-
-    CIFilter* clampFilter2 = [CIFilter filterWithName:@"CIAffineClamp"];
-    [clampFilter2 setDefaults];
-
-    CIFilter* bloomFilter = [CIFilter filterWithName:@"CIBloom"];
-    [bloomFilter setDefaults];
-    [bloomFilter setValue: [NSNumber numberWithFloat:7.0] forKey: @"inputRadius"];
-    [bloomFilter setValue: [NSNumber numberWithFloat:1.0] forKey: @"inputIntensity"];
-
-    CIFilter* headFilter = [CIFilter filterWithName:@"CISourceAtopCompositing"];
-    [headFilter setDefaults];
-
-    CGFloat height = self.enclosingScrollView.bounds.size.height;
-    
-    _headLayer.contents = image;
-    _headImageSize = image.size;
-    _headLayer.anchorPoint = CGPointMake(0.5, 0.0);
-    _headLayer.frame = CGRectMake(0.0, 0.0, _headImageSize.width, height);
-    _headLayer.compositingFilter = [CIFilter filterWithName:@"CISourceAtopCompositing"];
-    _headLayer.zPosition = 1.1;
-    _headLayer.name = @"HeadLayer";
-
-    _headBloomFxLayer = [CALayer layer];
-    _headBloomFxLayer.backgroundFilters = @[ clampFilter, bloomFilter ];
-    _headBloomFxLayer.anchorPoint = CGPointMake(0.5, 0.0);
-    _headBloomFxLayer.frame = CGRectMake(0.0, 0.0, 5.0, height);
-    _headBloomFxLayer.masksToBounds = NO;
-    _headBloomFxLayer.zPosition = 1.9;
-    _headBloomFxLayer.name = @"HeadBloomFxLayer";
-    _headBloomFxLayer.mask = [CAShapeLayer MaskLayerFromRect:_headBloomFxLayer.frame];
-
-    [self.layer addSublayer:_headLayer];
-    [self.layer addSublayer:_headBloomFxLayer];
-
-    const unsigned int layerCount = 3;
-    NSMutableArray* layers = [NSMutableArray array];
-    for (int i = 0; i < layerCount; i++) {
-        CIFilter* bloom = [CIFilter filterWithName:@"CIBloom"];
-        [bloom setDefaults];
-        [bloom setValue: [NSNumber numberWithFloat:(float)(2+layerCount-i) * 1.0] forKey: @"inputRadius"];
-        [bloom setValue: [NSNumber numberWithFloat:1.0] forKey: @"inputIntensity"];
-
-        CALayer* layer = [CALayer layer];
-        layer.backgroundFilters = @[ bloom ];
-        layer.anchorPoint = CGPointMake(1.0, 0.0);
-        layer.frame = CGRectMake(0.0, 0.0, floor(_headImageSize.width / (2 * layerCount)), height);
-        layer.masksToBounds = NO;
-        layer.zPosition = 1.99;
-        layer.name = [NSString stringWithFormat:@"TrailBloomFxLayer%d", i+1];
-        layer.mask = [CAShapeLayer MaskLayerFromRect:layer.frame];
-        [layers addObject:layer];
-
-        [self.layer addSublayer:layer];
-    }
-    _trailBloomFxLayers = [layers copy];
-
-    _followTime = YES;
-    _userMomentum = NO;
-}
-
-- (void)dealloc
-{
-}
-
-- (void)rightMouseDown:(NSEvent*)event
-{
-    _followTime = YES;
-    [self updateScrollingState];
-}
-
-- (void)addSubview:(NSView*)view
-{
-    view.layer = [view makeBackingLayer];
-    //view.layerContentsRedrawPolicy = NSViewLayerContentsRedrawOnSetNeedsDisplay;
-
-    [super addSubview:view];
-    
-    view.layer.delegate = self.layerDelegate;
-    [view.layer setNeedsDisplay];
-}
-
-- (CALayer*)makeBackingLayer
-{
-    CALayer* layer = [CALayer layer];
-    return layer;
-}
-
-- (void)setFrames:(unsigned long long)frames
-{
-    if (_frames == frames) {
-        return;
-    }
-    _frames = frames;
-    for (WaveTileView* view in [self subviews]) {
-        view.layer.delegate = self.layerDelegate;
-        [view.layer setNeedsDisplay];
-    }
-    self.currentFrame = 0;
-}
-
-- (void)layout
-{
-    [super layout];
-    [self updateHeadPosition];
-}
-
-- (void)updateHeadPosition
-{
-    if (_frames == 0.0) {
-        return;
-    }
-    
-    _head = ( _currentFrame * self.bounds.size.width) / _frames;
-    [CATransaction begin];
-    [CATransaction setDisableActions:YES];
-
-    _headLayer.position = CGPointMake(_head, 0.0);
-    _headBloomFxLayer.position = CGPointMake(_head, 0.0);
-    
-    CGFloat x = 0;
-    for (CALayer* layer in _trailBloomFxLayers) {
-        layer.position = CGPointMake((_head - 2.0) - x, 0.0);
-        x += layer.frame.size.width;
-    }
-
-    [(TiledScrollView*)self.enclosingScrollView updatedHeadPosition];
-    [CATransaction commit];
-}
-
-- (void)setCurrentFrame:(unsigned long long)frame
-{
-    if (_currentFrame == frame) {
-        return;
-    }
-    if (_frames == 0.0) {
-        return;
-    }
-    _currentFrame = frame;
-    
-    [self updateScrollingState];
-}
-
-- (void)updateScrollingState
-{
-    CGFloat head = (_currentFrame * self.bounds.size.width) / _frames;
-   
-    [CATransaction begin];
-    [CATransaction setDisableActions:YES];
-
-    if (_followTime) {
-        [self scrollRectToVisible:CGRectMake(floor(head - (self.enclosingScrollView.bounds.size.width / 2.0)),
-                                             0.0,
-                                             self.enclosingScrollView.bounds.size.width,
-                                             self.bounds.size.height)];
-    } else {
-        // If the user has just requested some scrolling, do not interfere but wait
-        // as long as that state is up.
-        if (!_userMomentum) {
-            // If the head came back into the middle of the screen, snap back to following
-            // time with the scrollview.
-            const CGFloat delta = 1.0f;
-            CGFloat visibleCenter = self.enclosingScrollView.documentVisibleRect.origin.x + (self.enclosingScrollView.documentVisibleRect.size.width / 2.0f);
-            if (visibleCenter - delta <= head && visibleCenter + delta >= head) {
-                _followTime = YES;
-            }
-        }
-    }
-    [self updateHeadPosition];
-    [CATransaction commit];
-}
-
-- (void)userInitiatedScrolling
-{
-    _userMomentum = YES;
-    _followTime = NO;
-}
-
-- (void)userEndsScrolling
-{
-    _userMomentum = NO;
 }
 
 @end
@@ -499,10 +298,17 @@ const CGFloat kDirectWaveViewTileWidth = 256.0f;
 
 @implementation WaveTileView
 
+- (CALayer*)makeOverheadLayer
+{
+    CALayer* layer = [CALayer layer];
+    layer.masksToBounds = NO;
+    return layer;
+}
 
 - (CALayer*)makeBackingLayer
 {
     CALayer* layer = [CALayer layer];
+    layer.masksToBounds = NO;
     return layer;
 }
 

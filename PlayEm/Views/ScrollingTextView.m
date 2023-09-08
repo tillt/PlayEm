@@ -31,6 +31,7 @@ static const double kScrollSpeed = 1.0 / 24.0;
     self = [super initWithFrame:frameRect];
     if (self) {
         self.wantsLayer = YES;
+        self.clipsToBounds = YES;
         self.layerContentsRedrawPolicy = NSViewLayerContentsRedrawOnSetNeedsDisplay;
         
         _first = [CATextLayer layer];

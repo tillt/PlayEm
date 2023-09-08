@@ -48,7 +48,7 @@
         @"07 disk": @{
             @"width": @40,
         },
-        @"08 bpm": @{
+        @"08 tempo": @{
             @"width": @40,
         },
         @"09 key": @{
@@ -148,8 +148,8 @@
         if (_meta.key) {
             ((NSTextField*)_dictionary[@"key"]).stringValue = _meta.key;
         }
-        if (_meta.bpm) {
-            ((NSTextField*)_dictionary[@"BPM"]).stringValue = _meta.bpm;
+        if (_meta.tempo) {
+            ((NSTextField*)_dictionary[@"tempo"]).stringValue = _meta.tempo;
         }
         if (_meta.track > 0) {
             ((NSTextField*)_dictionary[@"track"]).stringValue = [NSString stringWithFormat:@"%ld", _meta.track];

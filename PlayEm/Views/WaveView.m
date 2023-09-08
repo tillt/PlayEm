@@ -12,8 +12,6 @@
 #import "CAShapeLayer+Path.h"
 #import "NSBezierPath+CGPath.h"
 
-const CGFloat kDirectWaveViewTileWidth = 256.0f;
-
 @interface WaveView ()
 - (void)updateHeadPosition;
 @end

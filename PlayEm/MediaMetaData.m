@@ -91,7 +91,7 @@
     meta.artist = item.artist.name;
     meta.genre = item.genre;
     meta.year = item.year;
-    meta.bpm = [NSString stringWithFormat:@"%ld", item.beatsPerMinute];
+    meta.tempo = [NSString stringWithFormat:@"%ld", item.beatsPerMinute];
     meta.track = item.trackNumber;
     meta.location = item.location;
     if (item.hasArtworkAvailable) {

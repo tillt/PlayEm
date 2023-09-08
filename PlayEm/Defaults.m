@@ -48,6 +48,11 @@
                                     green:(CGFloat)0xAF / 255.0f
                                      blue:(CGFloat)0x4F / 255.0f
                                     alpha:(CGFloat)1.0f];
+        
+        _beatColor = [NSColor colorWithRed:1.00f
+                                     green:0.43f
+                                      blue:0.03f
+                                     alpha:0.08f];
 
         _backColor = [NSColor controlBackgroundColor];
         

@@ -299,7 +299,7 @@
     _bpm.drawsBackground = NO;
     _bpm.textColor = [NSColor secondaryLabelColor];
     _bpm.alignment = NSTextAlignmentRight;
-    _bpm.frame = NSMakeRect(_beatIndicator.frame.origin.x + _beatIndicator.frame.size.width,
+    _bpm.frame = NSMakeRect(_beatIndicator.frame.origin.x + _beatIndicator.frame.size.width - 4.0f,
                             _playPause.frame.origin.y + bpmLabelHeight + 8.0,
                             bpmLabelWidth,
                             bpmLabelHeight);

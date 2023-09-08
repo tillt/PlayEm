@@ -27,7 +27,7 @@ typedef struct {
 typedef struct {
     size_t pageIndex;
     size_t eventIndex;
-    BeatEvent* currentEvent;
+    const BeatEvent* currentEvent;
 } BeatEventIterator;
 
 typedef struct _BeatsParserContext BeatsParserContext;
@@ -42,16 +42,16 @@ typedef struct _BeatsParserContext BeatsParserContext;
 @property (readonly, nonatomic) BOOL isReady;
 
 - (id)initWithSample:(LazySample*)sample framesPerPixel:(double)framesPerPixel;
-//- (float)tempoForOrigin:(size_t)origin;
 - (NSData* _Nullable)beatsFromOrigin:(size_t)origin;
 
 - (void)trackBeatsAsyncWithCallback:(nonnull void (^)(void))callback;
+
 - (float)tempo;
 
 - (unsigned long long)firstBarAtFrame:(nonnull BeatEventIterator*)iterator;
 - (unsigned long long)nextBarAtFrame:(nonnull BeatEventIterator*)iterator;
-- (float)currentTempo:(nonnull BeatEventIterator*)iterator;
 
+- (float)currentTempo:(nonnull BeatEventIterator*)iterator;
 
 @end
 

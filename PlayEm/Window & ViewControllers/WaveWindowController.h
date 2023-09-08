@@ -64,8 +64,8 @@ NS_ASSUME_NONNULL_BEGIN
 @property (strong, nonatomic) IBOutlet NSTableView* genreTable;
 @property (strong, nonatomic) IBOutlet NSTableView* artistsTable;
 @property (strong, nonatomic) IBOutlet NSTableView* albumsTable;
-@property (strong, nonatomic) IBOutlet NSTableView* bpmTable;
-@property (strong, nonatomic) IBOutlet NSTableView* keyTable;
+@property (strong, nonatomic) IBOutlet NSTableView* temposTable;
+@property (strong, nonatomic) IBOutlet NSTableView* keysTable;
 
 @property (strong, nonatomic) IBOutlet NSProgressIndicator* progress;
 @property (strong, nonatomic) IBOutlet NSProgressIndicator* trackLoadProgress;

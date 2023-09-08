@@ -160,35 +160,25 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 - (void)beatEffectRun
 {
     [self setBPM:[_beatSample currentTempo:&_beatEffectIteratorContext]];
-    CGFloat offset = 6;
-
+    CGSize mid = CGSizeMake(_controlPanelController.beatIndicator.layer.bounds.size.width / 2,
+                            _controlPanelController.beatIndicator.layer.bounds.size.height - 2);
     [NSAnimationContext runAnimationGroup:^(NSAnimationContext *context) {
-        [context setDuration:0.1];
+        [context setDuration:0.05];
         _controlPanelController.beatIndicator.animator.alphaValue = 1.0;
-        //_controlPanelController.beatIndicator.animator.alphaValue = 1.0;
         CATransform3D tr = CATransform3DIdentity;
-        tr = CATransform3DTranslate(tr, _controlPanelController.beatIndicator.layer.bounds.size.width/2, offset+(_controlPanelController.beatIndicator.layer.bounds.size.height/2), 0);
-        tr = CATransform3DScale(tr, 2.5, 2.5, 1);
-        tr = CATransform3DTranslate(tr, -_controlPanelController.beatIndicator.layer.bounds.size.width/2, -(offset+(_controlPanelController.beatIndicator.layer.bounds.size.height/2)), 0);
+        tr = CATransform3DTranslate(tr, mid.width, mid.height, 0);
+        tr = CATransform3DScale(tr, 3.0, 3.0, 1);
+        tr = CATransform3DTranslate(tr, -mid.width, -mid.height, 0);
         _controlPanelController.beatIndicator.animator.layer.transform = tr;
-        //[_controlPanelController.animator.zoomBlur setValue:[NSNumber numberWithFloat:0.1] forKey: @"inputAmount"];
-
     } completionHandler:^{
-        [NSAnimationContext runAnimationGroup:^(NSAnimationContext *innerContext) {
-            [innerContext setDuration:0.3];
+        [NSAnimationContext runAnimationGroup:^(NSAnimationContext *context) {
+            [context setDuration:0.3];
             _controlPanelController.beatIndicator.animator.alphaValue = 0.0;
             CATransform3D tr = CATransform3DIdentity;
-            tr = CATransform3DTranslate(tr, _controlPanelController.beatIndicator.layer.bounds.size.width/2, offset+(_controlPanelController.beatIndicator.layer.bounds.size.height/2), 0);
+            tr = CATransform3DTranslate(tr, mid.width, mid.height, 0);
             tr = CATransform3DScale(tr, 1.0, 1.0, 1);
-            tr = CATransform3DTranslate(tr, -_controlPanelController.beatIndicator.layer.bounds.size.width/2, -(offset+(_controlPanelController.beatIndicator.layer.bounds.size.height/2)), 0);
+            tr = CATransform3DTranslate(tr, -mid.width, -mid.height, 0);
             _controlPanelController.beatIndicator.animator.layer.transform = tr;
-            //_controlPanelController.coverButton.animator.layer.opacity = 0.0;
-            //[_controlPanelController.animator.zoomBlur setValue:[NSNumber numberWithFloat:0.5] forKey: @"inputAmount"];
-//        } completionHandler:^{
-//            [NSAnimationContext runAnimationGroup:^(NSAnimationContext *innerstContext) {
-//                [innerstContext setDuration:0.3];
-//                    _controlPanelController.beatIndicator.animator.alphaValue = 0.0;
-//            }];
         }];
     }];
 }
@@ -321,14 +311,15 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     
     const CGFloat selectorColumnInset = 17.0;
     
-    const CGFloat trackColumnWidth = 64.0;
+    const CGFloat trackColumnWidth = 54.0;
     const CGFloat titleColumnWidth = 200.0f;
-    const CGFloat timeColumnWidth = 200.0f;
+    const CGFloat timeColumnWidth = 100.0f;
     const CGFloat artistColumnWidth = 200.0f;
     const CGFloat albumColumnWidth = 200.0f;
     const CGFloat genreColumnWidth = 150.0f;
     const CGFloat addedColumnWidth = 150.0f;
-    
+    const CGFloat tempoColumnWidth = 80.0f;
+
     const CGFloat progressIndicatorWidth = 32.0;
     const CGFloat progressIndicatorHeight = 32.0;
     
@@ -548,14 +539,14 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     sv.hasVerticalScroller = YES;
     sv.autoresizingMask = kViewFullySizeable;
     sv.drawsBackground = NO;
-    _bpmTable = [[NSTableView alloc] initWithFrame:sv.bounds];
-    _bpmTable.backgroundColor = [NSColor clearColor];
-    
+    _temposTable = [[NSTableView alloc] initWithFrame:sv.bounds];
+    _temposTable.tag = VIEWTAG_TEMPO;
+    _temposTable.backgroundColor = [NSColor clearColor];
     col = [[NSTableColumn alloc] init];
     col.title = @"BPM";
     col.width = selectorTableViewHalfWidth - selectorColumnInset;
-    [_bpmTable addTableColumn:col];
-    sv.documentView = _bpmTable;
+    [_temposTable addTableColumn:col];
+    sv.documentView = _temposTable;
     //[self.window.contentView addSubview:sv];
     [_splitSelectors addArrangedSubview:sv];
     
@@ -566,13 +557,14 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     sv.hasVerticalScroller = YES;
     sv.autoresizingMask = kViewFullySizeable;
     sv.drawsBackground = NO;
-    _keyTable = [[NSTableView alloc] initWithFrame:NSZeroRect];
-    _keyTable.backgroundColor = [NSColor clearColor];
+    _keysTable = [[NSTableView alloc] initWithFrame:NSZeroRect];
+    _keysTable.tag = VIEWTAG_KEY;
+    _keysTable.backgroundColor = [NSColor clearColor];
     col = [[NSTableColumn alloc] init];
     col.title = @"Key";
     col.width = selectorTableViewHalfWidth - selectorColumnInset;
-    [_keyTable addTableColumn:col];
-    sv.documentView = _keyTable;
+    [_keysTable addTableColumn:col];
+    sv.documentView = _keysTable;
     [_splitSelectors addArrangedSubview:sv];
     
     //[self.window.contentView addSubview:splitSelectors];
@@ -637,6 +629,18 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     col.sortDescriptorPrototype = [[NSSortDescriptor alloc] initWithKey:@"addedDate" ascending:YES selector:@selector(compare:)];
     [_songsTable addTableColumn:col];
 
+    col = [[NSTableColumn alloc] initWithIdentifier:@"TempoCell"];
+    col.title = @"Tempo";
+    col.width = tempoColumnWidth - selectorColumnInset;
+    col.sortDescriptorPrototype = [[NSSortDescriptor alloc] initWithKey:@"beatsPerMinute" ascending:YES selector:@selector(compare:)];
+    [_songsTable addTableColumn:col];
+
+//    col = [[NSTableColumn alloc] initWithIdentifier:@"KeyCell"];
+//    col.title = @"Key";
+//    col.width = addedColumnWidth - selectorColumnInset;
+//    col.sortDescriptorPrototype = [[NSSortDescriptor alloc] initWithKey:@"beatsPerMinute" ascending:YES selector:@selector(compare:)];
+//    [_songsTable addTableColumn:col];
+
     sv.documentView = _songsTable;
     [_split addArrangedSubview:sv];
 
@@ -680,6 +684,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     _browser = [[BrowserController alloc] initWithGenresTable:_genreTable
                                                  artistsTable:_artistsTable
                                                   albumsTable:_albumsTable
+                                                  temposTable:_temposTable
                                                    songsTable:_songsTable
                                                      delegate:self];
 
@@ -688,8 +693,8 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
                                             _genreTable,
                                             _artistsTable,
                                             _albumsTable,
-                                            _bpmTable,
-                                            _keyTable ];
+                                            _temposTable,
+                                            _keysTable ];
 
     for (NSTableView *table in fixupTables) {
         //table.style = NSTableViewStyleSourceList;
@@ -924,8 +929,8 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     _genreTable.enclosingScrollView.animator.hidden = toFullscreen ? YES : NO;
     _albumsTable.enclosingScrollView.animator.hidden = toFullscreen ? YES : NO;
     _artistsTable.enclosingScrollView.animator.hidden = toFullscreen ? YES : NO;
-    _bpmTable.enclosingScrollView.animator.hidden = toFullscreen ? YES : NO;
-    _keyTable.enclosingScrollView.animator.hidden = toFullscreen ? YES : NO;
+    _temposTable.enclosingScrollView.animator.hidden = toFullscreen ? YES : NO;
+    _keysTable.enclosingScrollView.animator.hidden = toFullscreen ? YES : NO;
 
    if (toFullscreen) {
        memcpy(splitPositionMemory, splitPosition, sizeof(CGFloat) * 3);
@@ -1118,7 +1123,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
 
 - (void)setBPM:(float)bpm
 {
-    _controlPanelController.bpm.stringValue = [NSString stringWithFormat:@"%3.0f BPM", bpm];
+    _controlPanelController.bpm.stringValue = [NSString stringWithFormat:@"%3.0f BPM", floorf(bpm)];
 }
 
 - (void)setCurrentFrame:(unsigned long long)frame
@@ -1203,7 +1208,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
                 splitSelectorPositionMemory[2] = _albumsTable.enclosingScrollView.bounds.size.width;
                 break;
             case 3:
-                splitSelectorPositionMemory[3] = _bpmTable.enclosingScrollView.bounds.size.width;
+                splitSelectorPositionMemory[3] = _temposTable.enclosingScrollView.bounds.size.width;
                 break;
         }
     } else if (sv == _split) {
@@ -1350,8 +1355,6 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
       [NSString stringWithFormat:@"%@ — %@", meta.artist, meta.album] :
         (meta.album.length > 0 ? meta.album : (meta.artist.length > 0 ?
                                                meta.artist : @"unknown") );
-
-    
     //NSMutableParagraphStyle* style = [[NSParagraphStyle defaultParagraphStyle] mutableCopy];
     //style.lineBreakMode = NSLineBreakByTruncatingTail;
    

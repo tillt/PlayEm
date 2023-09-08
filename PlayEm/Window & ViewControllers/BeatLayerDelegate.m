@@ -46,15 +46,14 @@
         BeatEvent* events = (BeatEvent*)buffer.bytes;
         const float maxBeatCount = buffer.length / sizeof(BeatEvent);
 
-        CGContextSetLineWidth(context, 2.5);
+        CGContextSetLineWidth(context, 3.0);
         
-        //NSColor* beatColor = [[[Defaults sharedDefaults] regularBeamColor] colorWithAlphaComponent:0.4];
-        
+        CGContextSetStrokeColorWithColor(context, [[[Defaults sharedDefaults] beatColor] CGColor]);
+
         for (unsigned int beatIndex = 0; beatIndex < maxBeatCount; beatIndex++) {
             const CGFloat x = (events[beatIndex].frame / framesPerPixel) - start;
-            NSColor* beatColor = [[NSColor colorWithRed:1.00f green:0.540f blue:0.60f alpha:1.0f] colorWithAlphaComponent:0.4 * events[beatIndex].confidence];
+            //NSColor* beatColor = [[NSColor colorWithRed:1.00f green:0.540f blue:0.60f alpha:1.0f] colorWithAlphaComponent:0.4 * events[beatIndex].confidence];
             assert(x <= 256.0);
-            CGContextSetStrokeColorWithColor(context, beatColor.CGColor);
             CGContextMoveToPoint(context, x, 0.0f);
             CGContextAddLineToPoint(context, x, layer.frame.size.height);
             CGContextStrokePath(context);

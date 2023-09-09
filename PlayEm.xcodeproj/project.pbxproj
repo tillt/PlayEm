@@ -12,24 +12,16 @@
 		BB097A0C2921B1E500D33E44 /* ScrollingTextView.m in Sources */ = {isa = PBXBuildFile; fileRef = BB097A0B2921B1E500D33E44 /* ScrollingTextView.m */; };
 		BB0C5D9327768D2400856978 /* MatrixUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = BB0C5D9227768D2400856978 /* MatrixUtilities.m */; };
 		BB0D5281244CEE22007C909F /* VisualSample.m in Sources */ = {isa = PBXBuildFile; fileRef = BB0D5280244CEE22007C909F /* VisualSample.m */; };
-		BB17DBA72AA4958200E4B2CC /* libmpg123.0.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = BB17DBA62AA4958100E4B2CC /* libmpg123.0.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
-		BB17DBA92AA4960400E4B2CC /* libmp3lame.0.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = BB17DBA82AA4960400E4B2CC /* libmp3lame.0.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		BB1614B92AACB0C300F6C5E6 /* libaubio.5.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = BB1614B82AACB0C300F6C5E6 /* libaubio.5.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		BB1614BA2AACB0DF00F6C5E6 /* libaubio.5.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = BB1614B82AACB0C300F6C5E6 /* libaubio.5.dylib */; };
 		BB25CF59255857BC005BFC32 /* MediaMetaData.m in Sources */ = {isa = PBXBuildFile; fileRef = BB25CF58255857BC005BFC32 /* MediaMetaData.m */; };
 		BB26B51129442E9A006EBAA7 /* AudioProcessing.m in Sources */ = {isa = PBXBuildFile; fileRef = BB26B51029442E9A006EBAA7 /* AudioProcessing.m */; };
 		BB287B1B251AC1DE00BFE286 /* ITLibMediaItem+compare.m in Sources */ = {isa = PBXBuildFile; fileRef = BB287B1A251AC1DE00BFE286 /* ITLibMediaItem+compare.m */; };
 		BB2CB5652481A92600D47258 /* WaveWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = BB2CB5642481A92600D47258 /* WaveWindowController.m */; };
 		BB2CB58724827A0900D47258 /* AudioController.m in Sources */ = {isa = PBXBuildFile; fileRef = BB2CB58624827A0900D47258 /* AudioController.m */; };
 		BB2CF8AD259EB66900D6BA03 /* LazySample.m in Sources */ = {isa = PBXBuildFile; fileRef = BB2CF8AC259EB66900D6BA03 /* LazySample.m */; };
-		BB577DFF2AA47BAC00046251 /* libaubio.5.4.8.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = BB577DFE2AA47BAB00046251 /* libaubio.5.4.8.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
-		BB577E022AA47F1500046251 /* libaubio.5.4.8.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = BB577DFE2AA47BAB00046251 /* libaubio.5.4.8.dylib */; };
 		BB577E092AA482D400046251 /* librubberband.2.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = BB577E072AA482D400046251 /* librubberband.2.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
-		BB577E0C2AA484C400046251 /* libFLAC.12.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = BB577E0B2AA484C400046251 /* libFLAC.12.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
-		BB577E0E2AA4850500046251 /* libvorbis.0.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = BB577E0D2AA4850500046251 /* libvorbis.0.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
-		BB577E102AA4851F00046251 /* libogg.0.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = BB577E0F2AA4851F00046251 /* libogg.0.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
-		BB577E122AA4853800046251 /* libvorbisenc.2.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = BB577E112AA4853700046251 /* libvorbisenc.2.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		BB577E162AA486C500046251 /* libsamplerate.0.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = BB577E152AA486C500046251 /* libsamplerate.0.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
-		BB577E182AA48F7C00046251 /* libsndfile.1.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = BB577E172AA48F7C00046251 /* libsndfile.1.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
-		BB577E1A2AA48FD600046251 /* libopus.0.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = BB577E192AA48FD600046251 /* libopus.0.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		BB5A4D9128FC5C2B003A733C /* NSBezierPath+CGPath.m in Sources */ = {isa = PBXBuildFile; fileRef = BB5A4D9028FC5C2B003A733C /* NSBezierPath+CGPath.m */; };
 		BB6C7598292973B70017468B /* ShazamKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BB6C7597292973B70017468B /* ShazamKit.framework */; };
 		BB7C6269293144890019AF25 /* Defaults.m in Sources */ = {isa = PBXBuildFile; fileRef = BB7C6268293144890019AF25 /* Defaults.m */; };
@@ -72,17 +64,9 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				BB17DBA92AA4960400E4B2CC /* libmp3lame.0.dylib in Embed Libraries */,
-				BB17DBA72AA4958200E4B2CC /* libmpg123.0.dylib in Embed Libraries */,
-				BB577E1A2AA48FD600046251 /* libopus.0.dylib in Embed Libraries */,
-				BB577E182AA48F7C00046251 /* libsndfile.1.dylib in Embed Libraries */,
+				BB1614B92AACB0C300F6C5E6 /* libaubio.5.dylib in Embed Libraries */,
 				BB577E162AA486C500046251 /* libsamplerate.0.dylib in Embed Libraries */,
-				BB577E122AA4853800046251 /* libvorbisenc.2.dylib in Embed Libraries */,
-				BB577E102AA4851F00046251 /* libogg.0.dylib in Embed Libraries */,
-				BB577E0E2AA4850500046251 /* libvorbis.0.dylib in Embed Libraries */,
-				BB577E0C2AA484C400046251 /* libFLAC.12.dylib in Embed Libraries */,
 				BB577E092AA482D400046251 /* librubberband.2.dylib in Embed Libraries */,
-				BB577DFF2AA47BAC00046251 /* libaubio.5.4.8.dylib in Embed Libraries */,
 			);
 			name = "Embed Libraries";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -100,9 +84,7 @@
 		BB0C5D9227768D2400856978 /* MatrixUtilities.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MatrixUtilities.m; sourceTree = "<group>"; };
 		BB0D527F244CEE22007C909F /* VisualSample.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VisualSample.h; sourceTree = "<group>"; };
 		BB0D5280244CEE22007C909F /* VisualSample.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = VisualSample.m; sourceTree = "<group>"; };
-		BB17DBA62AA4958100E4B2CC /* libmpg123.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libmpg123.0.dylib; sourceTree = "<group>"; };
-		BB17DBA82AA4960400E4B2CC /* libmp3lame.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libmp3lame.0.dylib; sourceTree = "<group>"; };
-		BB17DBAB2AA49CD500E4B2CC /* rpathdeps.xcfilelist */ = {isa = PBXFileReference; lastKnownFileType = text.xcfilelist; path = rpathdeps.xcfilelist; sourceTree = "<group>"; };
+		BB1614B82AACB0C300F6C5E6 /* libaubio.5.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libaubio.5.dylib; sourceTree = "<group>"; };
 		BB25CF55255758CC005BFC32 /* LoadState.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LoadState.h; sourceTree = "<group>"; };
 		BB25CF57255857BC005BFC32 /* MediaMetaData.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MediaMetaData.h; sourceTree = "<group>"; };
 		BB25CF58255857BC005BFC32 /* MediaMetaData.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MediaMetaData.m; sourceTree = "<group>"; };
@@ -116,15 +98,8 @@
 		BB2CB58624827A0900D47258 /* AudioController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AudioController.m; sourceTree = "<group>"; };
 		BB2CF8AB259EB66900D6BA03 /* LazySample.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LazySample.h; sourceTree = "<group>"; };
 		BB2CF8AC259EB66900D6BA03 /* LazySample.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = LazySample.m; sourceTree = "<group>"; };
-		BB577DFE2AA47BAB00046251 /* libaubio.5.4.8.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libaubio.5.4.8.dylib; sourceTree = "<group>"; };
 		BB577E072AA482D400046251 /* librubberband.2.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = librubberband.2.dylib; sourceTree = "<group>"; };
-		BB577E0B2AA484C400046251 /* libFLAC.12.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libFLAC.12.dylib; sourceTree = "<group>"; };
-		BB577E0D2AA4850500046251 /* libvorbis.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libvorbis.0.dylib; sourceTree = "<group>"; };
-		BB577E0F2AA4851F00046251 /* libogg.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libogg.0.dylib; sourceTree = "<group>"; };
-		BB577E112AA4853700046251 /* libvorbisenc.2.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libvorbisenc.2.dylib; sourceTree = "<group>"; };
 		BB577E152AA486C500046251 /* libsamplerate.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libsamplerate.0.dylib; sourceTree = "<group>"; };
-		BB577E172AA48F7C00046251 /* libsndfile.1.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libsndfile.1.dylib; sourceTree = "<group>"; };
-		BB577E192AA48FD600046251 /* libopus.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libopus.0.dylib; sourceTree = "<group>"; };
 		BB5A4D8F28FC5C2B003A733C /* NSBezierPath+CGPath.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSBezierPath+CGPath.h"; sourceTree = "<group>"; };
 		BB5A4D9028FC5C2B003A733C /* NSBezierPath+CGPath.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSBezierPath+CGPath.m"; sourceTree = "<group>"; };
 		BB6C7597292973B70017468B /* ShazamKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ShazamKit.framework; path = System/Library/PrivateFrameworks/ShazamKit.framework; sourceTree = SDKROOT; };
@@ -193,7 +168,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				BB577E022AA47F1500046251 /* libaubio.5.4.8.dylib in Frameworks */,
+				BB1614BA2AACB0DF00F6C5E6 /* libaubio.5.dylib in Frameworks */,
 				BB9C77E72A8D618700A138BE /* CoreImage.framework in Frameworks */,
 				BBDC988C250E8347008B19D1 /* iTunesLibrary.framework in Frameworks */,
 				BBE2846F2467669500BE9D7F /* MetalKit.framework in Frameworks */,
@@ -227,17 +202,9 @@
 		BB8820C5244101C200CDB8C3 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				BB17DBA82AA4960400E4B2CC /* libmp3lame.0.dylib */,
-				BB17DBA62AA4958100E4B2CC /* libmpg123.0.dylib */,
-				BB577E192AA48FD600046251 /* libopus.0.dylib */,
-				BB577E172AA48F7C00046251 /* libsndfile.1.dylib */,
+				BB1614B82AACB0C300F6C5E6 /* libaubio.5.dylib */,
 				BB577E152AA486C500046251 /* libsamplerate.0.dylib */,
-				BB577E112AA4853700046251 /* libvorbisenc.2.dylib */,
-				BB577E0F2AA4851F00046251 /* libogg.0.dylib */,
-				BB577E0D2AA4850500046251 /* libvorbis.0.dylib */,
-				BB577E0B2AA484C400046251 /* libFLAC.12.dylib */,
 				BB577E072AA482D400046251 /* librubberband.2.dylib */,
-				BB577DFE2AA47BAB00046251 /* libaubio.5.4.8.dylib */,
 				BB9C77E62A8D618700A138BE /* CoreImage.framework */,
 				BB6C7597292973B70017468B /* ShazamKit.framework */,
 				BBDC988B250E8347008B19D1 /* iTunesLibrary.framework */,
@@ -315,7 +282,6 @@
 		BBD24D542432948800DC2A81 = {
 			isa = PBXGroup;
 			children = (
-				BB17DBAB2AA49CD500E4B2CC /* rpathdeps.xcfilelist */,
 				BBD24D5F2432948800DC2A81 /* PlayEm */,
 				BBD24D5E2432948800DC2A81 /* Products */,
 				BB8820C5244101C200CDB8C3 /* Frameworks */,
@@ -391,6 +357,7 @@
 				BBD24D5A2432948800DC2A81 /* Frameworks */,
 				BBD24D5B2432948800DC2A81 /* Resources */,
 				BB8820CA244102CD00CDB8C3 /* Embed Libraries */,
+				BB1614B32AABC7BF00F6C5E6 /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -465,6 +432,23 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "buildNumber=$(/usr/libexec/PlistBuddy -c \"Print CFBundleVersion\" \"${PROJECT_DIR}/${INFOPLIST_FILE}\")\nbuildNumber=$(($buildNumber + 1))\n/usr/libexec/PlistBuddy -c \"Set :CFBundleVersion $buildNumber\" \"${PROJECT_DIR}/${INFOPLIST_FILE}\"\n\n";
+		};
+		BB1614B32AABC7BF00F6C5E6 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 

@@ -157,8 +157,8 @@
             filePath = "PlayEm/Sample/BeatTrackedSample.m"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "204"
-            endingLineNumber = "204"
+            startingLineNumber = "214"
+            endingLineNumber = "214"
             landmarkName = "-trackBeatsAsyncWithCallback:"
             landmarkType = "7">
          </BreakpointContent>
@@ -173,57 +173,9 @@
             filePath = "PlayEm/Sample/BeatTrackedSample.m"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "209"
-            endingLineNumber = "209"
+            startingLineNumber = "219"
+            endingLineNumber = "219"
             landmarkName = "-trackBeatsAsyncWithCallback:"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "B8A3174D-6572-4DA1-9BB5-7651021738EF"
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "PlayEm/Window &amp; ViewControllers/WaveWindowController.m"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1141"
-            endingLineNumber = "1141"
-            landmarkName = "-setCurrentFrame:"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "89D7F164-4F34-4717-9946-D47F0DC70E57"
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "PlayEm/Window &amp; ViewControllers/WaveWindowController.m"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1142"
-            endingLineNumber = "1142"
-            landmarkName = "-setCurrentFrame:"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "FB645657-4714-4AFA-BF9A-33F877A73306"
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "PlayEm/Window &amp; ViewControllers/WaveWindowController.m"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "968"
-            endingLineNumber = "968"
-            landmarkName = "-putScopeViewWithFrame:onView:"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -237,8 +189,8 @@
             filePath = "PlayEm/Sample/BeatTrackedSample.m"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "213"
-            endingLineNumber = "213"
+            startingLineNumber = "235"
+            endingLineNumber = "235"
             landmarkName = "-trackBeatsAsyncWithCallback:"
             landmarkType = "7">
          </BreakpointContent>
@@ -246,49 +198,33 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "18A286F0-D332-4C6D-9DB3-9959BA67BEDC"
+            uuid = "7A98FF12-2497-4A0A-A0C2-09138306C68E"
             shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "PlayEm/Sample/BeatTrackedSample.m"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "214"
-            endingLineNumber = "214"
+            startingLineNumber = "231"
+            endingLineNumber = "231"
             landmarkName = "-trackBeatsAsyncWithCallback:"
             landmarkType = "7">
-            <Locations>
-               <Location
-                  uuid = "18A286F0-D332-4C6D-9DB3-9959BA67BEDC - c169d23cc9b96adc"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "__49-[BeatTrackedSample trackBeatsAsyncWithCallback:]_block_invoke"
-                  moduleName = "PlayEm"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/till/Development/PlayEm/PlayEm/Sample/BeatTrackedSample.m"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "287"
-                  endingLineNumber = "287"
-                  offsetFromSymbolStart = "1112">
-               </Location>
-               <Location
-                  uuid = "18A286F0-D332-4C6D-9DB3-9959BA67BEDC - c169d23cc9b96adc"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "__49-[BeatTrackedSample trackBeatsAsyncWithCallback:]_block_invoke"
-                  moduleName = "PlayEm"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/till/Development/PlayEm/PlayEm/Sample/BeatTrackedSample.m"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "287"
-                  endingLineNumber = "287"
-                  offsetFromSymbolStart = "1108">
-               </Location>
-            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "C84C9A01-EE67-4A45-A6B2-2A81E2DA2CE3"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "PlayEm/Sample/BeatTrackedSample.m"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "232"
+            endingLineNumber = "232"
+            landmarkName = "-trackBeatsAsyncWithCallback:"
+            landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
    </Breakpoints>

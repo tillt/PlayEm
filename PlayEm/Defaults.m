@@ -25,7 +25,7 @@
     self = [super init];
     if (self) {
         _lightBeamColor = [NSColor colorWithRed:1.0f
-                                          green:(CGFloat)0xe0 / 255.0f
+                                          green:(CGFloat)0xE0 / 255.0f
                                            blue:(CGFloat)0x90 / 255.0f
                                           alpha:(CGFloat)1.0f];
 
@@ -53,6 +53,11 @@
                                      green:0.43f
                                       blue:0.03f
                                      alpha:0.08f];
+
+        _barColor = [NSColor colorWithRed:1.00f
+                                    green:0.43f
+                                     blue:0.03f
+                                    alpha:0.30f];
 
         _backColor = [NSColor controlBackgroundColor];
         

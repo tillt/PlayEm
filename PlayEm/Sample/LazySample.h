@@ -37,7 +37,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)dumpToFile;
 
 - (NSTimeInterval)timeForFrame:(unsigned long long)frame;
-
+- (NSString*)beautifulTimeWithFrame:(unsigned long long)frame;
 
 //TODO: NSEnumerator Support
 

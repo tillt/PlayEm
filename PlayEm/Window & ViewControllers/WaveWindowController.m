@@ -146,24 +146,24 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 
 - (void)beatEffectStart
 {
-    //_beatEffectRampUpFrames = kBeatEffectRampUp * _sample.rate;
     _beatEffectRampUpFrames = 0;
-    _beatEffectAtFrame = [_beatSample firstBarAtFrame:&_beatEffectIteratorContext];
+    _beatEffectAtFrame = [_beatSample frameForFirstBar:&_beatEffectIteratorContext];
 }
 
 - (BOOL)beatEffectNext
 {
-    _beatEffectAtFrame = [_beatSample nextBarAtFrame:&_beatEffectIteratorContext];
+    _beatEffectAtFrame = [_beatSample frameForNextBar:&_beatEffectIteratorContext];
     return _beatEffectAtFrame > 0;
 }
 
 - (void)beatEffectRun
 {
     [self setBPM:[_beatSample currentTempo:&_beatEffectIteratorContext]];
-    CGSize mid = CGSizeMake(_controlPanelController.beatIndicator.layer.bounds.size.width / 2,
+    // Thats a weird mid-point but hey...
+    CGSize mid = CGSizeMake((_controlPanelController.beatIndicator.layer.bounds.size.width - 1) / 2,
                             _controlPanelController.beatIndicator.layer.bounds.size.height - 2);
     [NSAnimationContext runAnimationGroup:^(NSAnimationContext *context) {
-        [context setDuration:0.05];
+        [context setDuration:kBeatEffectRampUp];
         _controlPanelController.beatIndicator.animator.alphaValue = 1.0;
         CATransform3D tr = CATransform3DIdentity;
         tr = CATransform3DTranslate(tr, mid.width, mid.height, 0);
@@ -172,7 +172,8 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
         _controlPanelController.beatIndicator.animator.layer.transform = tr;
     } completionHandler:^{
         [NSAnimationContext runAnimationGroup:^(NSAnimationContext *context) {
-            [context setDuration:0.3];
+            [context setDuration:kBeatEffectRampDown];
+            [context setTimingFunction:[CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseOut]];
             _controlPanelController.beatIndicator.animator.alphaValue = 0.0;
             CATransform3D tr = CATransform3DIdentity;
             tr = CATransform3DTranslate(tr, mid.width, mid.height, 0);
@@ -1110,17 +1111,6 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     [self relayoutAnimated:!isFullscreen];
 }
 
-- (NSString*)beautifulTimeWithFrame:(unsigned long long)frame
-{
-    NSTimeInterval time = frame / _sample.rate;
-    unsigned int hours = floor(time / 3600);
-    unsigned int minutes = (unsigned int)floor(time) % 3600 / 60;
-    unsigned int seconds = (unsigned int)floor(time) % 3600 % 60;
-    if (hours > 0) {
-        return [NSString stringWithFormat:@"%d:%02d:%02d", hours, minutes, seconds];
-    }
-    return [NSString stringWithFormat:@"%d:%02d", minutes, seconds];
-}
 
 - (void)setBPM:(float)bpm
 {
@@ -1132,8 +1122,8 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     if (_waveView.currentFrame == frame) {
         return;
     }
-    _controlPanelController.duration.stringValue = [self beautifulTimeWithFrame:_sample.frames - frame];
-    _controlPanelController.time.stringValue = [self beautifulTimeWithFrame:frame];
+    _controlPanelController.duration.stringValue = [_sample beautifulTimeWithFrame:_sample.frames - frame];
+    _controlPanelController.time.stringValue = [_sample beautifulTimeWithFrame:frame];
     
     _waveView.currentFrame = frame;
     _totalView.currentFrame = frame;
@@ -1143,6 +1133,8 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
             [self beatEffectRun];
             while (frame + _beatEffectRampUpFrames > _beatEffectAtFrame) {
                 if (![self beatEffectNext]) {
+                    NSLog(@"end of beats reached");
+                    [self beatEffectStart];
                     return;
                 }
             };

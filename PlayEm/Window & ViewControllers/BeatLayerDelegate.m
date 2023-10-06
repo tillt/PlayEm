@@ -38,41 +38,26 @@
     CGFloat start = layer.superlayer.frame.origin.x > 0 ? layer.superlayer.frame.origin.x : 0.0f;
 
     NSData* buffer = [_beatSample beatsFromOrigin:start];
+    if (buffer == nil) {
+        NSLog(@"beat buffer from screen position %f not yet available", start);
+        return;
+    }
     
-    if (buffer != nil) {
-        CGContextSetFillColorWithColor(context, [[NSColor clearColor] CGColor]);
-        CGContextFillRect(context, layer.bounds);
+    CGContextSetFillColorWithColor(context, [[NSColor clearColor] CGColor]);
+    CGContextFillRect(context, layer.bounds);
 
-        BeatEvent* events = (BeatEvent*)buffer.bytes;
-        const float maxBeatCount = buffer.length / sizeof(BeatEvent);
+    BeatEvent* events = (BeatEvent*)buffer.bytes;
+    const float maxBeatCount = buffer.length / sizeof(BeatEvent);
 
-        CGContextSetLineWidth(context, 3.0);
-        
-        CGContextSetStrokeColorWithColor(context, [[[Defaults sharedDefaults] beatColor] CGColor]);
-
-        for (unsigned int beatIndex = 0; beatIndex < maxBeatCount; beatIndex++) {
-            const CGFloat x = (events[beatIndex].frame / framesPerPixel) - start;
-            //NSColor* beatColor = [[NSColor colorWithRed:1.00f green:0.540f blue:0.60f alpha:1.0f] colorWithAlphaComponent:0.4 * events[beatIndex].confidence];
-            assert(x <= 256.0);
-            CGContextMoveToPoint(context, x, 0.0f);
-            CGContextAddLineToPoint(context, x, layer.frame.size.height);
-            CGContextStrokePath(context);
-            //NSLog(@"drawing beat index %d: frame %lld (x:%f), bpm: %f, confidence: %f", beatIndex, events[beatIndex].frame, x, events[beatIndex].bpm, events[beatIndex].confidence);
-        }
-    } else {
-        // Try again!
-       // [layer setNeedsDisplay];
-  //      NSLog(@"trying origin %ld again", start);
-
-        //CGFloat offset = _waveView.enclosingScrollView.documentVisibleRect.origin.x;
-        //CGFloat totalWidth = _waveView.enclosingScrollView.documentVisibleRect.size.width;
-
-//        NSLog(@"preparing beats starting from %ld", start);
-//        [_beatSample prepareBeatsFromOrigin:start callback:^(void){
-//            // Once data is prepared, trigger a redraw - invoking `drawLayer:` again.
-//            [layer setNeedsDisplay];
-//            NSLog(@"calling for beats starting from %ld", start);
-//        }];
+    CGContextSetLineWidth(context, 3.0);
+    
+    for (unsigned int beatIndex = 0; beatIndex < maxBeatCount; beatIndex++) {
+        const CGFloat x = (events[beatIndex].frame / framesPerPixel) - start;
+        CGContextSetStrokeColorWithColor(context, events[beatIndex].index == 0 ? [[[Defaults sharedDefaults] barColor] CGColor] : [[[Defaults sharedDefaults] beatColor] CGColor]);
+        assert(x <= 256.0);
+        CGContextMoveToPoint(context, x, 0.0f);
+        CGContextAddLineToPoint(context, x, layer.frame.size.height);
+        CGContextStrokePath(context);
     }
 }
 

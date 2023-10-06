@@ -319,6 +319,18 @@ const size_t kMaxFramesPerBuffer = 16384;
     return frame / _rate;
 }
 
+- (NSString*)beautifulTimeWithFrame:(unsigned long long)frame
+{
+    NSTimeInterval time = frame / _rate;
+    unsigned int hours = floor(time / 3600);
+    unsigned int minutes = (unsigned int)floor(time) % 3600 / 60;
+    unsigned int seconds = (unsigned int)floor(time) % 3600 % 60;
+    if (hours > 0) {
+        return [NSString stringWithFormat:@"%d:%02d:%02d", hours, minutes, seconds];
+    }
+    return [NSString stringWithFormat:@"%d:%02d", minutes, seconds];
+}
+
 - (NSString *)description
 {
     NSLog(@"rendering description...");

@@ -22,6 +22,7 @@ typedef struct {
     unsigned long long frame;
     float bpm;
     float confidence;
+    unsigned char index;
 } BeatEvent;
 
 typedef struct {
@@ -48,8 +49,10 @@ typedef struct _BeatsParserContext BeatsParserContext;
 
 - (float)tempo;
 
-- (unsigned long long)firstBarAtFrame:(nonnull BeatEventIterator*)iterator;
-- (unsigned long long)nextBarAtFrame:(nonnull BeatEventIterator*)iterator;
+- (unsigned long long)frameForFirstBar:(nonnull BeatEventIterator*)iterator;
+- (unsigned long long)frameForNextBar:(nonnull BeatEventIterator*)iterator;
+
+- (unsigned long long)framesPerBeat:(float)tempo;
 
 - (float)currentTempo:(nonnull BeatEventIterator*)iterator;
 

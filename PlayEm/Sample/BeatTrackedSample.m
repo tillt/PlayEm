@@ -110,6 +110,7 @@ struct debug_aubio_tempo_t {
                                    (unsigned int)_windowWidth,
                                    (unsigned int)_hopSize,
                                    (unsigned int)_sample.rate);
+    aubio_tempo_set_threshold(_aubio_tempo, 0.5);
     assert(_aubio_tempo);
 }
 
@@ -160,6 +161,11 @@ void beatsContextReset(BeatsParserContext* context)
     return _averageTempo;
 }
 
+- (unsigned long long)framesPerBeat:(float)tempo
+{
+    return _sample.rate * (tempo / (60.0f * 4.0f) );
+}
+
 - (void)trackBeatsAsyncWithCallback:(nonnull void (^)(void))callback
 {
     atomic_fetch_and(&_abortBeatTracking, 0);
@@ -177,6 +183,10 @@ void beatsContextReset(BeatsParserContext* context)
         }
         unsigned long long sourceWindowFrameOffset = 0;
         
+        unsigned long long expectedNextBeatFrame = 0;
+        
+        unsigned char beatIndex = 0;
+
         while (sourceWindowFrameOffset < _sample.frames) {
             unsigned long long sourceWindowFrameCount = MIN(_hopSize * 1024,
                                                             _sample.frames - sourceWindowFrameOffset);
@@ -207,15 +217,25 @@ void beatsContextReset(BeatsParserContext* context)
                 const bool beat = fvec_get_sample(_aubio_output_buffer, 0) != 0.f;
                 if (beat) {
                     event.frame = aubio_tempo_get_last(_aubio_tempo);
+                    
+                    if (llabs(expectedNextBeatFrame - event.frame) > (_sample.rate / 10)) {
+                        NSLog(@"looks like a bad prediction at %lld - %@", event.frame, [_sample beautifulTimeWithFrame:event.frame]);
+                    }
+                    
                     event.bpm = aubio_tempo_get_bpm(_aubio_tempo);
                     event.confidence = aubio_tempo_get_confidence(_aubio_tempo);
+                    event.index = beatIndex;
+                    
+                    beatIndex = (beatIndex + 1) % 4;
+                    
+                    expectedNextBeatFrame = event.frame + [self framesPerBeat:event.bpm];
+                    NSLog(@"beat at %lld - %.2f bpm, confidence %.4f -- next beat expected at %lld",
+                          event.frame, event.bpm, event.confidence, expectedNextBeatFrame);
 
-                    if (event.confidence > 0.3) {
-                        if (_averageTempo == 0) {
-                            _averageTempo = event.bpm;
-                        } else {
-                            _averageTempo = ((_averageTempo * 9.0f) + event.bpm) / 10.0f;
-                        }
+                    if (_averageTempo == 0) {
+                        _averageTempo = event.bpm;
+                    } else {
+                        _averageTempo = ((_averageTempo * 9.0f) + event.bpm) / 10.0f;
                     }
                     
                     size_t origin = event.frame / _framesPerPixel;
@@ -234,6 +254,8 @@ void beatsContextReset(BeatsParserContext* context)
             };
             sourceWindowFrameOffset += received;
         };
+        
+        
 
         [self cleanupTracking];
         atomic_fetch_or(&_beatTrackDone, 1);
@@ -268,16 +290,16 @@ void beatsContextReset(BeatsParserContext* context)
     return iterator->currentEvent->bpm;
 }
 
-- (unsigned long long)firstBarAtFrame:(nonnull BeatEventIterator*)iterator
+- (unsigned long long)frameForFirstBar:(nonnull BeatEventIterator*)iterator
 {
     iterator->pageIndex = 0;
     iterator->eventIndex = 0;
     iterator->currentEvent = nil;
     
-    return [self nextBarAtFrame:iterator];
+    return [self frameForNextBar:iterator];
 }
 
-- (unsigned long long)nextBarAtFrame:(nonnull BeatEventIterator*)iterator
+- (unsigned long long)frameForNextBar:(nonnull BeatEventIterator*)iterator
 {
     NSData* data = [_beats objectForKey:[NSNumber numberWithLong:iterator->pageIndex]];
     if (data == nil) {

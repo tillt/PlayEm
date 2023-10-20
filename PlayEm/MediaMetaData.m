@@ -20,6 +20,7 @@
 #import <iTunesLibrary/ITLibArtwork.h>
 
 #import "AVMetadataItem+THAdditions.h"
+#import "ITLibMediaItem+TTAdditionsh.h"
 
 @implementation MediaMetaData
 
@@ -38,7 +39,7 @@
 
     for (NSString* format in [asset availableMetadataFormats]) {
         for (AVMetadataItem* item in [asset metadataForFormat:format]) {
-            NSLog(@"%@ (%@)=> %@", [item commonKey], [item keyString], [item value]);
+            NSLog(@"%@ (%@): %@", [item commonKey], [item keyString], [item value]);
             if ([item commonKey] == nil) {
                 if ([[item keyString] isEqualToString:@"TYER"] || [[item keyString] isEqualToString:@"@day"]  || [[item keyString] isEqualToString:@"TDRL"] ) {
                     meta.year = [(NSString*)[item value] intValue];
@@ -67,7 +68,7 @@
                     NSLog(@"unknown artwork");
                 }
             } else {
-                NSLog(@"questionable metadata: %@", [item commonKey]);
+                NSLog(@"questionable metadata: %@ (%@): %@", [item commonKey], [item keyString], [item value]);
             }
         }
     }
@@ -82,25 +83,173 @@
 }
 */
 
+- (NSString*)title
+{
+    if (_shadow == nil) {
+        return _title;
+    }
+    
+    if (_title == nil) {
+        _title = _shadow.title;
+    }
+
+    return _title;
+}
+
+- (NSString*)artist
+{
+    if (_shadow == nil) {
+        return _artist;
+    }
+    
+    if (_artist == nil) {
+        _artist = _shadow.artist.name;
+    }
+
+    return _artist;
+}
+
+- (NSString*)album
+{
+    if (_shadow == nil) {
+        return _album;
+    }
+    
+    if (_album == nil) {
+        _album = _shadow.album.title;
+    }
+
+    return _album;
+}
+
+- (NSString*)genre
+{
+    if (_shadow == nil) {
+        return _genre;
+    }
+    
+    if (_genre == nil) {
+        _genre = _shadow.genre;
+    }
+
+    return _genre;
+}
+
+- (NSUInteger)tempo
+{
+    if (_shadow == nil) {
+        return _tempo;
+    }
+    
+    if (_tempo == 0) {
+        _tempo = _shadow.beatsPerMinute;
+    }
+
+    return _tempo;
+}
+
+- (NSUInteger)year
+{
+    if (_shadow == nil) {
+        return _year;
+    }
+    
+    if (_year == 0) {
+        _year = _shadow.year;
+    }
+
+    return _year;
+}
+
+- (NSUInteger)track
+{
+    if (_shadow == nil) {
+        return _track;
+    }
+    
+    if (_track == 0) {
+        _track = _shadow.trackNumber;
+    }
+
+    return _track;
+}
+
+- (NSURL*)location
+{
+    if (_shadow == nil) {
+        return _location;
+    }
+    
+    if (_location == 0) {
+        _location = _shadow.location;
+        _locationType = _shadow.locationType;
+    }
+
+    return _location;
+}
+
+- (NSUInteger)locationType
+{
+    if (_shadow == nil) {
+        return _locationType;
+    }
+    
+    if (_locationType == 0) {
+        _locationType = _shadow.locationType;
+    }
+
+    return _locationType;
+}
+
+- (NSTimeInterval)duration
+{
+    if (_shadow == nil) {
+        return _duration;
+    }
+    
+    if (_duration == 0) {
+        _duration = _shadow.totalTime;
+    }
+
+    return _duration;
+}
+
+- (NSImage*)artwork
+{
+    if (_shadow == nil) {
+        return _artwork;
+    }
+    
+    if (_artwork == nil) {
+        if (_shadow.hasArtworkAvailable) {
+            _artwork = _shadow.artwork.image;
+        } else {
+            _artwork = [NSImage imageNamed:@"UnknownSong"];
+        }
+    }
+
+    return _artwork;
+}
+
+- (NSDate*)added
+{
+    if (_shadow == nil) {
+        return _added;
+    }
+    
+    if (_added == nil) {
+        _added = _shadow.addedDate;
+    }
+
+    return _added;
+
+}
+
 + (MediaMetaData*)mediaMetaDataWithITLibMediaItem:(ITLibMediaItem*)item error:(NSError**)error
 {
     MediaMetaData* meta = [[MediaMetaData alloc] init];
-    
-    meta.title = item.title;
-    meta.album = item.album.title;
-    meta.artist = item.artist.name;
-    meta.genre = item.genre;
-    meta.year = item.year;
-    meta.tempo = [NSString stringWithFormat:@"%ld", item.beatsPerMinute];
-    meta.track = item.trackNumber;
-    meta.location = item.location;
-    if (item.hasArtworkAvailable) {
-        meta.artwork = item.artwork.image;
-    } else {
-        meta.artwork = [NSImage imageNamed:@"UnknownSong"];
-    }
-    meta.added = item.addedDate;
-
+    meta.shadow = item;
+    meta.key = @"";
     return meta;
 }
 

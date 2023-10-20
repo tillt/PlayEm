@@ -22,7 +22,7 @@
 @property (strong, nonatomic) NSTextField* genreField;
 
 @property (strong, nonatomic) NSTextField* titleField;
-@property (strong, nonatomic) NSButton* coverButton;
+@property (strong, nonatomic) NSImageView* coverView;
 @property (strong, nonatomic) NSButton* clipButton;
 @property (strong, nonatomic) NSButton* scButton;
 
@@ -92,31 +92,31 @@
     
     CGFloat y = kPopoverHeight - (kCoverViewHeight + kBorderHeight);
     
-    _coverButton = [[NSButton alloc] initWithFrame:NSMakeRect(floorf((kPopoverWidth - kCoverViewWidth) / 2.0f),
-                                                               y,
-                                                               kCoverViewWidth,
-                                                               kCoverViewHeight)];
-    _coverButton.image = [NSImage imageNamed:@"UnknownSong"];
-    _coverButton.imageScaling = NSImageScaleProportionallyUpOrDown;
-    _coverButton.wantsLayer = YES;
-    _coverButton.layer.cornerRadius = 10;
-    _coverButton.layer.masksToBounds = YES;
-    [_coverButton setAction:@selector(musicURLClicked:)];
-
-    [self.view addSubview:_coverButton];
-
-//    _coverView = [[NSImageView alloc] initWithFrame:NSMakeRect(floorf((kPopoverWidth - kCoverViewWidth) / 2.0f),
+//    _coverButton = [[NSButton alloc] initWithFrame:NSMakeRect(floorf((kPopoverWidth - kCoverViewWidth) / 2.0f),
 //                                                               y,
 //                                                               kCoverViewWidth,
 //                                                               kCoverViewHeight)];
-//    _coverView.image = [NSImage imageNamed:@"UnknownSong"];
-//    _coverView.imageScaling = NSImageScaleProportionallyUpOrDown;
-//    _coverView.wantsLayer = YES;
-//    _coverView.layer.cornerRadius = 10;
-//    _coverView.layer.masksToBounds = YES;
-//    [_coverView setAction:@selector(musicURLClicked:)];
+//    _coverButton.image = [NSImage imageNamed:@"UnknownSong"];
+//    _coverButton.imageScaling = NSImageScaleProportionallyUpOrDown;
+//    _coverButton.wantsLayer = YES;
+//    _coverButton.layer.cornerRadius = 10;
+//    _coverButton.layer.masksToBounds = YES;
+//    [_coverButton setAction:@selector(musicURLClicked:)];
 //
-//    [self.view addSubview:_coverView];
+//    [self.view addSubview:_coverButton];
+
+    _coverView = [[NSImageView alloc] initWithFrame:NSMakeRect(floorf((kPopoverWidth - kCoverViewWidth) / 2.0f),
+                                                               y,
+                                                               kCoverViewWidth,
+                                                               kCoverViewHeight)];
+    _coverView.image = [NSImage imageNamed:@"UnknownSong"];
+    _coverView.imageScaling = NSImageScaleProportionallyUpOrDown;
+    _coverView.wantsLayer = YES;
+    _coverView.layer.cornerRadius = 10;
+    _coverView.layer.masksToBounds = YES;
+    [_coverView setAction:@selector(musicURLClicked:)];
+
+    [self.view addSubview:_coverView];
 
     y -= kTextFieldHeight + kRowSpace + kRowSpace + kRowSpace;
 
@@ -225,7 +225,7 @@
 
 - (void)reset
 {
-    _coverButton.animator.image = [NSImage imageNamed:@"UnknownSong"];
+    _coverView.animator.image = [NSImage imageNamed:@"UnknownSong"];
     _titleField.animator.stringValue = @"???";
     _genreField.animator.stringValue = @"";
     _imageURL = nil;
@@ -291,12 +291,12 @@
             self.musicURL = match.mediaItems[0].appleMusicURL;
         }
         if (match.mediaItems[0].artworkURL != nil && ![match.mediaItems[0].artworkURL.absoluteString isEqualToString:self.imageURL.absoluteString]) {
-            self.coverButton.image = [NSImage imageNamed:@"UnknownSong"];
+            self.coverView.image = [NSImage imageNamed:@"UnknownSong"];
             NSLog(@"need to re/load the image as the displayed URL %@ wouldnt match the requested URL %@", self.imageURL.absoluteString, match.mediaItems[0].artworkURL.absoluteString);
             dispatch_async(dispatch_queue_create("AsyncImageQueue", NULL), ^{
                 NSImage *image = [[NSImage alloc] initWithContentsOfURL:match.mediaItems[0].artworkURL];
                 dispatch_async(dispatch_get_main_queue(), ^{
-                    self.coverButton.animator.image = image;
+                    self.coverView.animator.image = image;
                     self.imageURL = match.mediaItems[0].artworkURL;
                 });
             });

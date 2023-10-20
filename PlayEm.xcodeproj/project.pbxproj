@@ -16,7 +16,7 @@
 		BB1614BA2AACB0DF00F6C5E6 /* libaubio.5.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = BB1614B82AACB0C300F6C5E6 /* libaubio.5.dylib */; };
 		BB25CF59255857BC005BFC32 /* MediaMetaData.m in Sources */ = {isa = PBXBuildFile; fileRef = BB25CF58255857BC005BFC32 /* MediaMetaData.m */; };
 		BB26B51129442E9A006EBAA7 /* AudioProcessing.m in Sources */ = {isa = PBXBuildFile; fileRef = BB26B51029442E9A006EBAA7 /* AudioProcessing.m */; };
-		BB287B1B251AC1DE00BFE286 /* ITLibMediaItem+compare.m in Sources */ = {isa = PBXBuildFile; fileRef = BB287B1A251AC1DE00BFE286 /* ITLibMediaItem+compare.m */; };
+		BB287B1B251AC1DE00BFE286 /* ITLibMediaItem+TTAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = BB287B1A251AC1DE00BFE286 /* ITLibMediaItem+TTAdditions.m */; };
 		BB2CB5652481A92600D47258 /* WaveWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = BB2CB5642481A92600D47258 /* WaveWindowController.m */; };
 		BB2CB58724827A0900D47258 /* AudioController.m in Sources */ = {isa = PBXBuildFile; fileRef = BB2CB58624827A0900D47258 /* AudioController.m */; };
 		BB2CF8AD259EB66900D6BA03 /* LazySample.m in Sources */ = {isa = PBXBuildFile; fileRef = BB2CF8AC259EB66900D6BA03 /* LazySample.m */; };
@@ -31,6 +31,7 @@
 		BB896FF32928874500B41809 /* TableHeaderCell.m in Sources */ = {isa = PBXBuildFile; fileRef = BB896FF22928874500B41809 /* TableHeaderCell.m */; };
 		BB8A100728FF49E400FC6013 /* Scroller.m in Sources */ = {isa = PBXBuildFile; fileRef = BB8A100628FF49E400FC6013 /* Scroller.m */; };
 		BB8A100C290586E500FC6013 /* CAShapeLayer+Path.m in Sources */ = {isa = PBXBuildFile; fileRef = BB8A100B290586E500FC6013 /* CAShapeLayer+Path.m */; };
+		BB9401882AD0974900B7B150 /* AcceleratedBiquadFilter.m in Sources */ = {isa = PBXBuildFile; fileRef = BB9401872AD0974900B7B150 /* AcceleratedBiquadFilter.m */; };
 		BB9C77E52A8D5F7C00A138BE /* WaveView.m in Sources */ = {isa = PBXBuildFile; fileRef = BB9C77E42A8D5F7C00A138BE /* WaveView.m */; };
 		BB9C77E72A8D618700A138BE /* CoreImage.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BB9C77E62A8D618700A138BE /* CoreImage.framework */; };
 		BB9CE9B128D388F3008DFF91 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = BB9CE9B028D388F3008DFF91 /* MainMenu.xib */; };
@@ -55,6 +56,7 @@
 		BBE2846D246765BD00BE9D7F /* Shaders.metal in Sources */ = {isa = PBXBuildFile; fileRef = BBE2846C246765A700BE9D7F /* Shaders.metal */; };
 		BBE2846F2467669500BE9D7F /* MetalKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BBE2846E2467669500BE9D7F /* MetalKit.framework */; };
 		BBE5FEB52A892A410001B807 /* BeatLayerDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = BBE5FEB42A892A410001B807 /* BeatLayerDelegate.m */; };
+		BBF7982D2ADC4BAA00893533 /* NSString+BeautifulPast.m in Sources */ = {isa = PBXBuildFile; fileRef = BBF7982C2ADC4BAA00893533 /* NSString+BeautifulPast.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -90,8 +92,8 @@
 		BB25CF58255857BC005BFC32 /* MediaMetaData.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MediaMetaData.m; sourceTree = "<group>"; };
 		BB26B51029442E9A006EBAA7 /* AudioProcessing.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AudioProcessing.m; sourceTree = "<group>"; };
 		BB26B51229442ECF006EBAA7 /* AudioProcessing.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AudioProcessing.h; sourceTree = "<group>"; };
-		BB287B19251AC1DE00BFE286 /* ITLibMediaItem+compare.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "ITLibMediaItem+compare.h"; sourceTree = "<group>"; };
-		BB287B1A251AC1DE00BFE286 /* ITLibMediaItem+compare.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "ITLibMediaItem+compare.m"; sourceTree = "<group>"; };
+		BB287B19251AC1DE00BFE286 /* ITLibMediaItem+TTAdditionsh.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "ITLibMediaItem+TTAdditionsh.h"; sourceTree = "<group>"; };
+		BB287B1A251AC1DE00BFE286 /* ITLibMediaItem+TTAdditions.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "ITLibMediaItem+TTAdditions.m"; sourceTree = "<group>"; };
 		BB2CB5632481A92600D47258 /* WaveWindowController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WaveWindowController.h; sourceTree = "<group>"; };
 		BB2CB5642481A92600D47258 /* WaveWindowController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WaveWindowController.m; sourceTree = "<group>"; };
 		BB2CB58524827A0900D47258 /* AudioController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AudioController.h; sourceTree = "<group>"; };
@@ -117,6 +119,8 @@
 		BB8A1009290353E300FC6013 /* PlayEm.profdata */ = {isa = PBXFileReference; lastKnownFileType = file; path = PlayEm.profdata; sourceTree = "<group>"; };
 		BB8A100A290586A200FC6013 /* CAShapeLayer+Path.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "CAShapeLayer+Path.h"; sourceTree = "<group>"; };
 		BB8A100B290586E500FC6013 /* CAShapeLayer+Path.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "CAShapeLayer+Path.m"; sourceTree = "<group>"; };
+		BB9401862AD0974900B7B150 /* AcceleratedBiquadFilter.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AcceleratedBiquadFilter.h; sourceTree = "<group>"; };
+		BB9401872AD0974900B7B150 /* AcceleratedBiquadFilter.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AcceleratedBiquadFilter.m; sourceTree = "<group>"; };
 		BB9C77E32A8D5F3400A138BE /* WaveView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WaveView.h; sourceTree = "<group>"; };
 		BB9C77E42A8D5F7C00A138BE /* WaveView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WaveView.m; sourceTree = "<group>"; };
 		BB9C77E62A8D618700A138BE /* CoreImage.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreImage.framework; path = System/Library/Frameworks/CoreImage.framework; sourceTree = SDKROOT; };
@@ -161,6 +165,8 @@
 		BBE2846E2467669500BE9D7F /* MetalKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MetalKit.framework; path = System/Library/Frameworks/MetalKit.framework; sourceTree = SDKROOT; };
 		BBE5FEB32A892A410001B807 /* BeatLayerDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BeatLayerDelegate.h; sourceTree = "<group>"; };
 		BBE5FEB42A892A410001B807 /* BeatLayerDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = BeatLayerDelegate.m; sourceTree = "<group>"; };
+		BBF7982B2ADC4BAA00893533 /* NSString+BeautifulPast.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSString+BeautifulPast.h"; sourceTree = "<group>"; };
+		BBF7982C2ADC4BAA00893533 /* NSString+BeautifulPast.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSString+BeautifulPast.m"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -233,6 +239,8 @@
 				BB0D5280244CEE22007C909F /* VisualSample.m */,
 				BBDA2FFC2A7FCCB70084E2B6 /* BeatTrackedSample.h */,
 				BBDA2FFD2A7FCEEC0084E2B6 /* BeatTrackedSample.m */,
+				BB9401862AD0974900B7B150 /* AcceleratedBiquadFilter.h */,
+				BB9401872AD0974900B7B150 /* AcceleratedBiquadFilter.m */,
 			);
 			path = Sample;
 			sourceTree = "<group>";
@@ -244,8 +252,6 @@
 				BB2CB5642481A92600D47258 /* WaveWindowController.m */,
 				BBB37D1F290F4A7E0007A6BB /* PlaylistController.h */,
 				BBB37D20290F4A7E0007A6BB /* PlaylistController.m */,
-				BBDC9888250E81CF008B19D1 /* BrowserController.h */,
-				BBDC9889250E81D0008B19D1 /* BrowserController.m */,
 				BBE5FEB32A892A410001B807 /* BeatLayerDelegate.h */,
 				BBE5FEB42A892A410001B807 /* BeatLayerDelegate.m */,
 				BBDEBD3B2A99417A0085E6D8 /* WaveLayerDelegate.h */,
@@ -308,6 +314,10 @@
 				BBE2846A2467640800BE9D7F /* ShaderTypes.h */,
 				BBE284662467612F00BE9D7F /* ScopeRenderer.h */,
 				BBE284672467612F00BE9D7F /* ScopeRenderer.m */,
+				BBDC9888250E81CF008B19D1 /* BrowserController.h */,
+				BBDC9889250E81D0008B19D1 /* BrowserController.m */,
+				BBF7982B2ADC4BAA00893533 /* NSString+BeautifulPast.h */,
+				BBF7982C2ADC4BAA00893533 /* NSString+BeautifulPast.m */,
 				BBD24D602432948800DC2A81 /* AppDelegate.h */,
 				BBD24D612432948800DC2A81 /* AppDelegate.m */,
 				BBD24D632432948B00DC2A81 /* Assets.xcassets */,
@@ -326,8 +336,8 @@
 				BB5A4D9028FC5C2B003A733C /* NSBezierPath+CGPath.m */,
 				BB25CF57255857BC005BFC32 /* MediaMetaData.h */,
 				BB25CF58255857BC005BFC32 /* MediaMetaData.m */,
-				BB287B19251AC1DE00BFE286 /* ITLibMediaItem+compare.h */,
-				BB287B1A251AC1DE00BFE286 /* ITLibMediaItem+compare.m */,
+				BB287B19251AC1DE00BFE286 /* ITLibMediaItem+TTAdditionsh.h */,
+				BB287B1A251AC1DE00BFE286 /* ITLibMediaItem+TTAdditions.m */,
 				BB9CE9B028D388F3008DFF91 /* MainMenu.xib */,
 				BBC43B7128D296B800CD1080 /* AVMetadataItem+THAdditions.h */,
 				BBC43B7228D296B800CD1080 /* AVMetadataItem+THAdditions.m */,
@@ -374,7 +384,8 @@
 		BBD24D552432948800DC2A81 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 1400;
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1500;
 				ORGANIZATIONNAME = "Till Toenshoff";
 				TargetAttributes = {
 					BBD24D5C2432948800DC2A81 = {
@@ -458,7 +469,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				BB8A100C290586E500FC6013 /* CAShapeLayer+Path.m in Sources */,
+				BB9401882AD0974900B7B150 /* AcceleratedBiquadFilter.m in Sources */,
 				BB9C77E52A8D5F7C00A138BE /* WaveView.m in Sources */,
+				BBF7982D2ADC4BAA00893533 /* NSString+BeautifulPast.m in Sources */,
 				BB7C626C2932E1540019AF25 /* ControlPanelController.m in Sources */,
 				BBCE1DD9257C3CAB006CE886 /* TiledScrollView.m in Sources */,
 				BBDC988A250E81D0008B19D1 /* BrowserController.m in Sources */,
@@ -470,7 +483,7 @@
 				BB7C6269293144890019AF25 /* Defaults.m in Sources */,
 				BBD24D6A2432948B00DC2A81 /* main.m in Sources */,
 				BBA507DA244224E100AABCF7 /* Sample.m in Sources */,
-				BB287B1B251AC1DE00BFE286 /* ITLibMediaItem+compare.m in Sources */,
+				BB287B1B251AC1DE00BFE286 /* ITLibMediaItem+TTAdditions.m in Sources */,
 				BBA623D42620F6A200924D44 /* UIView+Visibility.m in Sources */,
 				BBE5FEB52A892A410001B807 /* BeatLayerDelegate.m in Sources */,
 				BBE284682467612F00BE9D7F /* ScopeRenderer.m in Sources */,
@@ -540,6 +553,7 @@
 				DEVELOPMENT_TEAM = YK4D72U3YW;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -604,6 +618,7 @@
 				DEVELOPMENT_TEAM = YK4D72U3YW;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;

@@ -17,8 +17,13 @@
 #import "MediaMetaData.h"
 #import "TableHeaderCell.h"
 
+#import "NSString+BeautifulPast.h"
+#import "ITLibMediaItem+TTAdditionsh.h"
+
 @interface BrowserController ()
 @property (nonatomic, strong) ITLibrary* library;
+@property (nonatomic, strong) NSArray<MediaMetaData*>* cachedLibrary;
+
 @property (nonatomic, weak) NSTableView* genresTable;
 @property (nonatomic, weak) NSTableView* artistsTable;
 @property (nonatomic, weak) NSTableView* albumsTable;
@@ -30,7 +35,8 @@
 @property (nonatomic, strong) NSMutableArray<NSString*>* albums;
 @property (nonatomic, strong) NSMutableArray<NSString*>* tempos;
 @property (nonatomic, strong) NSMutableArray<NSString*>* keys;
-@property (nonatomic, strong) NSArray<ITLibMediaItem*>* filteredItems;
+//@property (nonatomic, strong) NSArray<ITLibMediaItem*>* filteredItems;
+@property (nonatomic, strong) NSArray<MediaMetaData*>* filteredItems;
 @end
 
 @implementation BrowserController
@@ -133,27 +139,35 @@
     BrowserController* __weak weakSelf = self;
     
     // Default sorting descriptor.
-    NSArray* descriptors = [NSArray arrayWithObjects:
-                            [NSSortDescriptor sortDescriptorWithKey:@"artist.name" ascending:YES selector:@selector(compare:)],
-                            [NSSortDescriptor sortDescriptorWithKey:@"album.title" ascending:YES selector:@selector(compare:)],
-                            [NSSortDescriptor sortDescriptorWithKey:@"trackNumber" ascending:YES selector:@selector(compare:)],
-                            [NSSortDescriptor sortDescriptorWithKey:@"title" ascending:YES selector:@selector(compare:)],
-                            nil];
+//    NSArray* descriptors = [NSArray arrayWithObjects:
+//                            [NSSortDescriptor sortDescriptorWithKey:@"artist" ascending:YES selector:@selector(compare:)],
+//                            [NSSortDescriptor sortDescriptorWithKey:@"album" ascending:YES selector:@selector(compare:)],
+//                            [NSSortDescriptor sortDescriptorWithKey:@"track" ascending:YES selector:@selector(compare:)],
+//                            [NSSortDescriptor sortDescriptorWithKey:@"title" ascending:YES selector:@selector(compare:)],
+//                            nil];
     
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
-        // Apply default sorting.
-        NSArray<ITLibMediaItem*>* receivedItems = [weakSelf.library.allMediaItems sortedArrayUsingDescriptors:descriptors];
 
-        NSMutableArray<ITLibMediaItem*>* filteredItems = [NSMutableArray new];
-        for (ITLibMediaItem* d in receivedItems) {
+        //[_delegate loadLibraryState:LoadStateStarted value:0.0];
+
+        NSMutableArray<MediaMetaData*>* cachedLibrary = [NSMutableArray new];
+        //NSMutableArray<MediaMetaData*>* filteredItems = [NSMutableArray new];
+        for (ITLibMediaItem* d in weakSelf.library.allMediaItems) {
             if (d.cloud) {
                 continue;
             }
-            [filteredItems addObject:d];
+            MediaMetaData* m = [MediaMetaData mediaMetaDataWithITLibMediaItem:d error:nil];
+            [cachedLibrary addObject:m];
+            //[filteredItems addObject:m];
         }
-      
-        weakSelf.filteredItems = filteredItems;
-        
+        weakSelf.cachedLibrary = cachedLibrary;
+        weakSelf.filteredItems = cachedLibrary;
+
+        // Apply default sorting.
+        //NSArray<MediaMetaData*>* receivedItems = [cachedLibrary sortedArrayUsingDescriptors:descriptors];
+
+        //}
+       
         //[weakSelf.filteredItems sortedArrayUsingDescriptors:descriptors];
 
         [weakSelf columnsFromMediaItems:weakSelf.filteredItems
@@ -164,33 +178,36 @@
                                    keys:weakSelf.keys];
 
         dispatch_async(dispatch_get_main_queue(), ^{
+            //[_delegate loadLibraryState:LoadStateStopped value:0.0];
+
             [weakSelf.genresTable beginUpdates];
             [weakSelf.genresTable reloadData];
             [weakSelf.genresTable endUpdates];
 
-            [weakSelf.albumsTable beginUpdates];
-            [weakSelf.albumsTable reloadData];
-            [weakSelf.albumsTable endUpdates];
-
-            [weakSelf.artistsTable beginUpdates];
-            [weakSelf.artistsTable reloadData];
-            [weakSelf.artistsTable endUpdates];
-
-            [weakSelf.temposTable beginUpdates];
-            [weakSelf.temposTable reloadData];
-            [weakSelf.temposTable endUpdates];
-            
-            [weakSelf.songsTable beginUpdates];
-            [weakSelf.songsTable reloadData];
-            [weakSelf.songsTable endUpdates];
-
-            [weakSelf.keysTable beginUpdates];
-            [weakSelf.keysTable reloadData];
-            [weakSelf.keysTable endUpdates];
-
-            [weakSelf.genresTable selectRowIndexes:[NSIndexSet indexSetWithIndex:0] byExtendingSelection:NO];
-
             [weakSelf.delegate updateSongsCount:weakSelf.filteredItems.count];
+
+            [weakSelf.genresTable selectRowIndexes:[NSIndexSet indexSetWithIndex:0] 
+                              byExtendingSelection:NO];
+
+//            [weakSelf.albumsTable beginUpdates];
+//            [weakSelf.albumsTable reloadData];
+//            [weakSelf.albumsTable endUpdates];
+//
+//            [weakSelf.artistsTable beginUpdates];
+//            [weakSelf.artistsTable reloadData];
+//            [weakSelf.artistsTable endUpdates];
+//
+//            [weakSelf.temposTable beginUpdates];
+//            [weakSelf.temposTable reloadData];
+//            [weakSelf.temposTable endUpdates];
+//            
+//            [weakSelf.songsTable beginUpdates];
+//            [weakSelf.songsTable reloadData];
+//            [weakSelf.songsTable endUpdates];
+//
+//            [weakSelf.keysTable beginUpdates];
+//            [weakSelf.keysTable reloadData];
+//            [weakSelf.keysTable endUpdates];
         });
     });
 }
@@ -209,8 +226,7 @@
     } else {
         assert(self.songsTable.clickedRow < self.filteredItems.count);
         NSLog(@"item: %@", self.filteredItems[self.songsTable.clickedRow]);
-        MediaMetaData* meta = [MediaMetaData mediaMetaDataWithITLibMediaItem:self.filteredItems[self.songsTable.clickedRow]
-                                                                       error:nil];
+        MediaMetaData* meta = self.filteredItems[self.songsTable.clickedRow];
         [_delegate addToPlaylistNext:meta];
     }
 }
@@ -222,8 +238,7 @@
     }
     assert(self.songsTable.clickedRow < self.filteredItems.count);
     NSLog(@"item: %@", self.filteredItems[self.songsTable.clickedRow]);
-    MediaMetaData* meta = [MediaMetaData mediaMetaDataWithITLibMediaItem:self.filteredItems[self.songsTable.clickedRow]
-                                                                   error:nil];
+    MediaMetaData* meta = self.filteredItems[self.songsTable.clickedRow];
     [_delegate addToPlaylistLater:meta];
 }
 
@@ -234,8 +249,7 @@
     }
     assert(self.songsTable.clickedRow < self.filteredItems.count);
     NSLog(@"item: %@", self.filteredItems[self.songsTable.clickedRow]);
-    MediaMetaData* meta = [MediaMetaData mediaMetaDataWithITLibMediaItem:self.filteredItems[self.songsTable.clickedRow]
-                                                                   error:nil];
+    MediaMetaData* meta = self.filteredItems[self.songsTable.clickedRow];
     NSArray<NSURL*>* fileURLs = [NSArray arrayWithObjects:meta.location, nil];
     [[NSWorkspace sharedWorkspace] activateFileViewerSelectingURLs:fileURLs];
 }
@@ -270,7 +284,7 @@ static void* LibraryContext = &LibraryContext;
 }
  */
 
-- (NSArray*)filterMediaItems:(NSArray*)items
+- (NSArray*)filterMediaItems:(NSArray<MediaMetaData*>*)items
                        genre:(NSString*)genre
                       artist:(NSString*)artist
                        album:(NSString*)album
@@ -280,22 +294,20 @@ static void* LibraryContext = &LibraryContext;
     NSLog(@"filtered based on genre:%@ artist:%@ album:%@ tempo:%@ key:%@", genre, artist, album, tempo, key);
     NSMutableArray* filtered = [NSMutableArray array];
 
-    for (ITLibMediaItem *d in items) {
-        if (d.cloud) {
-            continue;
-        }
+    for (MediaMetaData *d in items) {
         if ((genre == nil || (d.genre && d.genre.length && [d.genre isEqualTo:genre])) &&
-            (artist == nil || (d.artist.name && d.artist.name.length && [d.artist.name isEqualTo:artist])) &&
-            (tempo == nil || (d.beatsPerMinute > 0 && [tempo isEqual:[NSString stringWithFormat:@"%d", (unsigned int)d.beatsPerMinute]])) &&
-            (album == nil || (d.album.title && d.album.title.length && [d.album.title isEqualTo:album]))) {
+            (artist == nil || (d.artist && d.artist.length && [d.artist isEqualTo:artist])) &&
+            (tempo == nil || (d.tempo > 0 && [tempo isEqual:[NSString stringWithFormat:@"%d", (unsigned int)d.tempo]])) &&
+            (album == nil || (d.album && d.album.length && [d.album isEqualTo:album]))) {
             [filtered addObject:d];
         }
     }
 
     NSLog(@"filtered narrowed from %ld to %ld entries", items.count, filtered.count);
 
+    NSUInteger count = filtered.count;
     dispatch_async(dispatch_get_main_queue(), ^{
-        [self.delegate updateSongsCount:filtered.count];
+        [self.delegate updateSongsCount:count];
     });
     
     return filtered;
@@ -321,22 +333,22 @@ static void* LibraryContext = &LibraryContext;
 
     size_t itemCount = items.count;
     size_t itemIndex = 0;
-    for (ITLibMediaItem* d in items) {
+    for (MediaMetaData* d in items) {
         if (d.genre && d.genre.length) {
             filteredGenres[d.genre] = d.genre;
         }
-        if (d.artist.name && d.artist.name.length) {
-            filteredArtists[d.artist.name] = d.artist.name;
+        if (d.artist && d.artist.length) {
+            filteredArtists[d.artist] = d.artist;
         }
-        if (d.album.title && d.album.title.length) {
-            filteredAlbums[d.album.title] = d.album.title;
+        if (d.album && d.album.length) {
+            filteredAlbums[d.album] = d.album;
         }
-        if (d.beatsPerMinute > 0) {
-            NSString* string = [NSString stringWithFormat:@"%d", (unsigned int)d.beatsPerMinute];
-            filteredTempos[string] = string;
+        if (d.tempo > 0) {
+            NSString* t = [NSString stringWithFormat:@"%ld", d.tempo];
+            filteredTempos[t] = t;
         }
         dispatch_async(dispatch_get_main_queue(), ^{
-            [self.delegate loadLibraryState:LoadStateLoading value:(double)(itemIndex+1) / (double)itemCount];
+            [self.delegate loadLibraryState:LoadStateLoading value:(double)(itemIndex + 1) / (double)itemCount];
         });
         itemIndex++;
     }
@@ -405,7 +417,7 @@ static void* LibraryContext = &LibraryContext;
             NSString* key = nil;
 
             dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
-                weakSelf.filteredItems = [self filterMediaItems:weakSelf.library.allMediaItems
+                weakSelf.filteredItems = [self filterMediaItems:weakSelf.cachedLibrary
                                                           genre:genre
                                                          artist:artist
                                                           album:album
@@ -413,11 +425,11 @@ static void* LibraryContext = &LibraryContext;
                                                             key:key];
 
                 [weakSelf columnsFromMediaItems:weakSelf.filteredItems
-                                     genres:nil
-                                    artists:weakSelf.artists
-                                     albums:weakSelf.albums
-                                     tempos:weakSelf.tempos
-                                       keys:weakSelf.keys];
+                                         genres:nil
+                                        artists:weakSelf.artists
+                                         albums:weakSelf.albums
+                                         tempos:weakSelf.tempos
+                                           keys:weakSelf.keys];
 
                 dispatch_async(dispatch_get_main_queue(), ^{
                     [weakSelf.artistsTable beginUpdates];
@@ -458,18 +470,18 @@ static void* LibraryContext = &LibraryContext;
             NSString* key = nil;
 
             dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
-                weakSelf.filteredItems = [weakSelf filterMediaItems:weakSelf.library.allMediaItems
-                                                  genre:genre
-                                                 artist:artist
-                                                  album:album
-                                                  tempo:tempo
-                                                    key:nil];
+                weakSelf.filteredItems = [weakSelf filterMediaItems:weakSelf.cachedLibrary
+                                                              genre:genre
+                                                             artist:artist
+                                                              album:album
+                                                              tempo:tempo
+                                                                key:key];
                 [weakSelf columnsFromMediaItems:weakSelf.filteredItems
-                                     genres:nil
-                                    artists:nil
-                                     albums:weakSelf.albums
-                                     tempos:nil
-                                       keys:nil];
+                                         genres:nil
+                                        artists:nil
+                                         albums:weakSelf.albums
+                                         tempos:nil
+                                           keys:nil];
 
                 dispatch_async(dispatch_get_main_queue(), ^{
                     [weakSelf.albumsTable beginUpdates];
@@ -482,6 +494,8 @@ static void* LibraryContext = &LibraryContext;
 
                     NSIndexSet* zeroSet = [NSIndexSet indexSetWithIndex:0];
                     [weakSelf.albumsTable selectRowIndexes:zeroSet byExtendingSelection:NO];
+                    [weakSelf.temposTable selectRowIndexes:zeroSet byExtendingSelection:NO];
+                    [weakSelf.keysTable selectRowIndexes:zeroSet byExtendingSelection:NO];
                 });
             });
 
@@ -495,7 +509,7 @@ static void* LibraryContext = &LibraryContext;
             NSString* key = nil;
 
             dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
-                weakSelf.filteredItems = [weakSelf filterMediaItems:weakSelf.library.allMediaItems
+                weakSelf.filteredItems = [weakSelf filterMediaItems:weakSelf.cachedLibrary
                                                               genre:genre
                                                              artist:artist
                                                               album:album
@@ -506,6 +520,10 @@ static void* LibraryContext = &LibraryContext;
                     [weakSelf.songsTable beginUpdates];
                     [weakSelf.songsTable reloadData];
                     [weakSelf.songsTable endUpdates];
+
+                    NSIndexSet* zeroSet = [NSIndexSet indexSetWithIndex:0];
+                    [weakSelf.temposTable selectRowIndexes:zeroSet byExtendingSelection:NO];
+                    [weakSelf.keysTable selectRowIndexes:zeroSet byExtendingSelection:NO];
                 });
             });
             return;
@@ -517,7 +535,7 @@ static void* LibraryContext = &LibraryContext;
             NSString* tempo = row > 0 ? _tempos[row] : nil;
             NSString* key = nil;
             dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
-                weakSelf.filteredItems = [weakSelf filterMediaItems:weakSelf.library.allMediaItems
+                weakSelf.filteredItems = [weakSelf filterMediaItems:weakSelf.cachedLibrary
                                                               genre:genre
                                                              artist:artist
                                                               album:album
@@ -528,6 +546,9 @@ static void* LibraryContext = &LibraryContext;
                     [weakSelf.songsTable beginUpdates];
                     [weakSelf.songsTable reloadData];
                     [weakSelf.songsTable endUpdates];
+
+                    NSIndexSet* zeroSet = [NSIndexSet indexSetWithIndex:0];
+                    [weakSelf.keysTable selectRowIndexes:zeroSet byExtendingSelection:NO];
                 });
             });
             return;
@@ -539,7 +560,7 @@ static void* LibraryContext = &LibraryContext;
             NSString* tempo = _temposTable.selectedRow > 0 ? _tempos[row] : nil;
             NSString* key = row > 0 ? _keys[row] : nil;
             dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
-                weakSelf.filteredItems = [weakSelf filterMediaItems:weakSelf.library.allMediaItems
+                weakSelf.filteredItems = [weakSelf filterMediaItems:weakSelf.cachedLibrary
                                                               genre:genre
                                                              artist:artist
                                                               album:album
@@ -555,39 +576,22 @@ static void* LibraryContext = &LibraryContext;
             return;
         }
         case VIEWTAG_FILTERED: {
-            ITLibMediaItem* item = row >= 0 ? _filteredItems[row] : nil;
+            MediaMetaData* item = row >= 0 ? _filteredItems[row] : nil;
             NSURL* url = item.location;
             switch (item.locationType) {
-                case ITLibMediaItemLocationTypeFile:    NSLog(@"that item is a file");  break;
-                case ITLibMediaItemLocationTypeURL:     NSLog(@"that item is a URL");   break;
-                case ITLibMediaItemLocationTypeRemote:  NSLog(@"that item is remote");  break;
-                case ITLibMediaItemLocationTypeUnknown:
+                case MediaMetaDataLocationTypeFile:    NSLog(@"that item is a file");  break;
+                case MediaMetaDataLocationTypeURL:     NSLog(@"that item is a URL");   break;
+                case MediaMetaDataLocationTypeRemote:  NSLog(@"that item is remote");  break;
+                case MediaMetaDataLocationTypeUnknown:
                 default:
                     NSLog(@"that item is of unknown location type");
             }
-            if (item.artworkAvailable) {
+            if (item.artwork) {
                 NSLog(@"artwork is available");
-                
-                switch(item.artwork.imageDataFormat) {
-                    case ITLibArtworkFormatNone:        NSLog(@"format none");      break;
-                    case ITLibArtworkFormatBitmap:      NSLog(@"format bitmap");    break;
-                    case ITLibArtworkFormatJPEG:        NSLog(@"format JPEG");      break;
-                    case ITLibArtworkFormatJPEG2000:    NSLog(@"format JPEG2000");  break;
-                    case ITLibArtworkFormatGIF:         NSLog(@"format GIF");       break;
-                    case ITLibArtworkFormatPNG:         NSLog(@"format PNG");       break;
-                    case ITLibArtworkFormatBMP:         NSLog(@"format BNP");       break;
-                    case ITLibArtworkFormatTIFF:        NSLog(@"format TIFF");      break;
-                    case ITLibArtworkFormatPICT:        NSLog(@"format PICT");      break;
-                }
-                NSLog(@"image data: %@", item.artwork.image);
             }
-
             if (url != nil && _delegate != nil) {
-                NSError* error = nil;
-                MediaMetaData* meta = [MediaMetaData mediaMetaDataWithITLibMediaItem:item error:&error];
-
                 dispatch_async(dispatch_get_main_queue(), ^{
-                    [self.delegate browseSelectedUrl:url meta:meta];
+                    [self.delegate browseSelectedUrl:url meta:item];
                 });
             }
             return;
@@ -605,6 +609,12 @@ static void* LibraryContext = &LibraryContext;
             return YES;
         }
         case VIEWTAG_ALBUMS: {
+            return YES;
+        }
+        case VIEWTAG_TEMPO: {
+            return YES;
+        }
+        case VIEWTAG_KEY: {
             return YES;
         }
         case VIEWTAG_FILTERED: {
@@ -650,48 +660,6 @@ static void* LibraryContext = &LibraryContext;
     NSArray<NSSortDescriptor*>* descriptors = [tableView sortDescriptors];
     _filteredItems = [_filteredItems sortedArrayUsingDescriptors:descriptors];
     [tableView reloadData];
-}
-
-- (NSString*)beautifulPast:(NSDate*)past
-{
-    NSDate* present = [NSDate now];
-
-    NSDate* hourAgo = [present dateByAddingTimeInterval:-3600.0];
-    NSDate* yesterday = [present dateByAddingTimeInterval:-86400.0];
-    NSDate* thisWeek = [present dateByAddingTimeInterval:-604800.0];
-    NSDate* lastWeek = [present dateByAddingTimeInterval:-1209600.0];
-    NSDate* thisMonth = [present dateByAddingTimeInterval:-2629743.83];
-    NSDate* lastMonth = [present dateByAddingTimeInterval:-5259487.66];
-
-    NSString* beauty = nil;
-
-    if ([lastMonth compare:past] == NSOrderedAscending) {
-        if ([thisMonth compare:past] == NSOrderedAscending) {
-            if ([lastWeek compare:past] == NSOrderedAscending) {
-                if ([thisWeek compare:past] == NSOrderedAscending) {
-                    if ([yesterday compare:past] == NSOrderedAscending) {
-                        if ([hourAgo compare:past] == NSOrderedAscending) {
-                            beauty = @"brandnew";
-                        } else {
-                            beauty = @"yesterday";
-                        }
-                    } else {
-                        beauty = @"this week";
-                    }
-                } else {
-                    beauty = @"last week";
-                }
-            } else {
-                beauty = @"this month";
-            }
-        } else {
-            beauty = @"last month";
-        }
-    } else {
-        beauty = [NSDateFormatter localizedStringFromDate:past dateStyle:NSDateFormatterShortStyle timeStyle:NSDateFormatterNoStyle];
-    }
-
-    return beauty;
 }
 
 - (NSView*)tableView:(NSTableView*)tableView viewForTableColumn:(NSTableColumn *)tableColumn row:(NSInteger)row
@@ -740,31 +708,27 @@ static void* LibraryContext = &LibraryContext;
         case VIEWTAG_FILTERED:
             assert(row < _filteredItems.count);
             if ([tableColumn.identifier isEqualToString:@"TrackCell"]) {
-                if (_filteredItems[row].trackNumber > 0) {
-                    string = [NSString stringWithFormat:@"%ld", _filteredItems[row].trackNumber];
+                if (_filteredItems[row].track > 0) {
+                    string = [NSString stringWithFormat:@"%ld", _filteredItems[row].track];
                 }
             } else if ([tableColumn.identifier isEqualToString:@"TitleCell"]) {
                 string = _filteredItems[row].title;
             } else if ([tableColumn.identifier isEqualToString:@"ArtistCell"]) {
-                string = _filteredItems[row].artist.name;
+                string = _filteredItems[row].artist;
             } else if ([tableColumn.identifier isEqualToString:@"AlbumCell"]) {
-                string = _filteredItems[row].album.title;
+                string = _filteredItems[row].album;
             } else if ([tableColumn.identifier isEqualToString:@"TimeCell"]) {
-                string = [self formattedDuration:_filteredItems[row].totalTime];
+                string = [self formattedDuration:_filteredItems[row].duration];
             } else if ([tableColumn.identifier isEqualToString:@"TempoCell"]) {
-                if (_filteredItems[row].beatsPerMinute > 0) {
-                    string = [NSString stringWithFormat:@"%d", (unsigned int)_filteredItems[row].beatsPerMinute];
+                if (_filteredItems[row].tempo > 0) {
+                    string = [NSString stringWithFormat:@"%d", (unsigned int)_filteredItems[row].tempo];
                 } else {
                     string = @"";
                 }
             } else if ([tableColumn.identifier isEqualToString:@"KeyCell"]) {
-                if (_filteredItems[row] > 0) {
-                    string = [NSString stringWithFormat:@"%d", (unsigned int)_filteredItems[row].beatsPerMinute];
-                } else {
-                    string = @"";
-                }
+                string = _filteredItems[row].key;
             } else if ([tableColumn.identifier isEqualToString:@"AddedCell"]) {
-                string = [self beautifulPast:_filteredItems[row].addedDate];
+                string = [NSString BeautifulPast:_filteredItems[row].added];
             } else if ([tableColumn.identifier isEqualToString:@"GenreCell"]) {
                 string = _filteredItems[row].genre;
             }

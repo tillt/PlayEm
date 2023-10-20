@@ -149,7 +149,7 @@
             ((NSTextField*)_dictionary[@"key"]).stringValue = _meta.key;
         }
         if (_meta.tempo) {
-            ((NSTextField*)_dictionary[@"tempo"]).stringValue = _meta.tempo;
+            ((NSTextField*)_dictionary[@"tempo"]).stringValue = [NSString stringWithFormat:@"%d", (unsigned int)_meta.tempo]; ;
         }
         if (_meta.track > 0) {
             ((NSTextField*)_dictionary[@"track"]).stringValue = [NSString stringWithFormat:@"%ld", _meta.track];

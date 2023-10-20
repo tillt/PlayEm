@@ -313,7 +313,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     const CGFloat selectorColumnInset = 17.0;
     
     const CGFloat trackColumnWidth = 54.0;
-    const CGFloat titleColumnWidth = 200.0f;
+    const CGFloat titleColumnWidth = 280.0f;
     const CGFloat timeColumnWidth = 80.0f;
     const CGFloat artistColumnWidth = 200.0f;
     const CGFloat albumColumnWidth = 200.0f;
@@ -592,7 +592,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     col = [[NSTableColumn alloc] initWithIdentifier:@"TrackCell"];
     col.title = @"Track";
     col.width = trackColumnWidth - selectorColumnInset;
-    col.sortDescriptorPrototype = [[NSSortDescriptor alloc] initWithKey:@"trackNumber" ascending:YES selector:@selector(compare:)];
+    col.sortDescriptorPrototype = [[NSSortDescriptor alloc] initWithKey:@"track" ascending:YES selector:@selector(compare:)];
     [_songsTable addTableColumn:col];
     
     col = [[NSTableColumn alloc] initWithIdentifier:@"TitleCell"];
@@ -604,19 +604,19 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     col = [[NSTableColumn alloc] initWithIdentifier:@"TimeCell"];
     col.title = @"Time";
     col.width = timeColumnWidth - selectorColumnInset;
-    col.sortDescriptorPrototype = [[NSSortDescriptor alloc] initWithKey:@"totalTime" ascending:YES selector:@selector(compare:)];
+    col.sortDescriptorPrototype = [[NSSortDescriptor alloc] initWithKey:@"duration" ascending:YES selector:@selector(compare:)];
     [_songsTable addTableColumn:col];
     
     col = [[NSTableColumn alloc] initWithIdentifier:@"ArtistCell"];
     col.title = @"Artist";
     col.width = artistColumnWidth - selectorColumnInset;
-    col.sortDescriptorPrototype = [[NSSortDescriptor alloc] initWithKey:@"artist.name" ascending:YES selector:@selector(compare:)];
+    col.sortDescriptorPrototype = [[NSSortDescriptor alloc] initWithKey:@"artist" ascending:YES selector:@selector(compare:)];
     [_songsTable addTableColumn:col];
     
     col = [[NSTableColumn alloc] initWithIdentifier:@"AlbumCell"];
     col.title = @"Album";
     col.width = albumColumnWidth - selectorColumnInset;
-    col.sortDescriptorPrototype = [[NSSortDescriptor alloc] initWithKey:@"album.title" ascending:YES selector:@selector(compare:)];
+    col.sortDescriptorPrototype = [[NSSortDescriptor alloc] initWithKey:@"album" ascending:YES selector:@selector(compare:)];
     [_songsTable addTableColumn:col];
     
     col = [[NSTableColumn alloc] initWithIdentifier:@"GenreCell"];
@@ -628,19 +628,19 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     col = [[NSTableColumn alloc] initWithIdentifier:@"AddedCell"];
     col.title = @"Added";
     col.width = addedColumnWidth - selectorColumnInset;
-    col.sortDescriptorPrototype = [[NSSortDescriptor alloc] initWithKey:@"addedDate" ascending:YES selector:@selector(compare:)];
+    col.sortDescriptorPrototype = [[NSSortDescriptor alloc] initWithKey:@"added" ascending:YES selector:@selector(compare:)];
     [_songsTable addTableColumn:col];
 
     col = [[NSTableColumn alloc] initWithIdentifier:@"TempoCell"];
     col.title = @"Tempo";
     col.width = tempoColumnWidth - selectorColumnInset;
-    col.sortDescriptorPrototype = [[NSSortDescriptor alloc] initWithKey:@"beatsPerMinute" ascending:YES selector:@selector(compare:)];
+    col.sortDescriptorPrototype = [[NSSortDescriptor alloc] initWithKey:@"tempo" ascending:YES selector:@selector(compare:)];
     [_songsTable addTableColumn:col];
 
     col = [[NSTableColumn alloc] initWithIdentifier:@"KeyCell"];
     col.title = @"Key";
     col.width = keyColumnWidth - selectorColumnInset;
-    col.sortDescriptorPrototype = [[NSSortDescriptor alloc] initWithKey:@"beatsPerMinute" ascending:YES selector:@selector(compare:)];
+    //col.sortDescriptorPrototype = [[NSSortDescriptor alloc] initWithKey:@"key" ascending:YES selector:@selector(compare:)];
     [_songsTable addTableColumn:col];
 
     sv.documentView = _songsTable;

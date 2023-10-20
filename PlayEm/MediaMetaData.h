@@ -7,13 +7,24 @@
 //
 
 #import <Foundation/Foundation.h>
+#import <iTunesLibrary/ITLibMediaItem.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
 @class ITLibMediaItem;
 @class AVAsset;
 
+
+enum {
+    MediaMetaDataLocationTypeFile = ITLibMediaItemLocationTypeFile,
+    MediaMetaDataLocationTypeURL = ITLibMediaItemLocationTypeURL,
+    MediaMetaDataLocationTypeRemote = ITLibMediaItemLocationTypeRemote,
+    MediaMetaDataLocationTypeUnknown = ITLibMediaItemLocationTypeUnknown
+};
+
 @interface MediaMetaData : NSObject
+
+@property (strong, nonatomic) ITLibMediaItem* shadow;
 
 @property (copy, nonatomic) NSString* title;
 @property (copy, nonatomic) NSString* album;
@@ -21,15 +32,18 @@ NS_ASSUME_NONNULL_BEGIN
 @property (copy, nonatomic) NSString* genre;
 @property (assign, nonatomic) NSUInteger year;
 @property (copy, nonatomic) NSString* comment;
-@property (copy, nonatomic) NSString* tempo;
+@property (assign, nonatomic) NSUInteger tempo;
 @property (copy, nonatomic) NSString* key;
 @property (strong, nonatomic) NSImage* artwork;
 @property (assign, nonatomic) NSUInteger track;
 @property (assign, nonatomic) NSUInteger tracks;
 @property (assign, nonatomic) NSUInteger disk;
 @property (assign, nonatomic) NSUInteger disks;
+@property (assign, nonatomic) NSUInteger locationType;
 @property (strong, nonatomic) NSURL* location;
 @property (strong, nonatomic) NSDate* added;
+@property (assign, nonatomic) NSTimeInterval duration;
+
 
 
 //+ (MediaMetaData*)mediaMetaDataWithAVAsset:(AVAsset*)asset error:(NSError**)error;

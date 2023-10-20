@@ -22,7 +22,6 @@ typedef struct {
     unsigned long long frame;
     float bpm;
     float confidence;
-    unsigned char index;
 } BeatEvent;
 
 typedef struct {

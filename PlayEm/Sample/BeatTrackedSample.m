@@ -12,6 +12,9 @@
 #import "LazySample.h"
 #import "IndexedBlockOperation.h"
 
+#define BEATS_BY_AUBIO
+
+#ifdef BEATS_BY_AUBIO
 #define AUBIO_UNSTABLE 1
 #include "aubio/aubio.h"
 
@@ -39,6 +42,27 @@ struct debug_aubio_tempo_t {
   uint_t last_tatum;             /** time of latest detected tatum, in samples */
   uint_t tatum_signature;        /** number of tatum between each beats */
 };
+#else
+// Effectively downsamples input from 44.1kHz -> 11kHz
+static const long kDownsampleFactor = 4;
+static const double kSilenceThreshold = 0.1;
+static const double kMinimumTempo = 60.0;
+static const double kMaximumTempo = 180.0;
+static const double kDefaultTempo = 120.0;
+static const double kHostTempoLinkToleranceInBpm = 16.0;
+
+static const int kParamToleranceMinValue = 1;
+static const int kParamToleranceMaxValue = 100;
+static const int kParamToleranceDefaultValue = 75;
+static const float kParamPeriodMinValue = 1.0f;
+static const float kParamPeriodMaxValue = 10.0f;
+static const float kParamPeriodDefaultValue = 2.0f;
+static const float kParamFilterMinValue = 50.0f;
+static const float kParamFilterMaxValue = 500.0f;
+static const float kParamFilterDefaultValue = 150.0f;
+
+static const int kBpmHistorySize = 200;
+#endif
 
 
 @interface BeatTrackedSample()
@@ -56,19 +80,78 @@ struct debug_aubio_tempo_t {
 {
     atomic_int _abortBeatTracking;
     atomic_int _beatTrackDone;
-
+    
     size_t _hopSize;
     size_t _tileWidth;
     
     float _averageTempo;
-
+    
     size_t _iteratePageIndex;
     size_t _iterateEventIndex;
-
+    
+#ifdef BEATS_BY_AUBIO
     fvec_t* _aubio_input_buffer;
     fvec_t* _aubio_output_buffer;
-
+    
     aubio_tempo_t* _aubio_tempo;
+#else
+    double currentBPM;
+    double runningBPM;
+    
+    // Cached parameters
+    int tolerance;
+    float period;
+    BOOL filterEnabled;
+    float filterFrequency;
+    //BOOL useHostTempo;
+
+    // Variables used by the lopass filter
+    double filterOutput;
+    double filterConstant;
+
+    // Used to calculate the running BPM
+    double bpmHistory[kBpmHistorySize];
+    // Running BPM shown in GUI
+    //double runningBpm;
+    // State of the processing algorithm, will be true if the current sample is part of the beat
+    bool currentlyInsideBeat;
+    // Highest known amplitude found since initialization (or reset)
+    double highestAmplitude;
+    // Highest known amplitude found within a period
+    double highestAmplitudeInPeriod;
+    // Running average of the number of samples found between beats. Used to calculate the actual BPM.
+    double beatLengthRunningAverage;
+    // Used to calculate the BPM in combination with beatLengthRunningAverage
+    unsigned long numSamplesSinceLastBeat;
+    // Smallest possible BPM allowed, can improve accuracy if input source known to be within a given BPM range
+    double minimumAllowedBpm;
+    // Largest possible BPM allowed, can improve accuracy if input source known to be within a given BPM range
+    double maximumAllowedBpm;
+    // Poor man's downsampling
+    unsigned long samplesToSkip;
+    // Used to calculate the period, which in turn effects the total accuracy of the algorithm
+    unsigned long numSamplesProcessed;
+    // Wait at least this many samples before another beat can be detected. Used to reduce the possibility
+    // of crazy fast tempos triggered by static wooshing and other such things which may fool the trigger
+    // detection algorithm.
+    unsigned long cooldownPeriodInSamples;
+#endif
+}
+
+- (void)clearBpmHistory
+{
+#ifndef BEATS_BY_AUBIO
+    memset(bpmHistory, kBpmHistorySize, sizeof(double));
+    filterOutput = 0.0f;
+    numSamplesProcessed = 0;
+    highestAmplitude = 0.0;
+    highestAmplitudeInPeriod = 0.0;
+    currentlyInsideBeat = false;
+    beatLengthRunningAverage = 0;
+    numSamplesSinceLastBeat = 0;
+    currentBPM = 0.0;
+    runningBPM = 0.0;
+#endif
 }
 
 - (id)initWithSample:(LazySample*)sample framesPerPixel:(double)framesPerPixel
@@ -83,9 +166,12 @@ struct debug_aubio_tempo_t {
         _hopSize = _windowWidth / 4;
         _sampleBuffers = [NSMutableArray array];
         _averageTempo = 0.0f;
+#ifdef BEATS_BY_AUBIO
         _aubio_input_buffer = NULL;
         _aubio_output_buffer = NULL;
         _aubio_tempo = NULL;
+#else
+#endif
         atomic_fetch_and(&_beatTrackDone, 0);
 
         _beats = [NSMutableDictionary dictionary];
@@ -102,6 +188,7 @@ struct debug_aubio_tempo_t {
 - (void)setupTracking
 {
     [self cleanupTracking];
+#ifdef BEATS_BY_AUBIO
     _aubio_input_buffer = new_fvec((unsigned int)_hopSize);
     assert(_aubio_input_buffer);
     _aubio_output_buffer = new_fvec((unsigned int)1);
@@ -110,12 +197,20 @@ struct debug_aubio_tempo_t {
                                    (unsigned int)_windowWidth,
                                    (unsigned int)_hopSize,
                                    (unsigned int)_sample.rate);
-    aubio_tempo_set_threshold(_aubio_tempo, 0.5);
+    aubio_tempo_set_threshold(_aubio_tempo, 0.75f);
     assert(_aubio_tempo);
+#else
+    tolerance = kParamToleranceDefaultValue;
+    period = kParamPeriodDefaultValue;
+    filterEnabled = YES;
+    filterFrequency = kParamFilterDefaultValue;
+    filterConstant = _sample.rate / (2.0f * M_PI * filterFrequency);
+#endif
 }
 
 - (void)cleanupTracking
 {
+#ifdef BEATS_BY_AUBIO
     if (_aubio_input_buffer != NULL) {
         del_fvec(_aubio_input_buffer);
     }
@@ -130,6 +225,15 @@ struct debug_aubio_tempo_t {
         del_aubio_tempo(_aubio_tempo);
     }
     _aubio_tempo = NULL;
+#else
+    minimumAllowedBpm = kMinimumTempo;
+    maximumAllowedBpm = kMaximumTempo;
+    cooldownPeriodInSamples = (unsigned long)(_sample.rate * (60.0f / (float)maximumAllowedBpm));
+    samplesToSkip = kDownsampleFactor;
+    filterOutput = 0.0;
+    filterConstant = 0.0;
+    [self clearBpmHistory];
+#endif
 }
 
 - (void)dealloc
@@ -181,11 +285,11 @@ void beatsContextReset(BeatsParserContext* context)
         for (int channel = 0; channel < channels; channel++) {
             data[channel] = (float*)((NSMutableData*)_sampleBuffers[channel]).bytes;
         }
-        unsigned long long sourceWindowFrameOffset = 0;
+        unsigned long long sourceWindowFrameOffset = 0LL;
+        unsigned long long expectedNextBeatFrame = 0LL;
         
-        unsigned long long expectedNextBeatFrame = 0;
-        
-        unsigned char beatIndex = 0;
+        unsigned char barBeatIndex = 0;
+        unsigned int beatHistoryIndex = 0;
 
         while (sourceWindowFrameOffset < _sample.frames) {
             unsigned long long sourceWindowFrameCount = MIN(_hopSize * 1024,
@@ -194,12 +298,142 @@ void beatsContextReset(BeatsParserContext* context)
             unsigned long long received = [_sample rawSampleFromFrameOffset:sourceWindowFrameOffset
                                                                      frames:sourceWindowFrameCount
                                                                     outputs:data];
+            
+            // FIXME: Consider introducing low pass filtering to get aubio to detect beats more reliably for electronic dance music which is all i am interested in.
+            
             unsigned long int sourceFrameIndex = 0;
             BeatEvent event;
             while(sourceFrameIndex < received) {
+#ifndef BEATS_BY_AUBIO
+                double s = 0.0;
+                for (int channel = 0; channel < channels; channel++) {
+                    s += data[channel][sourceFrameIndex];
+                }
+                s /= (float)channels;
+
+                sourceFrameIndex++;
+
+                double currentSampleAmplitude;
+
+                if(filterEnabled) {
+                    // Basic lowpass filter (feedback)
+                    filterOutput += (s - filterOutput) / filterConstant;
+                    currentSampleAmplitude = fabs(filterOutput);
+                }
+                else {
+                  currentSampleAmplitude = fabs(s);
+                }
+
+                // Find highest peak in the current period
+                if(currentSampleAmplitude > highestAmplitudeInPeriod) {
+                    highestAmplitudeInPeriod = currentSampleAmplitude;
+
+                    // Is it also the highest value since we started?
+                    if(currentSampleAmplitude > highestAmplitude) {
+                        highestAmplitude = currentSampleAmplitude;
+                    }
+                }
+
+                // Downsample by skipping samples
+                if(--samplesToSkip <= 0) {
+                    
+                    // Beat amplitude trigger has been detected
+                    if(highestAmplitudeInPeriod >= (highestAmplitude * tolerance / 100.0) &&
+                       highestAmplitudeInPeriod > kSilenceThreshold) {
+
+                        // First sample inside of a beat?
+                        if(!currentlyInsideBeat && numSamplesSinceLastBeat > cooldownPeriodInSamples) {
+                            currentlyInsideBeat = true;
+                            double bpm = (_sample.rate * 60.0f) / ((beatLengthRunningAverage + numSamplesSinceLastBeat) / 2);
+                            
+                            // Check for half-beat patterns. For instance, a song which has a kick drum
+                            // at around 70 BPM but an actual tempo of x.
+                            double doubledBpm = bpm * 2.0;
+                            if(doubledBpm > minimumAllowedBpm && doubledBpm < maximumAllowedBpm) {
+                                bpm = doubledBpm;
+                            }
+                            
+                            beatLengthRunningAverage += numSamplesSinceLastBeat;
+                            beatLengthRunningAverage /= 2;
+                            numSamplesSinceLastBeat = 0;
+                            
+                            // Check to see that this tempo is within the limits allowed
+                            if(bpm > minimumAllowedBpm && bpm < maximumAllowedBpm) {
+                                bpmHistory[beatHistoryIndex] = bpm;
+                                beatHistoryIndex++;
+                                assert(beatHistoryIndex < kBpmHistorySize);
+                                NSLog(@"Beat Triggered");
+                                NSLog(@"Current BPM %f", bpm);
+
+                                event.frame = sourceWindowFrameOffset + sourceFrameIndex;
+
+                                if (llabs(expectedNextBeatFrame - event.frame) > (_sample.rate / 10)) {
+                                    NSLog(@"looks like a bad prediction at %lld - %@", event.frame, [_sample beautifulTimeWithFrame:event.frame]);
+                                }
+                                
+                                event.bpm = bpm;
+                                event.confidence = 1.0f;
+                                event.index = barBeatIndex;
+
+                                barBeatIndex = (barBeatIndex + 1) % 4;
+                                
+                                expectedNextBeatFrame = event.frame + [self framesPerBeat:event.bpm];
+                                NSLog(@"beat at %lld - %.2f bpm, confidence %.4f -- next beat expected at %lld",
+                                      event.frame, event.bpm, event.confidence, expectedNextBeatFrame);
+
+                                if (_averageTempo == 0) {
+                                    _averageTempo = event.bpm;
+                                } else {
+                                    _averageTempo = ((_averageTempo * 9.0f) + event.bpm) / 10.0f;
+                                }
+                                
+                                size_t origin = event.frame / _framesPerPixel;
+
+                                NSNumber* pageKey = [NSNumber numberWithLong:origin / _tileWidth];
+
+                                NSMutableData* data = [_beats objectForKey:pageKey];
+                                if (data == nil) {
+                                    data = [NSMutableData data];
+                                }
+
+                                [data appendBytes:&event length:sizeof(BeatEvent)];
+
+                                [_beats setObject:data forKey:pageKey];
+
+                                // Do total BPM and Reset?
+                                if(numSamplesProcessed > period * _sample.rate) {
+                                    runningBPM = 0.0;
+                                    for(unsigned int historyIndex = 0; historyIndex < beatHistoryIndex; ++historyIndex) {
+                                        runningBPM += bpmHistory[historyIndex];
+                                    }
+                                    runningBPM /= (double)beatHistoryIndex;
+                                    beatHistoryIndex = 0;
+                                    numSamplesProcessed = 0;
+                                    NSLog(@"Running BPM %f", runningBPM);
+                                }
+                            } else {
+                                // Outside of bpm threshold, ignore
+                            }
+                        } else {
+                            // Not the first beat mark
+                            currentlyInsideBeat = false;
+                        }
+                    } else {
+                        // Were we just in a beat?
+                        if(currentlyInsideBeat) {
+                            currentlyInsideBeat = false;
+                        }
+                    }
+
+                    samplesToSkip = kDownsampleFactor;
+                    highestAmplitudeInPeriod = 0.0;
+                }
+
+                ++numSamplesProcessed;
+                ++numSamplesSinceLastBeat;
+#else
                 assert(((struct debug_aubio_tempo_t*)_aubio_tempo)->total_frames ==
                        sourceWindowFrameOffset + sourceFrameIndex);
-
                 for (unsigned long int inputFrameIndex = 0;
                      inputFrameIndex < _hopSize;
                      inputFrameIndex++) {
@@ -213,20 +447,21 @@ void beatsContextReset(BeatsParserContext* context)
                 }
 
                 aubio_tempo_do(_aubio_tempo, _aubio_input_buffer, _aubio_output_buffer);
-
                 const bool beat = fvec_get_sample(_aubio_output_buffer, 0) != 0.f;
                 if (beat) {
                     event.frame = aubio_tempo_get_last(_aubio_tempo);
-                    
-                    if (llabs(expectedNextBeatFrame - event.frame) > (_sample.rate / 10)) {
+
+                    if (llabs(expectedNextBeatFrame - event.frame) > (_sample.rate / 5)) {
                         NSLog(@"looks like a bad prediction at %lld - %@", event.frame, [_sample beautifulTimeWithFrame:event.frame]);
                     }
                     
                     event.bpm = aubio_tempo_get_bpm(_aubio_tempo);
                     event.confidence = aubio_tempo_get_confidence(_aubio_tempo);
-                    event.index = beatIndex;
-                    
-                    beatIndex = (beatIndex + 1) % 4;
+
+//#ifdef
+//                    event.index = beatIndex;
+
+  //                  beatIndex = (beatIndex + 1) % 4;
                     
                     expectedNextBeatFrame = event.frame + [self framesPerBeat:event.bpm];
                     NSLog(@"beat at %lld - %.2f bpm, confidence %.4f -- next beat expected at %lld",
@@ -251,7 +486,9 @@ void beatsContextReset(BeatsParserContext* context)
 
                     [_beats setObject:data forKey:pageKey];
                 }
+#endif
             };
+
             sourceWindowFrameOffset += received;
         };
         

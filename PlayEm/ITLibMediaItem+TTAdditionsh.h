@@ -1,5 +1,5 @@
 //
-//  ITLibMediaItem+ITLibMediaItem_compare.h
+//  ITLibMediaItem+TTAdditions.h
 //  PlayEm
 //
 //  Created by Till Toenshoff on 23.09.20.
@@ -11,9 +11,9 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface ITLibMediaItem (ITLibMediaItem_compare)
+@interface ITLibMediaItem (TTAdditions)
 
-- (NSComparisonResult)compareGenre:(ITLibMediaItem*)otherObject;
+//- (NSComparisonResult)compareGenre:(ITLibMediaItem*)otherObject;
 
 @end
 

@@ -57,12 +57,13 @@ static const int kParamToleranceDefaultValue = 75;
 static const float kParamPeriodMinValue = 1.0f;
 static const float kParamPeriodMaxValue = 10.0f;
 static const float kParamPeriodDefaultValue = 2.0f;
-static const float kParamFilterMinValue = 50.0f;
-static const float kParamFilterMaxValue = 500.0f;
-static const float kParamFilterDefaultValue = 150.0f;
 
 static const int kBpmHistorySize = 200;
 #endif
+
+static const float kParamFilterMinValue = 50.0f;
+static const float kParamFilterMaxValue = 500.0f;
+static const float kParamFilterDefaultValue = 240.0f;
 
 
 @interface BeatTrackedSample()
@@ -89,6 +90,13 @@ static const int kBpmHistorySize = 200;
     size_t _iteratePageIndex;
     size_t _iterateEventIndex;
     
+    // Variables used by the lopass filter
+    BOOL _filterEnabled;
+    float _filterFrequency;
+    
+    double _filterOutput;
+    double _filterConstant;
+
 #ifdef BEATS_BY_AUBIO
     fvec_t* _aubio_input_buffer;
     fvec_t* _aubio_output_buffer;
@@ -101,13 +109,8 @@ static const int kBpmHistorySize = 200;
     // Cached parameters
     int tolerance;
     float period;
-    BOOL filterEnabled;
-    float filterFrequency;
     //BOOL useHostTempo;
 
-    // Variables used by the lopass filter
-    double filterOutput;
-    double filterConstant;
 
     // Used to calculate the running BPM
     double bpmHistory[kBpmHistorySize];
@@ -199,6 +202,9 @@ static const int kBpmHistorySize = 200;
                                    (unsigned int)_sample.rate);
     aubio_tempo_set_threshold(_aubio_tempo, 0.75f);
     assert(_aubio_tempo);
+    _filterEnabled = YES;
+    _filterFrequency = kParamFilterDefaultValue;
+    _filterConstant = _sample.rate / (2.0f * M_PI * _filterFrequency);
 #else
     tolerance = kParamToleranceDefaultValue;
     period = kParamPeriodDefaultValue;
@@ -442,6 +448,12 @@ void beatsContextReset(BeatsParserContext* context)
                         s += data[channel][sourceFrameIndex];
                     }
                     s /= (float)channels;
+                    if(_filterEnabled) {
+                        // Basic lowpass filter (feedback)
+                        _filterOutput += (s - _filterOutput) / _filterConstant;
+                        s = _filterOutput;
+                    }
+
                     _aubio_input_buffer->data[inputFrameIndex] = s;
                     sourceFrameIndex++;
                 }

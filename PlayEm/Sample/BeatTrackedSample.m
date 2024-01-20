@@ -61,10 +61,10 @@ static const float kParamPeriodDefaultValue = 2.0f;
 static const int kBpmHistorySize = 200;
 #endif
 
+// Lowpass cutoff frequency.
 static const float kParamFilterMinValue = 50.0f;
 static const float kParamFilterMaxValue = 500.0f;
 static const float kParamFilterDefaultValue = 240.0f;
-
 
 @interface BeatTrackedSample()
 {
@@ -297,6 +297,8 @@ void beatsContextReset(BeatsParserContext* context)
         unsigned char barBeatIndex = 0;
         unsigned int beatHistoryIndex = 0;
 
+        NSLog(@"pass one");
+
         while (sourceWindowFrameOffset < _sample.frames) {
             unsigned long long sourceWindowFrameCount = MIN(_hopSize * 1024,
                                                             _sample.frames - sourceWindowFrameOffset);
@@ -470,11 +472,6 @@ void beatsContextReset(BeatsParserContext* context)
                     event.bpm = aubio_tempo_get_bpm(_aubio_tempo);
                     event.confidence = aubio_tempo_get_confidence(_aubio_tempo);
 
-//#ifdef
-//                    event.index = beatIndex;
-
-  //                  beatIndex = (beatIndex + 1) % 4;
-                    
                     expectedNextBeatFrame = event.frame + [self framesPerBeat:event.bpm];
                     NSLog(@"beat at %lld - %.2f bpm, confidence %.4f -- next beat expected at %lld",
                           event.frame, event.bpm, event.confidence, expectedNextBeatFrame);
@@ -503,10 +500,34 @@ void beatsContextReset(BeatsParserContext* context)
 
             sourceWindowFrameOffset += received;
         };
-        
-        
-
         [self cleanupTracking];
+
+        NSLog(@"pass two");
+        
+        NSArray* keys = [[_beats allKeys] sortedArrayUsingSelector:@selector(compare:)];
+        for (NSNumber* key in keys) {
+            NSLog(@"beats page");
+            const NSData* data = _beats[key];
+            const BeatEvent* event = data.bytes;
+            for (int i=0; i < data.length / sizeof(BeatEvent); i++) {
+                NSLog(@"%lld %.0f %.4f", event->frame, event->bpm, event->confidence);
+                ++event;
+            }
+        }
+
+        NSLog(@"pass three");
+        
+//        NSArray* keys = [_beats allKeys];
+//        for (NSNumber* key in keys) {
+//            NSLog(@"beats page");
+//            const NSData* data = _beats[key];
+//            const BeatEvent* event = data.bytes;
+//            for (int i=0; i < data.length / sizeof(BeatEvent); i++) {
+//                NSLog(@"%lld %f %.2f", event->frame, event->bpm, event->confidence);
+//                ++event;
+//            }
+//        }
+
         atomic_fetch_or(&_beatTrackDone, 1);
 
         NSLog(@"...beats tracking done");

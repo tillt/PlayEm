@@ -62,8 +62,8 @@ static const int kBpmHistorySize = 200;
 #endif
 
 // Lowpass cutoff frequency.
-static const float kParamFilterMinValue = 50.0f;
-static const float kParamFilterMaxValue = 500.0f;
+//static const float kParamFilterMinValue = 50.0f;
+//static const float kParamFilterMaxValue = 500.0f;
 static const float kParamFilterDefaultValue = 240.0f;
 
 @interface BeatTrackedSample()
@@ -286,27 +286,27 @@ void beatsContextReset(BeatsParserContext* context)
         NSLog(@"async beats tracking...");
         [self setupTracking];
         
-        float* data[_sample.channels];
-        const int channels = _sample.channels;
+        float* data[self->_sample.channels];
+        const int channels = self->_sample.channels;
         for (int channel = 0; channel < channels; channel++) {
-            data[channel] = (float*)((NSMutableData*)_sampleBuffers[channel]).bytes;
+            data[channel] = (float*)((NSMutableData*)self->_sampleBuffers[channel]).bytes;
         }
         unsigned long long sourceWindowFrameOffset = 0LL;
         unsigned long long expectedNextBeatFrame = 0LL;
         
-        unsigned char barBeatIndex = 0;
-        unsigned int beatHistoryIndex = 0;
+        //unsigned char barBeatIndex = 0;
+        //unsigned int beatHistoryIndex = 0;
 
         NSLog(@"pass one");
 
-        while (sourceWindowFrameOffset < _sample.frames) {
-            unsigned long long sourceWindowFrameCount = MIN(_hopSize * 1024,
-                                                            _sample.frames - sourceWindowFrameOffset);
+        while (sourceWindowFrameOffset < self->_sample.frames) {
+            unsigned long long sourceWindowFrameCount = MIN(self->_hopSize * 1024,
+                                                            self->_sample.frames - sourceWindowFrameOffset);
             // This may block for a loooooong time!
-            unsigned long long received = [_sample rawSampleFromFrameOffset:sourceWindowFrameOffset
-                                                                     frames:sourceWindowFrameCount
-                                                                    outputs:data];
-            
+            unsigned long long received = [self->_sample rawSampleFromFrameOffset:sourceWindowFrameOffset
+                                                                         frames:sourceWindowFrameCount
+                                                                        outputs:data];
+                
             // FIXME: Consider introducing low pass filtering to get aubio to detect beats more reliably for electronic dance music which is all i am interested in.
             
             unsigned long int sourceFrameIndex = 0;
@@ -440,60 +440,60 @@ void beatsContextReset(BeatsParserContext* context)
                 ++numSamplesProcessed;
                 ++numSamplesSinceLastBeat;
 #else
-                assert(((struct debug_aubio_tempo_t*)_aubio_tempo)->total_frames ==
+                assert(((struct debug_aubio_tempo_t*)self->_aubio_tempo)->total_frames ==
                        sourceWindowFrameOffset + sourceFrameIndex);
                 for (unsigned long int inputFrameIndex = 0;
-                     inputFrameIndex < _hopSize;
+                     inputFrameIndex < self->_hopSize;
                      inputFrameIndex++) {
                     double s = 0.0;
                     for (int channel = 0; channel < channels; channel++) {
                         s += data[channel][sourceFrameIndex];
                     }
                     s /= (float)channels;
-                    if(_filterEnabled) {
+                    if(self->_filterEnabled) {
                         // Basic lowpass filter (feedback)
-                        _filterOutput += (s - _filterOutput) / _filterConstant;
-                        s = _filterOutput;
+                        self->_filterOutput += (s - self->_filterOutput) / self->_filterConstant;
+                        s = self->_filterOutput;
                     }
 
-                    _aubio_input_buffer->data[inputFrameIndex] = s;
+                    self->_aubio_input_buffer->data[inputFrameIndex] = s;
                     sourceFrameIndex++;
                 }
 
-                aubio_tempo_do(_aubio_tempo, _aubio_input_buffer, _aubio_output_buffer);
-                const bool beat = fvec_get_sample(_aubio_output_buffer, 0) != 0.f;
+                aubio_tempo_do(self->_aubio_tempo, self->_aubio_input_buffer, self->_aubio_output_buffer);
+                const bool beat = fvec_get_sample(self->_aubio_output_buffer, 0) != 0.f;
                 if (beat) {
-                    event.frame = aubio_tempo_get_last(_aubio_tempo);
+                    event.frame = aubio_tempo_get_last(self->_aubio_tempo);
 
-                    if (llabs(expectedNextBeatFrame - event.frame) > (_sample.rate / 5)) {
-                        NSLog(@"looks like a bad prediction at %lld - %@", event.frame, [_sample beautifulTimeWithFrame:event.frame]);
+                    if (llabs((signed long long)expectedNextBeatFrame - (signed long long)event.frame) > (self->_sample.rate / 5)) {
+                        NSLog(@"looks like a bad prediction at %lld - %@", event.frame, [self->_sample beautifulTimeWithFrame:event.frame]);
                     }
                     
-                    event.bpm = aubio_tempo_get_bpm(_aubio_tempo);
-                    event.confidence = aubio_tempo_get_confidence(_aubio_tempo);
+                    event.bpm = aubio_tempo_get_bpm(self->_aubio_tempo);
+                    event.confidence = aubio_tempo_get_confidence(self->_aubio_tempo);
 
                     expectedNextBeatFrame = event.frame + [self framesPerBeat:event.bpm];
                     NSLog(@"beat at %lld - %.2f bpm, confidence %.4f -- next beat expected at %lld",
                           event.frame, event.bpm, event.confidence, expectedNextBeatFrame);
 
-                    if (_averageTempo == 0) {
-                        _averageTempo = event.bpm;
+                    if (self->_averageTempo == 0) {
+                        self->_averageTempo = event.bpm;
                     } else {
-                        _averageTempo = ((_averageTempo * 9.0f) + event.bpm) / 10.0f;
+                        self->_averageTempo = ((self->_averageTempo * 9.0f) + event.bpm) / 10.0f;
                     }
                     
-                    size_t origin = event.frame / _framesPerPixel;
+                    size_t origin = event.frame / self->_framesPerPixel;
 
-                    NSNumber* pageKey = [NSNumber numberWithLong:origin / _tileWidth];
+                    NSNumber* pageKey = [NSNumber numberWithLong:origin / self->_tileWidth];
 
-                    NSMutableData* data = [_beats objectForKey:pageKey];
+                    NSMutableData* data = [self->_beats objectForKey:pageKey];
                     if (data == nil) {
                         data = [NSMutableData data];
                     }
 
                     [data appendBytes:&event length:sizeof(BeatEvent)];
 
-                    [_beats setObject:data forKey:pageKey];
+                    [self->_beats setObject:data forKey:pageKey];
                 }
 #endif
             };
@@ -504,10 +504,10 @@ void beatsContextReset(BeatsParserContext* context)
 
         NSLog(@"pass two");
         
-        NSArray* keys = [[_beats allKeys] sortedArrayUsingSelector:@selector(compare:)];
+        NSArray* keys = [[self->_beats allKeys] sortedArrayUsingSelector:@selector(compare:)];
         for (NSNumber* key in keys) {
             NSLog(@"beats page");
-            const NSData* data = _beats[key];
+            const NSData* data = self->_beats[key];
             const BeatEvent* event = data.bytes;
             for (int i=0; i < data.length / sizeof(BeatEvent); i++) {
                 NSLog(@"%lld %.0f %.4f", event->frame, event->bpm, event->confidence);
@@ -528,7 +528,7 @@ void beatsContextReset(BeatsParserContext* context)
 //            }
 //        }
 
-        atomic_fetch_or(&_beatTrackDone, 1);
+        atomic_fetch_or(&self->_beatTrackDone, 1);
 
         NSLog(@"...beats tracking done");
         

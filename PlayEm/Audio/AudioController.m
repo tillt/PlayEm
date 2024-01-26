@@ -232,7 +232,7 @@ void bufferCallback(void* user_data, AudioQueueRef queue, AudioQueueBufferRef bu
 
     // TODO: We should use something more appropriate here, preventing polling.
     _timer = [NSTimer scheduledTimerWithTimeInterval:kPollInterval repeats:YES block:^(NSTimer* timer){
-        if (_context.sample.decodedFrames >= _context.sample.rate * kEnoughSecondsDecoded) {
+        if (self->_context.sample.decodedFrames >= self->_context.sample.rate * kEnoughSecondsDecoded) {
             NSLog(@"waiting done, starting playback.");
             [timer invalidate];
             self.timer = nil;

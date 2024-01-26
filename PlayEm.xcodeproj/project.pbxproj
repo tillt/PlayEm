@@ -44,6 +44,8 @@
 		BBC43B7028D28CDD00CD1080 /* InfoPanel.m in Sources */ = {isa = PBXBuildFile; fileRef = BBC43B6F28D28CDD00CD1080 /* InfoPanel.m */; };
 		BBC43B7328D296B800CD1080 /* AVMetadataItem+THAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = BBC43B7228D296B800CD1080 /* AVMetadataItem+THAdditions.m */; };
 		BBCE1DD9257C3CAB006CE886 /* TiledScrollView.m in Sources */ = {isa = PBXBuildFile; fileRef = BBCE1DD8257C3CAB006CE886 /* TiledScrollView.m */; };
+		BBCE23512B5C9235003892F3 /* WaveRenderer.m in Sources */ = {isa = PBXBuildFile; fileRef = BBCE23502B5C9234003892F3 /* WaveRenderer.m */; };
+		BBCE23542B5C9C41003892F3 /* GraphicsTools.m in Sources */ = {isa = PBXBuildFile; fileRef = BBCE23532B5C9C41003892F3 /* GraphicsTools.m */; };
 		BBD24D622432948800DC2A81 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = BBD24D612432948800DC2A81 /* AppDelegate.m */; };
 		BBD24D642432948B00DC2A81 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = BBD24D632432948B00DC2A81 /* Assets.xcassets */; };
 		BBD24D6A2432948B00DC2A81 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = BBD24D692432948B00DC2A81 /* main.m */; };
@@ -143,6 +145,12 @@
 		BBC43B7228D296B800CD1080 /* AVMetadataItem+THAdditions.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "AVMetadataItem+THAdditions.m"; sourceTree = "<group>"; };
 		BBCE1DD7257C3CAB006CE886 /* TiledScrollView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TiledScrollView.h; sourceTree = "<group>"; };
 		BBCE1DD8257C3CAB006CE886 /* TiledScrollView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TiledScrollView.m; sourceTree = "<group>"; };
+		BBCE234F2B5C9234003892F3 /* WaveRenderer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WaveRenderer.h; sourceTree = "<group>"; };
+		BBCE23502B5C9234003892F3 /* WaveRenderer.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WaveRenderer.m; sourceTree = "<group>"; };
+		BBCE23522B5C9C41003892F3 /* GraphicsTools.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GraphicsTools.h; sourceTree = "<group>"; };
+		BBCE23532B5C9C41003892F3 /* GraphicsTools.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GraphicsTools.m; sourceTree = "<group>"; };
+		BBCE23552B5C9FAC003892F3 /* ScopeShaderTypes.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ScopeShaderTypes.h; path = PlayEm/ScopeShaderTypes.h; sourceTree = SOURCE_ROOT; };
+		BBCE23562B5C9FAC003892F3 /* WaveShaderTypes.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = WaveShaderTypes.h; path = PlayEm/WaveShaderTypes.h; sourceTree = SOURCE_ROOT; };
 		BBD24D5D2432948800DC2A81 /* PlayEm.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PlayEm.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		BBD24D602432948800DC2A81 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		BBD24D612432948800DC2A81 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
@@ -315,6 +323,12 @@
 				BBA456DD293948910062D470 /* Sample */,
 				BB6CBC982471F0A1003E1415 /* Shaders */,
 				BBE2846A2467640800BE9D7F /* ShaderTypes.h */,
+				BBCE23552B5C9FAC003892F3 /* ScopeShaderTypes.h */,
+				BBCE23562B5C9FAC003892F3 /* WaveShaderTypes.h */,
+				BBCE23522B5C9C41003892F3 /* GraphicsTools.h */,
+				BBCE23532B5C9C41003892F3 /* GraphicsTools.m */,
+				BBCE234F2B5C9234003892F3 /* WaveRenderer.h */,
+				BBCE23502B5C9234003892F3 /* WaveRenderer.m */,
 				BBE284662467612F00BE9D7F /* ScopeRenderer.h */,
 				BBE284672467612F00BE9D7F /* ScopeRenderer.m */,
 				BBDC9888250E81CF008B19D1 /* BrowserController.h */,
@@ -484,6 +498,7 @@
 				BB9401882AD0974900B7B150 /* AcceleratedBiquadFilter.m in Sources */,
 				BB9C77E52A8D5F7C00A138BE /* WaveView.m in Sources */,
 				BBF7982D2ADC4BAA00893533 /* NSString+BeautifulPast.m in Sources */,
+				BBCE23542B5C9C41003892F3 /* GraphicsTools.m in Sources */,
 				BB7C626C2932E1540019AF25 /* ControlPanelController.m in Sources */,
 				BBCE1DD9257C3CAB006CE886 /* TiledScrollView.m in Sources */,
 				BBDC988A250E81D0008B19D1 /* BrowserController.m in Sources */,
@@ -518,6 +533,7 @@
 				BBDFAC82259A68E200092458 /* ProgressView.m in Sources */,
 				BB2CF8AD259EB66900D6BA03 /* LazySample.m in Sources */,
 				BB0C5D9327768D2400856978 /* MatrixUtilities.m in Sources */,
+				BBCE23512B5C9235003892F3 /* WaveRenderer.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

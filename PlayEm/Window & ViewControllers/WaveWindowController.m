@@ -164,22 +164,22 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
                             _controlPanelController.beatIndicator.layer.bounds.size.height - 2);
     [NSAnimationContext runAnimationGroup:^(NSAnimationContext *context) {
         [context setDuration:kBeatEffectRampUp];
-        _controlPanelController.beatIndicator.animator.alphaValue = 1.0;
+        self->_controlPanelController.beatIndicator.animator.alphaValue = 1.0;
         CATransform3D tr = CATransform3DIdentity;
         tr = CATransform3DTranslate(tr, mid.width, mid.height, 0);
         tr = CATransform3DScale(tr, 3.0, 3.0, 1);
         tr = CATransform3DTranslate(tr, -mid.width, -mid.height, 0);
-        _controlPanelController.beatIndicator.animator.layer.transform = tr;
+        self->_controlPanelController.beatIndicator.animator.layer.transform = tr;
     } completionHandler:^{
         [NSAnimationContext runAnimationGroup:^(NSAnimationContext *context) {
             [context setDuration:kBeatEffectRampDown];
             [context setTimingFunction:[CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseOut]];
-            _controlPanelController.beatIndicator.animator.alphaValue = 0.0;
+            self->_controlPanelController.beatIndicator.animator.alphaValue = 0.0;
             CATransform3D tr = CATransform3DIdentity;
             tr = CATransform3DTranslate(tr, mid.width, mid.height, 0);
             tr = CATransform3DScale(tr, 1.0, 1.0, 1);
             tr = CATransform3DTranslate(tr, -mid.width, -mid.height, 0);
-            _controlPanelController.beatIndicator.animator.layer.transform = tr;
+            self->_controlPanelController.beatIndicator.animator.layer.transform = tr;
         }];
     }];
 }
@@ -261,12 +261,14 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     
     _beatLayerDelegate = [BeatLayerDelegate new];
 
+    WaveWindowController* __weak weakSelf = self;
+
     self.waveLayerDelegate = [WaveLayerDelegate new];
     self.waveLayerDelegate.offsetBlock = ^CGFloat{
-        return self.waveView.enclosingScrollView.documentVisibleRect.origin.x;
+        return weakSelf.waveView.enclosingScrollView.documentVisibleRect.origin.x;
     };
     self.waveLayerDelegate.widthBlock = ^CGFloat{
-        return self.waveView.enclosingScrollView.documentVisibleRect.size.width;
+        return weakSelf.waveView.enclosingScrollView.documentVisibleRect.size.width;
     };
 
     self.totalWaveLayerDelegate = [WaveLayerDelegate new];
@@ -275,7 +277,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
         return 0.0;
     };
     self.totalWaveLayerDelegate.widthBlock = ^CGFloat{
-        return self.totalView.frame.size.width;
+        return weakSelf.totalView.frame.size.width;
     };
 
     _controlPanelController = [ControlPanelController new];

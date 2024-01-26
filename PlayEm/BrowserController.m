@@ -187,11 +187,11 @@
 
             [weakSelf.delegate updateSongsCount:weakSelf.filteredItems.count];
 
-            _updatingGenres = NO;
-            _updatingArtists = NO;
-            _updatingAlbums = NO;
-            _updatingTempos = NO;
-            _updatingKeys = NO;
+            self->_updatingGenres = NO;
+            self->_updatingArtists = NO;
+            self->_updatingAlbums = NO;
+            self->_updatingTempos = NO;
+            self->_updatingKeys = NO;
             [weakSelf.genresTable selectRowIndexes:[NSIndexSet indexSetWithIndex:0]
                               byExtendingSelection:NO];
 
@@ -457,18 +457,18 @@ static void* LibraryContext = &LibraryContext;
             [weakSelf.songsTable endUpdates];
 
             NSIndexSet* zeroSet = [NSIndexSet indexSetWithIndex:0];
-            _updatingArtists = YES;
-            _updatingAlbums = YES;
-            _updatingTempos = YES;
-            _updatingKeys = YES;
+            self->_updatingArtists = YES;
+            self->_updatingAlbums = YES;
+            self->_updatingTempos = YES;
+            self->_updatingKeys = YES;
             [weakSelf.artistsTable selectRowIndexes:zeroSet byExtendingSelection:NO];
             [weakSelf.albumsTable selectRowIndexes:zeroSet byExtendingSelection:NO];
             [weakSelf.temposTable selectRowIndexes:zeroSet byExtendingSelection:NO];
             [weakSelf.keysTable selectRowIndexes:zeroSet byExtendingSelection:NO];
-            _updatingArtists = NO;
-            _updatingAlbums = NO;
-            _updatingTempos = NO;
-            _updatingKeys = NO;
+            self->_updatingArtists = NO;
+            self->_updatingAlbums = NO;
+            self->_updatingTempos = NO;
+            self->_updatingKeys = NO;
         });
     });
 }
@@ -522,15 +522,15 @@ static void* LibraryContext = &LibraryContext;
             [weakSelf.songsTable endUpdates];
 
             NSIndexSet* zeroSet = [NSIndexSet indexSetWithIndex:0];
-            _updatingAlbums = YES;
-            _updatingTempos = YES;
-            _updatingKeys = YES;
+            self->_updatingAlbums = YES;
+            self->_updatingTempos = YES;
+            self->_updatingKeys = YES;
             [weakSelf.albumsTable selectRowIndexes:zeroSet byExtendingSelection:NO];
             [weakSelf.temposTable selectRowIndexes:zeroSet byExtendingSelection:NO];
             [weakSelf.keysTable selectRowIndexes:zeroSet byExtendingSelection:NO];
-            _updatingAlbums = NO;
-            _updatingTempos = NO;
-            _updatingKeys = NO;
+            self->_updatingAlbums = NO;
+            self->_updatingTempos = NO;
+            self->_updatingKeys = NO;
         });
     });
 }
@@ -579,12 +579,12 @@ static void* LibraryContext = &LibraryContext;
             [weakSelf.songsTable endUpdates];
 
             NSIndexSet* zeroSet = [NSIndexSet indexSetWithIndex:0];
-            _updatingTempos = YES;
-            _updatingKeys = YES;
+            self->_updatingTempos = YES;
+            self->_updatingKeys = YES;
             [weakSelf.temposTable selectRowIndexes:zeroSet byExtendingSelection:NO];
             [weakSelf.keysTable selectRowIndexes:zeroSet byExtendingSelection:NO];
-            _updatingTempos = NO;
-            _updatingKeys = NO;
+            self->_updatingTempos = NO;
+            self->_updatingKeys = NO;
         });
     });
 }
@@ -660,9 +660,9 @@ static void* LibraryContext = &LibraryContext;
 
             NSIndexSet* zeroSet = [NSIndexSet indexSetWithIndex:0];
             
-            _updatingKeys = YES;
+            self->_updatingKeys = YES;
             [weakSelf.keysTable selectRowIndexes:zeroSet byExtendingSelection:NO];
-            _updatingKeys = NO;
+            self->_updatingKeys = NO;
 
         });
     });

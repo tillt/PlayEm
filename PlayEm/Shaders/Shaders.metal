@@ -10,6 +10,7 @@
 #include <simd/simd.h>
 
 #import "../ShaderTypes.h"
+#import "../ScopeShaderTypes.h"
 
 using namespace metal;
 
@@ -70,10 +71,10 @@ vertex TexturePipelineRasterizerData projectTexture(unsigned int vertex_id [[ ve
 /// Instance vertex shader rendering lines.
 /// FIXME: This is strictly monochrome at the moment. Completely lacks use of transparency or textures to its advantage.
 ///
-vertex ColorInOut polySegmentInstanceShader(constant Node*        nodes        [[ buffer(BufferIndexScopeLines) ]],
-                                            constant Uniforms&    uniforms     [[ buffer(BufferIndexUniforms) ]],
-                                            unsigned int          vid          [[ vertex_id ]],
-                                            unsigned int          instanceId   [[ instance_id ]])
+vertex ColorInOut polySegmentInstanceShader(constant Node*              nodes        [[ buffer(BufferIndexScopeLines) ]],
+                                            constant ScopeUniforms&     uniforms     [[ buffer(BufferIndexUniforms) ]],
+                                            unsigned int                vid          [[ vertex_id ]],
+                                            unsigned int                instanceId   [[ instance_id ]])
 {
     float4x4 matrix = uniforms.modelViewMatrix;
 
@@ -183,9 +184,9 @@ fragment float4 scopeFragmentShader(ColorInOut in [[stage_in]])
     return in.color;
 }
 
-vertex ColorInOut frequenciesVertexShader(constant Uniforms&    uniforms     [[ buffer(BufferIndexUniforms) ]],
-                                            const constant float* frequenciesBuffer [[ buffer(BufferIndexFrequencies) ]],
-                                            unsigned int          vid          [[ vertex_id ]])
+vertex ColorInOut frequenciesVertexShader(constant ScopeUniforms& uniforms          [[ buffer(BufferIndexUniforms) ]],
+                                          const constant float*   frequenciesBuffer [[ buffer(BufferIndexFrequencies) ]],
+                                          unsigned int            vid               [[ vertex_id ]])
 {
     float4x4 matrix = uniforms.modelViewMatrix;
 
@@ -249,7 +250,7 @@ fragment float4 drawableTextureFragmentShader(TexturePipelineRasterizerData    i
 fragment float4 composeFragmentShader(TexturePipelineRasterizerData    in           [[ stage_in ]],
                                       texture2d<float, access::sample> textureScope [[ texture(TextureIndexScope) ]],
                                       texture2d<float, access::sample> textureLast  [[ texture(TextureIndexLast) ]],
-                                      constant Uniforms&    uniforms     [[ buffer(BufferIndexUniforms) ]])
+                                      constant ScopeUniforms&          uniforms     [[ buffer(BufferIndexUniforms) ]])
 {
     constexpr sampler quadSampler;
 

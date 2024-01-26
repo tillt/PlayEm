@@ -5,6 +5,8 @@
 //  Created by Till Toenshoff on 10.05.20.
 //  Copyright © 2020 Till Toenshoff. All rights reserved.
 //
+#import "ScopeRenderer.h"
+
 #import <simd/simd.h>
 #import <Accelerate/Accelerate.h>
 #import <AVFoundation/AVFoundation.h>
@@ -12,16 +14,19 @@
 #import <ModelIO/ModelIO.h>
 #import <MetalPerformanceShaders/MetalPerformanceShaders.h>
 
-#import "ScopeRenderer.h"
 #import "AudioController.h"
-#import "VisualSample.h"
-#import "LazySample.h"
-#import "ShaderTypes.h"
-#import "MatrixUtilities.h"
 #import "AudioProcessing.h"
+#import "GraphicsTools.h"
+#import "LazySample.h"
+#import "MatrixUtilities.h"
+
+#import "ShaderTypes.h"
+#import "ScopeShaderTypes.h"
+
+#import "VisualSample.h"
 
 static const NSUInteger kMaxBuffersInFlight = 3;
-static const size_t kAlignedUniformsSize = (sizeof(Uniforms) & ~0xFF) + 0x100;
+static const size_t kAlignedUniformsSize = (sizeof(ScopeUniforms) & ~0xFF) + 0x100;
 
 //65536
 //static const size_t kFrequencyDataScaleFactor = kFrequencyDataLength / kScaledFrequencyDataLength;
@@ -48,7 +53,6 @@ static const double kLevelDecreaseValue = 0.042;
 
 @implementation ScopeRenderer
 {
-
     // Texture to render to and then sample from.
     id<MTLTexture> _scopeTargetTexture;
 
@@ -176,6 +180,7 @@ static const double kLevelDecreaseValue = 0.042;
     float* _logMap;
 }
 
+// Really? WHY?? Why is this a static?
 static NSSize _originalSize __attribute__((unused)) = {0.0,0.0};
 //static NSSize _originalSize=@{0.0f, 0.0f};
 
@@ -247,65 +252,6 @@ static NSSize _originalSize __attribute__((unused)) = {0.0,0.0};
     destroyLogMap(_logMap);
 }
 
-float scaleWithOriginalFrame(float originalValue, float originalSize, float newSize)
-{
-    return (originalValue * newSize) / originalSize;
-}
-
-- (void)mtkView:(nonnull MTKView *)view drawableSizeWillChange:(CGSize)size
-{
-    /// Respond to drawable size or orientation changes here
-    ///
-    ///
-    
-    float widthFactor = size.width / view.bounds.size.width;
-    float heightFactor = size.height / view.bounds.size.height;
-    
-    _lineAspectRatio = size.height / size.width;
-    
-    _lineWidth = 3.0f / size.height;
-
-    float frequencyLineWidth = size.width / kScaledFrequencyDataLength;
-
-    float spaceWidth = frequencyLineWidth / 5.0;
-    _frequencySpaceWidth = spaceWidth / size.width;
-    _frequencyLineWidth = (frequencyLineWidth - spaceWidth) / size.width;
-    
-    float sigma = scaleWithOriginalFrame(0.7f, _originalSize.width, size.width);
-    _blur = [[MPSImageGaussianBlur alloc] initWithDevice:_device sigma:sigma];
-    _blur.edgeMode = MPSImageEdgeModeClamp;
-//    float width = (((ceil(scaleWithOriginalFrame(5.0f, _originalSize.height, _originalSize.height + size.height / 50.0f))) / 2) * 2) + 1;
-//    float height = (((ceil(scaleWithOriginalFrame(3.0f, _originalSize.height, _originalSize.height + size.height / 50.0f))) / 2) * 2) + 1;
-//    float width = (((ceil(scaleWithOriginalFrame(5.0f, _originalSize.height, size.height))) / 2) * 2) + 1;
-//    float height = (((ceil(scaleWithOriginalFrame(3.0f, _originalSize.height, size.height))) / 2) * 2) + 1;
-
-//    float width = (((ceil(scaleWithOriginalFrame(5.0f, _originalSize.height * _originalSize.width, size.height * size.width))) / 2) * 2) + 1;
-//    float height = (((ceil(scaleWithOriginalFrame(3.0f, _originalSize.height * _originalSize.width, size.height * size.width))) / 2) * 2) + 1;
-      float width = (((ceil(scaleWithOriginalFrame(3.0f, _originalSize.height, _originalSize.height + (size.height/30) ))) / 2) * 2) + 1;
-      float height = (((ceil(scaleWithOriginalFrame(3.0f, _originalSize.height, _originalSize.height + (size.height/30) ))) / 2) * 2) + 1;
-//    float width = 5.0f;
-//    float height = 3.0f;
-
-    _erode = [[MPSImageAreaMin alloc] initWithDevice:_device kernelWidth:width kernelHeight:height];
-//    width = ((((int)ceil(scaleWithOriginalFrame(31.0f, _originalSize.height, _originalSize.height + size.height / 50.0f))) / 2) * 2) + 1;
-//    height = ((((int)ceil(scaleWithOriginalFrame(17.0f, _originalSize.height, _originalSize.height + size.height / 50.0f))) / 2) * 2) + 1;
-//    width = ((((int)ceil(scaleWithOriginalFrame(31.0f, _originalSize.height, _originalSize.height + (size.height / 2.0)))) / 2) * 2) + 1;
-//    height = ((((int)ceil(scaleWithOriginalFrame(17.0f, _originalSize.height, _originalSize.height + ( size.height / 2.0)))) / 2) * 2) + 1;
-
-    //width = ((((int)ceil(scaleWithOriginalFrame(31.0f, _originalSize.height, _originalSize.height))) / 2) * 2) + 1;
-//    width = ((((int)ceil(scaleWithOriginalFrame(17.0f, _originalSize.height * _originalSize.width, size.height * size.width))) / 2) * 2) + 1;
-//    height = ((((int)ceil(scaleWithOriginalFrame(17.0f, _originalSize.height * _originalSize.width, size.height * size.width))) / 2) * 2) + 1;
-
-    width = ((((int)ceil(scaleWithOriginalFrame(17.0f, _originalSize.height, _originalSize.height + (size.height/30) ))) / 2) * 2) + 1;
-    height = ((((int)ceil(scaleWithOriginalFrame(17.0f, _originalSize.height, _originalSize.height + (size.height/30) ))) / 2) * 2) + 1;
-
-    _bloom = [[MPSImageBox alloc] initWithDevice:_device kernelWidth:width kernelHeight:height];
-    
-    _projectionMatrix = matrix_orthographic(-size.width, size.width, size.height, -size.height, 0, 0);
-    _projectionMatrix = matrix_multiply(matrix4x4_scale(1.0f, _lineAspectRatio, 0.0), _projectionMatrix);
-    _projectionMatrix = matrix_multiply(matrix4x4_scale(widthFactor, heightFactor, 0.0), _projectionMatrix);
-}
-
 float srgb_from_rgb(float c)
 {
     if (isnan(c))
@@ -336,32 +282,6 @@ float rgb_from_srgb(float c)
     return c;
 }
 
-- (MTLClearColor)metalClearColorFromColor:(NSColor*)color
-{
-    NSColor *out = [color colorUsingColorSpace:[NSColorSpace genericRGBColorSpace]];
-
-    double red = [out redComponent];
-    double green = [out greenComponent];
-    double blue = [out blueComponent];
-    double alpha = [out alphaComponent];
-    
-    return MTLClearColorMake(red, green, blue, alpha);
-}
-
-- (vector_float4)shaderColorFromColor:(NSColor*)color
-{
-    NSColor *out = [color colorUsingColorSpace:[NSColorSpace genericRGBColorSpace]];
-
-    double red = [out redComponent];
-    double green = [out greenComponent];
-    double blue = [out blueComponent];
-    double alpha = [out alphaComponent];
-    
-    vector_float4 color_vec = {red, green, blue, alpha};
-    
-    return color_vec;
-}
-
 - (void)_loadMetalWithView:(nonnull MTKView*)view;
 {
     assert(view.frame.size.width * view.frame.size.height);
@@ -370,7 +290,7 @@ float rgb_from_srgb(float c)
     /// Load Metal state objects and initalize renderer dependent view properties.
     view.colorPixelFormat = MTLPixelFormatBGRA8Unorm;
     view.sampleCount = 1;
-    view.clearColor = [self metalClearColorFromColor:_background];
+    view.clearColor = [GraphicsTools MetalClearColorFromColor:_background];
     view.paused = NO;
     view.framebufferOnly = YES;
     
@@ -640,7 +560,7 @@ float rgb_from_srgb(float c)
     ///
     //static float _rotation = 0.0;
    
-    Uniforms* uniforms = (Uniforms*)_uniformBufferAddress;
+    ScopeUniforms* uniforms = (ScopeUniforms*)_uniformBufferAddress;
 
     //float* buffer = (float*)_sampleBufferAddress;
 
@@ -656,8 +576,8 @@ float rgb_from_srgb(float c)
     uniforms->frequenciesCount = (uint32_t)kScaledFrequencyDataLength;
     uniforms->feedback.matrix = _feedbackProjectionMatrix;
     uniforms->feedback.colorFactor = _feedbackColorFactor;
-    uniforms->color = [self shaderColorFromColor:_color];
-    uniforms->fftColor = [self shaderColorFromColor:_fftColor];
+    uniforms->color = [GraphicsTools ShaderColorFromColor:_color];
+    uniforms->fftColor = [GraphicsTools ShaderColorFromColor:_fftColor];
     uniforms->frequencyLineWidth = _frequencyLineWidth;
     uniforms->frequencySpaceWidth = _frequencySpaceWidth;
 
@@ -743,12 +663,12 @@ float rgb_from_srgb(float c)
                 }
             }
             
-            uint8_t bufferIndex = (_uniformBufferIndex + 1) % kMaxBuffersInFlight;
-            uint32_t frequencyBufferOffset = (uint32_t)_alignedUFrequenciesSize * bufferIndex;
-            void* frequencyBufferAddress = ((uint8_t *)_frequencyUniformBuffer.contents) + frequencyBufferOffset;
+            uint8_t bufferIndex = (self->_uniformBufferIndex + 1) % kMaxBuffersInFlight;
+            uint32_t frequencyBufferOffset = (uint32_t)self->_alignedUFrequenciesSize * bufferIndex;
+            void* frequencyBufferAddress = ((uint8_t *)self->_frequencyUniformBuffer.contents) + frequencyBufferOffset;
 
-            performFFT(_fftSetup, window, kWindowSamples, frequencyBufferAddress);
-            logscaleFFT(_logMap, frequencyBufferAddress);
+            performFFT(self->_fftSetup, window, kWindowSamples, frequencyBufferAddress);
+            logscaleFFT(self->_logMap, frequencyBufferAddress);
             
 //            performMel(_dctSetup, window, kWindowSamples / 16, frequencyBufferAddress);
         }
@@ -885,6 +805,62 @@ float rgb_from_srgb(float c)
     } else {
         self.level.doubleValue -= MIN(self.level.doubleValue, kLevelDecreaseValue);
     }
+}
+
+#pragma mark - MTKViewDelegate
+
+- (void)mtkView:(nonnull MTKView *)view drawableSizeWillChange:(CGSize)size
+{
+    /// Respond to drawable size or orientation changes here
+    ///
+    ///
+    
+    float widthFactor = size.width / view.bounds.size.width;
+    float heightFactor = size.height / view.bounds.size.height;
+    
+    _lineAspectRatio = size.height / size.width;
+    
+    _lineWidth = 3.0f / size.height;
+
+    float frequencyLineWidth = size.width / kScaledFrequencyDataLength;
+
+    float spaceWidth = frequencyLineWidth / 5.0;
+    _frequencySpaceWidth = spaceWidth / size.width;
+    _frequencyLineWidth = (frequencyLineWidth - spaceWidth) / size.width;
+    
+    float sigma = ScaleWithOriginalFrame(0.7f, _originalSize.width, size.width);
+    _blur = [[MPSImageGaussianBlur alloc] initWithDevice:_device sigma:sigma];
+    _blur.edgeMode = MPSImageEdgeModeClamp;
+//    float width = (((ceil(scaleWithOriginalFrame(5.0f, _originalSize.height, _originalSize.height + size.height / 50.0f))) / 2) * 2) + 1;
+//    float height = (((ceil(scaleWithOriginalFrame(3.0f, _originalSize.height, _originalSize.height + size.height / 50.0f))) / 2) * 2) + 1;
+//    float width = (((ceil(scaleWithOriginalFrame(5.0f, _originalSize.height, size.height))) / 2) * 2) + 1;
+//    float height = (((ceil(scaleWithOriginalFrame(3.0f, _originalSize.height, size.height))) / 2) * 2) + 1;
+
+//    float width = (((ceil(scaleWithOriginalFrame(5.0f, _originalSize.height * _originalSize.width, size.height * size.width))) / 2) * 2) + 1;
+//    float height = (((ceil(scaleWithOriginalFrame(3.0f, _originalSize.height * _originalSize.width, size.height * size.width))) / 2) * 2) + 1;
+      float width = (((ceil(ScaleWithOriginalFrame(3.0f, _originalSize.height, _originalSize.height + (size.height/30) ))) / 2) * 2) + 1;
+      float height = (((ceil(ScaleWithOriginalFrame(3.0f, _originalSize.height, _originalSize.height + (size.height/30) ))) / 2) * 2) + 1;
+//    float width = 5.0f;
+//    float height = 3.0f;
+
+    _erode = [[MPSImageAreaMin alloc] initWithDevice:_device kernelWidth:width kernelHeight:height];
+//    width = ((((int)ceil(scaleWithOriginalFrame(31.0f, _originalSize.height, _originalSize.height + size.height / 50.0f))) / 2) * 2) + 1;
+//    height = ((((int)ceil(scaleWithOriginalFrame(17.0f, _originalSize.height, _originalSize.height + size.height / 50.0f))) / 2) * 2) + 1;
+//    width = ((((int)ceil(scaleWithOriginalFrame(31.0f, _originalSize.height, _originalSize.height + (size.height / 2.0)))) / 2) * 2) + 1;
+//    height = ((((int)ceil(scaleWithOriginalFrame(17.0f, _originalSize.height, _originalSize.height + ( size.height / 2.0)))) / 2) * 2) + 1;
+
+    //width = ((((int)ceil(scaleWithOriginalFrame(31.0f, _originalSize.height, _originalSize.height))) / 2) * 2) + 1;
+//    width = ((((int)ceil(scaleWithOriginalFrame(17.0f, _originalSize.height * _originalSize.width, size.height * size.width))) / 2) * 2) + 1;
+//    height = ((((int)ceil(scaleWithOriginalFrame(17.0f, _originalSize.height * _originalSize.width, size.height * size.width))) / 2) * 2) + 1;
+
+    width = ((((int)ceil(ScaleWithOriginalFrame(17.0f, _originalSize.height, _originalSize.height + (size.height/30) ))) / 2) * 2) + 1;
+    height = ((((int)ceil(ScaleWithOriginalFrame(17.0f, _originalSize.height, _originalSize.height + (size.height/30) ))) / 2) * 2) + 1;
+
+    _bloom = [[MPSImageBox alloc] initWithDevice:_device kernelWidth:width kernelHeight:height];
+    
+    _projectionMatrix = matrix_orthographic(-size.width, size.width, size.height, -size.height, 0, 0);
+    _projectionMatrix = matrix_multiply(matrix4x4_scale(1.0f, _lineAspectRatio, 0.0), _projectionMatrix);
+    _projectionMatrix = matrix_multiply(matrix4x4_scale(widthFactor, heightFactor, 0.0), _projectionMatrix);
 }
 
 - (void)drawInMTKView:(nonnull MTKView *)view

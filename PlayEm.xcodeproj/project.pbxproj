@@ -48,6 +48,7 @@
 		BBD24D642432948B00DC2A81 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = BBD24D632432948B00DC2A81 /* Assets.xcassets */; };
 		BBD24D6A2432948B00DC2A81 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = BBD24D692432948B00DC2A81 /* main.m */; };
 		BBDA2FFE2A7FCEEC0084E2B6 /* BeatTrackedSample.m in Sources */ = {isa = PBXBuildFile; fileRef = BBDA2FFD2A7FCEEC0084E2B6 /* BeatTrackedSample.m */; };
+		BBDB1B3D2B640AA700A953F7 /* build_dmg.sh in Resources */ = {isa = PBXBuildFile; fileRef = BBDB1B3C2B640AA700A953F7 /* build_dmg.sh */; };
 		BBDC988A250E81D0008B19D1 /* BrowserController.m in Sources */ = {isa = PBXBuildFile; fileRef = BBDC9889250E81D0008B19D1 /* BrowserController.m */; };
 		BBDC988C250E8347008B19D1 /* iTunesLibrary.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BBDC988B250E8347008B19D1 /* iTunesLibrary.framework */; };
 		BBDEBD3D2A99417A0085E6D8 /* WaveLayerDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = BBDEBD3C2A99417A0085E6D8 /* WaveLayerDelegate.m */; };
@@ -151,6 +152,7 @@
 		BBD24D6B2432948B00DC2A81 /* PlayEm.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = PlayEm.entitlements; sourceTree = "<group>"; };
 		BBDA2FFC2A7FCCB70084E2B6 /* BeatTrackedSample.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BeatTrackedSample.h; sourceTree = "<group>"; };
 		BBDA2FFD2A7FCEEC0084E2B6 /* BeatTrackedSample.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = BeatTrackedSample.m; sourceTree = "<group>"; };
+		BBDB1B3C2B640AA700A953F7 /* build_dmg.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = build_dmg.sh; sourceTree = "<group>"; };
 		BBDC9888250E81CF008B19D1 /* BrowserController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BrowserController.h; sourceTree = "<group>"; };
 		BBDC9889250E81D0008B19D1 /* BrowserController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = BrowserController.m; sourceTree = "<group>"; };
 		BBDC988B250E8347008B19D1 /* iTunesLibrary.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = iTunesLibrary.framework; path = System/Library/Frameworks/iTunesLibrary.framework; sourceTree = SDKROOT; };
@@ -288,6 +290,7 @@
 		BBD24D542432948800DC2A81 = {
 			isa = PBXGroup;
 			children = (
+				BBDB1B3B2B640A5100A953F7 /* Scripts */,
 				BBD24D5F2432948800DC2A81 /* PlayEm */,
 				BBD24D5E2432948800DC2A81 /* Products */,
 				BB8820C5244101C200CDB8C3 /* Frameworks */,
@@ -355,6 +358,14 @@
 			path = PlayEm;
 			sourceTree = "<group>";
 		};
+		BBDB1B3B2B640A5100A953F7 /* Scripts */ = {
+			isa = PBXGroup;
+			children = (
+				BBDB1B3C2B640AA700A953F7 /* build_dmg.sh */,
+			);
+			path = Scripts;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -416,6 +427,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				BBDB1B3D2B640AA700A953F7 /* build_dmg.sh in Resources */,
 				BB8571032972152B0004218B /* README.md in Resources */,
 				BBD24D642432948B00DC2A81 /* Assets.xcassets in Resources */,
 				BB9CE9B128D388F3008DFF91 /* MainMenu.xib in Resources */,

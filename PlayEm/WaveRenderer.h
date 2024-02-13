@@ -15,6 +15,7 @@ NS_ASSUME_NONNULL_BEGIN
 @class AudioController;
 @class VisualSample;
 @class NSColor;
+@class MetalWaveView;
 
 @protocol WaveRendererDelegate <NSObject>
 
@@ -25,7 +26,15 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface WaveRenderer : NSObject <MTKViewDelegate>
 
-- (nonnull instancetype)initWithMetalKitView:(nonnull MTKView *)view color:(NSColor *)color background:(NSColor *)background delegate:(id<WaveRendererDelegate>)delegate;
+@property (nonatomic, assign) BOOL needsDisplay;
+@property (nonatomic, strong) VisualSample* visualSample;
+
+
+- (nonnull instancetype)initWithView:(MetalWaveView *)view
+                               color:(NSColor *)color
+                          background:(NSColor *)background
+                            delegate:(id<WaveRendererDelegate>)delegate;
+- (void)invalidateTiles;
 
 @end
 

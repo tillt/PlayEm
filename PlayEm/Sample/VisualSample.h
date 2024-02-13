@@ -10,13 +10,6 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-typedef struct {
-//    double negativeMax;
-//    double positiveMax;
-    double negativeAverage;
-    double positiveAverage;
-} VisualPair;
-
 @class LazySample;
 
 @interface VisualSample : NSObject

@@ -9,7 +9,8 @@
 #import "VisualSample.h"
 #import "LazySample.h"
 #import "IndexedBlockOperation.h"
-
+#import "VisualPair.h"
+#import "ConcurrentAccessDictionary.h"
 
 @interface VisualSample()
 {
@@ -18,15 +19,14 @@
 
 @property (assign, nonatomic) size_t tileWidth;
 @property (assign, nonatomic) double framesPerPixel;
-@property (strong, nonatomic) NSMutableDictionary* operations;
+@property (strong, nonatomic) ConcurrentAccessDictionary* operations;
 @property (strong, nonatomic) NSMutableArray<NSMutableData*>* sampleBuffers;
 
 @end
 
-
 @implementation VisualSample
 {
-    dispatch_queue_t _queue;
+    dispatch_queue_t _calculations_queue;
 }
 
 - (id)initWithSample:(LazySample*)sample pixelPerSecond:(double)pixelPerSecond tileWidth:(size_t)tileWidth
@@ -36,7 +36,7 @@
         _sample = sample;
         assert(pixelPerSecond);
         _pixelPerSecond = pixelPerSecond;
-        _operations = [NSMutableDictionary dictionary];
+        _operations = [ConcurrentAccessDictionary new];
         _framesPerPixel = (double)sample.rate / pixelPerSecond;
         _tileWidth = tileWidth;
         assert(_framesPerPixel >= 1.0);
@@ -49,20 +49,20 @@
 
         dispatch_queue_attr_t attr = dispatch_queue_attr_make_with_qos_class(DISPATCH_QUEUE_SERIAL, QOS_CLASS_USER_INITIATED, 0);
         const char* queue_name = [[NSString stringWithFormat:@"VisualSample%fPPS", pixelPerSecond] cStringUsingEncoding:NSStringEncodingConversionAllowLossy];
-        _queue = dispatch_queue_create(queue_name, attr);
+        _calculations_queue = dispatch_queue_create(queue_name, attr);
     }
     return self;
 }
 
 - (void)dealloc
 {
-    for (id key in _operations) {
-        [_operations[key] cancel];
-    }
-    for (id key in _operations) {
-        [_operations[key] wait];
+    NSArray* keys = [_operations allKeys];
+    for (id key in keys) {
+        IndexedBlockOperation* operation = [_operations objectForKey:key];
+        [operation cancelAndWait];
     }
 }
+
 
 - (void)setPixelPerSecond:(double)pixelPerSecond
 {
@@ -70,11 +70,10 @@
         return;
     }
 
-    for (id key in _operations) {
-        [_operations[key] cancel];
-    }
-    for (id key in _operations) {
-        [_operations[key] wait];
+    NSArray* keys = [_operations allKeys];
+    for (id key in keys) {
+        IndexedBlockOperation* operation = [_operations objectForKey:key];
+        [operation cancelAndWait];
     }
 
     _pixelPerSecond = pixelPerSecond;
@@ -96,16 +95,18 @@
 - (NSData* _Nullable)visualsFromOrigin:(size_t)origin
 {
     size_t pageIndex = origin / _tileWidth;
+    NSNumber* pageNumber = [NSNumber numberWithLong:pageIndex];
     IndexedBlockOperation* operation = nil;
-    operation = [_operations objectForKey:[NSNumber numberWithLong:pageIndex]];
+    operation = [_operations objectForKey:pageNumber];
     if (operation == nil) {
         return nil;
     }
     if (!operation.isFinished) {
         return nil;
     }
-    //queue.operations
-    return operation.data;
+    NSData* data = operation.data;
+    [_operations removeObjectForKey:pageNumber];
+    return data;
 }
 
 - (double)framesPerPixel
@@ -119,12 +120,12 @@
     size_t left = MIN((window / _tileWidth) - prerenderTileDistance, 0);
     size_t right = prerenderTileDistance + ((window + width) / _tileWidth);
 
-    for (NSNumber* pageIndex in [_operations copy]) {
-        if (pageIndex.integerValue < left || pageIndex.integerValue > right) {
-            IndexedBlockOperation* operation = [_operations objectForKey:pageIndex];
-            [operation cancel];
-            [operation wait];
-            [_operations removeObjectForKey:pageIndex];
+    NSArray* keys = [_operations allKeys];
+    for (NSNumber* pageNumber in keys) {
+        if (pageNumber.integerValue < left || pageNumber.integerValue > right) {
+            IndexedBlockOperation* operation = [_operations objectForKey:pageNumber];
+            [operation cancelAndWait];
+            [_operations removeObjectForKey:pageNumber];
         }
     }
 }
@@ -141,7 +142,8 @@
 
     size_t pageIndex = origin / _tileWidth;
 
-    IndexedBlockOperation* block = [_operations objectForKey:[NSNumber numberWithLong:pageIndex]];
+    NSNumber* pageNumber = [NSNumber numberWithLong:pageIndex];
+    IndexedBlockOperation* block = [_operations objectForKey:pageNumber];
     if (block != nil) {
         NSLog(@"asking for the same operation again on page %ld", pageIndex);
         return block;
@@ -150,6 +152,7 @@
     block = [[IndexedBlockOperation alloc] initWithIndex:pageIndex];
     //NSLog(@"adding %ld", pageIndex);
     IndexedBlockOperation* __weak weakOperation = block;
+    //ConcurrentAccessDictionary* __weak weakOperations = _operations;
     VisualSample* __weak weakSelf = self;
 
     [_operations setObject:block forKey:[NSNumber numberWithLong:pageIndex]];
@@ -235,18 +238,17 @@
             }
 
             counter -= weakSelf.framesPerPixel;
+
             storage->negativeAverage = negativeCount > 0 ? negativeSum / negativeCount : 0.0;
             storage->positiveAverage = positiveSum > 0 ? positiveSum / positiveCount : 0.0;
             
             ++storage;
         };
         weakOperation.isFinished = YES;
-        dispatch_async(dispatch_get_main_queue(), ^{
-            callback();
-        });
+        callback();
     }];
 
-    dispatch_async(_queue, block.block);
+    dispatch_async(_calculations_queue, block.block);
 
     return block;
 }

@@ -112,10 +112,7 @@ static const double kLevelDecreaseValue = 0.042;
     MTLRenderPassDescriptor* _drawPass;
     // A pipeline object to render to screen.
     id<MTLRenderPipelineState> _drawState;
-    
-    // Ratio of width to height to scale positions in the vertex shader.
-    float _aspe_lineWidthctRatio;
-    
+        
     float _lineWidth;
     float _frequencyLineWidth;
     float _frequencySpaceWidth;
@@ -128,8 +125,6 @@ static const double kLevelDecreaseValue = 0.042;
     //id <MTLBuffer> _sampleUniformBuffer;
     id <MTLBuffer> _frequencyUniformBuffer;
     id <MTLBuffer> _linesUniformBuffer;
-    
-    MTLVertexDescriptor* _mtlVertexDescriptor;
     
     MPSImageBox* _bloom;
     MPSImageAreaMin* _erode;
@@ -291,7 +286,7 @@ float rgb_from_srgb(float c)
     view.colorPixelFormat = MTLPixelFormatBGRA8Unorm;
     view.sampleCount = 1;
     view.clearColor = [GraphicsTools MetalClearColorFromColor:_background];
-    view.paused = NO;
+    //view.paused = NO;
     view.framebufferOnly = YES;
     
     // Set up a texture for rendering to and sampling from
@@ -302,10 +297,17 @@ float rgb_from_srgb(float c)
     texDescriptor.height = view.drawableSize.height;
     texDescriptor.pixelFormat = MTLPixelFormatRGBA8Unorm;
     texDescriptor.usage = MTLTextureUsageRenderTarget | MTLTextureUsageShaderRead;
+    texDescriptor.sampleCount = _msaaCount;
+    texDescriptor.storageMode = MTLStorageModePrivate;
+    texDescriptor.textureType = _msaaCount > 1 ? MTLTextureType2DMultisample : MTLTextureType2D;
+
+    _scopeMSAATexture = [_device newTextureWithDescriptor:texDescriptor];
+    _frequenciesMSAATexture = [_device newTextureWithDescriptor:texDescriptor];
 
     id<MTLLibrary> defaultLibrary = [_device newDefaultLibrary];
 
     // Set up pipeline for rendering to screen.
+
     MTLRenderPipelineDescriptor *pipelineStateDescriptor = [[MTLRenderPipelineDescriptor alloc] init];
     pipelineStateDescriptor.label = @"Drawable Render Pipeline";
     pipelineStateDescriptor.rasterSampleCount = view.sampleCount;
@@ -322,20 +324,14 @@ float rgb_from_srgb(float c)
     _drawState = [_device newRenderPipelineStateWithDescriptor:pipelineStateDescriptor error:&error];
     NSAssert(_drawState, @"Failed to create pipeline state to render to screen: %@", error);
     
-    texDescriptor.sampleCount = _msaaCount;
-    texDescriptor.storageMode = MTLStorageModePrivate;
-    texDescriptor.textureType = _msaaCount > 1 ? MTLTextureType2DMultisample : MTLTextureType2D;
-
-    _scopeMSAATexture = [_device newTextureWithDescriptor:texDescriptor];
-    _frequenciesMSAATexture = [_device newTextureWithDescriptor:texDescriptor];
+    // Set up a render pass descriptor for the render pass to render into _scopeTargetTexture.
 
     texDescriptor.sampleCount = 1;
     texDescriptor.textureType = MTLTextureType2D;
-
-    // Set up a render pass descriptor for the render pass to render into _scopeTargetTexture.
+    texDescriptor.usage = MTLTextureUsageShaderWrite | MTLTextureUsageShaderRead;
+    
     _scopeTargetTexture = [_device newTextureWithDescriptor:texDescriptor];
     _frequenciesTargetTexture = [_device newTextureWithDescriptor:texDescriptor];
-    
     
     // FIXME: MSAA count alternative code is rubbish -- currently only works with MSAA > 1
 
@@ -494,13 +490,12 @@ float rgb_from_srgb(float c)
 
 - (void)_buildMesh
 {
-    /// Build mesh.
-
     [self _updateMeshWithLevel:1.000f];
 }
 
 - (void)_updateMeshWithLevel:(float)level
 {
+    assert(_linesUniformBuffer != nil);
     const float range = level * 2.0f;
        
     PolyNode* node = (PolyNode*)(_linesUniformBuffer.contents);
@@ -545,13 +540,13 @@ float rgb_from_srgb(float c)
     _visual = visual;
     _minTriggerOffset = 0;
 
-    scope.paused = NO;
+    //scope.paused = NO;
 }
 
 - (void)stop:(MTKView *)scope
 {
     NSLog(@"renderer stopping.");
-    scope.paused = YES;
+    //scope.paused = YES;
 }
 
 - (void)_updateEngine
@@ -800,11 +795,13 @@ float rgb_from_srgb(float c)
     // Use a logarithmic scale as that is much closer to what we perceive. Neatly fake
     // ourselves into the slope.
     float logval = log10f(10.0 + (maxValue * 100.0f)) - 1.0f;
-    if (self.level.doubleValue < logval) {
-        self.level.doubleValue = logval;
-    } else {
-        self.level.doubleValue -= MIN(self.level.doubleValue, kLevelDecreaseValue);
-    }
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if (self.level.doubleValue < logval) {
+            self.level.doubleValue = logval;
+        } else {
+            self.level.doubleValue -= MIN(self.level.doubleValue, kLevelDecreaseValue);
+        }
+    });
 }
 
 #pragma mark - MTKViewDelegate
@@ -958,8 +955,6 @@ float rgb_from_srgb(float c)
 
         renderEncoder.label = @"Scope Compose Texture Render Pass";
 
-        [renderEncoder setFrontFacingWinding:MTLWindingCounterClockwise];
-        [renderEncoder setCullMode:MTLCullModeBack];
         [renderEncoder setRenderPipelineState:_composeState];
 
         // Set the offscreen texture with the bloomed scope as the source texture.
@@ -999,8 +994,6 @@ float rgb_from_srgb(float c)
 
         renderEncoder.label = @"Frequency Compose Texture Render Pass";
 
-        [renderEncoder setFrontFacingWinding:MTLWindingCounterClockwise];
-        [renderEncoder setCullMode:MTLCullModeBack];
         [renderEncoder setRenderPipelineState:_frequenciesComposeState];
 
         // Set the offscreen texture as the source texture.
@@ -1035,8 +1028,6 @@ float rgb_from_srgb(float c)
 
         renderEncoder.label = @"Scope and Frequencies Compose Texture Render Pass";
 
-        [renderEncoder setFrontFacingWinding:MTLWindingCounterClockwise];
-        [renderEncoder setCullMode:MTLCullModeBack];
         [renderEncoder setRenderPipelineState:_postComposeState];
 
         // Source is the last frequencies texture with feedback.

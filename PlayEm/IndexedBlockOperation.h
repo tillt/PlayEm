@@ -19,9 +19,8 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, assign) BOOL isCancelled;
 
 - (id)initWithIndex:(size_t)index;
-- (void)cancel;
+- (void)cancelAndWait;
 - (void)run:(nonnull void (^)(void))block;
-- (void)wait;
 
 @end
 

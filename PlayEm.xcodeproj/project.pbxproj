@@ -26,6 +26,8 @@
 		BB6C7598292973B70017468B /* ShazamKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BB6C7597292973B70017468B /* ShazamKit.framework */; };
 		BB7C6269293144890019AF25 /* Defaults.m in Sources */ = {isa = PBXBuildFile; fileRef = BB7C6268293144890019AF25 /* Defaults.m */; };
 		BB7C626C2932E1540019AF25 /* ControlPanelController.m in Sources */ = {isa = PBXBuildFile; fileRef = BB7C626B2932E1540019AF25 /* ControlPanelController.m */; };
+		BB81976D2B7971500025B860 /* ConcurrentAccessArray.m in Sources */ = {isa = PBXBuildFile; fileRef = BB81976C2B7971500025B860 /* ConcurrentAccessArray.m */; };
+		BB8197702B7980C50025B860 /* ConcurrentAccessDictionary.m in Sources */ = {isa = PBXBuildFile; fileRef = BB81976F2B7980C50025B860 /* ConcurrentAccessDictionary.m */; };
 		BB8571012972078A0004218B /* IndexedBlockOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = BB8571002972078A0004218B /* IndexedBlockOperation.m */; };
 		BB8571032972152B0004218B /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = BB8571022972152B0004218B /* README.md */; };
 		BB896FF32928874500B41809 /* TableHeaderCell.m in Sources */ = {isa = PBXBuildFile; fileRef = BB896FF22928874500B41809 /* TableHeaderCell.m */; };
@@ -51,6 +53,8 @@
 		BBD24D6A2432948B00DC2A81 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = BBD24D692432948B00DC2A81 /* main.m */; };
 		BBDA2FFE2A7FCEEC0084E2B6 /* BeatTrackedSample.m in Sources */ = {isa = PBXBuildFile; fileRef = BBDA2FFD2A7FCEEC0084E2B6 /* BeatTrackedSample.m */; };
 		BBDB1B3D2B640AA700A953F7 /* build_dmg.sh in Resources */ = {isa = PBXBuildFile; fileRef = BBDB1B3C2B640AA700A953F7 /* build_dmg.sh */; };
+		BBDB1B402B644AD500A953F7 /* MetalWaveView.m in Sources */ = {isa = PBXBuildFile; fileRef = BBDB1B3F2B644AD500A953F7 /* MetalWaveView.m */; };
+		BBDB1B452B69D18A00A953F7 /* WaveTile.m in Sources */ = {isa = PBXBuildFile; fileRef = BBDB1B442B69D18A00A953F7 /* WaveTile.m */; };
 		BBDC988A250E81D0008B19D1 /* BrowserController.m in Sources */ = {isa = PBXBuildFile; fileRef = BBDC9889250E81D0008B19D1 /* BrowserController.m */; };
 		BBDC988C250E8347008B19D1 /* iTunesLibrary.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BBDC988B250E8347008B19D1 /* iTunesLibrary.framework */; };
 		BBDEBD3D2A99417A0085E6D8 /* WaveLayerDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = BBDEBD3C2A99417A0085E6D8 /* WaveLayerDelegate.m */; };
@@ -112,6 +116,10 @@
 		BB7C6268293144890019AF25 /* Defaults.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Defaults.m; sourceTree = "<group>"; };
 		BB7C626A2932E1540019AF25 /* ControlPanelController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ControlPanelController.h; sourceTree = "<group>"; };
 		BB7C626B2932E1540019AF25 /* ControlPanelController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ControlPanelController.m; sourceTree = "<group>"; };
+		BB81976B2B7971500025B860 /* ConcurrentAccessArray.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ConcurrentAccessArray.h; path = PlayEm/ConcurrentAccessArray.h; sourceTree = SOURCE_ROOT; };
+		BB81976C2B7971500025B860 /* ConcurrentAccessArray.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = ConcurrentAccessArray.m; path = PlayEm/ConcurrentAccessArray.m; sourceTree = SOURCE_ROOT; };
+		BB81976E2B7980C50025B860 /* ConcurrentAccessDictionary.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ConcurrentAccessDictionary.h; path = PlayEm/ConcurrentAccessDictionary.h; sourceTree = SOURCE_ROOT; };
+		BB81976F2B7980C50025B860 /* ConcurrentAccessDictionary.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = ConcurrentAccessDictionary.m; path = PlayEm/ConcurrentAccessDictionary.m; sourceTree = SOURCE_ROOT; };
 		BB8570FF2972078A0004218B /* IndexedBlockOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IndexedBlockOperation.h; sourceTree = "<group>"; };
 		BB8571002972078A0004218B /* IndexedBlockOperation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IndexedBlockOperation.m; sourceTree = "<group>"; };
 		BB8571022972152B0004218B /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = SOURCE_ROOT; };
@@ -161,6 +169,11 @@
 		BBDA2FFC2A7FCCB70084E2B6 /* BeatTrackedSample.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BeatTrackedSample.h; sourceTree = "<group>"; };
 		BBDA2FFD2A7FCEEC0084E2B6 /* BeatTrackedSample.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = BeatTrackedSample.m; sourceTree = "<group>"; };
 		BBDB1B3C2B640AA700A953F7 /* build_dmg.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = build_dmg.sh; sourceTree = "<group>"; };
+		BBDB1B3E2B644AD500A953F7 /* MetalWaveView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MetalWaveView.h; sourceTree = "<group>"; };
+		BBDB1B3F2B644AD500A953F7 /* MetalWaveView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MetalWaveView.m; sourceTree = "<group>"; };
+		BBDB1B422B65CC0500A953F7 /* VisualPair.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VisualPair.h; sourceTree = "<group>"; };
+		BBDB1B432B69D18A00A953F7 /* WaveTile.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WaveTile.h; sourceTree = "<group>"; };
+		BBDB1B442B69D18A00A953F7 /* WaveTile.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WaveTile.m; sourceTree = "<group>"; };
 		BBDC9888250E81CF008B19D1 /* BrowserController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BrowserController.h; sourceTree = "<group>"; };
 		BBDC9889250E81D0008B19D1 /* BrowserController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = BrowserController.m; sourceTree = "<group>"; };
 		BBDC988B250E8347008B19D1 /* iTunesLibrary.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = iTunesLibrary.framework; path = System/Library/Frameworks/iTunesLibrary.framework; sourceTree = SDKROOT; };
@@ -245,8 +258,13 @@
 				BBA507D9244224E100AABCF7 /* Sample.m */,
 				BB2CF8AB259EB66900D6BA03 /* LazySample.h */,
 				BB2CF8AC259EB66900D6BA03 /* LazySample.m */,
+				BBDB1B422B65CC0500A953F7 /* VisualPair.h */,
 				BB0D527F244CEE22007C909F /* VisualSample.h */,
 				BB0D5280244CEE22007C909F /* VisualSample.m */,
+				BB81976B2B7971500025B860 /* ConcurrentAccessArray.h */,
+				BB81976C2B7971500025B860 /* ConcurrentAccessArray.m */,
+				BB81976E2B7980C50025B860 /* ConcurrentAccessDictionary.h */,
+				BB81976F2B7980C50025B860 /* ConcurrentAccessDictionary.m */,
 				BBDA2FFC2A7FCCB70084E2B6 /* BeatTrackedSample.h */,
 				BBDA2FFD2A7FCEEC0084E2B6 /* BeatTrackedSample.m */,
 				BB9401862AD0974900B7B150 /* AcceleratedBiquadFilter.h */,
@@ -283,6 +301,8 @@
 				BBDFAC81259A68E200092458 /* ProgressView.m */,
 				BBAD7D53262B96D800089ACC /* ScopeView.h */,
 				BBAD7D54262B973C00089ACC /* ScopeView.m */,
+				BBDB1B3E2B644AD500A953F7 /* MetalWaveView.h */,
+				BBDB1B3F2B644AD500A953F7 /* MetalWaveView.m */,
 				BB097A0A2921B1E500D33E44 /* ScrollingTextView.h */,
 				BB097A0B2921B1E500D33E44 /* ScrollingTextView.m */,
 				BBCE1DD7257C3CAB006CE886 /* TiledScrollView.h */,
@@ -318,6 +338,7 @@
 			isa = PBXGroup;
 			children = (
 				BB0EDB842A8E9B940053FC8A /* Audio */,
+				BBDB1B412B644E8F00A953F7 /* Controls */,
 				BBC8B32D293C47D900F5D38E /* Views */,
 				BBA456DE293948D70062D470 /* Window & ViewControllers */,
 				BBA456DD293948910062D470 /* Sample */,
@@ -329,6 +350,8 @@
 				BBCE23532B5C9C41003892F3 /* GraphicsTools.m */,
 				BBCE234F2B5C9234003892F3 /* WaveRenderer.h */,
 				BBCE23502B5C9234003892F3 /* WaveRenderer.m */,
+				BBDB1B432B69D18A00A953F7 /* WaveTile.h */,
+				BBDB1B442B69D18A00A953F7 /* WaveTile.m */,
 				BBE284662467612F00BE9D7F /* ScopeRenderer.h */,
 				BBE284672467612F00BE9D7F /* ScopeRenderer.m */,
 				BBDC9888250E81CF008B19D1 /* BrowserController.h */,
@@ -343,8 +366,6 @@
 				BBD24D6B2432948B00DC2A81 /* PlayEm.entitlements */,
 				BB8570FF2972078A0004218B /* IndexedBlockOperation.h */,
 				BB8571002972078A0004218B /* IndexedBlockOperation.m */,
-				BB896FF12928874500B41809 /* TableHeaderCell.h */,
-				BB896FF22928874500B41809 /* TableHeaderCell.m */,
 				BB8A100528FF49E400FC6013 /* Scroller.h */,
 				BB8A100628FF49E400FC6013 /* Scroller.m */,
 				BB8A100A290586A200FC6013 /* CAShapeLayer+Path.h */,
@@ -363,8 +384,6 @@
 				BBA623D32620F6A200924D44 /* UIView+Visibility.m */,
 				BB0C5D9127768D2400856978 /* MatrixUtilities.h */,
 				BB0C5D9227768D2400856978 /* MatrixUtilities.m */,
-				BB097A072921967700D33E44 /* LevelIndicatorCell.h */,
-				BB097A082921967700D33E44 /* LevelIndicatorCell.m */,
 				BB7C6267293144890019AF25 /* Defaults.h */,
 				BB7C6268293144890019AF25 /* Defaults.m */,
 				BB8571022972152B0004218B /* README.md */,
@@ -378,6 +397,17 @@
 				BBDB1B3C2B640AA700A953F7 /* build_dmg.sh */,
 			);
 			path = Scripts;
+			sourceTree = "<group>";
+		};
+		BBDB1B412B644E8F00A953F7 /* Controls */ = {
+			isa = PBXGroup;
+			children = (
+				BB896FF12928874500B41809 /* TableHeaderCell.h */,
+				BB896FF22928874500B41809 /* TableHeaderCell.m */,
+				BB097A072921967700D33E44 /* LevelIndicatorCell.h */,
+				BB097A082921967700D33E44 /* LevelIndicatorCell.m */,
+			);
+			path = Controls;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -503,6 +533,7 @@
 				BBCE1DD9257C3CAB006CE886 /* TiledScrollView.m in Sources */,
 				BBDC988A250E81D0008B19D1 /* BrowserController.m in Sources */,
 				BBC43B7028D28CDD00CD1080 /* InfoPanel.m in Sources */,
+				BB81976D2B7971500025B860 /* ConcurrentAccessArray.m in Sources */,
 				BB03622925FE57E800FA0A7E /* TotalWaveView.m in Sources */,
 				BB25CF59255857BC005BFC32 /* MediaMetaData.m in Sources */,
 				BB8571012972078A0004218B /* IndexedBlockOperation.m in Sources */,
@@ -523,16 +554,19 @@
 				BB2CB5652481A92600D47258 /* WaveWindowController.m in Sources */,
 				BB8A100728FF49E400FC6013 /* Scroller.m in Sources */,
 				BBE2846D246765BD00BE9D7F /* Shaders.metal in Sources */,
+				BB8197702B7980C50025B860 /* ConcurrentAccessDictionary.m in Sources */,
 				BB097A0C2921B1E500D33E44 /* ScrollingTextView.m in Sources */,
 				BBD24D622432948800DC2A81 /* AppDelegate.m in Sources */,
 				BBAD7D55262B973C00089ACC /* ScopeView.m in Sources */,
 				BBDEBD3D2A99417A0085E6D8 /* WaveLayerDelegate.m in Sources */,
 				BB0D5281244CEE22007C909F /* VisualSample.m in Sources */,
 				BBDA2FFE2A7FCEEC0084E2B6 /* BeatTrackedSample.m in Sources */,
+				BBDB1B402B644AD500A953F7 /* MetalWaveView.m in Sources */,
 				BBB37D21290F4A7E0007A6BB /* PlaylistController.m in Sources */,
 				BBDFAC82259A68E200092458 /* ProgressView.m in Sources */,
 				BB2CF8AD259EB66900D6BA03 /* LazySample.m in Sources */,
 				BB0C5D9327768D2400856978 /* MatrixUtilities.m in Sources */,
+				BBDB1B452B69D18A00A953F7 /* WaveTile.m in Sources */,
 				BBCE23512B5C9235003892F3 /* WaveRenderer.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

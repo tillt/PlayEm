@@ -21,56 +21,37 @@
 
 #include <simd/simd.h>
 
-typedef NS_ENUM(NSInteger, BufferIndex)
+#include "ShaderTypes.h"
+
+typedef NS_ENUM(NSInteger, WaveBufferIndex)
 {
-    BufferIndexScopeLines  = 0,
-    BufferIndexUniforms    = 1,
-    BufferIndexFrequencies = 2,
-    BufferIndexFeedback    = 3
+    WaveBufferIndexVisualPairs    = 0,
+    WaveBufferIndexUniforms       = 1
 };
 
-typedef NS_ENUM(NSInteger, TextureIndex)
+typedef NS_ENUM(NSInteger, WaveTextureIndex)
 {
-    TextureIndexWave = 0,
-    TextureIndexLast = 1,
-    TextureIndexCompose = 2
+    WaveTextureIndexSource   = 0,
+    WaveTextureIndexOverlay = 1,
+    WaveTextureIndexPosition = 2
 };
-
-typedef struct
-{
-    matrix_float4x4 matrix;
-    vector_float4   colorFactor;
-} Feedback;
 
 typedef struct
 {
     vector_float2   screenSize;
-    matrix_float4x4 projectionMatrix;
-    matrix_float4x4 modelViewMatrix;
-    float           lineAspectRatio;
-    float           lineWidth;
-    float           frequencyLineWidth;
-    float           frequencySpaceWidth;
-    uint32_t        sampleCount;
-    uint32_t        frequenciesCount;
-    vector_float4   color;
-    vector_float4   fftColor;
-    uint32_t        sampleStepping;
-    uint32_t        frequencyStepping;
-    //matrix_float4x4 feedbackMatrix;
-    //vector_float4   feedbackColorFactor;
-    Feedback        feedback;
-} Uniforms;
 
-typedef struct
-{
-    vector_float2   screenSize;
     matrix_float4x4 projectionMatrix;
     matrix_float4x4 modelViewMatrix;
+
     float           lineAspectRatio;
     float           lineWidth;
+
     uint32_t        sampleCount;
+
     vector_float4   color;
+
+    float           tilePosition[40];
+    float           tileWidth;
 } WaveUniforms;
 
 #endif /* WaveShaderTypes_h */

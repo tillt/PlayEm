@@ -44,4 +44,10 @@ typedef struct
     vector_float2 texcoord;
 } AAPLTextureVertex;
 
+typedef struct Feedback_t
+{
+    matrix_float4x4 matrix;
+    vector_float4   colorFactor;
+} Feedback;
+
 #endif /* ShaderTypes_h */

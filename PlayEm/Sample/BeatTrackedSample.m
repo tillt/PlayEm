@@ -465,16 +465,16 @@ void beatsContextReset(BeatsParserContext* context)
                 if (beat) {
                     event.frame = aubio_tempo_get_last(self->_aubio_tempo);
 
-                    if (llabs((signed long long)expectedNextBeatFrame - (signed long long)event.frame) > (self->_sample.rate / 5)) {
-                        NSLog(@"looks like a bad prediction at %lld - %@", event.frame, [self->_sample beautifulTimeWithFrame:event.frame]);
-                    }
+//                    if (llabs((signed long long)expectedNextBeatFrame - (signed long long)event.frame) > (self->_sample.rate / 5)) {
+//                        NSLog(@"looks like a bad prediction at %lld - %@", event.frame, [self->_sample beautifulTimeWithFrame:event.frame]);
+//                    }
                     
                     event.bpm = aubio_tempo_get_bpm(self->_aubio_tempo);
                     event.confidence = aubio_tempo_get_confidence(self->_aubio_tempo);
 
                     expectedNextBeatFrame = event.frame + [self framesPerBeat:event.bpm];
-                    NSLog(@"beat at %lld - %.2f bpm, confidence %.4f -- next beat expected at %lld",
-                          event.frame, event.bpm, event.confidence, expectedNextBeatFrame);
+//                    NSLog(@"beat at %lld - %.2f bpm, confidence %.4f -- next beat expected at %lld",
+//                          event.frame, event.bpm, event.confidence, expectedNextBeatFrame);
 
                     if (self->_averageTempo == 0) {
                         self->_averageTempo = event.bpm;
@@ -504,16 +504,16 @@ void beatsContextReset(BeatsParserContext* context)
 
         NSLog(@"pass two");
         
-        NSArray* keys = [[self->_beats allKeys] sortedArrayUsingSelector:@selector(compare:)];
-        for (NSNumber* key in keys) {
-            NSLog(@"beats page");
-            const NSData* data = self->_beats[key];
-            const BeatEvent* event = data.bytes;
-            for (int i=0; i < data.length / sizeof(BeatEvent); i++) {
-                NSLog(@"%lld %.0f %.4f", event->frame, event->bpm, event->confidence);
-                ++event;
-            }
-        }
+//        NSArray* keys = [[self->_beats allKeys] sortedArrayUsingSelector:@selector(compare:)];
+//        for (NSNumber* key in keys) {
+//            NSLog(@"beats page");
+//            const NSData* data = self->_beats[key];
+//            const BeatEvent* event = data.bytes;
+//            for (int i=0; i < data.length / sizeof(BeatEvent); i++) {
+//                NSLog(@"%lld %.0f %.4f", event->frame, event->bpm, event->confidence);
+//                ++event;
+//            }
+//        }
 
         NSLog(@"pass three");
         

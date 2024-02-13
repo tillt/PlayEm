@@ -21,6 +21,8 @@
 
 #include <simd/simd.h>
 
+#include "ShaderTypes.h"
+
 typedef NS_ENUM(NSInteger, BufferIndex)
 {
     BufferIndexScopeLines  = 0,
@@ -36,12 +38,6 @@ typedef NS_ENUM(NSInteger, TextureIndex)
     TextureIndexLast = 2,
     TextureIndexCompose = 3
 };
-
-typedef struct
-{
-    matrix_float4x4 matrix;
-    vector_float4   colorFactor;
-} Feedback;
 
 typedef struct
 {

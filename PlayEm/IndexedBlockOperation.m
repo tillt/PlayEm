@@ -28,18 +28,14 @@
 
 - (void)run:(nonnull void (^)(void))block
 {
-    _block = dispatch_block_create(DISPATCH_BLOCK_NO_QOS_CLASS, block);
+    self.block = dispatch_block_create(DISPATCH_BLOCK_NO_QOS_CLASS, block);
 }
 
-- (void)wait
-{
-    dispatch_block_wait(_block, DISPATCH_TIME_FOREVER);
-}
-
-- (void)cancel
+- (void)cancelAndWait
 {
     if (_block != nil) {
         dispatch_block_cancel(_block);
+        dispatch_block_wait(_block, DISPATCH_TIME_FOREVER);
     }
 }
 

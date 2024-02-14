@@ -401,7 +401,7 @@ static NSSize _originalSize __attribute__((unused)) = {0.0,0.0};
 
         [renderEncoder drawPrimitives:MTLPrimitiveTypeTriangleStrip
                           vertexStart:0
-                          vertexCount:4 * tile.frame.size.width];
+                          vertexCount:4 * (tile.frame.size.width + 1)];
 
         [renderEncoder endEncoding];
         tile.needsDisplay = NO;

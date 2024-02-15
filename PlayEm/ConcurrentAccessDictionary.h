@@ -15,7 +15,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface ConcurrentAccessDictionary<__covariant KeyType, __covariant ObjectType> : NSObject
 
-- (id)objectForKey:(id)aKey;
+- (id _Nullable)objectForKey:(id)aKey;
 - (void)setObject:(id)anObject forKey:(id<NSCopying>)aKey;
 - (void)removeObjectForKey:(id)aKey;
 - (void)removeAllObjects;

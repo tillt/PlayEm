@@ -33,7 +33,7 @@ static int _bufferIndex = 0;
         texDescriptor.width = size.width + 1.0;
         texDescriptor.height = size.height;
         texDescriptor.pixelFormat = MTLPixelFormatRGBA8Unorm;
-        texDescriptor.usage = MTLTextureUsageShaderRead | MTLTextureUsageShaderWrite;
+        texDescriptor.usage = MTLTextureUsageShaderRead | MTLTextureUsageShaderWrite | MTLTextureUsageRenderTarget;
         texDescriptor.sampleCount = 1;
 
         _frame = CGRectMake(0.0, 0.0, size.width + 1.0, size.height);

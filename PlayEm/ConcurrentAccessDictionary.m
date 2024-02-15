@@ -26,7 +26,7 @@
     return self;
 }
 
-- (id)objectForKey:(id)aKey
+- (id _Nullable)objectForKey:(id)aKey
 {
     __block id obj;
     dispatch_sync(_access_queue, ^{

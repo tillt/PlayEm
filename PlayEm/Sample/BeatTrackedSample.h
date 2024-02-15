@@ -27,7 +27,7 @@ typedef struct {
 typedef struct {
     size_t pageIndex;
     size_t eventIndex;
-    const BeatEvent* currentEvent;
+    const BeatEvent* _Nullable currentEvent;
 } BeatEventIterator;
 
 typedef struct _BeatsParserContext BeatsParserContext;

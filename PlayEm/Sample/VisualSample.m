@@ -116,8 +116,11 @@
 
 - (void)garbageCollectOperationsOutsideOfWindow:(size_t)window width:(size_t)width
 {
-    const int prerenderTileDistance = 5;
-    size_t left = MIN((window / _tileWidth) - prerenderTileDistance, 0);
+    const size_t prerenderTileDistance = 5;
+    size_t left = 0;
+    if ((window / _tileWidth) >= 5) {
+        left = (window / _tileWidth) - prerenderTileDistance;
+    }
     size_t right = prerenderTileDistance + ((window + width) / _tileWidth);
 
     NSArray* keys = [_operations allKeys];

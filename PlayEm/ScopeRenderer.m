@@ -377,6 +377,8 @@ float rgb_from_srgb(float c)
         NSAssert(_scopeState, @"Failed to create pipeline state to render the frequencies to a texture: %@", error);
     }
 
+    texDescriptor.usage = MTLTextureUsageShaderWrite | MTLTextureUsageShaderRead | MTLTextureUsageRenderTarget;
+
     // Set up a render pass descriptor for the render pass to render into _composeTargetTexture.
     _composeTargetTexture = [_device newTextureWithDescriptor:texDescriptor];
 

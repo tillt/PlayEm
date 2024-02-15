@@ -29,6 +29,8 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, assign) BOOL needsDisplay;
 @property (nonatomic, strong) VisualSample* visualSample;
 
+@property (assign, nonatomic) unsigned long long currentFrame;
+@property (assign, nonatomic) unsigned long long frames;
 
 - (nonnull instancetype)initWithView:(MetalWaveView *)view
                                color:(NSColor *)color

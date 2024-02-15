@@ -22,7 +22,7 @@
 #import "WaveTile.h"
 #import "MetalWaveView.h"
 
-static const NSUInteger kMaxBuffersInFlight = 3;
+static const NSUInteger kMaxBuffersInFlight = 2;
 static const size_t kAlignedUniformsSize = (sizeof(WaveUniforms) & ~0xFF) + 0x100;
 static const size_t kMetalWaveViewTileWidth = 256;
 
@@ -69,6 +69,9 @@ static const size_t kMetalWaveViewTileWidth = 256;
 
     MTLRenderPassDescriptor* _wavePass;
     id<MTLRenderPipelineState> _waveState;
+    
+    MTLRenderPassDescriptor* _currentTimePass;
+    id<MTLRenderPipelineState> _currentTimeState;
 
     MTLRenderPassDescriptor* _composePass;
     id<MTLRenderPipelineState> _composeState;
@@ -100,6 +103,10 @@ static const size_t kMetalWaveViewTileWidth = 256;
     
     float _rotation;
     float _lineAspectRatio;
+    
+    MPSImageBox* _bloom;
+    MPSImageAreaMin* _erode;
+    MPSImageGaussianBlur* _blur;
     
     // WORKLOAD DATA
 }
@@ -172,14 +179,16 @@ static NSSize _originalSize __attribute__((unused)) = {0.0,0.0};
     
     texDescriptor.sampleCount = 1;
     texDescriptor.textureType = MTLTextureType2D;
-    texDescriptor.usage = MTLTextureUsageShaderWrite;
+    texDescriptor.usage = MTLTextureUsageShaderWrite | MTLTextureUsageShaderRead | MTLTextureUsageRenderTarget;
 
     _waveTargetTexture = [_device newTextureWithDescriptor:texDescriptor];
     _waveTargetTexture.label = @"WaveTargetTexture";
 
+    texDescriptor.usage = MTLTextureUsageShaderWrite | MTLTextureUsageShaderRead | MTLTextureUsageRenderTarget;
+
     _composeTargetTexture = [_device newTextureWithDescriptor:texDescriptor];
     _composeTargetTexture.label = @"ComposeTargetTexture";
-    
+
     _composeOverlayTexture = [self _loadTextureWithDevice:view.device imageName:@"RastaPattern"];
     _composeOverlayTexture.label = @"ComposeOverlayTexture";
 
@@ -221,7 +230,7 @@ static NSSize _originalSize __attribute__((unused)) = {0.0,0.0};
         pipelineStateDescriptor.colorAttachments[0].blendingEnabled = YES;
         pipelineStateDescriptor.colorAttachments[0].rgbBlendOperation = MTLBlendOperationAdd;
         pipelineStateDescriptor.colorAttachments[0].alphaBlendOperation = MTLBlendOperationAdd;
-        pipelineStateDescriptor.colorAttachments[0].sourceRGBBlendFactor = MTLBlendFactorSourceAlpha;
+        pipelineStateDescriptor.colorAttachments[0].sourceRGBBlendFactor = MTLBlendFactorOne;
         pipelineStateDescriptor.colorAttachments[0].sourceAlphaBlendFactor = MTLBlendFactorSourceAlpha;
         pipelineStateDescriptor.colorAttachments[0].destinationRGBBlendFactor = MTLBlendFactorOneMinusSourceAlpha;
         pipelineStateDescriptor.colorAttachments[0].destinationAlphaBlendFactor = MTLBlendFactorOneMinusSourceAlpha;
@@ -250,10 +259,33 @@ static NSSize _originalSize __attribute__((unused)) = {0.0,0.0};
         _waveState = [_device newRenderPipelineStateWithDescriptor:pipelineStateDescriptor error:&error];
         NSAssert(_waveState, @"Failed to create pipeline state to compose wave textures to a texture: %@", error);
     }
+    
+    _currentTimePass = [[MTLRenderPassDescriptor alloc] init];
+    _currentTimePass.colorAttachments[0].texture = _waveTargetTexture;
+    _currentTimePass.colorAttachments[0].loadAction = MTLLoadActionLoad;
+    _currentTimePass.colorAttachments[0].clearColor = MTLClearColorMake(0.0, 0.0, 0.0, 0.0);
+    _currentTimePass.colorAttachments[0].storeAction = MTLStoreActionStore;
 
+    {
+        pipelineStateDescriptor.label = @"Wave Current Time Render Pipeline";
+        pipelineStateDescriptor.rasterSampleCount = 1;
+        pipelineStateDescriptor.vertexFunction = [defaultLibrary newFunctionWithName:@"waveCurrentTimeTextureVertexShader"];
+        pipelineStateDescriptor.fragmentFunction = [defaultLibrary newFunctionWithName:@"waveCurrentTimeTextureFragmentShader"];
+        pipelineStateDescriptor.colorAttachments[0].pixelFormat = _waveTargetTexture.pixelFormat;
+
+        pipelineStateDescriptor.colorAttachments[0].rgbBlendOperation = MTLBlendOperationAdd;
+        pipelineStateDescriptor.colorAttachments[0].alphaBlendOperation = MTLBlendOperationAdd;
+        pipelineStateDescriptor.colorAttachments[0].sourceRGBBlendFactor = MTLBlendFactorOne;
+        pipelineStateDescriptor.colorAttachments[0].sourceAlphaBlendFactor = MTLBlendFactorSourceAlpha;
+        pipelineStateDescriptor.colorAttachments[0].destinationRGBBlendFactor = MTLBlendFactorOneMinusSourceAlpha;
+        pipelineStateDescriptor.colorAttachments[0].destinationAlphaBlendFactor = MTLBlendFactorOneMinusSourceAlpha;
+        _currentTimeState = [_device newRenderPipelineStateWithDescriptor:pipelineStateDescriptor error:&error];
+        NSAssert(_currentTimeState, @"Failed to create pipeline state to current time wave to a texture: %@", error);
+    }
+    
     _composePass = [[MTLRenderPassDescriptor alloc] init];
     _composePass.colorAttachments[0].texture = _composeTargetTexture;
-    _composePass.colorAttachments[0].loadAction = MTLLoadActionClear;
+    _composePass.colorAttachments[0].loadAction = MTLLoadActionLoad;
     _composePass.colorAttachments[0].clearColor = MTLClearColorMake(0.0, 0.0, 0.0, 0.0);
     _composePass.colorAttachments[0].storeAction = MTLStoreActionStore;
 
@@ -261,15 +293,25 @@ static NSSize _originalSize __attribute__((unused)) = {0.0,0.0};
     {
         pipelineStateDescriptor.label = @"Wave Compose Render Pipeline";
         pipelineStateDescriptor.rasterSampleCount = 1;
-        pipelineStateDescriptor.vertexFunction = [defaultLibrary newFunctionWithName:@"projectTexture"];
+        pipelineStateDescriptor.vertexFunction = [defaultLibrary newFunctionWithName:@"waveOverlayComposeTextureVertexShader"];
         pipelineStateDescriptor.fragmentFunction = [defaultLibrary newFunctionWithName:@"waveOverlayComposeTextureFragmentShader"];
         pipelineStateDescriptor.colorAttachments[0].pixelFormat = _composeTargetTexture.pixelFormat;
+        pipelineStateDescriptor.colorAttachments[0].rgbBlendOperation = MTLBlendOperationAdd;
+        pipelineStateDescriptor.colorAttachments[0].alphaBlendOperation = MTLBlendOperationAdd;
         pipelineStateDescriptor.colorAttachments[0].sourceRGBBlendFactor = MTLBlendFactorOne;
         pipelineStateDescriptor.colorAttachments[0].sourceAlphaBlendFactor = MTLBlendFactorSourceAlpha;
-        pipelineStateDescriptor.colorAttachments[0].destinationRGBBlendFactor = MTLBlendFactorOne;
+        pipelineStateDescriptor.colorAttachments[0].destinationRGBBlendFactor = MTLBlendFactorDestinationColor;
+        pipelineStateDescriptor.colorAttachments[0].destinationAlphaBlendFactor = MTLBlendFactorOneMinusDestinationAlpha;
         _composeState = [_device newRenderPipelineStateWithDescriptor:pipelineStateDescriptor error:&error];
         NSAssert(_composeState, @"Failed to create pipeline state to compose wave to a texture: %@", error);
     }
+    
+    //width = ((((int)ceil(ScaleWithOriginalFrame(17.0f, _originalSize.height, _originalSize.height + (size.height/30) ))) / 2) * 2) + 1;
+    //height = ((((int)ceil(ScaleWithOriginalFrame(17.0f, _originalSize.height, _originalSize.height + (size.height/30) ))) / 2) * 2) + 1;
+    float width = 7.0;
+    float height = 13.0;
+
+    _bloom = [[MPSImageBox alloc] initWithDevice:_device kernelWidth:width kernelHeight:height];
 
     _dynamicUniformBuffer = [_device newBufferWithLength:kAlignedUniformsSize * kMaxBuffersInFlight
                                                  options:MTLResourceStorageModeShared];
@@ -488,6 +530,10 @@ static NSSize _originalSize __attribute__((unused)) = {0.0,0.0};
     uniforms->lineAspectRatio = _lineAspectRatio;
     uniforms->color = [GraphicsTools ShaderColorFromColor:_color];
     uniforms->tileWidth = (kMetalWaveViewTileWidth * 2.0f) / _view.rect.size.width;
+    
+    const float halfWidth = _view.documentVisibleRect.size.width / 2.0f;
+    const float offset = ((_view.documentTotalRect.size.width * _currentFrame) / _frames) - _view.documentVisibleRect.origin.x;
+    uniforms->currentFrameOffset = (offset - halfWidth) / halfWidth;
 
     matrix_float4x4 modelMatrix = matrix4x4_identity();
     matrix_float4x4 viewMatrix = matrix4x4_identity();
@@ -559,6 +605,34 @@ static NSSize _originalSize __attribute__((unused)) = {0.0,0.0};
         [renderEncoder endEncoding];
     }
 
+//    {
+//        id<MTLRenderCommandEncoder> renderEncoder = [commandBuffer renderCommandEncoderWithDescriptor:_wavePass];
+//        renderEncoder.label = @"Wave Current Time Render Pass";
+//        
+//        [renderEncoder setRenderPipelineState:_currentTimeState];
+//        [renderEncoder setVertexBuffer:_dynamicUniformBuffer
+//                                offset:_uniformBufferOffset
+//                               atIndex:WaveBufferIndexUniforms];
+//        [renderEncoder setFragmentBuffer:_dynamicUniformBuffer
+//                                  offset:_uniformBufferOffset
+//                                 atIndex:WaveBufferIndexUniforms];
+//
+//        [renderEncoder setFragmentTexture:_waveTargetTexture
+//                                  atIndex:WaveTextureIndexSource];
+//
+//        [renderEncoder drawPrimitives:MTLPrimitiveTypeTriangleStrip
+//                          vertexStart:0
+//                          vertexCount:4];
+//
+//        [renderEncoder endEncoding];
+//    }
+
+    {
+        [_bloom encodeToCommandBuffer:commandBuffer
+                             sourceTexture:_waveTargetTexture
+                        destinationTexture:_composeTargetTexture];
+    }
+
     {
         id<MTLRenderCommandEncoder> renderEncoder = [commandBuffer renderCommandEncoderWithDescriptor:_composePass];
 
@@ -574,19 +648,23 @@ static NSSize _originalSize __attribute__((unused)) = {0.0,0.0};
                                   offset:_uniformBufferOffset
                                  atIndex:WaveBufferIndexUniforms];
 
-        [renderEncoder setFragmentTexture:_waveTargetTexture
-                                  atIndex:WaveTextureIndexSource];
-
         [renderEncoder setFragmentTexture:_composeOverlayTexture
-                                  atIndex:WaveTextureIndexOverlay];
+                                  atIndex:WaveTextureIndexSource];
+        
+        vector_float2 uvsMap;
+        uvsMap[0] = _composeTargetTexture.width / _composeOverlayTexture.width;
+        uvsMap[1] = _composeTargetTexture.height / _composeOverlayTexture.height;
+        [renderEncoder setVertexBytes:&uvsMap
+                               length:sizeof(vector_float2)
+                              atIndex:WaveTextureIndexUVSMapping];
 
-        // Draw quad with rendered texture.
         [renderEncoder drawPrimitives:MTLPrimitiveTypeTriangleStrip
                           vertexStart:0
                           vertexCount:4];
 
         [renderEncoder endEncoding];
     }
+
 
     /// Delay getting the currentRenderPassDescriptor until we absolutely need it to avoid
     ///   holding onto the drawable and blocking the display pipeline any longer than necessar
@@ -604,7 +682,6 @@ static NSSize _originalSize __attribute__((unused)) = {0.0,0.0};
         [renderEncoder setFragmentTexture:_composeTargetTexture
                                   atIndex:WaveTextureIndexSource];
 
-        // Draw quad with rendered texture.
         [renderEncoder drawPrimitives:MTLPrimitiveTypeTriangleStrip
                           vertexStart:0
                           vertexCount:4];

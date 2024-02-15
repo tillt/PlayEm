@@ -104,16 +104,8 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
     
     AVAudioFramePosition frame = controller.audioController.currentFrame;
     
-    /*
-    dispatch_async(controller.scopeQueue, ^{
-        [controller updateScopeFrame:frame];
-    });
-     */
-    
-    @autoreleasepool {
-        [controller updateWaveFrame:frame];
-        [controller updateScopeFrame:frame];
-    }
+    [controller updateWaveFrame:frame];
+    [controller updateScopeFrame:frame];
 
     dispatch_async(dispatch_get_main_queue(), ^{
         controller.currentFrame = frame;
@@ -327,7 +319,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     
     const CGFloat totalWaveViewHeight = 46.0;
     const CGFloat scrollingWaveViewHeight = 158.0;
-    const CGFloat metalWaveViewHeight = 158.0;
+    const CGFloat metalWaveViewHeight = 0.0;
     const CGFloat scopeViewHeight = 353.0;
     //const CGFloat infoFxViewWidth = 465.0;
     const CGFloat playlistFxViewWidth = 280.0;
@@ -422,28 +414,29 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     _totalView.autoresizingMask = NSViewWidthSizable | NSViewMaxYMargin;
     [_belowVisuals addSubview:_totalView];
     
-//    TiledScrollView* tiledSV = [[TiledScrollView alloc] initWithFrame:NSMakeRect(0.0,
-//                                                                                 totalWaveViewHeight,
-//                                                                                 size.width,
-//                                                                                 scrollingWaveViewHeight)];
-//    tiledSV.autoresizingMask = NSViewWidthSizable | NSViewMaxYMargin;
-//    tiledSV.drawsBackground = NO;
-//    tiledSV.verticalScrollElasticity = NSScrollElasticityNone;
-//
-//    _waveView = [[WaveView alloc] initWithFrame:tiledSV.bounds];
-//    _waveView.waveLayerDelegate = self.waveLayerDelegate;
-//    _waveView.headDelegate = tiledSV;
-//    _waveView.color = [[Defaults sharedDefaults] regularBeamColor];
-//    _waveView.beatLayerDelegate = self.beatLayerDelegate;
-//    tiledSV.documentView = _waveView;
-//    
-//    [_belowVisuals addSubview:tiledSV];
+    TiledScrollView* tiledSV = [[TiledScrollView alloc] initWithFrame:NSMakeRect(0.0,
+                                                                                 totalWaveViewHeight,
+                                                                                 size.width,
+                                                                                 scrollingWaveViewHeight)];
+    tiledSV.autoresizingMask = NSViewWidthSizable | NSViewMaxYMargin;
+    tiledSV.drawsBackground = NO;
+    tiledSV.verticalScrollElasticity = NSScrollElasticityNone;
+
+    _waveView = [[WaveView alloc] initWithFrame:tiledSV.bounds];
+    _waveView.waveLayerDelegate = self.waveLayerDelegate;
+    _waveView.headDelegate = tiledSV;
+    _waveView.color = [[Defaults sharedDefaults] regularBeamColor];
+    _waveView.beatLayerDelegate = self.beatLayerDelegate;
+    tiledSV.documentView = _waveView;
+    
+    [_belowVisuals addSubview:tiledSV];
 
     NSBox* line = [[NSBox alloc] initWithFrame:NSMakeRect(0.0, totalWaveViewHeight, size.width, 1.0)];
     line.boxType = NSBoxSeparator;
     line.autoresizingMask = NSViewWidthSizable;
     [_belowVisuals addSubview:line];
     
+    /*
     _metalWaveView = [[MetalWaveView alloc] initWithFrame:NSMakeRect(0.0,
                                                                         totalWaveViewHeight + scrollingWaveViewHeight,
                                                                         size.width,
@@ -452,7 +445,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     //mvw.drawsBackground = NO;
     //mvw.verticalScrollElasticity = NSScrollElasticityNone;
     [_belowVisuals addSubview:_metalWaveView];
-
+*/
 
     line = [[NSBox alloc] initWithFrame:NSMakeRect(0.0, scrollingWaveViewHeight + totalWaveViewHeight - 1, size.width, 1.0)];
     line.boxType = NSBoxSeparator;
@@ -775,7 +768,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
 
         [_renderer mtkView:_scopeView drawableSizeWillChange:_scopeView.bounds.size];
         _scopeView.delegate = _renderer;
-        _scopeView.layer.opaque = false;
+        _scopeView.layer.opaque = YES;
     }
     
     _metalWaveView.device = MTLCreateSystemDefaultDevice();
@@ -788,7 +781,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
                                                        delegate:self];
         [_waveRenderer mtkView:_metalWaveView drawableSizeWillChange:_metalWaveView.bounds.size];
         _metalWaveView.delegate = _waveRenderer;
-        _metalWaveView.layer.opaque = false;
+        _metalWaveView.layer.opaque = YES;
     }
 
 
@@ -852,10 +845,10 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
 
 - (void)setupDisplayLink
 {
-    dispatch_queue_attr_t attr = dispatch_queue_attr_make_with_qos_class(DISPATCH_QUEUE_SERIAL, QOS_CLASS_USER_INTERACTIVE, 0);
-
-    _scopeQueue = dispatch_queue_create("PlayEm.ScopeQueue", attr);
-    _waveQueue = dispatch_queue_create("PlayEm.WaveQueue", attr);
+//    dispatch_queue_attr_t attr = dispatch_queue_attr_make_with_qos_class(DISPATCH_QUEUE_SERIAL, QOS_CLASS_USER_INTERACTIVE, 0);
+//
+//    _scopeQueue = dispatch_queue_create("PlayEm.ScopeQueue", attr);
+//    _waveQueue = dispatch_queue_create("PlayEm.WaveQueue", attr);
     
     CGDirectDisplayID   displayID = CGMainDisplayID();
     CVReturn            error = kCVReturnSuccess;
@@ -1053,7 +1046,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
                                                        delegate:self];
     _renderer.level = self.controlPanelController.level;
     sv.delegate = _renderer;
-    sv.paused = NO;
+    sv.paused = YES;
 
     assert(parent);
     [parent addSubview:sv];
@@ -1231,7 +1224,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     _controlPanelController.duration.stringValue = [_sample beautifulTimeWithFrame:_sample.frames - frame];
     _controlPanelController.time.stringValue = [_sample beautifulTimeWithFrame:frame];
     
-    //_waveView.currentFrame = frame;
+    _waveView.currentFrame = frame;
     _totalView.currentFrame = frame;
 
     if (_beatSample.isReady) {

@@ -386,24 +386,71 @@ fragment float4 waveProjectTextureFragmentShader(TexturePipelineRasterizerData  
     return inputTexture.sample(simpleSampler, in.texcoord);
 }
 
+vertex TexturePipelineRasterizerData waveOverlayComposeTextureVertexShader(constant WaveUniforms & uniforms   [[ buffer(WaveBufferIndexUniforms) ]],
+                                                                           constant const float2 &uvsMap      [[ buffer(WaveTextureIndexUVSMapping) ]],
+                                                                           unsigned int vertex_id             [[ vertex_id ]])
+{
+    float4x4 renderedCoordinates = float4x4(float4(-1.0, -1.0, 0.0, 1.0),
+                                            float4( 1.0, -1.0, 0.0, 1.0),
+                                            float4(-1.0,  1.0, 0.0, 1.0),
+                                            float4( 1.0,  1.0, 0.0, 1.0));
+
+    float4x2 uvs = float4x2(float2(0.0,         uvsMap.y),
+                            float2(uvsMap.x,    uvsMap.y),
+                            float2(0.0,         0.0),
+                            float2(uvsMap.x,    0.0));
+    
+    TexturePipelineRasterizerData outVertex;
+   
+    outVertex.position = renderedCoordinates[vertex_id];
+    outVertex.texcoord = uvs[vertex_id];
+    
+    return outVertex;
+}
+
 fragment float4 waveOverlayComposeTextureFragmentShader(
     TexturePipelineRasterizerData in [[ stage_in ]],
-    texture2d<float, access::sample> waveTexture     [[ texture(WaveTextureIndexSource) ]],
-    texture2d<float, access::sample> overlayTexture  [[ texture(WaveTextureIndexOverlay) ]])
+    texture2d<float, access::sample> waveTexture     [[ texture(WaveTextureIndexSource) ]])
 {
     constexpr sampler quadSampler(coord::normalized,
                                   address::repeat,
                                   filter::linear);
 
-    float4 textureColor1 = waveTexture.sample(quadSampler, in.texcoord);
-    
-    constexpr sampler s(coord::normalized,
-                        address::repeat,
-                        filter::linear);
-    
-    float4 textureColor2 = overlayTexture.sample(s, in.texcoord);
+    return waveTexture.sample(quadSampler, in.texcoord);
+}
 
-    return textureColor1 + textureColor2;
+vertex TexturePipelineRasterizerData waveCurrentTimeTextureVertexShader(constant WaveUniforms & uniforms   [[ buffer(WaveBufferIndexUniforms) ]],
+                                                                        unsigned int vertex_id             [[ vertex_id ]])
+{
+    float4x4 renderedCoordinates = float4x4(float4(uniforms.currentFrameOffset, -1.0, 0.0, 1.0),
+                                            float4( 1.0, -1.0, 0.0, 1.0),
+                                            float4(uniforms.currentFrameOffset,  1.0, 0.0, 1.0),
+                                            float4( 1.0,  1.0, 0.0, 1.0));
+
+    float4x2 uvs = float4x2(float2(uniforms.currentFrameOffset, 1.0),
+                            float2(1.0, 1.0),
+                            float2(uniforms.currentFrameOffset, 0.0),
+                            float2(1.0, 0.0));
+    
+    TexturePipelineRasterizerData outVertex;
+   
+    outVertex.position = renderedCoordinates[vertex_id];
+    outVertex.texcoord = uvs[vertex_id];
+    
+    return outVertex;
+}
+
+fragment float4 waveCurrentTimeTextureFragmentShader(
+    TexturePipelineRasterizerData in [[ stage_in ]],
+    texture2d<float, access::sample> waveTexture     [[ texture(WaveTextureIndexSource) ]])
+{
+    constexpr sampler quadSampler(coord::normalized,
+                                  address::repeat,
+                                  filter::linear);
+
+    float4 color = waveTexture.sample(quadSampler, in.texcoord);
+    float gray = 0.21 * color[0] + 0.71 * color[1] + 0.07 * color[3];
+    return float4(gray, gray, gray, color[3]);
 }
 
 /*

@@ -18,6 +18,9 @@
     [super awakeFromNib];
     //self.paused = YES;
     self.enableSetNeedsDisplay = NO;
+    self.layer.opaque = NO;
+    self.layer.backgroundColor = [[NSColor colorWithRed:0 green:0 blue:0 alpha:0] CGColor];
+    self.clearColor = MTLClearColorMake(0, 0, 0, 0);
 }
 
 - (void)viewDidMoveToSuperview
@@ -33,23 +36,23 @@
 
 - (void)setFrames:(unsigned long long)frames
 {
-    if (_frames == frames) {
+    if (_waveRenderer.frames == frames) {
         return;
     }
-    _frames = frames;
+    _waveRenderer.frames = frames;
     [self invalidateTiles];
     self.currentFrame = 0;
 }
 
 - (void)setCurrentFrame:(unsigned long long)frame
 {
-    if (_currentFrame == frame) {
+    if (_waveRenderer.currentFrame == frame) {
         return;
     }
-    if (_frames == 0.0) {
+    if (_waveRenderer.frames == 0.0) {
         return;
     }
-    _currentFrame = frame;
+    _waveRenderer.currentFrame = frame;
     
     [self updateScrollingState];
 
@@ -58,7 +61,7 @@
 
 - (void)updateScrollingState
 {
-    CGFloat head = (self.documentTotalRect.size.width * _currentFrame) / _frames;
+    CGFloat head = (self.documentTotalRect.size.width * _waveRenderer.currentFrame) / _waveRenderer.frames;
     self.documentVisibleRect = CGRectMake(MAX(floor(head - (_rect.size.width / 2.0)), 0.0),
                                          0.0,
                                           _rect.size.width,

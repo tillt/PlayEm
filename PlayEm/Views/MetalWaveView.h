@@ -20,8 +20,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 
 @property (nonatomic, strong) WaveRenderer* waveRenderer;
-@property (assign, nonatomic) unsigned long long frames;
-@property (assign, nonatomic) unsigned long long currentFrame;
+
+- (void)setCurrentFrame:(unsigned long long)frame;
+- (void)setFrames:(unsigned long long)frames;
 
 @end
 

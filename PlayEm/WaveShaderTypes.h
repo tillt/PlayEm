@@ -33,7 +33,8 @@ typedef NS_ENUM(NSInteger, WaveTextureIndex)
 {
     WaveTextureIndexSource   = 0,
     WaveTextureIndexOverlay = 1,
-    WaveTextureIndexPosition = 2
+    WaveTextureIndexPosition = 2,
+    WaveTextureIndexUVSMapping = 3
 };
 
 typedef struct
@@ -50,8 +51,9 @@ typedef struct
 
     vector_float4   color;
 
-    float           tilePosition[40];
     float           tileWidth;
+    
+    float           currentFrameOffset;
 } WaveUniforms;
 
 #endif /* WaveShaderTypes_h */

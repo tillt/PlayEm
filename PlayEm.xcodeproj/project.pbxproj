@@ -107,6 +107,7 @@
 		BB2CB58624827A0900D47258 /* AudioController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AudioController.m; sourceTree = "<group>"; };
 		BB2CF8AB259EB66900D6BA03 /* LazySample.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LazySample.h; sourceTree = "<group>"; };
 		BB2CF8AC259EB66900D6BA03 /* LazySample.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = LazySample.m; sourceTree = "<group>"; };
+		BB3B8D8C2B85285E006AEFCA /* ProfilingPointsOfInterest.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ProfilingPointsOfInterest.h; sourceTree = "<group>"; };
 		BB577E072AA482D400046251 /* librubberband.2.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = librubberband.2.dylib; sourceTree = "<group>"; };
 		BB577E152AA486C500046251 /* libsamplerate.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libsamplerate.0.dylib; sourceTree = "<group>"; };
 		BB5A4D8F28FC5C2B003A733C /* NSBezierPath+CGPath.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSBezierPath+CGPath.h"; sourceTree = "<group>"; };
@@ -386,6 +387,7 @@
 				BB0C5D9227768D2400856978 /* MatrixUtilities.m */,
 				BB7C6267293144890019AF25 /* Defaults.h */,
 				BB7C6268293144890019AF25 /* Defaults.m */,
+				BB3B8D8C2B85285E006AEFCA /* ProfilingPointsOfInterest.h */,
 				BB8571022972152B0004218B /* README.md */,
 			);
 			path = PlayEm;

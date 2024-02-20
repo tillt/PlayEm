@@ -15,7 +15,7 @@
 {
     NSLog(@"loadView");
 
-    self.view = [[NSView alloc] initWithFrame:NSMakeRect(0.0,  0.0, 450.0, 720.0)];
+    self.view = [[NSView alloc] initWithFrame:NSMakeRect(0.0,  0.0, 450.0, 740.0)];
 
     const CGFloat imageWidth = 400.0f;
     const CGFloat nameFieldWidth = 80.0;
@@ -56,7 +56,8 @@
         },
         @"10 location": @{
             @"width": @340,
-            @"rows": @2,
+            @"rows": @3,
+            @"editable": @NO,
         },
     };
     NSMutableDictionary* dict = [NSMutableDictionary dictionary];
@@ -67,8 +68,18 @@
 
         NSNumber* number = config[key][@"width"];
         CGFloat width = [number floatValue];
+        
         unsigned int rows = 1;
         number = [config[key] objectForKey:@"rows"];
+        if (number != nil){
+            rows = [number intValue];
+        }
+
+        BOOL editable = YES;
+        number = [config[key] objectForKey:@"editable"];
+        if (number != nil) {
+            editable = [number boolValue];
+        }
 
         NSTextField* textField = [NSTextField textFieldWithString:name];
         textField.bordered = NO;
@@ -81,24 +92,24 @@
                                      nameFieldWidth,
                                      (rows * rowUnitHeight) + kRowInset);
         [self.view addSubview:textField];
-
+        
         textField = [NSTextField textFieldWithString:@""];
-        textField.bordered = YES;
+        textField.bordered = editable;
         textField.textColor = [NSColor labelColor];
         textField.drawsBackground = NO;
-        textField.editable = YES;
+        textField.editable = editable;
         textField.alignment = NSTextAlignmentLeft;
+        if (editable) {
+            textField.delegate = self;
+        }
 
-        if (number != nil){
-            rows = [number intValue];
-            if (rows > 1) {
-                textField.lineBreakMode = NSLineBreakByCharWrapping;
-                textField.usesSingleLineMode = NO;
-                textField.cell.wraps = YES;
-                textField.cell.scrollable = NO;
-            } else {
-                textField.usesSingleLineMode = YES;
-            }
+        if (rows > 1) {
+            textField.lineBreakMode = NSLineBreakByCharWrapping;
+            textField.usesSingleLineMode = NO;
+            textField.cell.wraps = YES;
+            textField.cell.scrollable = NO;
+        } else {
+            textField.usesSingleLineMode = YES;
         }
 
         textField.frame = NSMakeRect(nameFieldWidth + kBorderWidth + kBorderWidth,
@@ -128,42 +139,51 @@
 - (void)setMeta:(MediaMetaData*)meta
 {
     _meta = meta;
+
+    if (self.view == nil) {
+        return;
+    }
+
+    if (_meta.artwork) {
+        _coverView.image = _meta.artwork;
+    }
+
+    NSArray<NSString*>* keys = [MediaMetaData mediaMetaKeys];
     
-    if (self.view != nil) {
-        if (_meta.artwork) {
-            _coverView.image = _meta.artwork;
+    for (NSString* key in keys) {
+        NSTextField* textField = (NSTextField*)_dictionary[key];
+        if (textField == nil) {
+            continue;
         }
-        if (_meta.title) {
-            ((NSTextField*)_dictionary[@"title"]).stringValue = _meta.title;
+        NSString* value = [_meta stringForKey:key];
+        if (value == nil) {
+            continue;
         }
-        if (_meta.artist) {
-            ((NSTextField*)_dictionary[@"artist"]).stringValue = _meta.artist;
-        }
-        if (_meta.album) {
-            ((NSTextField*)_dictionary[@"album"]).stringValue = _meta.album;
-        }
-        if (_meta.genre) {
-            ((NSTextField*)_dictionary[@"genre"]).stringValue = _meta.genre;
-        }
-        if (_meta.key) {
-            ((NSTextField*)_dictionary[@"key"]).stringValue = _meta.key;
-        }
-        if (_meta.tempo) {
-            ((NSTextField*)_dictionary[@"tempo"]).stringValue = [NSString stringWithFormat:@"%d", (unsigned int)_meta.tempo]; ;
-        }
-        if (_meta.track > 0) {
-            ((NSTextField*)_dictionary[@"track"]).stringValue = [NSString stringWithFormat:@"%ld", _meta.track];
-        }
-        if (_meta.disk > 0) {
-            ((NSTextField*)_dictionary[@"disk"]).stringValue = [NSString stringWithFormat:@"%ld", _meta.disk];
-        }
-        if (_meta.year > 0) {
-            ((NSTextField*)_dictionary[@"year"]).stringValue = [NSString stringWithFormat:@"%ld", _meta.year];
-        }
-        if (_meta.location) {
-            ((NSTextField*)_dictionary[@"location"]).stringValue = [_meta.location.absoluteString stringByRemovingPercentEncoding];
+        textField.stringValue = value;
+    }
+}
+
+- (BOOL)valueForTextFieldChanged:(NSString*)key value:(NSString*)value
+{
+    NSString* oldValue = [_meta stringForKey:key];
+    return ![value isEqualToString:oldValue];
+}
+
+- (void)controlTextDidEndEditing:(NSNotification *)notification
+{
+    NSTextField* textField = [notification object];
+    
+    for (NSString* key in [_dictionary allKeys]) {
+        if ([_dictionary valueForKey:key] == textField) {
+            if ([self valueForTextFieldChanged:key value:[textField stringValue]]) {
+                NSLog(@"controlTextDidChange: stringValue == %@ in textField == %@", [textField stringValue], key);
+            } else {
+                NSLog(@"controlTextDidChange: contents for textField == %@ did not change", key);
+            }
+            return;
         }
     }
+    NSAssert(NO, @"never should have arrived here");
 }
 
 @end

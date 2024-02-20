@@ -12,7 +12,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @class MediaMetaData;
 
-@interface InfoPanelController : NSViewController
+@interface InfoPanelController : NSViewController <NSTextFieldDelegate>
 
 @property (strong, nonatomic) MediaMetaData* meta;
 @property (strong, nonatomic) NSTextField* metaTitle;

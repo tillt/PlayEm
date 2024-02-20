@@ -83,7 +83,31 @@
 }
 */
 
-- (NSString*)title
++ (NSArray<NSString*>*)mediaMetaKeys
+{
+    NSArray<NSString*>* keys = @[
+        @"added",
+        @"artist",
+        @"artwork",
+        @"album",
+        @"comment",
+        @"disk",
+        @"disks",
+        @"duration",
+        @"genre",
+        @"key",
+        @"location",
+        @"locationType",
+        @"tempo",
+        @"title",
+        @"track",
+        @"tracks",
+        @"year",
+    ];
+    return keys;
+}
+
+- (NSString* _Nullable)title
 {
     if (_shadow == nil) {
         return _title;
@@ -109,7 +133,7 @@
     return _artist;
 }
 
-- (NSString*)album
+- (NSString* _Nullable)album
 {
     if (_shadow == nil) {
         return _album;
@@ -122,7 +146,7 @@
     return _album;
 }
 
-- (NSString*)genre
+- (NSString* _Nullable)genre
 {
     if (_shadow == nil) {
         return _genre;
@@ -174,7 +198,7 @@
     return _track;
 }
 
-- (NSURL*)location
+- (NSURL* _Nullable)location
 {
     if (_shadow == nil) {
         return _location;
@@ -214,7 +238,7 @@
     return _duration;
 }
 
-- (NSImage*)artwork
+- (NSImage* _Nullable)artwork
 {
     if (_shadow == nil) {
         return _artwork;
@@ -231,7 +255,7 @@
     return _artwork;
 }
 
-- (NSDate*)added
+- (NSDate* _Nullable)added
 {
     if (_shadow == nil) {
         return _added;
@@ -256,6 +280,31 @@
 - (NSString *)description
 {
     return [NSString stringWithFormat:@"Title: %@ -- Album: %@ -- Artist: %@ -- Location: %@", self.title, self.album, self.artist, self.location];
+}
+
+- (NSString* _Nullable)stringForKey:(NSString*)key
+{
+    id valueObject = [self valueForKey:key];
+    
+    if ([valueObject isKindOfClass:[NSString class]]) {
+        return valueObject;
+    }
+
+    if ([valueObject isKindOfClass:[NSNumber class]]) {
+        NSString* ret = nil;
+        NSUInteger intValue = 0;
+        [valueObject getValue:&intValue];
+        if (intValue > 0) {
+            ret = [NSString stringWithFormat:@"%ld", intValue];
+        }
+        return ret;
+    }
+
+    if ([valueObject isKindOfClass:[NSURL class]]) {
+        return [[valueObject absoluteString] stringByRemovingPercentEncoding];
+    }
+
+    return nil;
 }
 
 @end

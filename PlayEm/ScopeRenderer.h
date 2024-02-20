@@ -28,6 +28,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (weak, nonatomic) NSLevelIndicator* level;
 
+@property (assign, nonatomic) unsigned long long frames;
+@property (assign, nonatomic) unsigned long long currentFrame;
+
 - (nonnull instancetype)initWithMetalKitView:(nonnull MTKView *)view color:(NSColor *)color fftColor:(NSColor *)fftColor background:(NSColor *)background delegate:(id<ScopeRendererDelegate>)delegate;
 
 - (void)play:(nonnull AudioController *)audio visual:(nonnull VisualSample *)visual scope:(nonnull MTKView *)scope;

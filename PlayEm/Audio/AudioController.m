@@ -9,15 +9,15 @@
 #import <CoreAudio/CoreAudio.h>             // AudioDeviceID
 #import <CoreAudio/CoreAudioTypes.h>
 #import <CoreServices/CoreServices.h>
+#import <AudioToolbox/AudioToolbox.h>
 
 #import "AudioController.h"
 #import "LazySample.h"
-
-#import <AudioToolbox/AudioToolbox.h>
+#import "ProfilingPointsOfInterest.h"
 
 const unsigned int kPlaybackBufferFrames = 4096;
 const unsigned int kPlaybackBufferCount = 2;
-static const float kPollInterval = 0.3f;
+static const float kDecodingPollInterval = 0.3f;
 static const float kEnoughSecondsDecoded = 5.0f;
 
 typedef struct {
@@ -52,6 +52,8 @@ AVAudioFramePosition currentFrame(AudioQueueRef queue, AudioContext* context)
     // towards the playback delay introduced by the interface? That is something
     // we should be able to do. Needs a slow bluetooth device for testing.
     
+    os_signpost_interval_begin(pointsOfInterest, POIGetCurrentFrame, "GetCurrentFrame");
+
     AudioQueueTimelineRef timeLine;
     OSStatus res = AudioQueueCreateTimeline(queue, &timeLine);
     
@@ -70,16 +72,20 @@ AVAudioFramePosition currentFrame(AudioQueueRef queue, AudioContext* context)
     AudioQueueDisposeTimeline(queue, timeLine);
 
     if (res) {
+        os_signpost_interval_end(pointsOfInterest, POIGetCurrentFrame, "GetCurrentFrame", "failed");
         return 0;
     }
     if (timeStamp.mSampleTime < 0) {
+        os_signpost_interval_end(pointsOfInterest, POIGetCurrentFrame, "GetCurrentFrame", "negative");
         return 0;
     }
     if (discontinued) {
         NSLog(@"discontinued queue -- needs reinitializing");
+        os_signpost_interval_end(pointsOfInterest, POIGetCurrentFrame, "GetCurrentFrame", "discontinued");
         return 0;
     }
-    
+    os_signpost_interval_end(pointsOfInterest, POIGetCurrentFrame, "GetCurrentFrame", "done");
+
     return MIN(context->seekFrame + timeStamp.mSampleTime, context->sample.frames - 1);
 }
 
@@ -115,6 +121,8 @@ void propertyCallback (void* user_data, AudioQueueRef queue, AudioQueuePropertyI
 
 void bufferCallback(void* user_data, AudioQueueRef queue, AudioQueueBufferRef buffer)
 {
+    os_signpost_interval_begin(pointsOfInterest, POIAudioBufferCallback, "AudioBufferCallback");
+
     assert(user_data);
     AudioContext* context = user_data;
     
@@ -154,6 +162,8 @@ void bufferCallback(void* user_data, AudioQueueRef queue, AudioQueueBufferRef bu
         AudioQueueEnqueueBuffer(queue, buffer, 0, NULL);
     }
     context->bufferIndex = bufferIndex;
+    
+    os_signpost_interval_end(pointsOfInterest, POIAudioBufferCallback, "AudioBufferCallback");
 }
 
 - (id)init
@@ -231,7 +241,8 @@ void bufferCallback(void* user_data, AudioQueueRef queue, AudioQueueBufferRef bu
     NSLog(@"waiting for more decoded audio data...");
 
     // TODO: We should use something more appropriate here, preventing polling.
-    _timer = [NSTimer scheduledTimerWithTimeInterval:kPollInterval repeats:YES block:^(NSTimer* timer){
+    _timer = [NSTimer scheduledTimerWithTimeInterval:kDecodingPollInterval
+                                             repeats:YES block:^(NSTimer* timer){
         if (self->_context.sample.decodedFrames >= self->_context.sample.rate * kEnoughSecondsDecoded) {
             NSLog(@"waiting done, starting playback.");
             [timer invalidate];
@@ -370,11 +381,16 @@ void bufferCallback(void* user_data, AudioQueueRef queue, AudioQueueBufferRef bu
     }
 
     // Listen for kAudioQueueProperty_IsRunning.
-    res = AudioQueueAddPropertyListener(_queue, kAudioQueueProperty_IsRunning, propertyCallback, &_context);
+    res = AudioQueueAddPropertyListener(_queue, 
+                                        kAudioQueueProperty_IsRunning,
+                                        propertyCallback,
+                                        &_context);
     assert(res == 0);
     
     // Assert the new queue inherits our volume desires.
-    AudioQueueSetParameter(_queue, kAudioQueueParam_Volume, _outputVolume);
+    AudioQueueSetParameter(_queue, 
+                           kAudioQueueParam_Volume,
+                           _outputVolume);
    
     uint32_t primed = 0;
     res = AudioQueuePrime(_queue, 0, &primed);

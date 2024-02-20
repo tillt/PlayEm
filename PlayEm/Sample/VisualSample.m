@@ -11,6 +11,7 @@
 #import "IndexedBlockOperation.h"
 #import "VisualPair.h"
 #import "ConcurrentAccessDictionary.h"
+#import "ProfilingPointsOfInterest.h"
 
 @interface VisualSample()
 {
@@ -41,6 +42,7 @@
         _tileWidth = tileWidth;
         assert(_framesPerPixel >= 1.0);
         _sampleBuffers = [NSMutableArray array];
+
         unsigned long long framesNeeded = tileWidth * _framesPerPixel;
         for (int channel = 0; channel < sample.channels; channel++) {
             NSMutableData* buffer = [NSMutableData dataWithCapacity:framesNeeded * _sample.frameSize];
@@ -94,19 +96,29 @@
 
 - (NSData* _Nullable)visualsFromOrigin:(size_t)origin
 {
+    os_signpost_interval_begin(pointsOfInterest, POIVisualsFromOrigin, "VisualsFromOrigin");
+    
     size_t pageIndex = origin / _tileWidth;
+
     NSNumber* pageNumber = [NSNumber numberWithLong:pageIndex];
-    IndexedBlockOperation* operation = nil;
-    operation = [_operations objectForKey:pageNumber];
+
+    IndexedBlockOperation* operation = [_operations objectForKey:pageNumber];
+
     if (operation == nil) {
+        os_signpost_interval_end(pointsOfInterest, POIVisualsFromOrigin, "VisualsFromOrigin", "unknown");
         return nil;
     }
+
     if (!operation.isFinished) {
+        os_signpost_interval_end(pointsOfInterest, POIVisualsFromOrigin, "VisualsFromOrigin", "unfinished");
         return nil;
     }
-    NSData* data = operation.data;
+
     [_operations removeObjectForKey:pageNumber];
-    return data;
+
+    os_signpost_interval_end(pointsOfInterest, POIVisualsFromOrigin, "VisualsFromOrigin", "normal");
+
+    return operation.data;
 }
 
 - (double)framesPerPixel
@@ -135,8 +147,12 @@
 
 - (void)prepareVisualsFromOrigin:(size_t)origin width:(size_t)width window:(size_t)window total:(size_t)totalWidth callback:(nonnull void (^)(void))callback
 {
+    os_signpost_interval_begin(pointsOfInterest, POIPrepareVisualsFromOrigin, "PrepareVisualsFromOrigin");
+    
     [self garbageCollectOperationsOutsideOfWindow:window width:totalWidth];
     [self runOperationWithOrigin:origin width:width callback:callback];
+    
+    os_signpost_interval_end(pointsOfInterest, POIPrepareVisualsFromOrigin, "PrepareVisualsFromOrigin");
 }
 
 - (IndexedBlockOperation*)runOperationWithOrigin:(size_t)origin width:(size_t)width callback:(nonnull void (^)(void))callback
@@ -146,21 +162,21 @@
     size_t pageIndex = origin / _tileWidth;
 
     NSNumber* pageNumber = [NSNumber numberWithLong:pageIndex];
-    IndexedBlockOperation* block = [_operations objectForKey:pageNumber];
-    if (block != nil) {
+    IndexedBlockOperation* blockOperation = [_operations objectForKey:pageNumber];
+    if (blockOperation != nil) {
         NSLog(@"asking for the same operation again on page %ld", pageIndex);
-        return block;
+        return blockOperation;
     }
 
-    block = [[IndexedBlockOperation alloc] initWithIndex:pageIndex];
+    blockOperation = [[IndexedBlockOperation alloc] initWithIndex:pageIndex];
     //NSLog(@"adding %ld", pageIndex);
-    IndexedBlockOperation* __weak weakOperation = block;
+    IndexedBlockOperation* __weak weakOperation = blockOperation;
     //ConcurrentAccessDictionary* __weak weakOperations = _operations;
     VisualSample* __weak weakSelf = self;
 
-    [_operations setObject:block forKey:[NSNumber numberWithLong:pageIndex]];
+    [_operations setObject:blockOperation forKey:[NSNumber numberWithLong:pageIndex]];
     
-    [block run:^(void){
+    [blockOperation run:^(void){
         if (weakOperation.isCancelled) {
             return;
         }
@@ -247,13 +263,13 @@
             
             ++storage;
         };
-        weakOperation.isFinished = YES;
+        weakOperation.isFinished = !weakOperation.isCancelled;
         callback();
     }];
 
-    dispatch_async(_calculations_queue, block.block);
+    dispatch_async(_calculations_queue, blockOperation.dispatchBlock);
 
-    return block;
+    return blockOperation;
 }
 
 

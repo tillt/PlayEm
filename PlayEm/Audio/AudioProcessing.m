@@ -13,7 +13,7 @@
 const size_t kScaledFrequencyDataLength = 256;
 const size_t kFrequencyDataLength = kScaledFrequencyDataLength * 4;
 
-/// The number of mel filter banks  — the height of the spectrogram.
+/// The number of mel filter banks. UNUSED ATM!
 const int kFilterBankCount = 40;
 
 // This is wrong but beautiful. It should be times 4. As a result, we only see

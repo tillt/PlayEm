@@ -33,11 +33,14 @@
 #import "Defaults.h"
 #import "BeatLayerDelegate.h"
 #import "WaveLayerDelegate.h"
+#import "ProfilingPointsOfInterest.h"
 
 static const float kShowHidePanelAnimationDuration = 0.3f;
 static const float kPixelPerSecond = 120.0f;
 static const NSTimeInterval kBeatEffectRampUp = 0.05f;
 static const NSTimeInterval kBeatEffectRampDown = 0.5f;
+
+os_log_t pointsOfInterest;
 
 @interface WaveWindowController ()
 {
@@ -97,6 +100,8 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 {
     static unsigned int counter = 0;
 
+    os_signpost_interval_begin(pointsOfInterest, POICADisplayLink, "CADisplayLink");
+
     assert(displayLinkContext);
     WaveWindowController* controller = (__bridge WaveWindowController*)displayLinkContext;
 
@@ -104,12 +109,15 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
     
     AVAudioFramePosition frame = controller.audioController.currentFrame;
     
-    [controller updateWaveFrame:frame];
+    //[controller updateWaveFrame:frame];
     [controller updateScopeFrame:frame];
 
     dispatch_async(dispatch_get_main_queue(), ^{
+        os_signpost_interval_begin(pointsOfInterest, POISetCurrentFrame, "SetCurrentFrame");
         controller.currentFrame = frame;
+        os_signpost_interval_end(pointsOfInterest, POISetCurrentFrame, "SetCurrentFrame");
     });
+    os_signpost_interval_end(pointsOfInterest, POICADisplayLink, "CADisplayLink");
 
     return kCVReturnSuccess;
 }
@@ -118,12 +126,14 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 {
     self = [super initWithWindowNibName:@""];
     if (self) {
+        pointsOfInterest = os_log_create("com.toenshoff.playem", OS_LOG_CATEGORY_POINTS_OF_INTEREST);
     }
     return self;
 }
 
 - (void)updateScopeFrame:(AVAudioFramePosition)frame
 {
+    _renderer.currentFrame = frame;
     [_scopeView draw];
 }
 
@@ -771,18 +781,18 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
         _scopeView.layer.opaque = YES;
     }
     
-    _metalWaveView.device = MTLCreateSystemDefaultDevice();
-    if(!_metalWaveView.device) {
-        NSLog(@"Metal is not supported on this device");
-    } else {
-        _waveRenderer = [[WaveRenderer alloc] initWithView:_metalWaveView
-                                                          color:[[Defaults sharedDefaults] lightBeamColor]
-                                                     background:[[Defaults sharedDefaults] backColor]
-                                                       delegate:self];
-        [_waveRenderer mtkView:_metalWaveView drawableSizeWillChange:_metalWaveView.bounds.size];
-        _metalWaveView.delegate = _waveRenderer;
-        _metalWaveView.layer.opaque = YES;
-    }
+//    _metalWaveView.device = MTLCreateSystemDefaultDevice();
+//    if(!_metalWaveView.device) {
+//        NSLog(@"Metal is not supported on this device");
+//    } else {
+//        _waveRenderer = [[WaveRenderer alloc] initWithView:_metalWaveView
+//                                                          color:[[Defaults sharedDefaults] lightBeamColor]
+//                                                     background:[[Defaults sharedDefaults] backColor]
+//                                                       delegate:self];
+//        [_waveRenderer mtkView:_metalWaveView drawableSizeWillChange:_metalWaveView.bounds.size];
+//        _metalWaveView.delegate = _waveRenderer;
+//        _metalWaveView.layer.opaque = YES;
+//    }
 
 
     {
@@ -1221,12 +1231,20 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     if (_waveView.currentFrame == frame) {
         return;
     }
+    os_signpost_interval_begin(pointsOfInterest, POIStringStuff, "StringStuff");
     _controlPanelController.duration.stringValue = [_sample beautifulTimeWithFrame:_sample.frames - frame];
     _controlPanelController.time.stringValue = [_sample beautifulTimeWithFrame:frame];
-    
-    _waveView.currentFrame = frame;
-    _totalView.currentFrame = frame;
+    os_signpost_interval_end(pointsOfInterest, POIStringStuff, "StringStuff");
 
+    os_signpost_interval_begin(pointsOfInterest, POIWaveViewSetCurrentFrame, "WaveViewSetCurrentFrame");
+    _waveView.currentFrame = frame;
+    os_signpost_interval_end(pointsOfInterest, POIWaveViewSetCurrentFrame, "WaveViewSetCurrentFrame");
+
+    os_signpost_interval_begin(pointsOfInterest, POITotalViewSetCurrentFrame, "TotalViewSetCurrentFrame");
+    _totalView.currentFrame = frame;
+    os_signpost_interval_end(pointsOfInterest, POITotalViewSetCurrentFrame, "TotalViewSetCurrentFrame");
+
+    os_signpost_interval_begin(pointsOfInterest, POIBeatStuff, "BeatStuff");
     if (_beatSample.isReady) {
         if (_beatEffectAtFrame > 0 && frame + _beatEffectRampUpFrames > _beatEffectAtFrame) {
             [self beatEffectRun];
@@ -1239,6 +1257,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
             };
         }
     }
+    os_signpost_interval_end(pointsOfInterest, POIBeatStuff, "BeatStuff");
 }
 
 - (IBAction)loadITunesLibrary:(id)sender

@@ -594,7 +594,6 @@ float rgb_from_srgb(float c)
     /// Determine scope trigger offset
     
     size_t offset=0;
-    size_t frame;
 
     size_t bestZeroCrossingOffset = 0;
     size_t bestPositiveStreakLength = 0;
@@ -616,18 +615,10 @@ float rgb_from_srgb(float c)
     }
 
     dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INTERACTIVE, 0), ^{
-        /// Copy FFT data.
-        size_t frame = [self.audio currentFrame];
+        const size_t frame = self.currentFrame;
 
+        /// Copy FFT data.
         if (frame >= 0) {
-            // We should be kMaxBuffersInFlight * 1/60 seconds away from display.
-            //seconds += kMaxBuffersInFlight / 60.0;
-            
-            //frame = (_visual.sample.frames * seconds) / _visual.sample.duration;
-            if (frame > sampleFrames) {
-                return;
-            }
-            
             float* window = self.fftWindow.mutableBytes;
             
             // We try to offset around the current head -- meaning the FFT window shall
@@ -675,7 +666,7 @@ float rgb_from_srgb(float c)
     size_t previousAttemptAt = -1;
     while (bestPositiveStreakLength == 0) {
         previousAttemptAt = offset;
-        offset = [_audio currentFrame];
+        offset = self.currentFrame;
 
         if (offset < 0) {
             break;
@@ -690,20 +681,21 @@ float rgb_from_srgb(float c)
         }
 
         _minTriggerOffset = offset;
-        frame = offset;
+
+        unsigned long long f = offset;
 
         bestPositiveStreakLength = 0;
-        bestZeroCrossingOffset = frame;
+        bestZeroCrossingOffset = f;
 
         positiveStreakLength = 0;
-        zeroCrossingOffset = frame;
+        zeroCrossingOffset = f;
         
         last = 1.0f;
         
         BOOL triggered = NO;
         
         // This may block for a loooooong time!
-        unsigned long long framesReceived = [_visual.sample rawSampleFromFrameOffset:frame
+        unsigned long long framesReceived = [_visual.sample rawSampleFromFrameOffset:f
                                                                               frames:_sampleCount
                                                                              outputs:sourceChannels];
 
@@ -719,9 +711,9 @@ float rgb_from_srgb(float c)
             
             if (!triggered) {
                 // Try to detect an upwards zero crossing.
-                if (frame >= _minTriggerOffset &&      // Prevent triggering before a minimum offset.
+                if (f >= _minTriggerOffset &&      // Prevent triggering before a minimum offset.
                     (data > 0.0f && last <= 0.0f)) {
-                    zeroCrossingOffset = frame;
+                    zeroCrossingOffset = f;
                     positiveStreakLength = 0;
                     triggered = YES;
                 }
@@ -741,20 +733,20 @@ float rgb_from_srgb(float c)
                 }
             }
             
-            ++frame;
+            ++f;
             
             // Did we run over the end of the total sample already?
-            if (frame >= sampleFrames) {
-                frame = _minTriggerOffset;
+            if (f >= sampleFrames) {
+                f = _minTriggerOffset;
             }
         }
     };
     
     /// Copy scope lines.
     
-    frame = bestZeroCrossingOffset;
+    unsigned long long f = bestZeroCrossingOffset;
     _minTriggerOffset = bestZeroCrossingOffset + 1;
-    unsigned long long framesReceived = [_visual.sample rawSampleFromFrameOffset:frame
+    unsigned long long framesReceived = [_visual.sample rawSampleFromFrameOffset:f
                                                                           frames:_sampleCount
                                                                          outputs:sourceChannels];
 
@@ -782,9 +774,9 @@ float rgb_from_srgb(float c)
         // Initialize the line node Y value with the sample.
         node[i].position[1] = data;
 
-        ++frame;
-        if (frame >= _audio.sample.frames) {
-            frame = _minTriggerOffset;
+        ++f;
+        if (f >= _audio.sample.frames) {
+            f = _minTriggerOffset;
         }
     }
     // Make sure any remaining node is reset to silence level.

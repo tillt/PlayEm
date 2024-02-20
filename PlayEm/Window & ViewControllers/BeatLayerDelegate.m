@@ -51,9 +51,10 @@
 
     CGContextSetLineWidth(context, 3.0);
     
+    CGContextSetStrokeColorWithColor(context, [[[Defaults sharedDefaults] beatColor] CGColor]);
+
     for (unsigned int beatIndex = 0; beatIndex < maxBeatCount; beatIndex++) {
-        const CGFloat x = (events[beatIndex].frame / framesPerPixel) - start;
-        CGContextSetStrokeColorWithColor(context, beatIndex % 4 == 0 ? [[[Defaults sharedDefaults] barColor] CGColor] : [[[Defaults sharedDefaults] beatColor] CGColor]);
+        const CGFloat x = floor((events[beatIndex].frame / framesPerPixel) - start);
         assert(x <= 256.0);
         CGContextMoveToPoint(context, x, 0.0f);
         CGContextAddLineToPoint(context, x, layer.frame.size.height);

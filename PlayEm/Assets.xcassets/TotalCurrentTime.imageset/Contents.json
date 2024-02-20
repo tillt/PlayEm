@@ -6,10 +6,25 @@
       "scale" : "1x"
     },
     {
+      "graphics-feature-set" : "apple1",
+      "idiom" : "universal",
+      "scale" : "1x"
+    },
+    {
       "idiom" : "universal",
       "scale" : "2x"
     },
     {
+      "graphics-feature-set" : "apple1",
+      "idiom" : "universal",
+      "scale" : "2x"
+    },
+    {
+      "idiom" : "universal",
+      "scale" : "3x"
+    },
+    {
+      "graphics-feature-set" : "apple1",
       "idiom" : "universal",
       "scale" : "3x"
     }

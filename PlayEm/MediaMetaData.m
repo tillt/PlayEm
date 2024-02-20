@@ -96,7 +96,7 @@
     return _title;
 }
 
-- (NSString*)artist
+- (NSString* _Nullable)artist
 {
     if (_shadow == nil) {
         return _artist;

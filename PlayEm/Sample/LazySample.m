@@ -143,7 +143,9 @@ const size_t kMaxFramesPerBuffer = 16384;
             NSLog(@"last tile rendereing: %lld", pageIndex);
         }
         AVAudioFrameCount framesToRender = (AVAudioFrameCount)MIN(frameLeftCount, (long long)buffer.frameCapacity);
-        AVAudioEngineManualRenderingStatus status = [engine renderOffline:framesToRender toBuffer:buffer error:&error];
+        AVAudioEngineManualRenderingStatus status = [engine renderOffline:framesToRender 
+                                                                 toBuffer:buffer
+                                                                    error:&error];
 
         switch (status) {
             case AVAudioEngineManualRenderingStatusSuccess: {
@@ -231,13 +233,17 @@ const size_t kMaxFramesPerBuffer = 16384;
     return offset - oldOffset;
 }
 
-- (unsigned long long)rawSampleFromFrameOffset:(unsigned long long)offset frames:(unsigned long long)frames outputs:(float * const _Nonnull * _Nullable)outputs
+- (unsigned long long)rawSampleFromFrameOffset:(unsigned long long)offset 
+                                        frames:(unsigned long long)frames
+                                       outputs:(float * const _Nonnull * _Nullable)outputs
 {
     float* data[_channels];
     memcpy(data, outputs, _channels * sizeof(float*));
 
     __block float** output = data;
-    return [self rawSampleFromFrameOffset:offset frames:frames copy:^(unsigned long long count, size_t pageOffset, size_t channels, NSArray* buffers){
+    return [self rawSampleFromFrameOffset:offset 
+                                   frames:frames
+                                     copy:^(unsigned long long count, size_t pageOffset, size_t channels, NSArray* buffers){
         for (int channel = 0; channel < channels; channel++) {
             NSData* buffer = buffers[channel];
             float* source = (float*)buffer.bytes;
@@ -247,10 +253,14 @@ const size_t kMaxFramesPerBuffer = 16384;
     }];
 }
 
-- (unsigned long long)rawSampleFromFrameOffset:(unsigned long long)offset frames:(unsigned long long)frames data:(float*)data
+- (unsigned long long)rawSampleFromFrameOffset:(unsigned long long)offset 
+                                        frames:(unsigned long long)frames
+                                          data:(float*)data
 {
     __block float* output = data;
-    return [self rawSampleFromFrameOffset:offset frames:frames copy:^(unsigned long long count, size_t pageOffset, size_t channels, NSArray* buffers){
+    return [self rawSampleFromFrameOffset:offset 
+                                   frames:frames
+                                     copy:^(unsigned long long count, size_t pageOffset, size_t channels, NSArray* buffers){
         for (int i = 0; i < count; i++) {
             for (NSData* buffer in buffers) {
                 *output = *((const float*)buffer.bytes + pageOffset + i);

@@ -8,6 +8,7 @@
 
 #import "WaveLayerDelegate.h"
 #import "VisualSample.h"
+#import "VisualPair.h"
 
 @implementation WaveLayerDelegate
 {
@@ -33,9 +34,7 @@
     unsigned long int start = layer.frame.origin.x;
     unsigned long int samplePairCount = layer.bounds.size.width + 1;
 
-    NSData* buffer = nil;
-
-    buffer = [_visualSample visualsFromOrigin:start];
+    NSData* buffer = [_visualSample visualsFromOrigin:start];
 
     if (buffer != nil) {
         CGContextSetFillColorWithColor(context, [[NSColor clearColor] CGColor]);
@@ -82,7 +81,9 @@
                                          window:_offsetBlock()
                                           total:_widthBlock()
                                        callback:^(void){
-            [layer setNeedsDisplay];
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [layer setNeedsDisplay];
+            });
         }];
     }
 }

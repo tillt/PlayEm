@@ -11,6 +11,7 @@
 #import "WaveView.h"
 #import "CAShapeLayer+Path.h"
 #import "NSBezierPath+CGPath.h"
+#import "ProfilingPointsOfInterest.h"
 
 @interface WaveView ()
 - (void)updateHeadPosition;
@@ -33,6 +34,7 @@
     
     self.layer = [self makeBackingLayer];
     self.layer.masksToBounds = NO;
+    //self.layer.shouldRasterize = YES;
 
     _headLayer = [CALayer layer];
     
@@ -59,12 +61,12 @@
     CIFilter* headFilter = [CIFilter filterWithName:@"CISourceAtopCompositing"];
     [headFilter setDefaults];
 
-    CGFloat height = self.enclosingScrollView.bounds.size.height;
+    CGFloat height = floor(self.enclosingScrollView.bounds.size.height);
     
     _headLayer.contents = image;
     _headImageSize = image.size;
     _headLayer.anchorPoint = CGPointMake(0.5, 0.0);
-    _headLayer.frame = CGRectMake(0.0, 0.0, _headImageSize.width, height);
+    _headLayer.frame = CGRectMake(0.0, 0.0, floor(_headImageSize.width), height);
     _headLayer.compositingFilter = [CIFilter filterWithName:@"CISourceAtopCompositing"];
     _headLayer.zPosition = 1.1;
     _headLayer.name = @"HeadLayer";
@@ -83,7 +85,7 @@
     
     _hudLayer = [CALayer layer];
     _hudLayer.anchorPoint = CGPointMake(0.5, 0.0);
-    _hudLayer.frame = CGRectMake(0.0, 0.0, _headImageSize.width, height);
+    _hudLayer.frame = CGRectMake(0.0, 0.0, floor(_headImageSize.width), height);
     //_hudLayer.compositingFilter = [CIFilter filterWithName:@"CISourceAtopCompositing"];
     _hudLayer.zPosition = 2.0;
     _hudLayer.name = @"HUDLayer";
@@ -159,15 +161,13 @@
     [self updateHeadPosition];
 }
 
-- (void)updateHeadPosition
+- (void)_updateHeadPosition
 {
     if (_frames == 0.0) {
         return;
     }
     
-    _head = ( _currentFrame * self.bounds.size.width) / _frames;
-    [CATransaction begin];
-    [CATransaction setDisableActions:YES];
+    _head = floor(( _currentFrame * self.bounds.size.width) / _frames);
 
     _headLayer.position = CGPointMake(_head, 0.0);
     _headBloomFxLayer.position = CGPointMake(_head, 0.0);
@@ -180,8 +180,16 @@
     }
 
     [_headDelegate updatedHeadPosition];
+}
 
-    [CATransaction commit];
+- (void)updateHeadPosition
+{
+   [CATransaction begin];
+   [CATransaction setDisableActions:YES];
+
+    [self _updateHeadPosition];
+
+   [CATransaction commit];
 }
 
 - (void)setCurrentFrame:(unsigned long long)frame
@@ -199,16 +207,21 @@
 
 - (void)updateScrollingState
 {
-    CGFloat head = (_currentFrame * self.bounds.size.width) / _frames;
+    CGFloat head = floor((_currentFrame * self.bounds.size.width) / _frames);
    
+    extern os_log_t pointsOfInterest;
+    
+    os_signpost_interval_begin(pointsOfInterest, POIUpdateScrollingState, "UpdateScrollingState");
+
     [CATransaction begin];
     [CATransaction setDisableActions:YES];
 
     if (_followTime) {
-        [self scrollRectToVisible:CGRectMake(floor(head - (self.enclosingScrollView.bounds.size.width / 2.0)),
-                                             0.0,
-                                             self.enclosingScrollView.bounds.size.width,
-                                             self.bounds.size.height)];
+        CGPoint pointVisible = CGPointMake(floor(head - (self.enclosingScrollView.bounds.size.width / 2.0)), 
+                                           0.0f);
+        os_signpost_interval_begin(pointsOfInterest, POIScrollPoint, "ScrollPoint");
+        [self scrollPoint:pointVisible];
+        os_signpost_interval_end(pointsOfInterest, POIScrollPoint, "ScrollPoint");
     } else {
         // If the user has just requested some scrolling, do not interfere but wait
         // as long as that state is up.
@@ -222,8 +235,13 @@
             }
         }
     }
-    [self updateHeadPosition];
+    os_signpost_interval_begin(pointsOfInterest, POIUpdateHeadPosition, "UpdateHeadPosition");
+    [self _updateHeadPosition];
+    os_signpost_interval_end(pointsOfInterest, POIUpdateHeadPosition, "UpdateHeadPosition");
+
     [CATransaction commit];
+
+    os_signpost_interval_end(pointsOfInterest, POIUpdateScrollingState, "UpdateScrollingState");
 }
 
 - (void)userInitiatedScrolling

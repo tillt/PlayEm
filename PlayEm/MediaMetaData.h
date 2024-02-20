@@ -26,22 +26,22 @@ enum {
 
 @property (strong, nonatomic) ITLibMediaItem* shadow;
 
-@property (copy, nonatomic) NSString* title;
-@property (copy, nonatomic) NSString* album;
-@property (copy, nonatomic) NSString* artist;
-@property (copy, nonatomic) NSString* genre;
+@property (copy, nonatomic, nullable) NSString* title;
+@property (copy, nonatomic, nullable) NSString* album;
+@property (copy, nonatomic, nullable) NSString* artist;
+@property (copy, nonatomic, nullable) NSString* genre;
 @property (assign, nonatomic) NSUInteger year;
-@property (copy, nonatomic) NSString* comment;
+@property (copy, nonatomic, nullable) NSString* comment;
 @property (assign, nonatomic) NSUInteger tempo;
-@property (copy, nonatomic) NSString* key;
-@property (strong, nonatomic) NSImage* artwork;
+@property (copy, nonatomic, nullable) NSString* key;
+@property (strong, nonatomic, nullable) NSImage* artwork;
 @property (assign, nonatomic) NSUInteger track;
 @property (assign, nonatomic) NSUInteger tracks;
 @property (assign, nonatomic) NSUInteger disk;
 @property (assign, nonatomic) NSUInteger disks;
 @property (assign, nonatomic) NSUInteger locationType;
-@property (strong, nonatomic) NSURL* location;
-@property (strong, nonatomic) NSDate* added;
+@property (strong, nonatomic, nullable) NSURL* location;
+@property (strong, nonatomic, nullable) NSDate* added;
 @property (assign, nonatomic) NSTimeInterval duration;
 
 

@@ -14,14 +14,13 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic, assign) size_t index;
 @property (nonatomic, strong) NSMutableData* data;
-@property (nonatomic, copy) dispatch_block_t block;
+@property (nonatomic, copy) dispatch_block_t dispatchBlock;
 @property (nonatomic, assign) BOOL isFinished;
 @property (nonatomic, assign) BOOL isCancelled;
 
 - (id)initWithIndex:(size_t)index;
-- (void)cancel;
+- (void)cancelAndWait;
 - (void)run:(nonnull void (^)(void))block;
-- (void)wait;
 
 @end
 

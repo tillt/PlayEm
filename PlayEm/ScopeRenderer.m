@@ -5,6 +5,8 @@
 //  Created by Till Toenshoff on 10.05.20.
 //  Copyright © 2020 Till Toenshoff. All rights reserved.
 //
+#import "ScopeRenderer.h"
+
 #import <simd/simd.h>
 #import <Accelerate/Accelerate.h>
 #import <AVFoundation/AVFoundation.h>
@@ -12,16 +14,19 @@
 #import <ModelIO/ModelIO.h>
 #import <MetalPerformanceShaders/MetalPerformanceShaders.h>
 
-#import "ScopeRenderer.h"
 #import "AudioController.h"
-#import "VisualSample.h"
-#import "LazySample.h"
-#import "ShaderTypes.h"
-#import "MatrixUtilities.h"
 #import "AudioProcessing.h"
+#import "GraphicsTools.h"
+#import "LazySample.h"
+#import "MatrixUtilities.h"
+
+#import "ShaderTypes.h"
+#import "ScopeShaderTypes.h"
+
+#import "VisualSample.h"
 
 static const NSUInteger kMaxBuffersInFlight = 3;
-static const size_t kAlignedUniformsSize = (sizeof(Uniforms) & ~0xFF) + 0x100;
+static const size_t kAlignedUniformsSize = (sizeof(ScopeUniforms) & ~0xFF) + 0x100;
 
 //65536
 //static const size_t kFrequencyDataScaleFactor = kFrequencyDataLength / kScaledFrequencyDataLength;
@@ -48,7 +53,6 @@ static const double kLevelDecreaseValue = 0.042;
 
 @implementation ScopeRenderer
 {
-
     // Texture to render to and then sample from.
     id<MTLTexture> _scopeTargetTexture;
 
@@ -108,10 +112,7 @@ static const double kLevelDecreaseValue = 0.042;
     MTLRenderPassDescriptor* _drawPass;
     // A pipeline object to render to screen.
     id<MTLRenderPipelineState> _drawState;
-    
-    // Ratio of width to height to scale positions in the vertex shader.
-    float _aspe_lineWidthctRatio;
-    
+        
     float _lineWidth;
     float _frequencyLineWidth;
     float _frequencySpaceWidth;
@@ -124,8 +125,6 @@ static const double kLevelDecreaseValue = 0.042;
     //id <MTLBuffer> _sampleUniformBuffer;
     id <MTLBuffer> _frequencyUniformBuffer;
     id <MTLBuffer> _linesUniformBuffer;
-    
-    MTLVertexDescriptor* _mtlVertexDescriptor;
     
     MPSImageBox* _bloom;
     MPSImageAreaMin* _erode;
@@ -176,6 +175,7 @@ static const double kLevelDecreaseValue = 0.042;
     float* _logMap;
 }
 
+// Really? WHY?? Why is this a static?
 static NSSize _originalSize __attribute__((unused)) = {0.0,0.0};
 //static NSSize _originalSize=@{0.0f, 0.0f};
 
@@ -247,65 +247,6 @@ static NSSize _originalSize __attribute__((unused)) = {0.0,0.0};
     destroyLogMap(_logMap);
 }
 
-float scaleWithOriginalFrame(float originalValue, float originalSize, float newSize)
-{
-    return (originalValue * newSize) / originalSize;
-}
-
-- (void)mtkView:(nonnull MTKView *)view drawableSizeWillChange:(CGSize)size
-{
-    /// Respond to drawable size or orientation changes here
-    ///
-    ///
-    
-    float widthFactor = size.width / view.bounds.size.width;
-    float heightFactor = size.height / view.bounds.size.height;
-    
-    _lineAspectRatio = size.height / size.width;
-    
-    _lineWidth = 3.0f / size.height;
-
-    float frequencyLineWidth = size.width / kScaledFrequencyDataLength;
-
-    float spaceWidth = frequencyLineWidth / 5.0;
-    _frequencySpaceWidth = spaceWidth / size.width;
-    _frequencyLineWidth = (frequencyLineWidth - spaceWidth) / size.width;
-    
-    float sigma = scaleWithOriginalFrame(0.7f, _originalSize.width, size.width);
-    _blur = [[MPSImageGaussianBlur alloc] initWithDevice:_device sigma:sigma];
-    _blur.edgeMode = MPSImageEdgeModeClamp;
-//    float width = (((ceil(scaleWithOriginalFrame(5.0f, _originalSize.height, _originalSize.height + size.height / 50.0f))) / 2) * 2) + 1;
-//    float height = (((ceil(scaleWithOriginalFrame(3.0f, _originalSize.height, _originalSize.height + size.height / 50.0f))) / 2) * 2) + 1;
-//    float width = (((ceil(scaleWithOriginalFrame(5.0f, _originalSize.height, size.height))) / 2) * 2) + 1;
-//    float height = (((ceil(scaleWithOriginalFrame(3.0f, _originalSize.height, size.height))) / 2) * 2) + 1;
-
-//    float width = (((ceil(scaleWithOriginalFrame(5.0f, _originalSize.height * _originalSize.width, size.height * size.width))) / 2) * 2) + 1;
-//    float height = (((ceil(scaleWithOriginalFrame(3.0f, _originalSize.height * _originalSize.width, size.height * size.width))) / 2) * 2) + 1;
-      float width = (((ceil(scaleWithOriginalFrame(3.0f, _originalSize.height, _originalSize.height + (size.height/30) ))) / 2) * 2) + 1;
-      float height = (((ceil(scaleWithOriginalFrame(3.0f, _originalSize.height, _originalSize.height + (size.height/30) ))) / 2) * 2) + 1;
-//    float width = 5.0f;
-//    float height = 3.0f;
-
-    _erode = [[MPSImageAreaMin alloc] initWithDevice:_device kernelWidth:width kernelHeight:height];
-//    width = ((((int)ceil(scaleWithOriginalFrame(31.0f, _originalSize.height, _originalSize.height + size.height / 50.0f))) / 2) * 2) + 1;
-//    height = ((((int)ceil(scaleWithOriginalFrame(17.0f, _originalSize.height, _originalSize.height + size.height / 50.0f))) / 2) * 2) + 1;
-//    width = ((((int)ceil(scaleWithOriginalFrame(31.0f, _originalSize.height, _originalSize.height + (size.height / 2.0)))) / 2) * 2) + 1;
-//    height = ((((int)ceil(scaleWithOriginalFrame(17.0f, _originalSize.height, _originalSize.height + ( size.height / 2.0)))) / 2) * 2) + 1;
-
-    //width = ((((int)ceil(scaleWithOriginalFrame(31.0f, _originalSize.height, _originalSize.height))) / 2) * 2) + 1;
-//    width = ((((int)ceil(scaleWithOriginalFrame(17.0f, _originalSize.height * _originalSize.width, size.height * size.width))) / 2) * 2) + 1;
-//    height = ((((int)ceil(scaleWithOriginalFrame(17.0f, _originalSize.height * _originalSize.width, size.height * size.width))) / 2) * 2) + 1;
-
-    width = ((((int)ceil(scaleWithOriginalFrame(17.0f, _originalSize.height, _originalSize.height + (size.height/30) ))) / 2) * 2) + 1;
-    height = ((((int)ceil(scaleWithOriginalFrame(17.0f, _originalSize.height, _originalSize.height + (size.height/30) ))) / 2) * 2) + 1;
-
-    _bloom = [[MPSImageBox alloc] initWithDevice:_device kernelWidth:width kernelHeight:height];
-    
-    _projectionMatrix = matrix_orthographic(-size.width, size.width, size.height, -size.height, 0, 0);
-    _projectionMatrix = matrix_multiply(matrix4x4_scale(1.0f, _lineAspectRatio, 0.0), _projectionMatrix);
-    _projectionMatrix = matrix_multiply(matrix4x4_scale(widthFactor, heightFactor, 0.0), _projectionMatrix);
-}
-
 float srgb_from_rgb(float c)
 {
     if (isnan(c))
@@ -336,32 +277,6 @@ float rgb_from_srgb(float c)
     return c;
 }
 
-- (MTLClearColor)metalClearColorFromColor:(NSColor*)color
-{
-    NSColor *out = [color colorUsingColorSpace:[NSColorSpace genericRGBColorSpace]];
-
-    double red = [out redComponent];
-    double green = [out greenComponent];
-    double blue = [out blueComponent];
-    double alpha = [out alphaComponent];
-    
-    return MTLClearColorMake(red, green, blue, alpha);
-}
-
-- (vector_float4)shaderColorFromColor:(NSColor*)color
-{
-    NSColor *out = [color colorUsingColorSpace:[NSColorSpace genericRGBColorSpace]];
-
-    double red = [out redComponent];
-    double green = [out greenComponent];
-    double blue = [out blueComponent];
-    double alpha = [out alphaComponent];
-    
-    vector_float4 color_vec = {red, green, blue, alpha};
-    
-    return color_vec;
-}
-
 - (void)_loadMetalWithView:(nonnull MTKView*)view;
 {
     assert(view.frame.size.width * view.frame.size.height);
@@ -370,8 +285,8 @@ float rgb_from_srgb(float c)
     /// Load Metal state objects and initalize renderer dependent view properties.
     view.colorPixelFormat = MTLPixelFormatBGRA8Unorm;
     view.sampleCount = 1;
-    view.clearColor = [self metalClearColorFromColor:_background];
-    view.paused = NO;
+    view.clearColor = [GraphicsTools MetalClearColorFromColor:_background];
+    //view.paused = NO;
     view.framebufferOnly = YES;
     
     // Set up a texture for rendering to and sampling from
@@ -382,10 +297,17 @@ float rgb_from_srgb(float c)
     texDescriptor.height = view.drawableSize.height;
     texDescriptor.pixelFormat = MTLPixelFormatRGBA8Unorm;
     texDescriptor.usage = MTLTextureUsageRenderTarget | MTLTextureUsageShaderRead;
+    texDescriptor.sampleCount = _msaaCount;
+    texDescriptor.storageMode = MTLStorageModePrivate;
+    texDescriptor.textureType = _msaaCount > 1 ? MTLTextureType2DMultisample : MTLTextureType2D;
+
+    _scopeMSAATexture = [_device newTextureWithDescriptor:texDescriptor];
+    _frequenciesMSAATexture = [_device newTextureWithDescriptor:texDescriptor];
 
     id<MTLLibrary> defaultLibrary = [_device newDefaultLibrary];
 
     // Set up pipeline for rendering to screen.
+
     MTLRenderPipelineDescriptor *pipelineStateDescriptor = [[MTLRenderPipelineDescriptor alloc] init];
     pipelineStateDescriptor.label = @"Drawable Render Pipeline";
     pipelineStateDescriptor.rasterSampleCount = view.sampleCount;
@@ -402,20 +324,14 @@ float rgb_from_srgb(float c)
     _drawState = [_device newRenderPipelineStateWithDescriptor:pipelineStateDescriptor error:&error];
     NSAssert(_drawState, @"Failed to create pipeline state to render to screen: %@", error);
     
-    texDescriptor.sampleCount = _msaaCount;
-    texDescriptor.storageMode = MTLStorageModePrivate;
-    texDescriptor.textureType = _msaaCount > 1 ? MTLTextureType2DMultisample : MTLTextureType2D;
-
-    _scopeMSAATexture = [_device newTextureWithDescriptor:texDescriptor];
-    _frequenciesMSAATexture = [_device newTextureWithDescriptor:texDescriptor];
+    // Set up a render pass descriptor for the render pass to render into _scopeTargetTexture.
 
     texDescriptor.sampleCount = 1;
     texDescriptor.textureType = MTLTextureType2D;
-
-    // Set up a render pass descriptor for the render pass to render into _scopeTargetTexture.
+    texDescriptor.usage = MTLTextureUsageShaderWrite | MTLTextureUsageShaderRead;
+    
     _scopeTargetTexture = [_device newTextureWithDescriptor:texDescriptor];
     _frequenciesTargetTexture = [_device newTextureWithDescriptor:texDescriptor];
-    
     
     // FIXME: MSAA count alternative code is rubbish -- currently only works with MSAA > 1
 
@@ -460,6 +376,8 @@ float rgb_from_srgb(float c)
         _frequenciesState = [_device newRenderPipelineStateWithDescriptor:pipelineStateDescriptor error:&error];
         NSAssert(_scopeState, @"Failed to create pipeline state to render the frequencies to a texture: %@", error);
     }
+
+    texDescriptor.usage = MTLTextureUsageShaderWrite | MTLTextureUsageShaderRead | MTLTextureUsageRenderTarget;
 
     // Set up a render pass descriptor for the render pass to render into _composeTargetTexture.
     _composeTargetTexture = [_device newTextureWithDescriptor:texDescriptor];
@@ -574,13 +492,12 @@ float rgb_from_srgb(float c)
 
 - (void)_buildMesh
 {
-    /// Build mesh.
-
     [self _updateMeshWithLevel:1.000f];
 }
 
 - (void)_updateMeshWithLevel:(float)level
 {
+    assert(_linesUniformBuffer != nil);
     const float range = level * 2.0f;
        
     PolyNode* node = (PolyNode*)(_linesUniformBuffer.contents);
@@ -625,13 +542,13 @@ float rgb_from_srgb(float c)
     _visual = visual;
     _minTriggerOffset = 0;
 
-    scope.paused = NO;
+    //scope.paused = NO;
 }
 
 - (void)stop:(MTKView *)scope
 {
     NSLog(@"renderer stopping.");
-    scope.paused = YES;
+    //scope.paused = YES;
 }
 
 - (void)_updateEngine
@@ -640,7 +557,7 @@ float rgb_from_srgb(float c)
     ///
     //static float _rotation = 0.0;
    
-    Uniforms* uniforms = (Uniforms*)_uniformBufferAddress;
+    ScopeUniforms* uniforms = (ScopeUniforms*)_uniformBufferAddress;
 
     //float* buffer = (float*)_sampleBufferAddress;
 
@@ -656,8 +573,8 @@ float rgb_from_srgb(float c)
     uniforms->frequenciesCount = (uint32_t)kScaledFrequencyDataLength;
     uniforms->feedback.matrix = _feedbackProjectionMatrix;
     uniforms->feedback.colorFactor = _feedbackColorFactor;
-    uniforms->color = [self shaderColorFromColor:_color];
-    uniforms->fftColor = [self shaderColorFromColor:_fftColor];
+    uniforms->color = [GraphicsTools ShaderColorFromColor:_color];
+    uniforms->fftColor = [GraphicsTools ShaderColorFromColor:_fftColor];
     uniforms->frequencyLineWidth = _frequencyLineWidth;
     uniforms->frequencySpaceWidth = _frequencySpaceWidth;
 
@@ -677,7 +594,6 @@ float rgb_from_srgb(float c)
     /// Determine scope trigger offset
     
     size_t offset=0;
-    size_t frame;
 
     size_t bestZeroCrossingOffset = 0;
     size_t bestPositiveStreakLength = 0;
@@ -699,18 +615,10 @@ float rgb_from_srgb(float c)
     }
 
     dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INTERACTIVE, 0), ^{
-        /// Copy FFT data.
-        size_t frame = [self.audio currentFrame];
+        const size_t frame = self.currentFrame;
 
+        /// Copy FFT data.
         if (frame >= 0) {
-            // We should be kMaxBuffersInFlight * 1/60 seconds away from display.
-            //seconds += kMaxBuffersInFlight / 60.0;
-            
-            //frame = (_visual.sample.frames * seconds) / _visual.sample.duration;
-            if (frame > sampleFrames) {
-                return;
-            }
-            
             float* window = self.fftWindow.mutableBytes;
             
             // We try to offset around the current head -- meaning the FFT window shall
@@ -743,12 +651,12 @@ float rgb_from_srgb(float c)
                 }
             }
             
-            uint8_t bufferIndex = (_uniformBufferIndex + 1) % kMaxBuffersInFlight;
-            uint32_t frequencyBufferOffset = (uint32_t)_alignedUFrequenciesSize * bufferIndex;
-            void* frequencyBufferAddress = ((uint8_t *)_frequencyUniformBuffer.contents) + frequencyBufferOffset;
+            uint8_t bufferIndex = (self->_uniformBufferIndex + 1) % kMaxBuffersInFlight;
+            uint32_t frequencyBufferOffset = (uint32_t)self->_alignedUFrequenciesSize * bufferIndex;
+            void* frequencyBufferAddress = ((uint8_t *)self->_frequencyUniformBuffer.contents) + frequencyBufferOffset;
 
-            performFFT(_fftSetup, window, kWindowSamples, frequencyBufferAddress);
-            logscaleFFT(_logMap, frequencyBufferAddress);
+            performFFT(self->_fftSetup, window, kWindowSamples, frequencyBufferAddress);
+            logscaleFFT(self->_logMap, frequencyBufferAddress);
             
 //            performMel(_dctSetup, window, kWindowSamples / 16, frequencyBufferAddress);
         }
@@ -758,7 +666,7 @@ float rgb_from_srgb(float c)
     size_t previousAttemptAt = -1;
     while (bestPositiveStreakLength == 0) {
         previousAttemptAt = offset;
-        offset = [_audio currentFrame];
+        offset = self.currentFrame;
 
         if (offset < 0) {
             break;
@@ -773,20 +681,21 @@ float rgb_from_srgb(float c)
         }
 
         _minTriggerOffset = offset;
-        frame = offset;
+
+        unsigned long long f = offset;
 
         bestPositiveStreakLength = 0;
-        bestZeroCrossingOffset = frame;
+        bestZeroCrossingOffset = f;
 
         positiveStreakLength = 0;
-        zeroCrossingOffset = frame;
+        zeroCrossingOffset = f;
         
         last = 1.0f;
         
         BOOL triggered = NO;
         
         // This may block for a loooooong time!
-        unsigned long long framesReceived = [_visual.sample rawSampleFromFrameOffset:frame
+        unsigned long long framesReceived = [_visual.sample rawSampleFromFrameOffset:f
                                                                               frames:_sampleCount
                                                                              outputs:sourceChannels];
 
@@ -802,9 +711,9 @@ float rgb_from_srgb(float c)
             
             if (!triggered) {
                 // Try to detect an upwards zero crossing.
-                if (frame >= _minTriggerOffset &&      // Prevent triggering before a minimum offset.
+                if (f >= _minTriggerOffset &&      // Prevent triggering before a minimum offset.
                     (data > 0.0f && last <= 0.0f)) {
-                    zeroCrossingOffset = frame;
+                    zeroCrossingOffset = f;
                     positiveStreakLength = 0;
                     triggered = YES;
                 }
@@ -824,20 +733,20 @@ float rgb_from_srgb(float c)
                 }
             }
             
-            ++frame;
+            ++f;
             
             // Did we run over the end of the total sample already?
-            if (frame >= sampleFrames) {
-                frame = _minTriggerOffset;
+            if (f >= sampleFrames) {
+                f = _minTriggerOffset;
             }
         }
     };
     
     /// Copy scope lines.
     
-    frame = bestZeroCrossingOffset;
+    unsigned long long f = bestZeroCrossingOffset;
     _minTriggerOffset = bestZeroCrossingOffset + 1;
-    unsigned long long framesReceived = [_visual.sample rawSampleFromFrameOffset:frame
+    unsigned long long framesReceived = [_visual.sample rawSampleFromFrameOffset:f
                                                                           frames:_sampleCount
                                                                          outputs:sourceChannels];
 
@@ -865,9 +774,9 @@ float rgb_from_srgb(float c)
         // Initialize the line node Y value with the sample.
         node[i].position[1] = data;
 
-        ++frame;
-        if (frame >= _audio.sample.frames) {
-            frame = _minTriggerOffset;
+        ++f;
+        if (f >= _audio.sample.frames) {
+            f = _minTriggerOffset;
         }
     }
     // Make sure any remaining node is reset to silence level.
@@ -880,11 +789,69 @@ float rgb_from_srgb(float c)
     // Use a logarithmic scale as that is much closer to what we perceive. Neatly fake
     // ourselves into the slope.
     float logval = log10f(10.0 + (maxValue * 100.0f)) - 1.0f;
-    if (self.level.doubleValue < logval) {
-        self.level.doubleValue = logval;
-    } else {
-        self.level.doubleValue -= MIN(self.level.doubleValue, kLevelDecreaseValue);
-    }
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if (self.level.doubleValue < logval) {
+            self.level.doubleValue = logval;
+        } else {
+            self.level.doubleValue -= MIN(self.level.doubleValue, kLevelDecreaseValue);
+        }
+    });
+}
+
+#pragma mark - MTKViewDelegate
+
+- (void)mtkView:(nonnull MTKView *)view drawableSizeWillChange:(CGSize)size
+{
+    /// Respond to drawable size or orientation changes here
+    ///
+    ///
+    
+    float widthFactor = size.width / view.bounds.size.width;
+    float heightFactor = size.height / view.bounds.size.height;
+    
+    _lineAspectRatio = size.height / size.width;
+    
+    _lineWidth = 3.0f / size.height;
+
+    float frequencyLineWidth = size.width / kScaledFrequencyDataLength;
+
+    float spaceWidth = frequencyLineWidth / 5.0;
+    _frequencySpaceWidth = spaceWidth / size.width;
+    _frequencyLineWidth = (frequencyLineWidth - spaceWidth) / size.width;
+    
+    float sigma = ScaleWithOriginalFrame(0.7f, _originalSize.width, size.width);
+    _blur = [[MPSImageGaussianBlur alloc] initWithDevice:_device sigma:sigma];
+    _blur.edgeMode = MPSImageEdgeModeClamp;
+//    float width = (((ceil(scaleWithOriginalFrame(5.0f, _originalSize.height, _originalSize.height + size.height / 50.0f))) / 2) * 2) + 1;
+//    float height = (((ceil(scaleWithOriginalFrame(3.0f, _originalSize.height, _originalSize.height + size.height / 50.0f))) / 2) * 2) + 1;
+//    float width = (((ceil(scaleWithOriginalFrame(5.0f, _originalSize.height, size.height))) / 2) * 2) + 1;
+//    float height = (((ceil(scaleWithOriginalFrame(3.0f, _originalSize.height, size.height))) / 2) * 2) + 1;
+
+//    float width = (((ceil(scaleWithOriginalFrame(5.0f, _originalSize.height * _originalSize.width, size.height * size.width))) / 2) * 2) + 1;
+//    float height = (((ceil(scaleWithOriginalFrame(3.0f, _originalSize.height * _originalSize.width, size.height * size.width))) / 2) * 2) + 1;
+      float width = (((ceil(ScaleWithOriginalFrame(3.0f, _originalSize.height, _originalSize.height + (size.height/30) ))) / 2) * 2) + 1;
+      float height = (((ceil(ScaleWithOriginalFrame(3.0f, _originalSize.height, _originalSize.height + (size.height/30) ))) / 2) * 2) + 1;
+//    float width = 5.0f;
+//    float height = 3.0f;
+
+    _erode = [[MPSImageAreaMin alloc] initWithDevice:_device kernelWidth:width kernelHeight:height];
+//    width = ((((int)ceil(scaleWithOriginalFrame(31.0f, _originalSize.height, _originalSize.height + size.height / 50.0f))) / 2) * 2) + 1;
+//    height = ((((int)ceil(scaleWithOriginalFrame(17.0f, _originalSize.height, _originalSize.height + size.height / 50.0f))) / 2) * 2) + 1;
+//    width = ((((int)ceil(scaleWithOriginalFrame(31.0f, _originalSize.height, _originalSize.height + (size.height / 2.0)))) / 2) * 2) + 1;
+//    height = ((((int)ceil(scaleWithOriginalFrame(17.0f, _originalSize.height, _originalSize.height + ( size.height / 2.0)))) / 2) * 2) + 1;
+
+    //width = ((((int)ceil(scaleWithOriginalFrame(31.0f, _originalSize.height, _originalSize.height))) / 2) * 2) + 1;
+//    width = ((((int)ceil(scaleWithOriginalFrame(17.0f, _originalSize.height * _originalSize.width, size.height * size.width))) / 2) * 2) + 1;
+//    height = ((((int)ceil(scaleWithOriginalFrame(17.0f, _originalSize.height * _originalSize.width, size.height * size.width))) / 2) * 2) + 1;
+
+    width = ((((int)ceil(ScaleWithOriginalFrame(17.0f, _originalSize.height, _originalSize.height + (size.height/30) ))) / 2) * 2) + 1;
+    height = ((((int)ceil(ScaleWithOriginalFrame(17.0f, _originalSize.height, _originalSize.height + (size.height/30) ))) / 2) * 2) + 1;
+
+    _bloom = [[MPSImageBox alloc] initWithDevice:_device kernelWidth:width kernelHeight:height];
+    
+    _projectionMatrix = matrix_orthographic(-size.width, size.width, size.height, -size.height, 0, 0);
+    _projectionMatrix = matrix_multiply(matrix4x4_scale(1.0f, _lineAspectRatio, 0.0), _projectionMatrix);
+    _projectionMatrix = matrix_multiply(matrix4x4_scale(widthFactor, heightFactor, 0.0), _projectionMatrix);
 }
 
 - (void)drawInMTKView:(nonnull MTKView *)view
@@ -982,8 +949,6 @@ float rgb_from_srgb(float c)
 
         renderEncoder.label = @"Scope Compose Texture Render Pass";
 
-        [renderEncoder setFrontFacingWinding:MTLWindingCounterClockwise];
-        [renderEncoder setCullMode:MTLCullModeBack];
         [renderEncoder setRenderPipelineState:_composeState];
 
         // Set the offscreen texture with the bloomed scope as the source texture.
@@ -1023,8 +988,6 @@ float rgb_from_srgb(float c)
 
         renderEncoder.label = @"Frequency Compose Texture Render Pass";
 
-        [renderEncoder setFrontFacingWinding:MTLWindingCounterClockwise];
-        [renderEncoder setCullMode:MTLCullModeBack];
         [renderEncoder setRenderPipelineState:_frequenciesComposeState];
 
         // Set the offscreen texture as the source texture.
@@ -1059,8 +1022,6 @@ float rgb_from_srgb(float c)
 
         renderEncoder.label = @"Scope and Frequencies Compose Texture Render Pass";
 
-        [renderEncoder setFrontFacingWinding:MTLWindingCounterClockwise];
-        [renderEncoder setCullMode:MTLCullModeBack];
         [renderEncoder setRenderPipelineState:_postComposeState];
 
         // Source is the last frequencies texture with feedback.

@@ -15,6 +15,7 @@
 #import "TiledScrollView.h"
 #import "ScopeRenderer.h"
 #import "ScopeView.h"
+#import "WaveRenderer.h"
 #import "ControlPanelController.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -29,6 +30,7 @@ NS_ASSUME_NONNULL_BEGIN
 @class InfoPanelController;
 @class IdentifyController;
 @class WaveView;
+@class MetalWaveView;
 
 @interface WaveWindowController : NSWindowController <NSWindowDelegate,
                                                       NSToolbarDelegate,
@@ -37,6 +39,7 @@ NS_ASSUME_NONNULL_BEGIN
                                                       BrowserControllerDelegate,
                                                       PlaylistControllerDelegate,
                                                       ScopeRendererDelegate,
+                                                      WaveRendererDelegate,
                                                       ControlPanelControllerDelegate,
                                                       NSSplitViewDelegate,
                                                       NSMenuDelegate>
@@ -56,6 +59,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (strong, nonatomic) IBOutlet NSView* belowVisuals;
 @property (strong, nonatomic) IBOutlet TotalWaveView* totalView;
 @property (strong, nonatomic) IBOutlet WaveView* waveView;
+@property (strong, nonatomic) IBOutlet MetalWaveView* metalWaveView;
 @property (strong, nonatomic) IBOutlet ScopeView* scopeView;
 @property (strong, nonatomic) IBOutlet NSVisualEffectView* effectBelowPlaylist;
 @property (strong, nonatomic) IBOutlet NSTextField* songsCount;

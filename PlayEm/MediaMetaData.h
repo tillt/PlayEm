@@ -44,9 +44,6 @@ enum {
 @property (strong, nonatomic, nullable) NSDate* added;
 @property (assign, nonatomic) NSTimeInterval duration;
 
-
-
-//+ (MediaMetaData*)mediaMetaDataWithAVAsset:(AVAsset*)asset error:(NSError**)error;
 + (MediaMetaData*)mediaMetaDataWithURL:(NSURL*)url error:(NSError**)error;
 + (MediaMetaData*)mediaMetaDataWithITLibMediaItem:(ITLibMediaItem*)item error:(NSError**)error;
 + (NSArray<NSString*>*)mediaMetaKeys;

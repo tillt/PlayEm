@@ -49,6 +49,9 @@ enum {
 + (NSArray<NSString*>*)mediaMetaKeys;
 
 - (NSString* _Nullable)stringForKey:(NSString*)key;
+- (void)updateWithKey:(NSString*)key string:(NSString*)string;
+
+- (BOOL)syncWithError:(NSError**)error;
 
 @end
 

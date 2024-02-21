@@ -166,6 +166,11 @@
 - (BOOL)valueForTextFieldChanged:(NSString*)key value:(NSString*)value
 {
     NSString* oldValue = [_meta stringForKey:key];
+    
+    if (oldValue == nil && [value isEqualToString:@""]) {
+        return NO;
+    }
+
     return ![value isEqualToString:oldValue];
 }
 
@@ -177,12 +182,17 @@
         if ([_dictionary valueForKey:key] == textField) {
             if ([self valueForTextFieldChanged:key value:[textField stringValue]]) {
                 NSLog(@"controlTextDidChange: stringValue == %@ in textField == %@", [textField stringValue], key);
-            } else {
-                NSLog(@"controlTextDidChange: contents for textField == %@ did not change", key);
+                NSString* stringValue = [textField stringValue];
+                [_meta updateWithKey:key string:stringValue];
+
+                // TODO: macOS can't export ID3 info's in MP3 files. Need to find a solution for that.
+                // NSError* error = nil;
+                // _meta syncWithError:&error];
             }
             return;
         }
     }
+
     NSAssert(NO, @"never should have arrived here");
 }
 

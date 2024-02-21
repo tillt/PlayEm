@@ -307,4 +307,94 @@
     return nil;
 }
 
+- (void)updateWithKey:(NSString*)key string:(NSString*)string
+{
+    id valueObject = [self valueForKey:key];
+    
+    if ([valueObject isKindOfClass:[NSString class]]) {
+        [self setValue:string forKey:key];
+        NSLog(@"updated %@ with string %@", key, string);
+        return;
+    }
+
+    if ([valueObject isKindOfClass:[NSNumber class]]) {
+        NSInteger integerValue = [string integerValue];
+        NSNumber* numberValue = [NSNumber numberWithInteger:integerValue];
+        [self setValue:numberValue forKey:key];
+        NSLog(@"updated %@ with number %@", key, numberValue);
+        return;
+    }
+    
+    NSAssert(NO, @"should never get here");
+}
+
+- (BOOL)exportMP3WithError:(NSError**)error
+{
+    return NO;
+}
+
+- (BOOL)exportMP4WithError:(NSError**)error
+{
+    NSString* fileExtension = [self.location pathExtension];
+    NSString* fileName = [[self.location URLByDeletingPathExtension] lastPathComponent];
+
+    AVURLAsset* asset = [AVURLAsset assetWithURL:self.location];
+    AVAssetExportSession* session = [AVAssetExportSession exportSessionWithAsset:asset
+                                                                      presetName:AVAssetExportPresetPassthrough];
+    
+
+    NSString* outputFolder = @"/tmp";
+    NSString* outputFile = [NSString stringWithFormat:@"%@/%@.%@", outputFolder, fileName, fileExtension];
+
+    session.outputURL = [NSURL fileURLWithPath:outputFile];
+    session.outputFileType = AVFileTypeAppleM4A;
+    
+    [session exportAsynchronouslyWithCompletionHandler:^(){
+        NSLog(@"MP4 export session completed");
+    }];
+
+    return YES;
+}
+
+- (BOOL)syncWithError:(NSError**)error
+{
+    if (self.location == nil) {
+        NSString* description = @"Cannot sync item back as it lacks a location";
+        if (error) {
+            NSDictionary* userInfo = @{
+                NSLocalizedDescriptionKey : description,
+            };
+            *error = [NSError errorWithDomain:[[NSBundle bundleForClass:[self class]] bundleIdentifier]
+                                         code:-1
+                                     userInfo:userInfo];
+        }
+        NSLog(@"error: %@", description);
+
+        return NO;
+    }
+    
+    NSString* fileExtension = [self.location pathExtension];
+
+    if ([fileExtension isEqualToString:@"mp4"]) {
+        return [self exportMP4WithError:error];
+    }
+
+    if ([fileExtension isEqualToString:@"mp3"]) {
+        return [self exportMP3WithError:error];
+    }
+
+    NSString* description = [NSString stringWithFormat:@"Unsupport filetype (%@) for modifying metadata", fileExtension];
+    if (error) {
+        NSDictionary* userInfo = @{
+            NSLocalizedDescriptionKey : description,
+        };
+        *error = [NSError errorWithDomain:[[NSBundle bundleForClass:[self class]] bundleIdentifier]
+                                     code:-1
+                                 userInfo:userInfo];
+    }
+    NSLog(@"error: %@", description);
+
+    return NO;
+}
+
 @end

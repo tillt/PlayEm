@@ -45,6 +45,8 @@ NS_ASSUME_NONNULL_BEGIN
                  delegate:(id <BrowserControllerDelegate>)delegate;
 
 - (void)loadITunesLibrary;
+- (void)reloadData;
+
 - (IBAction)playNext:(id)sender;
 - (IBAction)playLater:(id)sender;
 - (IBAction)showInFinder:(id)sender;

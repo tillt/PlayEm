@@ -39,7 +39,6 @@
 @end
 
 
-
 @implementation BrowserController
 {
     bool _updatingGenres;
@@ -97,67 +96,91 @@
     return self;
 }
 
+- (void)reloadData
+{
+    [_genresTable beginUpdates];
+    [_genresTable reloadData];
+    [_genresTable endUpdates];
+
+    [_artistsTable beginUpdates];
+    [_artistsTable reloadData];
+    [_artistsTable endUpdates];
+
+    [_albumsTable beginUpdates];
+    [_albumsTable reloadData];
+    [_albumsTable endUpdates];
+
+    [_temposTable beginUpdates];
+    [_temposTable reloadData];
+    [_temposTable endUpdates];
+
+    [_keysTable beginUpdates];
+    [_keysTable reloadData];
+    [_keysTable endUpdates];
+
+    [_songsTable beginUpdates];
+    [_songsTable reloadData];
+    [_songsTable endUpdates];
+}
+
 - (void)loadITunesLibrary
 {
     NSError *error = nil;
-    NSIndexSet* zeroSet = [NSIndexSet indexSetWithIndex:0];
-
     [_delegate loadLibraryState:LoadStateInit value:0.0];
-
     _library = [ITLibrary libraryWithAPIVersion:@"1.0" options:ITLibInitOptionLazyLoadData error:&error];
     if (!_library) {
         NSLog(@"Failed accessing iTunes Library: %@", error);
         return;
     }
-
+    
     NSLog(@"Media folder location: %@", _library.mediaFolderLocation.path);
-
+    
+    NSIndexSet* zeroSet = [NSIndexSet indexSetWithIndex:0];
+    
     _filteredItems = nil;
     _cachedLibrary = nil;
     
     _genres = [NSMutableArray array];
     _artists = [NSMutableArray array];
     _albums = [NSMutableArray array];
-
+    
     [_genresTable beginUpdates];
     [_genresTable selectRowIndexes:zeroSet byExtendingSelection:NO];
     [_genresTable reloadData];
     [_genresTable endUpdates];
-
+    
     [_artistsTable beginUpdates];
     [_artistsTable selectRowIndexes:zeroSet byExtendingSelection:NO];
     [_artistsTable reloadData];
     [_artistsTable endUpdates];
-
+    
     [_albumsTable beginUpdates];
     [_albumsTable selectRowIndexes:zeroSet byExtendingSelection:NO];
     [_albumsTable reloadData];
     [_albumsTable endUpdates];
-
+    
     [_temposTable beginUpdates];
     [_temposTable selectRowIndexes:zeroSet byExtendingSelection:NO];
     [_temposTable reloadData];
     [_temposTable endUpdates];
-
+    
     [_keysTable beginUpdates];
     [_keysTable selectRowIndexes:zeroSet byExtendingSelection:NO];
     [_keysTable reloadData];
     [_keysTable endUpdates];
-
+    
     [_songsTable beginUpdates];
     [_songsTable selectRowIndexes:zeroSet byExtendingSelection:NO];
     [_songsTable reloadData];
     [_songsTable endUpdates];
-
-    //[self registerAsObserverForLibrary:_library];
     
     BrowserController* __weak weakSelf = self;
     
     NSArray<NSSortDescriptor*>* descriptors = [_songsTable sortDescriptors];
-
+    
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
         //[_delegate loadLibraryState:LoadStateStarted value:0.0];
-
+        
         NSMutableArray<MediaMetaData*>* cachedLibrary = [NSMutableArray new];
         for (ITLibMediaItem* d in weakSelf.library.allMediaItems) {
             if (d.cloud) {
@@ -166,27 +189,27 @@
             MediaMetaData* m = [MediaMetaData mediaMetaDataWithITLibMediaItem:d error:nil];
             [cachedLibrary addObject:m];
         }
-       
+        
         // Apply sorting.
         weakSelf.filteredItems = [cachedLibrary sortedArrayUsingDescriptors:descriptors];
         weakSelf.cachedLibrary = cachedLibrary;
-
+        
         [weakSelf columnsFromMediaItems:weakSelf.filteredItems
                                  genres:weakSelf.genres
                                 artists:weakSelf.artists
                                  albums:weakSelf.albums
                                  tempos:weakSelf.tempos
                                    keys:weakSelf.keys];
-
+        
         dispatch_async(dispatch_get_main_queue(), ^{
             //[_delegate loadLibraryState:LoadStateStopped value:0.0];
-
+            
             [weakSelf.genresTable beginUpdates];
             [weakSelf.genresTable reloadData];
             [weakSelf.genresTable endUpdates];
-
+            
             [weakSelf.delegate updateSongsCount:weakSelf.filteredItems.count];
-
+            
             self->_updatingGenres = NO;
             self->_updatingArtists = NO;
             self->_updatingAlbums = NO;
@@ -194,15 +217,15 @@
             self->_updatingKeys = NO;
             [weakSelf.genresTable selectRowIndexes:[NSIndexSet indexSetWithIndex:0]
                               byExtendingSelection:NO];
-
+            
             [weakSelf.albumsTable beginUpdates];
             [weakSelf.albumsTable reloadData];
             [weakSelf.albumsTable endUpdates];
-
+            
             [weakSelf.artistsTable beginUpdates];
             [weakSelf.artistsTable reloadData];
             [weakSelf.artistsTable endUpdates];
-
+            
             [weakSelf.temposTable beginUpdates];
             [weakSelf.temposTable reloadData];
             [weakSelf.temposTable endUpdates];
@@ -210,7 +233,7 @@
             [weakSelf.songsTable beginUpdates];
             [weakSelf.songsTable reloadData];
             [weakSelf.songsTable endUpdates];
-
+            
             [weakSelf.keysTable beginUpdates];
             [weakSelf.keysTable reloadData];
             [weakSelf.keysTable endUpdates];
@@ -260,36 +283,6 @@
     [[NSWorkspace sharedWorkspace] activateFileViewerSelectingURLs:fileURLs];
 }
 
-/*
-static void* LibraryContext = &LibraryContext;
-
-- (void)registerAsObserverForLibrary:(ITLibrary*)library
-{
-    [library addObserver:self
-              forKeyPath:@"allMediaItems"
-                 options:(NSKeyValueObservingOptionNew |
-                          NSKeyValueObservingOptionOld)
-                 context:LibraryContext];
-}
-
-- (void)observeValueForKeyPath:(NSString*)keyPath
-                      ofObject:(id)object
-                        change:(NSDictionary*)change
-                       context:(void*)context
-{
-    if (context == LibraryContext) {
-        // Do something
-        NSLog(@"we got a changed library!!!!\n");
-    } else {
-        // Any unrecognized context must belong to super
-        [super observeValueForKeyPath:keyPath
-                             ofObject:object
-                               change:change
-                               context:context];
-    }
-}
- */
-
 - (NSArray*)filterMediaItems:(NSArray<MediaMetaData*>*)items
                        genre:(NSString*)genre
                       artist:(NSString*)artist
@@ -304,7 +297,7 @@ static void* LibraryContext = &LibraryContext;
         if ((genre == nil || (d.genre && d.genre.length && [d.genre isEqualTo:genre])) &&
             (artist == nil || (d.artist && d.artist.length && [d.artist isEqualTo:artist])) &&
             (album == nil || (d.album && d.album.length && [d.album isEqualTo:album])) &&
-            (tempo == nil || (d.tempo > 0 && [tempo isEqual:[NSString stringWithFormat:@"%d", (unsigned int)d.tempo]]))) {
+            (tempo == nil || (d.tempo && [[d.tempo stringValue] isEqualTo:tempo]))) {
             [filtered addObject:d];
         }
     }
@@ -349,12 +342,13 @@ static void* LibraryContext = &LibraryContext;
         if (d.album && d.album.length) {
             filteredAlbums[d.album] = d.album;
         }
-        if (d.tempo > 0) {
-            NSString* t = [NSString stringWithFormat:@"%ld", d.tempo];
+        if (d.tempo && [d.tempo intValue] > 0) {
+            NSString* t = [d.tempo stringValue];
             filteredTempos[t] = t;
         }
         dispatch_async(dispatch_get_main_queue(), ^{
-            [self.delegate loadLibraryState:LoadStateLoading value:(double)(itemIndex + 1) / (double)itemCount];
+            [self.delegate loadLibraryState:LoadStateLoading 
+                                      value:(double)(itemIndex + 1) / (double)itemCount];
         });
         itemIndex++;
     }
@@ -693,7 +687,7 @@ static void* LibraryContext = &LibraryContext;
         case VIEWTAG_FILTERED: {
             MediaMetaData* item = row >= 0 ? _filteredItems[row] : nil;
             NSURL* url = item.location;
-            switch (item.locationType) {
+            switch ([item.locationType intValue]) {
                 case MediaMetaDataLocationTypeFile:    NSLog(@"that item is a file");  break;
                 case MediaMetaDataLocationTypeURL:     NSLog(@"that item is a URL");   break;
                 case MediaMetaDataLocationTypeRemote:  NSLog(@"that item is remote");  break;
@@ -823,8 +817,8 @@ static void* LibraryContext = &LibraryContext;
         case VIEWTAG_FILTERED:
             assert(row < _filteredItems.count);
             if ([tableColumn.identifier isEqualToString:@"TrackCell"]) {
-                if (_filteredItems[row].track > 0) {
-                    string = [NSString stringWithFormat:@"%ld", _filteredItems[row].track];
+                if ([_filteredItems[row].track intValue] > 0) {
+                    string = [_filteredItems[row].track stringValue];
                 }
             } else if ([tableColumn.identifier isEqualToString:@"TitleCell"]) {
                 string = _filteredItems[row].title;
@@ -833,10 +827,10 @@ static void* LibraryContext = &LibraryContext;
             } else if ([tableColumn.identifier isEqualToString:@"AlbumCell"]) {
                 string = _filteredItems[row].album;
             } else if ([tableColumn.identifier isEqualToString:@"TimeCell"]) {
-                string = [self formattedDuration:_filteredItems[row].duration];
+                string = [self formattedDuration:[_filteredItems[row].duration floatValue]];
             } else if ([tableColumn.identifier isEqualToString:@"TempoCell"]) {
-                if (_filteredItems[row].tempo > 0) {
-                    string = [NSString stringWithFormat:@"%d", (unsigned int)_filteredItems[row].tempo];
+                if ([_filteredItems[row].tempo intValue] > 0) {
+                    string = [_filteredItems[row].tempo stringValue];
                 } else {
                     string = @"";
                 }
@@ -854,20 +848,8 @@ static void* LibraryContext = &LibraryContext;
     if (string == nil) {
         string = @"";
     }
-    //if (result.backgroundStyle == NSBackgroundStyleEmphasized) {
-    
-    //result.textField.textColor = [NSColor secondaryLabelColor];
-//    if (tableView.selectedRow >= 0) {
-//        if (row == tableView.selectedRow) {
-//            result.textField.textColor = [NSColor alternateSelectedControlTextColor];
-//        }
-//    }
-    [result.textField setStringValue:string];
 
-    //} else {
-    //    result.textField.textColor = [NSColor secondaryLabelColor];
-    //}
-    
+    [result.textField setStringValue:string];
 
     return result;
 }

@@ -13,8 +13,12 @@
 #import "NSBezierPath+CGPath.h"
 #import "CAShapeLayer+Path.h"
 #import "LevelIndicatorCell.h"
+#import "MediaMetaData.h"
 
 @interface ControlPanelController ()
+@property (strong, nonatomic) ScrollingTextView* titleView;
+@property (strong, nonatomic) ScrollingTextView* albumArtistView;
+@property (strong, nonatomic) NSButton* coverButton;
 @property (weak, nonatomic) id<ControlPanelControllerDelegate> delegate;
 @end
 
@@ -329,7 +333,16 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+}
 
+- (void)setMeta:(MediaMetaData*)meta
+{
+    _coverButton.image = meta.artwork;
+    _titleView.text = meta.title.length > 0 ? meta.title : @"unknown";
+    _albumArtistView.text = (meta.album.length > 0 && meta.artist.length > 0) ?
+        [NSString stringWithFormat:@"%@ — %@", meta.artist, meta.album] :
+        (meta.album.length > 0 ? meta.album : (meta.artist.length > 0 ?
+                                               meta.artist : @"unknown") );
 }
 
 @end

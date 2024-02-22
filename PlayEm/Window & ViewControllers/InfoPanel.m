@@ -9,6 +9,22 @@
 #import "InfoPanel.h"
 #import "MediaMetaData.h"
 
+@interface InfoPanelController ()
+@property (strong, nonatomic) NSTextField* metaTitle;
+@property (strong, nonatomic) NSTextField* metaArtist;
+@property (strong, nonatomic) NSTextField* metaAlbum;
+@property (strong, nonatomic) NSTextField* metaYear;
+@property (strong, nonatomic) NSTextField* metaGenre;
+@property (strong, nonatomic) NSTextField* metaBPM;
+@property (strong, nonatomic) NSTextField* metaKey;
+@property (strong, nonatomic) NSTextField* metaTrack;
+@property (strong, nonatomic) NSTextField* metaDisk;
+@property (strong, nonatomic) NSTextField* metaLocation;
+@property (strong, nonatomic) NSImageView* coverView;
+
+@property (strong, nonatomic) NSDictionary* dictionary;
+@end
+
 @implementation InfoPanelController
 
 - (void)loadView
@@ -185,9 +201,12 @@
                 NSString* stringValue = [textField stringValue];
                 [_meta updateWithKey:key string:stringValue];
 
-                // TODO: macOS can't export ID3 info's in MP3 files. Need to find a solution for that.
-                // NSError* error = nil;
-                // _meta syncWithError:&error];
+                NSError* error = nil;
+                [_meta syncToFileWithError:&error];
+                
+                if (_delegate) {
+                    [_delegate metaChanged:_meta];
+                }
             }
             return;
         }

@@ -17,6 +17,7 @@
 #import "ScopeView.h"
 #import "WaveRenderer.h"
 #import "ControlPanelController.h"
+#import "InfoPanel.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -41,6 +42,7 @@ NS_ASSUME_NONNULL_BEGIN
                                                       ScopeRendererDelegate,
                                                       WaveRendererDelegate,
                                                       ControlPanelControllerDelegate,
+                                                      InfoPanelControllerDelegate,
                                                       NSSplitViewDelegate,
                                                       NSMenuDelegate>
   

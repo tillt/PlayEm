@@ -285,6 +285,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     self.window.toolbar = toolBar;
 
     _infoPanel = [InfoPanelController new];
+    _infoPanel.delegate = self;
     
     _beatLayerDelegate = [BeatLayerDelegate new];
 
@@ -1455,9 +1456,6 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
 
 - (void)setMeta:(MediaMetaData*)meta
 {
-    if (meta == _meta) {
-        return;
-    }
     _meta = meta;
 
     // Update meta data in the info box.
@@ -1466,30 +1464,9 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     }
     
     // Update meta data in playback box.
-    //_coverViewShadow.image = meta.artwork;
-    _controlPanelController.coverButton.image = meta.artwork;
-    //_coverButton.
-    _controlPanelController.titleView.text = meta.title.length > 0 ? meta.title : @"unknown";
-    _controlPanelController.albumArtistView.text = (meta.album.length > 0 && meta.artist.length > 0) ?
-      [NSString stringWithFormat:@"%@ — %@", meta.artist, meta.album] :
-        (meta.album.length > 0 ? meta.album : (meta.artist.length > 0 ?
-                                               meta.artist : @"unknown") );
-    //NSMutableParagraphStyle* style = [[NSParagraphStyle defaultParagraphStyle] mutableCopy];
-    //style.lineBreakMode = NSLineBreakByTruncatingTail;
-   
-    //NSDictionary* attributes = [NSDictionary dictionaryWithObject:style forKey:NSParagraphStyleAttributeName];
-
-    //NSString* title = @"The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog.";
-    //NSMutableAttributedString *attrstr = [[NSMutableAttributedString alloc] initWithString:title attributes:attributes];
-    //[[_title textStorage] appendAttributedString:attrstr];
-    
-    [self.window.contentView addTrackingRect:_scopeView.frame
-                                       owner:self
-                                    userData:nil
-                                assumeInside:YES];
-    
-    //[_renderer play:_audioController visual:_visualSample scope:_scopeView];
-    NSLog(@"Renderer unpaused\n");
+    if (_controlPanelController) {
+        _controlPanelController.meta = meta;
+    }
 }
 
 #pragma mark Drag & Drop
@@ -1583,11 +1560,6 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
             [_audioController playPause];
         }
     }
-//    location = [_scopeView convertPoint:locationInWindow fromView:nil];
-//    if (NSPointInRect(location, _scopeView.bounds)) {
-//        NSLog(@"mouse down in scope view %f:%f\n", location.x, location.y);
-//        [self showControlPanel:self];
-//    }
 }
 
 - (void)rightMouseDown:(NSEvent*)event
@@ -1696,7 +1668,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     [self loadProgress:self.trackRenderProgress state:state value:value];
 }
 
-#pragma mark Audio delegate
+#pragma mark - Audio delegate
 
 - (void)audioControllerPlaybackStarted
 {
@@ -1758,7 +1730,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     [_renderer stop:_scopeView];
 }
 
-#pragma mark Control Panel delegate
+#pragma mark - Control Panel delegate
 
 - (void)volumeChange:(id)sender
 {
@@ -1776,12 +1748,20 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     [self beatEffectStart];
 }
 
-#pragma mark -
-#pragma mark Full Screen Support: Persisting and Restoring Window's Non-FullScreen Frame
+#pragma mark - Full Screen Support: Persisting and Restoring Window's Non-FullScreen Frame
 
 + (NSArray *)restorableStateKeyPaths
 {
     return [[super restorableStateKeyPaths] arrayByAddingObject:@"frameForNonFullScreenMode"];
+}
+
+#pragma mark - InfoPanelControllerDelegate
+
+- (void)metaChanged:(MediaMetaData *)meta
+{
+    NSLog(@"meta changed - need to update the browser");
+    [self setMeta:meta];
+    [_browser reloadData];
 }
 
 @end

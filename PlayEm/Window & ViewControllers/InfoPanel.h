@@ -12,24 +12,13 @@ NS_ASSUME_NONNULL_BEGIN
 
 @class MediaMetaData;
 
+@protocol InfoPanelControllerDelegate <NSObject>
+- (void)metaChanged:(MediaMetaData*)meta;
+@end
+
 @interface InfoPanelController : NSViewController <NSTextFieldDelegate>
-
 @property (strong, nonatomic) MediaMetaData* meta;
-@property (strong, nonatomic) NSTextField* metaTitle;
-@property (strong, nonatomic) NSTextField* metaArtist;
-@property (strong, nonatomic) NSTextField* metaAlbum;
-@property (strong, nonatomic) NSTextField* metaYear;
-@property (strong, nonatomic) NSTextField* metaGenre;
-@property (strong, nonatomic) NSTextField* metaBPM;
-@property (strong, nonatomic) NSTextField* metaKey;
-@property (strong, nonatomic) NSTextField* metaTrack;
-@property (strong, nonatomic) NSTextField* metaDisk;
-@property (strong, nonatomic) NSTextField* metaLocation;
-@property (strong, nonatomic) NSImageView* coverView;
-
-@property (strong, nonatomic) NSDictionary* dictionary;
-
-
+@property (weak, nonatomic) id<InfoPanelControllerDelegate> delegate;
 @end
 
 NS_ASSUME_NONNULL_END

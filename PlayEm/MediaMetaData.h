@@ -11,9 +11,13 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+///
+/// MediaMetaData is lazily holding metadata for library entries to allow for extending iTunes provided data.
+/// iTunes provided data are held in a shadow item until data is requested and thus copied in.
+///
+
 @class ITLibMediaItem;
 @class AVAsset;
-
 
 enum {
     MediaMetaDataLocationTypeFile = ITLibMediaItemLocationTypeFile,
@@ -30,28 +34,31 @@ enum {
 @property (copy, nonatomic, nullable) NSString* album;
 @property (copy, nonatomic, nullable) NSString* artist;
 @property (copy, nonatomic, nullable) NSString* genre;
-@property (assign, nonatomic) NSUInteger year;
+@property (copy, nonatomic, nullable) NSNumber* year;
 @property (copy, nonatomic, nullable) NSString* comment;
-@property (assign, nonatomic) NSUInteger tempo;
+@property (copy, nonatomic, nullable) NSString* composer;
+@property (copy, nonatomic, nullable) NSString* albumArtist;
+@property (copy, nonatomic, nullable) NSString* label;
+@property (copy, nonatomic, nullable) NSNumber* tempo;
 @property (copy, nonatomic, nullable) NSString* key;
+@property (copy, nonatomic, nullable) NSNumber* track;
+@property (copy, nonatomic, nullable) NSNumber* tracks;
+@property (copy, nonatomic, nullable) NSNumber* disk;
+@property (copy, nonatomic, nullable) NSNumber* disks;
+@property (copy, nonatomic, nullable) NSNumber* locationType;
 @property (strong, nonatomic, nullable) NSImage* artwork;
-@property (assign, nonatomic) NSUInteger track;
-@property (assign, nonatomic) NSUInteger tracks;
-@property (assign, nonatomic) NSUInteger disk;
-@property (assign, nonatomic) NSUInteger disks;
-@property (assign, nonatomic) NSUInteger locationType;
 @property (strong, nonatomic, nullable) NSURL* location;
 @property (strong, nonatomic, nullable) NSDate* added;
-@property (assign, nonatomic) NSTimeInterval duration;
+@property (copy, nonatomic, nullable) NSNumber* duration;
 
 + (MediaMetaData*)mediaMetaDataWithURL:(NSURL*)url error:(NSError**)error;
 + (MediaMetaData*)mediaMetaDataWithITLibMediaItem:(ITLibMediaItem*)item error:(NSError**)error;
 + (NSArray<NSString*>*)mediaMetaKeys;
 
+- (BOOL)syncToFileWithError:(NSError**)error;
+
 - (NSString* _Nullable)stringForKey:(NSString*)key;
 - (void)updateWithKey:(NSString*)key string:(NSString*)string;
-
-- (BOOL)syncWithError:(NSError**)error;
 
 @end
 

@@ -77,8 +77,8 @@ os_log_t pointsOfInterest;
 @property (strong, nonatomic) WaveLayerDelegate* waveLayerDelegate;
 @property (strong, nonatomic) WaveLayerDelegate* totalWaveLayerDelegate;
 
-@property (strong, nonatomic) dispatch_queue_t waveQueue;
-@property (strong, nonatomic) dispatch_queue_t scopeQueue;
+//@property (strong, nonatomic) dispatch_queue_t waveQueue;
+//@property (strong, nonatomic) dispatch_queue_t scopeQueue;
 
 - (void)stop;
 

@@ -314,6 +314,8 @@ void bufferCallback(void* user_data, AudioQueueRef queue, AudioQueueBufferRef bu
 - (void)reset
 {
     NSLog(@"reset audio");
+    [self stopTapping];
+
     [_timer invalidate];
     _timer = nil;
     

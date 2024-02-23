@@ -114,9 +114,6 @@
 		BB2CF8AB259EB66900D6BA03 /* LazySample.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LazySample.h; sourceTree = "<group>"; };
 		BB2CF8AC259EB66900D6BA03 /* LazySample.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = LazySample.m; sourceTree = "<group>"; };
 		BB3B8D8C2B85285E006AEFCA /* ProfilingPointsOfInterest.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ProfilingPointsOfInterest.h; sourceTree = "<group>"; };
-		BB3B8D8D2B86C518006AEFCA /* libtag.1.19.1.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libtag.1.19.1.dylib; path = ../../../../opt/homebrew/Cellar/taglib/1.13.1/lib/libtag.1.19.1.dylib; sourceTree = "<group>"; };
-		BB3B8D902B86C8BD006AEFCA /* tag_c.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = tag_c.framework; path = ../3rdparty/taglib/build/bindings/c/tag_c.framework; sourceTree = "<group>"; };
-		BB3B8D932B86C8D6006AEFCA /* tag.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = tag.framework; path = ../3rdparty/taglib/build/taglib/tag.framework; sourceTree = "<group>"; };
 		BB3B8D962B86C9B7006AEFCA /* tag_c.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = tag_c.framework; sourceTree = "<group>"; };
 		BB3B8D972B86C9B7006AEFCA /* tag.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = tag.framework; sourceTree = "<group>"; };
 		BB3B8D9C2B87CC12006AEFCA /* ShazamKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ShazamKit.framework; path = System/Library/Frameworks/ShazamKit.framework; sourceTree = SDKROOT; };
@@ -246,11 +243,8 @@
 			isa = PBXGroup;
 			children = (
 				BB3B8D9C2B87CC12006AEFCA /* ShazamKit.framework */,
-				BB3B8D932B86C8D6006AEFCA /* tag.framework */,
-				BB3B8D902B86C8BD006AEFCA /* tag_c.framework */,
 				BB3B8D962B86C9B7006AEFCA /* tag_c.framework */,
 				BB3B8D972B86C9B7006AEFCA /* tag.framework */,
-				BB3B8D8D2B86C518006AEFCA /* libtag.1.19.1.dylib */,
 				BB1614B82AACB0C300F6C5E6 /* libaubio.5.dylib */,
 				BB577E152AA486C500046251 /* libsamplerate.0.dylib */,
 				BB577E072AA482D400046251 /* librubberband.2.dylib */,

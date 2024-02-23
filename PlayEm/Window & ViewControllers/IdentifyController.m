@@ -30,6 +30,7 @@
 @property (strong, nonatomic) NSURL* musicURL;
 
 @property (strong, nonatomic) NSProgressIndicator* matchingIndicator;
+@property (strong, nonatomic) dispatch_queue_t identifyQueue;
 
 @end
 
@@ -40,6 +41,8 @@
     self = [super init];
     if (self) {
         _audioController = audioController;
+        dispatch_queue_attr_t attr = dispatch_queue_attr_make_with_qos_class(DISPATCH_QUEUE_SERIAL, QOS_CLASS_USER_INITIATED, 0);
+        _identifyQueue = dispatch_queue_create("PlayEm.IdentifyQueue", attr);
     }
     return self;
 }
@@ -92,19 +95,6 @@
     
     CGFloat y = kPopoverHeight - (kCoverViewHeight + kBorderHeight);
     
-//    _coverButton = [[NSButton alloc] initWithFrame:NSMakeRect(floorf((kPopoverWidth - kCoverViewWidth) / 2.0f),
-//                                                               y,
-//                                                               kCoverViewWidth,
-//                                                               kCoverViewHeight)];
-//    _coverButton.image = [NSImage imageNamed:@"UnknownSong"];
-//    _coverButton.imageScaling = NSImageScaleProportionallyUpOrDown;
-//    _coverButton.wantsLayer = YES;
-//    _coverButton.layer.cornerRadius = 10;
-//    _coverButton.layer.masksToBounds = YES;
-//    [_coverButton setAction:@selector(musicURLClicked:)];
-//
-//    [self.view addSubview:_coverButton];
-
     _coverView = [[NSImageView alloc] initWithFrame:NSMakeRect(floorf((kPopoverWidth - kCoverViewWidth) / 2.0f),
                                                                y,
                                                                kCoverViewWidth,
@@ -112,7 +102,7 @@
     _coverView.image = [NSImage imageNamed:@"UnknownSong"];
     _coverView.imageScaling = NSImageScaleProportionallyUpOrDown;
     _coverView.wantsLayer = YES;
-    _coverView.layer.cornerRadius = 10;
+    _coverView.layer.cornerRadius = 7;
     _coverView.layer.masksToBounds = YES;
     [_coverView setAction:@selector(musicURLClicked:)];
 
@@ -234,6 +224,7 @@
     _scButton.animator.alphaValue = 0.0;
 }
 
+// FIXME: This isnt safe as we may pull the sample away below the running session.
 - (void)shazam:(id)sender
 {
     NSLog(@"shazam!");
@@ -260,7 +251,7 @@
     FILE* fp = fopen("/tmp/debug_tap.out", "wb");
 #endif
     [_audioController startTapping:^(unsigned long long offset, float* input, unsigned int frames) {
-        dispatch_async(dispatch_queue_create("AsyncMatchingQueue", NULL), ^{
+        dispatch_async(self.identifyQueue, ^{
             [self.stream setFrameLength:frames];
             float* outputBuffer = self.stream.floatChannelData[0];
             for (int i = 0; i < frames; i++) {

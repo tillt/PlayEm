@@ -20,29 +20,30 @@
 @property (strong, nonatomic) NSTextField* metaTrack;
 @property (strong, nonatomic) NSTextField* metaDisk;
 @property (strong, nonatomic) NSTextField* metaLocation;
-@property (strong, nonatomic) NSImageView* coverView;
+
+@property (strong, nonatomic) NSImageView* smallCoverView;
+@property (strong, nonatomic) NSImageView* largeCoverView;
+
+@property (strong, nonatomic) NSTabView* tabView;
+
+@property (strong, nonatomic) NSViewController* detailsViewController;
+@property (strong, nonatomic) NSViewController* artworkViewController;
+@property (strong, nonatomic) NSViewController* fileViewController;
 
 @property (strong, nonatomic) NSDictionary* dictionary;
 @end
 
 @implementation InfoPanelController
 
-- (void)loadView
+- (void)loadDetailsWithView:(NSView*)view
 {
-    NSLog(@"loadView");
-
-    self.view = [[NSView alloc] initWithFrame:NSMakeRect(0.0,  0.0, 450.0, 740.0)];
-
-    const CGFloat imageWidth = 400.0f;
+    const CGFloat imageWidth = 120.0f;
     const CGFloat nameFieldWidth = 80.0;
-    const CGFloat extraNameFieldWidth = 20.0;
     const CGFloat rowUnitHeight = 18.0f;
     const CGFloat kBorderWidth = 5.0;
     const CGFloat kRowInset = 4.0f;
     const CGFloat kRowSpace = 4.0f;
 
-    CGFloat y = 20.0f;
-   
     NSDictionary* config = @{
         @"01 title": @{
             @"width": @340,
@@ -79,17 +80,18 @@
         },
         @"09 tempo": @{
             @"width": @40,
+            @"extra": @{
+                @"title": @"key",
+                @"key": @"key",
+            }
         },
-        @"10 key": @{
-            @"width": @40,
-        },
-        @"11 comment": @{
+        @"10 comment": @{
             @"width": @340,
             @"rows": @3,
         },
-        @"12 location": @{
+        @"11 location": @{
             @"width": @340,
-            @"rows": @3,
+            @"rows": @4,
             @"editable": @NO,
         },
     };
@@ -98,6 +100,8 @@
     NSArray* orderedKeys = [[config allKeys] sortedArrayUsingSelector:@selector(compare:)];
     NSEnumerator* reversed = [orderedKeys reverseObjectEnumerator];
     
+    CGFloat y = 20.0f;
+
     for (NSString* key in reversed) {
         NSString* name = [key substringFromIndex:3];
 
@@ -132,7 +136,7 @@
                                      y - floor((rowUnitHeight - 13.0) / 2.0f),
                                      nameFieldWidth,
                                      (rows * rowUnitHeight) + kRowInset);
-        [self.view addSubview:textField];
+        [view addSubview:textField];
         
         textField = [NSTextField textFieldWithString:@""];
         textField.bordered = editable;
@@ -159,7 +163,7 @@
                                      y,
                                      width - kBorderWidth,
                                      (rows * rowUnitHeight) + kRowInset);
-        [self.view addSubview:textField];
+        [view addSubview:textField];
         
         dict[configKey] = textField;
         
@@ -173,11 +177,12 @@
             textField.editable = NO;
             textField.selectable = NO;
             textField.alignment = NSTextAlignmentLeft;
+            CGFloat dynamicWidth = textField.attributedStringValue.size.width + kBorderWidth;
             textField.frame = NSMakeRect(x + width,
                                          y - floor((rowUnitHeight - 13.0) / 2.0f),
-                                         extraNameFieldWidth,
+                                         dynamicWidth,
                                          (rows * rowUnitHeight) + kRowInset);
-            [self.view addSubview:textField];
+            [view addSubview:textField];
 
             textField = [NSTextField textFieldWithString:@""];
             textField.bordered = editable;
@@ -191,11 +196,11 @@
 
             textField.usesSingleLineMode = YES;
 
-            textField.frame = NSMakeRect(x + width + kBorderWidth + extraNameFieldWidth,
+            textField.frame = NSMakeRect(x + width + kBorderWidth + dynamicWidth,
                                          y,
                                          width - kBorderWidth,
                                          (rows * rowUnitHeight) + kRowInset);
-            [self.view addSubview:textField];
+            [view addSubview:textField];
 
             dict[extra[@"key"]] = textField;
         }
@@ -206,14 +211,62 @@
 
     y += kRowSpace;
     
-    _coverView = [NSImageView imageViewWithImage:[NSImage imageNamed:@"UnknownSong"]];
-    _coverView.alignment = NSViewHeightSizable | NSViewWidthSizable | NSViewMinYMargin | NSViewMaxYMargin;
-    _coverView.imageScaling = NSImageScaleProportionallyUpOrDown;
-    _coverView.frame = CGRectMake((self.view.bounds.size.width - imageWidth) / 2.0f ,
+    _smallCoverView = [NSImageView imageViewWithImage:[NSImage imageNamed:@"UnknownSong"]];
+    _smallCoverView.alignment = NSViewHeightSizable | NSViewWidthSizable | NSViewMinYMargin | NSViewMaxYMargin;
+    _smallCoverView.imageScaling = NSImageScaleProportionallyUpOrDown;
+    _smallCoverView.frame = CGRectMake(kBorderWidth,
                                   y,
                                   imageWidth,
                                   imageWidth);
-    [self.view addSubview:_coverView];
+    [view addSubview:_smallCoverView];
+}
+
+- (void)loadArtworkWithView:(NSView*)view
+{
+    const CGFloat imageWidth = 400.0;
+       
+    _largeCoverView = [NSImageView imageViewWithImage:[NSImage imageNamed:@"UnknownSong"]];
+    _largeCoverView.alignment = NSViewHeightSizable | NSViewWidthSizable | NSViewMinYMargin | NSViewMaxYMargin;
+    _largeCoverView.imageScaling = NSImageScaleProportionallyUpOrDown;
+    _largeCoverView.frame = CGRectMake((self.view.bounds.size.width - (imageWidth + 20.0)) / 2.0f,
+                                  (self.view.bounds.size.height - (imageWidth + 20.0)) / 2.0f,
+                                  imageWidth,
+                                  imageWidth);
+    _largeCoverView.wantsLayer = YES;
+    _largeCoverView.layer.borderColor = [NSColor separatorColor].CGColor;
+    _largeCoverView.layer.borderWidth = 1.0f;
+    _largeCoverView.layer.cornerRadius = 7.0f;
+    _largeCoverView.layer.masksToBounds = YES;
+    
+    [view addSubview:_largeCoverView];
+}
+
+- (void)loadView
+{
+    NSLog(@"loadView");
+
+    self.view = [[NSView alloc] initWithFrame:NSMakeRect(0.0,  0.0, 450.0, 570.0)];
+    self.tabView = [[NSTabView alloc] initWithFrame:self.view.frame];
+    
+    self.detailsViewController = [[NSViewController alloc] init];
+    NSTabViewItem* detailsTabViewItem = [NSTabViewItem tabViewItemWithViewController:_detailsViewController];
+    [detailsTabViewItem setLabel:@"Details"];
+    [self.tabView addTabViewItem:detailsTabViewItem];
+
+    self.detailsViewController = [[NSViewController alloc] init];
+    NSTabViewItem* artworkTabViewItem = [NSTabViewItem tabViewItemWithViewController:_artworkViewController];
+    [artworkTabViewItem setLabel:@"Artwork"];
+    [self.tabView addTabViewItem:artworkTabViewItem];
+//
+//    self.fileViewController = [[NSViewController alloc] init];
+//    NSTabViewItem* fileTabViewItem = [NSTabViewItem tabViewItemWithViewController:_fileViewController];
+//    [fileTabViewItem setLabel:@"File"];
+//    [self.tabView addTabViewItem:fileTabViewItem];
+
+    [self.view addSubview:_tabView];
+    
+    [self loadDetailsWithView:detailsTabViewItem.view];
+    [self loadArtworkWithView:artworkTabViewItem.view];
 }
 
 - (void)setMeta:(MediaMetaData*)meta
@@ -225,7 +278,11 @@
     }
 
     if (_meta.artwork) {
-        _coverView.image = _meta.artwork;
+        _largeCoverView.image = _meta.artwork;
+        _smallCoverView.image = _meta.artwork;
+    } else {
+        _largeCoverView.image = [NSImage imageNamed:@"UnknownSong"];
+        _smallCoverView.image = [NSImage imageNamed:@"UnknownSong"];
     }
 
     NSArray<NSString*>* keys = [MediaMetaData mediaMetaKeys];

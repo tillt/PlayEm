@@ -108,11 +108,9 @@
                                     self.view.frame.size.height - 10.0,
                                     self.view.frame.size.height - 10.0);
     _coverButton.wantsLayer = YES;
-    [self.view addSubview:_coverButton];
-
-    _coverButton.wantsLayer = YES;
     _coverButton.layer.cornerRadius = 10;
     _coverButton.layer.masksToBounds = NO;
+    [self.view addSubview:_coverButton];
    
     CALayer* layer = [CALayer new];
     layer.compositingFilter = @[ _zoomBlur, intenseBloomFilter ];

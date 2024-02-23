@@ -84,105 +84,112 @@
     return meta;
 }
 
+NSString* kMediaMetaDataMapKeyMP3 = @"mp3";
+NSString* kMediaMetaDataMapKeyType = @"type";
+NSString* kMediaMetaDataMapKeyKey = @"key";
+NSString* kMediaMetaDataMapKeyKey2 = @"mediaKey2";
+NSString* kMediaMetaDataMapTypeString = @"string";
+NSString* kMediaMetaDataMapTypeNumbers = @"ofNumber";
+
 + (NSDictionary<NSString*, NSDictionary*>*)mediaMetaKeyMap
 {
     return @{
                 @"added": @{},
                 @"album": @{
-                    @"mp3": @{
-                        @"key": @"ALBUM",
-                        @"type": @"string",
+                    kMediaMetaDataMapKeyMP3: @{
+                        kMediaMetaDataMapKeyKey: @"ALBUM",
+                        kMediaMetaDataMapKeyType: kMediaMetaDataMapTypeString,
                     },
                 },
                 @"albumArtist": @{
-                    @"mp3": @{
-                        @"key": @"ALBUMARTIST",
-                        @"type": @"string",
+                    kMediaMetaDataMapKeyMP3: @{
+                        kMediaMetaDataMapKeyKey: @"ALBUMARTIST",
+                        kMediaMetaDataMapKeyType: kMediaMetaDataMapTypeString,
                     },
                 },
                 @"artist": @{
-                    @"mp3": @{
-                        @"key": @"ARTIST",
-                        @"type": @"string",
+                    kMediaMetaDataMapKeyMP3: @{
+                        kMediaMetaDataMapKeyKey: @"ARTIST",
+                        kMediaMetaDataMapKeyType: kMediaMetaDataMapTypeString,
                     },
                 },
                 @"artwork": @{
-                    @"mp3": @{
-                        @"key": @"PICTURE",
-                        @"type": @"image",
+                    kMediaMetaDataMapKeyMP3: @{
+                        kMediaMetaDataMapKeyKey: @"PICTURE",
+                        kMediaMetaDataMapKeyType: @"image",
                     },
                 },
                 @"comment": @{
-                    @"mp3": @{
-                        @"key": @"COMMENTS",
-                        @"type": @"string",
+                    kMediaMetaDataMapKeyMP3: @{
+                        kMediaMetaDataMapKeyKey: @"COMMENTS",
+                        kMediaMetaDataMapKeyType: kMediaMetaDataMapTypeString,
                     },
                 },
                 @"composer": @{
-                    @"mp3": @{
-                        @"key": @"COMPOSER",
-                        @"type": @"string",
+                    kMediaMetaDataMapKeyMP3: @{
+                        kMediaMetaDataMapKeyKey: @"COMPOSER",
+                        kMediaMetaDataMapKeyType: kMediaMetaDataMapTypeString,
                     },
                 },
                 @"label": @{
-                    @"mp3": @{
-                        @"key": @"LABEL",
-                        @"type": @"string",
+                    kMediaMetaDataMapKeyMP3: @{
+                        kMediaMetaDataMapKeyKey: @"LABEL",
+                        kMediaMetaDataMapKeyType: kMediaMetaDataMapTypeString,
                     },
                 },
                 @"disk": @{
-                    @"mp3": @{
-                        @"key": @"DISCNUMBER",
-                        @"type": @"ofNumber",
-                        @"mediaKey2": @"disks",
+                    kMediaMetaDataMapKeyMP3: @{
+                        kMediaMetaDataMapKeyKey: @"DISCNUMBER",
+                        kMediaMetaDataMapKeyType: kMediaMetaDataMapTypeNumbers,
+                        kMediaMetaDataMapKeyKey2: @"disks",
                     },
                 },
                 @"disks": @{},
                 @"duration": @{
-                    @"mp3": @{
-                        @"key": @"LENGTH",
-                        @"type": @"string",
+                    kMediaMetaDataMapKeyMP3: @{
+                        kMediaMetaDataMapKeyKey: @"LENGTH",
+                        kMediaMetaDataMapKeyType: kMediaMetaDataMapTypeString,
                     },
                 },
                 @"genre": @{
-                    @"mp3": @{
-                        @"key": @"GENRE",
-                        @"type": @"string",
+                    kMediaMetaDataMapKeyMP3: @{
+                        kMediaMetaDataMapKeyKey: @"GENRE",
+                        kMediaMetaDataMapKeyType: kMediaMetaDataMapTypeString,
                     },
                 },
                 @"key": @{
-                    @"mp3": @{
-                        @"key": @"INITIALKEY",
-                        @"type": @"string",
+                    kMediaMetaDataMapKeyMP3: @{
+                        kMediaMetaDataMapKeyKey: @"INITIALKEY",
+                        kMediaMetaDataMapKeyType: kMediaMetaDataMapTypeString,
                     },
                 },
                 @"location": @{},
                 @"locationType": @{
                 },
                 @"tempo": @{
-                    @"mp3": @{
-                        @"key": @"BPM",
-                        @"type": @"string",
+                    kMediaMetaDataMapKeyMP3: @{
+                        kMediaMetaDataMapKeyKey: @"BPM",
+                        kMediaMetaDataMapKeyType: kMediaMetaDataMapTypeString,
                     },
                 },
                 @"title": @{
-                    @"mp3": @{
-                        @"key": @"TITLE",
-                        @"type": @"string",
+                    kMediaMetaDataMapKeyMP3: @{
+                        kMediaMetaDataMapKeyKey: @"TITLE",
+                        kMediaMetaDataMapKeyType: kMediaMetaDataMapTypeString,
                     },
                 },
                 @"track": @{
-                    @"mp3": @{
-                        @"key": @"TRACKNUMBER",
-                        @"type": @"ofNumber",
-                        @"mediaKey2": @"tracks",
+                    kMediaMetaDataMapKeyMP3: @{
+                        kMediaMetaDataMapKeyKey: @"TRACKNUMBER",
+                        kMediaMetaDataMapKeyType: kMediaMetaDataMapTypeNumbers,
+                        kMediaMetaDataMapKeyKey2: @"tracks",
                     },
                 },
                 @"tracks": @{},
                 @"year": @{
-                    @"mp3": @{
-                        @"key": @"DATE",
-                        @"type": @"string",
+                    kMediaMetaDataMapKeyMP3: @{
+                        kMediaMetaDataMapKeyKey: @"DATE",
+                        kMediaMetaDataMapKeyType: kMediaMetaDataMapTypeString,
                     },
                 },
             };
@@ -198,7 +205,7 @@
     NSDictionary<NSString*, NSDictionary*>* mediaMetaKeyMap = [MediaMetaData mediaMetaKeyMap];
     NSMutableArray<NSString*>* supportedKeys = [NSMutableArray array];
     for (NSString* key in [MediaMetaData mediaMetaKeys]) {
-        if ([mediaMetaKeyMap[key] objectForKey:@"mp3"]) {
+        if ([mediaMetaKeyMap[key] objectForKey:kMediaMetaDataMapKeyMP3]) {
             [supportedKeys addObject:key];
         }
     }
@@ -212,18 +219,18 @@
     NSMutableDictionary<NSString*, NSDictionary<NSString*, NSString*>*>* tagMap = [NSMutableDictionary dictionary];
     
     for (NSString* mediaDataKey in [mediaMetaKeyMap allKeys]) {
-        if ([mediaMetaKeyMap[mediaDataKey] objectForKey:@"mp3"] == nil) {
+        if ([mediaMetaKeyMap[mediaDataKey] objectForKey:kMediaMetaDataMapKeyMP3] == nil) {
             continue;
         }
 
-        NSString* mp3Key = mediaMetaKeyMap[mediaDataKey][@"mp3"][@"key"];
-        NSString* type = mediaMetaKeyMap[mediaDataKey][@"mp3"][@"type"];
+        NSString* mp3Key = mediaMetaKeyMap[mediaDataKey][kMediaMetaDataMapKeyMP3][kMediaMetaDataMapKeyKey];
+        NSString* type = mediaMetaKeyMap[mediaDataKey][kMediaMetaDataMapKeyMP3][kMediaMetaDataMapKeyType];
 
         NSMutableDictionary* mediaDataDictionary = [NSMutableDictionary dictionary];
-        mediaDataDictionary[@"key"] = mediaDataKey;
-        mediaDataDictionary[@"type"] = type;
-        if ([type isEqualToString:@"ofNumber"]) {
-            mediaDataDictionary[@"key2"] = mediaMetaKeyMap[mediaDataKey][@"mp3"][@"mediaKey2"];
+        mediaDataDictionary[kMediaMetaDataMapKeyKey] = mediaDataKey;
+        mediaDataDictionary[kMediaMetaDataMapKeyType] = type;
+        if ([type isEqualToString:kMediaMetaDataMapTypeNumbers]) {
+            mediaDataDictionary[kMediaMetaDataMapKeyKey2] = mediaMetaKeyMap[mediaDataKey][kMediaMetaDataMapKeyMP3][kMediaMetaDataMapKeyKey2];
         }
         
         tagMap[mp3Key] = mediaDataDictionary;
@@ -527,8 +534,8 @@
 
     __block MediaMetaData* meta = [[MediaMetaData alloc] init];
     
-    TagLibParseBlock parse = ^ BOOL (NSDictionary* tagMaps, char* tagLibKey, char* tagLibValues){
-        NSString* key = [NSString stringWithCString:tagLibKey 
+    TagLibParseBlock parseSimpleProperties = ^ BOOL (NSDictionary* tagMaps, char* tagLibKey, char* tagLibValues){
+        NSString* key = [NSString stringWithCString:tagLibKey
                                            encoding:NSStringEncodingConversionAllowLossy];
         NSString* values = [NSString stringWithCString:tagLibValues 
                                               encoding:NSStringEncodingConversionAllowLossy];
@@ -539,33 +546,33 @@
             return NO;
         }
 
-        NSString* type = map[@"type"];
+        NSString* type = map[kMediaMetaDataMapKeyType];
 
-        if ([type isEqualToString:@"string"]) {
-            [meta updateWithKey:map[@"key"] string:values];
+        if ([type isEqualToString:kMediaMetaDataMapTypeString]) {
+            [meta updateWithKey:map[kMediaMetaDataMapKeyKey] string:values];
             return YES;
         }
 
-        if ([type isEqualToString:@"ofNumber"]) {
+        if ([type isEqualToString:kMediaMetaDataMapTypeNumbers]) {
             if (![values containsString:@"/"]) {
-                [meta updateWithKey:map[@"key"] string:values];
+                [meta updateWithKey:map[kMediaMetaDataMapKeyKey] string:values];
                 return YES;
             }
             NSArray<NSString*>* components = [values componentsSeparatedByString:@"/"];
-            [meta updateWithKey:map[@"key"] string:components[0]];
+            [meta updateWithKey:map[kMediaMetaDataMapKeyKey] string:components[0]];
             if ([components count] > 1) {
-                [meta updateWithKey:map[@"key2"] string:components[1]];
+                [meta updateWithKey:map[kMediaMetaDataMapKeyKey2] string:components[1]];
             }
             return YES;
         }
         
         if ([type isEqualToString:@"date"]) {
             if (![values containsString:@"-"]) {
-                [meta updateWithKey:map[@"key"] string:values];
+                [meta updateWithKey:map[kMediaMetaDataMapKeyKey] string:values];
                 return YES;
             }
             NSArray<NSString*>* components = [values componentsSeparatedByString:@"-"];
-            [meta updateWithKey:map[@"key"] string:components[0]];
+            [meta updateWithKey:map[kMediaMetaDataMapKeyKey] string:components[0]];
             return YES;
         }
 
@@ -590,7 +597,7 @@
             char **valPtr;
             char **propertyValues = valPtr = taglib_property_get(file, *keyPtr);
             while(valPtr && *valPtr) {
-                parse(tagMap, *keyPtr, *valPtr);
+                parseSimpleProperties(tagMap, *keyPtr, *valPtr);
                 ++valPtr;
             };
             taglib_property_free(propertyValues);
@@ -601,12 +608,9 @@
     
     char **complexKeys = taglib_complex_property_keys(file);
     if(complexKeys != NULL) {
-        NSLog(@"-- TAG (complex properties) --");
-
         char **keyPtr = complexKeys;
         while(*keyPtr) {
-            TagLib_Complex_Property_Attribute*** props =
-            taglib_complex_property_get(file, *keyPtr);
+            TagLib_Complex_Property_Attribute*** props = taglib_complex_property_get(file, *keyPtr);
             if(props != NULL) {
                 TagLib_Complex_Property_Attribute*** propPtr = props;
                 while(*propPtr) {
@@ -618,45 +622,13 @@
                         TagLib_Variant_Type type = attr->value.type;
                         printf("  %-11s - ", attr->key);
                         switch(type) {
-                            case TagLib_Variant_Void:
-                                printf("null\n");
-                                break;
-                            case TagLib_Variant_Bool:
-                                printf("%s\n", attr->value.value.boolValue ? "true" : "false");
-                                break;
-                            case TagLib_Variant_Int:
-                                printf("%d\n", attr->value.value.intValue);
-                                break;
-                            case TagLib_Variant_UInt:
-                                printf("%u\n", attr->value.value.uIntValue);
-                                break;
-                            case TagLib_Variant_LongLong:
-                                printf("%lld\n", attr->value.value.longLongValue);
-                                break;
-                            case TagLib_Variant_ULongLong:
-                                printf("%llu\n", attr->value.value.uLongLongValue);
-                                break;
-                            case TagLib_Variant_Double:
-                                printf("%f\n", attr->value.value.doubleValue);
-                                break;
                             case TagLib_Variant_String:
                                 printf("\"%s\"\n", attr->value.value.stringValue);
                                 break;
-                            case TagLib_Variant_StringList:
-                                if(attr->value.value.stringListValue) {
-                                    char **strs = attr->value.value.stringListValue;
-                                    char **s = strs;
-                                    while(*s) {
-                                        if(s != strs) {
-                                            printf(" ");
-                                        }
-                                        printf("%s", *s++);
-                                    }
-                                }
-                                printf("\n");
-                                break;
                             case TagLib_Variant_ByteVector:
                                 printf("(%u bytes)\n", attr->value.size);
+                                break;
+                            default:
                                 break;
                         }
                         ++attrPtr;
@@ -701,19 +673,19 @@
     NSArray* mp3SupportedKeys = [MediaMetaData mp3SupportedKeys];
 
     for (NSString* mediaKey in mp3SupportedKeys) {
-        NSString* type = mediaMetaKeyMap[mediaKey][@"mp3"][@"type"];
-        NSString* mp3Key = mediaMetaKeyMap[mediaKey][@"mp3"][@"key"];
+        NSString* type = mediaMetaKeyMap[mediaKey][kMediaMetaDataMapKeyMP3][kMediaMetaDataMapKeyType];
+        NSString* mp3Key = mediaMetaKeyMap[mediaKey][kMediaMetaDataMapKeyMP3][kMediaMetaDataMapKeyKey];
 
         if ([type isEqualToString:@"image"]) {
             NSLog(@"setting image data not yet supported");
         } else {
             NSString* value = [self stringForKey:mediaKey];
 
-            if ([type isEqualToString:@"ofNumber"]) {
+            if ([type isEqualToString:kMediaMetaDataMapTypeNumbers]) {
                 NSMutableArray* components = [NSMutableArray array];
                 [components addObject:value];
 
-                NSString* secondKey = mediaMetaKeyMap[mediaKey][@"mp3"][@"mediaKey2"];
+                NSString* secondKey = mediaMetaKeyMap[mediaKey][kMediaMetaDataMapKeyMP3][kMediaMetaDataMapKeyKey2];
                 NSString* value2 = [self stringForKey:secondKey];
                 if ([value2 length] > 0) {
                     [components addObject:value2];

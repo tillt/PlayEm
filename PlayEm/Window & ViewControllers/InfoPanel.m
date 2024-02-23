@@ -35,6 +35,7 @@
 
     const CGFloat imageWidth = 400.0f;
     const CGFloat nameFieldWidth = 80.0;
+    const CGFloat extraNameFieldWidth = 20.0;
     const CGFloat rowUnitHeight = 18.0f;
     const CGFloat kBorderWidth = 5.0;
     const CGFloat kRowInset = 4.0f;
@@ -52,25 +53,41 @@
         @"03 album": @{
             @"width": @340,
         },
-        @"04 genre": @{
+        @"04 album artist": @{
+            @"width": @340,
+            @"key": @"albumArtist",
+        },
+        @"05 genre": @{
             @"width": @150,
         },
-        @"05 year": @{
+        @"06 year": @{
             @"width": @60,
         },
-        @"06 track": @{
+        @"07 track": @{
+            @"width": @40,
+            @"extra": @{
+                @"title": @"of",
+                @"key": @"tracks",
+            }
+        },
+        @"08 disk": @{
+            @"width": @40,
+            @"extra": @{
+                @"title": @"of",
+                @"key": @"disks",
+            }
+        },
+        @"09 tempo": @{
             @"width": @40,
         },
-        @"07 disk": @{
+        @"10 key": @{
             @"width": @40,
         },
-        @"08 tempo": @{
-            @"width": @40,
+        @"11 comment": @{
+            @"width": @340,
+            @"rows": @3,
         },
-        @"09 key": @{
-            @"width": @40,
-        },
-        @"10 location": @{
+        @"12 location": @{
             @"width": @340,
             @"rows": @3,
             @"editable": @NO,
@@ -79,8 +96,15 @@
     NSMutableDictionary* dict = [NSMutableDictionary dictionary];
     
     NSArray* orderedKeys = [[config allKeys] sortedArrayUsingSelector:@selector(compare:)];
-    for (NSString* key in [orderedKeys reverseObjectEnumerator]) {
+    NSEnumerator* reversed = [orderedKeys reverseObjectEnumerator];
+    
+    for (NSString* key in reversed) {
         NSString* name = [key substringFromIndex:3];
+
+        NSString* configKey = name;
+        if ([config[key] objectForKey:@"key"]) {
+            configKey = config[key][@"key"];
+        }
 
         NSNumber* number = config[key][@"width"];
         CGFloat width = [number floatValue];
@@ -102,6 +126,7 @@
         textField.textColor = [NSColor secondaryLabelColor];
         textField.drawsBackground = NO;
         textField.editable = NO;
+        textField.selectable = NO;
         textField.alignment = NSTextAlignmentRight;
         textField.frame = NSMakeRect(kBorderWidth,
                                      y - floor((rowUnitHeight - 13.0) / 2.0f),
@@ -128,13 +153,52 @@
             textField.usesSingleLineMode = YES;
         }
 
-        textField.frame = NSMakeRect(nameFieldWidth + kBorderWidth + kBorderWidth,
+        CGFloat x = nameFieldWidth + kBorderWidth + kBorderWidth;
+
+        textField.frame = NSMakeRect(x,
                                      y,
                                      width - kBorderWidth,
                                      (rows * rowUnitHeight) + kRowInset);
         [self.view addSubview:textField];
         
-        dict[name] = textField;
+        dict[configKey] = textField;
+        
+        NSDictionary* extra = [config[key] objectForKey:@"extra"];
+
+        if (extra != nil) {
+            NSTextField* textField = [NSTextField textFieldWithString:extra[@"title"]];
+            textField.bordered = NO;
+            textField.textColor = [NSColor secondaryLabelColor];
+            textField.drawsBackground = NO;
+            textField.editable = NO;
+            textField.selectable = NO;
+            textField.alignment = NSTextAlignmentLeft;
+            textField.frame = NSMakeRect(x + width,
+                                         y - floor((rowUnitHeight - 13.0) / 2.0f),
+                                         extraNameFieldWidth,
+                                         (rows * rowUnitHeight) + kRowInset);
+            [self.view addSubview:textField];
+
+            textField = [NSTextField textFieldWithString:@""];
+            textField.bordered = editable;
+            textField.textColor = [NSColor labelColor];
+            textField.drawsBackground = NO;
+            textField.editable = editable;
+            textField.alignment = NSTextAlignmentLeft;
+            if (editable) {
+                textField.delegate = self;
+            }
+
+            textField.usesSingleLineMode = YES;
+
+            textField.frame = NSMakeRect(x + width + kBorderWidth + extraNameFieldWidth,
+                                         y,
+                                         width - kBorderWidth,
+                                         (rows * rowUnitHeight) + kRowInset);
+            [self.view addSubview:textField];
+
+            dict[extra[@"key"]] = textField;
+        }
 
         y += (rows * rowUnitHeight) + kRowInset + kRowSpace;
     }

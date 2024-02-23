@@ -53,9 +53,11 @@ enum {
 
 + (MediaMetaData*)mediaMetaDataWithURL:(NSURL*)url error:(NSError**)error;
 + (MediaMetaData*)mediaMetaDataWithITLibMediaItem:(ITLibMediaItem*)item error:(NSError**)error;
+
 + (NSArray<NSString*>*)mediaMetaKeys;
 
 - (BOOL)syncToFileWithError:(NSError**)error;
+- (BOOL)isEqual:(MediaMetaData*)other forKeys:(NSArray<NSString*>*)keys;
 
 - (NSString* _Nullable)stringForKey:(NSString*)key;
 - (void)updateWithKey:(NSString*)key string:(NSString*)string;

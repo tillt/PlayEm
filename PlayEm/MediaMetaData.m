@@ -84,99 +84,151 @@
     return meta;
 }
 
-/*
-+ (MediaMetaData*)mediaMetaDataWithAVAsset:(AVAsset*)asset error:(NSError**)error
++ (NSDictionary<NSString*, NSDictionary*>*)mediaMetaKeyMap
 {
-    MediaMetaData* meta = [[MediaMetaData alloc] init];
-    return meta;
+    return @{
+                @"added": @{},
+                @"album": @{
+                    @"mp3": @{
+                        @"key": @"ALBUM",
+                        @"type": @"string",
+                    },
+                },
+                @"albumArtist": @{
+                    @"mp3": @{
+                        @"key": @"ALBUMARTIST",
+                        @"type": @"string",
+                    },
+                },
+                @"artist": @{
+                    @"mp3": @{
+                        @"key": @"ARTIST",
+                        @"type": @"string",
+                    },
+                },
+                @"artwork": @{
+                    @"mp3": @{
+                        @"key": @"PICTURE",
+                        @"type": @"image",
+                    },
+                },
+                @"comment": @{
+                    @"mp3": @{
+                        @"key": @"COMMENTS",
+                        @"type": @"string",
+                    },
+                },
+                @"composer": @{
+                    @"mp3": @{
+                        @"key": @"COMPOSER",
+                        @"type": @"string",
+                    },
+                },
+                @"label": @{
+                    @"mp3": @{
+                        @"key": @"LABEL",
+                        @"type": @"string",
+                    },
+                },
+                @"disk": @{
+                    @"mp3": @{
+                        @"key": @"DISCNUMBER",
+                        @"type": @"ofNumber",
+                        @"mediaKey2": @"disks",
+                    },
+                },
+                @"disks": @{},
+                @"duration": @{
+                    @"mp3": @{
+                        @"key": @"LENGTH",
+                        @"type": @"string",
+                    },
+                },
+                @"genre": @{
+                    @"mp3": @{
+                        @"key": @"GENRE",
+                        @"type": @"string",
+                    },
+                },
+                @"key": @{
+                    @"mp3": @{
+                        @"key": @"INITIALKEY",
+                        @"type": @"string",
+                    },
+                },
+                @"location": @{},
+                @"locationType": @{
+                },
+                @"tempo": @{
+                    @"mp3": @{
+                        @"key": @"BPM",
+                        @"type": @"string",
+                    },
+                },
+                @"title": @{
+                    @"mp3": @{
+                        @"key": @"TITLE",
+                        @"type": @"string",
+                    },
+                },
+                @"track": @{
+                    @"mp3": @{
+                        @"key": @"TRACKNUMBER",
+                        @"type": @"ofNumber",
+                        @"mediaKey2": @"tracks",
+                    },
+                },
+                @"tracks": @{},
+                @"year": @{
+                    @"mp3": @{
+                        @"key": @"DATE",
+                        @"type": @"string",
+                    },
+                },
+            };
 }
-*/
 
 + (NSArray<NSString*>*)mediaMetaKeys
 {
-    NSArray<NSString*>* keys = @[
-        @"added",
-        @"album",
-        @"albumArtist",
-        @"artist",
-        @"artwork",
-        @"comment",
-        @"composer",
-        @"label",
-        @"disk",
-        @"disks",
-        @"duration",
-        @"genre",
-        @"key",
-        @"location",
-        @"locationType",
-        @"tempo",
-        @"title",
-        @"track",
-        @"tracks",
-        @"year",
-    ];
-    return keys;
+    return [[MediaMetaData mediaMetaKeyMap] allKeys];
+}
+
++ (NSArray<NSString*>*)mp3SupportedKeys
+{
+    NSDictionary<NSString*, NSDictionary*>* mediaMetaKeyMap = [MediaMetaData mediaMetaKeyMap];
+    NSMutableArray<NSString*>* supportedKeys = [NSMutableArray array];
+    for (NSString* key in [MediaMetaData mediaMetaKeys]) {
+        if ([mediaMetaKeyMap[key] objectForKey:@"mp3"]) {
+            [supportedKeys addObject:key];
+        }
+    }
+    return supportedKeys;
 }
 
 + (NSDictionary<NSString*, NSDictionary<NSString*, NSString*>*>*)mp3TagMap
 {
-    NSDictionary<NSString*, NSDictionary<NSString*, NSString*>*>* tagMap = @{
-        @"TITLE": @{
-            @"key": @"title",
-            @"type": @"string",
-        },
-        @"ARTIST": @{
-            @"key": @"artist",
-            @"type": @"string",
-        },
-        @"ALBUM": @{
-            @"key": @"album",
-            @"type": @"string",
-        },
-        @"ALBUMARTIST": @{
-            @"key": @"albumArtist",
-            @"type": @"string",
-        },
-        @"COMPOSER": @{
-            @"key": @"composer",
-            @"type": @"string",
-        },
-        @"GENRE": @{
-            @"key": @"genre",
-            @"type": @"string",
-        },
-        @"BPM": @{
-            @"key": @"tempo",
-            @"type": @"string",
-        },
-        @"INITIALKEY": @{
-            @"key": @"key",
-            @"type": @"string",
-        },
-        @"LABEL": @{
-            @"key": @"label",
-            @"type": @"string",
-        },
-        @"COMMENT": @{
-            @"key": @"comment",
-            @"type": @"string",
-        },
-        @"TRACKNUMBER": @{
-            @"key": @"track",
-            @"type": @"ofNumber",
-            @"key2": @"tracks",
-        },
-        @"DISCNUMBER": @{
-            @"key": @"disk",
-            @"type": @"ofNumber",
-            @"key2": @"disks",
-        },
-        @"DATE": @{
-            @"key": @"year",
-            @"type": @"date",
-        },
-    };
+    NSDictionary<NSString*, NSDictionary*>* mediaMetaKeyMap = [MediaMetaData mediaMetaKeyMap];
+    
+    NSMutableDictionary<NSString*, NSDictionary<NSString*, NSString*>*>* tagMap = [NSMutableDictionary dictionary];
+    
+    for (NSString* mediaDataKey in [mediaMetaKeyMap allKeys]) {
+        if ([mediaMetaKeyMap[mediaDataKey] objectForKey:@"mp3"] == nil) {
+            continue;
+        }
+
+        NSString* mp3Key = mediaMetaKeyMap[mediaDataKey][@"mp3"][@"key"];
+        NSString* type = mediaMetaKeyMap[mediaDataKey][@"mp3"][@"type"];
+
+        NSMutableDictionary* mediaDataDictionary = [NSMutableDictionary dictionary];
+        mediaDataDictionary[@"key"] = mediaDataKey;
+        mediaDataDictionary[@"type"] = type;
+        if ([type isEqualToString:@"ofNumber"]) {
+            mediaDataDictionary[@"key2"] = mediaMetaKeyMap[mediaDataKey][@"mp3"][@"mediaKey2"];
+        }
+        
+        tagMap[mp3Key] = mediaDataDictionary;
+    }
+
     return tagMap;
 }
 
@@ -219,6 +271,19 @@
     return _album;
 }
 
+- (NSString* _Nullable)albumArtist
+{
+    if (_shadow == nil) {
+        return _albumArtist;
+    }
+    
+    if (_albumArtist == nil) {
+        _albumArtist = _shadow.album.albumArtist;
+    }
+
+    return _albumArtist;
+}
+
 - (NSString* _Nullable)genre
 {
     if (_shadow == nil) {
@@ -230,6 +295,32 @@
     }
 
     return _genre;
+}
+
+- (NSString* _Nullable)composer
+{
+    if (_shadow == nil) {
+        return _composer;
+    }
+    
+    if (_composer == nil) {
+        _composer = _shadow.composer;
+    }
+
+    return _composer;
+}
+
+- (NSString* _Nullable)comment
+{
+    if (_shadow == nil) {
+        return _comment;
+    }
+    
+    if (_comment == nil) {
+        _comment = _shadow.comments;
+    }
+
+    return _comment;
 }
 
 - (NSNumber*)tempo
@@ -363,19 +454,21 @@
         return valueObject;
     }
 
-    if ([valueObject isKindOfClass:[NSNumber class]]) {
-        NSString* ret = @"";
-        if ([valueObject intValue] > 0) {
-            ret = [valueObject stringValue];
-        }
-        return ret;
+    if ([valueObject isKindOfClass:[NSNumber class]] && [valueObject intValue] > 0) {
+        return [valueObject stringValue];
     }
 
     if ([valueObject isKindOfClass:[NSURL class]]) {
         return [[valueObject absoluteString] stringByRemovingPercentEncoding];
     }
 
-    return nil;
+    if ([valueObject isKindOfClass:[NSDate class]]) {
+        return [NSDateFormatter localizedStringFromDate:valueObject
+                                              dateStyle:NSDateFormatterShortStyle
+                                              timeStyle:NSDateFormatterNoStyle];
+    }
+
+    return @"";
 }
 
 - (void)updateWithKey:(NSString*)key string:(NSString*)string
@@ -395,7 +488,7 @@
 
     if (objectClass == [NSString class]) {
         [self setValue:string forKey:key];
-        NSLog(@"updated %@ with string %@", key, string);
+        NSLog(@"updated %@ with string \"%@\"", key, string);
         return;
     }
 
@@ -403,7 +496,7 @@
         NSInteger integerValue = [string integerValue];
         NSNumber* numberValue = [NSNumber numberWithInteger:integerValue];
         [self setValue:numberValue forKey:key];
-        NSLog(@"updated %@ with number %@", key, numberValue);
+        NSLog(@"updated %@ with number \"%@\"", key, numberValue);
         return;
     }
     
@@ -432,17 +525,6 @@
         return nil;
     }
 
-    // Used for debugging only atm.
-    TagLib_Tag* tag = taglib_file_tag(file);
-    if (tag != NULL) {
-        NSLog(@"title: %s", taglib_tag_title(tag));
-        NSLog(@"artist: %s", taglib_tag_artist(tag));
-        NSLog(@"album: %s", taglib_tag_album(tag));
-        NSLog(@"genre: %s", taglib_tag_genre(tag));
-        NSLog(@"year: %d", taglib_tag_year(tag));
-        NSLog(@"track: %d", taglib_tag_track(tag));
-    }
-
     __block MediaMetaData* meta = [[MediaMetaData alloc] init];
     
     TagLibParseBlock parse = ^ BOOL (NSDictionary* tagMaps, char* tagLibKey, char* tagLibValues){
@@ -453,7 +535,7 @@
         
         NSDictionary* map = tagMaps[key];
         if (map == nil) {
-            NSLog(@"skipping key: %@", key);
+            NSLog(@"skipping key: %@ with value(s) \"%@\"", key, values);
             return NO;
         }
 
@@ -484,6 +566,11 @@
             }
             NSArray<NSString*>* components = [values componentsSeparatedByString:@"-"];
             [meta updateWithKey:map[@"key"] string:components[0]];
+            return YES;
+        }
+
+        if ([type isEqualToString:@"image"]) {
+            NSLog(@"ignoring complex image type in simple parser");
             return YES;
         }
 
@@ -609,22 +696,93 @@
 
         return NO;
     }
+    
+    NSDictionary* mediaMetaKeyMap = [MediaMetaData mediaMetaKeyMap];
+    NSArray* mp3SupportedKeys = [MediaMetaData mp3SupportedKeys];
+
+    for (NSString* mediaKey in mp3SupportedKeys) {
+        NSString* type = mediaMetaKeyMap[mediaKey][@"mp3"][@"type"];
+        NSString* mp3Key = mediaMetaKeyMap[mediaKey][@"mp3"][@"key"];
+
+        if ([type isEqualToString:@"image"]) {
+            NSLog(@"setting image data not yet supported");
+        } else {
+            NSString* value = [self stringForKey:mediaKey];
+
+            if ([type isEqualToString:@"ofNumber"]) {
+                NSMutableArray* components = [NSMutableArray array];
+                [components addObject:value];
+
+                NSString* secondKey = mediaMetaKeyMap[mediaKey][@"mp3"][@"mediaKey2"];
+                NSString* value2 = [self stringForKey:secondKey];
+                if ([value2 length] > 0) {
+                    [components addObject:value2];
+                }
+                value = [components componentsJoinedByString:@"/"];
+            }
+            // NOTE: We are possible reducing the accuracy of a DATE as we will only store the year
+            // while the original may have had day and month included.
+            
+            NSLog(@"setting ID3: \"%@\" = \"%@\"", mp3Key, value);
+            taglib_property_set(file,
+                                [mp3Key cStringUsingEncoding:NSStringEncodingConversionAllowLossy],
+                                [value cStringUsingEncoding:NSStringEncodingConversionAllowLossy]);
+        }
+    }
+    
+    BOOL ret = YES;
+
+    if (!taglib_file_save(file)) {
+        NSString* description = @"Cannot store file using tagLib";
+        if (error) {
+            NSDictionary* userInfo = @{
+                NSLocalizedDescriptionKey : description,
+            };
+            *error = [NSError errorWithDomain:[[NSBundle bundleForClass:[self class]] bundleIdentifier]
+                                         code:-1
+                                     userInfo:userInfo];
+        }
+        NSLog(@"error: %@", description);
+        ret = NO;
+    }
 
     taglib_tag_free_strings();
     taglib_file_free(file);
 
+    return ret;
+}
+
+- (BOOL)isEqual:(MediaMetaData*)other forKeys:(NSArray<NSString*>*)keys
+{
+    if (other == nil) {
+        return NO;
+    }
+    
+    for (NSString* key in keys) {
+        NSString* thisValue = [self stringForKey:key];
+        NSString* otherValue = [other stringForKey:key];
+
+        if (![thisValue isEqualToString:otherValue]) {
+            NSLog(@"metadata is not equal for key %@ (\"%@\" != \"%@\")", key, thisValue, otherValue);
+            return NO;
+        }
+    }
+    
     return YES;
 }
 
 - (BOOL)exportMP3WithError:(NSError**)error
 {
     MediaMetaData* metaFromFile = [MediaMetaData metaFromMP3FileWithURL:self.location error:error];
-    
-    if ([self.title isEqualToString:metaFromFile.title]) {
-        return [self metaToMP3FileWithError:error];
+    NSArray<NSString*>* mp3SupportedKeys = [MediaMetaData mp3SupportedKeys];
+
+    BOOL ret = YES;
+
+    if (![self isEqual:metaFromFile forKeys:mp3SupportedKeys]) {
+        ret = [self metaToMP3FileWithError:error];
     }
 
-    return YES;
+    return ret;
 }
 
 - (BOOL)exportMP4WithError:(NSError**)error
@@ -669,7 +827,7 @@
     
     NSString* fileExtension = [self.location pathExtension];
 
-    if ([fileExtension isEqualToString:@"mp4"]) {
+    if ([fileExtension isEqualToString:@"mp4"] || [fileExtension isEqualToString:@"m4a"]) {
         return [self exportMP4WithError:error];
     }
 

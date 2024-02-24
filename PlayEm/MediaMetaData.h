@@ -64,8 +64,8 @@ extern NSString* const kMediaMetaDataMapTypeNumbers;
 + (MediaMetaData*)mediaMetaDataWithURL:(NSURL*)url error:(NSError**)error;
 + (MediaMetaData*)mediaMetaDataWithITLibMediaItem:(ITLibMediaItem*)item error:(NSError**)error;
 
++ (NSDictionary<NSString*, NSDictionary*>*)mediaMetaKeyMap;
 + (NSArray<NSString*>*)mediaMetaKeys;
-+ (NSDictionary<NSString*, NSDictionary<NSString*, NSString*>*>*)mp3TagMap;
 
 - (BOOL)syncToFileWithError:(NSError**)error;
 - (BOOL)isEqual:(MediaMetaData*)other forKeys:(NSArray<NSString*>*)keys;

@@ -303,6 +303,21 @@
 			path = "Window & ViewControllers";
 			sourceTree = "<group>";
 		};
+		BBC2AF4F2B8A90870077EB5E /* Metadata */ = {
+			isa = PBXGroup;
+			children = (
+				BB25CF57255857BC005BFC32 /* MediaMetaData.h */,
+				BB25CF58255857BC005BFC32 /* MediaMetaData.m */,
+				BBC2AF4E2B8976DA0077EB5E /* MediaMetaData+TagLib.h */,
+				BBC2AF4A2B8974C20077EB5E /* MediaMetaData+TagLib.m */,
+				BB287B19251AC1DE00BFE286 /* ITLibMediaItem+TTAdditionsh.h */,
+				BB287B1A251AC1DE00BFE286 /* ITLibMediaItem+TTAdditions.m */,
+				BBC43B7128D296B800CD1080 /* AVMetadataItem+THAdditions.h */,
+				BBC43B7228D296B800CD1080 /* AVMetadataItem+THAdditions.m */,
+			);
+			path = Metadata;
+			sourceTree = "<group>";
+		};
 		BBC8B32D293C47D900F5D38E /* Views */ = {
 			isa = PBXGroup;
 			children = (
@@ -346,6 +361,7 @@
 		BBD24D5F2432948800DC2A81 /* PlayEm */ = {
 			isa = PBXGroup;
 			children = (
+				BBC2AF4F2B8A90870077EB5E /* Metadata */,
 				BB0EDB842A8E9B940053FC8A /* Audio */,
 				BBDB1B412B644E8F00A953F7 /* Controls */,
 				BBC8B32D293C47D900F5D38E /* Views */,
@@ -383,15 +399,7 @@
 				BB8A100B290586E500FC6013 /* CAShapeLayer+Path.m */,
 				BB5A4D8F28FC5C2B003A733C /* NSBezierPath+CGPath.h */,
 				BB5A4D9028FC5C2B003A733C /* NSBezierPath+CGPath.m */,
-				BB25CF57255857BC005BFC32 /* MediaMetaData.h */,
-				BB25CF58255857BC005BFC32 /* MediaMetaData.m */,
-				BBC2AF4E2B8976DA0077EB5E /* MediaMetaData+TagLib.h */,
-				BBC2AF4A2B8974C20077EB5E /* MediaMetaData+TagLib.m */,
-				BB287B19251AC1DE00BFE286 /* ITLibMediaItem+TTAdditionsh.h */,
-				BB287B1A251AC1DE00BFE286 /* ITLibMediaItem+TTAdditions.m */,
 				BB9CE9B028D388F3008DFF91 /* MainMenu.xib */,
-				BBC43B7128D296B800CD1080 /* AVMetadataItem+THAdditions.h */,
-				BBC43B7228D296B800CD1080 /* AVMetadataItem+THAdditions.m */,
 				BB25CF55255758CC005BFC32 /* LoadState.h */,
 				BBA623D22620F67500924D44 /* UIView+Visibility.h */,
 				BBA623D32620F6A200924D44 /* UIView+Visibility.m */,

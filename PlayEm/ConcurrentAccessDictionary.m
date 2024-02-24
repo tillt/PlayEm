@@ -21,7 +21,8 @@
     self = [super init];
     if (self) {
         _dictionary = [NSMutableDictionary dictionary];
-        _access_queue = dispatch_queue_create("tillt.playem.dictionaryaccessqueue", DISPATCH_QUEUE_CONCURRENT);
+        _access_queue = dispatch_queue_create("tillt.playem.dictionaryaccessqueue", 
+                                              DISPATCH_QUEUE_CONCURRENT);
     }
     return self;
 }
@@ -30,7 +31,7 @@
 {
     __block id obj;
     dispatch_sync(_access_queue, ^{
-        obj = [_dictionary objectForKey:aKey];
+        obj = [self->_dictionary objectForKey:aKey];
     });
     return obj;
 }
@@ -60,7 +61,7 @@
 {
     __block NSArray* keys;
     dispatch_sync(_access_queue, ^{
-        keys = [_dictionary allKeys];
+        keys = [self->_dictionary allKeys];
     });
     return keys;
 }

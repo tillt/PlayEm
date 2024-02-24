@@ -12,7 +12,6 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-
 @protocol PlaylistControllerDelegate <NSObject>
 
 - (void)browseSelectedUrl:(NSURL*)url meta:(MediaMetaData*)meta;

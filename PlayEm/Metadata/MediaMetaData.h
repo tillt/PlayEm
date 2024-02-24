@@ -43,6 +43,7 @@ extern NSString* const kMediaMetaDataMapTypeNumbers;
 
 @interface MediaMetaData : NSObject<NSCopying>
 
+
 @property (strong, nonatomic) ITLibMediaItem* shadow;
 
 @property (copy, nonatomic, nullable) NSString* title;

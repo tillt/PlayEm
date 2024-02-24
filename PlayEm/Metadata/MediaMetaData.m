@@ -88,61 +88,6 @@ NSString* const kMediaMetaDataMapTypeNumbers = @"ofNumber";
     return meta;
 }
 
-- (BOOL)readFromFileWithError:(NSError**)error
-{
-    MediaMetaDataFileFormatType type = [MediaMetaData fileTypeWithURL:self.location error:error];
-    if (type == MediaMetaDataFileFormatTypeMP3) {
-        return [self readFromMP3FileWithError:error] == 0;
-    }
-    if (type == MediaMetaDataFileFormatTypeUnknown) {
-        return NO;
-    }
-    
-    AVAsset* asset = [AVURLAsset URLAssetWithURL:self.location options:nil];
-    NSLog(@"%@", asset);
-    return [self readFromAsset:asset];
-}
-
-- (BOOL)readFromAsset:(AVAsset *)asset
-{
-    for (NSString* format in [asset availableMetadataFormats]) {
-        for (AVMetadataItem* item in [asset metadataForFormat:format]) {
-            NSLog(@"%@ (%@): %@", [item commonKey], [item keyString], [item value]);
-            if ([item commonKey] == nil) {
-                if ([[item keyString] isEqualToString:@"TYER"] || [[item keyString] isEqualToString:@"@day"]  || [[item keyString] isEqualToString:@"TDRL"] ) {
-                    self.year = [NSNumber numberWithInt:[(NSString*)[item value] intValue]];
-                } else if ([[item keyString] isEqualToString:@"@gen"]) {
-                    self.genre = (NSString*)[item value];
-                } else {
-                    continue;
-                }
-            }
-            if ([[item commonKey] isEqualToString:@"title"]) {
-                self.title = (NSString*)[item value];
-            } else if ([[item commonKey] isEqualToString:@"artist"]) {
-                self.artist = (NSString*)[item value];
-            } else if ([[item commonKey] isEqualToString:@"albumName"]) {
-                self.album = (NSString*)[item value];
-            } else if ([[item commonKey] isEqualToString:@"type"]) {
-                self.genre = (NSString*)[item value];
-            } else if ([[item commonKey] isEqualToString:@"artwork"]) {
-                if (item.dataValue != nil) {
-                    NSLog(@"item.dataValue artwork");
-                    self.artwork = [[NSImage alloc] initWithData:item.dataValue];
-                } else if (item.value != nil) {
-                    NSLog(@"item.value artwork");
-                    self.artwork = [[NSImage alloc] initWithData:(id)item.value];
-                } else {
-                    NSLog(@"unknown artwork");
-                }
-            } else {
-                NSLog(@"questionable metadata: %@ (%@): %@", [item commonKey], [item keyString], [item value]);
-            }
-        }
-    }
-    return YES;
-}
-
 + (MediaMetaData*)mediaMetaDataWithURL:(NSURL*)url asset:(AVAsset *)asset error:(NSError**)error
 {
     MediaMetaData* meta = [[MediaMetaData alloc] init];
@@ -281,6 +226,300 @@ NSString* const kMediaMetaDataMapTypeNumbers = @"ofNumber";
 + (NSArray<NSString*>*)mediaMetaKeys
 {
     return [[MediaMetaData mediaMetaKeyMap] allKeys];
+}
+
+- (BOOL)readFromFileWithError:(NSError**)error
+{
+    MediaMetaDataFileFormatType type = [MediaMetaData fileTypeWithURL:self.location error:error];
+    if (type == MediaMetaDataFileFormatTypeMP3) {
+        return [self readFromMP3FileWithError:error] == 0;
+    }
+    if (type == MediaMetaDataFileFormatTypeUnknown) {
+        return NO;
+    }
+    
+    AVAsset* asset = [AVURLAsset URLAssetWithURL:self.location options:nil];
+    NSLog(@"%@", asset);
+    return [self readFromAsset:asset];
+}
+
+- (NSString* _Nullable)title
+{
+    if (_shadow == nil) {
+        return _title;
+    }
+    
+    if (_title == nil) {
+        _title = _shadow.title;
+    }
+    
+    return _title;
+}
+
+- (NSString* _Nullable)artist
+{
+    if (_shadow == nil) {
+        return _artist;
+    }
+    
+    if (_artist == nil) {
+        _artist = _shadow.artist.name;
+    }
+    
+    return _artist;
+}
+
+- (NSString* _Nullable)album
+{
+    if (_shadow == nil) {
+        return _album;
+    }
+    
+    if (_album == nil) {
+        _album = _shadow.album.title;
+    }
+    
+    return _album;
+}
+
+- (NSString* _Nullable)albumArtist
+{
+    if (_shadow == nil) {
+        return _albumArtist;
+    }
+    
+    if (_albumArtist == nil) {
+        _albumArtist = _shadow.album.albumArtist;
+    }
+    
+    return _albumArtist;
+}
+
+- (NSString* _Nullable)genre
+{
+    if (_shadow == nil) {
+        return _genre;
+    }
+    
+    if (_genre == nil) {
+        _genre = _shadow.genre;
+    }
+    
+    return _genre;
+}
+
+- (NSString* _Nullable)composer
+{
+    if (_shadow == nil) {
+        return _composer;
+    }
+    
+    if (_composer == nil) {
+        _composer = _shadow.composer;
+    }
+    
+    return _composer;
+}
+
+- (NSString* _Nullable)comment
+{
+    if (_shadow == nil) {
+        return _comment;
+    }
+    
+    if (_comment == nil) {
+        _comment = _shadow.comments;
+    }
+    
+    return _comment;
+}
+
+- (NSNumber* _Nullable)tempo
+{
+    if (_shadow == nil) {
+        return _tempo;
+    }
+    
+    if (_tempo == 0) {
+        _tempo = [NSNumber numberWithUnsignedInteger:_shadow.beatsPerMinute];
+    }
+    
+    return _tempo;
+}
+
+- (NSNumber* _Nullable)year
+{
+    if (_shadow == nil) {
+        return _year;
+    }
+    
+    if (_year == 0) {
+        _year = [NSNumber numberWithUnsignedInteger:_shadow.year];
+    }
+    
+    return _year;
+}
+
+- (NSNumber* _Nullable)track
+{
+    if (_shadow == nil) {
+        return _track;
+    }
+    
+    if (_track == 0) {
+        _track = [NSNumber numberWithUnsignedInteger:_shadow.trackNumber];
+    }
+    
+    return _track;
+}
+
+- (NSNumber* _Nullable)tracks
+{
+    if (_shadow == nil) {
+        return _tracks;
+    }
+    
+    if (_tracks == 0) {
+        _tracks = [NSNumber numberWithUnsignedInteger:_shadow.album.trackCount];
+    }
+    
+    return _tracks;
+}
+
+- (NSNumber* _Nullable)disk
+{
+    if (_shadow == nil) {
+        return _disk;
+    }
+    
+    if (_disk == 0) {
+        _disk = [NSNumber numberWithUnsignedInteger:_shadow.album.discNumber];
+    }
+    
+    return _track;
+}
+
+- (NSNumber* _Nullable)disks
+{
+    if (_shadow == nil) {
+        return _disks;
+    }
+    
+    if (_disks == 0) {
+        _disks = [NSNumber numberWithUnsignedInteger:_shadow.album.discCount];
+    }
+    
+    return _disks;
+}
+
+- (NSURL* _Nullable)location
+{
+    if (_shadow == nil) {
+        return _location;
+    }
+    
+    if (_location == 0) {
+        _location = _shadow.location;
+        _locationType = [NSNumber numberWithUnsignedInteger:_shadow.locationType];
+    }
+    
+    return _location;
+}
+
+- (NSNumber* _Nullable)locationType
+{
+    if (_shadow == nil) {
+        return _locationType;
+    }
+    
+    if (_locationType == 0) {
+        _locationType = [NSNumber numberWithUnsignedInteger:_shadow.locationType];
+    }
+    
+    return _locationType;
+}
+
+- (NSNumber* _Nullable)duration
+{
+    if (_shadow == nil) {
+        return _duration;
+    }
+    
+    if (_duration == 0) {
+        _duration = [NSNumber numberWithFloat:_shadow.totalTime];
+    }
+    
+    return _duration;
+}
+
+- (NSImage* _Nullable)artwork
+{
+    if (_shadow == nil) {
+        return _artwork;
+    }
+    
+    if (_artwork == nil) {
+        if (_shadow.hasArtworkAvailable) {
+            _artwork = _shadow.artwork.image;
+        } else {
+            _artwork = [NSImage imageNamed:@"UnknownSong"];
+        }
+    }
+    
+    return _artwork;
+}
+
+- (NSDate* _Nullable)added
+{
+    if (_shadow == nil) {
+        return _added;
+    }
+    
+    if (_added == nil) {
+        _added = _shadow.addedDate;
+    }
+    
+    return _added;
+}
+
+- (BOOL)readFromAsset:(AVAsset *)asset
+{
+    for (NSString* format in [asset availableMetadataFormats]) {
+        for (AVMetadataItem* item in [asset metadataForFormat:format]) {
+            NSLog(@"%@ (%@): %@", [item commonKey], [item keyString], [item value]);
+            if ([item commonKey] == nil) {
+                if ([[item keyString] isEqualToString:@"TYER"] || [[item keyString] isEqualToString:@"@day"]  || [[item keyString] isEqualToString:@"TDRL"] ) {
+                    self.year = [NSNumber numberWithInt:[(NSString*)[item value] intValue]];
+                } else if ([[item keyString] isEqualToString:@"@gen"]) {
+                    self.genre = (NSString*)[item value];
+                } else {
+                    continue;
+                }
+            }
+            if ([[item commonKey] isEqualToString:@"title"]) {
+                self.title = (NSString*)[item value];
+            } else if ([[item commonKey] isEqualToString:@"artist"]) {
+                self.artist = (NSString*)[item value];
+            } else if ([[item commonKey] isEqualToString:@"albumName"]) {
+                self.album = (NSString*)[item value];
+            } else if ([[item commonKey] isEqualToString:@"type"]) {
+                self.genre = (NSString*)[item value];
+            } else if ([[item commonKey] isEqualToString:@"artwork"]) {
+                if (item.dataValue != nil) {
+                    NSLog(@"item.dataValue artwork");
+                    self.artwork = [[NSImage alloc] initWithData:item.dataValue];
+                } else if (item.value != nil) {
+                    NSLog(@"item.value artwork");
+                    self.artwork = [[NSImage alloc] initWithData:(id)item.value];
+                } else {
+                    NSLog(@"unknown artwork");
+                }
+            } else {
+                NSLog(@"questionable metadata: %@ (%@): %@", [item commonKey], [item keyString], [item value]);
+            }
+        }
+    }
+    return YES;
 }
 
 - (NSString*)description

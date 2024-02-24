@@ -156,7 +156,6 @@
 		BBB37D20290F4A7E0007A6BB /* PlaylistController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = PlaylistController.m; sourceTree = "<group>"; };
 		BBC2AF4A2B8974C20077EB5E /* MediaMetaData+TagLib.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "MediaMetaData+TagLib.m"; sourceTree = "<group>"; };
 		BBC2AF4E2B8976DA0077EB5E /* MediaMetaData+TagLib.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "MediaMetaData+TagLib.h"; sourceTree = "<group>"; };
-		BBC2AF502B8A91330077EB5E /* MediaMetaData+LazyShadowGetters.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "MediaMetaData+LazyShadowGetters.m"; sourceTree = "<group>"; };
 		BBC43B6E28D28CDD00CD1080 /* InfoPanel.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = InfoPanel.h; sourceTree = "<group>"; };
 		BBC43B6F28D28CDD00CD1080 /* InfoPanel.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = InfoPanel.m; sourceTree = "<group>"; };
 		BBC43B7128D296B800CD1080 /* AVMetadataItem+THAdditions.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "AVMetadataItem+THAdditions.h"; sourceTree = "<group>"; };
@@ -309,7 +308,6 @@
 			children = (
 				BB25CF57255857BC005BFC32 /* MediaMetaData.h */,
 				BB25CF58255857BC005BFC32 /* MediaMetaData.m */,
-				BBC2AF502B8A91330077EB5E /* MediaMetaData+LazyShadowGetters.m */,
 				BBC2AF4E2B8976DA0077EB5E /* MediaMetaData+TagLib.h */,
 				BBC2AF4A2B8974C20077EB5E /* MediaMetaData+TagLib.m */,
 				BB287B19251AC1DE00BFE286 /* ITLibMediaItem+TTAdditionsh.h */,

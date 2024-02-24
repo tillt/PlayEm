@@ -30,7 +30,6 @@
 		BB5A4D9128FC5C2B003A733C /* NSBezierPath+CGPath.m in Sources */ = {isa = PBXBuildFile; fileRef = BB5A4D9028FC5C2B003A733C /* NSBezierPath+CGPath.m */; };
 		BB7C6269293144890019AF25 /* Defaults.m in Sources */ = {isa = PBXBuildFile; fileRef = BB7C6268293144890019AF25 /* Defaults.m */; };
 		BB7C626C2932E1540019AF25 /* ControlPanelController.m in Sources */ = {isa = PBXBuildFile; fileRef = BB7C626B2932E1540019AF25 /* ControlPanelController.m */; };
-		BB81976D2B7971500025B860 /* ConcurrentAccessArray.m in Sources */ = {isa = PBXBuildFile; fileRef = BB81976C2B7971500025B860 /* ConcurrentAccessArray.m */; };
 		BB8197702B7980C50025B860 /* ConcurrentAccessDictionary.m in Sources */ = {isa = PBXBuildFile; fileRef = BB81976F2B7980C50025B860 /* ConcurrentAccessDictionary.m */; };
 		BB8571012972078A0004218B /* IndexedBlockOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = BB8571002972078A0004218B /* IndexedBlockOperation.m */; };
 		BB8571032972152B0004218B /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = BB8571022972152B0004218B /* README.md */; };
@@ -126,8 +125,6 @@
 		BB7C6268293144890019AF25 /* Defaults.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Defaults.m; sourceTree = "<group>"; };
 		BB7C626A2932E1540019AF25 /* ControlPanelController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ControlPanelController.h; sourceTree = "<group>"; };
 		BB7C626B2932E1540019AF25 /* ControlPanelController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ControlPanelController.m; sourceTree = "<group>"; };
-		BB81976B2B7971500025B860 /* ConcurrentAccessArray.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ConcurrentAccessArray.h; path = PlayEm/ConcurrentAccessArray.h; sourceTree = SOURCE_ROOT; };
-		BB81976C2B7971500025B860 /* ConcurrentAccessArray.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = ConcurrentAccessArray.m; path = PlayEm/ConcurrentAccessArray.m; sourceTree = SOURCE_ROOT; };
 		BB81976E2B7980C50025B860 /* ConcurrentAccessDictionary.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ConcurrentAccessDictionary.h; path = PlayEm/ConcurrentAccessDictionary.h; sourceTree = SOURCE_ROOT; };
 		BB81976F2B7980C50025B860 /* ConcurrentAccessDictionary.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = ConcurrentAccessDictionary.m; path = PlayEm/ConcurrentAccessDictionary.m; sourceTree = SOURCE_ROOT; };
 		BB8570FF2972078A0004218B /* IndexedBlockOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IndexedBlockOperation.h; sourceTree = "<group>"; };
@@ -277,8 +274,6 @@
 				BBDB1B422B65CC0500A953F7 /* VisualPair.h */,
 				BB0D527F244CEE22007C909F /* VisualSample.h */,
 				BB0D5280244CEE22007C909F /* VisualSample.m */,
-				BB81976B2B7971500025B860 /* ConcurrentAccessArray.h */,
-				BB81976C2B7971500025B860 /* ConcurrentAccessArray.m */,
 				BB81976E2B7980C50025B860 /* ConcurrentAccessDictionary.h */,
 				BB81976F2B7980C50025B860 /* ConcurrentAccessDictionary.m */,
 				BBDA2FFC2A7FCCB70084E2B6 /* BeatTrackedSample.h */,
@@ -552,7 +547,6 @@
 				BBCE1DD9257C3CAB006CE886 /* TiledScrollView.m in Sources */,
 				BBDC988A250E81D0008B19D1 /* BrowserController.m in Sources */,
 				BBC43B7028D28CDD00CD1080 /* InfoPanel.m in Sources */,
-				BB81976D2B7971500025B860 /* ConcurrentAccessArray.m in Sources */,
 				BB03622925FE57E800FA0A7E /* TotalWaveView.m in Sources */,
 				BB25CF59255857BC005BFC32 /* MediaMetaData.m in Sources */,
 				BB8571012972078A0004218B /* IndexedBlockOperation.m in Sources */,

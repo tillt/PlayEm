@@ -82,49 +82,56 @@ NSString* const kMediaMetaDataMapTypeNumbers = @"ofNumber";
 
 + (MediaMetaData*)mediaMetaDataWithURL:(NSURL*)url error:(NSError**)error
 {
-    MediaMetaDataFileFormatType type = [MediaMetaData fileTypeWithURL:url error:error];
-    if (type == MediaMetaDataFileFormatTypeMP3) {
-        return [MediaMetaData mediaMetaDataFromMP3FileWithURL:url error:error];
-    }
-    
-    AVAsset* asset = [AVURLAsset URLAssetWithURL:url options:nil];
-    NSLog(@"%@", asset);
-    return [MediaMetaData mediaMetaDataWithURL:url asset:asset error:error];
+    MediaMetaData* meta = [[MediaMetaData alloc] init];
+    meta.location = [url filePathURL];
+    [meta readFromFileWithError:error];
+    return meta;
 }
 
-+ (MediaMetaData*)mediaMetaDataWithURL:(NSURL*)url asset:(AVAsset *)asset error:(NSError**)error
+- (BOOL)readFromFileWithError:(NSError**)error
 {
-    MediaMetaData* meta = [[MediaMetaData alloc] init];
+    MediaMetaDataFileFormatType type = [MediaMetaData fileTypeWithURL:self.location error:error];
+    if (type == MediaMetaDataFileFormatTypeMP3) {
+        return [self readFromMP3FileWithError:error] == 0;
+    }
+    if (type == MediaMetaDataFileFormatTypeUnknown) {
+        return NO;
+    }
+    
+    AVAsset* asset = [AVURLAsset URLAssetWithURL:self.location options:nil];
+    NSLog(@"%@", asset);
+    return [self readFromAsset:asset];
+}
 
-    meta.location = url;
-
+- (BOOL)readFromAsset:(AVAsset *)asset
+{
     for (NSString* format in [asset availableMetadataFormats]) {
         for (AVMetadataItem* item in [asset metadataForFormat:format]) {
             NSLog(@"%@ (%@): %@", [item commonKey], [item keyString], [item value]);
             if ([item commonKey] == nil) {
                 if ([[item keyString] isEqualToString:@"TYER"] || [[item keyString] isEqualToString:@"@day"]  || [[item keyString] isEqualToString:@"TDRL"] ) {
-                    meta.year = [NSNumber numberWithInt:[(NSString*)[item value] intValue]];
+                    self.year = [NSNumber numberWithInt:[(NSString*)[item value] intValue]];
                 } else if ([[item keyString] isEqualToString:@"@gen"]) {
-                    meta.genre = (NSString*)[item value];
+                    self.genre = (NSString*)[item value];
                 } else {
                     continue;
                 }
             }
             if ([[item commonKey] isEqualToString:@"title"]) {
-                meta.title = (NSString*)[item value];
+                self.title = (NSString*)[item value];
             } else if ([[item commonKey] isEqualToString:@"artist"]) {
-                meta.artist = (NSString*)[item value];
+                self.artist = (NSString*)[item value];
             } else if ([[item commonKey] isEqualToString:@"albumName"]) {
-                meta.album = (NSString*)[item value];
+                self.album = (NSString*)[item value];
             } else if ([[item commonKey] isEqualToString:@"type"]) {
-                meta.genre = (NSString*)[item value];
+                self.genre = (NSString*)[item value];
             } else if ([[item commonKey] isEqualToString:@"artwork"]) {
                 if (item.dataValue != nil) {
                     NSLog(@"item.dataValue artwork");
-                    meta.artwork = [[NSImage alloc] initWithData:item.dataValue];
+                    self.artwork = [[NSImage alloc] initWithData:item.dataValue];
                 } else if (item.value != nil) {
                     NSLog(@"item.value artwork");
-                    meta.artwork = [[NSImage alloc] initWithData:(id)item.value];
+                    self.artwork = [[NSImage alloc] initWithData:(id)item.value];
                 } else {
                     NSLog(@"unknown artwork");
                 }
@@ -133,6 +140,17 @@ NSString* const kMediaMetaDataMapTypeNumbers = @"ofNumber";
             }
         }
     }
+    return YES;
+}
+
++ (MediaMetaData*)mediaMetaDataWithURL:(NSURL*)url asset:(AVAsset *)asset error:(NSError**)error
+{
+    MediaMetaData* meta = [[MediaMetaData alloc] init];
+
+    meta.location = url;
+    
+    [meta readFromAsset:asset];
+
     return meta;
 }
 
@@ -395,6 +413,45 @@ NSString* const kMediaMetaDataMapTypeNumbers = @"ofNumber";
     return _track;
 }
 
+- (NSNumber*)tracks
+{
+    if (_shadow == nil) {
+        return _tracks;
+    }
+    
+    if (_tracks == 0) {
+        _tracks = [NSNumber numberWithUnsignedInteger:_shadow.album.trackCount];
+    }
+
+    return _tracks;
+}
+
+- (NSNumber*)disk
+{
+    if (_shadow == nil) {
+        return _disk;
+    }
+    
+    if (_disk == 0) {
+        _disk = [NSNumber numberWithUnsignedInteger:_shadow.album.discNumber];
+    }
+
+    return _track;
+}
+
+- (NSNumber*)disks
+{
+    if (_shadow == nil) {
+        return _disks;
+    }
+    
+    if (_disks == 0) {
+        _disks = [NSNumber numberWithUnsignedInteger:_shadow.album.discCount];
+    }
+
+    return _disks;
+}
+
 - (NSURL* _Nullable)location
 {
     if (_shadow == nil) {
@@ -471,6 +528,37 @@ NSString* const kMediaMetaDataMapTypeNumbers = @"ofNumber";
             self.title, self.album, self.artist, self.location];
 }
 
+- (id)copyWithZone:(NSZone *)zone
+{
+    MediaMetaData* copy = [[[self class] allocWithZone:zone] init];
+    if (copy != nil) {
+        copy.title = [_title copyWithZone:zone];
+        copy.album = [_album copyWithZone:zone];
+        copy.artist = [_artist copyWithZone:zone];
+        copy.genre = [_genre copyWithZone:zone];
+        copy.year = [_year copyWithZone:zone];
+        copy.comment = [_comment copyWithZone:zone];
+        copy.composer = [_composer copyWithZone:zone];
+        copy.albumArtist = [_albumArtist copyWithZone:zone];
+        copy.label = [_label copyWithZone:zone];
+        copy.tempo = [_tempo copyWithZone:zone];
+        copy.albumArtist = [_albumArtist copyWithZone:zone];
+        copy.key = [_key copyWithZone:zone];
+        copy.track = [_track copyWithZone:zone];
+        copy.tracks = [_tracks copyWithZone:zone];
+        copy.disk = [_disk copyWithZone:zone];
+        copy.disks = [_disks copyWithZone:zone];
+        copy.locationType = [_locationType copyWithZone:zone];
+        copy.artwork = [_artwork copyWithZone:zone];
+        copy.location = [_location copyWithZone:zone];
+        copy.added = [_added copyWithZone:zone];
+        copy.duration = [_duration copyWithZone:zone];
+        
+        copy.shadow = _shadow;
+    }
+    return copy;
+}
+
 - (NSString* _Nullable)stringForKey:(NSString*)key
 {
     id valueObject = [self valueForKey:key];
@@ -496,7 +584,7 @@ NSString* const kMediaMetaDataMapTypeNumbers = @"ofNumber";
     return @"";
 }
 
-- (BOOL)isEqual:(MediaMetaData*)other forKeys:(NSArray<NSString*>*)keys
+- (BOOL)isEqualToMediaMetaData:(MediaMetaData*)other forKeys:(NSArray<NSString*>*)keys
 {
     if (other == nil) {
         return NO;
@@ -524,6 +612,28 @@ NSString* const kMediaMetaDataMapTypeNumbers = @"ofNumber";
     }
     
     return YES;
+}
+
+- (BOOL)isEqualToMediaMetaData:(MediaMetaData*)other
+{
+    MediaMetaDataFileFormatType thisType = [MediaMetaData fileTypeWithURL:self.location
+                                                                    error:nil];
+    MediaMetaDataFileFormatType otherType = [MediaMetaData fileTypeWithURL:other.location
+                                                                     error:nil];
+    if (thisType != otherType) {
+        NSLog(@"file types differ");
+        return NO;
+    }
+    
+    NSArray<NSString*>* supportedKeys = nil;
+
+    if (thisType == MediaMetaDataFileFormatTypeMP3) {
+        supportedKeys = [MediaMetaData mp3SupportedMediaDataKeys];
+    } else if (thisType == MediaMetaDataFileFormatTypeMP4) {
+        NSAssert(NO, @"not yet implemented");
+    }
+
+    return [self isEqualToMediaMetaData:other forKeys:supportedKeys];
 }
 
 - (void)updateWithKey:(NSString*)key string:(NSString*)string
@@ -566,8 +676,8 @@ NSString* const kMediaMetaDataMapTypeNumbers = @"ofNumber";
 
     BOOL ret = YES;
 
-    if (![self isEqual:metaFromFile forKeys:mp3SupportedKeys]) {
-        ret = [self metaToMP3FileWithError:error] == 0;
+    if (![self isEqualToMediaMetaData:metaFromFile forKeys:mp3SupportedKeys]) {
+        ret = [self writeToMP3FileWithError:error] == 0;
     }
 
     return ret;
@@ -596,7 +706,7 @@ NSString* const kMediaMetaDataMapTypeNumbers = @"ofNumber";
     return YES;
 }
 
-- (BOOL)syncToFileWithError:(NSError**)error
+- (BOOL)writeToFileWithError:(NSError**)error
 {
     if (self.location == nil) {
         NSString* description = @"Cannot sync item back as it lacks a location";
@@ -635,5 +745,6 @@ NSString* const kMediaMetaDataMapTypeNumbers = @"ofNumber";
 
     return NO;
 }
+
 
 @end

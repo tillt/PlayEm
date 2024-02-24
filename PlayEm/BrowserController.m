@@ -22,7 +22,7 @@
 
 @interface BrowserController ()
 @property (nonatomic, strong) ITLibrary* library;
-@property (nonatomic, strong) NSArray<MediaMetaData*>* cachedLibrary;
+@property (nonatomic, strong) NSMutableArray<MediaMetaData*>* cachedLibrary;
 
 @property (nonatomic, weak) NSTableView* genresTable;
 @property (nonatomic, weak) NSTableView* artistsTable;
@@ -98,29 +98,67 @@
 
 - (void)reloadData
 {
-    [_genresTable beginUpdates];
-    [_genresTable reloadData];
-    [_genresTable endUpdates];
+    NSArray<NSSortDescriptor*>* descriptors = [_songsTable sortDescriptors];
+    
+    BrowserController* __weak weakSelf = self;
 
-    [_artistsTable beginUpdates];
-    [_artistsTable reloadData];
-    [_artistsTable endUpdates];
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
+        // Apply sorting.
+        weakSelf.filteredItems = [weakSelf.cachedLibrary sortedArrayUsingDescriptors:descriptors];
+        
+        [weakSelf columnsFromMediaItems:weakSelf.filteredItems
+                                 genres:weakSelf.genres
+                                artists:weakSelf.artists
+                                 albums:weakSelf.albums
+                                 tempos:weakSelf.tempos
+                                   keys:weakSelf.keys];
+        
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [weakSelf.genresTable beginUpdates];
+            [weakSelf.genresTable reloadData];
+            [weakSelf.genresTable endUpdates];
+            
+            [weakSelf.delegate updateSongsCount:weakSelf.filteredItems.count];
+            
+            self->_updatingGenres = NO;
+            self->_updatingArtists = NO;
+            self->_updatingAlbums = NO;
+            self->_updatingTempos = NO;
+            self->_updatingKeys = NO;
+            [weakSelf.genresTable selectRowIndexes:[NSIndexSet indexSetWithIndex:0]
+                              byExtendingSelection:NO];
+            
+            [weakSelf.albumsTable beginUpdates];
+            [weakSelf.albumsTable reloadData];
+            [weakSelf.albumsTable endUpdates];
+            
+            [weakSelf.artistsTable beginUpdates];
+            [weakSelf.artistsTable reloadData];
+            [weakSelf.artistsTable endUpdates];
+            
+            [weakSelf.temposTable beginUpdates];
+            [weakSelf.temposTable reloadData];
+            [weakSelf.temposTable endUpdates];
+            
+            [weakSelf.songsTable beginUpdates];
+            [weakSelf.songsTable reloadData];
+            [weakSelf.songsTable endUpdates];
+            
+            [weakSelf.keysTable beginUpdates];
+            [weakSelf.keysTable reloadData];
+            [weakSelf.keysTable endUpdates];
+        });
+    });
+}
 
-    [_albumsTable beginUpdates];
-    [_albumsTable reloadData];
-    [_albumsTable endUpdates];
-
-    [_temposTable beginUpdates];
-    [_temposTable reloadData];
-    [_temposTable endUpdates];
-
-    [_keysTable beginUpdates];
-    [_keysTable reloadData];
-    [_keysTable endUpdates];
-
-    [_songsTable beginUpdates];
-    [_songsTable reloadData];
-    [_songsTable endUpdates];
+- (void)metaChangedForMeta:(MediaMetaData *)meta updatedMeta:(MediaMetaData *)updatedMeta
+{
+    NSUInteger index = [self.cachedLibrary indexOfObject:meta];
+    
+    NSAssert(index != NSNotFound, @"MediaMetaData updated does not exist in cached library");
+    
+    [self.cachedLibrary replaceObjectAtIndex:index withObject:updatedMeta];
+    [self reloadData];
 }
 
 - (void)loadITunesLibrary

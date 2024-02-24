@@ -74,7 +74,20 @@
 
 + (MediaMetaData*)mediaMetaDataFromMP3FileWithURL:(NSURL*)url error:(NSError**)error
 {
-    NSString* path = [url path];
+    MediaMetaData* meta = [[MediaMetaData alloc] init];
+    meta.location = [url filePathURL];
+    meta.locationType = [NSNumber numberWithUnsignedInteger:MediaMetaDataLocationTypeFile];
+
+    if ([meta readFromMP3FileWithError:error] != 0) {
+        return nil;
+    }
+    
+    return meta;
+}
+
+- (int)readFromMP3FileWithError:(NSError**)error
+{
+    NSString* path = [self.location path];
     
     TagLib_File* file = taglib_file_new([path cStringUsingEncoding:NSStringEncodingConversionAllowLossy]);
     if (file == NULL) {
@@ -89,12 +102,8 @@
         }
         NSLog(@"error: %@", description);
         
-        return nil;
+        return -1;
     }
-    
-    MediaMetaData* meta = [[MediaMetaData alloc] init];
-    meta.location = [url filePathURL];
-    meta.locationType = [NSNumber numberWithUnsignedInteger:MediaMetaDataLocationTypeFile];
     
     NSDictionary* mp3TagMap = [MediaMetaData mp3TagMap];
     
@@ -119,19 +128,19 @@
                     NSString* type = map[kMediaMetaDataMapKeyType];
                     
                     if ([type isEqualToString:kMediaMetaDataMapTypeString]) {
-                        [meta updateWithKey:map[kMediaMetaDataMapKeyKeys][0] string:values];
+                        [self updateWithKey:map[kMediaMetaDataMapKeyKeys][0] string:values];
                     } else if ([type isEqualToString:kMediaMetaDataMapTypeNumbers]) {
                         NSArray<NSString*>* components = [values componentsSeparatedByString:@"/"];
-                        [meta updateWithKey:map[kMediaMetaDataMapKeyKeys][0] string:components[0]];
+                        [self updateWithKey:map[kMediaMetaDataMapKeyKeys][0] string:components[0]];
                         if ([components count] > 1) {
-                            [meta updateWithKey:map[kMediaMetaDataMapKeyKeys][1] string:components[1]];
+                            [self updateWithKey:map[kMediaMetaDataMapKeyKeys][1] string:components[1]];
                         }
                     } else if ([type isEqualToString:kMediaMetaDataMapTypeDate]) {
                         if (![values containsString:@"-"]) {
-                            [meta updateWithKey:map[kMediaMetaDataMapKeyKeys][0] string:values];
+                            [self updateWithKey:map[kMediaMetaDataMapKeyKeys][0] string:values];
                         } else {
                             NSArray<NSString*>* components = [values componentsSeparatedByString:@"-"];
-                            [meta updateWithKey:map[kMediaMetaDataMapKeyKeys][0] string:components[0]];
+                            [self updateWithKey:map[kMediaMetaDataMapKeyKeys][0] string:components[0]];
                         }
                     } else if ([type isEqualToString:kMediaMetaDataMapTypeImage]) {
                         NSLog(@"skipping complex image type in simple parser");
@@ -161,7 +170,7 @@
                     NSString* key = [NSString stringWithCString:*keyPtr
                                                        encoding:NSStringEncodingConversionAllowLossy];
                     // NOTE: We only use the first PICTURE gathered.
-                    if ([key isEqualToString:@"PICTURE"] && meta.artwork == nil) {
+                    if ([key isEqualToString:@"PICTURE"] && self.artwork == nil) {
 
                         while (*attrPtr) {
                             TagLib_Complex_Property_Attribute* attr = *attrPtr;
@@ -170,7 +179,7 @@
                                 NSData* data = [NSData dataWithBytes:attr->value.value.byteVectorValue
                                                               length:attr->value.size];
                                 NSLog(@"updated artwork with %ld bytes of image data", [data length]);
-                                meta.artwork = [[NSImage alloc] initWithData:data];
+                                self.artwork = [[NSImage alloc] initWithData:data];
                             }
                             ++attrPtr;
                         };
@@ -187,14 +196,14 @@
     taglib_tag_free_strings();
     taglib_file_free(file);
     
-    return meta;
+    return 0;
 }
 
 // Note that we are avoiding using `BOOL` in the signature here as that gets defined as `int`
 // by "taglib_c.h". Trouble is, Objective C typedefs BOOL to various types, depending on the
 // platform and processor architecture. See
 // https://www.jviotti.com/2024/01/05/is-objective-c-bool-a-boolean-type-it-depends.html
-- (int)metaToMP3FileWithError:(NSError**)error
+- (int)writeToMP3FileWithError:(NSError**)error
 {
     NSString* path = [self.location path];
     

@@ -16,7 +16,8 @@ NS_ASSUME_NONNULL_BEGIN
 + (NSArray<NSString*>*)mp3SupportedMediaDataKeys;
 + (MediaMetaData*)mediaMetaDataFromMP3FileWithURL:(NSURL*)url error:(NSError**)error;
 
-- (int)metaToMP3FileWithError:(NSError**)error;
+- (int)readFromMP3FileWithError:(NSError**)error;
+- (int)writeToMP3FileWithError:(NSError**)error;
 
 @end
 

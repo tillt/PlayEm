@@ -31,9 +31,23 @@
 @property (strong, nonatomic) NSViewController* fileViewController;
 
 @property (strong, nonatomic) NSDictionary* dictionary;
+@property (strong, nonatomic) dispatch_queue_t metaQueue;
 @end
 
 @implementation InfoPanelController
+
+- (id)initWithDelegate:(id<InfoPanelControllerDelegate>)delegate
+{
+    self = [super init];
+    if (self) {
+        _delegate = delegate;
+        dispatch_queue_attr_t attr = dispatch_queue_attr_make_with_qos_class(DISPATCH_QUEUE_SERIAL, 
+                                                                             QOS_CLASS_USER_INTERACTIVE,
+                                                                             0);
+        _metaQueue = dispatch_queue_create("PlayEm.MetaQueue", attr);
+    }
+    return self;
+}
 
 - (void)loadDetailsWithView:(NSView*)view
 {
@@ -317,25 +331,51 @@
 {
     NSTextField* textField = [notification object];
     
+    MediaMetaData* patchedMeta = [_meta copy];
+    
     for (NSString* key in [_dictionary allKeys]) {
         if ([_dictionary valueForKey:key] == textField) {
             if ([self valueForTextFieldChanged:key value:[textField stringValue]]) {
                 NSLog(@"controlTextDidChange: stringValue == %@ in textField == %@", [textField stringValue], key);
                 NSString* stringValue = [textField stringValue];
-                [_meta updateWithKey:key string:stringValue];
+                [patchedMeta updateWithKey:key string:stringValue];
 
                 NSError* error = nil;
-                [_meta syncToFileWithError:&error];
+                [patchedMeta writeToFileWithError:&error];
                 
-                if (_delegate) {
-                    [_delegate metaChanged:_meta];
-                }
+                [_delegate metaChangedForMeta:_meta updatedMeta:patchedMeta];
             }
             return;
         }
     }
 
     NSAssert(NO, @"never should have arrived here");
+}
+
+- (void)viewWillAppear
+{
+    NSLog(@"InfoPanel becoming visible");
+    
+    // Lets confirm the metadata from the file itself - iTunes doesnt give us all the
+    // beauty we need and it may also rely on outdated informations. iTunes does the
+    // same when showing the info from a library entry.
+    dispatch_async(_metaQueue, ^{
+        NSError* error = nil;
+        MediaMetaData* patchedMeta = [self.meta copy];
+        if (![patchedMeta readFromFileWithError:&error]) {
+            return;
+        }
+        if (![self.meta isEqualToMediaMetaData:patchedMeta]) {
+            [patchedMeta writeToFileWithError:&error];
+
+            dispatch_async(dispatch_get_main_queue(), ^{
+                NSLog(@"InfoPanel gathered differing metadata");
+
+                [self.delegate metaChangedForMeta:self.meta updatedMeta:patchedMeta];
+                self.meta = patchedMeta;
+            });
+        }
+    });
 }
 
 @end

@@ -44,7 +44,7 @@ extern NSString* const kMediaMetaDataMapTypeDate;
 extern NSString* const kMediaMetaDataMapTypeImage;
 extern NSString* const kMediaMetaDataMapTypeNumbers;
 
-@interface MediaMetaData : NSObject
+@interface MediaMetaData : NSObject<NSCopying>
 
 @property (strong, nonatomic) ITLibMediaItem* shadow;
 
@@ -75,11 +75,13 @@ extern NSString* const kMediaMetaDataMapTypeNumbers;
 + (NSDictionary<NSString*, NSDictionary*>*)mediaMetaKeyMap;
 + (NSArray<NSString*>*)mediaMetaKeys;
 
+- (BOOL)isEqualToMediaMetaData:(MediaMetaData*)other;
+
 - (NSString* _Nullable)stringForKey:(NSString*)key;
 - (void)updateWithKey:(NSString*)key string:(NSString*)string;
 
-- (BOOL)syncToFileWithError:(NSError**)error;
-- (BOOL)isEqual:(MediaMetaData*)other forKeys:(NSArray<NSString*>*)keys;
+- (BOOL)readFromFileWithError:(NSError**)error;
+- (BOOL)writeToFileWithError:(NSError**)error;
 @end
 
 NS_ASSUME_NONNULL_END

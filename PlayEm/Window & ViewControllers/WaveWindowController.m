@@ -284,8 +284,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     toolBar.delegate = self;
     self.window.toolbar = toolBar;
 
-    _infoPanel = [InfoPanelController new];
-    _infoPanel.delegate = self;
+    _infoPanel = [[InfoPanelController alloc] initWithDelegate:self];
     
     _beatLayerDelegate = [BeatLayerDelegate new];
 
@@ -1757,11 +1756,11 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
 
 #pragma mark - InfoPanelControllerDelegate
 
-- (void)metaChanged:(MediaMetaData *)meta
+- (void)metaChangedForMeta:(MediaMetaData *)meta updatedMeta:(MediaMetaData *)updatedMeta
 {
     NSLog(@"meta changed - need to update the browser");
-    [self setMeta:meta];
-    [_browser reloadData];
+    [_browser metaChangedForMeta:meta updatedMeta:updatedMeta];
+    [self setMeta:updatedMeta];
 }
 
 @end

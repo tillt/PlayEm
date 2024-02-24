@@ -13,7 +13,7 @@ NS_ASSUME_NONNULL_BEGIN
 @class MediaMetaData;
 
 @protocol InfoPanelControllerDelegate <NSObject>
-- (void)metaChanged:(MediaMetaData*)meta;
+- (void)metaChangedForMeta:(MediaMetaData *)meta updatedMeta:(MediaMetaData *)updatedMeta;
 @end
 
 @interface InfoPanelController : NSViewController <NSTextFieldDelegate>

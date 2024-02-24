@@ -292,10 +292,12 @@
         if (textField == nil) {
             continue;
         }
+
         NSString* value = [_meta stringForKey:key];
         if (value == nil) {
             continue;
         }
+
         textField.stringValue = value;
     }
 }

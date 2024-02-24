@@ -420,7 +420,6 @@ NSString* const kMediaMetaDataMapTypeNumbers = @"ofNumber";
     
     if (_location == 0) {
         _location = _shadow.location;
-        _locationType = [NSNumber numberWithUnsignedInteger:_shadow.locationType];
     }
     
     return _location;

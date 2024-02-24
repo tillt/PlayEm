@@ -39,7 +39,6 @@
 @property (nonatomic, strong) NSArray<MediaMetaData*>* filteredItems;
 @end
 
-
 @implementation BrowserController
 {
     bool _updatingGenres;

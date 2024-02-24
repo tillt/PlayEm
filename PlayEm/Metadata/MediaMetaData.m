@@ -396,7 +396,7 @@ NSString* const kMediaMetaDataMapTypeNumbers = @"ofNumber";
         _disk = [NSNumber numberWithUnsignedInteger:_shadow.album.discNumber];
     }
     
-    return _track;
+    return _disk;
 }
 
 - (NSNumber* _Nullable)disks

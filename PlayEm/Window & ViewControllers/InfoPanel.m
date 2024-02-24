@@ -10,16 +10,6 @@
 #import "MediaMetaData.h"
 
 @interface InfoPanelController ()
-@property (strong, nonatomic) NSTextField* metaTitle;
-@property (strong, nonatomic) NSTextField* metaArtist;
-@property (strong, nonatomic) NSTextField* metaAlbum;
-@property (strong, nonatomic) NSTextField* metaYear;
-@property (strong, nonatomic) NSTextField* metaGenre;
-@property (strong, nonatomic) NSTextField* metaBPM;
-@property (strong, nonatomic) NSTextField* metaKey;
-@property (strong, nonatomic) NSTextField* metaTrack;
-@property (strong, nonatomic) NSTextField* metaDisk;
-@property (strong, nonatomic) NSTextField* metaLocation;
 
 @property (strong, nonatomic) NSImageView* smallCoverView;
 @property (strong, nonatomic) NSImageView* largeCoverView;

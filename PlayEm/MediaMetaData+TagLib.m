@@ -158,14 +158,16 @@
                     TagLib_Complex_Property_Attribute** attrPtr = *propPtr;
                     NSString* key = [NSString stringWithCString:*keyPtr
                                                        encoding:NSStringEncodingConversionAllowLossy];
-                    if ([key isEqualToString:@"PICTURE"]) {
+                    // NOTE: We only use the first PICTURE gathered.
+                    if ([key isEqualToString:@"PICTURE"] && meta.artwork == nil) {
 
                         while (*attrPtr) {
                             TagLib_Complex_Property_Attribute* attr = *attrPtr;
                             TagLib_Variant_Type type = attr->value.type;
                             if (type == TagLib_Variant_ByteVector) {
-                                NSLog(@"attribute key %s - (%u bytes)", attr->key, attr->value.size);
-                                NSData* data = [NSData dataWithBytes:attr->value.value.byteVectorValue length:attr->value.size];
+                                NSData* data = [NSData dataWithBytes:attr->value.value.byteVectorValue
+                                                              length:attr->value.size];
+                                NSLog(@"updated artwork with %ld bytes of image data", [data length]);
                                 meta.artwork = [[NSImage alloc] initWithData:data];
                             }
                             ++attrPtr;
@@ -211,13 +213,10 @@
         return -1;
     }
     
-    //NSDictionary* mediaMetaKeyMap = [MediaMetaData mediaMetaKeyMap];
     NSDictionary* mp3TagMap = [MediaMetaData mp3TagMap];
-    //NSArray* mp3SupportedMediaDataKeys = [MediaMetaData mp3SupportedMediaDataKeys];
     
     for (NSString* mp3Key in [mp3TagMap allKeys]) {
         NSString* type = mp3TagMap[mp3Key][kMediaMetaDataMapKeyType];
-        //NSString* mp3Key = mediaMetaKeyMap[mediaKey][kMediaMetaDataMapKeyMP3][kMediaMetaDataMapKeyKey];
         
         if ([type isEqualToString:kMediaMetaDataMapTypeImage]) {
             NSLog(@"setting image data not yet supported");

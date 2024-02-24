@@ -428,25 +428,6 @@ NSString* const kMediaMetaDataMapTypeNumbers = @"ofNumber";
             self.title, self.album, self.artist, self.location];
 }
 
-- (BOOL)isEqual:(MediaMetaData*)other forKeys:(NSArray<NSString*>*)keys
-{
-    if (other == nil) {
-        return NO;
-    }
-    
-    for (NSString* key in keys) {
-        NSString* thisValue = [self stringForKey:key];
-        NSString* otherValue = [other stringForKey:key];
-
-        if (![thisValue isEqualToString:otherValue]) {
-            NSLog(@"metadata is not equal for key %@ (\"%@\" != \"%@\")", key, thisValue, otherValue);
-            return NO;
-        }
-    }
-    
-    return YES;
-}
-
 - (NSString* _Nullable)stringForKey:(NSString*)key
 {
     id valueObject = [self valueForKey:key];
@@ -470,6 +451,36 @@ NSString* const kMediaMetaDataMapTypeNumbers = @"ofNumber";
     }
 
     return @"";
+}
+
+- (BOOL)isEqual:(MediaMetaData*)other forKeys:(NSArray<NSString*>*)keys
+{
+    if (other == nil) {
+        return NO;
+    }
+    
+    for (NSString* key in keys) {
+        // Special treatment for `artwork`.
+        if ([key isEqualToString:@"artwork"]) {
+            NSData* thisData = [self.artwork TIFFRepresentation];
+            NSData* otherData = [other.artwork TIFFRepresentation];
+            
+            if (![thisData isEqualToData:otherData]) {
+                NSLog(@"metadata is not equal for artwork");
+                return NO;
+            }
+        } else {
+            NSString* thisValue = [self stringForKey:key];
+            NSString* otherValue = [other stringForKey:key];
+
+            if (![thisValue isEqualToString:otherValue]) {
+                NSLog(@"metadata is not equal for key %@ (\"%@\" != \"%@\")", key, thisValue, otherValue);
+                return NO;
+            }
+        }
+    }
+    
+    return YES;
 }
 
 - (void)updateWithKey:(NSString*)key string:(NSString*)string

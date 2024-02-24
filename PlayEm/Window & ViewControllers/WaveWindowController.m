@@ -314,7 +314,6 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
 
     _splitViewController = [NSSplitViewController new];
     
-
     [self.window center];
     
     [self loadViews];
@@ -1362,10 +1361,10 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     NSError* asyncError = nil;
     
     // Get metadata if none were given.
-    MediaMetaData* asyncMeta = meta;
-    if (asyncMeta == nil) {
+    //MediaMetaData* asyncMeta = meta;
+    if (meta == nil) {
         NSLog(@"need to fetch some metadata...");
-        asyncMeta = [MediaMetaData mediaMetaDataWithURL:url error:&asyncError];
+        meta = [MediaMetaData mediaMetaDataWithURL:url error:&asyncError];
     }
 
     if (_audioController == nil) {
@@ -1400,7 +1399,6 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     // variable bitrate. We do this asynchronously to not hog the mainthread.
     [self loadTrackState:LoadStateInit value:0.0];
     [self loadTrackState:LoadStateStopped value:0.0];
-    [self.playlist setCurrent:asyncMeta];
 
     self.visualSample = [[VisualSample alloc] initWithSample:sample
                                               pixelPerSecond:kPixelPerSecond
@@ -1447,7 +1445,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     
     [[NSDocumentController sharedDocumentController] noteNewRecentDocumentURL:url];
     
-    [self setMeta:asyncMeta];
+    [self setMeta:meta];
     
     [self.audioController playWhenReady];
 
@@ -1457,6 +1455,8 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
 - (void)setMeta:(MediaMetaData*)meta
 {
     _meta = meta;
+
+    [self.playlist setCurrent:meta];
 
     // Update meta data in the info box.
     if (_infoPanel) {

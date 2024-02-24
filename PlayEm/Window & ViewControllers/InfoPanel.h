@@ -19,6 +19,9 @@ NS_ASSUME_NONNULL_BEGIN
 @interface InfoPanelController : NSViewController <NSTextFieldDelegate>
 @property (strong, nonatomic) MediaMetaData* meta;
 @property (weak, nonatomic) id<InfoPanelControllerDelegate> delegate;
+
+- (id)initWithDelegate:(id<InfoPanelControllerDelegate>)delegate;
+
 @end
 
 NS_ASSUME_NONNULL_END

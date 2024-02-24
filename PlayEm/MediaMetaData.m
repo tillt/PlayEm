@@ -42,8 +42,51 @@ NSString* const kMediaMetaDataMapTypeNumbers = @"ofNumber";
 
 @implementation MediaMetaData
 
++ (MediaMetaDataFileFormatType)fileTypeWithURL:(NSURL*)url error:(NSError**)error
+{
+    if (url == nil) {
+        NSString* description = @"Cannot identify item as it lacks a location";
+        if (error) {
+            NSDictionary* userInfo = @{
+                NSLocalizedDescriptionKey: description,
+            };
+            *error = [NSError errorWithDomain:[[NSBundle bundleForClass:[self class]] bundleIdentifier]
+                                         code:-1
+                                     userInfo:userInfo];
+        }
+        NSLog(@"error: %@", description);
+        return MediaMetaDataFileFormatTypeUnknown;
+    }
+
+    NSString* fileExtension = [url pathExtension];
+
+    if ([fileExtension isEqualToString:@"mp4"] || [fileExtension isEqualToString:@"m4a"]) {
+        return MediaMetaDataFileFormatTypeMP4;
+    }
+    if ([fileExtension isEqualToString:@"mp3"]) {
+        return MediaMetaDataFileFormatTypeMP3;
+    }
+
+    NSString* description = [NSString stringWithFormat:@"Unknown file type (%@)", fileExtension];
+    if (error) {
+        NSDictionary* userInfo = @{
+            NSLocalizedDescriptionKey: description,
+        };
+        *error = [NSError errorWithDomain:[[NSBundle bundleForClass:[self class]] bundleIdentifier]
+                                     code:-1
+                                 userInfo:userInfo];
+    }
+    NSLog(@"error: %@", description);
+    return MediaMetaDataFileFormatTypeUnknown;
+}
+
 + (MediaMetaData*)mediaMetaDataWithURL:(NSURL*)url error:(NSError**)error
 {
+    MediaMetaDataFileFormatType type = [MediaMetaData fileTypeWithURL:url error:error];
+    if (type == MediaMetaDataFileFormatTypeMP3) {
+        return [MediaMetaData mediaMetaDataFromMP3FileWithURL:url error:error];
+    }
+    
     AVAsset* asset = [AVURLAsset URLAssetWithURL:url options:nil];
     NSLog(@"%@", asset);
     return [MediaMetaData mediaMetaDataWithURL:url asset:asset error:error];
@@ -515,9 +558,10 @@ NSString* const kMediaMetaDataMapTypeNumbers = @"ofNumber";
     NSAssert(NO, @"should never get here");
 }
 
+// FIXME: This is BS as it does the comparison on the wrong level -- should go up.
 - (BOOL)exportMP3WithError:(NSError**)error
 {
-    MediaMetaData* metaFromFile = [MediaMetaData metaFromMP3FileWithURL:self.location error:error];
+    MediaMetaData* metaFromFile = [MediaMetaData mediaMetaDataFromMP3FileWithURL:self.location error:error];
     NSArray<NSString*>* mp3SupportedKeys = [MediaMetaData mp3SupportedMediaDataKeys];
 
     BOOL ret = YES;
@@ -568,18 +612,17 @@ NSString* const kMediaMetaDataMapTypeNumbers = @"ofNumber";
 
         return NO;
     }
+
+    MediaMetaDataFileFormatType type = [MediaMetaData fileTypeWithURL:self.location error:error];
     
-    NSString* fileExtension = [self.location pathExtension];
-
-    if ([fileExtension isEqualToString:@"mp4"] || [fileExtension isEqualToString:@"m4a"]) {
-        return [self exportMP4WithError:error];
-    }
-
-    if ([fileExtension isEqualToString:@"mp3"]) {
+    if (type == MediaMetaDataFileFormatTypeMP3) {
         return [self exportMP3WithError:error];
     }
-
-    NSString* description = [NSString stringWithFormat:@"Unsupport filetype (%@) for modifying metadata", fileExtension];
+    if (type == MediaMetaDataFileFormatTypeMP4) {
+        return [self exportMP4WithError:error];
+    }
+    
+    NSString* description = [NSString stringWithFormat:@"Unsupport filetype for modifying metadata"];
     if (error) {
         NSDictionary* userInfo = @{
             NSLocalizedDescriptionKey: description,

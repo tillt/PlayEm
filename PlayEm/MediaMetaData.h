@@ -19,12 +19,20 @@ NS_ASSUME_NONNULL_BEGIN
 @class ITLibMediaItem;
 @class AVAsset;
 
-enum {
+typedef enum : NSUInteger {
     MediaMetaDataLocationTypeFile = ITLibMediaItemLocationTypeFile,
     MediaMetaDataLocationTypeURL = ITLibMediaItemLocationTypeURL,
     MediaMetaDataLocationTypeRemote = ITLibMediaItemLocationTypeRemote,
     MediaMetaDataLocationTypeUnknown = ITLibMediaItemLocationTypeUnknown
-};
+} MediaMetaDataLocationType;
+
+typedef enum : NSUInteger {
+    MediaMetaDataFileFormatTypeUnknown,
+    MediaMetaDataFileFormatTypeMP3,
+    MediaMetaDataFileFormatTypeMP4,
+    MediaMetaDataFileFormatTypeWAV,
+    MediaMetaDataFileFormatTypeAIFF,
+} MediaMetaDataFileFormatType;
 
 extern NSString* const kMediaMetaDataMapKeyMP3;
 extern NSString* const kMediaMetaDataMapKeyType;
@@ -67,12 +75,11 @@ extern NSString* const kMediaMetaDataMapTypeNumbers;
 + (NSDictionary<NSString*, NSDictionary*>*)mediaMetaKeyMap;
 + (NSArray<NSString*>*)mediaMetaKeys;
 
-- (BOOL)syncToFileWithError:(NSError**)error;
-- (BOOL)isEqual:(MediaMetaData*)other forKeys:(NSArray<NSString*>*)keys;
-
 - (NSString* _Nullable)stringForKey:(NSString*)key;
 - (void)updateWithKey:(NSString*)key string:(NSString*)string;
 
+- (BOOL)syncToFileWithError:(NSError**)error;
+- (BOOL)isEqual:(MediaMetaData*)other forKeys:(NSArray<NSString*>*)keys;
 @end
 
 NS_ASSUME_NONNULL_END

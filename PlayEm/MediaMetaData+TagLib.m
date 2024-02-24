@@ -72,7 +72,7 @@
     return mp3TagMap;
 }
 
-+ (MediaMetaData*)metaFromMP3FileWithURL:(NSURL*)url error:(NSError**)error
++ (MediaMetaData*)mediaMetaDataFromMP3FileWithURL:(NSURL*)url error:(NSError**)error
 {
     NSString* path = [url path];
     
@@ -93,6 +93,8 @@
     }
     
     MediaMetaData* meta = [[MediaMetaData alloc] init];
+    meta.location = [url filePathURL];
+    meta.locationType = [NSNumber numberWithUnsignedInteger:MediaMetaDataLocationTypeFile];
     
     NSDictionary* mp3TagMap = [MediaMetaData mp3TagMap];
     

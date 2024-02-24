@@ -25,9 +25,7 @@ const CGFloat kDirectWaveViewTileWidth = 256.0f;
 @end
 
 @interface WaveTileView : NSView
-
 - (CALayer*)makeOverheadLayer;
-
 @end
 
 @implementation TiledScrollView
@@ -57,22 +55,12 @@ const CGFloat kDirectWaveViewTileWidth = 256.0f;
     
     CIFilter* vibranceFilter = [CIFilter filterWithName:@"CIColorControls"];
     [vibranceFilter setDefaults];
-//    [vibranceFilter setValue:[NSNumber numberWithFloat:0.1] forKey:@"inputSaturation"];
     [vibranceFilter setValue:[NSNumber numberWithFloat:0.10] forKey:@"inputSaturation"];
-//  [vibranceFilter setValue:[NSNumber numberWithFloat:0.001] forKey:@"inputBrightness"];
     [vibranceFilter setValue:[NSNumber numberWithFloat:0.0001] forKey:@"inputBrightness"];
 
     CIFilter* darkenFilter = [CIFilter filterWithName:@"CIGammaAdjust"];
     [darkenFilter setDefaults];
-//    [darkenFilter setValue:[NSNumber numberWithFloat:2.5] forKey:@"inputPower"];
     [darkenFilter setValue:[NSNumber numberWithFloat:2.5] forKey:@"inputPower"];
-
-    //    CIFilter* postFilter = [CIFilter filterWithName:@"CILineOverlay"];
-    //    [postFilter setDefaults];
-    //    [postFilter setValue:[NSNumber numberWithFloat:0.1] forKey:@"inputThreshold"];
-    //    [postFilter setValue:[NSNumber numberWithFloat:0.4] forKey:@"inputEdgeIntensity"];
-    
-    //    [postFilter setValue:[NSNumber numberWithFloat:1.0] forKey:@"inputContrast"];
     
     _rastaLayer = [CALayer layer];
     _rastaLayer.backgroundColor = [[NSColor colorWithPatternImage:[NSImage imageNamed:@"LargeRastaPattern"]] CGColor];
@@ -116,22 +104,6 @@ const CGFloat kDirectWaveViewTileWidth = 256.0f;
     _trailBloomFxLayer.zPosition = 1.9;
     _trailBloomFxLayer.name = @"TailBloomFxLayer";
     _trailBloomFxLayer.mask = [CAShapeLayer MaskLayerFromRect:_trailBloomFxLayer.frame];
-
-//    CIFilter* motionBlur = [CIFilter filterWithName:@"CIMotionBlur"];
-//    [motionBlur setDefaults];
-//    [motionBlur setValue:[NSNumber numberWithFloat:3.0] forKey:@"inputRadius"];
-//    [motionBlur setValue:[NSNumber numberWithFloat:0.0] forKey:@"inputAngle"];
-    
-//    CALayer* layer = [CALayer layer];
-//    layer.backgroundFilters = @[ motionBlur ];
-//    layer.anchorPoint = CGPointMake(1.0, 0.0);
-//    layer.frame = CGRectMake(0.0, 0.0, width * 4, height);
-//    layer.masksToBounds = NO;
-//    layer.zPosition = 1.9;
-//    layer.name = @"MotionBlur";
-//    layer.mask = [CAShapeLayer MaskLayerFromRect:layer.frame];
-//
-//    [self.layer addSublayer:layer];
 
     [self.layer addSublayer:_trailBloomFxLayer];
     [self.layer addSublayer:_aheadVibranceFxLayer];
@@ -274,21 +246,13 @@ const CGFloat kDirectWaveViewTileWidth = 256.0f;
     if (NSPointInRect(NSMakePoint(head, 1.0f), self.documentVisibleRect)) {
         _aheadVibranceFxLayer.position = CGPointMake(head + 0.0 - self.documentVisibleRect.origin.x, 0.0f);
         _trailBloomFxLayer.position = CGPointMake((head + 4.0) - self.documentVisibleRect.origin.x, 0.0f);
-//        _trailBloomFxLayer.position = CGPointMake((head - 4.0) - self.documentVisibleRect.origin.x, 0.0f);
-//        _rastaLayer.position = CGPointMake(head - self.documentVisibleRect.origin.x, 0.0f);
     } else {
         if (head < self.documentVisibleRect.origin.x) {
             _aheadVibranceFxLayer.position = CGPointMake(0.0f, 0.0f);
             _trailBloomFxLayer.position = CGPointMake(0.0f, 0.0f);
-//            _rastaLayer.frame = NSMakeRect(_rastaLayer.frame.origin.x,
-//                                           _rastaLayer.frame.origin.y,
-//                                           self.documentView.frame.size.width,
-//                                           _rastaLayer.frame.size.height);
-//            _rastaLayer.position = CGPointMake(0, 0);
         } else {
             _aheadVibranceFxLayer.position = CGPointMake(self.documentVisibleRect.size.width, 0.0f);
             _trailBloomFxLayer.position = CGPointMake(self.documentVisibleRect.size.width, 0.0f);
-//            _rastaLayer.position = CGPointMake(self.documentVisibleRect.size.width, 0.0f);
         }
     }
 }

@@ -22,14 +22,23 @@
 
 #import "AVMetadataItem+THAdditions.h"
 #import "ITLibMediaItem+TTAdditionsh.h"
-
-#include "tag_c/tag_c.h"
+#import "MediaMetaData+TagLib.h"
 
 ///
 /// MediaMetaData is lazily holding metadata for library entries to allow for extending iTunes provided data.
 /// iTunes provided data are held in a shadow item until data is requested and thus copied in. iTunes metadata
 /// is asynchronously requested through ITLibMediaItem on demand.
 ///
+
+NSString* const kMediaMetaDataMapKeyMP3 = @"mp3";
+NSString* const kMediaMetaDataMapKeyType = @"type";
+NSString* const kMediaMetaDataMapKeyKey = @"key";
+NSString* const kMediaMetaDataMapKeyKeys = @"keys";
+NSString* const kMediaMetaDataMapKeyOrder = @"order";
+NSString* const kMediaMetaDataMapTypeString = @"string";
+NSString* const kMediaMetaDataMapTypeDate = @"date";
+NSString* const kMediaMetaDataMapTypeImage = @"image";
+NSString* const kMediaMetaDataMapTypeNumbers = @"ofNumber";
 
 @implementation MediaMetaData
 
@@ -84,17 +93,21 @@
     return meta;
 }
 
-NSString* kMediaMetaDataMapKeyMP3 = @"mp3";
-NSString* kMediaMetaDataMapKeyType = @"type";
-NSString* kMediaMetaDataMapKeyKey = @"key";
-NSString* kMediaMetaDataMapKeyKey2 = @"mediaKey2";
-NSString* kMediaMetaDataMapTypeString = @"string";
-NSString* kMediaMetaDataMapTypeNumbers = @"ofNumber";
++ (MediaMetaData*)mediaMetaDataWithITLibMediaItem:(ITLibMediaItem*)item error:(NSError**)error
+{
+    MediaMetaData* meta = [[MediaMetaData alloc] init];
+    meta.shadow = item;
+    meta.key = @"";
+    return meta;
+}
 
 + (NSDictionary<NSString*, NSDictionary*>*)mediaMetaKeyMap
 {
     return @{
                 @"added": @{},
+                @"location": @{},
+                @"locationType": @{},
+                
                 @"album": @{
                     kMediaMetaDataMapKeyMP3: @{
                         kMediaMetaDataMapKeyKey: @"ALBUM",
@@ -116,7 +129,7 @@ NSString* kMediaMetaDataMapTypeNumbers = @"ofNumber";
                 @"artwork": @{
                     kMediaMetaDataMapKeyMP3: @{
                         kMediaMetaDataMapKeyKey: @"PICTURE",
-                        kMediaMetaDataMapKeyType: @"image",
+                        kMediaMetaDataMapKeyType: kMediaMetaDataMapTypeImage,
                     },
                 },
                 @"comment": @{
@@ -141,10 +154,16 @@ NSString* kMediaMetaDataMapTypeNumbers = @"ofNumber";
                     kMediaMetaDataMapKeyMP3: @{
                         kMediaMetaDataMapKeyKey: @"DISCNUMBER",
                         kMediaMetaDataMapKeyType: kMediaMetaDataMapTypeNumbers,
-                        kMediaMetaDataMapKeyKey2: @"disks",
+                        kMediaMetaDataMapKeyOrder: @0,
                     },
                 },
-                @"disks": @{},
+                @"disks": @{
+                    kMediaMetaDataMapKeyMP3: @{
+                        kMediaMetaDataMapKeyKey: @"DISCNUMBER",
+                        kMediaMetaDataMapKeyType: kMediaMetaDataMapTypeNumbers,
+                        kMediaMetaDataMapKeyOrder: @1,
+                    },
+                },
                 @"duration": @{
                     kMediaMetaDataMapKeyMP3: @{
                         kMediaMetaDataMapKeyKey: @"LENGTH",
@@ -163,9 +182,6 @@ NSString* kMediaMetaDataMapTypeNumbers = @"ofNumber";
                         kMediaMetaDataMapKeyType: kMediaMetaDataMapTypeString,
                     },
                 },
-                @"location": @{},
-                @"locationType": @{
-                },
                 @"tempo": @{
                     kMediaMetaDataMapKeyMP3: @{
                         kMediaMetaDataMapKeyKey: @"BPM",
@@ -182,14 +198,20 @@ NSString* kMediaMetaDataMapTypeNumbers = @"ofNumber";
                     kMediaMetaDataMapKeyMP3: @{
                         kMediaMetaDataMapKeyKey: @"TRACKNUMBER",
                         kMediaMetaDataMapKeyType: kMediaMetaDataMapTypeNumbers,
-                        kMediaMetaDataMapKeyKey2: @"tracks",
+                        kMediaMetaDataMapKeyOrder: @0,
                     },
                 },
-                @"tracks": @{},
+                @"tracks": @{
+                    kMediaMetaDataMapKeyMP3: @{
+                        kMediaMetaDataMapKeyKey: @"TRACKNUMBER",
+                        kMediaMetaDataMapKeyType: kMediaMetaDataMapTypeNumbers,
+                        kMediaMetaDataMapKeyOrder: @1,
+                    },
+                },
                 @"year": @{
                     kMediaMetaDataMapKeyMP3: @{
                         kMediaMetaDataMapKeyKey: @"DATE",
-                        kMediaMetaDataMapKeyType: kMediaMetaDataMapTypeString,
+                        kMediaMetaDataMapKeyType: kMediaMetaDataMapTypeDate,
                     },
                 },
             };
@@ -200,7 +222,7 @@ NSString* kMediaMetaDataMapTypeNumbers = @"ofNumber";
     return [[MediaMetaData mediaMetaKeyMap] allKeys];
 }
 
-+ (NSArray<NSString*>*)mp3SupportedKeys
++ (NSArray<NSString*>*)mp3SupportedMediaDataKeys
 {
     NSDictionary<NSString*, NSDictionary*>* mediaMetaKeyMap = [MediaMetaData mediaMetaKeyMap];
     NSMutableArray<NSString*>* supportedKeys = [NSMutableArray array];
@@ -216,9 +238,10 @@ NSString* kMediaMetaDataMapTypeNumbers = @"ofNumber";
 {
     NSDictionary<NSString*, NSDictionary*>* mediaMetaKeyMap = [MediaMetaData mediaMetaKeyMap];
     
-    NSMutableDictionary<NSString*, NSDictionary<NSString*, NSString*>*>* tagMap = [NSMutableDictionary dictionary];
+    NSMutableDictionary<NSString*, NSMutableDictionary<NSString*, id>*>* mp3TagMap = [NSMutableDictionary dictionary];
     
     for (NSString* mediaDataKey in [mediaMetaKeyMap allKeys]) {
+        // Skip anything that isnt supported by MP3 / ID3.
         if ([mediaMetaKeyMap[mediaDataKey] objectForKey:kMediaMetaDataMapKeyMP3] == nil) {
             continue;
         }
@@ -226,17 +249,33 @@ NSString* kMediaMetaDataMapTypeNumbers = @"ofNumber";
         NSString* mp3Key = mediaMetaKeyMap[mediaDataKey][kMediaMetaDataMapKeyMP3][kMediaMetaDataMapKeyKey];
         NSString* type = mediaMetaKeyMap[mediaDataKey][kMediaMetaDataMapKeyMP3][kMediaMetaDataMapKeyType];
 
-        NSMutableDictionary* mediaDataDictionary = [NSMutableDictionary dictionary];
-        mediaDataDictionary[kMediaMetaDataMapKeyKey] = mediaDataKey;
-        mediaDataDictionary[kMediaMetaDataMapKeyType] = type;
-        if ([type isEqualToString:kMediaMetaDataMapTypeNumbers]) {
-            mediaDataDictionary[kMediaMetaDataMapKeyKey2] = mediaMetaKeyMap[mediaDataKey][kMediaMetaDataMapKeyMP3][kMediaMetaDataMapKeyKey2];
+        NSMutableDictionary* mp3Dictionary = mp3TagMap[mp3Key];
+        if (mp3TagMap[mp3Key] == nil) {
+            mp3Dictionary = [NSMutableDictionary dictionary];
+        }
+        mp3Dictionary[kMediaMetaDataMapKeyType] = type;
+        
+        NSMutableArray* mediaKeys = mp3Dictionary[kMediaMetaDataMapKeyKeys];
+        if (mediaKeys == nil) {
+            mediaKeys = [NSMutableArray array];
+            if ([type isEqualToString:kMediaMetaDataMapTypeNumbers]) {
+                [mediaKeys addObjectsFromArray:@[@"", @""]];
+            }
         }
         
-        tagMap[mp3Key] = mediaDataDictionary;
+        NSNumber* position = mediaMetaKeyMap[mediaDataKey][kMediaMetaDataMapKeyMP3][kMediaMetaDataMapKeyOrder];
+        if (position != nil) {
+            [mediaKeys replaceObjectAtIndex:[position intValue] withObject:mediaDataKey];
+        } else {
+            [mediaKeys addObject:mediaDataKey];
+        }
+
+        mp3Dictionary[kMediaMetaDataMapKeyKeys] = mediaKeys;
+
+        mp3TagMap[mp3Key] = mp3Dictionary;
     }
 
-    return tagMap;
+    return mp3TagMap;
 }
 
 - (NSString* _Nullable)title
@@ -439,18 +478,29 @@ NSString* kMediaMetaDataMapTypeNumbers = @"ofNumber";
     return _added;
 }
 
-+ (MediaMetaData*)mediaMetaDataWithITLibMediaItem:(ITLibMediaItem*)item error:(NSError**)error
-{
-    MediaMetaData* meta = [[MediaMetaData alloc] init];
-    meta.shadow = item;
-    meta.key = @"";
-    return meta;
-}
-
 - (NSString *)description
 {
     return [NSString stringWithFormat:@"Title: %@ -- Album: %@ -- Artist: %@ -- Location: %@", 
             self.title, self.album, self.artist, self.location];
+}
+
+- (BOOL)isEqual:(MediaMetaData*)other forKeys:(NSArray<NSString*>*)keys
+{
+    if (other == nil) {
+        return NO;
+    }
+    
+    for (NSString* key in keys) {
+        NSString* thisValue = [self stringForKey:key];
+        NSString* otherValue = [other stringForKey:key];
+
+        if (![thisValue isEqualToString:otherValue]) {
+            NSLog(@"metadata is not equal for key %@ (\"%@\" != \"%@\")", key, thisValue, otherValue);
+            return NO;
+        }
+    }
+    
+    return YES;
 }
 
 - (NSString* _Nullable)stringForKey:(NSString*)key
@@ -510,248 +560,15 @@ NSString* kMediaMetaDataMapTypeNumbers = @"ofNumber";
     NSAssert(NO, @"should never get here");
 }
 
-+ (MediaMetaData*)metaFromMP3FileWithURL:(NSURL*)url error:(NSError**)error
-{
-    NSString* path = [url path];
-    
-    typedef BOOL (^TagLibParseBlock)(NSDictionary*, char*, char*);
-    
-    TagLib_File* file = taglib_file_new([path cStringUsingEncoding:NSStringEncodingConversionAllowLossy]);
-    if (file == NULL) {
-        NSString* description = @"Cannot load file using tagLib";
-        if (error) {
-            NSDictionary* userInfo = @{
-                NSLocalizedDescriptionKey : description,
-            };
-            *error = [NSError errorWithDomain:[[NSBundle bundleForClass:[self class]] bundleIdentifier]
-                                         code:-1
-                                     userInfo:userInfo];
-        }
-        NSLog(@"error: %@", description);
-
-        return nil;
-    }
-
-    __block MediaMetaData* meta = [[MediaMetaData alloc] init];
-    
-    TagLibParseBlock parseSimpleProperties = ^ BOOL (NSDictionary* tagMaps, char* tagLibKey, char* tagLibValues){
-        NSString* key = [NSString stringWithCString:tagLibKey
-                                           encoding:NSStringEncodingConversionAllowLossy];
-        NSString* values = [NSString stringWithCString:tagLibValues 
-                                              encoding:NSStringEncodingConversionAllowLossy];
-        
-        NSDictionary* map = tagMaps[key];
-        if (map == nil) {
-            NSLog(@"skipping key: %@ with value(s) \"%@\"", key, values);
-            return NO;
-        }
-
-        NSString* type = map[kMediaMetaDataMapKeyType];
-
-        if ([type isEqualToString:kMediaMetaDataMapTypeString]) {
-            [meta updateWithKey:map[kMediaMetaDataMapKeyKey] string:values];
-            return YES;
-        }
-
-        if ([type isEqualToString:kMediaMetaDataMapTypeNumbers]) {
-            if (![values containsString:@"/"]) {
-                [meta updateWithKey:map[kMediaMetaDataMapKeyKey] string:values];
-                return YES;
-            }
-            NSArray<NSString*>* components = [values componentsSeparatedByString:@"/"];
-            [meta updateWithKey:map[kMediaMetaDataMapKeyKey] string:components[0]];
-            if ([components count] > 1) {
-                [meta updateWithKey:map[kMediaMetaDataMapKeyKey2] string:components[1]];
-            }
-            return YES;
-        }
-        
-        if ([type isEqualToString:@"date"]) {
-            if (![values containsString:@"-"]) {
-                [meta updateWithKey:map[kMediaMetaDataMapKeyKey] string:values];
-                return YES;
-            }
-            NSArray<NSString*>* components = [values componentsSeparatedByString:@"-"];
-            [meta updateWithKey:map[kMediaMetaDataMapKeyKey] string:components[0]];
-            return YES;
-        }
-
-        if ([type isEqualToString:@"image"]) {
-            NSLog(@"ignoring complex image type in simple parser");
-            return YES;
-        }
-
-        NSAssert(NO, @"unknown type %@", type);
-
-        return NO;
-    };
-    
-    NSDictionary* tagMap = [MediaMetaData mp3TagMap];
-
-    char **propertiesMap = propertiesMap = taglib_property_keys(file);
-    if(propertiesMap != NULL) {
-        char **keyPtr = propertiesMap;
-        keyPtr = propertiesMap;
-
-        while(*keyPtr) {
-            char **valPtr;
-            char **propertyValues = valPtr = taglib_property_get(file, *keyPtr);
-            while(valPtr && *valPtr) {
-                parseSimpleProperties(tagMap, *keyPtr, *valPtr);
-                ++valPtr;
-            };
-            taglib_property_free(propertyValues);
-            ++keyPtr;
-        }
-        taglib_property_free(propertiesMap);
-    }
-    
-    char **complexKeys = taglib_complex_property_keys(file);
-    if(complexKeys != NULL) {
-        char **keyPtr = complexKeys;
-        while(*keyPtr) {
-            TagLib_Complex_Property_Attribute*** props = taglib_complex_property_get(file, *keyPtr);
-            if(props != NULL) {
-                TagLib_Complex_Property_Attribute*** propPtr = props;
-                while(*propPtr) {
-                    TagLib_Complex_Property_Attribute** attrPtr = *propPtr;
-                    // PICTURE
-                    printf("%s:\n", *keyPtr);
-                    while(*attrPtr) {
-                        TagLib_Complex_Property_Attribute *attr = *attrPtr;
-                        TagLib_Variant_Type type = attr->value.type;
-                        printf("  %-11s - ", attr->key);
-                        switch(type) {
-                            case TagLib_Variant_String:
-                                printf("\"%s\"\n", attr->value.value.stringValue);
-                                break;
-                            case TagLib_Variant_ByteVector:
-                                printf("(%u bytes)\n", attr->value.size);
-                                break;
-                            default:
-                                break;
-                        }
-                        ++attrPtr;
-                    };
-                    ++propPtr;
-                };
-                taglib_complex_property_free(props);
-            }
-            ++keyPtr;
-        };
-        taglib_complex_property_free_keys(complexKeys);
-    }
-    
-    taglib_tag_free_strings();
-    taglib_file_free(file);
-    
-    return meta;
-}
-
-- (BOOL)metaToMP3FileWithError:(NSError**)error
-{
-    NSString* path = [self.location path];
-    
-    TagLib_File* file = taglib_file_new([path cStringUsingEncoding:NSStringEncodingConversionAllowLossy]);
-
-    if (file == NULL) {
-        NSString* description = @"Cannot open file using tagLib";
-        if (error) {
-            NSDictionary* userInfo = @{
-                NSLocalizedDescriptionKey : description,
-            };
-            *error = [NSError errorWithDomain:[[NSBundle bundleForClass:[self class]] bundleIdentifier]
-                                         code:-1
-                                     userInfo:userInfo];
-        }
-        NSLog(@"error: %@", description);
-
-        return NO;
-    }
-    
-    NSDictionary* mediaMetaKeyMap = [MediaMetaData mediaMetaKeyMap];
-    NSArray* mp3SupportedKeys = [MediaMetaData mp3SupportedKeys];
-
-    for (NSString* mediaKey in mp3SupportedKeys) {
-        NSString* type = mediaMetaKeyMap[mediaKey][kMediaMetaDataMapKeyMP3][kMediaMetaDataMapKeyType];
-        NSString* mp3Key = mediaMetaKeyMap[mediaKey][kMediaMetaDataMapKeyMP3][kMediaMetaDataMapKeyKey];
-
-        if ([type isEqualToString:@"image"]) {
-            NSLog(@"setting image data not yet supported");
-        } else {
-            NSString* value = [self stringForKey:mediaKey];
-
-            if ([type isEqualToString:kMediaMetaDataMapTypeNumbers]) {
-                NSMutableArray* components = [NSMutableArray array];
-                [components addObject:value];
-
-                NSString* secondKey = mediaMetaKeyMap[mediaKey][kMediaMetaDataMapKeyMP3][kMediaMetaDataMapKeyKey2];
-                NSString* value2 = [self stringForKey:secondKey];
-                if ([value2 length] > 0) {
-                    [components addObject:value2];
-                }
-                value = [components componentsJoinedByString:@"/"];
-            }
-            // NOTE: We are possible reducing the accuracy of a DATE as we will only store the year
-            // while the original may have had day and month included.
-            
-            NSLog(@"setting ID3: \"%@\" = \"%@\"", mp3Key, value);
-            taglib_property_set(file,
-                                [mp3Key cStringUsingEncoding:NSStringEncodingConversionAllowLossy],
-                                [value cStringUsingEncoding:NSStringEncodingConversionAllowLossy]);
-        }
-    }
-    
-    BOOL ret = YES;
-
-    if (!taglib_file_save(file)) {
-        NSString* description = @"Cannot store file using tagLib";
-        if (error) {
-            NSDictionary* userInfo = @{
-                NSLocalizedDescriptionKey : description,
-            };
-            *error = [NSError errorWithDomain:[[NSBundle bundleForClass:[self class]] bundleIdentifier]
-                                         code:-1
-                                     userInfo:userInfo];
-        }
-        NSLog(@"error: %@", description);
-        ret = NO;
-    }
-
-    taglib_tag_free_strings();
-    taglib_file_free(file);
-
-    return ret;
-}
-
-- (BOOL)isEqual:(MediaMetaData*)other forKeys:(NSArray<NSString*>*)keys
-{
-    if (other == nil) {
-        return NO;
-    }
-    
-    for (NSString* key in keys) {
-        NSString* thisValue = [self stringForKey:key];
-        NSString* otherValue = [other stringForKey:key];
-
-        if (![thisValue isEqualToString:otherValue]) {
-            NSLog(@"metadata is not equal for key %@ (\"%@\" != \"%@\")", key, thisValue, otherValue);
-            return NO;
-        }
-    }
-    
-    return YES;
-}
-
 - (BOOL)exportMP3WithError:(NSError**)error
 {
     MediaMetaData* metaFromFile = [MediaMetaData metaFromMP3FileWithURL:self.location error:error];
-    NSArray<NSString*>* mp3SupportedKeys = [MediaMetaData mp3SupportedKeys];
+    NSArray<NSString*>* mp3SupportedKeys = [MediaMetaData mp3SupportedMediaDataKeys];
 
     BOOL ret = YES;
 
     if (![self isEqual:metaFromFile forKeys:mp3SupportedKeys]) {
-        ret = [self metaToMP3FileWithError:error];
+        ret = [self metaToMP3FileWithError:error] == 0;
     }
 
     return ret;
@@ -786,7 +603,7 @@ NSString* kMediaMetaDataMapTypeNumbers = @"ofNumber";
         NSString* description = @"Cannot sync item back as it lacks a location";
         if (error) {
             NSDictionary* userInfo = @{
-                NSLocalizedDescriptionKey : description,
+                NSLocalizedDescriptionKey: description,
             };
             *error = [NSError errorWithDomain:[[NSBundle bundleForClass:[self class]] bundleIdentifier]
                                          code:-1
@@ -810,7 +627,7 @@ NSString* kMediaMetaDataMapTypeNumbers = @"ofNumber";
     NSString* description = [NSString stringWithFormat:@"Unsupport filetype (%@) for modifying metadata", fileExtension];
     if (error) {
         NSDictionary* userInfo = @{
-            NSLocalizedDescriptionKey : description,
+            NSLocalizedDescriptionKey: description,
         };
         *error = [NSError errorWithDomain:[[NSBundle bundleForClass:[self class]] bundleIdentifier]
                                      code:-1

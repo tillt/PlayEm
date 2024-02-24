@@ -26,6 +26,16 @@ enum {
     MediaMetaDataLocationTypeUnknown = ITLibMediaItemLocationTypeUnknown
 };
 
+extern NSString* const kMediaMetaDataMapKeyMP3;
+extern NSString* const kMediaMetaDataMapKeyType;
+extern NSString* const kMediaMetaDataMapKeyKey;
+extern NSString* const kMediaMetaDataMapKeyKeys;
+extern NSString* const kMediaMetaDataMapKeyOrder;
+extern NSString* const kMediaMetaDataMapTypeString;
+extern NSString* const kMediaMetaDataMapTypeDate;
+extern NSString* const kMediaMetaDataMapTypeImage;
+extern NSString* const kMediaMetaDataMapTypeNumbers;
+
 @interface MediaMetaData : NSObject
 
 @property (strong, nonatomic) ITLibMediaItem* shadow;
@@ -55,6 +65,7 @@ enum {
 + (MediaMetaData*)mediaMetaDataWithITLibMediaItem:(ITLibMediaItem*)item error:(NSError**)error;
 
 + (NSArray<NSString*>*)mediaMetaKeys;
++ (NSDictionary<NSString*, NSDictionary<NSString*, NSString*>*>*)mp3TagMap;
 
 - (BOOL)syncToFileWithError:(NSError**)error;
 - (BOOL)isEqual:(MediaMetaData*)other forKeys:(NSArray<NSString*>*)keys;

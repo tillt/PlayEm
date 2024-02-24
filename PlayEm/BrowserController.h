@@ -10,8 +10,6 @@
 #import <Foundation/Foundation.h>
 #import "LoadState.h"
 
-@class MediaMetaData;
-
 NS_ASSUME_NONNULL_BEGIN
 
 #define VIEWTAG_GENRE    42

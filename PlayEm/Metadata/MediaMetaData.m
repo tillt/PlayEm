@@ -140,7 +140,7 @@ NSString* const kMediaMetaDataMapTypeNumbers = @"ofNumber";
         },
         @"comment": @{
             kMediaMetaDataMapKeyMP3: @{
-                kMediaMetaDataMapKeyKey: @"COMMENTS",
+                kMediaMetaDataMapKeyKey: @"COMMENT",
                 kMediaMetaDataMapKeyType: kMediaMetaDataMapTypeString,
             },
         },

@@ -16,9 +16,6 @@ NS_ASSUME_NONNULL_BEGIN
 /// iTunes provided data are held in a shadow item until data is requested and thus copied in.
 ///
 
-@class ITLibMediaItem;
-@class AVAsset;
-
 typedef enum : NSUInteger {
     MediaMetaDataLocationTypeFile = ITLibMediaItemLocationTypeFile,
     MediaMetaDataLocationTypeURL = ITLibMediaItemLocationTypeURL,

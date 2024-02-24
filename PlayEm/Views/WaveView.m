@@ -55,8 +55,8 @@
 
     CIFilter* bloomFilter = [CIFilter filterWithName:@"CIBloom"];
     [bloomFilter setDefaults];
-    [bloomFilter setValue: [NSNumber numberWithFloat:7.0] forKey: @"inputRadius"];
-    [bloomFilter setValue: [NSNumber numberWithFloat:1.0] forKey: @"inputIntensity"];
+    [bloomFilter setValue: [NSNumber numberWithFloat:9.0] forKey: @"inputRadius"];
+    [bloomFilter setValue: [NSNumber numberWithFloat:1.5] forKey: @"inputIntensity"];
 
     CIFilter* headFilter = [CIFilter filterWithName:@"CISourceAtopCompositing"];
     [headFilter setDefaults];
@@ -95,15 +95,16 @@
     for (int i = 0; i < trailingBloomLayerCount; i++) {
         CIFilter* bloom = [CIFilter filterWithName:@"CIBloom"];
         [bloom setDefaults];
-        [bloom setValue: [NSNumber numberWithFloat:(float)(2 + trailingBloomLayerCount - i) * 1.0] forKey: @"inputRadius"];
+        [bloom setValue: [NSNumber numberWithFloat:(float)(2.5 + trailingBloomLayerCount - i) * 1.0] forKey: @"inputRadius"];
+        //[bloom setValue: [NSNumber numberWithFloat:1.0 + ((trailingBloomLayerCount - i) * 0.1)] forKey: @"inputIntensity"];
         [bloom setValue: [NSNumber numberWithFloat:1.0] forKey: @"inputIntensity"];
 
         CALayer* layer = [CALayer layer];
         layer.backgroundFilters = @[ bloom ];
         layer.anchorPoint = CGPointMake(1.0, 0.0);
         layer.frame = CGRectMake(0.0, 0.0, floor(_headImageSize.width / (2 * trailingBloomLayerCount)), height);
-        layer.masksToBounds = NO;
-        layer.zPosition = 1.99;
+        layer.masksToBounds = YES;
+        layer.zPosition = 1.99 + (i - trailingBloomLayerCount);
         layer.name = [NSString stringWithFormat:@"TrailBloomFxLayer%d", i+1];
         layer.mask = [CAShapeLayer MaskLayerFromRect:layer.frame];
         [layers addObject:layer];
@@ -172,11 +173,11 @@
     _headLayer.position = CGPointMake(_head, 0.0);
     _headBloomFxLayer.position = CGPointMake(_head, 0.0);
     
-    CGFloat x = 0;
+    CGFloat x = 0.0;
     CGFloat offset = 0.0;
     for (CALayer* layer in _trailBloomFxLayers) {
         layer.position = CGPointMake((_head + offset) - x, 0.0);
-        x += layer.frame.size.width;
+        x += layer.frame.size.width + 1.0;
     }
 
     [_headDelegate updatedHeadPosition];

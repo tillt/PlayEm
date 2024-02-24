@@ -19,20 +19,18 @@ NS_ASSUME_NONNULL_BEGIN
 #define VIEWTAG_KEY      46
 #define VIEWTAG_FILTERED 50
 
-@protocol BrowserControllerDelegate <NSObject>
+@class MediaMetaData;
 
+@protocol BrowserControllerDelegate <NSObject>
 - (void)browseSelectedUrl:(NSURL*)url meta:(MediaMetaData*)meta;
 - (void)loadLibraryState:(LoadState)state;
 - (void)loadLibraryState:(LoadState)state value:(double)value;
 - (void)addToPlaylistNext:(MediaMetaData*) meta;
 - (void)addToPlaylistLater:(MediaMetaData*) meta;
 - (void)updateSongsCount:(size_t)songs;
-
 @end
 
-
 @interface BrowserController : NSResponder <NSTableViewDelegate, NSTableViewDataSource>
-
 @property (nonatomic, weak) id <BrowserControllerDelegate> delegate;
 
 - (id)initWithGenresTable:(NSTableView*)genresTable
@@ -41,14 +39,11 @@ NS_ASSUME_NONNULL_BEGIN
               temposTable:(NSTableView*)temposTable
                songsTable:(NSTableView*)songsTable
                  delegate:(id <BrowserControllerDelegate>)delegate;
-
 - (void)loadITunesLibrary;
 - (void)reloadData;
-
 - (IBAction)playNext:(id)sender;
 - (IBAction)playLater:(id)sender;
 - (IBAction)showInFinder:(id)sender;
-
 @end
 
 NS_ASSUME_NONNULL_END

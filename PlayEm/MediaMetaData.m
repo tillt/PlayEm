@@ -57,16 +57,16 @@ NSString* const kMediaMetaDataMapTypeNumbers = @"ofNumber";
         NSLog(@"error: %@", description);
         return MediaMetaDataFileFormatTypeUnknown;
     }
-
+    
     NSString* fileExtension = [url pathExtension];
-
+    
     if ([fileExtension isEqualToString:@"mp4"] || [fileExtension isEqualToString:@"m4a"]) {
         return MediaMetaDataFileFormatTypeMP4;
     }
     if ([fileExtension isEqualToString:@"mp3"]) {
         return MediaMetaDataFileFormatTypeMP3;
     }
-
+    
     NSString* description = [NSString stringWithFormat:@"Unknown file type (%@)", fileExtension];
     if (error) {
         NSDictionary* userInfo = @{
@@ -146,11 +146,11 @@ NSString* const kMediaMetaDataMapTypeNumbers = @"ofNumber";
 + (MediaMetaData*)mediaMetaDataWithURL:(NSURL*)url asset:(AVAsset *)asset error:(NSError**)error
 {
     MediaMetaData* meta = [[MediaMetaData alloc] init];
-
+    
     meta.location = url;
     
     [meta readFromAsset:asset];
-
+    
     return meta;
 }
 
@@ -165,117 +165,117 @@ NSString* const kMediaMetaDataMapTypeNumbers = @"ofNumber";
 + (NSDictionary<NSString*, NSDictionary*>*)mediaMetaKeyMap
 {
     return @{
-                @"added": @{},
-                @"location": @{},
-                @"locationType": @{},
-                
-                @"album": @{
-                    kMediaMetaDataMapKeyMP3: @{
-                        kMediaMetaDataMapKeyKey: @"ALBUM",
-                        kMediaMetaDataMapKeyType: kMediaMetaDataMapTypeString,
-                    },
-                },
-                @"albumArtist": @{
-                    kMediaMetaDataMapKeyMP3: @{
-                        kMediaMetaDataMapKeyKey: @"ALBUMARTIST",
-                        kMediaMetaDataMapKeyType: kMediaMetaDataMapTypeString,
-                    },
-                },
-                @"artist": @{
-                    kMediaMetaDataMapKeyMP3: @{
-                        kMediaMetaDataMapKeyKey: @"ARTIST",
-                        kMediaMetaDataMapKeyType: kMediaMetaDataMapTypeString,
-                    },
-                },
-                @"artwork": @{
-                    kMediaMetaDataMapKeyMP3: @{
-                        kMediaMetaDataMapKeyKey: @"PICTURE",
-                        kMediaMetaDataMapKeyType: kMediaMetaDataMapTypeImage,
-                    },
-                },
-                @"comment": @{
-                    kMediaMetaDataMapKeyMP3: @{
-                        kMediaMetaDataMapKeyKey: @"COMMENTS",
-                        kMediaMetaDataMapKeyType: kMediaMetaDataMapTypeString,
-                    },
-                },
-                @"composer": @{
-                    kMediaMetaDataMapKeyMP3: @{
-                        kMediaMetaDataMapKeyKey: @"COMPOSER",
-                        kMediaMetaDataMapKeyType: kMediaMetaDataMapTypeString,
-                    },
-                },
-                @"label": @{
-                    kMediaMetaDataMapKeyMP3: @{
-                        kMediaMetaDataMapKeyKey: @"LABEL",
-                        kMediaMetaDataMapKeyType: kMediaMetaDataMapTypeString,
-                    },
-                },
-                @"disk": @{
-                    kMediaMetaDataMapKeyMP3: @{
-                        kMediaMetaDataMapKeyKey: @"DISCNUMBER",
-                        kMediaMetaDataMapKeyType: kMediaMetaDataMapTypeNumbers,
-                        kMediaMetaDataMapKeyOrder: @0,
-                    },
-                },
-                @"disks": @{
-                    kMediaMetaDataMapKeyMP3: @{
-                        kMediaMetaDataMapKeyKey: @"DISCNUMBER",
-                        kMediaMetaDataMapKeyType: kMediaMetaDataMapTypeNumbers,
-                        kMediaMetaDataMapKeyOrder: @1,
-                    },
-                },
-                @"duration": @{
-                    kMediaMetaDataMapKeyMP3: @{
-                        kMediaMetaDataMapKeyKey: @"LENGTH",
-                        kMediaMetaDataMapKeyType: kMediaMetaDataMapTypeString,
-                    },
-                },
-                @"genre": @{
-                    kMediaMetaDataMapKeyMP3: @{
-                        kMediaMetaDataMapKeyKey: @"GENRE",
-                        kMediaMetaDataMapKeyType: kMediaMetaDataMapTypeString,
-                    },
-                },
-                @"key": @{
-                    kMediaMetaDataMapKeyMP3: @{
-                        kMediaMetaDataMapKeyKey: @"INITIALKEY",
-                        kMediaMetaDataMapKeyType: kMediaMetaDataMapTypeString,
-                    },
-                },
-                @"tempo": @{
-                    kMediaMetaDataMapKeyMP3: @{
-                        kMediaMetaDataMapKeyKey: @"BPM",
-                        kMediaMetaDataMapKeyType: kMediaMetaDataMapTypeString,
-                    },
-                },
-                @"title": @{
-                    kMediaMetaDataMapKeyMP3: @{
-                        kMediaMetaDataMapKeyKey: @"TITLE",
-                        kMediaMetaDataMapKeyType: kMediaMetaDataMapTypeString,
-                    },
-                },
-                @"track": @{
-                    kMediaMetaDataMapKeyMP3: @{
-                        kMediaMetaDataMapKeyKey: @"TRACKNUMBER",
-                        kMediaMetaDataMapKeyType: kMediaMetaDataMapTypeNumbers,
-                        kMediaMetaDataMapKeyOrder: @0,
-                    },
-                },
-                @"tracks": @{
-                    kMediaMetaDataMapKeyMP3: @{
-                        kMediaMetaDataMapKeyKey: @"TRACKNUMBER",
-                        kMediaMetaDataMapKeyType: kMediaMetaDataMapTypeNumbers,
-                        kMediaMetaDataMapKeyOrder: @1,
-                    },
-                },
-                @"year": @{
-                    kMediaMetaDataMapKeyMP3: @{
-                        kMediaMetaDataMapKeyKey: @"DATE",
-                        kMediaMetaDataMapKeyType: kMediaMetaDataMapTypeDate,
-                    },
-                },
-            };
+        @"added": @{},
+        @"location": @{},
+        @"locationType": @{},
+        
+        @"album": @{
+            kMediaMetaDataMapKeyMP3: @{
+                kMediaMetaDataMapKeyKey: @"ALBUM",
+                kMediaMetaDataMapKeyType: kMediaMetaDataMapTypeString,
+            },
+        },
+        @"albumArtist": @{
+            kMediaMetaDataMapKeyMP3: @{
+                kMediaMetaDataMapKeyKey: @"ALBUMARTIST",
+                kMediaMetaDataMapKeyType: kMediaMetaDataMapTypeString,
+            },
+        },
+        @"artist": @{
+            kMediaMetaDataMapKeyMP3: @{
+                kMediaMetaDataMapKeyKey: @"ARTIST",
+                kMediaMetaDataMapKeyType: kMediaMetaDataMapTypeString,
+            },
+        },
+        @"artwork": @{
+            kMediaMetaDataMapKeyMP3: @{
+                kMediaMetaDataMapKeyKey: @"PICTURE",
+                kMediaMetaDataMapKeyType: kMediaMetaDataMapTypeImage,
+            },
+        },
+        @"comment": @{
+            kMediaMetaDataMapKeyMP3: @{
+                kMediaMetaDataMapKeyKey: @"COMMENTS",
+                kMediaMetaDataMapKeyType: kMediaMetaDataMapTypeString,
+            },
+        },
+        @"composer": @{
+            kMediaMetaDataMapKeyMP3: @{
+                kMediaMetaDataMapKeyKey: @"COMPOSER",
+                kMediaMetaDataMapKeyType: kMediaMetaDataMapTypeString,
+            },
+        },
+        @"label": @{
+            kMediaMetaDataMapKeyMP3: @{
+                kMediaMetaDataMapKeyKey: @"LABEL",
+                kMediaMetaDataMapKeyType: kMediaMetaDataMapTypeString,
+            },
+        },
+        @"disk": @{
+            kMediaMetaDataMapKeyMP3: @{
+                kMediaMetaDataMapKeyKey: @"DISCNUMBER",
+                kMediaMetaDataMapKeyType: kMediaMetaDataMapTypeNumbers,
+                kMediaMetaDataMapKeyOrder: @0,
+            },
+        },
+        @"disks": @{
+            kMediaMetaDataMapKeyMP3: @{
+                kMediaMetaDataMapKeyKey: @"DISCNUMBER",
+                kMediaMetaDataMapKeyType: kMediaMetaDataMapTypeNumbers,
+                kMediaMetaDataMapKeyOrder: @1,
+            },
+        },
+        @"duration": @{
+            kMediaMetaDataMapKeyMP3: @{
+                kMediaMetaDataMapKeyKey: @"LENGTH",
+                kMediaMetaDataMapKeyType: kMediaMetaDataMapTypeString,
+            },
+        },
+        @"genre": @{
+            kMediaMetaDataMapKeyMP3: @{
+                kMediaMetaDataMapKeyKey: @"GENRE",
+                kMediaMetaDataMapKeyType: kMediaMetaDataMapTypeString,
+            },
+        },
+        @"key": @{
+            kMediaMetaDataMapKeyMP3: @{
+                kMediaMetaDataMapKeyKey: @"INITIALKEY",
+                kMediaMetaDataMapKeyType: kMediaMetaDataMapTypeString,
+            },
+        },
+        @"tempo": @{
+            kMediaMetaDataMapKeyMP3: @{
+                kMediaMetaDataMapKeyKey: @"BPM",
+                kMediaMetaDataMapKeyType: kMediaMetaDataMapTypeString,
+            },
+        },
+        @"title": @{
+            kMediaMetaDataMapKeyMP3: @{
+                kMediaMetaDataMapKeyKey: @"TITLE",
+                kMediaMetaDataMapKeyType: kMediaMetaDataMapTypeString,
+            },
+        },
+        @"track": @{
+            kMediaMetaDataMapKeyMP3: @{
+                kMediaMetaDataMapKeyKey: @"TRACKNUMBER",
+                kMediaMetaDataMapKeyType: kMediaMetaDataMapTypeNumbers,
+                kMediaMetaDataMapKeyOrder: @0,
+            },
+        },
+        @"tracks": @{
+            kMediaMetaDataMapKeyMP3: @{
+                kMediaMetaDataMapKeyKey: @"TRACKNUMBER",
+                kMediaMetaDataMapKeyType: kMediaMetaDataMapTypeNumbers,
+                kMediaMetaDataMapKeyOrder: @1,
+            },
+        },
+        @"year": @{
+            kMediaMetaDataMapKeyMP3: @{
+                kMediaMetaDataMapKeyKey: @"DATE",
+                kMediaMetaDataMapKeyType: kMediaMetaDataMapTypeDate,
+            },
+        },
+    };
 }
 
 + (NSArray<NSString*>*)mediaMetaKeys
@@ -292,7 +292,7 @@ NSString* const kMediaMetaDataMapTypeNumbers = @"ofNumber";
     if (_title == nil) {
         _title = _shadow.title;
     }
-
+    
     return _title;
 }
 
@@ -305,7 +305,7 @@ NSString* const kMediaMetaDataMapTypeNumbers = @"ofNumber";
     if (_artist == nil) {
         _artist = _shadow.artist.name;
     }
-
+    
     return _artist;
 }
 
@@ -318,7 +318,7 @@ NSString* const kMediaMetaDataMapTypeNumbers = @"ofNumber";
     if (_album == nil) {
         _album = _shadow.album.title;
     }
-
+    
     return _album;
 }
 
@@ -331,7 +331,7 @@ NSString* const kMediaMetaDataMapTypeNumbers = @"ofNumber";
     if (_albumArtist == nil) {
         _albumArtist = _shadow.album.albumArtist;
     }
-
+    
     return _albumArtist;
 }
 
@@ -344,7 +344,7 @@ NSString* const kMediaMetaDataMapTypeNumbers = @"ofNumber";
     if (_genre == nil) {
         _genre = _shadow.genre;
     }
-
+    
     return _genre;
 }
 
@@ -357,7 +357,7 @@ NSString* const kMediaMetaDataMapTypeNumbers = @"ofNumber";
     if (_composer == nil) {
         _composer = _shadow.composer;
     }
-
+    
     return _composer;
 }
 
@@ -370,11 +370,11 @@ NSString* const kMediaMetaDataMapTypeNumbers = @"ofNumber";
     if (_comment == nil) {
         _comment = _shadow.comments;
     }
-
+    
     return _comment;
 }
 
-- (NSNumber*)tempo
+- (NSNumber* _Nullable)tempo
 {
     if (_shadow == nil) {
         return _tempo;
@@ -383,11 +383,11 @@ NSString* const kMediaMetaDataMapTypeNumbers = @"ofNumber";
     if (_tempo == 0) {
         _tempo = [NSNumber numberWithUnsignedInteger:_shadow.beatsPerMinute];
     }
-
+    
     return _tempo;
 }
 
-- (NSNumber*)year
+- (NSNumber* _Nullable)year
 {
     if (_shadow == nil) {
         return _year;
@@ -396,11 +396,11 @@ NSString* const kMediaMetaDataMapTypeNumbers = @"ofNumber";
     if (_year == 0) {
         _year = [NSNumber numberWithUnsignedInteger:_shadow.year];
     }
-
+    
     return _year;
 }
 
-- (NSNumber*)track
+- (NSNumber* _Nullable)track
 {
     if (_shadow == nil) {
         return _track;
@@ -409,11 +409,11 @@ NSString* const kMediaMetaDataMapTypeNumbers = @"ofNumber";
     if (_track == 0) {
         _track = [NSNumber numberWithUnsignedInteger:_shadow.trackNumber];
     }
-
+    
     return _track;
 }
 
-- (NSNumber*)tracks
+- (NSNumber* _Nullable)tracks
 {
     if (_shadow == nil) {
         return _tracks;
@@ -422,11 +422,11 @@ NSString* const kMediaMetaDataMapTypeNumbers = @"ofNumber";
     if (_tracks == 0) {
         _tracks = [NSNumber numberWithUnsignedInteger:_shadow.album.trackCount];
     }
-
+    
     return _tracks;
 }
 
-- (NSNumber*)disk
+- (NSNumber* _Nullable)disk
 {
     if (_shadow == nil) {
         return _disk;
@@ -435,11 +435,11 @@ NSString* const kMediaMetaDataMapTypeNumbers = @"ofNumber";
     if (_disk == 0) {
         _disk = [NSNumber numberWithUnsignedInteger:_shadow.album.discNumber];
     }
-
+    
     return _track;
 }
 
-- (NSNumber*)disks
+- (NSNumber* _Nullable)disks
 {
     if (_shadow == nil) {
         return _disks;
@@ -448,7 +448,7 @@ NSString* const kMediaMetaDataMapTypeNumbers = @"ofNumber";
     if (_disks == 0) {
         _disks = [NSNumber numberWithUnsignedInteger:_shadow.album.discCount];
     }
-
+    
     return _disks;
 }
 
@@ -462,11 +462,11 @@ NSString* const kMediaMetaDataMapTypeNumbers = @"ofNumber";
         _location = _shadow.location;
         _locationType = [NSNumber numberWithUnsignedInteger:_shadow.locationType];
     }
-
+    
     return _location;
 }
 
-- (NSNumber*)locationType
+- (NSNumber* _Nullable)locationType
 {
     if (_shadow == nil) {
         return _locationType;
@@ -475,11 +475,11 @@ NSString* const kMediaMetaDataMapTypeNumbers = @"ofNumber";
     if (_locationType == 0) {
         _locationType = [NSNumber numberWithUnsignedInteger:_shadow.locationType];
     }
-
+    
     return _locationType;
 }
 
-- (NSNumber*)duration
+- (NSNumber* _Nullable)duration
 {
     if (_shadow == nil) {
         return _duration;
@@ -488,7 +488,7 @@ NSString* const kMediaMetaDataMapTypeNumbers = @"ofNumber";
     if (_duration == 0) {
         _duration = [NSNumber numberWithFloat:_shadow.totalTime];
     }
-
+    
     return _duration;
 }
 
@@ -505,7 +505,7 @@ NSString* const kMediaMetaDataMapTypeNumbers = @"ofNumber";
             _artwork = [NSImage imageNamed:@"UnknownSong"];
         }
     }
-
+    
     return _artwork;
 }
 
@@ -518,13 +518,13 @@ NSString* const kMediaMetaDataMapTypeNumbers = @"ofNumber";
     if (_added == nil) {
         _added = _shadow.addedDate;
     }
-
+    
     return _added;
 }
 
-- (NSString *)description
+- (NSString*)description
 {
-    return [NSString stringWithFormat:@"Title: %@ -- Album: %@ -- Artist: %@ -- Location: %@", 
+    return [NSString stringWithFormat:@"Title: %@ -- Album: %@ -- Artist: %@ -- Location: %@",
             self.title, self.album, self.artist, self.location];
 }
 
@@ -566,21 +566,21 @@ NSString* const kMediaMetaDataMapTypeNumbers = @"ofNumber";
     if ([valueObject isKindOfClass:[NSString class]]) {
         return valueObject;
     }
-
+    
     if ([valueObject isKindOfClass:[NSNumber class]] && [valueObject intValue] > 0) {
         return [valueObject stringValue];
     }
-
+    
     if ([valueObject isKindOfClass:[NSURL class]]) {
         return [[valueObject absoluteString] stringByRemovingPercentEncoding];
     }
-
+    
     if ([valueObject isKindOfClass:[NSDate class]]) {
         return [NSDateFormatter localizedStringFromDate:valueObject
                                               dateStyle:NSDateFormatterShortStyle
                                               timeStyle:NSDateFormatterNoStyle];
     }
-
+    
     return @"";
 }
 
@@ -603,7 +603,7 @@ NSString* const kMediaMetaDataMapTypeNumbers = @"ofNumber";
         } else {
             NSString* thisValue = [self stringForKey:key];
             NSString* otherValue = [other stringForKey:key];
-
+            
             if (![thisValue isEqualToString:otherValue]) {
                 NSLog(@"metadata is not equal for key %@ (\"%@\" != \"%@\")", key, thisValue, otherValue);
                 return NO;
@@ -626,13 +626,13 @@ NSString* const kMediaMetaDataMapTypeNumbers = @"ofNumber";
     }
     
     NSArray<NSString*>* supportedKeys = nil;
-
+    
     if (thisType == MediaMetaDataFileFormatTypeMP3) {
         supportedKeys = [MediaMetaData mp3SupportedMediaDataKeys];
     } else if (thisType == MediaMetaDataFileFormatTypeMP4) {
         NSAssert(NO, @"not yet implemented");
     }
-
+    
     return [self isEqualToMediaMetaData:other forKeys:supportedKeys];
 }
 
@@ -650,13 +650,13 @@ NSString* const kMediaMetaDataMapTypeNumbers = @"ofNumber";
     strncpy(trimmedName, className, classNameLength);
     trimmedName[classNameLength] = '\0';
     Class objectClass = objc_getClass(trimmedName);
-
+    
     if (objectClass == [NSString class]) {
         [self setValue:string forKey:key];
         NSLog(@"updated %@ with string \"%@\"", key, string);
         return;
     }
-
+    
     if (objectClass == [NSNumber class]) {
         NSInteger integerValue = [string integerValue];
         NSNumber* numberValue = [NSNumber numberWithInteger:integerValue];
@@ -673,13 +673,13 @@ NSString* const kMediaMetaDataMapTypeNumbers = @"ofNumber";
 {
     MediaMetaData* metaFromFile = [MediaMetaData mediaMetaDataFromMP3FileWithURL:self.location error:error];
     NSArray<NSString*>* mp3SupportedKeys = [MediaMetaData mp3SupportedMediaDataKeys];
-
+    
     BOOL ret = YES;
-
+    
     if (![self isEqualToMediaMetaData:metaFromFile forKeys:mp3SupportedKeys]) {
         ret = [self writeToMP3FileWithError:error] == 0;
     }
-
+    
     return ret;
 }
 
@@ -687,22 +687,22 @@ NSString* const kMediaMetaDataMapTypeNumbers = @"ofNumber";
 {
     NSString* fileExtension = [self.location pathExtension];
     NSString* fileName = [[self.location URLByDeletingPathExtension] lastPathComponent];
-
+    
     AVURLAsset* asset = [AVURLAsset assetWithURL:self.location];
     AVAssetExportSession* session = [AVAssetExportSession exportSessionWithAsset:asset
                                                                       presetName:AVAssetExportPresetPassthrough];
     
-
+    
     NSString* outputFolder = @"/tmp";
     NSString* outputFile = [NSString stringWithFormat:@"%@/%@.%@", outputFolder, fileName, fileExtension];
-
+    
     session.outputURL = [NSURL fileURLWithPath:outputFile];
     session.outputFileType = AVFileTypeAppleM4A;
     
     [session exportAsynchronouslyWithCompletionHandler:^(){
         NSLog(@"MP4 export session completed");
     }];
-
+    
     return YES;
 }
 
@@ -719,10 +719,10 @@ NSString* const kMediaMetaDataMapTypeNumbers = @"ofNumber";
                                      userInfo:userInfo];
         }
         NSLog(@"error: %@", description);
-
+        
         return NO;
     }
-
+    
     MediaMetaDataFileFormatType type = [MediaMetaData fileTypeWithURL:self.location error:error];
     
     if (type == MediaMetaDataFileFormatTypeMP3) {
@@ -742,9 +742,8 @@ NSString* const kMediaMetaDataMapTypeNumbers = @"ofNumber";
                                  userInfo:userInfo];
     }
     NSLog(@"error: %@", description);
-
+    
     return NO;
 }
-
 
 @end

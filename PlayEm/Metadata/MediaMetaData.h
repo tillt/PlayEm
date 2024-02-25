@@ -57,6 +57,7 @@ extern NSString* const kMediaMetaDataMapTypeNumbers;
 @property (copy, nonatomic, nullable) NSString* label;
 @property (copy, nonatomic, nullable) NSNumber* tempo;
 @property (copy, nonatomic, nullable) NSString* key;
+@property (copy, nonatomic, nullable) NSString* lyrics;
 @property (copy, nonatomic, nullable) NSNumber* track;
 @property (copy, nonatomic, nullable) NSNumber* tracks;
 @property (copy, nonatomic, nullable) NSNumber* disk;
@@ -65,6 +66,7 @@ extern NSString* const kMediaMetaDataMapTypeNumbers;
 @property (strong, nonatomic, nullable) NSImage* artwork;
 @property (strong, nonatomic, nullable) NSURL* location;
 @property (strong, nonatomic, nullable) NSDate* added;
+@property (copy, nonatomic, nullable) NSNumber* compilation;
 @property (copy, nonatomic, nullable) NSNumber* duration;
 
 + (MediaMetaData*)mediaMetaDataWithURL:(NSURL*)url error:(NSError**)error;

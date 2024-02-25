@@ -388,7 +388,7 @@ NSString* const kMediaMetaDataMapTypeNumbers = @"ofNumber";
         return _tempo;
     }
     
-    if (_tempo == 0) {
+    if (_tempo == nil) {
         _tempo = [NSNumber numberWithUnsignedInteger:_shadow.beatsPerMinute];
     }
     
@@ -401,7 +401,7 @@ NSString* const kMediaMetaDataMapTypeNumbers = @"ofNumber";
         return _year;
     }
     
-    if (_year == 0) {
+    if (_year == nil) {
         _year = [NSNumber numberWithUnsignedInteger:_shadow.year];
     }
     
@@ -414,7 +414,7 @@ NSString* const kMediaMetaDataMapTypeNumbers = @"ofNumber";
         return _track;
     }
     
-    if (_track == 0) {
+    if (_track == nil) {
         _track = [NSNumber numberWithUnsignedInteger:_shadow.trackNumber];
     }
     
@@ -427,7 +427,7 @@ NSString* const kMediaMetaDataMapTypeNumbers = @"ofNumber";
         return _tracks;
     }
     
-    if (_tracks == 0) {
+    if (_tracks == nil) {
         _tracks = [NSNumber numberWithUnsignedInteger:_shadow.album.trackCount];
     }
     
@@ -440,7 +440,7 @@ NSString* const kMediaMetaDataMapTypeNumbers = @"ofNumber";
         return _disk;
     }
     
-    if (_disk == 0) {
+    if (_disk == nil) {
         _disk = [NSNumber numberWithUnsignedInteger:_shadow.album.discNumber];
     }
     
@@ -453,7 +453,7 @@ NSString* const kMediaMetaDataMapTypeNumbers = @"ofNumber";
         return _disks;
     }
     
-    if (_disks == 0) {
+    if (_disks == nil) {
         _disks = [NSNumber numberWithUnsignedInteger:_shadow.album.discCount];
     }
     
@@ -466,7 +466,7 @@ NSString* const kMediaMetaDataMapTypeNumbers = @"ofNumber";
         return _location;
     }
     
-    if (_location == 0) {
+    if (_location == nil) {
         _location = _shadow.location;
     }
     
@@ -479,7 +479,7 @@ NSString* const kMediaMetaDataMapTypeNumbers = @"ofNumber";
         return _locationType;
     }
     
-    if (_locationType == 0) {
+    if (_locationType == nil) {
         _locationType = [NSNumber numberWithUnsignedInteger:_shadow.locationType];
     }
     
@@ -492,11 +492,24 @@ NSString* const kMediaMetaDataMapTypeNumbers = @"ofNumber";
         return _duration;
     }
     
-    if (_duration == 0) {
+    if (_duration == nil) {
         _duration = [NSNumber numberWithFloat:_shadow.totalTime];
     }
     
     return _duration;
+}
+
+- (NSNumber* _Nullable)compilation
+{
+    if (_shadow == nil) {
+        return _compilation;
+    }
+    
+    if (_compilation == nil) {
+        _compilation = [NSNumber numberWithBool:_shadow.album.compilation];
+    }
+    
+    return _compilation;
 }
 
 - (NSImage* _Nullable)artwork
@@ -531,6 +544,89 @@ NSString* const kMediaMetaDataMapTypeNumbers = @"ofNumber";
 
 - (BOOL)readFromAVAsset:(AVAsset *)asset
 {
+    NSDictionary* id3Genres = @{
+        @0: @"Blues",
+        @1: @"Classic Rock",
+        @2: @"Country",
+        @3: @"Dance",
+        @4: @"Disco",
+        @5: @"Funk",
+        @6: @"Grunge",
+        @7: @"Hip-Hop",
+        @8: @"Jazz",
+        @9: @"Metal",
+        @10: @"New Age",
+        @11: @"Oldies",
+        @12: @"Other",
+        @13: @"Pop",
+        @14: @"R&B",
+        @15: @"Rap",
+        @16: @"Reggae",
+        @17: @"Rock",
+        @18: @"Techno",
+        @19: @"Industrial",
+        @20: @"Alternative",
+        @21: @"Ska",
+        @22: @"Death Metal",
+        @23: @"Pranks",
+        @24: @"Soundtrack",
+        @25: @"Euro-Techno",
+        @26: @"Ambient",
+        @27: @"Trip-Hop",
+        @28: @"Vocal",
+        @29: @"Jazz+Funk",
+        @30: @"Fusion",
+        @31: @"Trance",
+        @32: @"Classical",
+        @33: @"Instrumental",
+        @34: @"Acid",
+        @35: @"House",
+        @36: @"Game",
+        @37: @"Sound Clip",
+        @38: @"Gospel",
+        @39: @"Noise",
+        @40: @"Alternative Rock",
+        @41: @"Bass",
+        @42: @"Soul",
+        @43: @"Punk",
+        @44: @"Space",
+        @45: @"Meditative",
+        @46: @"Instrumental Pop",
+        @47: @"Instrumental Rock",
+        @48: @"Ethnic",
+        @49: @"Gothic",
+        @50: @"Darkwave",
+        @51: @"Techno-Industrial",
+        @52: @"Electronic",
+        @53: @"Pop-Folk",
+        @54: @"Eurodance",
+        @55: @"Dream",
+        @56: @"Southern Rock",
+        @57: @"Comedy",
+        @58: @"Cult",
+        @59: @"Gangsta Rap",
+        @60: @"Top 40",
+        @61: @"Christian Rap",
+        @62: @"Pop/Funk",
+        @63: @"Jungle",
+        @64: @"Native American",
+        @65: @"Cabaret",
+        @66: @"New Wave",
+        @67: @"Psychedelic",
+        @68: @"Rave",
+        @69: @"Showtunes",
+        @70: @"Trailer",
+        @71: @"Lo-Fi",
+        @72: @"Tribal",
+        @73: @"Acid Punk",
+        @74: @"Acid Jazz",
+        @75: @"Polka",
+        @76: @"Retro",
+        @77: @"Musical",
+        @78: @"Rock & Roll",
+        @79: @"Hard Rock",
+    };
+    
     for (NSString* format in [asset availableMetadataFormats]) {
         for (AVMetadataItem* item in [asset metadataForFormat:format]) {
             NSLog(@"%@ (%@): %@", [item commonKey], [item keyString], [item value]);
@@ -539,18 +635,46 @@ NSString* const kMediaMetaDataMapTypeNumbers = @"ofNumber";
                     self.year = [NSNumber numberWithInt:[(NSString*)[item value] intValue]];
                 } else if ([[item keyString] isEqualToString:@"@gen"]) {
                     self.genre = (NSString*)[item value];
+                } else if ([[item keyString] isEqualToString:@"tmpo"]) {
+                    self.tempo = [NSNumber numberWithInt:[(NSString*)[item value] intValue]];
+                } else if ([[item keyString] isEqualToString:@"aART"]) {
+                    self.albumArtist = (NSString*)[item value];
+                } else if ([[item keyString] isEqualToString:@"@cmt"]) {
+                    self.comment = (NSString*)[item value];
+                } else if ([[item keyString] isEqualToString:@"@wrt"]) {
+                    self.composer = (NSString*)[item value];
+                } else if ([[item keyString] isEqualToString:@"@lyr"]) {
+                    self.lyrics = (NSString*)[item value];
+                } else if ([[item keyString] isEqualToString:@"cpil"]) {
+                    self.compilation = [NSNumber numberWithBool:[(NSString*)[item value] boolValue]];
+                } else if ([[item keyString] isEqualToString:@"trkn"]) {
+                    NSData* data = item.dataValue;
+                    NSAssert(data.length >= 6, @"unexpected tuple encoding");
+                    const uint16_t* tuple = data.bytes;
+                    self.track = [NSNumber numberWithShort:ntohs(tuple[1])];
+                    self.tracks = [NSNumber numberWithShort:ntohs(tuple[2])];
+                } else if ([[item keyString] isEqualToString:@"disk"]) {
+                    NSData* data = item.dataValue;
+                    NSAssert(data.length >= 6, @"unexpected tuple encoding");
+                    const uint16_t* tuple = data.bytes;
+                    self.disk = [NSNumber numberWithShort:ntohs(tuple[1])];
+                    self.disks = [NSNumber numberWithShort:ntohs(tuple[2])];
                 } else {
-                    continue;
+                    NSLog(@"questionable metadata: %@ (%@): %@", [item commonKey], [item keyString], [item value]);
                 }
-            }
-            if ([[item commonKey] isEqualToString:@"title"]) {
+            } else if ([[item commonKey] isEqualToString:@"title"]) {
                 self.title = (NSString*)[item value];
             } else if ([[item commonKey] isEqualToString:@"artist"]) {
                 self.artist = (NSString*)[item value];
             } else if ([[item commonKey] isEqualToString:@"albumName"]) {
                 self.album = (NSString*)[item value];
             } else if ([[item commonKey] isEqualToString:@"type"]) {
-                self.genre = (NSString*)[item value];
+                NSData* data = item.dataValue;
+                NSAssert(data.length >= 2, @"unexpected genre encoding");
+                const uint16_t* genre = data.bytes;
+                NSAssert(genre[0] > 0, @"unexpected genre index");
+                NSNumber* genreNumber = [NSNumber numberWithUnsignedShort:ntohs(genre[0]) - 1];
+                self.genre = id3Genres[genreNumber];
             } else if ([[item commonKey] isEqualToString:@"artwork"]) {
                 if (item.dataValue != nil) {
                     NSLog(@"item.dataValue artwork");
@@ -585,7 +709,9 @@ NSString* const kMediaMetaDataMapTypeNumbers = @"ofNumber";
         copy.genre = [_genre copyWithZone:zone];
         copy.year = [_year copyWithZone:zone];
         copy.comment = [_comment copyWithZone:zone];
+        copy.lyrics = [_lyrics copyWithZone:zone];
         copy.composer = [_composer copyWithZone:zone];
+        copy.compilation = [_compilation copyWithZone:zone];
         copy.albumArtist = [_albumArtist copyWithZone:zone];
         copy.label = [_label copyWithZone:zone];
         copy.tempo = [_tempo copyWithZone:zone];

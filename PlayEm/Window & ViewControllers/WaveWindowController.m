@@ -1405,14 +1405,6 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
 
     self.controlPanelController.bpm.stringValue = @"--- BPM";
     
-    NSLog(@"triggering decoder...");
-    [sample decodeAsyncWithCallback:^{
-        NSLog(@"triggering beat tracker...");
-        [self.beatSample trackBeatsAsyncWithCallback:^{
-            [self.waveView invalidateTiles];
-            [self beatEffectStart];
-        }];
-    }];
     
     self.waveLayerDelegate.visualSample = self.visualSample;
 
@@ -1423,6 +1415,16 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
 
     self.beatSample = [[BeatTrackedSample alloc] initWithSample:sample framesPerPixel:self.visualSample.framesPerPixel];
     self.beatLayerDelegate.beatSample = self.beatSample;
+
+    NSLog(@"triggering decoder...");
+    
+    [sample decodeAsyncWithCallback:^{
+        NSLog(@"triggering beat tracker...");
+        [self.beatSample trackBeatsAsyncWithCallback:^{
+            [self.waveView invalidateTiles];
+            [self beatEffectStart];
+        }];
+    }];
 
     self.audioController.sample = sample;
     self.waveView.frames = sample.frames;

@@ -41,6 +41,8 @@ typedef struct _BeatsParserContext BeatsParserContext;
 @property (strong, nonatomic) NSMutableDictionary* beats;
 @property (readonly, nonatomic) BOOL isReady;
 
++ (void)abort;
+
 - (id)initWithSample:(LazySample*)sample framesPerPixel:(double)framesPerPixel;
 - (NSData* _Nullable)beatsFromOrigin:(size_t)origin;
 

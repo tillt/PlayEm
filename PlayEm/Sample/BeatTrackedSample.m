@@ -77,9 +77,10 @@ static const float kParamFilterDefaultValue = 240.0f;
 
 @end
 
+static dispatch_block_t _queueOperation;
+
 @implementation BeatTrackedSample
 {
-    atomic_int _abortBeatTracking;
     atomic_int _beatTrackDone;
     
     size_t _hopSize;
@@ -161,6 +162,8 @@ static const float kParamFilterDefaultValue = 240.0f;
 {
     self = [super init];
     if (self) {
+        [BeatTrackedSample abort];
+
         _sample = sample;
         assert(framesPerPixel);
         _framesPerPixel = framesPerPixel;
@@ -261,11 +264,6 @@ void beatsContextReset(BeatsParserContext* context)
     return [_beats objectForKey:[NSNumber numberWithLong:pageIndex]];
 }
 
-- (void)abortBeatTracking
-{
-    atomic_fetch_or(&_abortBeatTracking, 1);
-}
-
 - (float)tempo
 {
     return _averageTempo;
@@ -278,11 +276,9 @@ void beatsContextReset(BeatsParserContext* context)
 
 - (void)trackBeatsAsyncWithCallback:(nonnull void (^)(void))callback
 {
-    atomic_fetch_and(&_abortBeatTracking, 0);
     atomic_fetch_and(&_beatTrackDone, 0);
     
-    // Totally do this on a different thread!
-    dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0), ^{
+    _queueOperation = dispatch_block_create(DISPATCH_BLOCK_NO_QOS_CLASS, ^{
         NSLog(@"async beats tracking...");
         [self setupTracking];
         
@@ -300,6 +296,10 @@ void beatsContextReset(BeatsParserContext* context)
         NSLog(@"pass one");
 
         while (sourceWindowFrameOffset < self->_sample.frames) {
+            if (dispatch_block_testcancel(_queueOperation) != 0) {
+                NSLog(@"aborting beat detection");
+                return;
+            }
             unsigned long long sourceWindowFrameCount = MIN(self->_hopSize * 1024,
                                                             self->_sample.frames - sourceWindowFrameOffset);
             // This may block for a loooooong time!
@@ -312,6 +312,11 @@ void beatsContextReset(BeatsParserContext* context)
             unsigned long int sourceFrameIndex = 0;
             BeatEvent event;
             while(sourceFrameIndex < received) {
+                if (dispatch_block_testcancel(_queueOperation) != 0) {
+                    NSLog(@"aborting beat detection");
+                    return;
+                }
+
 #ifndef BEATS_BY_AUBIO
                 double s = 0.0;
                 for (int channel = 0; channel < channels; channel++) {
@@ -456,7 +461,6 @@ void beatsContextReset(BeatsParserContext* context)
                         s = self->_filterOutput;
                     }
 
-                    // FIXME: This just crashed and I have no idea why, so far.
                     self->_aubio_input_buffer->data[inputFrameIndex] = s;
                     sourceFrameIndex++;
                 }
@@ -541,11 +545,21 @@ void beatsContextReset(BeatsParserContext* context)
             });
         }
     });
+    
+    _queueOperation();
 }
 
 - (NSString *)description
 {
     return [NSString stringWithFormat:@"Average tempo: %.0f BPM", _averageTempo];
+}
+
++ (void)abort
+{
+    NSLog(@"aborting beat tracking");
+    if (_queueOperation != NULL) {
+        dispatch_block_cancel(_queueOperation);
+    }
 }
 
 - (BOOL)isReady

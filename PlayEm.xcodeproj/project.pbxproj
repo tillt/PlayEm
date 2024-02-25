@@ -16,7 +16,6 @@
 		BB1614BA2AACB0DF00F6C5E6 /* libaubio.5.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = BB1614B82AACB0C300F6C5E6 /* libaubio.5.dylib */; };
 		BB25CF59255857BC005BFC32 /* MediaMetaData.m in Sources */ = {isa = PBXBuildFile; fileRef = BB25CF58255857BC005BFC32 /* MediaMetaData.m */; };
 		BB26B51129442E9A006EBAA7 /* AudioProcessing.m in Sources */ = {isa = PBXBuildFile; fileRef = BB26B51029442E9A006EBAA7 /* AudioProcessing.m */; };
-		BB287B1B251AC1DE00BFE286 /* ITLibMediaItem+TTAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = BB287B1A251AC1DE00BFE286 /* ITLibMediaItem+TTAdditions.m */; };
 		BB2CB5652481A92600D47258 /* WaveWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = BB2CB5642481A92600D47258 /* WaveWindowController.m */; };
 		BB2CB58724827A0900D47258 /* AudioController.m in Sources */ = {isa = PBXBuildFile; fileRef = BB2CB58624827A0900D47258 /* AudioController.m */; };
 		BB2CF8AD259EB66900D6BA03 /* LazySample.m in Sources */ = {isa = PBXBuildFile; fileRef = BB2CF8AC259EB66900D6BA03 /* LazySample.m */; };
@@ -47,6 +46,7 @@
 		BBAD7D55262B973C00089ACC /* ScopeView.m in Sources */ = {isa = PBXBuildFile; fileRef = BBAD7D54262B973C00089ACC /* ScopeView.m */; };
 		BBB37D21290F4A7E0007A6BB /* PlaylistController.m in Sources */ = {isa = PBXBuildFile; fileRef = BBB37D20290F4A7E0007A6BB /* PlaylistController.m */; };
 		BBC2AF4B2B8974C20077EB5E /* MediaMetaData+TagLib.m in Sources */ = {isa = PBXBuildFile; fileRef = BBC2AF4A2B8974C20077EB5E /* MediaMetaData+TagLib.m */; };
+		BBC2AF732B8B5B5A0077EB5E /* MediaMetaData+AVAsset.m in Sources */ = {isa = PBXBuildFile; fileRef = BBC2AF722B8B5B5A0077EB5E /* MediaMetaData+AVAsset.m */; };
 		BBC43B7028D28CDD00CD1080 /* InfoPanel.m in Sources */ = {isa = PBXBuildFile; fileRef = BBC43B6F28D28CDD00CD1080 /* InfoPanel.m */; };
 		BBC43B7328D296B800CD1080 /* AVMetadataItem+THAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = BBC43B7228D296B800CD1080 /* AVMetadataItem+THAdditions.m */; };
 		BBCE1DD9257C3CAB006CE886 /* TiledScrollView.m in Sources */ = {isa = PBXBuildFile; fileRef = BBCE1DD8257C3CAB006CE886 /* TiledScrollView.m */; };
@@ -105,8 +105,6 @@
 		BB25CF58255857BC005BFC32 /* MediaMetaData.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MediaMetaData.m; sourceTree = "<group>"; };
 		BB26B51029442E9A006EBAA7 /* AudioProcessing.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AudioProcessing.m; sourceTree = "<group>"; };
 		BB26B51229442ECF006EBAA7 /* AudioProcessing.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AudioProcessing.h; sourceTree = "<group>"; };
-		BB287B19251AC1DE00BFE286 /* ITLibMediaItem+TTAdditionsh.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "ITLibMediaItem+TTAdditionsh.h"; sourceTree = "<group>"; };
-		BB287B1A251AC1DE00BFE286 /* ITLibMediaItem+TTAdditions.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "ITLibMediaItem+TTAdditions.m"; sourceTree = "<group>"; };
 		BB2CB5632481A92600D47258 /* WaveWindowController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WaveWindowController.h; sourceTree = "<group>"; };
 		BB2CB5642481A92600D47258 /* WaveWindowController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WaveWindowController.m; sourceTree = "<group>"; };
 		BB2CB58524827A0900D47258 /* AudioController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AudioController.h; sourceTree = "<group>"; };
@@ -156,6 +154,8 @@
 		BBB37D20290F4A7E0007A6BB /* PlaylistController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = PlaylistController.m; sourceTree = "<group>"; };
 		BBC2AF4A2B8974C20077EB5E /* MediaMetaData+TagLib.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "MediaMetaData+TagLib.m"; sourceTree = "<group>"; };
 		BBC2AF4E2B8976DA0077EB5E /* MediaMetaData+TagLib.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "MediaMetaData+TagLib.h"; sourceTree = "<group>"; };
+		BBC2AF712B8B5ACA0077EB5E /* MediaMetaData+AVAsset.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "MediaMetaData+AVAsset.h"; sourceTree = "<group>"; };
+		BBC2AF722B8B5B5A0077EB5E /* MediaMetaData+AVAsset.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "MediaMetaData+AVAsset.m"; sourceTree = "<group>"; };
 		BBC43B6E28D28CDD00CD1080 /* InfoPanel.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = InfoPanel.h; sourceTree = "<group>"; };
 		BBC43B6F28D28CDD00CD1080 /* InfoPanel.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = InfoPanel.m; sourceTree = "<group>"; };
 		BBC43B7128D296B800CD1080 /* AVMetadataItem+THAdditions.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "AVMetadataItem+THAdditions.h"; sourceTree = "<group>"; };
@@ -310,10 +310,10 @@
 				BB25CF58255857BC005BFC32 /* MediaMetaData.m */,
 				BBC2AF4E2B8976DA0077EB5E /* MediaMetaData+TagLib.h */,
 				BBC2AF4A2B8974C20077EB5E /* MediaMetaData+TagLib.m */,
-				BB287B19251AC1DE00BFE286 /* ITLibMediaItem+TTAdditionsh.h */,
-				BB287B1A251AC1DE00BFE286 /* ITLibMediaItem+TTAdditions.m */,
 				BBC43B7128D296B800CD1080 /* AVMetadataItem+THAdditions.h */,
 				BBC43B7228D296B800CD1080 /* AVMetadataItem+THAdditions.m */,
+				BBC2AF712B8B5ACA0077EB5E /* MediaMetaData+AVAsset.h */,
+				BBC2AF722B8B5B5A0077EB5E /* MediaMetaData+AVAsset.m */,
 			);
 			path = Metadata;
 			sourceTree = "<group>";
@@ -562,8 +562,8 @@
 				BB7C6269293144890019AF25 /* Defaults.m in Sources */,
 				BBD24D6A2432948B00DC2A81 /* main.m in Sources */,
 				BBA507DA244224E100AABCF7 /* Sample.m in Sources */,
-				BB287B1B251AC1DE00BFE286 /* ITLibMediaItem+TTAdditions.m in Sources */,
 				BBA623D42620F6A200924D44 /* UIView+Visibility.m in Sources */,
+				BBC2AF732B8B5B5A0077EB5E /* MediaMetaData+AVAsset.m in Sources */,
 				BBE5FEB52A892A410001B807 /* BeatLayerDelegate.m in Sources */,
 				BBE284682467612F00BE9D7F /* ScopeRenderer.m in Sources */,
 				BBA456E129395B970062D470 /* IdentifyController.m in Sources */,

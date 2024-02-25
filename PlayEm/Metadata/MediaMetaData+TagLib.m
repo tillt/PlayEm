@@ -40,7 +40,7 @@
         NSMutableArray* mediaKeys = mp3Dictionary[kMediaMetaDataMapKeyKeys];
         if (mediaKeys == nil) {
             mediaKeys = [NSMutableArray array];
-            if ([type isEqualToString:kMediaMetaDataMapTypeNumbers]) {
+            if ([type isEqualToString:kMediaMetaDataMapTypeTuple]) {
                 [mediaKeys addObjectsFromArray:@[@"", @""]];
             }
         }
@@ -117,7 +117,7 @@
                     
                     if ([type isEqualToString:kMediaMetaDataMapTypeString]) {
                         [self updateWithKey:map[kMediaMetaDataMapKeyKeys][0] string:values];
-                    } else if ([type isEqualToString:kMediaMetaDataMapTypeNumbers]) {
+                    } else if ([type isEqualToString:kMediaMetaDataMapTypeTuple]) {
                         NSArray<NSString*>* components = [values componentsSeparatedByString:@"/"];
                         [self updateWithKey:map[kMediaMetaDataMapKeyKeys][0] string:components[0]];
                         if ([components count] > 1) {
@@ -223,7 +223,7 @@
             NSString* mediaKey = mp3TagMap[mp3Key][kMediaMetaDataMapKeyKeys][0];
             NSString* value = [self stringForKey:mediaKey];
             
-            if ([type isEqualToString:kMediaMetaDataMapTypeNumbers]) {
+            if ([type isEqualToString:kMediaMetaDataMapTypeTuple]) {
                 NSMutableArray* components = [NSMutableArray array];
                 [components addObject:value];
                 

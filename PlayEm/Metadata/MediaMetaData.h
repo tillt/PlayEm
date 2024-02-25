@@ -39,7 +39,7 @@ extern NSString* const kMediaMetaDataMapKeyOrder;
 extern NSString* const kMediaMetaDataMapTypeString;
 extern NSString* const kMediaMetaDataMapTypeDate;
 extern NSString* const kMediaMetaDataMapTypeImage;
-extern NSString* const kMediaMetaDataMapTypeNumbers;
+extern NSString* const kMediaMetaDataMapTypeTuple;
 
 @interface MediaMetaData : NSObject<NSCopying>
 

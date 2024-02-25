@@ -19,7 +19,6 @@
 #import "TableHeaderCell.h"
 
 #import "NSString+BeautifulPast.h"
-#import "ITLibMediaItem+TTAdditionsh.h"
 
 @interface BrowserController ()
 @property (nonatomic, strong) ITLibrary* library;

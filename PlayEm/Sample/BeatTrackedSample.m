@@ -456,6 +456,7 @@ void beatsContextReset(BeatsParserContext* context)
                         s = self->_filterOutput;
                     }
 
+                    // FIXME: This just crashed and I have no idea why, so far.
                     self->_aubio_input_buffer->data[inputFrameIndex] = s;
                     sourceFrameIndex++;
                 }

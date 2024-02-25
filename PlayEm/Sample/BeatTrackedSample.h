@@ -13,11 +13,6 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-//typedef struct {
-//    double negativeAverage;
-//    double positiveAverage;
-//} VisualPair;
-
 typedef struct {
     unsigned long long frame;
     float bpm;

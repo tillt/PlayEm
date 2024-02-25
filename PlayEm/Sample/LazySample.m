@@ -25,16 +25,15 @@ const size_t kMaxFramesPerBuffer = 16384;
 
 @end
 
+static dispatch_block_t _queueOperation;
 
 @implementation LazySample
-{
-    atomic_int _abortDecode;
-}
 
 - (id)initWithPath:(NSString*)path error:(NSError**)error
 {
     self = [super init];
     if (self) {
+        [LazySample abort];
         NSLog(@"init source file for reading");
         _source = [[AVAudioFile alloc] initForReading:[NSURL fileURLWithPath:path] error:error];
         _tileProduced = [[NSCondition alloc] init];
@@ -52,6 +51,14 @@ const size_t kMaxFramesPerBuffer = 16384;
         NSLog(@"...lazy sample initialized");
     }
     return self;
+}
+
++ (void)abort
+{
+    NSLog(@"aborting decoding");
+    if (_queueOperation != NULL) {
+        dispatch_block_cancel(_queueOperation);
+    }
 }
 
 - (unsigned long long)frames
@@ -72,25 +79,16 @@ const size_t kMaxFramesPerBuffer = 16384;
 
 - (void)dealloc
 {
-    atomic_fetch_or(&_abortDecode, 1);
-}
-
-- (void)abortDecode
-{
-    atomic_fetch_or(&_abortDecode, 1);
-    
 }
 
 - (void)decodeAsyncWithCallback:(void (^)(void))callback;
 {
-    atomic_fetch_and(&_abortDecode, 0);
-
-    // Totally do this on a different thread!
-    dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0), ^{
+    _queueOperation = dispatch_block_create(DISPATCH_BLOCK_NO_QOS_CLASS, ^{
         NSLog(@"async sample decode...");
         [self decode];
         callback();
     });
+    dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INTERACTIVE, 0), _queueOperation);
 }
 
 - (void)decode
@@ -133,6 +131,11 @@ const size_t kMaxFramesPerBuffer = 16384;
     unsigned long long pageIndex = 0;
 
     while (engine.manualRenderingSampleTime < _source.length) {
+        if (dispatch_block_testcancel(_queueOperation) != 0) {
+            NSLog(@"aborting decoding");
+            return;
+        }
+
         //NSLog(@"manual rendering sample time: %lld\n", _engine.manualRenderingSampleTime);
         // `_source.length` is the number of sample frames in the file.
         // `_engine.manualRenderingSampleTime`
@@ -174,11 +177,6 @@ const size_t kMaxFramesPerBuffer = 16384;
             case AVAudioEngineManualRenderingStatusCannotDoInCurrentContext:
                 NSLog(@"somehow one round failed, lets retry\n");
                 break;
-        }
-        
-        if (_abortDecode > 0) {
-            NSLog(@"...decoding aborted!!!");
-            return;
         }
     };
     NSLog(@"...decoding done");

@@ -20,11 +20,12 @@ NS_ASSUME_NONNULL_BEGIN
 @property (readonly, nonatomic) NSTimeInterval duration;
 @property (readonly, assign, nonatomic) unsigned long long decodedFrames;
 
-//@property (assign, nonatomic) unsigned long long size;
 @property (assign, nonatomic, readonly) unsigned long long frames;
 @property (assign, nonatomic, readonly) unsigned int frameSize;
 
 @property (readonly, assign, nonatomic) AVAudioFormat* format;
+
++ (void)abort;
 
 - (id)initWithPath:(NSString*)path error:(NSError**)error;
 
@@ -32,7 +33,6 @@ NS_ASSUME_NONNULL_BEGIN
 - (unsigned long long)rawSampleFromFrameOffset:(unsigned long long)offset frames:(unsigned long long)frames data:(float *)data;
 
 - (void)decodeAsyncWithCallback:(void (^)(void))callback;
-- (void)abortDecode;
 
 - (void)dumpToFile;
 

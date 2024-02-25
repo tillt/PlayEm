@@ -22,7 +22,6 @@ NS_ASSUME_NONNULL_BEGIN
 - (NSData* _Nullable)visualsFromOrigin:(size_t)origin;
 - (void)prepareVisualsFromOrigin:(size_t)origin width:(size_t)width window:(size_t)window total:(size_t)totalWidth callback:(void (^)(void))callback;
 - (double)framesPerPixel;
-//- (double)timeFromOrigin:(size_t)origin;
 
 @end
 

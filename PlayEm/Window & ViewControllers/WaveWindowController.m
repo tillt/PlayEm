@@ -154,7 +154,6 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
     if (_sample == sample) {
         return;
     }
-    [_sample abortDecode];
     _sample = sample;
     _beatSample.sample = sample;
     NSLog(@"sample assigned");
@@ -897,8 +896,10 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
 
 - (void)windowWillClose:(NSNotification *)notification
 {
-    // We might still be decoding a sample, stop that!
-    [_sample abortDecode];
+    // Abort all the async operations that might be in flight.
+    [BeatTrackedSample abort];
+    [LazySample abort];
+
     // Finish playback, if anything was ongoing.
     [self stop];
 }

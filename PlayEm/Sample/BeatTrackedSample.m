@@ -546,7 +546,7 @@ void beatsContextReset(BeatsParserContext* context)
         }
     });
     
-    _queueOperation();
+    dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INTERACTIVE, 0), _queueOperation);
 }
 
 - (NSString *)description

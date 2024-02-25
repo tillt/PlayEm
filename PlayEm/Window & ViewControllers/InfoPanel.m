@@ -14,10 +14,13 @@
 @property (strong, nonatomic) NSImageView* smallCoverView;
 @property (strong, nonatomic) NSImageView* largeCoverView;
 
+@property (strong, nonatomic) NSTextView* lyricsTextView;
+
 @property (strong, nonatomic) NSTabView* tabView;
 
 @property (strong, nonatomic) NSViewController* detailsViewController;
 @property (strong, nonatomic) NSViewController* artworkViewController;
+@property (strong, nonatomic) NSViewController* lyricsViewController;
 @property (strong, nonatomic) NSViewController* fileViewController;
 
 @property (strong, nonatomic) NSDictionary* dictionary;
@@ -91,7 +94,6 @@
         },
         @"10 comment": @{
             @"width": @340,
-            @"rows": @3,
         },
         @"11 location": @{
             @"width": @340,
@@ -218,10 +220,10 @@
     _smallCoverView = [NSImageView imageViewWithImage:[NSImage imageNamed:@"UnknownSong"]];
     _smallCoverView.alignment = NSViewHeightSizable | NSViewWidthSizable | NSViewMinYMargin | NSViewMaxYMargin;
     _smallCoverView.imageScaling = NSImageScaleProportionallyUpOrDown;
-    _smallCoverView.frame = CGRectMake(kBorderWidth,
-                                  y,
-                                  imageWidth,
-                                  imageWidth);
+    _smallCoverView.frame = CGRectMake( kBorderWidth,
+                                        y,
+                                        imageWidth,
+                                        imageWidth);
     [view addSubview:_smallCoverView];
 }
 
@@ -233,9 +235,9 @@
     _largeCoverView.alignment = NSViewHeightSizable | NSViewWidthSizable | NSViewMinYMargin | NSViewMaxYMargin;
     _largeCoverView.imageScaling = NSImageScaleProportionallyUpOrDown;
     _largeCoverView.frame = CGRectMake((self.view.bounds.size.width - (imageWidth + 20.0)) / 2.0f,
-                                  (self.view.bounds.size.height - (imageWidth + 20.0)) / 2.0f,
-                                  imageWidth,
-                                  imageWidth);
+                                       (self.view.bounds.size.height - (imageWidth + 20.0)) / 2.0f,
+                                       imageWidth,
+                                       imageWidth);
     _largeCoverView.wantsLayer = YES;
     _largeCoverView.layer.borderColor = [NSColor separatorColor].CGColor;
     _largeCoverView.layer.borderWidth = 1.0f;
@@ -245,12 +247,40 @@
     [view addSubview:_largeCoverView];
 }
 
+- (void)loadLyricsWithView:(NSView*)view
+{
+    NSScrollView* scrollView = [NSTextView scrollableTextView];
+    _lyricsTextView = scrollView.documentView;
+    scrollView.frame = CGRectMake(10.0f,
+                                        10.0f,
+                                        self.view.bounds.size.width - 40.0f,
+                                        self.view.bounds.size.height - 70.0f);
+
+    _lyricsTextView.textColor = [NSColor labelColor];
+    scrollView.drawsBackground = NO;
+    scrollView.hasVerticalScroller = YES;
+    scrollView.verticalScrollElasticity = NSScrollElasticityNone;
+    scrollView.borderType = NSLineBorder;
+    _lyricsTextView.editable = YES;
+    _lyricsTextView.drawsBackground = NO;
+    _lyricsTextView.alignment = NSTextAlignmentLeft;
+    _lyricsTextView.delegate = self;
+    _lyricsTextView.font = [NSFont systemFontOfSize:13.0f];
+    
+    [view addSubview:scrollView];
+}
+
+- (void)loadFileWithView:(NSView*)view
+{
+}
+
 - (void)loadView
 {
     NSLog(@"loadView");
 
-    self.view = [[NSView alloc] initWithFrame:NSMakeRect(0.0,  0.0, 450.0, 570.0)];
+    self.view = [[NSView alloc] initWithFrame:NSMakeRect(0.0,  0.0, 450.0, 540.0)];
     self.tabView = [[NSTabView alloc] initWithFrame:self.view.frame];
+    self.tabView.delegate = self;
     
     self.detailsViewController = [[NSViewController alloc] init];
     NSTabViewItem* detailsTabViewItem = [NSTabViewItem tabViewItemWithViewController:_detailsViewController];
@@ -261,16 +291,53 @@
     NSTabViewItem* artworkTabViewItem = [NSTabViewItem tabViewItemWithViewController:_artworkViewController];
     [artworkTabViewItem setLabel:@"Artwork"];
     [self.tabView addTabViewItem:artworkTabViewItem];
-//
-//    self.fileViewController = [[NSViewController alloc] init];
-//    NSTabViewItem* fileTabViewItem = [NSTabViewItem tabViewItemWithViewController:_fileViewController];
-//    [fileTabViewItem setLabel:@"File"];
-//    [self.tabView addTabViewItem:fileTabViewItem];
+
+    self.lyricsViewController = [[NSViewController alloc] init];
+    NSTabViewItem* lyricsTabViewItem = [NSTabViewItem tabViewItemWithViewController:_lyricsViewController];
+    [lyricsTabViewItem setLabel:@"Lyrics"];
+    [self.tabView addTabViewItem:lyricsTabViewItem];
+
+    self.fileViewController = [[NSViewController alloc] init];
+    NSTabViewItem* fileTabViewItem = [NSTabViewItem tabViewItemWithViewController:_fileViewController];
+    [fileTabViewItem setLabel:@"File"];
+    [self.tabView addTabViewItem:fileTabViewItem];
 
     [self.view addSubview:_tabView];
     
     [self loadDetailsWithView:detailsTabViewItem.view];
     [self loadArtworkWithView:artworkTabViewItem.view];
+    [self loadLyricsWithView:lyricsTabViewItem.view];
+    [self loadFileWithView:fileTabViewItem.view];
+}
+
+- (void)viewWillAppear
+{
+    NSLog(@"InfoPanel becoming visible");
+    
+    if ([_tabView.selectedTabViewItem.label isEqualToString:@"Lyrics"]) {
+        [_lyricsTextView.window makeFirstResponder:_lyricsTextView];
+    }
+    
+    // Lets confirm the metadata from the file itself - iTunes doesnt give us all the
+    // beauty we need and it may also rely on outdated informations. iTunes does the
+    // same when showing the info from a library entry.
+    dispatch_async(_metaQueue, ^{
+        NSError* error = nil;
+        MediaMetaData* patchedMeta = [self.meta copy];
+        if (![patchedMeta readFromFileWithError:&error]) {
+            return;
+        }
+        if (![self.meta isEqualToMediaMetaData:patchedMeta]) {
+            [patchedMeta writeToFileWithError:&error];
+
+            dispatch_async(dispatch_get_main_queue(), ^{
+                NSLog(@"InfoPanel gathered differing metadata");
+
+                [self.delegate metaChangedForMeta:self.meta updatedMeta:patchedMeta];
+                self.meta = patchedMeta;
+            });
+        }
+    });
 }
 
 - (void)setMeta:(MediaMetaData*)meta
@@ -281,17 +348,24 @@
         return;
     }
 
-    if (_meta.artwork) {
+    if (_meta.artwork != nil) {
         _largeCoverView.image = _meta.artwork;
         _smallCoverView.image = _meta.artwork;
     } else {
         _largeCoverView.image = [NSImage imageNamed:@"UnknownSong"];
         _smallCoverView.image = [NSImage imageNamed:@"UnknownSong"];
     }
+    
+    if (_meta.lyrics != nil) {
+        [_lyricsTextView setString:_meta.lyrics];
+    } else {
+        [_lyricsTextView setString:@""];
+    }
 
     NSArray<NSString*>* keys = [MediaMetaData mediaMetaKeys];
     
     for (NSString* key in keys) {
+        
         NSTextField* textField = (NSTextField*)_dictionary[key];
         if (textField == nil) {
             continue;
@@ -299,7 +373,7 @@
 
         NSString* value = [_meta stringForKey:key];
         if (value == nil) {
-            continue;
+            value = @"";
         }
 
         textField.stringValue = value;
@@ -316,6 +390,8 @@
 
     return ![value isEqualToString:oldValue];
 }
+
+#pragma mark - NSTextField delegate
 
 - (void)controlTextDidEndEditing:(NSNotification *)notification
 {
@@ -344,30 +420,33 @@
     NSAssert(NO, @"never should have arrived here");
 }
 
-- (void)viewWillAppear
+#pragma mark - NSTextView delegate
+
+- (void)textDidEndEditing:(NSNotification *)notification
 {
-    NSLog(@"InfoPanel becoming visible");
+    NSTextView* textView = [notification object];
     
-    // Lets confirm the metadata from the file itself - iTunes doesnt give us all the
-    // beauty we need and it may also rely on outdated informations. iTunes does the
-    // same when showing the info from a library entry.
-    dispatch_async(_metaQueue, ^{
-        NSError* error = nil;
-        MediaMetaData* patchedMeta = [self.meta copy];
-        if (![patchedMeta readFromFileWithError:&error]) {
-            return;
-        }
-        if (![self.meta isEqualToMediaMetaData:patchedMeta]) {
-            [patchedMeta writeToFileWithError:&error];
+    if ([textView.string isEqualToString:_meta.lyrics]) {
+        return;
+    }
+    
+    MediaMetaData* patchedMeta = [_meta copy];
+    
+    [patchedMeta updateWithKey:@"lyrics" string:textView.string];
 
-            dispatch_async(dispatch_get_main_queue(), ^{
-                NSLog(@"InfoPanel gathered differing metadata");
+    NSError* error = nil;
+    [patchedMeta writeToFileWithError:&error];
+    
+    [_delegate metaChangedForMeta:_meta updatedMeta:patchedMeta];
+}
 
-                [self.delegate metaChangedForMeta:self.meta updatedMeta:patchedMeta];
-                self.meta = patchedMeta;
-            });
-        }
-    });
+#pragma mark - NSTabView delegate
+
+- (void)tabView:(NSTabView *)tabView didSelectTabViewItem:(NSTabViewItem *)tabViewItem
+{
+    if ([tabViewItem.label isEqualToString:@"Lyrics"]) {
+        [_lyricsTextView.window makeFirstResponder:_lyricsTextView];
+    }
 }
 
 @end

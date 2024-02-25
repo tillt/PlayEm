@@ -25,6 +25,9 @@
 
 @property (strong, nonatomic) NSDictionary* dictionary;
 @property (strong, nonatomic) dispatch_queue_t metaQueue;
+
+@property (strong, nonatomic) MediaMetaData* meta;
+
 @end
 
 @implementation InfoPanelController
@@ -314,6 +317,15 @@
 {
     NSLog(@"InfoPanel becoming visible");
     
+    MediaMetaData* meta = [_delegate currentSongMeta];
+    
+    if (meta == nil) {
+        NSLog(@"No meta available right now");
+        return;
+    }
+    
+    self.meta = meta;
+    
     if ([_tabView.selectedTabViewItem.label isEqualToString:@"Lyrics"]) {
         [_lyricsTextView.window makeFirstResponder:_lyricsTextView];
     }
@@ -365,7 +377,6 @@
     NSArray<NSString*>* keys = [MediaMetaData mediaMetaKeys];
     
     for (NSString* key in keys) {
-        
         NSTextField* textField = (NSTextField*)_dictionary[key];
         if (textField == nil) {
             continue;
@@ -425,6 +436,10 @@
 - (void)textDidEndEditing:(NSNotification *)notification
 {
     NSTextView* textView = [notification object];
+
+    if (_meta == nil) {
+        return;
+    }
     
     if ([textView.string isEqualToString:_meta.lyrics]) {
         return;

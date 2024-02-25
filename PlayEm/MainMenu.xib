@@ -129,12 +129,6 @@
                                     <action selector="paste:" target="-1" id="2IU-S7-IMn"/>
                                 </connections>
                             </menuItem>
-                            <menuItem title="Paste and Match Style" keyEquivalent="V" id="dni-xc-66t">
-                                <modifierMask key="keyEquivalentModifierMask" option="YES" command="YES"/>
-                                <connections>
-                                    <action selector="pasteAsPlainText:" target="-1" id="RA1-uJ-kEx"/>
-                                </connections>
-                            </menuItem>
                             <menuItem title="Delete" id="lDJ-da-EKv">
                                 <modifierMask key="keyEquivalentModifierMask"/>
                                 <connections>

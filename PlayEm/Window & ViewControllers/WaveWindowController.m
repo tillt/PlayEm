@@ -1456,11 +1456,6 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     _meta = meta;
 
     [self.playlist setCurrent:meta];
-
-    // Update meta data in the info box.
-    if (_infoPanel) {
-        _infoPanel.meta = meta;
-    }
     
     // Update meta data in playback box.
     if (_controlPanelController) {
@@ -1755,6 +1750,11 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
 }
 
 #pragma mark - InfoPanelControllerDelegate
+
+- (MediaMetaData*)currentSongMeta
+{
+    return self.meta;
+}
 
 - (void)metaChangedForMeta:(MediaMetaData *)meta updatedMeta:(MediaMetaData *)updatedMeta
 {

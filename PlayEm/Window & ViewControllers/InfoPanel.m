@@ -330,10 +330,12 @@
                 NSString* stringValue = [textField stringValue];
                 [patchedMeta updateWithKey:key string:stringValue];
 
-                NSError* error = nil;
-                [patchedMeta writeToFileWithError:&error];
-                
-                [_delegate metaChangedForMeta:_meta updatedMeta:patchedMeta];
+                if (![self.meta isEqualToMediaMetaData:patchedMeta]) {
+                    NSError* error = nil;
+                    [patchedMeta writeToFileWithError:&error];
+                    
+                    [_delegate metaChangedForMeta:_meta updatedMeta:patchedMeta];
+                }
             }
             return;
         }

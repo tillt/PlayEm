@@ -13,7 +13,6 @@ NS_ASSUME_NONNULL_BEGIN
 @interface MediaMetaData (TagLib)
 
 + (NSDictionary<NSString*, NSDictionary<NSString*, NSString*>*>*)mp3TagMap;
-+ (NSArray<NSString*>*)mp3SupportedMediaDataKeys;
 + (MediaMetaData*)mediaMetaDataFromMP3FileWithURL:(NSURL*)url error:(NSError**)error;
 
 - (int)readFromMP3FileWithError:(NSError**)error;

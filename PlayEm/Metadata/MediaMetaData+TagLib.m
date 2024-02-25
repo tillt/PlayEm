@@ -16,18 +16,6 @@
 
 @implementation MediaMetaData(TagLib)
 
-+ (NSArray<NSString*>*)mp3SupportedMediaDataKeys
-{
-    NSDictionary<NSString*, NSDictionary*>* mediaMetaKeyMap = [MediaMetaData mediaMetaKeyMap];
-    NSMutableArray<NSString*>* supportedKeys = [NSMutableArray array];
-    for (NSString* key in [MediaMetaData mediaMetaKeys]) {
-        if ([mediaMetaKeyMap[key] objectForKey:kMediaMetaDataMapKeyMP3]) {
-            [supportedKeys addObject:key];
-        }
-    }
-    return supportedKeys;
-}
-
 + (NSDictionary<NSString*, NSDictionary<NSString*, NSString*>*>*)mp3TagMap
 {
     NSDictionary<NSString*, NSDictionary*>* mediaMetaKeyMap = [MediaMetaData mediaMetaKeyMap];

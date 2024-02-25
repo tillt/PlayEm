@@ -31,6 +31,7 @@
 ///
 
 NSString* const kMediaMetaDataMapKeyMP3 = @"mp3";
+NSString* const kMediaMetaDataMapKeyMP4 = @"mp4";
 NSString* const kMediaMetaDataMapKeyType = @"type";
 NSString* const kMediaMetaDataMapKeyKey = @"key";
 NSString* const kMediaMetaDataMapKeyKeys = @"keys";
@@ -94,7 +95,7 @@ NSString* const kMediaMetaDataMapTypeNumbers = @"ofNumber";
     
     meta.location = url;
     
-    [meta readFromAsset:asset];
+    [meta readFromAVAsset:asset];
     
     return meta;
 }
@@ -119,42 +120,49 @@ NSString* const kMediaMetaDataMapTypeNumbers = @"ofNumber";
                 kMediaMetaDataMapKeyKey: @"ALBUM",
                 kMediaMetaDataMapKeyType: kMediaMetaDataMapTypeString,
             },
+            kMediaMetaDataMapKeyMP4: @{},
         },
         @"albumArtist": @{
             kMediaMetaDataMapKeyMP3: @{
                 kMediaMetaDataMapKeyKey: @"ALBUMARTIST",
                 kMediaMetaDataMapKeyType: kMediaMetaDataMapTypeString,
             },
+            kMediaMetaDataMapKeyMP4: @{},
         },
         @"artist": @{
             kMediaMetaDataMapKeyMP3: @{
                 kMediaMetaDataMapKeyKey: @"ARTIST",
                 kMediaMetaDataMapKeyType: kMediaMetaDataMapTypeString,
             },
+            kMediaMetaDataMapKeyMP4: @{},
         },
         @"artwork": @{
             kMediaMetaDataMapKeyMP3: @{
                 kMediaMetaDataMapKeyKey: @"PICTURE",
                 kMediaMetaDataMapKeyType: kMediaMetaDataMapTypeImage,
             },
+            kMediaMetaDataMapKeyMP4: @{},
         },
         @"comment": @{
             kMediaMetaDataMapKeyMP3: @{
                 kMediaMetaDataMapKeyKey: @"COMMENT",
                 kMediaMetaDataMapKeyType: kMediaMetaDataMapTypeString,
             },
+            kMediaMetaDataMapKeyMP4: @{},
         },
         @"composer": @{
             kMediaMetaDataMapKeyMP3: @{
                 kMediaMetaDataMapKeyKey: @"COMPOSER",
                 kMediaMetaDataMapKeyType: kMediaMetaDataMapTypeString,
             },
+            kMediaMetaDataMapKeyMP4: @{},
         },
         @"label": @{
             kMediaMetaDataMapKeyMP3: @{
                 kMediaMetaDataMapKeyKey: @"LABEL",
                 kMediaMetaDataMapKeyType: kMediaMetaDataMapTypeString,
             },
+            kMediaMetaDataMapKeyMP4: @{},
         },
         @"disk": @{
             kMediaMetaDataMapKeyMP3: @{
@@ -162,6 +170,7 @@ NSString* const kMediaMetaDataMapTypeNumbers = @"ofNumber";
                 kMediaMetaDataMapKeyType: kMediaMetaDataMapTypeNumbers,
                 kMediaMetaDataMapKeyOrder: @0,
             },
+            kMediaMetaDataMapKeyMP4: @{},
         },
         @"disks": @{
             kMediaMetaDataMapKeyMP3: @{
@@ -169,18 +178,21 @@ NSString* const kMediaMetaDataMapTypeNumbers = @"ofNumber";
                 kMediaMetaDataMapKeyType: kMediaMetaDataMapTypeNumbers,
                 kMediaMetaDataMapKeyOrder: @1,
             },
+            kMediaMetaDataMapKeyMP4: @{},
         },
         @"duration": @{
             kMediaMetaDataMapKeyMP3: @{
                 kMediaMetaDataMapKeyKey: @"LENGTH",
                 kMediaMetaDataMapKeyType: kMediaMetaDataMapTypeString,
             },
+            kMediaMetaDataMapKeyMP4: @{},
         },
         @"genre": @{
             kMediaMetaDataMapKeyMP3: @{
                 kMediaMetaDataMapKeyKey: @"GENRE",
                 kMediaMetaDataMapKeyType: kMediaMetaDataMapTypeString,
             },
+            kMediaMetaDataMapKeyMP4: @{},
         },
         @"key": @{
             kMediaMetaDataMapKeyMP3: @{
@@ -193,12 +205,14 @@ NSString* const kMediaMetaDataMapTypeNumbers = @"ofNumber";
                 kMediaMetaDataMapKeyKey: @"BPM",
                 kMediaMetaDataMapKeyType: kMediaMetaDataMapTypeString,
             },
+            kMediaMetaDataMapKeyMP4: @{},
         },
         @"title": @{
             kMediaMetaDataMapKeyMP3: @{
                 kMediaMetaDataMapKeyKey: @"TITLE",
                 kMediaMetaDataMapKeyType: kMediaMetaDataMapTypeString,
             },
+            kMediaMetaDataMapKeyMP4: @{},
         },
         @"track": @{
             kMediaMetaDataMapKeyMP3: @{
@@ -206,6 +220,7 @@ NSString* const kMediaMetaDataMapTypeNumbers = @"ofNumber";
                 kMediaMetaDataMapKeyType: kMediaMetaDataMapTypeNumbers,
                 kMediaMetaDataMapKeyOrder: @0,
             },
+            kMediaMetaDataMapKeyMP4: @{},
         },
         @"tracks": @{
             kMediaMetaDataMapKeyMP3: @{
@@ -213,12 +228,14 @@ NSString* const kMediaMetaDataMapTypeNumbers = @"ofNumber";
                 kMediaMetaDataMapKeyType: kMediaMetaDataMapTypeNumbers,
                 kMediaMetaDataMapKeyOrder: @1,
             },
+            kMediaMetaDataMapKeyMP4: @{},
         },
         @"year": @{
             kMediaMetaDataMapKeyMP3: @{
                 kMediaMetaDataMapKeyKey: @"DATE",
                 kMediaMetaDataMapKeyType: kMediaMetaDataMapTypeDate,
             },
+            kMediaMetaDataMapKeyMP4: @{},
         },
     };
 }
@@ -226,6 +243,37 @@ NSString* const kMediaMetaDataMapTypeNumbers = @"ofNumber";
 + (NSArray<NSString*>*)mediaMetaKeys
 {
     return [[MediaMetaData mediaMetaKeyMap] allKeys];
+}
+
++ (NSArray<NSString*>*)mediaDataKeysWithFileFormatType:(MediaMetaDataFileFormatType)type
+{
+    NSDictionary<NSString*, NSDictionary*>* mediaMetaKeyMap = [MediaMetaData mediaMetaKeyMap];
+    NSMutableArray<NSString*>* supportedKeys = [NSMutableArray array];
+
+    NSString* typeKey = nil;
+
+    switch(type) {
+        case MediaMetaDataFileFormatTypeMP3:
+            typeKey = kMediaMetaDataMapKeyMP3;
+            break;
+        case MediaMetaDataFileFormatTypeMP4:
+            typeKey = kMediaMetaDataMapKeyMP4;
+            break;
+        default:
+            ;
+    }
+    
+    if (typeKey == nil) {
+        return nil;
+    }
+    
+    for (NSString* key in [MediaMetaData mediaMetaKeys]) {
+        if ([mediaMetaKeyMap[key] objectForKey:typeKey]) {
+            [supportedKeys addObject:key];
+        }
+    }
+
+    return supportedKeys;
 }
 
 - (BOOL)readFromFileWithError:(NSError**)error
@@ -240,7 +288,7 @@ NSString* const kMediaMetaDataMapTypeNumbers = @"ofNumber";
     
     AVAsset* asset = [AVURLAsset URLAssetWithURL:self.location options:nil];
     NSLog(@"%@", asset);
-    return [self readFromAsset:asset];
+    return [self readFromAVAsset:asset];
 }
 
 - (NSString* _Nullable)title
@@ -481,7 +529,7 @@ NSString* const kMediaMetaDataMapTypeNumbers = @"ofNumber";
     return _added;
 }
 
-- (BOOL)readFromAsset:(AVAsset *)asset
+- (BOOL)readFromAVAsset:(AVAsset *)asset
 {
     for (NSString* format in [asset availableMetadataFormats]) {
         for (AVMetadataItem* item in [asset metadataForFormat:format]) {
@@ -624,14 +672,8 @@ NSString* const kMediaMetaDataMapTypeNumbers = @"ofNumber";
         return NO;
     }
     
-    NSArray<NSString*>* supportedKeys = nil;
-    
-    if (thisType == MediaMetaDataFileFormatTypeMP3) {
-        supportedKeys = [MediaMetaData mp3SupportedMediaDataKeys];
-    } else if (thisType == MediaMetaDataFileFormatTypeMP4) {
-        NSAssert(NO, @"not yet implemented");
-    }
-    
+    NSArray<NSString*>* supportedKeys = [MediaMetaData mediaDataKeysWithFileFormatType:thisType];
+
     return [self isEqualToMediaMetaData:other forKeys:supportedKeys];
 }
 
@@ -667,22 +709,7 @@ NSString* const kMediaMetaDataMapTypeNumbers = @"ofNumber";
     NSAssert(NO, @"should never get here");
 }
 
-// FIXME: This is BS as it does the comparison on the wrong level -- should go up.
-- (BOOL)exportMP3WithError:(NSError**)error
-{
-    MediaMetaData* metaFromFile = [MediaMetaData mediaMetaDataFromMP3FileWithURL:self.location error:error];
-    NSArray<NSString*>* mp3SupportedKeys = [MediaMetaData mp3SupportedMediaDataKeys];
-    
-    BOOL ret = YES;
-    
-    if (![self isEqualToMediaMetaData:metaFromFile forKeys:mp3SupportedKeys]) {
-        ret = [self writeToMP3FileWithError:error] == 0;
-    }
-    
-    return ret;
-}
-
-- (BOOL)exportMP4WithError:(NSError**)error
+- (BOOL)writeToMP4FileWithError:(NSError**)error
 {
     NSString* fileExtension = [self.location pathExtension];
     NSString* fileName = [[self.location URLByDeletingPathExtension] lastPathComponent];
@@ -725,10 +752,10 @@ NSString* const kMediaMetaDataMapTypeNumbers = @"ofNumber";
     MediaMetaDataFileFormatType type = [MediaMetaData fileTypeWithURL:self.location error:error];
     
     if (type == MediaMetaDataFileFormatTypeMP3) {
-        return [self exportMP3WithError:error];
+        return [self writeToMP3FileWithError:error];
     }
     if (type == MediaMetaDataFileFormatTypeMP4) {
-        return [self exportMP4WithError:error];
+        return [self writeToMP4FileWithError:error];
     }
     
     NSString* description = [NSString stringWithFormat:@"Unsupport filetype for modifying metadata"];

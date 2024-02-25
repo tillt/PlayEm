@@ -157,6 +157,20 @@ NSString* const kMediaMetaDataMapTypeNumbers = @"ofNumber";
             },
             kMediaMetaDataMapKeyMP4: @{},
         },
+        @"compilation": @{
+            kMediaMetaDataMapKeyMP3: @{
+                kMediaMetaDataMapKeyKey: @"COMPILATION",
+                kMediaMetaDataMapKeyType: kMediaMetaDataMapTypeString,
+            },
+            kMediaMetaDataMapKeyMP4: @{},
+        },
+        @"lyrics": @{
+            kMediaMetaDataMapKeyMP3: @{
+                kMediaMetaDataMapKeyKey: @"LYRICS",
+                kMediaMetaDataMapKeyType: kMediaMetaDataMapTypeString,
+            },
+            kMediaMetaDataMapKeyMP4: @{},
+        },
         @"label": @{
             kMediaMetaDataMapKeyMP3: @{
                 kMediaMetaDataMapKeyKey: @"LABEL",

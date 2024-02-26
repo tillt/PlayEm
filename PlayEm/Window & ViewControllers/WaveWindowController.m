@@ -1401,6 +1401,8 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     self.lazySample = sample;
     [sample decodeAsyncWithCallback:^(BOOL finished){
         NSLog(@"returned from async decoder for sample %@", sample);
+        os_signpost_event_emit(pointsOfInterest, POILazySampleDecodeReturned, "Returned");
+
 //        if (finished) {
 //            NSLog(@"triggering beat tracker... ");
 ////            [self.beatSample trackBeatsAsyncWithCallback:^{

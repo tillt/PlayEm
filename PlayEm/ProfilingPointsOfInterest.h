@@ -25,6 +25,11 @@ typedef enum : NSUInteger {
     POITotalViewSetCurrentFrame,
     POIBeatStuff,
     POIPrepareVisualsFromOrigin,
+    POILazySampleDecodeAborting,
+    POILazySampleDecodeAborted,
+    POILazySampleDecodeAbortNotification,
+    POILazySampleDecodeReturned,
+    POILazySampleDecodeAbortHang,
 } PointsOfInterest;
 
 extern os_log_t pointsOfInterest;

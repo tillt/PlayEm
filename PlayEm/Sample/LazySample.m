@@ -13,7 +13,7 @@
 #import <CoreAudio/CoreAudio.h>             // AudioDeviceID
 #import <CoreAudio/CoreAudioTypes.h>
 #import <CoreServices/CoreServices.h>
-
+#import "ProfilingPointsOfInterest.h"
 
 const size_t kMaxFramesPerBuffer = 16384;
 
@@ -83,8 +83,10 @@ const size_t kMaxFramesPerBuffer = 16384;
 {
     if (_queueOperation != NULL) {
         NSLog(@"aborting decoding...");
+        os_signpost_event_emit(pointsOfInterest, POILazySampleDecodeAborting, "Aborting");
         dispatch_block_cancel(_queueOperation);
         dispatch_block_notify(_queueOperation, dispatch_get_main_queue(), ^{
+            os_signpost_event_emit(pointsOfInterest, POILazySampleDecodeAbortNotification, "Aborting");
             NSLog(@"sample %@ decode aborted", self);
             callback();
         });
@@ -125,6 +127,9 @@ const size_t kMaxFramesPerBuffer = 16384;
     dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0), _queueOperation);
     dispatch_block_notify(_queueOperation, dispatch_get_main_queue(), ^{
         NSLog(@"posting operation notification");
+        os_signpost_event_emit(pointsOfInterest, POILazySampleDecodeAbortNotification, "Notification");
+        os_signpost_interval_end(pointsOfInterest, POILazySampleDecodeAbortHang, "Hanging");
+
         callback(done);
     });
 }
@@ -170,7 +175,7 @@ const size_t kMaxFramesPerBuffer = 16384;
 
     while (engine.manualRenderingSampleTime < _source.length) {
         if (dispatch_block_testcancel(_queueOperation) != 0) {
-            NSLog(@"aborted decoding and returning from operation");
+            [player stop];
             return NO;
         }
 

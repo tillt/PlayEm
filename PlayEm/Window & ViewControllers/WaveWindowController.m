@@ -63,7 +63,7 @@ os_log_t pointsOfInterest;
 @property (strong, nonatomic) ScopeRenderer* renderer;
 @property (strong, nonatomic) WaveRenderer* waveRenderer;
 @property (assign, nonatomic) CGRect preFullscreenFrame;
-@property (strong, nonatomic) LazySample* sample;
+@property (strong, nonatomic) LazySample* lazySample;
 @property (assign, nonatomic) BOOL inTransition;
 @property (strong, nonatomic) PlaylistController* playlist;
 @property (strong, nonatomic) MediaMetaData* meta;
@@ -149,14 +149,13 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
     }
 }
 
-- (void)setSample:(LazySample*)sample
+- (void)setLazySample:(LazySample*)sample
 {
-    if (_sample == sample) {
+    if (_lazySample == sample) {
         return;
     }
-    _sample = sample;
-    _beatSample.sample = sample;
-    NSLog(@"sample assigned");
+    _lazySample = sample;
+    NSLog(@"sample %@ assigned", sample.description);
 }
 
 - (void)updateSongsCount:(size_t)songs
@@ -230,7 +229,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
 {
     BOOL enable = YES;
     if ([[toolbarItem itemIdentifier] isEqual:kIdentifyToolbarIdentifier]) {
-        enable = (_sample != nil) & _audioController.playing;
+        enable = (_lazySample != nil) & _audioController.playing;
     }
     return enable;
 }
@@ -753,7 +752,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
         table.headerView.wantsLayer = YES;
     }
 
-    _sample = nil;
+    _lazySample = nil;
     
     _inTransition = NO;
 
@@ -897,17 +896,17 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
 - (void)windowWillClose:(NSNotification *)notification
 {
     // Abort all the async operations that might be in flight.
-    [BeatTrackedSample abort];
-    [LazySample abort];
-
+    [_lazySample abortWithCallback:^{
+        [self stop];
+    }];
+    //[BeatTrackedSample abort];
     // Finish playback, if anything was ongoing.
-    [self stop];
 }
 
 - (void)windowDidEndLiveResize:(NSNotification *)notification
 {
     [self putScopeViewWithFrame:NSMakeRect(_scopeView.frame.origin.x, _scopeView.frame.origin.y, _scopeView.frame.size.width, _scopeView.frame.size.height) onView:_belowVisuals];
-    [_totalVisual setPixelPerSecond:_totalView.bounds.size.width / _sample.duration];
+    [_totalVisual setPixelPerSecond:_totalView.bounds.size.width / _lazySample.duration];
     [_totalView resize];
     [_totalView refresh];
 }
@@ -1232,8 +1231,8 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
         return;
     }
     os_signpost_interval_begin(pointsOfInterest, POIStringStuff, "StringStuff");
-    _controlPanelController.duration.stringValue = [_sample beautifulTimeWithFrame:_sample.frames - frame];
-    _controlPanelController.time.stringValue = [_sample beautifulTimeWithFrame:frame];
+    _controlPanelController.duration.stringValue = [_lazySample beautifulTimeWithFrame:_lazySample.frames - frame];
+    _controlPanelController.time.stringValue = [_lazySample beautifulTimeWithFrame:frame];
     os_signpost_interval_end(pointsOfInterest, POIStringStuff, "StringStuff");
 
     os_signpost_interval_begin(pointsOfInterest, POIWaveViewSetCurrentFrame, "WaveViewSetCurrentFrame");
@@ -1358,42 +1357,61 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
 
 - (BOOL)loadDocumentFromURL:(NSURL*)url meta:(MediaMetaData*)meta error:(NSError**)error
 {
-    NSError* asyncError = nil;
+    if (![url checkResourceIsReachableAndReturnError:error]) {
+        NSLog(@"Failed to reach \"%@\": %@\n", url.path, *error);
+        return NO;
+    }
     
-    // Get metadata if none were given.
-    //MediaMetaData* asyncMeta = meta;
     if (meta == nil) {
         NSLog(@"need to fetch some metadata...");
-        meta = [MediaMetaData mediaMetaDataWithURL:url error:&asyncError];
+        meta = [MediaMetaData mediaMetaDataWithURL:url error:error];
+    }
+    
+    LazySample* sample = [[LazySample alloc] initWithPath:url.path error:error];
+    if (sample == nil) {
+        NSLog(@"Failed to load \"%@\": %@\n", url.path, *error);
+        return NO;
+    }
+    
+    if (_lazySample != nil) {
+        NSLog(@"sample %@ may need aborting", self.lazySample.description);
+        [_lazySample abortWithCallback:^{
+            [self loadContinuationWithURL:url meta:meta sample:sample];
+        }];
+    } else {
+        [self loadContinuationWithURL:url meta:meta sample:sample];
     }
 
+    return YES;
+}
+
+- (void)loadContinuationWithURL:(NSURL*)url meta:(MediaMetaData*)meta sample:(LazySample*)sample
+{
+    // Get metadata if none were given.
+    //MediaMetaData* asyncMeta = meta;
     if (_audioController == nil) {
         NSLog(@"About to init the audiocontroller...");
         _audioController = [AudioController new];
         _audioController.delegate = self;
         NSLog(@"...audiocontroller init done");
     }
-
-    if (![url checkResourceIsReachableAndReturnError:&asyncError]) {
-        NSLog(@"Failed to reach \"%@\": %@\n", url.path, asyncError);
-        NSAlert* alert = [NSAlert alertWithError:asyncError];
-        [alert runModal];
-        return NO;
-    }
-
-    LazySample* sample = [[LazySample alloc] initWithPath:url.path error:&asyncError];
-    if (sample == nil) {
-        NSLog(@"Failed to load \"%@\": %@\n", url.path, asyncError);
-        NSAlert* alert = [NSAlert alertWithError:asyncError];
-        [alert runModal];
-        return NO;
-    }
-    
     // We keep a reference around so that the `sample` setter will cause the possibly
     // ongoing decode of a previous sample to get aborted.
-    NSLog(@"assigning sample");
-    self.sample = sample;
- 
+    NSLog(@"assigning sample %@", sample.description);
+    self.lazySample = sample;
+    [sample decodeAsyncWithCallback:^(BOOL finished){
+        NSLog(@"returned from async decoder for sample %@", sample);
+//        if (finished) {
+//            NSLog(@"triggering beat tracker... ");
+////            [self.beatSample trackBeatsAsyncWithCallback:^{
+////                [self.waveView invalidateTiles];
+////                [self beatEffectStart];
+////            }];
+//        } else {
+//            NSLog(@"never finished the decoding");
+//        }
+    }];
+
     // Now gather the total amount of frames in that file as needed for decoding as well as
     // screen initializing. This may be a rather expensive operation on large files with
     // variable bitrate. We do this asynchronously to not hog the mainthread.
@@ -1419,14 +1437,6 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
 
     NSLog(@"triggering decoder...");
     
-    [sample decodeAsyncWithCallback:^{
-        NSLog(@"triggering beat tracker...");
-        [self.beatSample trackBeatsAsyncWithCallback:^{
-            [self.waveView invalidateTiles];
-            [self beatEffectStart];
-        }];
-    }];
-
     self.audioController.sample = sample;
     self.waveView.frames = sample.frames;
     self.waveRenderer.visualSample = self.visualSample;
@@ -1450,8 +1460,6 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     [self setMeta:meta];
     
     [self.audioController playWhenReady];
-
-    return YES;
 }
 
 - (void)setMeta:(MediaMetaData*)meta

@@ -22,10 +22,10 @@ const size_t kMaxFramesPerBuffer = 16384;
 @property (strong, nonatomic) AVAudioFile* source;
 @property (strong, nonatomic) NSCondition* tileProduced;
 @property (strong, nonatomic) NSMutableDictionary* buffers;
+@property (strong, nonatomic) dispatch_block_t queueOperation;
 
 @end
 
-static dispatch_block_t _queueOperation;
 
 @implementation LazySample
 
@@ -33,15 +33,19 @@ static dispatch_block_t _queueOperation;
 {
     self = [super init];
     if (self) {
-        [LazySample abort];
         NSLog(@"init source file for reading");
         _source = [[AVAudioFile alloc] initForReading:[NSURL fileURLWithPath:path] error:error];
         _tileProduced = [[NSCondition alloc] init];
         
-        if (*error || _source == nil) {
-            NSLog(@"AVAudioFile initForReading:error: failed: %@\n", *error);
+        if (_source == nil) {
+            NSLog(@"AVAudioFile initForReading failed");
+            if (error != nil) {
+                NSLog(@"error: %@\n", *error);
+            }
             return nil;
         }
+        
+        _queueOperation = NULL;
     
         AVAudioFormat* format = _source.processingFormat;
         _channels = format.channelCount;
@@ -53,13 +57,42 @@ static dispatch_block_t _queueOperation;
     return self;
 }
 
-+ (void)abort
+//+ (void)abort
+//{
+//    NSLog(@"aborting decoding synchronously");
+//    if (_queueOperation != NULL) {
+//        dispatch_block_cancel(_queueOperation);
+//    }
+//}
+//
+//+ (void)abortWithContinuation:(nonnull void (^)(void))block
+//{
+//    NSLog(@"aborting decoding with continuation");
+//    if (_queueOperation != NULL) {
+//        dispatch_block_cancel(_queueOperation);
+//        dispatch_block_notify(_queueOperation, dispatch_get_main_queue(), ^{
+//            _queueOperation = NULL;
+//            block();
+//        });
+//    } else {
+//        block();
+//    }
+//}
+
+- (void)abortWithCallback:(void (^)(void))callback;
 {
-    NSLog(@"aborting decoding");
     if (_queueOperation != NULL) {
+        NSLog(@"aborting decoding...");
         dispatch_block_cancel(_queueOperation);
+        dispatch_block_notify(_queueOperation, dispatch_get_main_queue(), ^{
+            NSLog(@"sample %@ decode aborted", self);
+            callback();
+        });
+    } else {
+        callback();
     }
 }
+
 
 - (unsigned long long)frames
 {
@@ -81,19 +114,24 @@ static dispatch_block_t _queueOperation;
 {
 }
 
-- (void)decodeAsyncWithCallback:(void (^)(void))callback;
+- (void)decodeAsyncWithCallback:(void (^)(BOOL))callback;
 {
+    __block BOOL done = NO;
     _queueOperation = dispatch_block_create(DISPATCH_BLOCK_NO_QOS_CLASS, ^{
         NSLog(@"async sample decode...");
-        [self decode];
-        callback();
+        done = [self decode];
+        NSLog(@"decode ended somehow");
     });
-    dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INTERACTIVE, 0), _queueOperation);
+    dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0), _queueOperation);
+    dispatch_block_notify(_queueOperation, dispatch_get_main_queue(), ^{
+        NSLog(@"posting operation notification");
+        callback(done);
+    });
 }
 
-- (void)decode
+- (BOOL)decode
 {
-    NSLog(@"decoding sample...");
+    NSLog(@"decoding sample %@...", self);
 
     NSError* error = nil;
 
@@ -117,7 +155,7 @@ static dispatch_block_t _queueOperation;
     NSLog(@"starting engine...");
     if (![engine startAndReturnError:&error]) {
         NSLog(@"startAndReturnError failed: %@\n", error);
-        return;
+        return NO;
     }
             
     AVAudioPCMBuffer* buffer =
@@ -132,8 +170,8 @@ static dispatch_block_t _queueOperation;
 
     while (engine.manualRenderingSampleTime < _source.length) {
         if (dispatch_block_testcancel(_queueOperation) != 0) {
-            NSLog(@"aborting decoding");
-            return;
+            NSLog(@"aborted decoding and returning from operation");
+            return NO;
         }
 
         //NSLog(@"manual rendering sample time: %lld\n", _engine.manualRenderingSampleTime);
@@ -173,7 +211,7 @@ static dispatch_block_t _queueOperation;
                 break;
             case AVAudioEngineManualRenderingStatusError:
                 NSLog(@"renderOffline failed: %@\n", error);
-                return;
+                return NO;
             case AVAudioEngineManualRenderingStatusCannotDoInCurrentContext:
                 NSLog(@"somehow one round failed, lets retry\n");
                 break;
@@ -181,7 +219,7 @@ static dispatch_block_t _queueOperation;
     };
     NSLog(@"...decoding done");
 
-    return;
+    return YES;
 }
 
 - (unsigned long long)rawSampleFromFrameOffset:(unsigned long long)offset
@@ -341,9 +379,7 @@ static dispatch_block_t _queueOperation;
 
 - (NSString *)description
 {
-    NSLog(@"rendering description...");
     return [NSString stringWithFormat:@"Channels: %d, Rate: %ld, Encoding: %d, Duration: %.02f seconds", _channels, _rate, _encoding, self.duration];
-    //return [NSString stringWithFormat:@"Channels: %d, Rate: %ld, Encoding: %d", _channels, _rate, _encoding];
 }
 
 @end

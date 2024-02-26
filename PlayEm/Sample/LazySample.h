@@ -25,14 +25,17 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (readonly, assign, nonatomic) AVAudioFormat* format;
 
-+ (void)abort;
+//+ (void)abort;
+//+ (void)abortWithContinuation:(nonnull void (^)(void))block;
+
+- (void)abortWithCallback:(void (^)(void))callback;
 
 - (id)initWithPath:(NSString*)path error:(NSError**)error;
 
 - (unsigned long long)rawSampleFromFrameOffset:(unsigned long long)offset frames:(unsigned long long)frames outputs:(float * const _Nonnull * _Nullable)outputs;
 - (unsigned long long)rawSampleFromFrameOffset:(unsigned long long)offset frames:(unsigned long long)frames data:(float *)data;
 
-- (void)decodeAsyncWithCallback:(void (^)(void))callback;
+- (void)decodeAsyncWithCallback:(void (^)(BOOL))callback;
 
 - (void)dumpToFile;
 

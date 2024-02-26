@@ -37,6 +37,7 @@ typedef struct _BeatsParserContext BeatsParserContext;
 @property (readonly, nonatomic) BOOL isReady;
 
 + (void)abort;
++ (void)abortWithContinuation:(nonnull void (^)(void))block;
 
 - (id)initWithSample:(LazySample*)sample framesPerPixel:(double)framesPerPixel;
 - (NSData* _Nullable)beatsFromOrigin:(size_t)origin;

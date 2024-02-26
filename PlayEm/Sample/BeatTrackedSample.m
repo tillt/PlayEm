@@ -74,14 +74,15 @@ static const float kParamFilterDefaultValue = 240.0f;
 //@property (strong, nonatomic) NSMutableDictionary* operations;
 @property (strong, nonatomic) NSMutableArray<NSMutableData*>* sampleBuffers;
 @property (strong, nonatomic) NSMutableDictionary* beatEventPages;
+@property (strong, nonatomic) dispatch_block_t queueOperation;
 
 @end
-
-static dispatch_block_t _queueOperation = NULL;
 
 @implementation BeatTrackedSample
 {
     atomic_int _beatTrackDone;
+    
+    size_t _pages;
     
     size_t _hopSize;
     size_t _tileWidth;
@@ -578,16 +579,26 @@ void beatsContextReset(BeatsParserContext* context)
     iterator->pageIndex = 0;
     iterator->eventIndex = 0;
     iterator->currentEvent = nil;
-    
+    _pages = [_beats count];
     return [self frameForNextBar:iterator];
 }
 
 - (unsigned long long)frameForNextBar:(nonnull BeatEventIterator*)iterator
 {
-    NSData* data = [_beats objectForKey:[NSNumber numberWithLong:iterator->pageIndex]];
+    NSData* data = nil;
+    
+    while (iterator->pageIndex < _pages) {
+        data = [_beats objectForKey:[NSNumber numberWithLong:iterator->pageIndex]];
+        if (data != nil) {
+            break;
+        }
+        iterator->pageIndex++;
+    };
+
     if (data == nil) {
         return 0;
     }
+
     const BeatEvent* events = data.bytes;
     const size_t eventCount = data.length / sizeof(BeatEvent);
     assert(eventCount);

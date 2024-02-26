@@ -34,15 +34,14 @@ typedef struct _BeatsParserContext BeatsParserContext;
 @property (assign, nonatomic) double framesPerPixel;
 @property (strong, nonatomic) LazySample* sample;
 @property (strong, nonatomic) NSMutableDictionary* beats;
-@property (readonly, nonatomic) BOOL isReady;
+@property (readonly, nonatomic) BOOL ready;
 
-+ (void)abort;
-+ (void)abortWithContinuation:(nonnull void (^)(void))block;
+- (void)abortWithCallback:(nonnull void (^)(void))block;
 
 - (id)initWithSample:(LazySample*)sample framesPerPixel:(double)framesPerPixel;
 - (NSData* _Nullable)beatsFromOrigin:(size_t)origin;
 
-- (void)trackBeatsAsyncWithCallback:(nonnull void (^)(void))callback;
+- (void)trackBeatsAsyncWithCallback:(void (^)(BOOL))callback;
 
 - (float)tempo;
 

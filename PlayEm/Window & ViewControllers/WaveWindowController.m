@@ -1244,7 +1244,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     os_signpost_interval_end(pointsOfInterest, POITotalViewSetCurrentFrame, "TotalViewSetCurrentFrame");
 
     os_signpost_interval_begin(pointsOfInterest, POIBeatStuff, "BeatStuff");
-    if (_beatSample.isReady) {
+    if (_beatSample.ready) {
         if (_beatEffectAtFrame > 0 && frame + _beatEffectRampUpFrames > _beatEffectAtFrame) {
             [self beatEffectRun];
             while (frame + _beatEffectRampUpFrames > _beatEffectAtFrame) {
@@ -1357,6 +1357,11 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
 
 - (BOOL)loadDocumentFromURL:(NSURL*)url meta:(MediaMetaData*)meta error:(NSError**)error
 {
+    if (_audioController == nil) {
+        _audioController = [AudioController new];
+        _audioController.delegate = self;
+    }
+
     if (![url checkResourceIsReachableAndReturnError:error]) {
         NSLog(@"Failed to reach \"%@\": %@\n", url.path, *error);
         return NO;
@@ -1367,101 +1372,104 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
         meta = [MediaMetaData mediaMetaDataWithURL:url error:error];
     }
     
-    LazySample* sample = [[LazySample alloc] initWithPath:url.path error:error];
-    if (sample == nil) {
+    LazySample* lazySample = [[LazySample alloc] initWithPath:url.path error:error];
+    if (lazySample == nil) {
         NSLog(@"Failed to load \"%@\": %@\n", url.path, *error);
         return NO;
     }
+    [[NSDocumentController sharedDocumentController] noteNewRecentDocumentURL:url];
     
+    [self setMeta:meta];
+
     if (_lazySample != nil) {
-        NSLog(@"sample %@ may need aborting", self.lazySample.description);
+        NSLog(@"lazy sample may need decode aborting");
         [_lazySample abortWithCallback:^{
-            [self loadContinuationWithURL:url meta:meta sample:sample];
+            [self loadLazySample:lazySample];
         }];
     } else {
-        [self loadContinuationWithURL:url meta:meta sample:sample];
+        [self loadLazySample:lazySample];
     }
 
     return YES;
 }
 
-- (void)loadContinuationWithURL:(NSURL*)url meta:(MediaMetaData*)meta sample:(LazySample*)sample
+- (void)loadLazySample:(LazySample*)lazySample
 {
-    // Get metadata if none were given.
-    //MediaMetaData* asyncMeta = meta;
-    if (_audioController == nil) {
-        NSLog(@"About to init the audiocontroller...");
-        _audioController = [AudioController new];
-        _audioController.delegate = self;
-        NSLog(@"...audiocontroller init done");
-    }
     // We keep a reference around so that the `sample` setter will cause the possibly
     // ongoing decode of a previous sample to get aborted.
-    NSLog(@"assigning sample %@", sample.description);
-    self.lazySample = sample;
-    [sample decodeAsyncWithCallback:^(BOOL finished){
-        NSLog(@"returned from async decoder for sample %@", sample);
-        os_signpost_event_emit(pointsOfInterest, POILazySampleDecodeReturned, "Returned");
-
-//        if (finished) {
-//            NSLog(@"triggering beat tracker... ");
-////            [self.beatSample trackBeatsAsyncWithCallback:^{
-////                [self.waveView invalidateTiles];
-////                [self beatEffectStart];
-////            }];
-//        } else {
-//            NSLog(@"never finished the decoding");
-//        }
-    }];
-
-    // Now gather the total amount of frames in that file as needed for decoding as well as
-    // screen initializing. This may be a rather expensive operation on large files with
-    // variable bitrate. We do this asynchronously to not hog the mainthread.
+    self.lazySample = lazySample;
+        
     [self loadTrackState:LoadStateInit value:0.0];
     [self loadTrackState:LoadStateStopped value:0.0];
 
-    self.visualSample = [[VisualSample alloc] initWithSample:sample
+    self.visualSample = [[VisualSample alloc] initWithSample:self.lazySample
                                               pixelPerSecond:kPixelPerSecond
                                                    tileWidth:kDirectWaveViewTileWidth];
 
-    self.controlPanelController.bpm.stringValue = @"--- BPM";
+    _controlPanelController.bpm.stringValue = @"--- BPM";
     
-    
-    self.waveLayerDelegate.visualSample = self.visualSample;
+    _waveLayerDelegate.visualSample = self.visualSample;
 
-    self.totalVisual = [[VisualSample alloc] initWithSample:sample
-                                             pixelPerSecond:self.totalView.bounds.size.width / sample.duration
+    _totalVisual = [[VisualSample alloc] initWithSample:self.lazySample
+                                             pixelPerSecond:self.totalView.bounds.size.width / _lazySample.duration
                                                   tileWidth:kTotalWaveViewTileWidth];
-    self.totalWaveLayerDelegate.visualSample = self.totalVisual;
+    _totalWaveLayerDelegate.visualSample = self.totalVisual;
 
-    self.beatSample = [[BeatTrackedSample alloc] initWithSample:sample framesPerPixel:self.visualSample.framesPerPixel];
-    self.beatLayerDelegate.beatSample = self.beatSample;
+    [_lazySample decodeAsyncWithCallback:^(BOOL decodeFinished){
+        if (decodeFinished) {
+            [self lazySampleDecoded];
+       } else {
+            NSLog(@"never finished the decoding");
+        }
+    }];
 
-    NSLog(@"triggering decoder...");
+    _audioController.sample = _lazySample;
+    _waveView.frames = _lazySample.frames;
+    _waveRenderer.visualSample = self.visualSample;
+    _metalWaveView.frames = _lazySample.frames;
+    _totalView.frames = _lazySample.frames;
     
-    self.audioController.sample = sample;
-    self.waveView.frames = sample.frames;
-    self.waveRenderer.visualSample = self.visualSample;
-    self.metalWaveView.frames = sample.frames;
-    self.totalView.frames = sample.frames;
-    
-    self.metalWaveView.documentTotalRect = CGRectMake( 0.0,
+    _metalWaveView.documentTotalRect = CGRectMake( 0.0,
                                                      0.0,
                                                      self.visualSample.width,
                                                      self.metalWaveView.bounds.size.height);
 
 
-    self.waveView.frame = CGRectMake(0.0,
+    _waveView.frame = CGRectMake(0.0,
                                      0.0,
                                      self.visualSample.width,
                                      self.waveView.bounds.size.height);
-    [self.totalView refresh];
-    
-    [[NSDocumentController sharedDocumentController] noteNewRecentDocumentURL:url];
-    
-    [self setMeta:meta];
-    
-    [self.audioController playWhenReady];
+    [_totalView refresh];
+        
+    [_audioController playWhenReady];
+}
+
+- (void)lazySampleDecoded
+{
+    BeatTrackedSample* beatSample = [[BeatTrackedSample alloc] initWithSample:_lazySample framesPerPixel:self.visualSample.framesPerPixel];
+    self.beatLayerDelegate.beatSample = beatSample;
+
+    if (_beatSample != nil) {
+        NSLog(@"beats tracking may need decode aborting");
+        [_beatSample abortWithCallback:^{
+            [self loadBeats:beatSample];
+        }];
+    } else {
+        [self loadBeats:beatSample];
+    }
+}
+
+- (void)loadBeats:(BeatTrackedSample*)beatsSample
+{
+    self.beatSample = beatsSample;
+    [self.beatSample trackBeatsAsyncWithCallback:^(BOOL beatsFinished){
+        if (beatsFinished) {
+            [self.waveView invalidateTiles];
+            [self beatEffectStart];
+        } else {
+            NSLog(@"never finished the beat tracking");
+        }
+    }];
 }
 
 - (void)setMeta:(MediaMetaData*)meta

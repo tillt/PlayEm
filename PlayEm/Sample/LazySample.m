@@ -82,19 +82,14 @@ const size_t kMaxFramesPerBuffer = 16384;
 - (void)abortWithCallback:(void (^)(void))callback;
 {
     if (_queueOperation != NULL) {
-        NSLog(@"aborting decoding...");
-        os_signpost_event_emit(pointsOfInterest, POILazySampleDecodeAborting, "Aborting");
         dispatch_block_cancel(_queueOperation);
         dispatch_block_notify(_queueOperation, dispatch_get_main_queue(), ^{
-            os_signpost_event_emit(pointsOfInterest, POILazySampleDecodeAbortNotification, "Aborting");
-            NSLog(@"sample %@ decode aborted", self);
             callback();
         });
     } else {
         callback();
     }
 }
-
 
 - (unsigned long long)frames
 {
@@ -120,16 +115,10 @@ const size_t kMaxFramesPerBuffer = 16384;
 {
     __block BOOL done = NO;
     _queueOperation = dispatch_block_create(DISPATCH_BLOCK_NO_QOS_CLASS, ^{
-        NSLog(@"async sample decode...");
         done = [self decode];
-        NSLog(@"decode ended somehow");
     });
     dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0), _queueOperation);
     dispatch_block_notify(_queueOperation, dispatch_get_main_queue(), ^{
-        NSLog(@"posting operation notification");
-        os_signpost_event_emit(pointsOfInterest, POILazySampleDecodeAbortNotification, "Notification");
-        os_signpost_interval_end(pointsOfInterest, POILazySampleDecodeAbortHang, "Hanging");
-
         callback(done);
     });
 }

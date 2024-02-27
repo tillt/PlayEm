@@ -30,6 +30,7 @@
 @property (nonatomic, weak) NSTableView* temposTable;
 @property (nonatomic, weak) NSTableView* keysTable;
 @property (nonatomic, weak) NSTableView* songsTable;
+
 @property (nonatomic, strong) NSMutableArray<NSString*>* genres;
 @property (nonatomic, strong) NSMutableArray<NSString*>* artists;
 @property (nonatomic, strong) NSMutableArray<NSString*>* albums;
@@ -889,6 +890,11 @@
     [result.textField setStringValue:string];
 
     return result;
+}
+
+- (NSArray<NSString*>*)knownGenres
+{
+    return [_genres subarrayWithRange:NSMakeRange(1, _genres.count - 1)];
 }
 
 @end

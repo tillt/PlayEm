@@ -69,7 +69,8 @@
             @"key": @"albumArtist",
         },
         @"05 genre": @{
-            @"width": @150,
+            @"width": @180,
+            @"combo": @YES,
         },
         @"06 year": @{
             @"width": @60,
@@ -127,6 +128,12 @@
         if (number != nil){
             rows = [number intValue];
         }
+        
+        BOOL combo = NO;
+        number = [config[key] objectForKey:@"combo"];
+        if (number != nil){
+            combo = [number boolValue];
+        }
 
         BOOL editable = YES;
         number = [config[key] objectForKey:@"editable"];
@@ -146,35 +153,51 @@
                                      nameFieldWidth,
                                      (rows * rowUnitHeight) + kRowInset);
         [view addSubview:textField];
-        
-        textField = [NSTextField textFieldWithString:@""];
-        textField.bordered = editable;
-        textField.textColor = [NSColor labelColor];
-        textField.drawsBackground = NO;
-        textField.editable = editable;
-        textField.alignment = NSTextAlignmentLeft;
-        if (editable) {
-            textField.delegate = self;
-        }
-
-        if (rows > 1) {
-            textField.lineBreakMode = NSLineBreakByCharWrapping;
-            textField.usesSingleLineMode = NO;
-            textField.cell.wraps = YES;
-            textField.cell.scrollable = NO;
-        } else {
-            textField.usesSingleLineMode = YES;
-        }
 
         CGFloat x = nameFieldWidth + kBorderWidth + kBorderWidth;
 
-        textField.frame = NSMakeRect(x,
-                                     y,
-                                     width - kBorderWidth,
-                                     (rows * rowUnitHeight) + kRowInset);
-        [view addSubview:textField];
-        
-        dict[configKey] = textField;
+        if (combo) {
+            NSComboBox* comboBox = [NSComboBox new];
+            comboBox.frame = NSMakeRect(x,
+                                        y,
+                                        width - kBorderWidth,
+                                        rowUnitHeight + kRowInset);
+            comboBox.usesDataSource = YES;
+            comboBox.dataSource = self;
+            comboBox.delegate = self;
+            comboBox.editable = YES;
+            comboBox.drawsBackground = NO;
+            [view addSubview:comboBox];
+            
+            dict[configKey] = comboBox;
+        } else {
+            textField = [NSTextField textFieldWithString:@""];
+            textField.bordered = editable;
+            textField.textColor = [NSColor labelColor];
+            textField.drawsBackground = NO;
+            textField.editable = editable;
+            textField.alignment = NSTextAlignmentLeft;
+            if (editable) {
+                textField.delegate = self;
+            }
+
+            if (rows > 1) {
+                textField.lineBreakMode = NSLineBreakByCharWrapping;
+                textField.usesSingleLineMode = NO;
+                textField.cell.wraps = YES;
+                textField.cell.scrollable = NO;
+            } else {
+                textField.usesSingleLineMode = YES;
+            }
+
+            textField.frame = NSMakeRect(x,
+                                         y,
+                                         width - kBorderWidth,
+                                         (rows * rowUnitHeight) + kRowInset);
+            [view addSubview:textField];
+            
+            dict[configKey] = textField;
+        }
         
         NSDictionary* extra = [config[key] objectForKey:@"extra"];
 
@@ -422,6 +445,7 @@
                     [patchedMeta writeToFileWithError:&error];
                     
                     [_delegate metaChangedForMeta:_meta updatedMeta:patchedMeta];
+                    self.meta = patchedMeta;
                 }
             }
             return;
@@ -453,6 +477,14 @@
     [patchedMeta writeToFileWithError:&error];
     
     [_delegate metaChangedForMeta:_meta updatedMeta:patchedMeta];
+    self.meta = patchedMeta;
+}
+
+#pragma mark - NSComboBox delegate
+
+- (void)comboBoxSelectionDidChange:(NSNotification *)notification
+{
+    [self controlTextDidEndEditing:notification];
 }
 
 #pragma mark - NSTabView delegate
@@ -462,6 +494,18 @@
     if ([tabViewItem.label isEqualToString:@"Lyrics"]) {
         [_lyricsTextView.window makeFirstResponder:_lyricsTextView];
     }
+}
+
+#pragma mark - NSComboBoxDataSource
+
+- (NSInteger)numberOfItemsInComboBox:(NSComboBox *)comboBox
+{
+    return [[_delegate knownGenres] count];
+}
+
+- (nullable id)comboBox:(NSComboBox *)comboBox objectValueForItemAtIndex:(NSInteger)index
+{
+    return [_delegate knownGenres][index];
 }
 
 @end

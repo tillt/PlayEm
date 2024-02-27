@@ -1785,6 +1785,11 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     return self.meta;
 }
 
+- (NSArray<NSString*>*)knownGenres
+{
+    return [_browser knownGenres];
+}
+
 - (void)metaChangedForMeta:(MediaMetaData *)meta updatedMeta:(MediaMetaData *)updatedMeta
 {
     NSLog(@"meta changed - need to update the browser");

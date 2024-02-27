@@ -14,10 +14,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 @protocol InfoPanelControllerDelegate <NSObject>
 - (MediaMetaData*)currentSongMeta;
+- (NSArray<NSString*>*)knownGenres;
 - (void)metaChangedForMeta:(MediaMetaData *)meta updatedMeta:(MediaMetaData *)updatedMeta;
 @end
 
-@interface InfoPanelController : NSViewController <NSTextFieldDelegate, NSTextViewDelegate, NSTabViewDelegate>
+@interface InfoPanelController : NSViewController <NSTextFieldDelegate, NSTextViewDelegate, NSTabViewDelegate, NSComboBoxDataSource, NSComboBoxDelegate>
 @property (weak, nonatomic) id<InfoPanelControllerDelegate> delegate;
 
 - (id)initWithDelegate:(id<InfoPanelControllerDelegate>)delegate;

@@ -42,8 +42,6 @@
         long address = (unsigned long)&keyValue;
         address += (sizeof(UInt32) - length);
 
-        keyValue = CFSwapInt32BigToHost(keyValue);
-
         char cstring[length+1];
         strncpy(cstring, (char *) address, length);
         cstring[length] = '\0';

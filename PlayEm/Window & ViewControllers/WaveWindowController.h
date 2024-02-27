@@ -86,7 +86,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (id)init;
 - (void)setCurrentFrame:(unsigned long long)frame;
-- (BOOL)loadDocumentFromURL:(NSURL*)url meta:(nullable MediaMetaData*)meta error:(NSError**)error;
+- (BOOL)loadDocumentFromURL:(NSURL*)url meta:(nullable MediaMetaData*)meta;
 - (IBAction)toggleFullScreen:(id)sender;
 - (IBAction)loadITunesLibrary:(id)sender;
 - (IBAction)showInfo:(id)sender;

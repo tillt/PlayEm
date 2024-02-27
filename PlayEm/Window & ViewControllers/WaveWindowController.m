@@ -1349,36 +1349,39 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
 
     if ([openDlg runModal] == NSModalResponseOK) {
         for(NSURL* url in [openDlg URLs]) {
-            NSError* error = nil;
-            [self loadDocumentFromURL:url meta:nil error:&error];
+            [self loadDocumentFromURL:url meta:nil];
         }
     } else {
         return;
     }
 }
 
-- (BOOL)loadDocumentFromURL:(NSURL*)url meta:(MediaMetaData*)meta error:(NSError**)error
+- (BOOL)loadDocumentFromURL:(NSURL*)url meta:(MediaMetaData*)meta
 {
+    NSError* error = nil;
     if (_audioController == nil) {
         _audioController = [AudioController new];
         _audioController.delegate = self;
     }
 
-    if (![url checkResourceIsReachableAndReturnError:error]) {
-        NSLog(@"Failed to reach \"%@\": %@\n", url.path, *error);
+    if (![url checkResourceIsReachableAndReturnError:&error]) {
+        if (error != nil) {
+            NSAlert* alert = [NSAlert betterAlertWithError:error action:@"load" url:url];
+            [alert runModal];
+        }
         return NO;
     }
     
     if (meta == nil) {
-        NSLog(@"need to fetch some metadata...");
-        meta = [MediaMetaData mediaMetaDataWithURL:url error:error];
+        // Not being able to get metadata is not a reason to error out.
+        meta = [MediaMetaData mediaMetaDataWithURL:url error:&error];
     }
     
-    LazySample* lazySample = [[LazySample alloc] initWithPath:url.path error:error];
+    LazySample* lazySample = [[LazySample alloc] initWithPath:url.path error:&error];
     if (lazySample == nil) {
-        NSLog(@"Failed to load \"%@\"", url.path);
         if (error) {
-            NSLog(@"Failed to load \"%@\": %@\n", url.path, *error);
+            NSAlert* alert = [NSAlert betterAlertWithError:error action:@"read" url:url];
+            [alert runModal];
         }
         return NO;
     }
@@ -1387,7 +1390,6 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     [self setMeta:meta];
 
     if (_lazySample != nil) {
-        NSLog(@"lazy sample may need decode aborting");
         [_lazySample abortWithCallback:^{
             [self loadLazySample:lazySample];
         }];
@@ -1520,8 +1522,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     if (pboard.pasteboardItems.count <= 1) {
         NSURL* url = [NSURL URLFromPasteboard:pboard];
         if (url) {
-            NSError* error = nil;
-            if ([self loadDocumentFromURL:url meta:nil error:&error]) {
+            if ([self loadDocumentFromURL:url meta:nil]) {
                 return YES;
             }
         }
@@ -1632,10 +1633,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
 
 - (void)browseSelectedUrl:(NSURL*)url meta:(MediaMetaData*)meta
 {
-    NSError* error = nil;
-    if (![self loadDocumentFromURL:url meta:meta error:&error]) {
-        [[NSAlert betterAlertWithError:error action:@"load" url:url] runModal];
-    }
+    [self loadDocumentFromURL:url meta:meta];
 }
 
 - (void)loadProgress:(NSProgressIndicator*)progress state:(LoadState)state value:(double)value
@@ -1741,8 +1739,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
         return;
     }
 
-    NSError* error = nil;
-    [self loadDocumentFromURL:item.location meta:item error:&error];
+    [self loadDocumentFromURL:item.location meta:item];
 }
 
 - (void)stop

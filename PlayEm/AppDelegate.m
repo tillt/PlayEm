@@ -33,14 +33,12 @@
 
 - (BOOL)application:(NSApplication*)sender openFile:(NSString*)filename
 {
-    NSError* error = nil;
-    return [[self waveController] loadDocumentFromURL:[NSURL fileURLWithPath:filename] meta:nil error:&error];
+    return [[self waveController] loadDocumentFromURL:[NSURL fileURLWithPath:filename] meta:nil];
 }
 
 - (void)application:(NSApplication*)application openURLs:(NSArray<NSURL*>*)urls
 {
-    NSError* error = nil;
-    [[self waveController] loadDocumentFromURL:urls[0] meta:nil error:&error];
+    [[self waveController] loadDocumentFromURL:urls[0] meta:nil];
 }
 
 - (void)applicationDidFinishLaunching:(NSNotification*)aNotification

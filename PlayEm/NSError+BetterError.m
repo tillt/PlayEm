@@ -42,67 +42,60 @@
     NSLog(@"recovery: %@", error.localizedRecoverySuggestion);
     NSLog(@"domain: %@", error.domain);
     NSLog(@"userInfo: %@", error.userInfo);
+    
+    NSDictionary* stringMap = @{
+        // AudioFile.h
+        @(kAudioFileUnspecifiedError): @"unspecified error",
+        @(kAudioFileUnsupportedFileTypeError): @"unsupported file type",
+        @(kAudioFileUnsupportedDataFormatError): @"unsupported file type",
+        @(kAudioFileUnsupportedPropertyError): @"unsupported property",
+        @(kAudioFileBadPropertySizeError): @"bad property size",
+        @(kAudioFilePermissionsError): @"permissions error",
+        @(kAudioFileNotOptimizedError): @"not optimized",
+        @(kAudioFileInvalidChunkError): @"invalid chunk",
+        @(kAudioFileDoesNotAllow64BitDataSizeError): @"does not allow 64bit data size",
+        @(kAudioFileInvalidPacketOffsetError): @"invalid packat offset",
+        @(kAudioFileInvalidPacketDependencyError): @"packet dependency error",
+        @(kAudioFileInvalidFileError): @"invalid file error",
+        @(kAudioFileOperationNotSupportedError): @"operation not supported",
+    };
 
-//    switch(error.code) {
-//        case kAudioFileUnspecifiedError:
-//            break;
-//            /*
-//            kAudioFileUnspecifiedError                        = 'wht?',        // 0x7768743F, 2003334207
-//            kAudioFileUnsupportedFileTypeError                 = 'typ?',        // 0x7479703F, 1954115647
-//            kAudioFileUnsupportedDataFormatError             = 'fmt?',        // 0x666D743F, 1718449215
-//            kAudioFileUnsupportedPropertyError                 = 'pty?',        // 0x7074793F, 1886681407
-//            kAudioFileBadPropertySizeError                     = '!siz',        // 0x2173697A,  561211770
-//            kAudioFilePermissionsError                         = 'prm?',        // 0x70726D3F, 1886547263
-//            kAudioFileNotOptimizedError                        = 'optm',        // 0x6F70746D, 1869640813
-//            // file format specific error codes
-//            kAudioFileInvalidChunkError                        = 'chk?',        // 0x63686B3F, 1667787583
-//            kAudioFileDoesNotAllow64BitDataSizeError        = 'off?',        // 0x6F66663F, 1868981823
-//            kAudioFileInvalidPacketOffsetError                = 'pck?',        // 0x70636B3F, 1885563711
-//            kAudioFileInvalidPacketDependencyError            = 'dep?',        // 0x6465703F, 1684369471
-//            kAudioFileInvalidFileError                        = 'dta?',        // 0x6474613F, 1685348671
-//            kAudioFileOperationNotSupportedError            = 0x6F703F3F,     // 'op??', integer used because of trigraph
-//             */
-//    }
-//    if ([statusString isEqualToString:kAudioFileUnspecifiedError]) {
-//        
-//    }
-
-
-//    NSError* betterError = [NSError errorWithDomain:NSCocoaErrorDomain
-//                                               code:<#(NSInteger)#> userInfo:<#(nullable NSDictionary<NSErrorUserInfoKey,id> *)#>
-//
     NSString* description = error.localizedDescription;
+    NSString* extendedDescription = stringMap[@(error.code)];
     NSString* failureReason = error.localizedFailureReason;
     NSString* fileName = [[url filePathURL] lastPathComponent];
 
-    NSString* avfaudioErrorCodePrefix = @"(com.apple.coreaudio.avfaudio error ";
-    NSRange range = [description rangeOfString:avfaudioErrorCodePrefix];
+    NSArray<NSString*>* frameworkComponents = [error.domain componentsSeparatedByString:@"."];
+    NSString* frameworkName = frameworkComponents[frameworkComponents.count - 1];
+    NSString* frameworkErrorCodePrefix = [NSString stringWithFormat:@"(%@ error ", error.domain];
+    NSRange range = [description rangeOfString:frameworkErrorCodePrefix];
 
     if (action == nil) {
         action = @"process";
     }
+    NSString* urlInsert = @"";
+    if (fileName != nil) {
+        urlInsert = [NSString stringWithFormat:@" the file \'%@\'", fileName];
+    }
 
+    // Spare the user the hard to read framework name.
     if (range.length > 0) {
         NSString* goodPart = [description substringToIndex:range.location];
         NSString* trigraph = [NSError stringFromOSStatus:error.code];
         
         if (failureReason == nil) {
-            failureReason = [NSString stringWithFormat:@"%@ returned '%@' (%ld) when trying to %@",
-                             error.domain,
-                             trigraph,
-                             error.code,
-                             action];
+            failureReason = [NSString stringWithFormat:@"When trying to %@%@ %@ returned: '%@'",
+                             action,
+                             urlInsert,
+                             frameworkName,
+                             extendedDescription];
         }
         description = goodPart;
-        if (url != nil) {
-            failureReason = [failureReason stringByAppendingFormat:@" '%@'.", fileName];
-        } else {
-            failureReason = [failureReason stringByAppendingString:@"."];
-        }
     }
     if (failureReason == nil) {
-        failureReason = [NSString stringWithFormat:@"Tried to %@ \"%@\".", action, fileName];
+        failureReason = [NSString stringWithFormat:@"Tried to %@ \"%@\"", action, fileName];
     }
+    failureReason = [failureReason stringByAppendingString:@"."];
     
     NSDictionary* userInfo = @{
         NSLocalizedDescriptionKey: description,

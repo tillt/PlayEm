@@ -47,6 +47,8 @@
 		BBB37D21290F4A7E0007A6BB /* PlaylistController.m in Sources */ = {isa = PBXBuildFile; fileRef = BBB37D20290F4A7E0007A6BB /* PlaylistController.m */; };
 		BBC2AF4B2B8974C20077EB5E /* MediaMetaData+TagLib.m in Sources */ = {isa = PBXBuildFile; fileRef = BBC2AF4A2B8974C20077EB5E /* MediaMetaData+TagLib.m */; };
 		BBC2AF732B8B5B5A0077EB5E /* MediaMetaData+AVAsset.m in Sources */ = {isa = PBXBuildFile; fileRef = BBC2AF722B8B5B5A0077EB5E /* MediaMetaData+AVAsset.m */; };
+		BBC2AF772B8DE2780077EB5E /* NSError+BetterError.m in Sources */ = {isa = PBXBuildFile; fileRef = BBC2AF762B8DE2770077EB5E /* NSError+BetterError.m */; };
+		BBC2AF7A2B8DF0960077EB5E /* NSAlert+BetterError.m in Sources */ = {isa = PBXBuildFile; fileRef = BBC2AF792B8DF0960077EB5E /* NSAlert+BetterError.m */; };
 		BBC43B7028D28CDD00CD1080 /* InfoPanel.m in Sources */ = {isa = PBXBuildFile; fileRef = BBC43B6F28D28CDD00CD1080 /* InfoPanel.m */; };
 		BBC43B7328D296B800CD1080 /* AVMetadataItem+THAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = BBC43B7228D296B800CD1080 /* AVMetadataItem+THAdditions.m */; };
 		BBCE1DD9257C3CAB006CE886 /* TiledScrollView.m in Sources */ = {isa = PBXBuildFile; fileRef = BBCE1DD8257C3CAB006CE886 /* TiledScrollView.m */; };
@@ -156,6 +158,10 @@
 		BBC2AF4E2B8976DA0077EB5E /* MediaMetaData+TagLib.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "MediaMetaData+TagLib.h"; sourceTree = "<group>"; };
 		BBC2AF712B8B5ACA0077EB5E /* MediaMetaData+AVAsset.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "MediaMetaData+AVAsset.h"; sourceTree = "<group>"; };
 		BBC2AF722B8B5B5A0077EB5E /* MediaMetaData+AVAsset.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "MediaMetaData+AVAsset.m"; sourceTree = "<group>"; };
+		BBC2AF752B8DE2770077EB5E /* NSError+BetterError.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSError+BetterError.h"; sourceTree = "<group>"; };
+		BBC2AF762B8DE2770077EB5E /* NSError+BetterError.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSError+BetterError.m"; sourceTree = "<group>"; };
+		BBC2AF782B8DF0950077EB5E /* NSAlert+BetterError.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSAlert+BetterError.h"; sourceTree = "<group>"; };
+		BBC2AF792B8DF0960077EB5E /* NSAlert+BetterError.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSAlert+BetterError.m"; sourceTree = "<group>"; };
 		BBC43B6E28D28CDD00CD1080 /* InfoPanel.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = InfoPanel.h; sourceTree = "<group>"; };
 		BBC43B6F28D28CDD00CD1080 /* InfoPanel.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = InfoPanel.m; sourceTree = "<group>"; };
 		BBC43B7128D296B800CD1080 /* AVMetadataItem+THAdditions.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "AVMetadataItem+THAdditions.h"; sourceTree = "<group>"; };
@@ -383,6 +389,10 @@
 				BBE284672467612F00BE9D7F /* ScopeRenderer.m */,
 				BBDC9888250E81CF008B19D1 /* BrowserController.h */,
 				BBDC9889250E81D0008B19D1 /* BrowserController.m */,
+				BBC2AF752B8DE2770077EB5E /* NSError+BetterError.h */,
+				BBC2AF762B8DE2770077EB5E /* NSError+BetterError.m */,
+				BBC2AF782B8DF0950077EB5E /* NSAlert+BetterError.h */,
+				BBC2AF792B8DF0960077EB5E /* NSAlert+BetterError.m */,
 				BBF7982B2ADC4BAA00893533 /* NSString+BeautifulPast.h */,
 				BBF7982C2ADC4BAA00893533 /* NSString+BeautifulPast.m */,
 				BBD24D602432948800DC2A81 /* AppDelegate.h */,
@@ -548,6 +558,7 @@
 			files = (
 				BB8A100C290586E500FC6013 /* CAShapeLayer+Path.m in Sources */,
 				BB9401882AD0974900B7B150 /* AcceleratedBiquadFilter.m in Sources */,
+				BBC2AF7A2B8DF0960077EB5E /* NSAlert+BetterError.m in Sources */,
 				BB9C77E52A8D5F7C00A138BE /* WaveView.m in Sources */,
 				BBF7982D2ADC4BAA00893533 /* NSString+BeautifulPast.m in Sources */,
 				BBCE23542B5C9C41003892F3 /* GraphicsTools.m in Sources */,
@@ -566,6 +577,7 @@
 				BBC2AF732B8B5B5A0077EB5E /* MediaMetaData+AVAsset.m in Sources */,
 				BBE5FEB52A892A410001B807 /* BeatLayerDelegate.m in Sources */,
 				BBE284682467612F00BE9D7F /* ScopeRenderer.m in Sources */,
+				BBC2AF772B8DE2780077EB5E /* NSError+BetterError.m in Sources */,
 				BBA456E129395B970062D470 /* IdentifyController.m in Sources */,
 				BB5A4D9128FC5C2B003A733C /* NSBezierPath+CGPath.m in Sources */,
 				BBC43B7328D296B800CD1080 /* AVMetadataItem+THAdditions.m in Sources */,

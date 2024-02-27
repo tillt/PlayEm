@@ -34,6 +34,8 @@
 #import "BeatLayerDelegate.h"
 #import "WaveLayerDelegate.h"
 #import "ProfilingPointsOfInterest.h"
+#import "NSAlert+BetterError.h"
+
 
 static const float kShowHidePanelAnimationDuration = 0.3f;
 static const float kPixelPerSecond = 120.0f;
@@ -1374,7 +1376,10 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     
     LazySample* lazySample = [[LazySample alloc] initWithPath:url.path error:error];
     if (lazySample == nil) {
-        NSLog(@"Failed to load \"%@\": %@\n", url.path, *error);
+        NSLog(@"Failed to load \"%@\"", url.path);
+        if (error) {
+            NSLog(@"Failed to load \"%@\": %@\n", url.path, *error);
+        }
         return NO;
     }
     [[NSDocumentController sharedDocumentController] noteNewRecentDocumentURL:url];
@@ -1627,7 +1632,10 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
 
 - (void)browseSelectedUrl:(NSURL*)url meta:(MediaMetaData*)meta
 {
-    [self loadDocumentFromURL:url meta:meta error:nil];
+    NSError* error = nil;
+    if (![self loadDocumentFromURL:url meta:meta error:&error]) {
+        [[NSAlert betterAlertWithError:error action:@"load" url:url] runModal];
+    }
 }
 
 - (void)loadProgress:(NSProgressIndicator*)progress state:(LoadState)state value:(double)value

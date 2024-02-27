@@ -89,7 +89,7 @@
 
     CIFilter* intenseBloomFilter = [CIFilter filterWithName:@"CIBloom"];
     [intenseBloomFilter setDefaults];
-    [intenseBloomFilter setValue: [NSNumber numberWithFloat:5.0] forKey: @"inputRadius"];
+    [intenseBloomFilter setValue: [NSNumber numberWithFloat:7.0] forKey: @"inputRadius"];
     [intenseBloomFilter setValue: [NSNumber numberWithFloat:1.5] forKey: @"inputIntensity"];
 
     _zoomBlur = [CIFilter filterWithName:@"CIZoomBlur"];

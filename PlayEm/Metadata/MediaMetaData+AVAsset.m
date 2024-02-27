@@ -150,9 +150,10 @@
                 NSData* data = item.dataValue;
                 NSAssert(data.length >= 2, @"unexpected genre encoding");
                 const uint16_t* genre = data.bytes;
-                NSAssert(genre[0] >= 1 && genre[0] <= 80, @"unexpected genre index");
+                const uint16_t index = ntohs(genre[0]);
+                NSAssert(index >= 1 && index <= 80, @"unexpected genre index %d", index);
                 // For some reason AVAsset serves a genre index +1 of the original id3 one.
-                NSNumber* genreNumber = [NSNumber numberWithUnsignedShort:ntohs(genre[0]) - 1];
+                NSNumber* genreNumber = [NSNumber numberWithUnsignedShort:index - 1];
                 self.genre = id3Genres[genreNumber];
             } else if ([[item commonKey] isEqualToString:@"artwork"]) {
                 if (item.dataValue != nil) {

@@ -229,8 +229,8 @@
 		BB0EDB842A8E9B940053FC8A /* Audio */ = {
 			isa = PBXGroup;
 			children = (
-				BB26B51029442E9A006EBAA7 /* AudioProcessing.m */,
 				BB26B51229442ECF006EBAA7 /* AudioProcessing.h */,
+				BB26B51029442E9A006EBAA7 /* AudioProcessing.m */,
 				BB2CB58524827A0900D47258 /* AudioController.h */,
 				BB2CB58624827A0900D47258 /* AudioController.m */,
 			);

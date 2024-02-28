@@ -161,6 +161,20 @@
     [self reloadData];
 }
 
+- (NSMutableArray*)cacheFromiTunesLibrary:(ITLibrary*)library
+{
+    NSMutableArray<MediaMetaData*>* cache = [NSMutableArray new];
+    for (ITLibMediaItem* d in library.allMediaItems) {
+        // We cannot support cloud based items, unfortunately.
+        if (d.cloud) {
+            continue;
+        }
+        MediaMetaData* m = [MediaMetaData mediaMetaDataWithITLibMediaItem:d error:nil];
+        [cache addObject:m];
+    }
+    return cache;
+}
+
 - (void)loadITunesLibrary
 {
     NSError *error = nil;

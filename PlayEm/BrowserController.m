@@ -233,14 +233,7 @@
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
         //[_delegate loadLibraryState:LoadStateStarted value:0.0];
         
-        NSMutableArray<MediaMetaData*>* cachedLibrary = [NSMutableArray new];
-        for (ITLibMediaItem* d in weakSelf.library.allMediaItems) {
-            if (d.cloud) {
-                continue;
-            }
-            MediaMetaData* m = [MediaMetaData mediaMetaDataWithITLibMediaItem:d error:nil];
-            [cachedLibrary addObject:m];
-        }
+        NSMutableArray<MediaMetaData*>* cachedLibrary = [self cacheFromiTunesLibrary:weakSelf.library];
         
         // Apply sorting.
         weakSelf.filteredItems = [cachedLibrary sortedArrayUsingDescriptors:descriptors];

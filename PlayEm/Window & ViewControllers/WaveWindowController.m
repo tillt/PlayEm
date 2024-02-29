@@ -266,11 +266,6 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
 {
     NSLog(@"loadWindow...");
     
-    MusicAuthenticationController* authenticationController = [MusicAuthenticationController new];
-    [authenticationController requestAppleMusicDeveloperTokenWithCompletion:^(NSString* token){
-        NSLog(@"done authenticating: %@", token);
-    }];
-    
     self.window = [[NSWindow alloc] initWithContentRect:NSMakeRect(0, 0, 1180, 1050)
                                               styleMask: NSWindowStyleMaskTitled
                                                        | NSWindowStyleMaskClosable

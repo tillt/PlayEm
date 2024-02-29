@@ -68,11 +68,13 @@
 	<key>CFBundleShortVersionString</key>
 	<string>1.2</string>
 	<key>CFBundleVersion</key>
-	<string>3365</string>
+	<string>3443</string>
 	<key>LSApplicationCategoryType</key>
 	<string>public.app-category.music</string>
 	<key>LSMinimumSystemVersion</key>
 	<string>$(MACOSX_DEPLOYMENT_TARGET)</string>
+	<key>NSAppleMusicUsageDescription</key>
+	<string>Playback of iTunes Match and Apple Music files</string>
 	<key>NSHumanReadableCopyright</key>
 	<string>Copyright © 2022-24 Till Toenshoff. All rights reserved.</string>
 	<key>NSMainNibFile</key>

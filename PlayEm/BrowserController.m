@@ -161,6 +161,20 @@
     [self reloadData];
 }
 
+- (NSMutableArray*)cacheFromiTunesLibrary:(ITLibrary*)library
+{
+    NSMutableArray<MediaMetaData*>* cache = [NSMutableArray new];
+    for (ITLibMediaItem* d in library.allMediaItems) {
+        // We cannot support cloud based items, unfortunately.
+        if (d.cloud) {
+            continue;
+        }
+        MediaMetaData* m = [MediaMetaData mediaMetaDataWithITLibMediaItem:d error:nil];
+        [cache addObject:m];
+    }
+    return cache;
+}
+
 - (void)loadITunesLibrary
 {
     NSError *error = nil;
@@ -219,14 +233,7 @@
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
         //[_delegate loadLibraryState:LoadStateStarted value:0.0];
         
-        NSMutableArray<MediaMetaData*>* cachedLibrary = [NSMutableArray new];
-        for (ITLibMediaItem* d in weakSelf.library.allMediaItems) {
-            if (d.cloud) {
-                continue;
-            }
-            MediaMetaData* m = [MediaMetaData mediaMetaDataWithITLibMediaItem:d error:nil];
-            [cachedLibrary addObject:m];
-        }
+        NSMutableArray<MediaMetaData*>* cachedLibrary = [self cacheFromiTunesLibrary:weakSelf.library];
         
         // Apply sorting.
         weakSelf.filteredItems = [cachedLibrary sortedArrayUsingDescriptors:descriptors];

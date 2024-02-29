@@ -36,6 +36,7 @@
 #import "ProfilingPointsOfInterest.h"
 #import "NSAlert+BetterError.h"
 
+#import "MusicAuthenticationController.h"
 
 static const float kShowHidePanelAnimationDuration = 0.3f;
 static const float kPixelPerSecond = 120.0f;
@@ -264,6 +265,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
 - (void)loadWindow
 {
     NSLog(@"loadWindow...");
+    
     self.window = [[NSWindow alloc] initWithContentRect:NSMakeRect(0, 0, 1180, 1050)
                                               styleMask: NSWindowStyleMaskTitled
                                                        | NSWindowStyleMaskClosable

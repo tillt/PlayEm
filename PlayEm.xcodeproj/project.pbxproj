@@ -49,6 +49,8 @@
 		BBC2AF732B8B5B5A0077EB5E /* MediaMetaData+AVAsset.m in Sources */ = {isa = PBXBuildFile; fileRef = BBC2AF722B8B5B5A0077EB5E /* MediaMetaData+AVAsset.m */; };
 		BBC2AF772B8DE2780077EB5E /* NSError+BetterError.m in Sources */ = {isa = PBXBuildFile; fileRef = BBC2AF762B8DE2770077EB5E /* NSError+BetterError.m */; };
 		BBC2AF7A2B8DF0960077EB5E /* NSAlert+BetterError.m in Sources */ = {isa = PBXBuildFile; fileRef = BBC2AF792B8DF0960077EB5E /* NSAlert+BetterError.m */; };
+		BBC2AF7D2B8FD97C0077EB5E /* MusicAuthenticationController.m in Sources */ = {isa = PBXBuildFile; fileRef = BBC2AF7C2B8FD97C0077EB5E /* MusicAuthenticationController.m */; };
+		BBC2AF7F2B8FDB140077EB5E /* StoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BBC2AF7E2B8FDB140077EB5E /* StoreKit.framework */; };
 		BBC43B7028D28CDD00CD1080 /* InfoPanel.m in Sources */ = {isa = PBXBuildFile; fileRef = BBC43B6F28D28CDD00CD1080 /* InfoPanel.m */; };
 		BBC43B7328D296B800CD1080 /* AVMetadataItem+THAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = BBC43B7228D296B800CD1080 /* AVMetadataItem+THAdditions.m */; };
 		BBCE1DD9257C3CAB006CE886 /* TiledScrollView.m in Sources */ = {isa = PBXBuildFile; fileRef = BBCE1DD8257C3CAB006CE886 /* TiledScrollView.m */; };
@@ -162,6 +164,9 @@
 		BBC2AF762B8DE2770077EB5E /* NSError+BetterError.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSError+BetterError.m"; sourceTree = "<group>"; };
 		BBC2AF782B8DF0950077EB5E /* NSAlert+BetterError.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSAlert+BetterError.h"; sourceTree = "<group>"; };
 		BBC2AF792B8DF0960077EB5E /* NSAlert+BetterError.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSAlert+BetterError.m"; sourceTree = "<group>"; };
+		BBC2AF7B2B8FD97C0077EB5E /* MusicAuthenticationController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MusicAuthenticationController.h; sourceTree = "<group>"; };
+		BBC2AF7C2B8FD97C0077EB5E /* MusicAuthenticationController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MusicAuthenticationController.m; sourceTree = "<group>"; };
+		BBC2AF7E2B8FDB140077EB5E /* StoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = StoreKit.framework; path = System/Library/Frameworks/StoreKit.framework; sourceTree = SDKROOT; };
 		BBC43B6E28D28CDD00CD1080 /* InfoPanel.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = InfoPanel.h; sourceTree = "<group>"; };
 		BBC43B6F28D28CDD00CD1080 /* InfoPanel.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = InfoPanel.m; sourceTree = "<group>"; };
 		BBC43B7128D296B800CD1080 /* AVMetadataItem+THAdditions.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "AVMetadataItem+THAdditions.h"; sourceTree = "<group>"; };
@@ -212,6 +217,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				BBC2AF7F2B8FDB140077EB5E /* StoreKit.framework in Frameworks */,
 				BB1614BA2AACB0DF00F6C5E6 /* libaubio.5.dylib in Frameworks */,
 				BB9C77E72A8D618700A138BE /* CoreImage.framework in Frameworks */,
 				BBDC988C250E8347008B19D1 /* iTunesLibrary.framework in Frameworks */,
@@ -248,6 +254,7 @@
 		BB8820C5244101C200CDB8C3 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				BBC2AF7E2B8FDB140077EB5E /* StoreKit.framework */,
 				BB3B8D9C2B87CC12006AEFCA /* ShazamKit.framework */,
 				BB3B8D962B86C9B7006AEFCA /* tag_c.framework */,
 				BB3B8D972B86C9B7006AEFCA /* tag.framework */,
@@ -389,6 +396,8 @@
 				BBE284672467612F00BE9D7F /* ScopeRenderer.m */,
 				BBDC9888250E81CF008B19D1 /* BrowserController.h */,
 				BBDC9889250E81D0008B19D1 /* BrowserController.m */,
+				BBC2AF7B2B8FD97C0077EB5E /* MusicAuthenticationController.h */,
+				BBC2AF7C2B8FD97C0077EB5E /* MusicAuthenticationController.m */,
 				BBC2AF752B8DE2770077EB5E /* NSError+BetterError.h */,
 				BBC2AF762B8DE2770077EB5E /* NSError+BetterError.m */,
 				BBC2AF782B8DF0950077EB5E /* NSAlert+BetterError.h */,
@@ -562,6 +571,7 @@
 				BB9C77E52A8D5F7C00A138BE /* WaveView.m in Sources */,
 				BBF7982D2ADC4BAA00893533 /* NSString+BeautifulPast.m in Sources */,
 				BBCE23542B5C9C41003892F3 /* GraphicsTools.m in Sources */,
+				BBC2AF7D2B8FD97C0077EB5E /* MusicAuthenticationController.m in Sources */,
 				BB7C626C2932E1540019AF25 /* ControlPanelController.m in Sources */,
 				BBCE1DD9257C3CAB006CE886 /* TiledScrollView.m in Sources */,
 				BBDC988A250E81D0008B19D1 /* BrowserController.m in Sources */,

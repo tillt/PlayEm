@@ -14,6 +14,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @protocol InfoPanelControllerDelegate <NSObject>
 - (MediaMetaData*)currentSongMeta;
+- (NSArray<MediaMetaData*>*)selectedSongMetas;
 - (NSArray<NSString*>*)knownGenres;
 - (void)metaChangedForMeta:(MediaMetaData *)meta updatedMeta:(MediaMetaData *)updatedMeta;
 @end

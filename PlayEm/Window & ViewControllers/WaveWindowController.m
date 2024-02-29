@@ -633,6 +633,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     _songsTable.menu = menu;
     _songsTable.autosaveName = @"SongsTable";
     _songsTable.autosaveTableColumns = YES;
+    _songsTable.allowsMultipleSelection = YES;
 
     col = [[NSTableColumn alloc] initWithIdentifier:@"TrackCell"];
     col.title = @"Track";
@@ -1782,6 +1783,11 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
 - (MediaMetaData*)currentSongMeta
 {
     return self.meta;
+}
+
+- (NSArray<MediaMetaData*>*)selectedSongMetas
+{
+    return [self.browser selectedSongMetas];
 }
 
 - (NSArray<NSString*>*)knownGenres

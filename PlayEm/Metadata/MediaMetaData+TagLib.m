@@ -93,7 +93,6 @@
         return -1;
     }
     
-    
     TagLib_Tag* tag = taglib_file_tag(file);
 
     if(tag != NULL) {

@@ -303,32 +303,22 @@
 
 - (IBAction)playNext:(id)sender
 {
-    NSInteger row = self.songsTable.clickedRow;
-    if (row < 0) {
-        // This is in the albums table maybe.
-        row = self.albumsTable.clickedRow;
-        if (row < 0) {
-            return;
-        }
-        // FIXME: Do something or kill this code!
-        // meh - seems non trivial to add a album "play next" properly.
-    } else {
-        assert(self.songsTable.clickedRow < self.filteredItems.count);
-        NSLog(@"item: %@", self.filteredItems[self.songsTable.clickedRow]);
-        MediaMetaData* meta = self.filteredItems[self.songsTable.clickedRow];
+    [self.songsTable.selectedRowIndexes enumerateIndexesWithOptions:NSEnumerationReverse
+                                                         usingBlock:^(NSUInteger idx, BOOL *stop) {
+        MediaMetaData* meta = self.filteredItems[idx];
+        NSLog(@"item: %@", meta);
         [_delegate addToPlaylistNext:meta];
-    }
+    }];
 }
 
 - (IBAction)playLater:(id)sender
 {
-    if (self.songsTable.clickedRow < 0) {
-        return;
-    }
-    assert(self.songsTable.clickedRow < self.filteredItems.count);
-    NSLog(@"item: %@", self.filteredItems[self.songsTable.clickedRow]);
-    MediaMetaData* meta = self.filteredItems[self.songsTable.clickedRow];
-    [_delegate addToPlaylistLater:meta];
+    [self.songsTable.selectedRowIndexes enumerateIndexesWithOptions:NSEnumerationReverse
+                                                         usingBlock:^(NSUInteger idx, BOOL *stop) {
+        MediaMetaData* meta = self.filteredItems[idx];
+        NSLog(@"item: %@", meta);
+        [_delegate addToPlaylistLater:meta];
+    }];
 }
 
 - (IBAction)showInFinder:(id)sender
@@ -917,6 +907,17 @@
 - (NSArray<NSString*>*)knownGenres
 {
     return [_genres subarrayWithRange:NSMakeRange(1, _genres.count - 1)];
+}
+
+- (NSArray<MediaMetaData*>*)selectedSongMetas
+{
+    __block NSMutableArray<MediaMetaData*>* metas;
+    [self.songsTable.selectedRowIndexes enumerateIndexesWithOptions:NSEnumerationReverse
+                                                         usingBlock:^(NSUInteger idx, BOOL *stop) {
+        MediaMetaData* meta = self.filteredItems[idx];
+        [metas addObject:meta];
+    }];
+    return metas;
 }
 
 @end

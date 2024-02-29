@@ -45,6 +45,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (IBAction)playNext:(id)sender;
 - (IBAction)playLater:(id)sender;
 - (IBAction)showInFinder:(id)sender;
+- (NSArray<MediaMetaData*>*)selectedSongMetas;
+
 @end
 
 NS_ASSUME_NONNULL_END

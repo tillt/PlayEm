@@ -68,27 +68,9 @@
             return;
         }
         NSLog(@"user token: %@", userToken);
+        [self capabilities];
     }];
     
-    [self capabilities];
-    
-    //[_cloudServiceController.token]
-    
-    
-
-    
-//    SKCloudServiceController *cloudServiceController = [AppleMusicTokenController sharedInstance].cloudServiceController;
-//        [cloudServiceController
-//         requestUserTokenForDeveloperToken:[[AppleMusicTokenController sharedInstance] developerToken]  completionHandler:^(NSString * _Nullable userToken, NSError * _Nullable error) {
-//             if (error) {
-//                 NSLog(@"apple music user token error: %@", [error localizedDescription]);
-//                 [[error userInfo] objectForKey:SKErrorDomain];
-//                 completionBlock(NO, nil);
-//             } else {
-//                 NSLog(@"user token is %@", userToken);
-//                 completionBlock(YES, userToken);
-//             }
-//         }];
 }
 
 - (void)capabilities

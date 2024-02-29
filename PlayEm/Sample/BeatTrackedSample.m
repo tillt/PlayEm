@@ -491,7 +491,8 @@ void beatsContextReset(BeatsParserContext* context)
                 if (self->_averageTempo == 0) {
                     self->_averageTempo = event.bpm;
                 } else {
-                    self->_averageTempo = ((self->_averageTempo * 9.0f) + event.bpm) / 10.0f;
+                    self->_averageTempo = event.bpm;
+                    //self->_averageTempo = ((self->_averageTempo * 9.0f) + event.bpm) / 10.0f;
                 }
                 
                 size_t origin = event.frame / self->_framesPerPixel;

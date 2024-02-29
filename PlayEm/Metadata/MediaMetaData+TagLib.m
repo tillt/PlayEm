@@ -93,6 +93,24 @@
         return -1;
     }
     
+    
+    TagLib_Tag* tag = taglib_file_tag(file);
+
+    if(tag != NULL) {
+        [self updateWithKey:@"title" string:[NSString stringWithCString:taglib_tag_title(tag)
+                                                               encoding:NSStringEncodingConversionAllowLossy]];
+        [self updateWithKey:@"artist" string:[NSString stringWithCString:taglib_tag_artist(tag)
+                                                                encoding:NSStringEncodingConversionAllowLossy]];
+        [self updateWithKey:@"album" string:[NSString stringWithCString:taglib_tag_album(tag)
+                                                               encoding:NSStringEncodingConversionAllowLossy]];
+        [self updateWithKey:@"year" string:[[NSNumber numberWithUnsignedInt:taglib_tag_year(tag)] stringValue]];
+        [self updateWithKey:@"comment" string:[NSString stringWithCString:taglib_tag_comment(tag)
+                                                                 encoding:NSStringEncodingConversionAllowLossy]];
+        [self updateWithKey:@"track" string:[[NSNumber numberWithUnsignedInt:taglib_tag_track(tag)] stringValue]];
+        [self updateWithKey:@"genre" string:[NSString stringWithCString:taglib_tag_genre(tag)
+                                                               encoding:NSStringEncodingConversionAllowLossy]];
+    }
+    
     NSDictionary* mp3TagMap = [MediaMetaData mp3TagMap];
     
     char** propertiesMap = taglib_property_keys(file);

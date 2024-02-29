@@ -164,14 +164,29 @@
 - (NSMutableArray*)cacheFromiTunesLibrary:(ITLibrary*)library
 {
     NSMutableArray<MediaMetaData*>* cache = [NSMutableArray new];
+    
+    NSLog(@"iTunes returned %ld items", library.allMediaItems.count);
+
+    size_t skippedCloudItems = 0;
+    size_t skippedAAXFiles = 0;
     for (ITLibMediaItem* d in library.allMediaItems) {
         // We cannot support cloud based items, unfortunately.
         if (d.cloud) {
+            skippedCloudItems++;
+            continue;
+        }
+        // We cannot support encrypted audiobooks, unfortunately.
+        if ([[[d.location filePathURL] pathExtension] isEqualToString:@"aax"] ) {
+            skippedAAXFiles++;
             continue;
         }
         MediaMetaData* m = [MediaMetaData mediaMetaDataWithITLibMediaItem:d error:nil];
         [cache addObject:m];
     }
+
+    NSLog(@"%ld cloud based items ignored", skippedCloudItems);
+    NSLog(@"%ld encrypted audiobooks ignored", skippedAAXFiles);
+
     return cache;
 }
 

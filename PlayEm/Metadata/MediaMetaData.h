@@ -77,6 +77,7 @@ extern NSString* const kMediaMetaDataMapTypeTuple;
 + (NSArray<NSString*>*)mediaDataKeysWithFileFormatType:(MediaMetaDataFileFormatType)type;
 
 - (BOOL)isEqualToMediaMetaData:(MediaMetaData*)other;
+- (BOOL)isEqualToMediaMetaData:(MediaMetaData*)other atKey:key;
 
 - (NSString* _Nullable)stringForKey:(NSString*)key;
 - (void)updateWithKey:(NSString*)key string:(NSString*)string;

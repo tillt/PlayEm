@@ -26,6 +26,7 @@
 		BB3B8D9D2B87CC12006AEFCA /* ShazamKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BB3B8D9C2B87CC12006AEFCA /* ShazamKit.framework */; };
 		BB577E092AA482D400046251 /* librubberband.2.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = BB577E072AA482D400046251 /* librubberband.2.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		BB577E162AA486C500046251 /* libsamplerate.0.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = BB577E152AA486C500046251 /* libsamplerate.0.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		BB5A2C232B925CD300040209 /* TextViewWithPlaceholder.m in Sources */ = {isa = PBXBuildFile; fileRef = BB5A2C222B925CD300040209 /* TextViewWithPlaceholder.m */; };
 		BB5A4D9128FC5C2B003A733C /* NSBezierPath+CGPath.m in Sources */ = {isa = PBXBuildFile; fileRef = BB5A4D9028FC5C2B003A733C /* NSBezierPath+CGPath.m */; };
 		BB7C6269293144890019AF25 /* Defaults.m in Sources */ = {isa = PBXBuildFile; fileRef = BB7C6268293144890019AF25 /* Defaults.m */; };
 		BB7C626C2932E1540019AF25 /* ControlPanelController.m in Sources */ = {isa = PBXBuildFile; fileRef = BB7C626B2932E1540019AF25 /* ControlPanelController.m */; };
@@ -121,6 +122,8 @@
 		BB3B8D9C2B87CC12006AEFCA /* ShazamKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ShazamKit.framework; path = System/Library/Frameworks/ShazamKit.framework; sourceTree = SDKROOT; };
 		BB577E072AA482D400046251 /* librubberband.2.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = librubberband.2.dylib; sourceTree = "<group>"; };
 		BB577E152AA486C500046251 /* libsamplerate.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libsamplerate.0.dylib; sourceTree = "<group>"; };
+		BB5A2C212B925CD300040209 /* TextViewWithPlaceholder.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TextViewWithPlaceholder.h; sourceTree = "<group>"; };
+		BB5A2C222B925CD300040209 /* TextViewWithPlaceholder.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TextViewWithPlaceholder.m; sourceTree = "<group>"; };
 		BB5A4D8F28FC5C2B003A733C /* NSBezierPath+CGPath.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSBezierPath+CGPath.h"; sourceTree = "<group>"; };
 		BB5A4D9028FC5C2B003A733C /* NSBezierPath+CGPath.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSBezierPath+CGPath.m"; sourceTree = "<group>"; };
 		BB7C6267293144890019AF25 /* Defaults.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Defaults.h; sourceTree = "<group>"; };
@@ -348,6 +351,8 @@
 				BB9C77E42A8D5F7C00A138BE /* WaveView.m */,
 				BB03622725FE57E800FA0A7E /* TotalWaveView.h */,
 				BB03622825FE57E800FA0A7E /* TotalWaveView.m */,
+				BB5A2C212B925CD300040209 /* TextViewWithPlaceholder.h */,
+				BB5A2C222B925CD300040209 /* TextViewWithPlaceholder.m */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -600,6 +605,7 @@
 				BBC2AF4B2B8974C20077EB5E /* MediaMetaData+TagLib.m in Sources */,
 				BB8197702B7980C50025B860 /* ConcurrentAccessDictionary.m in Sources */,
 				BB097A0C2921B1E500D33E44 /* ScrollingTextView.m in Sources */,
+				BB5A2C232B925CD300040209 /* TextViewWithPlaceholder.m in Sources */,
 				BBD24D622432948800DC2A81 /* AppDelegate.m in Sources */,
 				BBAD7D55262B973C00089ACC /* ScopeView.m in Sources */,
 				BBDEBD3D2A99417A0085E6D8 /* WaveLayerDelegate.m in Sources */,

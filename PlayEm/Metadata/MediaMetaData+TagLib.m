@@ -77,7 +77,10 @@
 {
     NSString* path = [self.location path];
     
-    TagLib_File* file = taglib_file_new([path cStringUsingEncoding:NSStringEncodingConversionAllowLossy]);
+    const char* _Nullable fileName = [path cStringUsingEncoding:NSStringEncodingConversionExternalRepresentation];
+    NSAssert(fileName != NULL, @"failed to convert filename");
+    
+    TagLib_File* file = taglib_file_new(fileName);
     if (file == NULL) {
         NSString* description = @"Cannot load file using tagLib";
         if (error) {
@@ -97,17 +100,17 @@
 
     if(tag != NULL) {
         [self updateWithKey:@"title" string:[NSString stringWithCString:taglib_tag_title(tag)
-                                                               encoding:NSStringEncodingConversionAllowLossy]];
+                                                               encoding:NSStringEncodingConversionExternalRepresentation]];
         [self updateWithKey:@"artist" string:[NSString stringWithCString:taglib_tag_artist(tag)
-                                                                encoding:NSStringEncodingConversionAllowLossy]];
+                                                                encoding:NSStringEncodingConversionExternalRepresentation]];
         [self updateWithKey:@"album" string:[NSString stringWithCString:taglib_tag_album(tag)
-                                                               encoding:NSStringEncodingConversionAllowLossy]];
+                                                               encoding:NSStringEncodingConversionExternalRepresentation]];
         [self updateWithKey:@"year" string:[[NSNumber numberWithUnsignedInt:taglib_tag_year(tag)] stringValue]];
         [self updateWithKey:@"comment" string:[NSString stringWithCString:taglib_tag_comment(tag)
-                                                                 encoding:NSStringEncodingConversionAllowLossy]];
+                                                                 encoding:NSStringEncodingConversionExternalRepresentation]];
         [self updateWithKey:@"track" string:[[NSNumber numberWithUnsignedInt:taglib_tag_track(tag)] stringValue]];
         [self updateWithKey:@"genre" string:[NSString stringWithCString:taglib_tag_genre(tag)
-                                                               encoding:NSStringEncodingConversionAllowLossy]];
+                                                               encoding:NSStringEncodingConversionExternalRepresentation]];
     }
     
     NSDictionary* mp3TagMap = [MediaMetaData mp3TagMap];
@@ -125,7 +128,7 @@
                 NSString* key = [NSString stringWithCString:*keyPtr
                                                    encoding:NSStringEncodingConversionAllowLossy];
                 NSString* values = [NSString stringWithCString:*valPtr
-                                                      encoding:NSStringEncodingConversionAllowLossy];
+                                                      encoding:NSStringEncodingConversionExternalRepresentation];
                 NSDictionary* map = mp3TagMap[key];
                 if (map == nil) {
                     NSLog(@"ignoring unsupported ID3 tag key: %@ with value(s) \"%@\"", key, values);
@@ -212,7 +215,7 @@
 {
     NSString* path = [self.location path];
     
-    TagLib_File* file = taglib_file_new([path cStringUsingEncoding:NSStringEncodingConversionAllowLossy]);
+    TagLib_File* file = taglib_file_new([path cStringUsingEncoding:NSStringEncodingConversionExternalRepresentation]);
     
     if (file == NULL) {
         NSString* description = @"Cannot open file using tagLib";
@@ -257,7 +260,7 @@
             NSLog(@"setting ID3: \"%@\" = \"%@\"", mp3Key, value);
             taglib_property_set(file,
                                 [mp3Key cStringUsingEncoding:NSStringEncodingConversionAllowLossy],
-                                [value cStringUsingEncoding:NSStringEncodingConversionAllowLossy]);
+                                [value cStringUsingEncoding:NSStringEncodingConversionExternalRepresentation]);
         }
     }
     

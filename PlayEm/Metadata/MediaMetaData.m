@@ -617,6 +617,32 @@ NSString* const kMediaMetaDataMapTypeTuple = @"tuple";
     return @"";
 }
 
+- (BOOL)isEqualToMediaMetaData:(MediaMetaData*)other atKey:key
+{
+    if (other == nil) {
+        return NO;
+    }
+    
+    // Special treatment for `artwork`.
+    if ([key isEqualToString:@"artwork"]) {
+        NSData* thisData = [self.artwork TIFFRepresentation];
+        NSData* otherData = [other.artwork TIFFRepresentation];
+        
+        if (![thisData isEqualToData:otherData]) {
+            return NO;
+        }
+    } else {
+        NSString* thisValue = [self stringForKey:key];
+        NSString* otherValue = [other stringForKey:key];
+        
+        if (![thisValue isEqualToString:otherValue]) {
+            return NO;
+        }
+    }
+    
+    return YES;
+}
+
 - (BOOL)isEqualToMediaMetaData:(MediaMetaData*)other forKeys:(NSArray<NSString*>*)keys
 {
     if (other == nil) {
@@ -624,23 +650,8 @@ NSString* const kMediaMetaDataMapTypeTuple = @"tuple";
     }
     
     for (NSString* key in keys) {
-        // Special treatment for `artwork`.
-        if ([key isEqualToString:@"artwork"]) {
-            NSData* thisData = [self.artwork TIFFRepresentation];
-            NSData* otherData = [other.artwork TIFFRepresentation];
-            
-            if (![thisData isEqualToData:otherData]) {
-                NSLog(@"metadata is not equal for artwork");
-                return NO;
-            }
-        } else {
-            NSString* thisValue = [self stringForKey:key];
-            NSString* otherValue = [other stringForKey:key];
-            
-            if (![thisValue isEqualToString:otherValue]) {
-                NSLog(@"metadata is not equal for key %@ (\"%@\" != \"%@\")", key, thisValue, otherValue);
-                return NO;
-            }
+        if (![self isEqualToMediaMetaData:other atKey:key]) {
+            return NO;
         }
     }
     
@@ -680,7 +691,6 @@ NSString* const kMediaMetaDataMapTypeTuple = @"tuple";
     
     if (objectClass == [NSString class]) {
         [self setValue:string forKey:key];
-        NSLog(@"updated %@ with string \"%@\"", key, string);
         return;
     }
     
@@ -688,10 +698,15 @@ NSString* const kMediaMetaDataMapTypeTuple = @"tuple";
         NSInteger integerValue = [string integerValue];
         NSNumber* numberValue = [NSNumber numberWithInteger:integerValue];
         [self setValue:numberValue forKey:key];
-        NSLog(@"updated %@ with number \"%@\"", key, numberValue);
         return;
     }
-    
+
+    if (objectClass == [NSURL class]) {
+        NSURL* urlValue = [NSURL URLWithString:string];
+        [self setValue:urlValue forKey:key];
+        return;
+    }
+
     NSAssert(NO, @"should never get here");
 }
 

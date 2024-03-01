@@ -911,7 +911,7 @@
 
 - (NSArray<MediaMetaData*>*)selectedSongMetas
 {
-    __block NSMutableArray<MediaMetaData*>* metas;
+    __block NSMutableArray<MediaMetaData*>* metas = [NSMutableArray array];;
     [self.songsTable.selectedRowIndexes enumerateIndexesWithOptions:NSEnumerationReverse
                                                          usingBlock:^(NSUInteger idx, BOOL *stop) {
         MediaMetaData* meta = self.filteredItems[idx];

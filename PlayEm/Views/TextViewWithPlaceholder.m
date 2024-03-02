@@ -28,7 +28,7 @@
 {
     [super drawRect:dirtyRect];
     if ([[self string] isEqualToString:@""] && self != [[self window] firstResponder]){
-        [_placeholderAttributedString drawAtPoint:NSMakePoint(0,0)];
+        [_placeholderAttributedString drawAtPoint:self.frame.origin];
     }
 }
 

@@ -287,21 +287,6 @@ NSString* const kMediaMetaDataMapTypeTuple = @"tuple";
     return supportedKeys;
 }
 
-- (BOOL)readFromFileWithError:(NSError**)error
-{
-    MediaMetaDataFileFormatType type = [MediaMetaData fileTypeWithURL:self.location error:error];
-    if (type == MediaMetaDataFileFormatTypeMP3) {
-        return [self readFromMP3FileWithError:error] == 0;
-    }
-    if (type == MediaMetaDataFileFormatTypeUnknown) {
-        return NO;
-    }
-    
-    AVAsset* asset = [AVURLAsset URLAssetWithURL:self.location options:nil];
-    NSLog(@"%@", asset);
-    return [self readFromAVAsset:asset];
-}
-
 - (NSString* _Nullable)title
 {
     if (_shadow == nil) {
@@ -555,8 +540,8 @@ NSString* const kMediaMetaDataMapTypeTuple = @"tuple";
 
 - (NSString*)description
 {
-    return [NSString stringWithFormat:@"Title: %@ -- Album: %@ -- Artist: %@ -- Location: %@",
-            self.title, self.album, self.artist, self.location];
+    return [NSString stringWithFormat:@"Title: %@ -- Album: %@ -- Artist: %@ -- Location: %@ -- Address: %p",
+            self.title, self.album, self.artist, self.location, (void*)self];
 }
 
 - (id)copyWithZone:(NSZone *)zone
@@ -677,7 +662,7 @@ NSString* const kMediaMetaDataMapTypeTuple = @"tuple";
 - (void)updateWithKey:(NSString*)key string:(NSString*)string
 {
     // Rather involved way to retrieve the Class from a member (that may be set to nil).
-    objc_property_t property = class_getProperty(self.class, [key cStringUsingEncoding:NSStringEncodingConversionAllowLossy]);
+    objc_property_t property = class_getProperty(self.class, [key cStringUsingEncoding:NSUTF8StringEncoding]);
     const char * const attrString = property_getAttributes(property);
     const char *typeString = attrString + 1;
     const char *next = NSGetSizeAndAlignment(typeString, NULL, NULL);
@@ -710,6 +695,21 @@ NSString* const kMediaMetaDataMapTypeTuple = @"tuple";
     NSAssert(NO, @"should never get here");
 }
 
+- (BOOL)readFromFileWithError:(NSError**)error
+{
+    MediaMetaDataFileFormatType type = [MediaMetaData fileTypeWithURL:self.location error:error];
+    if (type == MediaMetaDataFileFormatTypeMP3) {
+        return [self readFromMP3FileWithError:error] == 0;
+    }
+    if (type == MediaMetaDataFileFormatTypeUnknown) {
+        return NO;
+    }
+    
+    AVAsset* asset = [AVURLAsset URLAssetWithURL:self.location options:nil];
+    NSLog(@"%@", asset);
+    return [self readFromAVAsset:asset];
+}
+
 - (BOOL)writeToMP4FileWithError:(NSError**)error
 {
     NSString* fileExtension = [self.location pathExtension];
@@ -718,7 +718,6 @@ NSString* const kMediaMetaDataMapTypeTuple = @"tuple";
     AVURLAsset* asset = [AVURLAsset assetWithURL:self.location];
     AVAssetExportSession* session = [AVAssetExportSession exportSessionWithAsset:asset
                                                                       presetName:AVAssetExportPresetPassthrough];
-    
     
     NSString* outputFolder = @"/tmp";
     NSString* outputFile = [NSString stringWithFormat:@"%@/%@.%@", outputFolder, fileName, fileExtension];
@@ -749,7 +748,8 @@ NSString* const kMediaMetaDataMapTypeTuple = @"tuple";
         
         return NO;
     }
-    
+    NSLog(@"writing metadata %@", self);
+
     MediaMetaDataFileFormatType type = [MediaMetaData fileTypeWithURL:self.location error:error];
     
     if (type == MediaMetaDataFileFormatTypeMP3) {

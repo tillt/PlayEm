@@ -90,6 +90,7 @@
         _songsTable = songsTable;
         _songsTable.dataSource = self;
         _songsTable.delegate = self;
+        _songsTable.doubleAction = @selector(doubleClickedSongsTableRow:);
 
         [self loadITunesLibrary];
     }
@@ -154,10 +155,17 @@
 - (void)metaChangedForMeta:(MediaMetaData *)meta updatedMeta:(MediaMetaData *)updatedMeta
 {
     NSUInteger index = [self.cachedLibrary indexOfObject:meta];
-    
-    NSAssert(index != NSNotFound, @"MediaMetaData updated does not exist in cached library");
-    
+    NSAssert(index != NSNotFound, @"MediaMetaData %p updated does not exist in cached library", meta);
     [self.cachedLibrary replaceObjectAtIndex:index withObject:updatedMeta];
+    NSLog(@"replaced metadata in cachedLibrary %p with %p", meta, updatedMeta);
+
+    NSMutableArray* filtered = [NSMutableArray arrayWithArray:_filteredItems];
+    index = [filtered indexOfObject:meta];
+    NSAssert(index != NSNotFound, @"MediaMetaData %p updated does not exist in filtered library", meta);
+    [filtered replaceObjectAtIndex:index withObject:updatedMeta];
+    NSLog(@"replaced metadata in filteredObject %p with %p", meta, updatedMeta);
+    self.filteredItems = filtered;
+
     [self reloadData];
 }
 
@@ -713,6 +721,28 @@
     return;
 }
 
+-(void)doubleClickedSongsTableRow:(id)sender
+{
+    NSInteger row = [_songsTable clickedRow];
+    if (row < 0) {
+        return;
+    }
+
+    MediaMetaData* item = _filteredItems[row];
+    NSURL* url = item.location;
+    switch ([item.locationType intValue]) {
+        case MediaMetaDataLocationTypeFile:    NSLog(@"that item is a file");  break;
+        case MediaMetaDataLocationTypeURL:     NSLog(@"that item is a URL");   break;
+        case MediaMetaDataLocationTypeRemote:  NSLog(@"that item is remote");  break;
+        case MediaMetaDataLocationTypeUnknown:
+        default:
+            NSLog(@"that item (%p) is of unknown location type %@", item, item.locationType);
+    }
+    if (url != nil && _delegate != nil) {
+        [self.delegate browseSelectedUrl:url meta:item];
+    }
+}
+
 -(void)tableViewSelectionDidChange:(NSNotification *)notification{
 
     NSTableView* tableView = [notification object];
@@ -734,27 +764,9 @@
         case VIEWTAG_KEY:
             [self keysTableSelectionDidChange:row];
         break;
-        case VIEWTAG_FILTERED: {
-            MediaMetaData* item = row >= 0 ? _filteredItems[row] : nil;
-            NSURL* url = item.location;
-            switch ([item.locationType intValue]) {
-                case MediaMetaDataLocationTypeFile:    NSLog(@"that item is a file");  break;
-                case MediaMetaDataLocationTypeURL:     NSLog(@"that item is a URL");   break;
-                case MediaMetaDataLocationTypeRemote:  NSLog(@"that item is remote");  break;
-                case MediaMetaDataLocationTypeUnknown:
-                default:
-                    NSLog(@"that item is of unknown location type");
-            }
-            if (item.artwork) {
-                NSLog(@"artwork is available");
-            }
-            if (url != nil && _delegate != nil) {
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    [self.delegate browseSelectedUrl:url meta:item];
-                });
-            }
-            return;
-        }
+        case VIEWTAG_FILTERED:
+            //[self songsTableSelectionDidChange:row];
+            break;
     }
 }
 
@@ -915,6 +927,7 @@
     [self.songsTable.selectedRowIndexes enumerateIndexesWithOptions:NSEnumerationReverse
                                                          usingBlock:^(NSUInteger idx, BOOL *stop) {
         MediaMetaData* meta = self.filteredItems[idx];
+        NSLog(@"selected meta %@", meta);
         [metas addObject:meta];
     }];
     return metas;

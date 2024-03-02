@@ -46,6 +46,10 @@ NSString* const kInfoNumberMultipleValues = @"-";
 @property (strong, nonatomic) MediaMetaData* deltaMeta;
 @property (strong, nonatomic) MediaMetaData* commonMeta;
 
+@property (strong, nonatomic) NSTextField* titleTextField;
+@property (strong, nonatomic) NSTextField* artistTextField;
+@property (strong, nonatomic) NSTextField* albumTextField;
+
 @property (strong, nonatomic) NSDictionary* viewConfiguration;
 
 @end
@@ -151,12 +155,12 @@ NSString* const kInfoNumberMultipleValues = @"-";
 
 - (void)loadDetailsWithView:(NSView*)view
 {
-    const CGFloat imageWidth = 120.0f;
+    //const CGFloat imageWidth = 120.0f;
     const CGFloat nameFieldWidth = 80.0;
     const CGFloat rowUnitHeight = 18.0f;
     const CGFloat kBorderWidth = 5.0;
     const CGFloat kRowInset = 4.0f;
-    const CGFloat kRowSpace = 4.0f;
+    const CGFloat kRowSpace = 10.0f;
 
     NSMutableDictionary* dict = [NSMutableDictionary dictionary];
     
@@ -168,7 +172,7 @@ NSString* const kInfoNumberMultipleValues = @"-";
     
     NSEnumerator* reversed = [orderedKeys reverseObjectEnumerator];
     
-    CGFloat y = 20.0f;
+    CGFloat y = 80.0f;
     
     NSString* pageKey = kInfoPageKeyDetails;
 
@@ -319,26 +323,17 @@ NSString* const kInfoNumberMultipleValues = @"-";
     _dictionary = dict;
 
     y += kRowSpace;
-    
-    _smallCoverView = [NSImageView imageViewWithImage:[NSImage imageNamed:@"UnknownSong"]];
-    _smallCoverView.alignment = NSViewHeightSizable | NSViewWidthSizable | NSViewMinYMargin | NSViewMaxYMargin;
-    _smallCoverView.imageScaling = NSImageScaleProportionallyUpOrDown;
-    _smallCoverView.frame = CGRectMake( 20.0,
-                                        y,
-                                        imageWidth,
-                                        imageWidth);
-    [view addSubview:_smallCoverView];
 }
 
 - (void)loadArtworkWithView:(NSView*)view
 {
-    const CGFloat imageWidth = self.view.bounds.size.width - 80.0;
+    const CGFloat imageWidth = 400.0;
        
     _largeCoverView = [NSImageView imageViewWithImage:[NSImage imageNamed:@"UnknownSong"]];
     _largeCoverView.alignment = NSViewHeightSizable | NSViewWidthSizable | NSViewMinYMargin | NSViewMaxYMargin;
     _largeCoverView.imageScaling = NSImageScaleProportionallyUpOrDown;
     _largeCoverView.frame = CGRectMake((self.view.bounds.size.width - (imageWidth + 40.0)) / 2.0f,
-                                       (self.view.bounds.size.height - (imageWidth + 60.0)) / 2.0f,
+                                       20.0f,
                                        imageWidth,
                                        imageWidth);
     _largeCoverView.wantsLayer = YES;
@@ -357,7 +352,7 @@ NSString* const kInfoNumberMultipleValues = @"-";
     scrollView.frame = CGRectMake(  20.0f,
                                     20.0f,
                                     self.view.bounds.size.width - 80.0f,
-                                    self.view.bounds.size.height - 100.0f);
+                                    self.view.bounds.size.height - 260.0f);
 
     _lyricsTextView.textColor = [NSColor labelColor];
     scrollView.drawsBackground = NO;
@@ -381,7 +376,83 @@ NSString* const kInfoNumberMultipleValues = @"-";
 {
     NSLog(@"loadView");
 
-    self.view = [[NSView alloc] initWithFrame:NSMakeRect(0.0,  0.0, 480.0, 510.0)];
+    const CGFloat imageWidth = 100.0f;
+    const CGFloat kRowInset = 4.0f;
+
+    NSView* view = [[NSView alloc] initWithFrame:NSMakeRect(0.0,  0.0, 480.0, 600.0)];
+
+    _smallCoverView = [NSImageView imageViewWithImage:[NSImage imageNamed:@"UnknownSong"]];
+    _smallCoverView.alignment = NSViewHeightSizable | NSViewWidthSizable | NSViewMinYMargin | NSViewMaxYMargin;
+    _smallCoverView.imageScaling = NSImageScaleProportionallyUpOrDown;
+    _smallCoverView.frame = CGRectMake( 20.0,
+                                        view.frame.size.height - (imageWidth + 10.0),
+                                        imageWidth,
+                                        imageWidth);
+    [view addSubview:_smallCoverView];
+
+    CGFloat fontSize = 24.0f;
+    CGFloat x = imageWidth + 40.0;
+    CGFloat fieldWidth = view.frame.size.width - (imageWidth + 60.0);
+    CGFloat y = view.frame.size.height - (fontSize + 20.0);
+
+    NSTextField* textField = [NSTextField textFieldWithString:@""];
+    textField.bordered = NO;
+    textField.textColor = [NSColor labelColor];
+    textField.font = [NSFont systemFontOfSize:fontSize];
+    textField.drawsBackground = NO;
+    textField.editable = NO;
+    textField.selectable = NO;
+    textField.cell.truncatesLastVisibleLine = YES;
+    textField.cell.lineBreakMode = NSLineBreakByTruncatingTail;
+    textField.alignment = NSTextAlignmentLeft;
+    textField.frame = NSMakeRect(x,
+                                 y,
+                                 fieldWidth,
+                                 fontSize + kRowInset);
+    [view addSubview:textField];
+    self.titleTextField = textField;
+
+    y -= fontSize + kRowInset - 10.0f;
+
+    fontSize = 13.0f;
+    textField = [NSTextField textFieldWithString:@""];
+    textField.bordered = NO;
+    textField.textColor = [NSColor secondaryLabelColor];
+    textField.font = [NSFont systemFontOfSize:fontSize];
+    textField.drawsBackground = NO;
+    textField.editable = NO;
+    textField.cell.truncatesLastVisibleLine = YES;
+    textField.cell.lineBreakMode = NSLineBreakByTruncatingTail;
+    textField.selectable = NO;
+    textField.alignment = NSTextAlignmentLeft;
+    textField.frame = NSMakeRect(x,
+                                 y,
+                                 fieldWidth,
+                                 fontSize + kRowInset);
+    [view addSubview:textField];
+    self.artistTextField = textField;
+
+    y -= fontSize + kRowInset;
+
+    textField = [NSTextField textFieldWithString:@""];
+    textField.bordered = NO;
+    textField.textColor = [NSColor secondaryLabelColor];
+    textField.font = [NSFont systemFontOfSize:fontSize weight:NSFontWeightRegular];
+    textField.drawsBackground = NO;
+    textField.editable = NO;
+    textField.selectable = NO;
+    textField.alignment = NSTextAlignmentLeft;
+    
+    textField.cell.truncatesLastVisibleLine = YES;
+    textField.cell.lineBreakMode = NSLineBreakByTruncatingTail;
+    textField.frame = NSMakeRect(x,
+                                 y,
+                                 fieldWidth,
+                                 fontSize + kRowInset);
+    [view addSubview:textField];
+    self.albumTextField = textField;
+
+    self.view = view;
 }
 
 - (void)viewWillAppear
@@ -399,7 +470,7 @@ NSString* const kInfoNumberMultipleValues = @"-";
         [_tabView removeFromSuperview];
     }
     
-    self.tabView = [[NSTabView alloc] initWithFrame:NSMakeRect(10.0, 10.0, self.view.frame.size.width - 20.0, self.view.frame.size.height - 20.0)];
+    self.tabView = [[NSTabView alloc] initWithFrame:NSMakeRect(0.0, 0.0, self.view.frame.size.width, self.view.frame.size.height - (20.0 + 100.0))];
     self.tabView.delegate = self;
     
     NSViewController* vc = [NSViewController new];
@@ -430,8 +501,6 @@ NSString* const kInfoNumberMultipleValues = @"-";
 
     [self.view addSubview:_tabView];
 
-    self.metas = metas;
-    
     if ([_tabView.selectedTabViewItem.label isEqualToString:@"Lyrics"]) {
         [_lyricsTextView.window makeFirstResponder:_lyricsTextView];
     }
@@ -442,21 +511,21 @@ NSString* const kInfoNumberMultipleValues = @"-";
     dispatch_async(_metaQueue, ^{
         NSError* error = nil;
         
-        //NSMutableArray* patchedMetas = [NSMutableArray array];
-        for (MediaMetaData* meta in self.metas) {
+        for (MediaMetaData* meta in metas) {
             MediaMetaData* patchedMeta = [meta copy];
             if (![patchedMeta readFromFileWithError:&error]) {
                 return;
             }
-            if (![meta isEqualToMediaMetaData:patchedMeta]) {
-                [patchedMeta writeToFileWithError:&error];
-                
-                //NSMutableArray* patchedMetas = [NSMutableArray array];
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    NSLog(@"InfoPanel gathered differing metadata");
-                    [self.delegate metaChangedForMeta:meta updatedMeta:patchedMeta];
-                });
+            if ([meta isEqualToMediaMetaData:patchedMeta]) {
+                continue;
             }
+            [patchedMeta writeToFileWithError:&error];
+            
+            //NSMutableArray* patchedMetas = [NSMutableArray array];
+            dispatch_async(dispatch_get_main_queue(), ^{
+                NSLog(@"InfoPanel gathered differing metadata and informs delegate");
+                [self.delegate metaChangedForMeta:meta updatedMeta:patchedMeta];
+            });
         }
         dispatch_async(dispatch_get_main_queue(), ^{
             self.metas = [self.delegate selectedSongMetas];
@@ -479,15 +548,27 @@ NSString* const kInfoNumberMultipleValues = @"-";
     // Identify any meta that is common / not common in the given list.
     NSMutableDictionary<NSString*,NSNumber*>* deltaKeys = [NSMutableDictionary dictionary];
     NSMutableDictionary<NSString*,NSNumber*>* commonKeys = [NSMutableDictionary dictionary];
+    NSMutableDictionary<NSString*,NSMutableDictionary*>* occurances = [NSMutableDictionary dictionary];
     _commonMeta = _metas[0];
-    for (size_t index = 1; index < [_metas count]; index++) {
+
+    for (size_t index = 0; index < [_metas count]; index++) {
         MediaMetaData* meta = _metas[index];
         for (NSString* key in [MediaMetaData mediaMetaKeys]) {
-            if (![_commonMeta isEqualToMediaMetaData:meta atKey:key]) {
-                deltaKeys[key] = @YES;
-            } else {
-                commonKeys[key] = @YES;
+            if (index > 0) {
+                if (![_commonMeta isEqualToMediaMetaData:meta atKey:key]) {
+                    deltaKeys[key] = @YES;
+                } else {
+                    commonKeys[key] = @YES;
+                }
             }
+            NSMutableDictionary* dictionary = occurances[key];
+            if (dictionary == nil) {
+                dictionary = [NSMutableDictionary dictionary];
+            }
+            
+            NSString* stringValue = [meta stringForKey:key];
+            dictionary[stringValue] = @"1";
+            occurances[key] = dictionary;
         }
     }
  
@@ -497,6 +578,24 @@ NSString* const kInfoNumberMultipleValues = @"-";
     } else {
         _largeCoverView.image = [NSImage imageNamed:@"UnknownSong"];
         _smallCoverView.image = [NSImage imageNamed:@"UnknownSong"];
+    }
+
+    if ([_metas count] > 1) {
+        _titleTextField.stringValue = [NSString stringWithFormat:@"%ld artists selected", [[occurances[@"artist"] allKeys] count] ];
+    } else {
+        _titleTextField.stringValue = _commonMeta.title;
+    }
+
+    if ([_metas count] > 1) {
+        _artistTextField.stringValue = [NSString stringWithFormat:@"%ld albums selected", [[occurances[@"album"] allKeys] count]];
+    } else {
+        _artistTextField.stringValue = _commonMeta.artist;
+    }
+
+    if ([_metas count] == 1) {
+        _albumTextField.stringValue = _commonMeta.album;
+    } else {
+        _albumTextField.stringValue = [NSString stringWithFormat:@"%ld songs selected", [_metas count]];
     }
     
     if (![deltaKeys[@"lyrics"] boolValue] && _commonMeta.lyrics != nil) {
@@ -524,6 +623,7 @@ NSString* const kInfoNumberMultipleValues = @"-";
         }
 
         if ([deltaKeys objectForKey:key] == nil) {
+            // The meta data in question is common.
             NSString* value = @"";
             value = [_commonMeta stringForKey:key];
             if (value == nil) {
@@ -535,6 +635,7 @@ NSString* const kInfoNumberMultipleValues = @"-";
                 [control setStringValue:value];
             }
         } else {
+            // The meta data in question is having mixed states.
             if ([control respondsToSelector:@selector(setState:)]) {
                 [control setAllowsMixedState:YES];
                 [control setState:NSControlStateValueMixed];
@@ -596,14 +697,38 @@ NSString* const kInfoNumberMultipleValues = @"-";
     _commonMeta.compilation = patchedMeta.compilation;
 }
 
+- (MediaMetaData*)patchedMeta:(MediaMetaData*)meta atKey:(NSString*)key withStringValue:(NSString*)stringValue
+{
+    MediaMetaData* patchedMeta = [meta copy];
+    [patchedMeta updateWithKey:key string:stringValue];
+    return patchedMeta;
+}
+
+- (void)patchMetasAtKey:(NSString*)key string:(NSString*)stringValue callback:(void (^)(void))callback
+{
+    dispatch_async(_metaQueue, ^{
+        for (MediaMetaData* meta in self.metas) {
+            MediaMetaData* patchedMeta = [self patchedMeta:meta atKey:key withStringValue:stringValue];
+            if (![meta isEqualToMediaMetaData:patchedMeta atKey:key]) {
+                NSError* error = nil;
+                if (![patchedMeta writeToFileWithError:&error]) {
+                    NSLog(@"failed to write to file with error: %@", error);
+                }
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [self.delegate metaChangedForMeta:meta updatedMeta:patchedMeta];
+                });
+            }
+        }
+        dispatch_async(dispatch_get_main_queue(), callback);
+    });
+}
+
 #pragma mark - NSTextField delegate
 
 - (void)controlTextDidEndEditing:(NSNotification *)notification
 {
     NSTextField* textField = [notification object];
     
-    MediaMetaData* patchedMeta = [_commonMeta copy];
-
     NSString *key = nil;
     for (NSString* k in [_dictionary allKeys]) {
         if ([_dictionary valueForKey:k] == textField) {
@@ -613,27 +738,16 @@ NSString* const kInfoNumberMultipleValues = @"-";
     }
     NSAssert(key != nil, @"couldnt find the key for the control that triggered the notification");
     
-    for (NSString* key in [_dictionary allKeys]) {
-        if ([_dictionary valueForKey:key] == textField) {
-            if ([self valueForTextFieldChanged:key value:[textField stringValue]]) {
-                NSLog(@"controlTextDidChange: stringValue == %@ in textField == %@", [textField stringValue], key);
-                NSString* stringValue = [textField stringValue];
-                [patchedMeta updateWithKey:key string:stringValue];
+    NSString* stringValue = [textField stringValue];
 
-                if (![_commonMeta isEqualToMediaMetaData:patchedMeta]) {
-                    NSError* error = nil;
-                    [patchedMeta writeToFileWithError:&error];
-                    
-                    //[_delegate metaChangedForMeta:_meta updatedMeta:patchedMeta];
-                    //self.meta = patchedMeta;
-                    [_commonMeta updateWithKey:key string:stringValue];
-                }
-            }
-            return;
-        }
+    if (![self valueForTextFieldChanged:key value:stringValue]) {
+        NSLog(@"nothing changed for that key, we skip updating the file");
+        return;
     }
 
-    NSAssert(NO, @"never should have arrived here");
+    [self patchMetasAtKey:key string:stringValue callback:^{
+        self.metas = [self.delegate selectedSongMetas];
+    }];
 }
 
 #pragma mark - NSTextView delegate
@@ -642,24 +756,16 @@ NSString* const kInfoNumberMultipleValues = @"-";
 {
     NSTextView* textView = [notification object];
 
-    if (_commonMeta == nil) {
-        return;
-    }
-    
-    if ([textView.string isEqualToString:_commonMeta.lyrics]) {
-        return;
-    }
-    
-    MediaMetaData* patchedMeta = [_commonMeta copy];
-    
-    [patchedMeta updateWithKey:@"lyrics" string:textView.string];
+    NSString* stringValue = textView.string;
 
-    NSError* error = nil;
-    [patchedMeta writeToFileWithError:&error];
-    
-    //[_delegate metaChangedForMeta:_meta updatedMeta:patchedMeta];
-    //self.meta = patchedMeta;
-    [_commonMeta updateWithKey:@"lyrics" string:textView.string];
+    if (![self valueForTextFieldChanged:@"lyrics" value:stringValue]) {
+        NSLog(@"nothing changed for that key, we skip updating the file");
+        return;
+    }
+
+    [self patchMetasAtKey:@"lyrics" string:stringValue callback:^{
+        self.metas = [self.delegate selectedSongMetas];
+    }];
 }
 
 #pragma mark - NSComboBox delegate

@@ -667,35 +667,6 @@ NSString* const kInfoNumberMultipleValues = @"-";
     return ![value isEqualToString:oldValue];
 }
 
-- (void)compilationAction:(id)sender
-{
-    NSString* oldValue = [_commonMeta stringForKey:@"compilation"];
-    NSButton* button = (NSButton*)_dictionary[@"compilation"];
-
-    // Even if we signalled allowing mixed state, the user decided and this we stop
-    // supporting that.
-    [button setAllowsMixedState:NO];
-
-    BOOL value = button.state == NSControlStateValueOn;
-    
-    if (_commonMeta == nil) {
-        return;
-    }
-    NSNumber* number = [NSNumber numberWithBool:value];
-    if ([[number stringValue] isEqualToString:oldValue]) {
-        return;
-    }
-    
-    MediaMetaData* patchedMeta = [_commonMeta copy];
-    
-    patchedMeta.compilation = number;
-
-    NSError* error = nil;
-    [patchedMeta writeToFileWithError:&error];
-    
-    //[_delegate metaChangedForMeta:_meta updatedMeta:patchedMeta];
-    _commonMeta.compilation = patchedMeta.compilation;
-}
 
 - (MediaMetaData*)patchedMeta:(MediaMetaData*)meta atKey:(NSString*)key withStringValue:(NSString*)stringValue
 {
@@ -721,6 +692,30 @@ NSString* const kInfoNumberMultipleValues = @"-";
         }
         dispatch_async(dispatch_get_main_queue(), callback);
     });
+}
+
+- (void)compilationAction:(id)sender
+{
+    NSString* oldValue = [_commonMeta stringForKey:@"compilation"];
+    NSButton* button = (NSButton*)_dictionary[@"compilation"];
+
+    // Even if we signalled allowing mixed state, the user decided and this we stop
+    // supporting that.
+    [button setAllowsMixedState:NO];
+
+    BOOL value = button.state == NSControlStateValueOn;
+    
+    NSNumber* number = [NSNumber numberWithBool:value];
+    NSString* stringValue = [number stringValue];
+
+    if (![self valueForTextFieldChanged:@"compilation" value:stringValue]) {
+        NSLog(@"nothing changed for that key, we skip updating the file");
+        return;
+    }
+
+    [self patchMetasAtKey:@"compilation" string:stringValue callback:^{
+        self.metas = [self.delegate selectedSongMetas];
+    }];
 }
 
 #pragma mark - NSTextField delegate

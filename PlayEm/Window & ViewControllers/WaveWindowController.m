@@ -61,8 +61,6 @@ os_log_t pointsOfInterest;
 @property (assign, nonatomic) CGFloat smallSplitter1Position;
 @property (assign, nonatomic) CGFloat smallSplitter2Position;
 
-
-@property (strong, nonatomic) NSTimer* timer;
 @property (strong, nonatomic) ScopeRenderer* renderer;
 @property (strong, nonatomic) WaveRenderer* waveRenderer;
 @property (assign, nonatomic) CGRect preFullscreenFrame;
@@ -847,7 +845,6 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     self.window.delegate = self;
 
     _playlist = [[PlaylistController alloc] initWithPlaylistTable:_playlistTable delegate:self];
-    
 
     [self setupDisplayLink];
 
@@ -862,14 +859,17 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
 //    _scopeQueue = dispatch_queue_create("PlayEm.ScopeQueue", attr);
 //    _waveQueue = dispatch_queue_create("PlayEm.WaveQueue", attr);
     
-    CGDirectDisplayID   displayID = CGMainDisplayID();
+    //CGDirectDisplayID   displayID = CGMainDisplayID();
+    NSLog(@"setting up display link..");
     CVReturn            error = kCVReturnSuccess;
-    error = CVDisplayLinkCreateWithCGDisplay(displayID, &_displayLink);
+    error = CVDisplayLinkCreateWithActiveCGDisplays(&_displayLink);
     if (error) {
         NSLog(@"DisplayLink created with error:%d", error);
         _displayLink = NULL;
     } else {
-        CVDisplayLinkSetOutputCallback(_displayLink, renderCallback, (__bridge void *)self);
+        CVDisplayLinkSetOutputCallback(_displayLink, 
+                                       renderCallback,
+                                       (__bridge void *)self);
     }
 }
 

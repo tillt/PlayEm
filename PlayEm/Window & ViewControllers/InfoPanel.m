@@ -51,6 +51,7 @@ NSString* const kInfoNumberMultipleValues = @"-";
 @property (strong, nonatomic) NSTextField* albumTextField;
 
 @property (strong, nonatomic) NSDictionary* viewConfiguration;
+@property (strong, nonatomic) NSDictionary* deltaKeys;
 
 @end
 
@@ -654,19 +655,22 @@ NSString* const kInfoNumberMultipleValues = @"-";
             }
         }
     }
+    self.deltaKeys = deltaKeys;
 }
 
 - (BOOL)valueForTextFieldChanged:(NSString*)key value:(NSString*)value
 {
+    if ([_deltaKeys objectForKey:key] && [value isEqualToString:@""]) {
+        return NO;
+    }
+
     NSString* oldValue = [_commonMeta stringForKey:key];
-    
     if (oldValue == nil && [value isEqualToString:@""]) {
         return NO;
     }
 
     return ![value isEqualToString:oldValue];
 }
-
 
 - (MediaMetaData*)patchedMeta:(MediaMetaData*)meta atKey:(NSString*)key withStringValue:(NSString*)stringValue
 {
@@ -695,8 +699,7 @@ NSString* const kInfoNumberMultipleValues = @"-";
 }
 
 - (void)compilationAction:(id)sender
-{
-    NSString* oldValue = [_commonMeta stringForKey:@"compilation"];
+{   
     NSButton* button = (NSButton*)_dictionary[@"compilation"];
 
     // Even if we signalled allowing mixed state, the user decided and this we stop

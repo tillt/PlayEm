@@ -753,7 +753,7 @@ NSString* const kMediaMetaDataMapTypeTuple = @"tuple";
     MediaMetaDataFileFormatType type = [MediaMetaData fileTypeWithURL:self.location error:error];
     
     if (type == MediaMetaDataFileFormatTypeMP3) {
-        return [self writeToMP3FileWithError:error];
+        return [self writeToMP3FileWithError:error] == 0;
     }
     if (type == MediaMetaDataFileFormatTypeMP4) {
         return [self writeToMP4FileWithError:error];

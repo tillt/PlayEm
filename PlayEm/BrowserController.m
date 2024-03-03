@@ -37,6 +37,9 @@
 @property (nonatomic, strong) NSMutableArray<NSString*>* tempos;
 @property (nonatomic, strong) NSMutableArray<NSString*>* keys;
 @property (nonatomic, strong) NSArray<MediaMetaData*>* filteredItems;
+
+@property (strong, nonatomic) dispatch_queue_t filterQueue;
+
 @end
 
 @implementation BrowserController
@@ -91,6 +94,11 @@
         _songsTable.dataSource = self;
         _songsTable.delegate = self;
         _songsTable.doubleAction = @selector(doubleClickedSongsTableRow:);
+        
+        dispatch_queue_attr_t attr = dispatch_queue_attr_make_with_qos_class(DISPATCH_QUEUE_SERIAL,
+                                                                             QOS_CLASS_USER_INTERACTIVE,
+                                                                             0);
+        _filterQueue = dispatch_queue_create("PlayEm.BrowserFilterQueue", attr);
 
         [self loadITunesLibrary];
     }
@@ -102,12 +110,15 @@
     NSArray<NSSortDescriptor*>* descriptors = [_songsTable sortDescriptors];
     
     BrowserController* __weak weakSelf = self;
+    
+    NSMutableArray<MediaMetaData*>* __block cachedLibrary = _cachedLibrary;
+    NSArray<MediaMetaData*>* __block filteredItems = _filteredItems;
 
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
+    dispatch_async(_filterQueue, ^{
         // Apply sorting.
-        weakSelf.filteredItems = [weakSelf.cachedLibrary sortedArrayUsingDescriptors:descriptors];
-        
-        [weakSelf columnsFromMediaItems:weakSelf.filteredItems
+        filteredItems = [cachedLibrary sortedArrayUsingDescriptors:descriptors];
+
+        [weakSelf columnsFromMediaItems:filteredItems
                                  genres:weakSelf.genres
                                 artists:weakSelf.artists
                                  albums:weakSelf.albums
@@ -115,6 +126,8 @@
                                    keys:weakSelf.keys];
         
         dispatch_async(dispatch_get_main_queue(), ^{
+            weakSelf.filteredItems = filteredItems;
+            weakSelf.cachedLibrary = cachedLibrary;
             [weakSelf.genresTable beginUpdates];
             [weakSelf.genresTable reloadData];
             [weakSelf.genresTable endUpdates];
@@ -253,7 +266,7 @@
     
     NSArray<NSSortDescriptor*>* descriptors = [_songsTable sortDescriptors];
     
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
+    dispatch_async(_filterQueue, ^{
         //[_delegate loadLibraryState:LoadStateStarted value:0.0];
         
         NSMutableArray<MediaMetaData*>* cachedLibrary = [self cacheFromiTunesLibrary:weakSelf.library];

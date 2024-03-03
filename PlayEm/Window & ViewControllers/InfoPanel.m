@@ -38,8 +38,8 @@ NSString* const kInfoNumberMultipleValues = @"-";
 @property (strong, nonatomic) NSTabViewItem* lyricsTabViewItem;
 @property (strong, nonatomic) NSTabViewItem* fileTabViewItem;
 
-@property (strong, nonatomic) NSDictionary* dictionary;
-@property (strong, nonatomic) dispatch_queue_t metaQueue;
+@property (strong, nonatomic) NSDictionary* viewControls;
+@property (strong, nonatomic) dispatch_queue_t metaIOQueue;
 
 @property (strong, nonatomic) NSArray<MediaMetaData*>* metas;
 
@@ -138,7 +138,7 @@ NSString* const kInfoNumberMultipleValues = @"-";
             },
             kInfoPageKeyFile: @{
                 @"location": @{
-                    @"order": @12,
+                    @"order": @1,
                     @"width": @340,
                     @"rows": @4,
                     @"editable": @NO,
@@ -149,7 +149,7 @@ NSString* const kInfoNumberMultipleValues = @"-";
         dispatch_queue_attr_t attr = dispatch_queue_attr_make_with_qos_class(DISPATCH_QUEUE_SERIAL,
                                                                              QOS_CLASS_USER_INTERACTIVE,
                                                                              0);
-        _metaQueue = dispatch_queue_create("PlayEm.MetaQueue", attr);
+        _metaIOQueue = dispatch_queue_create("PlayEm.MetaQueue", attr);
     }
     return self;
 }
@@ -321,7 +321,7 @@ NSString* const kInfoNumberMultipleValues = @"-";
 
         y += (rows * rowUnitHeight) + kRowInset + kRowSpace;
     }
-    _dictionary = dict;
+    _viewControls = dict;
 
     y += kRowSpace;
 }
@@ -509,7 +509,7 @@ NSString* const kInfoNumberMultipleValues = @"-";
     // Lets confirm the metadata from the file itself - iTunes doesnt give us all the
     // beauty we need and it may also rely on outdated informations. iTunes does the
     // same when showing the info from a library entry.
-    dispatch_async(_metaQueue, ^{
+    dispatch_async(_metaIOQueue, ^{
         NSError* error = nil;
         
         for (MediaMetaData* meta in metas) {
@@ -613,12 +613,10 @@ NSString* const kInfoNumberMultipleValues = @"-";
         }
     }
 
-    NSArray<NSString*>* keys = [_dictionary allKeys];
+    NSArray<NSString*>* keys = [_viewControls allKeys];
     
     for (NSString* key in keys) {
-        id control = _dictionary[key];
-        
-        control = _dictionary[key];
+        id control = _viewControls[key];
         if (control == nil) {
             continue;
         }
@@ -681,7 +679,7 @@ NSString* const kInfoNumberMultipleValues = @"-";
 
 - (void)patchMetasAtKey:(NSString*)key string:(NSString*)stringValue callback:(void (^)(void))callback
 {
-    dispatch_async(_metaQueue, ^{
+    dispatch_async(_metaIOQueue, ^{
         for (MediaMetaData* meta in self.metas) {
             MediaMetaData* patchedMeta = [self patchedMeta:meta atKey:key withStringValue:stringValue];
             if (![meta isEqualToMediaMetaData:patchedMeta atKey:key]) {
@@ -700,7 +698,7 @@ NSString* const kInfoNumberMultipleValues = @"-";
 
 - (void)compilationAction:(id)sender
 {   
-    NSButton* button = (NSButton*)_dictionary[@"compilation"];
+    NSButton* button = (NSButton*)_viewControls[@"compilation"];
 
     // Even if we signalled allowing mixed state, the user decided and this we stop
     // supporting that.
@@ -728,8 +726,8 @@ NSString* const kInfoNumberMultipleValues = @"-";
     NSTextField* textField = [notification object];
     
     NSString *key = nil;
-    for (NSString* k in [_dictionary allKeys]) {
-        if ([_dictionary valueForKey:k] == textField) {
+    for (NSString* k in [_viewControls allKeys]) {
+        if ([_viewControls valueForKey:k] == textField) {
             key = k;
             break;
         }

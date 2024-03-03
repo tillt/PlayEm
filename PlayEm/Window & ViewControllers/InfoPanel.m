@@ -43,7 +43,6 @@ NSString* const kInfoNumberMultipleValues = @"-";
 
 @property (strong, nonatomic) NSArray<MediaMetaData*>* metas;
 
-@property (strong, nonatomic) MediaMetaData* deltaMeta;
 @property (strong, nonatomic) MediaMetaData* commonMeta;
 
 @property (strong, nonatomic) NSTextField* titleTextField;
@@ -658,6 +657,7 @@ NSString* const kInfoNumberMultipleValues = @"-";
 
 - (BOOL)valueForTextFieldChanged:(NSString*)key value:(NSString*)value
 {
+    // When a mixed text field remains empty, it is still mixed and thus unchanged.
     if ([_deltaKeys objectForKey:key] && [value isEqualToString:@""]) {
         return NO;
     }

@@ -10,6 +10,8 @@
 #import <MetalKit/MetalKit.h>
 #import <CoreImage/CoreImage.h>
 
+#import <IOKit/pwr_mgt/IOPM.h>
+
 #import "WaveWindowController.h"
 #import "AudioController.h"
 #import "VisualSample.h"
@@ -89,6 +91,7 @@ os_log_t pointsOfInterest;
 @implementation WaveWindowController
 {
     CVDisplayLinkRef _displayLink;
+    IOPMAssertionID _noSleepAssertionID;
 }
 
 // Vertical sync callback.
@@ -128,6 +131,7 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
     self = [super initWithWindowNibName:@""];
     if (self) {
         pointsOfInterest = os_log_create("com.toenshoff.playem", OS_LOG_CATEGORY_POINTS_OF_INTEREST);
+        _noSleepAssertionID = 0;
     }
     return self;
 }
@@ -260,10 +264,39 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
 
 #pragma mark Window lifecycle
 
+- (BOOL)unlockScreen
+{
+    if (_noSleepAssertionID == 0) {
+        return NO;
+    }
+
+    IOReturn ret = IOPMAssertionRelease(_noSleepAssertionID);
+    NSLog(@"screen unlocked with result %d", ret);
+    _noSleepAssertionID = 0;
+    return ret == kIOReturnSuccess;
+}
+
+- (BOOL)lockScreen
+{
+    if (_noSleepAssertionID != 0) {
+        NSLog(@"already have an assertion up");
+        return NO;
+    }
+
+    NSString* reason = @"projecting audio visual simulation";
+    IOReturn ret = IOPMAssertionCreateWithName(kIOPMAssertionTypeNoDisplaySleep,
+                                               (IOPMAssertionLevel)kIOPMAssertionLevelOn,
+                                               (__bridge CFStringRef)reason,
+                                               &_noSleepAssertionID);
+    NSLog(@"screen locked with result %d", ret);
+
+    return ret == kIOReturnSuccess;
+}
+
 - (void)loadWindow
 {
     NSLog(@"loadWindow...");
-    
+
     self.window = [[NSWindow alloc] initWithContentRect:NSMakeRect(0, 0, 1180, 1050)
                                               styleMask: NSWindowStyleMaskTitled
                                                        | NSWindowStyleMaskClosable
@@ -1705,6 +1738,8 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     [self setPlaybackActive:YES];
     [_playlist touchedItem:_meta];
     [_playlist setPlaying:YES];
+
+    [self lockScreen];
 }
 
 - (void)audioControllerPlaybackPaused
@@ -1713,6 +1748,8 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     // Make state obvious to user.
     [self setPlaybackActive:NO];
     [_playlist setPlaying:NO];
+
+    [self unlockScreen];
 }
 
 - (void)audioControllerPlaybackPlaying
@@ -1721,6 +1758,8 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     // Make state obvious to user.
     [self setPlaybackActive:YES];
     [_playlist setPlaying:YES];
+
+    [self lockScreen];
 }
 
 - (void)audioControllerPlaybackEnded
@@ -1729,6 +1768,8 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     // Make state obvious to user.
     [self setPlaybackActive:NO];
     [_playlist setPlaying:NO];
+
+    [self unlockScreen];
 
     MediaMetaData* item = nil;
     if (_controlPanelController.loop.state == NSControlStateValueOn) {
@@ -1749,6 +1790,9 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
 {
     // Remove our hook to the vsync.
     CVDisplayLinkStop(_displayLink);
+
+    [self unlockScreen];
+
     // Stop the scope rendering.
     [_renderer stop:_scopeView];
 }

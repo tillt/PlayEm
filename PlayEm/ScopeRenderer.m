@@ -1089,7 +1089,7 @@ float rgb_from_srgb(float c)
         [blitEncoder endEncoding];
 */
 
-        [commandBuffer presentDrawable:view.currentDrawable];
+        [commandBuffer presentDrawable:view.currentDrawable afterMinimumDuration:1.0 / 120.0];
     }
 
     [commandBuffer commit];

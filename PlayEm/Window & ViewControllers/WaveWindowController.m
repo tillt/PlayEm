@@ -111,6 +111,8 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 
     ++counter;
     
+//    CVTimeStamp delta = *inOutputTime - *inNow;
+//    
     AVAudioFramePosition frame = controller.audioController.currentFrame;
     
     //[controller updateWaveFrame:frame];

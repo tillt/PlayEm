@@ -38,6 +38,7 @@ NSString* const kMediaMetaDataMapTypeString = @"string";
 NSString* const kMediaMetaDataMapTypeDate = @"date";
 NSString* const kMediaMetaDataMapTypeImage = @"image";
 NSString* const kMediaMetaDataMapTypeTuple = @"tuple";
+NSString* const kMediaMetaDataMapTypeNumber = @"number";
 
 @implementation MediaMetaData
 
@@ -116,7 +117,6 @@ NSString* const kMediaMetaDataMapTypeTuple = @"tuple";
         @"album": @{
             kMediaMetaDataMapKeyMP3: @{
                 kMediaMetaDataMapKeyKey: @"ALBUM",
-                kMediaMetaDataMapKeyType: kMediaMetaDataMapTypeString,
             },
             kMediaMetaDataMapKeyMP4: @{
                 kMediaMetaDataMapKeyKey: AVMetadataCommonKeyAlbumName,
@@ -126,7 +126,6 @@ NSString* const kMediaMetaDataMapTypeTuple = @"tuple";
         @"albumArtist": @{
             kMediaMetaDataMapKeyMP3: @{
                 kMediaMetaDataMapKeyKey: @"ALBUMARTIST",
-                kMediaMetaDataMapKeyType: kMediaMetaDataMapTypeString,
             },
             kMediaMetaDataMapKeyMP4: @{
                 kMediaMetaDataMapKeyKey: AVMetadataiTunesMetadataKeyAlbumArtist,
@@ -136,7 +135,6 @@ NSString* const kMediaMetaDataMapTypeTuple = @"tuple";
         @"artist": @{
             kMediaMetaDataMapKeyMP3: @{
                 kMediaMetaDataMapKeyKey: @"ARTIST",
-                kMediaMetaDataMapKeyType: kMediaMetaDataMapTypeString,
             },
             kMediaMetaDataMapKeyMP4: @{
                 kMediaMetaDataMapKeyKey: AVMetadataCommonKeyArtist,
@@ -151,12 +149,12 @@ NSString* const kMediaMetaDataMapTypeTuple = @"tuple";
             kMediaMetaDataMapKeyMP4: @{
                 kMediaMetaDataMapKeyKey: AVMetadataCommonKeyArtwork,
                 kMediaMetaDataMapKeyKeySpace: AVMetadataKeySpaceCommon,
+                kMediaMetaDataMapKeyType: kMediaMetaDataMapTypeImage,
             },
         },
         @"comment": @{
             kMediaMetaDataMapKeyMP3: @{
                 kMediaMetaDataMapKeyKey: @"COMMENT",
-                kMediaMetaDataMapKeyType: kMediaMetaDataMapTypeString,
             },
             kMediaMetaDataMapKeyMP4: @{
                 kMediaMetaDataMapKeyKey: AVMetadataiTunesMetadataKeyUserComment,
@@ -166,7 +164,6 @@ NSString* const kMediaMetaDataMapTypeTuple = @"tuple";
         @"composer": @{
             kMediaMetaDataMapKeyMP3: @{
                 kMediaMetaDataMapKeyKey: @"COMPOSER",
-                kMediaMetaDataMapKeyType: kMediaMetaDataMapTypeString,
             },
             kMediaMetaDataMapKeyMP4: @{
                 kMediaMetaDataMapKeyKey: AVMetadataiTunesMetadataKeyComposer,
@@ -176,7 +173,6 @@ NSString* const kMediaMetaDataMapTypeTuple = @"tuple";
         @"compilation": @{
             kMediaMetaDataMapKeyMP3: @{
                 kMediaMetaDataMapKeyKey: @"COMPILATION",
-                kMediaMetaDataMapKeyType: kMediaMetaDataMapTypeString,
             },
             kMediaMetaDataMapKeyMP4: @{
                 kMediaMetaDataMapKeyKey: AVMetadataiTunesMetadataKeyDiscCompilation,
@@ -186,7 +182,6 @@ NSString* const kMediaMetaDataMapTypeTuple = @"tuple";
         @"lyrics": @{
             kMediaMetaDataMapKeyMP3: @{
                 kMediaMetaDataMapKeyKey: @"LYRICS",
-                kMediaMetaDataMapKeyType: kMediaMetaDataMapTypeString,
             },
             kMediaMetaDataMapKeyMP4: @{
                 kMediaMetaDataMapKeyKey: AVMetadataiTunesMetadataKeyLyrics,
@@ -196,7 +191,6 @@ NSString* const kMediaMetaDataMapTypeTuple = @"tuple";
         @"label": @{
             kMediaMetaDataMapKeyMP3: @{
                 kMediaMetaDataMapKeyKey: @"LABEL",
-                kMediaMetaDataMapKeyType: kMediaMetaDataMapTypeString,
             },
             kMediaMetaDataMapKeyMP4: @{
                 kMediaMetaDataMapKeyKey: AVMetadataiTunesMetadataKeyRecordCompany,
@@ -232,39 +226,35 @@ NSString* const kMediaMetaDataMapTypeTuple = @"tuple";
         @"duration": @{
             kMediaMetaDataMapKeyMP3: @{
                 kMediaMetaDataMapKeyKey: @"LENGTH",
-                kMediaMetaDataMapKeyType: kMediaMetaDataMapTypeString,
             },
         },
         @"genre": @{
             kMediaMetaDataMapKeyMP3: @{
                 kMediaMetaDataMapKeyKey: @"GENRE",
-                kMediaMetaDataMapKeyType: kMediaMetaDataMapTypeString,
             },
             kMediaMetaDataMapKeyMP4: @{
-                kMediaMetaDataMapKeyKey: AVMetadataCommonKeyType,
-                kMediaMetaDataMapKeyKeySpace: AVMetadataKeySpaceCommon,
+                kMediaMetaDataMapKeyKey: AVMetadataiTunesMetadataKeyUserGenre,
+                kMediaMetaDataMapKeyKeySpace: AVMetadataKeySpaceiTunes,
             },
         },
         @"key": @{
             kMediaMetaDataMapKeyMP3: @{
                 kMediaMetaDataMapKeyKey: @"INITIALKEY",
-                kMediaMetaDataMapKeyType: kMediaMetaDataMapTypeString,
             },
         },
         @"tempo": @{
             kMediaMetaDataMapKeyMP3: @{
                 kMediaMetaDataMapKeyKey: @"BPM",
-                kMediaMetaDataMapKeyType: kMediaMetaDataMapTypeString,
             },
             kMediaMetaDataMapKeyMP4: @{
                 kMediaMetaDataMapKeyKey: AVMetadataiTunesMetadataKeyBeatsPerMin,
                 kMediaMetaDataMapKeyKeySpace: AVMetadataKeySpaceiTunes,
+                kMediaMetaDataMapKeyType: kMediaMetaDataMapTypeNumber,
             },
         },
         @"title": @{
             kMediaMetaDataMapKeyMP3: @{
                 kMediaMetaDataMapKeyKey: @"TITLE",
-                kMediaMetaDataMapKeyType: kMediaMetaDataMapTypeString,
             },
             kMediaMetaDataMapKeyMP4: @{
                 kMediaMetaDataMapKeyKey: AVMetadataCommonKeyTitle,
@@ -292,8 +282,8 @@ NSString* const kMediaMetaDataMapTypeTuple = @"tuple";
             },
             kMediaMetaDataMapKeyMP4: @{
                 kMediaMetaDataMapKeyKey: AVMetadataiTunesMetadataKeyTrackNumber,
-                kMediaMetaDataMapKeyType: kMediaMetaDataMapTypeTuple,
                 kMediaMetaDataMapKeyKeySpace: AVMetadataKeySpaceiTunes,
+                kMediaMetaDataMapKeyType: kMediaMetaDataMapTypeTuple,
                 kMediaMetaDataMapKeyOrder: @1,
             },
         },
@@ -305,6 +295,7 @@ NSString* const kMediaMetaDataMapTypeTuple = @"tuple";
             kMediaMetaDataMapKeyMP4: @{
                 kMediaMetaDataMapKeyKey: AVMetadataiTunesMetadataKeyReleaseDate,
                 kMediaMetaDataMapKeyKeySpace: AVMetadataKeySpaceiTunes,
+                kMediaMetaDataMapKeyType: kMediaMetaDataMapTypeDate,
             },
         },
     };
@@ -567,21 +558,31 @@ NSString* const kMediaMetaDataMapTypeTuple = @"tuple";
     return _compilation;
 }
 
-- (NSImage* _Nullable)artwork
+- (NSData* _Nullable)artwork
 {
     if (_shadow == nil) {
         return _artwork;
     }
-    
+
     if (_artwork == nil) {
         if (_shadow.hasArtworkAvailable) {
-            _artwork = _shadow.artwork.image;
+            _artwork = _shadow.artwork.imageData;
+            _artworkFormat = [NSNumber numberWithInteger:_shadow.artwork.imageDataFormat];
         } else {
-            _artwork = [NSImage imageNamed:@"UnknownSong"];
+            _artwork = nil;
+            _artworkFormat = [NSNumber numberWithInteger:ITLibArtworkFormatNone];
         }
     }
     
     return _artwork;
+}
+
+- (NSImage*)imageFromArtwork
+{
+    if (self.artwork == nil) {
+        return [NSImage imageNamed:@"UnknownSong"];
+    }
+    return [[NSImage alloc] initWithData:self.artwork];
 }
 
 - (NSDate* _Nullable)added
@@ -599,8 +600,8 @@ NSString* const kMediaMetaDataMapTypeTuple = @"tuple";
 
 - (NSString*)description
 {
-    return [NSString stringWithFormat:@"Title: %@ -- Album: %@ -- Artist: %@ -- Location: %@ -- Address: %p",
-            self.title, self.album, self.artist, self.location, (void*)self];
+    return [NSString stringWithFormat:@"Title: %@ -- Album: %@ -- Artist: %@ -- Location: %@ -- Address: %p -- Artwork format: %@",
+            self.title, self.album, self.artist, self.location, (void*)self, self.artworkFormat];
 }
 
 - (id)copyWithZone:(NSZone *)zone
@@ -627,6 +628,7 @@ NSString* const kMediaMetaDataMapTypeTuple = @"tuple";
         copy.disks = [_disks copyWithZone:zone];
         copy.locationType = [_locationType copyWithZone:zone];
         copy.artwork = [_artwork copyWithZone:zone];
+        copy.artworkFormat = [_artworkFormat copyWithZone:zone];
         copy.location = [_location copyWithZone:zone];
         copy.added = [_added copyWithZone:zone];
         copy.duration = [_duration copyWithZone:zone];
@@ -669,8 +671,8 @@ NSString* const kMediaMetaDataMapTypeTuple = @"tuple";
     
     // Special treatment for `artwork`.
     if ([key isEqualToString:@"artwork"]) {
-        NSData* thisData = [self.artwork TIFFRepresentation];
-        NSData* otherData = [other.artwork TIFFRepresentation];
+        NSData* thisData = self.artwork;
+        NSData* otherData = other.artwork;
         
         if (![thisData isEqualToData:otherData]) {
             return NO;
@@ -760,39 +762,11 @@ NSString* const kMediaMetaDataMapTypeTuple = @"tuple";
     if (type == MediaMetaDataFileFormatTypeMP3) {
         return [self readFromMP3FileWithError:error] == 0;
     }
-    if (type == MediaMetaDataFileFormatTypeUnknown) {
-        return NO;
+    if (type == MediaMetaDataFileFormatTypeMP4) {
+        return [self readFromMP4FileWithError:error];
     }
-    
-    AVAsset* asset = [AVURLAsset URLAssetWithURL:self.location options:nil];
-    NSLog(@"%@", asset);
-    return [self readFromAVAsset:asset];
-}
-
-- (BOOL)writeToMP4FileWithError:(NSError**)error
-{
-    NSString* fileExtension = [self.location pathExtension];
-    NSString* fileName = [[self.location URLByDeletingPathExtension] lastPathComponent];
-    
-    AVURLAsset* asset = [AVURLAsset assetWithURL:self.location];
-    AVAssetExportSession* session = [AVAssetExportSession exportSessionWithAsset:asset
-                                                                      presetName:AVAssetExportPresetPassthrough];
-    
-    NSArray* metaList = [self renderAVAssetMetaData];
-    NSAssert(metaList != nil, @"no metadata rendered");
-    session.metadata = metaList;
-    
-    NSString* outputFolder = @"/tmp";
-    NSString* outputFile = [NSString stringWithFormat:@"%@/%@.%@", outputFolder, fileName, fileExtension];
-    
-    session.outputURL = [NSURL fileURLWithPath:outputFile];
-    session.outputFileType = AVFileTypeAppleM4A;
-    
-    [session exportAsynchronouslyWithCompletionHandler:^(){
-        NSLog(@"MP4 export session completed");
-    }];
-    
-    return YES;
+    NSAssert(NO, @"should not have gotten here");
+    return NO;
 }
 
 - (BOOL)writeToFileWithError:(NSError**)error

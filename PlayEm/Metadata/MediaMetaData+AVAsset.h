@@ -16,6 +16,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (BOOL)readFromAVAsset:(AVAsset *)asset;
 - (NSArray*)renderAVAssetMetaData;
+- (BOOL)readFromMP4FileWithError:(NSError**)error;
+- (BOOL)writeToMP4FileWithError:(NSError**)error;
 
 @end
 

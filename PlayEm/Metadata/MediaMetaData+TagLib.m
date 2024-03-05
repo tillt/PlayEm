@@ -29,7 +29,12 @@
         }
 
         NSString* mp3Key = mediaMetaKeyMap[mediaDataKey][kMediaMetaDataMapKeyMP3][kMediaMetaDataMapKeyKey];
-        NSString* type = mediaMetaKeyMap[mediaDataKey][kMediaMetaDataMapKeyMP3][kMediaMetaDataMapKeyType];
+        
+        NSString* type = kMediaMetaDataMapTypeString;
+        NSString* t = mediaMetaKeyMap[mediaDataKey][kMediaMetaDataMapKeyMP3][kMediaMetaDataMapKeyType];
+        if (t != nil) {
+            type = t;
+        }
 
         NSMutableDictionary* mp3Dictionary = mp3TagMap[mp3Key];
         if (mp3TagMap[mp3Key] == nil) {
@@ -187,7 +192,7 @@
                                 NSData* data = [NSData dataWithBytes:attr->value.value.byteVectorValue
                                                               length:attr->value.size];
                                 NSLog(@"updated artwork with %ld bytes of image data", [data length]);
-                                self.artwork = [[NSImage alloc] initWithData:data];
+                                self.artwork = data;
                             }
                             ++attrPtr;
                         };

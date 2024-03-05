@@ -335,7 +335,7 @@
 
 - (void)setMeta:(MediaMetaData*)meta
 {
-    _coverButton.image = meta.artwork;
+    _coverButton.image = [meta imageFromArtwork];
     _titleView.text = meta.title.length > 0 ? meta.title : @"unknown";
     _albumArtistView.text = (meta.album.length > 0 && meta.artist.length > 0) ?
         [NSString stringWithFormat:@"%@ — %@", meta.artist, meta.album] :

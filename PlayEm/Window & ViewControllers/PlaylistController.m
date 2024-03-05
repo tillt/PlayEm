@@ -142,11 +142,11 @@
         if (row >= historyLength) {
             assert(_list.count > row-historyLength);
             NSImageView* iv = (NSImageView*)result;
-            iv.image = _list[row-historyLength].artwork;
+            iv.image = [_list[row-historyLength] imageFromArtwork];
         } else {
             assert(_history.count > row);
             NSImageView* iv = (NSImageView*)result;
-            iv.image = _history[row].artwork;
+            iv.image = [_history[row] imageFromArtwork];
         }
     } else {
         NSTextField* tf = (NSTextField*)result;

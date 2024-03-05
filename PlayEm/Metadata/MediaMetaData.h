@@ -42,6 +42,9 @@ extern NSString* const kMediaMetaDataMapTypeString;
 extern NSString* const kMediaMetaDataMapTypeDate;
 extern NSString* const kMediaMetaDataMapTypeImage;
 extern NSString* const kMediaMetaDataMapTypeTuple;
+extern NSString* const kMediaMetaDataMapTypeNumber;
+
+
 
 @interface MediaMetaData : NSObject<NSCopying>
 
@@ -65,11 +68,14 @@ extern NSString* const kMediaMetaDataMapTypeTuple;
 @property (copy, nonatomic, nullable) NSNumber* disk;
 @property (copy, nonatomic, nullable) NSNumber* disks;
 @property (copy, nonatomic, nullable) NSNumber* locationType;
-@property (strong, nonatomic, nullable) NSImage* artwork;
+@property (strong, nonatomic, nullable) NSData* artwork;
+@property (strong, nonatomic, nullable) NSNumber* artworkFormat;
 @property (strong, nonatomic, nullable) NSURL* location;
 @property (strong, nonatomic, nullable) NSDate* added;
 @property (copy, nonatomic, nullable) NSNumber* compilation;
 @property (copy, nonatomic, nullable) NSNumber* duration;
+
+@property (readonly, nonatomic, nullable) NSImage* imageFromArtwork;
 
 + (MediaMetaData*)mediaMetaDataWithURL:(NSURL*)url error:(NSError**)error;
 + (MediaMetaData*)mediaMetaDataWithITLibMediaItem:(ITLibMediaItem*)item error:(NSError**)error;
@@ -83,6 +89,8 @@ extern NSString* const kMediaMetaDataMapTypeTuple;
 
 - (NSString* _Nullable)stringForKey:(NSString*)key;
 - (void)updateWithKey:(NSString*)key string:(NSString*)string;
+
+- (NSImage*)imageFromArtwork;
 
 - (BOOL)readFromFileWithError:(NSError**)error;
 - (BOOL)writeToFileWithError:(NSError**)error;

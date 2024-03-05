@@ -573,8 +573,8 @@ NSString* const kInfoNumberMultipleValues = @"-";
     }
  
     if (![deltaKeys[@"artwork"] boolValue] && _commonMeta.artwork != nil) {
-        _largeCoverView.image = _commonMeta.artwork;
-        _smallCoverView.image = _commonMeta.artwork;
+        _largeCoverView.image = [_commonMeta imageFromArtwork];
+        _smallCoverView.image = [_commonMeta imageFromArtwork];
     } else {
         _largeCoverView.image = [NSImage imageNamed:@"UnknownSong"];
         _smallCoverView.image = [NSImage imageNamed:@"UnknownSong"];

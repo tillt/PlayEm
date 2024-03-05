@@ -19,6 +19,52 @@
 
 @implementation MediaMetaData(AVAsset)
 
++ (NSDictionary<NSString*, NSDictionary<NSString*, NSString*>*>*)mp4TagMap
+{
+    NSDictionary<NSString*, NSDictionary*>* mediaMetaKeyMap = [MediaMetaData mediaMetaKeyMap];
+    
+    NSMutableDictionary<NSString*, NSMutableDictionary<NSString*, id>*>* mp4TagMap = [NSMutableDictionary dictionary];
+    
+    for (NSString* mediaDataKey in [mediaMetaKeyMap allKeys]) {
+        // Skip anything that isnt supported by MP4.
+        if ([mediaMetaKeyMap[mediaDataKey] objectForKey:kMediaMetaDataMapKeyMP4] == nil) {
+            continue;
+        }
+
+        NSString* mp4Key = mediaMetaKeyMap[mediaDataKey][kMediaMetaDataMapKeyMP4][kMediaMetaDataMapKeyKey];
+        NSString* keyspace = mediaMetaKeyMap[mediaDataKey][kMediaMetaDataMapKeyMP4][kMediaMetaDataMapKeyKeySpace];
+        NSString* type = mediaMetaKeyMap[mediaDataKey][kMediaMetaDataMapKeyMP4][kMediaMetaDataMapKeyType];
+
+        NSMutableDictionary* mp4Dictionary = mp4TagMap[mp4Key];
+        if (mp4TagMap[mp4Key] == nil) {
+            mp4Dictionary = [NSMutableDictionary dictionary];
+        }
+        mp4Dictionary[kMediaMetaDataMapKeyKeySpace] = keyspace;
+        
+        NSMutableArray* mediaKeys = mp4Dictionary[kMediaMetaDataMapKeyKeys];
+        if (mediaKeys == nil) {
+            mediaKeys = [NSMutableArray array];
+            if ([type isEqualToString:kMediaMetaDataMapTypeTuple]) {
+                [mediaKeys addObjectsFromArray:@[@"", @""]];
+            }
+        }
+        
+        NSNumber* position = mediaMetaKeyMap[mediaDataKey][kMediaMetaDataMapKeyMP4][kMediaMetaDataMapKeyOrder];
+        if (position != nil) {
+            [mediaKeys replaceObjectAtIndex:[position intValue] withObject:mediaDataKey];
+        } else {
+            [mediaKeys addObject:mediaDataKey];
+        }
+
+        mp4Dictionary[kMediaMetaDataMapKeyKeys] = mediaKeys;
+
+        mp4TagMap[mp4Key] = mp4Dictionary;
+    }
+
+    return mp4TagMap;
+}
+
+
 - (BOOL)readFromAVAsset:(AVAsset *)asset
 {
     NSDictionary* id3Genres = @{
@@ -126,12 +172,14 @@
                 } else if ([[item keyString] isEqualToString:@"cpil"]) {
                     self.compilation = [NSNumber numberWithBool:[(NSString*)[item value] boolValue]];
                 } else if ([[item keyString] isEqualToString:@"trkn"]) {
+                    NSAssert([[item dataType] isEqualToString:(__bridge NSString*)kCMMetadataBaseDataType_RawData], @"item datatype isnt data");
                     NSData* data = item.dataValue;
                     NSAssert(data.length >= 6, @"unexpected tuple encoding");
                     const uint16_t* tuple = data.bytes;
                     self.track = [NSNumber numberWithShort:ntohs(tuple[1])];
                     self.tracks = [NSNumber numberWithShort:ntohs(tuple[2])];
                 } else if ([[item keyString] isEqualToString:@"disk"]) {
+                    NSAssert([[item dataType] isEqualToString:(__bridge NSString*)kCMMetadataBaseDataType_RawData], @"item datatype isnt data");
                     NSData* data = item.dataValue;
                     NSAssert(data.length >= 6, @"unexpected tuple encoding");
                     const uint16_t* tuple = data.bytes;
@@ -171,6 +219,44 @@
         }
     }
     return YES;
+}
+
+- (NSArray*)renderAVAssetMetaData
+{
+    NSMutableArray* list = [NSMutableArray new];
+    NSDictionary* mp4TagMap = [MediaMetaData mp4TagMap];
+    for (NSString* mp4Key in [mp4TagMap allKeys]) {
+        AVMutableMetadataItem* item = [AVMutableMetadataItem metadataItem];
+        NSString* keyspace = mp4TagMap[mp4Key][kMediaMetaDataMapKeyKeySpace];
+        NSString* type = mp4TagMap[mp4Key][kMediaMetaDataMapKeyType];
+        item.keySpace = keyspace;
+        item.key = mp4Key;
+        NSString* mediaKey = mp4TagMap[mp4Key][kMediaMetaDataMapKeyKeys][0];
+        NSString* value = [self stringForKey:mediaKey];
+        
+        if ([type isEqualToString:kMediaMetaDataMapTypeTuple]) {
+            NSMutableData* data = [NSMutableData dataWithLength:6];
+            uint16_t* tuple = (uint16_t*)data.bytes;
+            tuple[1] = ntohs([value intValue]);
+            
+            NSString* mediaKey2 = mp4TagMap[mp4Key][kMediaMetaDataMapKeyKeys][1];
+            NSString* value2 = [self stringForKey:mediaKey2];
+            if ([value2 length] > 0) {
+                tuple[2] = ntohs([value2 intValue]);
+            }
+            item.dataType = (__bridge NSString*)kCMMetadataBaseDataType_RawData;
+            item.value = data;
+        } else if ([type isEqualToString:kMediaMetaDataMapTypeImage]) {
+            NSData* data = [self.artwork TIFFRepresentation];
+            //item.dataType = (__bridge NSString*)kCMMetadataBaseDataType_;
+            item.value = data;
+        } else {
+            item.value = value;
+        }
+        [list addObject:item];
+    }
+    
+    return list;
 }
 
 @end

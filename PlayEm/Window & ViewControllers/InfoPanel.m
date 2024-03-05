@@ -692,8 +692,21 @@ NSString* const kInfoNumberMultipleValues = @"-";
                 });
             }
         }
+        NSLog(@"patched all the metas - now calling back");
         dispatch_async(dispatch_get_main_queue(), callback);
     });
+}
+
+- (void)updateOnKey:(NSString *)key value:(NSString*)stringValue
+{
+    if (![self valueForTextFieldChanged:key value:stringValue]) {
+        NSLog(@"nothing changed for that key, we skip updating the file");
+        return;
+    }
+
+    [self patchMetasAtKey:key string:stringValue callback:^{
+        self.metas = [self.delegate selectedSongMetas];
+    }];
 }
 
 - (void)compilationAction:(id)sender
@@ -709,14 +722,7 @@ NSString* const kInfoNumberMultipleValues = @"-";
     NSNumber* number = [NSNumber numberWithBool:value];
     NSString* stringValue = [number stringValue];
 
-    if (![self valueForTextFieldChanged:@"compilation" value:stringValue]) {
-        NSLog(@"nothing changed for that key, we skip updating the file");
-        return;
-    }
-
-    [self patchMetasAtKey:@"compilation" string:stringValue callback:^{
-        self.metas = [self.delegate selectedSongMetas];
-    }];
+    [self updateOnKey:@"compilation" value:stringValue];
 }
 
 #pragma mark - NSTextField delegate
@@ -735,15 +741,8 @@ NSString* const kInfoNumberMultipleValues = @"-";
     NSAssert(key != nil, @"couldnt find the key for the control that triggered the notification");
     
     NSString* stringValue = [textField stringValue];
-
-    if (![self valueForTextFieldChanged:key value:stringValue]) {
-        NSLog(@"nothing changed for that key, we skip updating the file");
-        return;
-    }
-
-    [self patchMetasAtKey:key string:stringValue callback:^{
-        self.metas = [self.delegate selectedSongMetas];
-    }];
+    
+    [self updateOnKey:key value:stringValue];
 }
 
 #pragma mark - NSTextView delegate
@@ -754,21 +753,21 @@ NSString* const kInfoNumberMultipleValues = @"-";
 
     NSString* stringValue = textView.string;
 
-    if (![self valueForTextFieldChanged:@"lyrics" value:stringValue]) {
-        NSLog(@"nothing changed for that key, we skip updating the file");
-        return;
-    }
-
-    [self patchMetasAtKey:@"lyrics" string:stringValue callback:^{
-        self.metas = [self.delegate selectedSongMetas];
-    }];
+    [self updateOnKey:@"lyrics" value:stringValue];
 }
 
 #pragma mark - NSComboBox delegate
 
 - (void)comboBoxSelectionDidChange:(NSNotification *)notification
 {
-    [self controlTextDidEndEditing:notification];
+    NSComboBox* comboBox = [notification object];
+
+    NSInteger index = [comboBox indexOfSelectedItem];
+    NSString* stringValue = @"";
+    if (index >= 0 && index < comboBox.numberOfItems) {
+        stringValue = [self comboBox:comboBox objectValueForItemAtIndex:index];
+        [self updateOnKey:@"genre" value:stringValue];
+    }
 }
 
 #pragma mark - NSTabView delegate
@@ -784,7 +783,9 @@ NSString* const kInfoNumberMultipleValues = @"-";
 
 - (NSInteger)numberOfItemsInComboBox:(NSComboBox *)comboBox
 {
-    return [[_delegate knownGenres] count];
+    NSInteger items = [[_delegate knownGenres] count];
+    NSLog(@"items %ld", items);
+    return items;
 }
 
 - (nullable id)comboBox:(NSComboBox *)comboBox objectValueForItemAtIndex:(NSInteger)index

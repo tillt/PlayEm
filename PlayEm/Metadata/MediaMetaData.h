@@ -32,8 +32,10 @@ typedef enum : NSUInteger {
 } MediaMetaDataFileFormatType;
 
 extern NSString* const kMediaMetaDataMapKeyMP3;
+extern NSString* const kMediaMetaDataMapKeyMP4;
 extern NSString* const kMediaMetaDataMapKeyType;
 extern NSString* const kMediaMetaDataMapKeyKey;
+extern NSString* const kMediaMetaDataMapKeyKeySpace;
 extern NSString* const kMediaMetaDataMapKeyKeys;
 extern NSString* const kMediaMetaDataMapKeyOrder;
 extern NSString* const kMediaMetaDataMapTypeString;

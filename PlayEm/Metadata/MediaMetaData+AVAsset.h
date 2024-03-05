@@ -15,6 +15,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface MediaMetaData (AVAsset)
 
 - (BOOL)readFromAVAsset:(AVAsset *)asset;
+- (NSArray*)renderAVAssetMetaData;
 
 @end
 

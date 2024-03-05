@@ -39,6 +39,9 @@
         if ((keyValue >> 8) == 0) --length;
         if ((keyValue >> 0) == 0) --length;
 
+        // keys are stored in big-endian format, swap
+        keyValue = CFSwapInt32BigToHost(keyValue);
+        
         long address = (unsigned long)&keyValue;
         address += (sizeof(UInt32) - length);
 

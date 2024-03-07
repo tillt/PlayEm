@@ -48,7 +48,7 @@
         NSMutableArray* mediaKeys = mp4Dictionary[kMediaMetaDataMapKeyKeys];
         if (mediaKeys == nil) {
             mediaKeys = [NSMutableArray array];
-            if ([type isEqualToString:kMediaMetaDataMapTypeTuple]) {
+            if ([type isEqualToString:kMediaMetaDataMapTypeTuple] || [type isEqualToString:kMediaMetaDataMapTypeTuple48] || [type isEqualToString:kMediaMetaDataMapTypeTuple64]) {
                 [mediaKeys addObjectsFromArray:@[@"", @""]];
             }
         }
@@ -68,9 +68,9 @@
     return mp4TagMap;
 }
 
-- (BOOL)readFromAVAsset:(AVAsset *)asset
++ (NSDictionary*)id3GenreMap
 {
-    NSDictionary* id3Genres = @{
+    return @{
         @0: @"Blues",
         @1: @"Classic Rock",
         @2: @"Country",
@@ -152,11 +152,17 @@
         @78: @"Rock & Roll",
         @79: @"Hard Rock",
     };
+}
+
+- (BOOL)readFromAVAsset:(AVAsset *)asset
+{
+    NSDictionary* id3Genres = [MediaMetaData id3GenreMap];
+    NSLog(@"read metadata from AVAsset:%@", asset );
     // Note, this code uses a pre 10.10 compatible way of parsing the tags - newer versions
     // of macOS do support proper identifiers
     for (NSString* format in [asset availableMetadataFormats]) {
         for (AVMetadataItem* item in [asset metadataForFormat:format]) {
-            NSLog(@"%@ (%@): %@", [item commonKey], [item keyString], [item value]);
+            NSLog(@"%@ (%@): %@ dataType: %@ extra:%@", [item commonKey], [item keyString], [item value], [item dataType], [item extraAttributes]);
             if ([item commonKey] == nil) {
                 if ([[item keyString] isEqualToString:@"TYER"] || [[item keyString] isEqualToString:@"@day"]  || [[item keyString] isEqualToString:@"TDRL"] ) {
                     self.year = [NSNumber numberWithInt:[(NSString*)[item value] intValue]];
@@ -177,7 +183,7 @@
                 } else if ([[item keyString] isEqualToString:@"trkn"]) {
                     NSAssert([[item dataType] isEqualToString:(__bridge NSString*)kCMMetadataBaseDataType_RawData], @"item datatype isnt data");
                     NSData* data = item.dataValue;
-                    NSAssert(data.length >= 6, @"unexpected tuple encoding");
+                    NSAssert(data.length >= 8, @"unexpected tuple encoding");
                     const uint16_t* tuple = data.bytes;
                     self.track = [NSNumber numberWithShort:ntohs(tuple[1])];
                     self.tracks = [NSNumber numberWithShort:ntohs(tuple[2])];
@@ -231,9 +237,9 @@
     return [self readFromAVAsset:asset];
 }
 
-- (NSArray*)renderAVAssetMetaData
+- (NSArray<AVMetadataItem*>*)renderAVAssetMetaData
 {
-    NSMutableArray* list = [NSMutableArray new];
+    NSMutableArray<AVMutableMetadataItem*>* list = [NSMutableArray new];
     NSDictionary* mp4TagMap = [MediaMetaData mp4TagMap];
     for (NSString* mp4Key in [mp4TagMap allKeys]) {
         AVMutableMetadataItem* item = [AVMutableMetadataItem metadataItem];
@@ -245,12 +251,19 @@
         }
         item.keySpace = keyspace;
         item.key = mp4Key;
+        item.identifier = [AVMutableMetadataItem identifierForKey:mp4Key keySpace:keyspace];
 
         NSString* mediaKey = mp4TagMap[mp4Key][kMediaMetaDataMapKeyKeys][0];
         NSString* value = [self stringForKey:mediaKey];
 
-        if ([type isEqualToString:kMediaMetaDataMapTypeTuple]) {
-            NSMutableData* data = [NSMutableData dataWithLength:6];
+        if ([type isEqualToString:kMediaMetaDataMapTypeTuple] || [type isEqualToString:kMediaMetaDataMapTypeTuple48] || [type isEqualToString:kMediaMetaDataMapTypeTuple64]) {
+            size_t length = 8;
+            if ([type isEqualToString:kMediaMetaDataMapTypeTuple48]) {
+                length = 6;
+            } else {
+                length = 8;
+            }
+            NSMutableData* data = [NSMutableData dataWithLength:length];
             uint16_t* tuple = (uint16_t*)data.bytes;
             tuple[1] = ntohs([value intValue]);
             
@@ -261,16 +274,42 @@
             }
             item.dataType = (__bridge NSString*)kCMMetadataBaseDataType_RawData;
             item.value = data;
-        } else if ([type isEqualToString:kMediaMetaDataMapTypeNumber]) {
-            item.dataType = (__bridge NSString*)kCMMetadataBaseDataType_SInt16;
+            item.extraAttributes = @{
+                @"dataType": @0,
+                @"dataTypeSpace": @"com.apple.itunes",
+            };
+        } else if ([type isEqualToString:kMediaMetaDataMapTypeNumber] || [type isEqualToString:kMediaMetaDataMapTypeNumber16] || [type isEqualToString:kMediaMetaDataMapTypeNumber8]) {
+            size_t length = 1;
+            if ([type isEqualToString:kMediaMetaDataMapTypeNumber8]) {
+                length = 1;
+            } else {
+                length = 2;
+            }
+            if (length == 1) {
+                item.dataType = (__bridge NSString*)kCMMetadataBaseDataType_SInt8;
+            } else {
+                item.dataType = (__bridge NSString*)kCMMetadataBaseDataType_SInt16;
+            }
             item.value = [NSNumber numberWithInt:[value intValue]];
+            item.extraAttributes = @{
+                @"dataType": @21,
+                @"dataLength": @(length),
+                @"dataTypeSpace": @"com.apple.itunes",
+            };
         } else if ([type isEqualToString:kMediaMetaDataMapTypeImage]) {
-            //kCMMetadataBaseDataType_JPEG
             item.dataType = (__bridge NSString*)kCMMetadataBaseDataType_RawData;
             item.value = self.artwork;
+            item.extraAttributes = @{
+                @"dataType": @0,
+                @"dataTypeSpace": @"com.apple.itunes",
+            };
         } else {
             item.dataType = (__bridge NSString*)kCMMetadataBaseDataType_UTF8;
             item.value = value;
+            item.extraAttributes = @{
+                @"dataType": @1,
+                @"dataTypeSpace": @"com.apple.itunes",
+            };
         }
         [list addObject:item];
     }
@@ -286,21 +325,30 @@
     AVURLAsset* asset = [AVURLAsset assetWithURL:self.location];
     AVAssetExportSession* session = [AVAssetExportSession exportSessionWithAsset:asset
                                                                       presetName:AVAssetExportPresetPassthrough];
-    
-    NSString* outputFolder = @"/tmp";
-    NSString* outputFile = [NSString stringWithFormat:@"%@/%@.%@", outputFolder, fileName, fileExtension];
-    
-    session.outputURL = [NSURL fileURLWithPath:outputFile];
     session.outputFileType = AVFileTypeAppleM4A;
+
+    NSString* outputFolder = @"/tmp/";
+    NSString* outputFile = [NSString stringWithFormat:@"%@%@.%@", outputFolder, fileName, fileExtension];
+    session.outputURL = [NSURL fileURLWithPath:outputFile];
 
     NSArray* metaList = [self renderAVAssetMetaData];
     NSAssert(metaList != nil, @"no metadata rendered");
     
+    session.metadataItemFilter = nil;
     NSLog(@"metadatalist %@", metaList);
     session.metadata = metaList;
 
     [session exportAsynchronouslyWithCompletionHandler:^(){
-        NSLog(@"MP4 export session completed");
+        NSLog(@"MP4 export session completed for %@", session.outputURL);
+        if (session.status != AVAssetExportSessionStatusCompleted) {
+            NSLog(@"session did not complete but %ld", session.status);
+            return;
+        }
+        if (session.error != nil) {
+            NSLog(@"error during export: %@", session.error);
+            return;
+        }
+        // [NSFileManager replaceFile]
     }];
     
     return YES;

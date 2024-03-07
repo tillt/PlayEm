@@ -24,7 +24,7 @@ const double kControlPanelVisiblePhase = 10.0f;
 {
     [super awakeFromNib];
     
-    self.preferredFramesPerSecond = 120.0f;
+    self.preferredFramesPerSecond = 30.0f;
 //    assert(_playPause);
 //
 //    self.playPause.wantsLayer = YES;

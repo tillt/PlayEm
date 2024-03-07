@@ -513,12 +513,18 @@ NSString* const kInfoNumberMultipleValues = @"-";
         
         for (MediaMetaData* meta in metas) {
             MediaMetaData* patchedMeta = [meta copy];
+            NSLog(@"reading metadata from file");
             if (![patchedMeta readFromFileWithError:&error]) {
                 return;
             }
+            // Add delta
+            
             if ([meta isEqualToMediaMetaData:patchedMeta]) {
+                NSLog(@"nothing changed, skipping patched metadata as it is not patched at all - as far as we can tell now");
                 continue;
             }
+
+            NSLog(@"writing updated metadata back to file");
             [patchedMeta writeToFileWithError:&error];
             
             //NSMutableArray* patchedMetas = [NSMutableArray array];

@@ -14,6 +14,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface MediaMetaData (AVAsset)
 
++ (NSDictionary*)id3GenreMap;
+
 - (BOOL)readFromAVAsset:(AVAsset *)asset;
 - (NSArray*)renderAVAssetMetaData;
 - (BOOL)readFromMP4FileWithError:(NSError**)error;

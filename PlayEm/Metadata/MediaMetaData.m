@@ -32,13 +32,18 @@ NSString* const kMediaMetaDataMapKeyMP4 = @"mp4";
 NSString* const kMediaMetaDataMapKeyType = @"type";
 NSString* const kMediaMetaDataMapKeyKey = @"key";
 NSString* const kMediaMetaDataMapKeyKeySpace = @"keySpace";
+NSString* const kMediaMetaDataMapKeyIdentifier = @"identifier";
 NSString* const kMediaMetaDataMapKeyKeys = @"keys";
 NSString* const kMediaMetaDataMapKeyOrder = @"order";
 NSString* const kMediaMetaDataMapTypeString = @"string";
 NSString* const kMediaMetaDataMapTypeDate = @"date";
 NSString* const kMediaMetaDataMapTypeImage = @"image";
 NSString* const kMediaMetaDataMapTypeTuple = @"tuple";
+NSString* const kMediaMetaDataMapTypeTuple48 = @"tuple48";
+NSString* const kMediaMetaDataMapTypeTuple64 = @"tuple64";
 NSString* const kMediaMetaDataMapTypeNumber = @"number";
+NSString* const kMediaMetaDataMapTypeNumber8 = @"number8";
+NSString* const kMediaMetaDataMapTypeNumber16 = @"number16";
 
 @implementation MediaMetaData
 
@@ -119,8 +124,8 @@ NSString* const kMediaMetaDataMapTypeNumber = @"number";
                 kMediaMetaDataMapKeyKey: @"ALBUM",
             },
             kMediaMetaDataMapKeyMP4: @{
-                kMediaMetaDataMapKeyKey: AVMetadataCommonKeyAlbumName,
-                kMediaMetaDataMapKeyKeySpace: AVMetadataKeySpaceCommon,
+                kMediaMetaDataMapKeyKey: AVMetadataiTunesMetadataKeyAlbum,
+                kMediaMetaDataMapKeyKeySpace: AVMetadataKeySpaceiTunes,
             },
         },
         @"albumArtist": @{
@@ -137,8 +142,8 @@ NSString* const kMediaMetaDataMapTypeNumber = @"number";
                 kMediaMetaDataMapKeyKey: @"ARTIST",
             },
             kMediaMetaDataMapKeyMP4: @{
-                kMediaMetaDataMapKeyKey: AVMetadataCommonKeyArtist,
-                kMediaMetaDataMapKeyKeySpace: AVMetadataKeySpaceCommon,
+                kMediaMetaDataMapKeyKey: AVMetadataiTunesMetadataKeyArtist,
+                kMediaMetaDataMapKeyKeySpace: AVMetadataKeySpaceiTunes,
             },
         },
         @"artwork": @{
@@ -147,8 +152,8 @@ NSString* const kMediaMetaDataMapTypeNumber = @"number";
                 kMediaMetaDataMapKeyType: kMediaMetaDataMapTypeImage,
             },
             kMediaMetaDataMapKeyMP4: @{
-                kMediaMetaDataMapKeyKey: AVMetadataCommonKeyArtwork,
-                kMediaMetaDataMapKeyKeySpace: AVMetadataKeySpaceCommon,
+                kMediaMetaDataMapKeyKey: AVMetadataiTunesMetadataKeyCoverArt,
+                kMediaMetaDataMapKeyKeySpace: AVMetadataKeySpaceiTunes,
                 kMediaMetaDataMapKeyType: kMediaMetaDataMapTypeImage,
             },
         },
@@ -177,6 +182,7 @@ NSString* const kMediaMetaDataMapTypeNumber = @"number";
             kMediaMetaDataMapKeyMP4: @{
                 kMediaMetaDataMapKeyKey: AVMetadataiTunesMetadataKeyDiscCompilation,
                 kMediaMetaDataMapKeyKeySpace: AVMetadataKeySpaceiTunes,
+                kMediaMetaDataMapKeyType: kMediaMetaDataMapTypeNumber8,
             },
         },
         @"lyrics": @{
@@ -206,7 +212,7 @@ NSString* const kMediaMetaDataMapTypeNumber = @"number";
             kMediaMetaDataMapKeyMP4: @{
                 kMediaMetaDataMapKeyKey: AVMetadataiTunesMetadataKeyDiscNumber,
                 kMediaMetaDataMapKeyKeySpace: AVMetadataKeySpaceiTunes,
-                kMediaMetaDataMapKeyType: kMediaMetaDataMapTypeTuple,
+                kMediaMetaDataMapKeyType: kMediaMetaDataMapTypeTuple48,
                 kMediaMetaDataMapKeyOrder: @0,
             },
         },
@@ -219,7 +225,7 @@ NSString* const kMediaMetaDataMapTypeNumber = @"number";
             kMediaMetaDataMapKeyMP4: @{
                 kMediaMetaDataMapKeyKey: AVMetadataiTunesMetadataKeyDiscNumber,
                 kMediaMetaDataMapKeyKeySpace: AVMetadataKeySpaceiTunes,
-                kMediaMetaDataMapKeyType: kMediaMetaDataMapTypeTuple,
+                kMediaMetaDataMapKeyType: kMediaMetaDataMapTypeTuple48,
                 kMediaMetaDataMapKeyOrder: @1,
             },
         },
@@ -249,7 +255,7 @@ NSString* const kMediaMetaDataMapTypeNumber = @"number";
             kMediaMetaDataMapKeyMP4: @{
                 kMediaMetaDataMapKeyKey: AVMetadataiTunesMetadataKeyBeatsPerMin,
                 kMediaMetaDataMapKeyKeySpace: AVMetadataKeySpaceiTunes,
-                kMediaMetaDataMapKeyType: kMediaMetaDataMapTypeNumber,
+                kMediaMetaDataMapKeyType: kMediaMetaDataMapTypeNumber16,
             },
         },
         @"title": @{
@@ -257,8 +263,8 @@ NSString* const kMediaMetaDataMapTypeNumber = @"number";
                 kMediaMetaDataMapKeyKey: @"TITLE",
             },
             kMediaMetaDataMapKeyMP4: @{
-                kMediaMetaDataMapKeyKey: AVMetadataCommonKeyTitle,
-                kMediaMetaDataMapKeyKeySpace: AVMetadataKeySpaceCommon,
+                kMediaMetaDataMapKeyKey: AVMetadataiTunesMetadataKeySongName,
+                kMediaMetaDataMapKeyKeySpace: AVMetadataKeySpaceiTunes,
             },
         },
         @"track": @{
@@ -270,7 +276,7 @@ NSString* const kMediaMetaDataMapTypeNumber = @"number";
             kMediaMetaDataMapKeyMP4: @{
                 kMediaMetaDataMapKeyKey: AVMetadataiTunesMetadataKeyTrackNumber,
                 kMediaMetaDataMapKeyKeySpace: AVMetadataKeySpaceiTunes,
-                kMediaMetaDataMapKeyType: kMediaMetaDataMapTypeTuple,
+                kMediaMetaDataMapKeyType: kMediaMetaDataMapTypeTuple64,
                 kMediaMetaDataMapKeyOrder: @0,
             },
         },
@@ -283,7 +289,7 @@ NSString* const kMediaMetaDataMapTypeNumber = @"number";
             kMediaMetaDataMapKeyMP4: @{
                 kMediaMetaDataMapKeyKey: AVMetadataiTunesMetadataKeyTrackNumber,
                 kMediaMetaDataMapKeyKeySpace: AVMetadataKeySpaceiTunes,
-                kMediaMetaDataMapKeyType: kMediaMetaDataMapTypeTuple,
+                kMediaMetaDataMapKeyType: kMediaMetaDataMapTypeTuple64,
                 kMediaMetaDataMapKeyOrder: @1,
             },
         },
@@ -295,7 +301,6 @@ NSString* const kMediaMetaDataMapTypeNumber = @"number";
             kMediaMetaDataMapKeyMP4: @{
                 kMediaMetaDataMapKeyKey: AVMetadataiTunesMetadataKeyReleaseDate,
                 kMediaMetaDataMapKeyKeySpace: AVMetadataKeySpaceiTunes,
-                kMediaMetaDataMapKeyType: kMediaMetaDataMapTypeDate,
             },
         },
     };

@@ -241,7 +241,15 @@
 {
     NSMutableArray<AVMutableMetadataItem*>* list = [NSMutableArray new];
     NSDictionary* mp4TagMap = [MediaMetaData mp4TagMap];
+
     for (NSString* mp4Key in [mp4TagMap allKeys]) {
+        NSString* mediaKey = mp4TagMap[mp4Key][kMediaMetaDataMapKeyKeys][0];
+        // Anything we dont have a value for shall be skipped as we must not produce empty
+        // metadata records as that seems invalid for MP4.
+        if ([self valueForKey:mediaKey] == nil) {
+            continue;
+        }
+
         AVMutableMetadataItem* item = [AVMutableMetadataItem metadataItem];
         NSString* keyspace = mp4TagMap[mp4Key][kMediaMetaDataMapKeyKeySpace];
         NSString* type = kMediaMetaDataMapTypeString;
@@ -251,11 +259,8 @@
         }
         item.keySpace = keyspace;
         item.key = mp4Key;
-        item.identifier = [AVMutableMetadataItem identifierForKey:mp4Key keySpace:keyspace];
 
-        NSString* mediaKey = mp4TagMap[mp4Key][kMediaMetaDataMapKeyKeys][0];
         NSString* value = [self stringForKey:mediaKey];
-
         if ([type isEqualToString:kMediaMetaDataMapTypeTuple] || [type isEqualToString:kMediaMetaDataMapTypeTuple48] || [type isEqualToString:kMediaMetaDataMapTypeTuple64]) {
             size_t length = 8;
             if ([type isEqualToString:kMediaMetaDataMapTypeTuple48]) {
@@ -267,17 +272,13 @@
             uint16_t* tuple = (uint16_t*)data.bytes;
             tuple[1] = ntohs([value intValue]);
             
-            NSString* mediaKey2 = mp4TagMap[mp4Key][kMediaMetaDataMapKeyKeys][1];
-            NSString* value2 = [self stringForKey:mediaKey2];
-            if ([value2 length] > 0) {
-                tuple[2] = ntohs([value2 intValue]);
+            mediaKey = mp4TagMap[mp4Key][kMediaMetaDataMapKeyKeys][1];
+            value = [self stringForKey:mediaKey];
+            if ([value length] > 0) {
+                tuple[2] = ntohs([value intValue]);
             }
             item.dataType = (__bridge NSString*)kCMMetadataBaseDataType_RawData;
             item.value = data;
-            item.extraAttributes = @{
-                @"dataType": @0,
-                @"dataTypeSpace": @"com.apple.itunes",
-            };
         } else if ([type isEqualToString:kMediaMetaDataMapTypeNumber] || [type isEqualToString:kMediaMetaDataMapTypeNumber16] || [type isEqualToString:kMediaMetaDataMapTypeNumber8]) {
             size_t length = 1;
             if ([type isEqualToString:kMediaMetaDataMapTypeNumber8]) {
@@ -291,25 +292,12 @@
                 item.dataType = (__bridge NSString*)kCMMetadataBaseDataType_SInt16;
             }
             item.value = [NSNumber numberWithInt:[value intValue]];
-            item.extraAttributes = @{
-                @"dataType": @21,
-                @"dataLength": @(length),
-                @"dataTypeSpace": @"com.apple.itunes",
-            };
         } else if ([type isEqualToString:kMediaMetaDataMapTypeImage]) {
             item.dataType = (__bridge NSString*)kCMMetadataBaseDataType_RawData;
             item.value = self.artwork;
-            item.extraAttributes = @{
-                @"dataType": @0,
-                @"dataTypeSpace": @"com.apple.itunes",
-            };
         } else {
             item.dataType = (__bridge NSString*)kCMMetadataBaseDataType_UTF8;
             item.value = value;
-            item.extraAttributes = @{
-                @"dataType": @1,
-                @"dataTypeSpace": @"com.apple.itunes",
-            };
         }
         [list addObject:item];
     }

@@ -510,30 +510,35 @@ NSString* const kInfoNumberMultipleValues = @"-";
     // same when showing the info from a library entry.
     dispatch_async(_metaIOQueue, ^{
         NSError* error = nil;
-        
+        NSMutableArray* patchedMetas = [NSMutableArray array];
         for (MediaMetaData* meta in metas) {
             MediaMetaData* patchedMeta = [meta copy];
             NSLog(@"reading metadata from file");
             if (![patchedMeta readFromFileWithError:&error]) {
-                return;
+                NSLog(@"no metadata found or failed to read with error: %@", error);
+                continue;
             }
-            // Add delta
-            
             if ([meta isEqualToMediaMetaData:patchedMeta]) {
                 NSLog(@"nothing changed, skipping patched metadata as it is not patched at all - as far as we can tell now");
                 continue;
             }
-
             NSLog(@"writing updated metadata back to file");
-            [patchedMeta writeToFileWithError:&error];
-            
-            //NSMutableArray* patchedMetas = [NSMutableArray array];
-            dispatch_async(dispatch_get_main_queue(), ^{
-                NSLog(@"InfoPanel gathered differing metadata and informs delegate");
-                [self.delegate metaChangedForMeta:meta updatedMeta:patchedMeta];
-            });
+            if (![patchedMeta writeToFileWithError:&error]) {
+                NSLog(@"failed to write with error: %@", error);
+                continue;
+            }
+            NSMutableDictionary* dict = [NSMutableDictionary dictionary];
+            [dict setObject:patchedMeta forKey:@"new"];
+            [dict setObject:meta forKey:@"old"];
+            [patchedMetas addObject:dict];
         }
         dispatch_async(dispatch_get_main_queue(), ^{
+            for (NSDictionary* dict in patchedMetas) {
+                NSLog(@"InfoPanel gathered differing metadata and informs delegate");
+                MediaMetaData* patchedMeta = dict[@"new"];
+                MediaMetaData* meta = dict[@"old"];
+                [self.delegate metaChangedForMeta:meta updatedMeta:patchedMeta];
+            }
             self.metas = [self.delegate selectedSongMetas];
         });
     });
@@ -686,6 +691,7 @@ NSString* const kInfoNumberMultipleValues = @"-";
 - (void)patchMetasAtKey:(NSString*)key string:(NSString*)stringValue callback:(void (^)(void))callback
 {
     dispatch_async(_metaIOQueue, ^{
+        NSMutableArray* patchedMetas = [NSMutableArray array];
         for (MediaMetaData* meta in self.metas) {
             MediaMetaData* patchedMeta = [self patchedMeta:meta atKey:key withStringValue:stringValue];
             if (![meta isEqualToMediaMetaData:patchedMeta atKey:key]) {
@@ -693,13 +699,23 @@ NSString* const kInfoNumberMultipleValues = @"-";
                 if (![patchedMeta writeToFileWithError:&error]) {
                     NSLog(@"failed to write to file with error: %@", error);
                 }
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    [self.delegate metaChangedForMeta:meta updatedMeta:patchedMeta];
-                });
+                NSMutableDictionary* dict = [NSMutableDictionary dictionary];
+                [dict setObject:patchedMeta forKey:@"new"];
+                [dict setObject:meta forKey:@"old"];
+                [patchedMetas addObject:dict];
             }
         }
         NSLog(@"patched all the metas - now calling back");
-        dispatch_async(dispatch_get_main_queue(), callback);
+        dispatch_async(dispatch_get_main_queue(), ^{
+            for (NSDictionary* dict in patchedMetas) {
+                NSLog(@"differing metadata");
+                MediaMetaData* patchedMeta = dict[@"new"];
+                MediaMetaData* meta = dict[@"old"];
+                [self.delegate metaChangedForMeta:meta updatedMeta:patchedMeta];
+            }
+            self.metas = [self.delegate selectedSongMetas];
+            callback();
+        });
     });
 }
 
@@ -711,7 +727,7 @@ NSString* const kInfoNumberMultipleValues = @"-";
     }
 
     [self patchMetasAtKey:key string:stringValue callback:^{
-        self.metas = [self.delegate selectedSongMetas];
+        NSLog(@"patchMetasAtKey %@ with value \"%@\"", key, stringValue);
     }];
 }
 

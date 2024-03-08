@@ -11,7 +11,6 @@
 #import <AVFoundation/AVFoundation.h>
 #import <iTunesLibrary/ITLibArtist.h>
 #import <iTunesLibrary/ITLibAlbum.h>
-#import <iTunesLibrary/ITLibArtwork.h>
 
 #import <Cocoa/Cocoa.h>
 #import <objc/runtime.h>
@@ -30,11 +29,10 @@
 NSString* const kMediaMetaDataMapKeyMP3 = @"mp3";
 NSString* const kMediaMetaDataMapKeyMP4 = @"mp4";
 NSString* const kMediaMetaDataMapKeyType = @"type";
-NSString* const kMediaMetaDataMapKeyKey = @"key";
-NSString* const kMediaMetaDataMapKeyKeySpace = @"keySpace";
-NSString* const kMediaMetaDataMapKeyIdentifier = @"identifier";
-NSString* const kMediaMetaDataMapKeyKeys = @"keys";
-NSString* const kMediaMetaDataMapKeyOrder = @"order";
+NSString* const kMediaMetaDataMapKey = @"key";
+NSString* const kMediaMetaDataMapIdentifier = @"identifier";
+NSString* const kMediaMetaDataMapKeys = @"keys";
+NSString* const kMediaMetaDataMapOrder = @"order";
 NSString* const kMediaMetaDataMapTypeString = @"string";
 NSString* const kMediaMetaDataMapTypeDate = @"date";
 NSString* const kMediaMetaDataMapTypeImage = @"image";
@@ -42,8 +40,6 @@ NSString* const kMediaMetaDataMapTypeTuple = @"tuple";
 NSString* const kMediaMetaDataMapTypeTuple48 = @"tuple48";
 NSString* const kMediaMetaDataMapTypeTuple64 = @"tuple64";
 NSString* const kMediaMetaDataMapTypeNumber = @"number";
-NSString* const kMediaMetaDataMapTypeNumber8 = @"number8";
-NSString* const kMediaMetaDataMapTypeNumber16 = @"number16";
 
 @implementation MediaMetaData
 
@@ -121,186 +117,170 @@ NSString* const kMediaMetaDataMapTypeNumber16 = @"number16";
         
         @"album": @{
             kMediaMetaDataMapKeyMP3: @{
-                kMediaMetaDataMapKeyKey: @"ALBUM",
+                kMediaMetaDataMapKey: @"ALBUM",
             },
             kMediaMetaDataMapKeyMP4: @{
-                kMediaMetaDataMapKeyKey: AVMetadataiTunesMetadataKeyAlbum,
-                kMediaMetaDataMapKeyKeySpace: AVMetadataKeySpaceiTunes,
+                kMediaMetaDataMapKey: AVMetadataiTunesMetadataKeyAlbum,
             },
         },
         @"albumArtist": @{
             kMediaMetaDataMapKeyMP3: @{
-                kMediaMetaDataMapKeyKey: @"ALBUMARTIST",
+                kMediaMetaDataMapKey: @"ALBUMARTIST",
             },
             kMediaMetaDataMapKeyMP4: @{
-                kMediaMetaDataMapKeyKey: AVMetadataiTunesMetadataKeyAlbumArtist,
-                kMediaMetaDataMapKeyKeySpace: AVMetadataKeySpaceiTunes,
+                kMediaMetaDataMapKey: AVMetadataiTunesMetadataKeyAlbumArtist,
             },
         },
         @"artist": @{
             kMediaMetaDataMapKeyMP3: @{
-                kMediaMetaDataMapKeyKey: @"ARTIST",
+                kMediaMetaDataMapKey: @"ARTIST",
             },
             kMediaMetaDataMapKeyMP4: @{
-                kMediaMetaDataMapKeyKey: AVMetadataiTunesMetadataKeyArtist,
-                kMediaMetaDataMapKeyKeySpace: AVMetadataKeySpaceiTunes,
+                kMediaMetaDataMapKey: AVMetadataiTunesMetadataKeyArtist,
             },
         },
         @"artwork": @{
             kMediaMetaDataMapKeyMP3: @{
-                kMediaMetaDataMapKeyKey: @"PICTURE",
+                kMediaMetaDataMapKey: @"PICTURE",
                 kMediaMetaDataMapKeyType: kMediaMetaDataMapTypeImage,
             },
             kMediaMetaDataMapKeyMP4: @{
-                kMediaMetaDataMapKeyKey: AVMetadataiTunesMetadataKeyCoverArt,
-                kMediaMetaDataMapKeyKeySpace: AVMetadataKeySpaceiTunes,
+                kMediaMetaDataMapKey: AVMetadataiTunesMetadataKeyCoverArt,
                 kMediaMetaDataMapKeyType: kMediaMetaDataMapTypeImage,
             },
         },
         @"comment": @{
             kMediaMetaDataMapKeyMP3: @{
-                kMediaMetaDataMapKeyKey: @"COMMENT",
+                kMediaMetaDataMapKey: @"COMMENT",
             },
             kMediaMetaDataMapKeyMP4: @{
-                kMediaMetaDataMapKeyKey: AVMetadataiTunesMetadataKeyUserComment,
-                kMediaMetaDataMapKeyKeySpace: AVMetadataKeySpaceiTunes,
+                kMediaMetaDataMapKey: AVMetadataiTunesMetadataKeyUserComment,
             },
         },
         @"composer": @{
             kMediaMetaDataMapKeyMP3: @{
-                kMediaMetaDataMapKeyKey: @"COMPOSER",
+                kMediaMetaDataMapKey: @"COMPOSER",
             },
             kMediaMetaDataMapKeyMP4: @{
-                kMediaMetaDataMapKeyKey: AVMetadataiTunesMetadataKeyComposer,
-                kMediaMetaDataMapKeyKeySpace: AVMetadataKeySpaceiTunes,
+                kMediaMetaDataMapKey: AVMetadataiTunesMetadataKeyComposer,
             },
         },
         @"compilation": @{
             kMediaMetaDataMapKeyMP3: @{
-                kMediaMetaDataMapKeyKey: @"COMPILATION",
+                kMediaMetaDataMapKey: @"COMPILATION",
             },
             kMediaMetaDataMapKeyMP4: @{
-                kMediaMetaDataMapKeyKey: AVMetadataiTunesMetadataKeyDiscCompilation,
-                kMediaMetaDataMapKeyKeySpace: AVMetadataKeySpaceiTunes,
-                kMediaMetaDataMapKeyType: kMediaMetaDataMapTypeNumber8,
+                kMediaMetaDataMapKey: AVMetadataiTunesMetadataKeyDiscCompilation,
+                kMediaMetaDataMapKeyType: kMediaMetaDataMapTypeNumber,
             },
         },
         @"lyrics": @{
             kMediaMetaDataMapKeyMP3: @{
-                kMediaMetaDataMapKeyKey: @"LYRICS",
+                kMediaMetaDataMapKey: @"LYRICS",
             },
             kMediaMetaDataMapKeyMP4: @{
-                kMediaMetaDataMapKeyKey: AVMetadataiTunesMetadataKeyLyrics,
-                kMediaMetaDataMapKeyKeySpace: AVMetadataKeySpaceiTunes,
+                kMediaMetaDataMapKey: AVMetadataiTunesMetadataKeyLyrics,
             },
         },
         @"label": @{
             kMediaMetaDataMapKeyMP3: @{
-                kMediaMetaDataMapKeyKey: @"LABEL",
+                kMediaMetaDataMapKey: @"LABEL",
             },
             kMediaMetaDataMapKeyMP4: @{
-                kMediaMetaDataMapKeyKey: AVMetadataiTunesMetadataKeyRecordCompany,
-                kMediaMetaDataMapKeyKeySpace: AVMetadataKeySpaceiTunes,
+                kMediaMetaDataMapKey: AVMetadataiTunesMetadataKeyRecordCompany,
             },
         },
         @"disk": @{
             kMediaMetaDataMapKeyMP3: @{
-                kMediaMetaDataMapKeyKey: @"DISCNUMBER",
+                kMediaMetaDataMapKey: @"DISCNUMBER",
                 kMediaMetaDataMapKeyType: kMediaMetaDataMapTypeTuple,
-                kMediaMetaDataMapKeyOrder: @0,
+                kMediaMetaDataMapOrder: @0,
             },
             kMediaMetaDataMapKeyMP4: @{
-                kMediaMetaDataMapKeyKey: AVMetadataiTunesMetadataKeyDiscNumber,
-                kMediaMetaDataMapKeyKeySpace: AVMetadataKeySpaceiTunes,
-                kMediaMetaDataMapKeyType: kMediaMetaDataMapTypeTuple48,
-                kMediaMetaDataMapKeyOrder: @0,
+                kMediaMetaDataMapKey: AVMetadataiTunesMetadataKeyDiscNumber,
+                kMediaMetaDataMapKeyType: kMediaMetaDataMapTypeTuple,
+                kMediaMetaDataMapOrder: @0,
             },
         },
         @"disks": @{
             kMediaMetaDataMapKeyMP3: @{
-                kMediaMetaDataMapKeyKey: @"DISCNUMBER",
+                kMediaMetaDataMapKey: @"DISCNUMBER",
                 kMediaMetaDataMapKeyType: kMediaMetaDataMapTypeTuple,
-                kMediaMetaDataMapKeyOrder: @1,
+                kMediaMetaDataMapOrder: @1,
             },
             kMediaMetaDataMapKeyMP4: @{
-                kMediaMetaDataMapKeyKey: AVMetadataiTunesMetadataKeyDiscNumber,
-                kMediaMetaDataMapKeyKeySpace: AVMetadataKeySpaceiTunes,
-                kMediaMetaDataMapKeyType: kMediaMetaDataMapTypeTuple48,
-                kMediaMetaDataMapKeyOrder: @1,
+                kMediaMetaDataMapKey: AVMetadataiTunesMetadataKeyDiscNumber,
+                kMediaMetaDataMapKeyType: kMediaMetaDataMapTypeTuple,
+                kMediaMetaDataMapOrder: @1,
             },
         },
         @"duration": @{
             kMediaMetaDataMapKeyMP3: @{
-                kMediaMetaDataMapKeyKey: @"LENGTH",
+                kMediaMetaDataMapKey: @"LENGTH",
             },
         },
         @"genre": @{
             kMediaMetaDataMapKeyMP3: @{
-                kMediaMetaDataMapKeyKey: @"GENRE",
+                kMediaMetaDataMapKey: @"GENRE",
             },
             kMediaMetaDataMapKeyMP4: @{
-                kMediaMetaDataMapKeyKey: AVMetadataiTunesMetadataKeyUserGenre,
-                kMediaMetaDataMapKeyKeySpace: AVMetadataKeySpaceiTunes,
+                kMediaMetaDataMapKey: AVMetadataiTunesMetadataKeyUserGenre,
             },
         },
         @"key": @{
             kMediaMetaDataMapKeyMP3: @{
-                kMediaMetaDataMapKeyKey: @"INITIALKEY",
+                kMediaMetaDataMapKey: @"INITIALKEY",
             },
         },
         @"tempo": @{
             kMediaMetaDataMapKeyMP3: @{
-                kMediaMetaDataMapKeyKey: @"BPM",
+                kMediaMetaDataMapKey: @"BPM",
             },
             kMediaMetaDataMapKeyMP4: @{
-                kMediaMetaDataMapKeyKey: AVMetadataiTunesMetadataKeyBeatsPerMin,
-                kMediaMetaDataMapKeyKeySpace: AVMetadataKeySpaceiTunes,
-                kMediaMetaDataMapKeyType: kMediaMetaDataMapTypeNumber16,
+                kMediaMetaDataMapKey: AVMetadataiTunesMetadataKeyBeatsPerMin,
+                kMediaMetaDataMapKeyType: kMediaMetaDataMapTypeNumber,
             },
         },
         @"title": @{
             kMediaMetaDataMapKeyMP3: @{
-                kMediaMetaDataMapKeyKey: @"TITLE",
+                kMediaMetaDataMapKey: @"TITLE",
             },
             kMediaMetaDataMapKeyMP4: @{
-                kMediaMetaDataMapKeyKey: AVMetadataiTunesMetadataKeySongName,
-                kMediaMetaDataMapKeyKeySpace: AVMetadataKeySpaceiTunes,
+                kMediaMetaDataMapKey: AVMetadataiTunesMetadataKeySongName,
             },
         },
         @"track": @{
             kMediaMetaDataMapKeyMP3: @{
-                kMediaMetaDataMapKeyKey: @"TRACKNUMBER",
+                kMediaMetaDataMapKey: @"TRACKNUMBER",
                 kMediaMetaDataMapKeyType: kMediaMetaDataMapTypeTuple,
-                kMediaMetaDataMapKeyOrder: @0,
+                kMediaMetaDataMapOrder: @0,
             },
             kMediaMetaDataMapKeyMP4: @{
-                kMediaMetaDataMapKeyKey: AVMetadataiTunesMetadataKeyTrackNumber,
-                kMediaMetaDataMapKeyKeySpace: AVMetadataKeySpaceiTunes,
-                kMediaMetaDataMapKeyType: kMediaMetaDataMapTypeTuple64,
-                kMediaMetaDataMapKeyOrder: @0,
+                kMediaMetaDataMapKey: AVMetadataiTunesMetadataKeyTrackNumber,
+                kMediaMetaDataMapKeyType: kMediaMetaDataMapTypeTuple,
+                kMediaMetaDataMapOrder: @0,
             },
         },
         @"tracks": @{
             kMediaMetaDataMapKeyMP3: @{
-                kMediaMetaDataMapKeyKey: @"TRACKNUMBER",
+                kMediaMetaDataMapKey: @"TRACKNUMBER",
                 kMediaMetaDataMapKeyType: kMediaMetaDataMapTypeTuple,
-                kMediaMetaDataMapKeyOrder: @1,
+                kMediaMetaDataMapOrder: @1,
             },
             kMediaMetaDataMapKeyMP4: @{
-                kMediaMetaDataMapKeyKey: AVMetadataiTunesMetadataKeyTrackNumber,
-                kMediaMetaDataMapKeyKeySpace: AVMetadataKeySpaceiTunes,
-                kMediaMetaDataMapKeyType: kMediaMetaDataMapTypeTuple64,
-                kMediaMetaDataMapKeyOrder: @1,
+                kMediaMetaDataMapKey: AVMetadataiTunesMetadataKeyTrackNumber,
+                kMediaMetaDataMapKeyType: kMediaMetaDataMapTypeTuple,
+                kMediaMetaDataMapOrder: @1,
             },
         },
         @"year": @{
             kMediaMetaDataMapKeyMP3: @{
-                kMediaMetaDataMapKeyKey: @"DATE",
+                kMediaMetaDataMapKey: @"DATE",
                 kMediaMetaDataMapKeyType: kMediaMetaDataMapTypeDate,
             },
             kMediaMetaDataMapKeyMP4: @{
-                kMediaMetaDataMapKeyKey: AVMetadataiTunesMetadataKeyReleaseDate,
-                kMediaMetaDataMapKeyKeySpace: AVMetadataKeySpaceiTunes,
+                kMediaMetaDataMapKey: AVMetadataiTunesMetadataKeyReleaseDate,
+                kMediaMetaDataMapKeyType: kMediaMetaDataMapTypeDate,
             },
         },
     };
@@ -340,6 +320,48 @@ NSString* const kMediaMetaDataMapTypeNumber16 = @"number16";
     }
 
     return supportedKeys;
+}
+
++ (ITLibArtworkFormat)artworkFormatForData:(NSData*)data
+{
+    uint8_t c;
+
+    [data getBytes:&c length:1];
+
+    switch(c) {
+        case 0xFF:
+            return ITLibArtworkFormatJPEG;
+        case 0x89:
+            return ITLibArtworkFormatPNG;
+        case 0x47:
+            return ITLibArtworkFormatGIF;
+        case 0x49:
+        case 0x4D:
+            return ITLibArtworkFormatTIFF;
+        default:
+            return ITLibArtworkFormatNone;
+    }
+    return ITLibArtworkFormatNone;
+}
+
++ (NSString*)mimeTypeForArtworkFormat:(ITLibArtworkFormat)format
+{
+    NSDictionary* mimeMap = @{
+        @(ITLibArtworkFormatJPEG): @"image/jpeg",
+        @(ITLibArtworkFormatGIF): @"image/gif",
+        @(ITLibArtworkFormatPNG): @"image/png",
+        @(ITLibArtworkFormatTIFF): @"image/tiff",
+    };
+    
+    return mimeMap[@(format)];
+}
+
+- (NSString*)mimeTypeForArtwork
+{
+    if (self.artwork == nil) {
+        return nil;
+    }
+    return [MediaMetaData mimeTypeForArtworkFormat:[self.artworkFormat integerValue]];
 }
 
 - (NSString* _Nullable)title
@@ -572,14 +594,23 @@ NSString* const kMediaMetaDataMapTypeNumber16 = @"number16";
     if (_artwork == nil) {
         if (_shadow.hasArtworkAvailable) {
             _artwork = _shadow.artwork.imageData;
-            _artworkFormat = [NSNumber numberWithInteger:_shadow.artwork.imageDataFormat];
-        } else {
-            _artwork = nil;
-            _artworkFormat = [NSNumber numberWithInteger:ITLibArtworkFormatNone];
         }
     }
     
     return _artwork;
+}
+
+- (NSNumber* _Nullable)artworkFormat
+{
+    if (_shadow != nil) {
+        _artworkFormat = [NSNumber numberWithInteger:_shadow.artwork.imageDataFormat];
+    }
+    
+    if (_artworkFormat == nil && _artwork != nil) {
+        _artworkFormat = [NSNumber numberWithInteger:[MediaMetaData artworkFormatForData:self.artwork]];
+    }
+    
+    return _artworkFormat;
 }
 
 - (NSImage*)imageFromArtwork
@@ -651,7 +682,8 @@ NSString* const kMediaMetaDataMapTypeNumber16 = @"number16";
         return valueObject;
     }
     
-    if ([valueObject isKindOfClass:[NSNumber class]] && [valueObject intValue] > 0) {
+    if ([valueObject isKindOfClass:[NSNumber class]] && 
+        [valueObject intValue] > 0) {
         return [valueObject stringValue];
     }
     
@@ -798,7 +830,7 @@ NSString* const kMediaMetaDataMapTypeNumber16 = @"number16";
         return [self writeToMP3FileWithError:error] == 0;
     }
     if (type == MediaMetaDataFileFormatTypeMP4) {
-        return [self writeToMP4FileWithError:error];
+        return [self writeToMP4FileWithError:error] == 0;
     }
     
     NSString* description = [NSString stringWithFormat:@"Unsupport filetype for modifying metadata"];

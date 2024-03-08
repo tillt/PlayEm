@@ -8,6 +8,7 @@
 
 #import <Foundation/Foundation.h>
 #import <iTunesLibrary/ITLibMediaItem.h>
+#import <iTunesLibrary/ITLibArtwork.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -34,20 +35,15 @@ typedef enum : NSUInteger {
 extern NSString* const kMediaMetaDataMapKeyMP3;
 extern NSString* const kMediaMetaDataMapKeyMP4;
 extern NSString* const kMediaMetaDataMapKeyType;
-extern NSString* const kMediaMetaDataMapKeyKey;
-extern NSString* const kMediaMetaDataMapKeyKeySpace;
-extern NSString* const kMediaMetaDataMapKeyKeys;
-extern NSString* const kMediaMetaDataMapKeyOrder;
-extern NSString* const kMediaMetaDataMapKeyIdentifier;
+extern NSString* const kMediaMetaDataMapKey;
+extern NSString* const kMediaMetaDataMapKeys;
+extern NSString* const kMediaMetaDataMapOrder;
+extern NSString* const kMediaMetaDataMapIdentifier;
 extern NSString* const kMediaMetaDataMapTypeString;
 extern NSString* const kMediaMetaDataMapTypeDate;
 extern NSString* const kMediaMetaDataMapTypeImage;
 extern NSString* const kMediaMetaDataMapTypeTuple;
-extern NSString* const kMediaMetaDataMapTypeTuple48;
-extern NSString* const kMediaMetaDataMapTypeTuple64;
 extern NSString* const kMediaMetaDataMapTypeNumber;
-extern NSString* const kMediaMetaDataMapTypeNumber8;
-extern NSString* const kMediaMetaDataMapTypeNumber16;
 
 
 
@@ -88,6 +84,8 @@ extern NSString* const kMediaMetaDataMapTypeNumber16;
 + (NSDictionary<NSString*, NSDictionary*>*)mediaMetaKeyMap;
 + (NSArray<NSString*>*)mediaMetaKeys;
 + (NSArray<NSString*>*)mediaDataKeysWithFileFormatType:(MediaMetaDataFileFormatType)type;
+
++ (NSString*)mimeTypeForArtworkFormat:(ITLibArtworkFormat)formatNumber;
 
 - (BOOL)isEqualToMediaMetaData:(MediaMetaData*)other;
 - (BOOL)isEqualToMediaMetaData:(MediaMetaData*)other atKey:key;

@@ -28,7 +28,7 @@
             continue;
         }
 
-        NSString* mp3Key = mediaMetaKeyMap[mediaDataKey][kMediaMetaDataMapKeyMP3][kMediaMetaDataMapKeyKey];
+        NSString* mp3Key = mediaMetaKeyMap[mediaDataKey][kMediaMetaDataMapKeyMP3][kMediaMetaDataMapKey];
         
         NSString* type = kMediaMetaDataMapTypeString;
         NSString* t = mediaMetaKeyMap[mediaDataKey][kMediaMetaDataMapKeyMP3][kMediaMetaDataMapKeyType];
@@ -42,7 +42,7 @@
         }
         mp3Dictionary[kMediaMetaDataMapKeyType] = type;
         
-        NSMutableArray* mediaKeys = mp3Dictionary[kMediaMetaDataMapKeyKeys];
+        NSMutableArray* mediaKeys = mp3Dictionary[kMediaMetaDataMapKeys];
         if (mediaKeys == nil) {
             mediaKeys = [NSMutableArray array];
             if ([type isEqualToString:kMediaMetaDataMapTypeTuple]) {
@@ -50,19 +50,66 @@
             }
         }
         
-        NSNumber* position = mediaMetaKeyMap[mediaDataKey][kMediaMetaDataMapKeyMP3][kMediaMetaDataMapKeyOrder];
+        NSNumber* position = mediaMetaKeyMap[mediaDataKey][kMediaMetaDataMapKeyMP3][kMediaMetaDataMapOrder];
         if (position != nil) {
             [mediaKeys replaceObjectAtIndex:[position intValue] withObject:mediaDataKey];
         } else {
             [mediaKeys addObject:mediaDataKey];
         }
 
-        mp3Dictionary[kMediaMetaDataMapKeyKeys] = mediaKeys;
+        mp3Dictionary[kMediaMetaDataMapKeys] = mediaKeys;
 
         mp3TagMap[mp3Key] = mp3Dictionary;
     }
 
     return mp3TagMap;
+}
+
++ (NSDictionary<NSString*, NSDictionary<NSString*, NSString*>*>*)mp4TagMap
+{
+    NSDictionary<NSString*, NSDictionary*>* mediaMetaKeyMap = [MediaMetaData mediaMetaKeyMap];
+    
+    NSMutableDictionary<NSString*, NSMutableDictionary<NSString*, id>*>* mp4TagMap = [NSMutableDictionary dictionary];
+    
+    for (NSString* mediaDataKey in [mediaMetaKeyMap allKeys]) {
+        // Skip anything that isnt supported by MP4.
+        if ([mediaMetaKeyMap[mediaDataKey] objectForKey:kMediaMetaDataMapKeyMP4] == nil) {
+            continue;
+        }
+
+        NSString* mp4Key = mediaMetaKeyMap[mediaDataKey][kMediaMetaDataMapKeyMP4][kMediaMetaDataMapKey];
+        NSString* type = kMediaMetaDataMapTypeString;
+        NSString* t = [mediaMetaKeyMap[mediaDataKey][kMediaMetaDataMapKeyMP4] objectForKey:kMediaMetaDataMapKeyType];
+        if (t != nil) {
+            type = t;
+        }
+        NSMutableDictionary* mp4Dictionary = mp4TagMap[mp4Key];
+        if (mp4TagMap[mp4Key] == nil) {
+            mp4Dictionary = [NSMutableDictionary dictionary];
+        }
+        mp4Dictionary[kMediaMetaDataMapKeyType] = type;
+        
+        NSMutableArray* mediaKeys = mp4Dictionary[kMediaMetaDataMapKeys];
+        if (mediaKeys == nil) {
+            mediaKeys = [NSMutableArray array];
+            if ([type isEqualToString:kMediaMetaDataMapTypeTuple]) {
+                [mediaKeys addObjectsFromArray:@[@"", @""]];
+            }
+        }
+        
+        NSNumber* position = mediaMetaKeyMap[mediaDataKey][kMediaMetaDataMapKeyMP4][kMediaMetaDataMapOrder];
+        if (position != nil) {
+            [mediaKeys replaceObjectAtIndex:[position intValue] withObject:mediaDataKey];
+        } else {
+            [mediaKeys addObject:mediaDataKey];
+        }
+
+        mp4Dictionary[kMediaMetaDataMapKeys] = mediaKeys;
+
+        mp4TagMap[mp4Key] = mp4Dictionary;
+    }
+
+    return mp4TagMap;
 }
 
 + (MediaMetaData*)mediaMetaDataFromMP3FileWithURL:(NSURL*)url error:(NSError**)error
@@ -141,19 +188,19 @@
                     NSString* type = map[kMediaMetaDataMapKeyType];
                     
                     if ([type isEqualToString:kMediaMetaDataMapTypeString]) {
-                        [self updateWithKey:map[kMediaMetaDataMapKeyKeys][0] string:values];
+                        [self updateWithKey:map[kMediaMetaDataMapKeys][0] string:values];
                     } else if ([type isEqualToString:kMediaMetaDataMapTypeTuple]) {
                         NSArray<NSString*>* components = [values componentsSeparatedByString:@"/"];
-                        [self updateWithKey:map[kMediaMetaDataMapKeyKeys][0] string:components[0]];
+                        [self updateWithKey:map[kMediaMetaDataMapKeys][0] string:components[0]];
                         if ([components count] > 1) {
-                            [self updateWithKey:map[kMediaMetaDataMapKeyKeys][1] string:components[1]];
+                            [self updateWithKey:map[kMediaMetaDataMapKeys][1] string:components[1]];
                         }
                     } else if ([type isEqualToString:kMediaMetaDataMapTypeDate]) {
                         if (![values containsString:@"-"]) {
-                            [self updateWithKey:map[kMediaMetaDataMapKeyKeys][0] string:values];
+                            [self updateWithKey:map[kMediaMetaDataMapKeys][0] string:values];
                         } else {
                             NSArray<NSString*>* components = [values componentsSeparatedByString:@"-"];
-                            [self updateWithKey:map[kMediaMetaDataMapKeyKeys][0] string:components[0]];
+                            [self updateWithKey:map[kMediaMetaDataMapKeys][0] string:components[0]];
                         }
                     } else if ([type isEqualToString:kMediaMetaDataMapTypeImage]) {
                         NSLog(@"skipping complex image type in simple parser");
@@ -216,7 +263,7 @@
 // by "taglib_c.h". Trouble is, Objective C typedefs BOOL to various types, depending on the
 // platform and processor architecture. See
 // https://www.jviotti.com/2024/01/05/is-objective-c-bool-a-boolean-type-it-depends.html
-- (int)writeToMP3FileWithError:(NSError**)error
+- (int)writeToTagLibFileWithError:(NSError**)error tagMap:(NSDictionary*)tagMap
 {
     NSString* path = [self.location path];
     
@@ -236,35 +283,49 @@
         
         return -1;
     }
-    
-    NSDictionary* mp3TagMap = [MediaMetaData mp3TagMap];
-    
-    for (NSString* mp3Key in [mp3TagMap allKeys]) {
-        NSString* type = mp3TagMap[mp3Key][kMediaMetaDataMapKeyType];
-        
+
+    for (NSString* key in [tagMap allKeys]) {
+        // Lets not create records from data we dont need on the destination.
+        NSString* mediaKey = tagMap[key][kMediaMetaDataMapKeys][0];
+        if ([self valueForKey:mediaKey] == nil) {
+            continue;
+        }
+
+        NSString* type = tagMap[key][kMediaMetaDataMapKeyType];
         if ([type isEqualToString:kMediaMetaDataMapTypeImage]) {
-            NSLog(@"setting image data not yet supported");
+            unsigned int imageFormat = [self.artworkFormat intValue];
+            NSString* mimeType = [MediaMetaData mimeTypeForArtworkFormat:imageFormat];
+            const char* m = [mimeType cStringUsingEncoding:NSStringEncodingConversionAllowLossy];
+            TAGLIB_COMPLEX_PROPERTY_PICTURE(props,
+                                            self.artwork.bytes,
+                                            (unsigned int)self.artwork.length,
+                                            "",
+                                            m,
+                                            "Front Cover");
+            NSLog(@"setting complex tag: \"%@\" = %p", key, self.artwork);
+            taglib_complex_property_set(file,
+                                        [key cStringUsingEncoding:NSUTF8StringEncoding],
+                                        props);
         } else {
-            NSString* mediaKey = mp3TagMap[mp3Key][kMediaMetaDataMapKeyKeys][0];
             NSString* value = [self stringForKey:mediaKey];
             
             if ([type isEqualToString:kMediaMetaDataMapTypeTuple]) {
                 NSMutableArray* components = [NSMutableArray array];
                 [components addObject:value];
                 
-                NSString* mediaKey2 = mp3TagMap[mp3Key][kMediaMetaDataMapKeyKeys][1];
-                NSString* value2 = [self stringForKey:mediaKey2];
-                if ([value2 length] > 0) {
-                    [components addObject:value2];
+                mediaKey = tagMap[key][kMediaMetaDataMapKeys][1];
+                value = [self stringForKey:mediaKey];
+                if ([value length] > 0) {
+                    [components addObject:value];
                 }
                 value = [components componentsJoinedByString:@"/"];
             }
             // NOTE: We are possible reducing the accuracy of a DATE as we will only store the year
             // while the original may have had day and month included.
             
-            NSLog(@"setting ID3: \"%@\" = \"%@\"", mp3Key, value);
+            NSLog(@"setting tag: \"%@\" = \"%@\"", key, value);
             taglib_property_set(file,
-                                [mp3Key cStringUsingEncoding:NSUTF8StringEncoding],
+                                [key cStringUsingEncoding:NSUTF8StringEncoding],
                                 [value cStringUsingEncoding:NSUTF8StringEncoding]);
         }
     }
@@ -291,4 +352,15 @@
     return ret;
 }
 
+- (int)writeToMP3FileWithError:(NSError**)error
+{
+    NSDictionary* mp3TagMap = [MediaMetaData mp3TagMap];
+    return [self writeToTagLibFileWithError:error tagMap:mp3TagMap];
+}
+
+- (int)writeToMP4FileWithError:(NSError**)error
+{
+    NSDictionary* mp4TagMap = [MediaMetaData mp4TagMap];
+    return [self writeToTagLibFileWithError:error tagMap:mp4TagMap];
+}
 @end

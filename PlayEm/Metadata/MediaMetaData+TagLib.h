@@ -17,6 +17,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (int)readFromMP3FileWithError:(NSError**)error;
 - (int)writeToMP3FileWithError:(NSError**)error;
+- (int)writeToMP4FileWithError:(NSError**)error;
 
 @end
 

@@ -332,7 +332,7 @@ NSString* const kInfoNumberMultipleValues = @"-";
     _largeCoverView = [NSImageView imageViewWithImage:[NSImage imageNamed:@"UnknownSong"]];
     _largeCoverView.alignment = NSViewHeightSizable | NSViewWidthSizable | NSViewMinYMargin | NSViewMaxYMargin;
     _largeCoverView.imageScaling = NSImageScaleProportionallyUpOrDown;
-    _largeCoverView.frame = CGRectMake((self.view.bounds.size.width - (imageWidth + 40.0)) / 2.0f,
+    _largeCoverView.frame = CGRectMake((self.view.bounds.size.width - (imageWidth + 20.0)) / 2.0f,
                                        20.0f,
                                        imageWidth,
                                        imageWidth);
@@ -351,8 +351,8 @@ NSString* const kInfoNumberMultipleValues = @"-";
     self.lyricsTextView = scrollView.documentView;
     scrollView.frame = CGRectMake(  20.0f,
                                     20.0f,
-                                    self.view.bounds.size.width - 80.0f,
-                                    self.view.bounds.size.height - 260.0f);
+                                    self.view.bounds.size.width - 60.0f,
+                                    self.view.bounds.size.height - 200.0f);
 
     _lyricsTextView.textColor = [NSColor labelColor];
     scrollView.drawsBackground = NO;
@@ -614,9 +614,10 @@ NSString* const kInfoNumberMultipleValues = @"-";
     } else {
         [_lyricsTextView setString:@""];
         if ([deltaKeys[@"lyrics"] boolValue]) {
-            NSColor* color = [NSColor tertiaryLabelColor];
+            NSColor* color = [NSColor secondaryLabelColor];
             NSDictionary* attrs = @{
                 NSForegroundColorAttributeName: color,
+                NSFontAttributeName: [NSFont systemFontOfSize:[NSFont systemFontSize]],
             };
             _lyricsTextView.placeholderAttributedString = [[NSAttributedString alloc] initWithString:kInfoTextMultipleValues
                                                                                           attributes:attrs];
@@ -656,6 +657,7 @@ NSString* const kInfoNumberMultipleValues = @"-";
                 NSColor* color = [NSColor tertiaryLabelColor];
                 NSDictionary* attrs = @{
                     NSForegroundColorAttributeName: color,
+                    NSFontAttributeName: [NSFont systemFontOfSize:[NSFont systemFontSize]],
                 };
                 NSTextFieldCell* cell = [control cell];
                 cell.placeholderAttributedString = [[NSAttributedString alloc] initWithString:placeHolder

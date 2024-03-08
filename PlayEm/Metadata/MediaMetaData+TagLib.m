@@ -28,7 +28,7 @@
             continue;
         }
 
-        NSString* mp3Key = mediaMetaKeyMap[mediaDataKey][kMediaMetaDataMapKeyMP3][kMediaMetaDataMapKeyKey];
+        NSString* mp3Key = mediaMetaKeyMap[mediaDataKey][kMediaMetaDataMapKeyMP3][kMediaMetaDataMapKey];
         
         NSString* type = kMediaMetaDataMapTypeString;
         NSString* t = mediaMetaKeyMap[mediaDataKey][kMediaMetaDataMapKeyMP3][kMediaMetaDataMapKeyType];
@@ -42,7 +42,7 @@
         }
         mp3Dictionary[kMediaMetaDataMapKeyType] = type;
         
-        NSMutableArray* mediaKeys = mp3Dictionary[kMediaMetaDataMapKeyKeys];
+        NSMutableArray* mediaKeys = mp3Dictionary[kMediaMetaDataMapKeys];
         if (mediaKeys == nil) {
             mediaKeys = [NSMutableArray array];
             if ([type isEqualToString:kMediaMetaDataMapTypeTuple]) {
@@ -50,14 +50,14 @@
             }
         }
         
-        NSNumber* position = mediaMetaKeyMap[mediaDataKey][kMediaMetaDataMapKeyMP3][kMediaMetaDataMapKeyOrder];
+        NSNumber* position = mediaMetaKeyMap[mediaDataKey][kMediaMetaDataMapKeyMP3][kMediaMetaDataMapOrder];
         if (position != nil) {
             [mediaKeys replaceObjectAtIndex:[position intValue] withObject:mediaDataKey];
         } else {
             [mediaKeys addObject:mediaDataKey];
         }
 
-        mp3Dictionary[kMediaMetaDataMapKeyKeys] = mediaKeys;
+        mp3Dictionary[kMediaMetaDataMapKeys] = mediaKeys;
 
         mp3TagMap[mp3Key] = mp3Dictionary;
     }
@@ -77,7 +77,7 @@
             continue;
         }
 
-        NSString* mp4Key = mediaMetaKeyMap[mediaDataKey][kMediaMetaDataMapKeyMP4][kMediaMetaDataMapKeyKey];
+        NSString* mp4Key = mediaMetaKeyMap[mediaDataKey][kMediaMetaDataMapKeyMP4][kMediaMetaDataMapKey];
         NSString* type = kMediaMetaDataMapTypeString;
         NSString* t = [mediaMetaKeyMap[mediaDataKey][kMediaMetaDataMapKeyMP4] objectForKey:kMediaMetaDataMapKeyType];
         if (t != nil) {
@@ -89,7 +89,7 @@
         }
         mp4Dictionary[kMediaMetaDataMapKeyType] = type;
         
-        NSMutableArray* mediaKeys = mp4Dictionary[kMediaMetaDataMapKeyKeys];
+        NSMutableArray* mediaKeys = mp4Dictionary[kMediaMetaDataMapKeys];
         if (mediaKeys == nil) {
             mediaKeys = [NSMutableArray array];
             if ([type isEqualToString:kMediaMetaDataMapTypeTuple]) {
@@ -97,14 +97,14 @@
             }
         }
         
-        NSNumber* position = mediaMetaKeyMap[mediaDataKey][kMediaMetaDataMapKeyMP4][kMediaMetaDataMapKeyOrder];
+        NSNumber* position = mediaMetaKeyMap[mediaDataKey][kMediaMetaDataMapKeyMP4][kMediaMetaDataMapOrder];
         if (position != nil) {
             [mediaKeys replaceObjectAtIndex:[position intValue] withObject:mediaDataKey];
         } else {
             [mediaKeys addObject:mediaDataKey];
         }
 
-        mp4Dictionary[kMediaMetaDataMapKeyKeys] = mediaKeys;
+        mp4Dictionary[kMediaMetaDataMapKeys] = mediaKeys;
 
         mp4TagMap[mp4Key] = mp4Dictionary;
     }
@@ -188,19 +188,19 @@
                     NSString* type = map[kMediaMetaDataMapKeyType];
                     
                     if ([type isEqualToString:kMediaMetaDataMapTypeString]) {
-                        [self updateWithKey:map[kMediaMetaDataMapKeyKeys][0] string:values];
+                        [self updateWithKey:map[kMediaMetaDataMapKeys][0] string:values];
                     } else if ([type isEqualToString:kMediaMetaDataMapTypeTuple]) {
                         NSArray<NSString*>* components = [values componentsSeparatedByString:@"/"];
-                        [self updateWithKey:map[kMediaMetaDataMapKeyKeys][0] string:components[0]];
+                        [self updateWithKey:map[kMediaMetaDataMapKeys][0] string:components[0]];
                         if ([components count] > 1) {
-                            [self updateWithKey:map[kMediaMetaDataMapKeyKeys][1] string:components[1]];
+                            [self updateWithKey:map[kMediaMetaDataMapKeys][1] string:components[1]];
                         }
                     } else if ([type isEqualToString:kMediaMetaDataMapTypeDate]) {
                         if (![values containsString:@"-"]) {
-                            [self updateWithKey:map[kMediaMetaDataMapKeyKeys][0] string:values];
+                            [self updateWithKey:map[kMediaMetaDataMapKeys][0] string:values];
                         } else {
                             NSArray<NSString*>* components = [values componentsSeparatedByString:@"-"];
-                            [self updateWithKey:map[kMediaMetaDataMapKeyKeys][0] string:components[0]];
+                            [self updateWithKey:map[kMediaMetaDataMapKeys][0] string:components[0]];
                         }
                     } else if ([type isEqualToString:kMediaMetaDataMapTypeImage]) {
                         NSLog(@"skipping complex image type in simple parser");
@@ -288,7 +288,7 @@
     
     for (NSString* mp3Key in [mp3TagMap allKeys]) {
         // Lets not create records from data we dont need on the destination.
-        NSString* mediaKey = mp3TagMap[mp3Key][kMediaMetaDataMapKeyKeys][0];
+        NSString* mediaKey = mp3TagMap[mp3Key][kMediaMetaDataMapKeys][0];
         if ([self valueForKey:mediaKey] == nil) {
             continue;
         }
@@ -303,7 +303,7 @@
                 NSMutableArray* components = [NSMutableArray array];
                 [components addObject:value];
                 
-                mediaKey = mp3TagMap[mp3Key][kMediaMetaDataMapKeyKeys][1];
+                mediaKey = mp3TagMap[mp3Key][kMediaMetaDataMapKeys][1];
                 value = [self stringForKey:mediaKey];
                 if ([value length] > 0) {
                     [components addObject:value];
@@ -367,7 +367,7 @@
     
     for (NSString* mp4Key in [mp4TagMap allKeys]) {
         // Lets not create records from data we dont need on the destination.
-        NSString* mediaKey = mp4TagMap[mp4Key][kMediaMetaDataMapKeyKeys][0];
+        NSString* mediaKey = mp4TagMap[mp4Key][kMediaMetaDataMapKeys][0];
         if ([self valueForKey:mediaKey] == nil) {
             continue;
         }
@@ -382,7 +382,7 @@
                 NSMutableArray* components = [NSMutableArray array];
                 [components addObject:value];
                 
-                mediaKey = mp4TagMap[mp4Key][kMediaMetaDataMapKeyKeys][1];
+                mediaKey = mp4TagMap[mp4Key][kMediaMetaDataMapKeys][1];
                 value = [self stringForKey:mediaKey];
                 if ([value length] > 0) {
                     [components addObject:value];

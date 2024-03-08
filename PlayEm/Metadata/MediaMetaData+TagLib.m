@@ -263,7 +263,7 @@
 // by "taglib_c.h". Trouble is, Objective C typedefs BOOL to various types, depending on the
 // platform and processor architecture. See
 // https://www.jviotti.com/2024/01/05/is-objective-c-bool-a-boolean-type-it-depends.html
-- (int)writeToMP3FileWithError:(NSError**)error
+- (int)writeToTagLibFileWithError:(NSError**)error tagMap:(NSDictionary*)tagMap
 {
     NSString* path = [self.location path];
     
@@ -283,19 +283,29 @@
         
         return -1;
     }
-    
-    NSDictionary* mp3TagMap = [MediaMetaData mp3TagMap];
-    
-    for (NSString* mp3Key in [mp3TagMap allKeys]) {
+
+    for (NSString* key in [tagMap allKeys]) {
         // Lets not create records from data we dont need on the destination.
-        NSString* mediaKey = mp3TagMap[mp3Key][kMediaMetaDataMapKeys][0];
+        NSString* mediaKey = tagMap[key][kMediaMetaDataMapKeys][0];
         if ([self valueForKey:mediaKey] == nil) {
             continue;
         }
 
-        NSString* type = mp3TagMap[mp3Key][kMediaMetaDataMapKeyType];
+        NSString* type = tagMap[key][kMediaMetaDataMapKeyType];
         if ([type isEqualToString:kMediaMetaDataMapTypeImage]) {
-            NSLog(@"setting image data not yet supported");
+            unsigned int imageFormat = [self.artworkFormat intValue];
+            NSString* mimeType = [MediaMetaData mimeTypeForArtworkFormat:imageFormat];
+            const char* m = [mimeType cStringUsingEncoding:NSStringEncodingConversionAllowLossy];
+            TAGLIB_COMPLEX_PROPERTY_PICTURE(props,
+                                            self.artwork.bytes,
+                                            (unsigned int)self.artwork.length,
+                                            "",
+                                            m,
+                                            "Front Cover");
+            NSLog(@"setting complex tag: \"%@\" = %p", key, self.artwork);
+            taglib_complex_property_set(file,
+                                        [key cStringUsingEncoding:NSUTF8StringEncoding],
+                                        props);
         } else {
             NSString* value = [self stringForKey:mediaKey];
             
@@ -303,7 +313,7 @@
                 NSMutableArray* components = [NSMutableArray array];
                 [components addObject:value];
                 
-                mediaKey = mp3TagMap[mp3Key][kMediaMetaDataMapKeys][1];
+                mediaKey = tagMap[key][kMediaMetaDataMapKeys][1];
                 value = [self stringForKey:mediaKey];
                 if ([value length] > 0) {
                     [components addObject:value];
@@ -313,9 +323,9 @@
             // NOTE: We are possible reducing the accuracy of a DATE as we will only store the year
             // while the original may have had day and month included.
             
-            NSLog(@"setting ID3: \"%@\" = \"%@\"", mp3Key, value);
+            NSLog(@"setting tag: \"%@\" = \"%@\"", key, value);
             taglib_property_set(file,
-                                [mp3Key cStringUsingEncoding:NSUTF8StringEncoding],
+                                [key cStringUsingEncoding:NSUTF8StringEncoding],
                                 [value cStringUsingEncoding:NSUTF8StringEncoding]);
         }
     }
@@ -342,82 +352,15 @@
     return ret;
 }
 
+- (int)writeToMP3FileWithError:(NSError**)error
+{
+    NSDictionary* mp3TagMap = [MediaMetaData mp3TagMap];
+    return [self writeToTagLibFileWithError:error tagMap:mp3TagMap];
+}
+
 - (int)writeToMP4FileWithError:(NSError**)error
 {
-    NSString* path = [self.location path];
-    
-    TagLib_File* file = taglib_file_new([path cStringUsingEncoding:NSUTF8StringEncoding]);
-    
-    if (file == NULL) {
-        NSString* description = @"Cannot open file using tagLib";
-        if (error) {
-            NSDictionary* userInfo = @{
-                NSLocalizedDescriptionKey: description,
-            };
-            *error = [NSError errorWithDomain:[[NSBundle bundleForClass:[self class]] bundleIdentifier]
-                                         code:-1
-                                     userInfo:userInfo];
-        }
-        NSLog(@"error: %@", description);
-        
-        return -1;
-    }
-    
     NSDictionary* mp4TagMap = [MediaMetaData mp4TagMap];
-    
-    for (NSString* mp4Key in [mp4TagMap allKeys]) {
-        // Lets not create records from data we dont need on the destination.
-        NSString* mediaKey = mp4TagMap[mp4Key][kMediaMetaDataMapKeys][0];
-        if ([self valueForKey:mediaKey] == nil) {
-            continue;
-        }
-
-        NSString* type = mp4TagMap[mp4Key][kMediaMetaDataMapKeyType];
-        if ([type isEqualToString:kMediaMetaDataMapTypeImage]) {
-            NSLog(@"setting image data not yet supported");
-        } else {
-            NSString* value = [self stringForKey:mediaKey];
-            
-            if ([type isEqualToString:kMediaMetaDataMapTypeTuple]) {
-                NSMutableArray* components = [NSMutableArray array];
-                [components addObject:value];
-                
-                mediaKey = mp4TagMap[mp4Key][kMediaMetaDataMapKeys][1];
-                value = [self stringForKey:mediaKey];
-                if ([value length] > 0) {
-                    [components addObject:value];
-                }
-                value = [components componentsJoinedByString:@"/"];
-            }
-            // NOTE: We are possible reducing the accuracy of a DATE as we will only store the year
-            // while the original may have had day and month included.
-            
-            NSLog(@"setting tag: \"%@\" = \"%@\"", mp4Key, value);
-            taglib_property_set(file,
-                                [mp4Key cStringUsingEncoding:NSUTF8StringEncoding],
-                                [value cStringUsingEncoding:NSUTF8StringEncoding]);
-        }
-    }
-    
-    int ret = 0;
-    
-    if (!taglib_file_save(file)) {
-        NSString* description = @"Cannot store file using tagLib";
-        if (error) {
-            NSDictionary* userInfo = @{
-                NSLocalizedDescriptionKey: description,
-            };
-            *error = [NSError errorWithDomain:[[NSBundle bundleForClass:[self class]] bundleIdentifier]
-                                         code:-1
-                                     userInfo:userInfo];
-        }
-        NSLog(@"error: %@", description);
-        ret = -1;
-    }
-    
-    taglib_tag_free_strings();
-    taglib_file_free(file);
-    
-    return ret;
+    return [self writeToTagLibFileWithError:error tagMap:mp4TagMap];
 }
 @end

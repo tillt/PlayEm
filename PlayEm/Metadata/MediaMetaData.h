@@ -8,6 +8,7 @@
 
 #import <Foundation/Foundation.h>
 #import <iTunesLibrary/ITLibMediaItem.h>
+#import <iTunesLibrary/ITLibArtwork.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -83,6 +84,8 @@ extern NSString* const kMediaMetaDataMapTypeNumber;
 + (NSDictionary<NSString*, NSDictionary*>*)mediaMetaKeyMap;
 + (NSArray<NSString*>*)mediaMetaKeys;
 + (NSArray<NSString*>*)mediaDataKeysWithFileFormatType:(MediaMetaDataFileFormatType)type;
+
++ (NSString*)mimeTypeForArtworkFormat:(ITLibArtworkFormat)formatNumber;
 
 - (BOOL)isEqualToMediaMetaData:(MediaMetaData*)other;
 - (BOOL)isEqualToMediaMetaData:(MediaMetaData*)other atKey:key;

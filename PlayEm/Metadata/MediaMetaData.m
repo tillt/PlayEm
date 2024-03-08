@@ -11,7 +11,6 @@
 #import <AVFoundation/AVFoundation.h>
 #import <iTunesLibrary/ITLibArtist.h>
 #import <iTunesLibrary/ITLibAlbum.h>
-#import <iTunesLibrary/ITLibArtwork.h>
 
 #import <Cocoa/Cocoa.h>
 #import <objc/runtime.h>
@@ -323,6 +322,48 @@ NSString* const kMediaMetaDataMapTypeNumber = @"number";
     return supportedKeys;
 }
 
++ (ITLibArtworkFormat)artworkFormatForData:(NSData*)data
+{
+    uint8_t c;
+
+    [data getBytes:&c length:1];
+
+    switch(c) {
+        case 0xFF:
+            return ITLibArtworkFormatJPEG;
+        case 0x89:
+            return ITLibArtworkFormatPNG;
+        case 0x47:
+            return ITLibArtworkFormatGIF;
+        case 0x49:
+        case 0x4D:
+            return ITLibArtworkFormatTIFF;
+        default:
+            return ITLibArtworkFormatNone;
+    }
+    return ITLibArtworkFormatNone;
+}
+
++ (NSString*)mimeTypeForArtworkFormat:(ITLibArtworkFormat)format
+{
+    NSDictionary* mimeMap = @{
+        @(ITLibArtworkFormatJPEG): @"image/jpeg",
+        @(ITLibArtworkFormatGIF): @"image/gif",
+        @(ITLibArtworkFormatPNG): @"image/png",
+        @(ITLibArtworkFormatTIFF): @"image/tiff",
+    };
+    
+    return mimeMap[@(format)];
+}
+
+- (NSString*)mimeTypeForArtwork
+{
+    if (self.artwork == nil) {
+        return nil;
+    }
+    return [MediaMetaData mimeTypeForArtworkFormat:[self.artworkFormat integerValue]];
+}
+
 - (NSString* _Nullable)title
 {
     if (_shadow == nil) {
@@ -553,14 +594,23 @@ NSString* const kMediaMetaDataMapTypeNumber = @"number";
     if (_artwork == nil) {
         if (_shadow.hasArtworkAvailable) {
             _artwork = _shadow.artwork.imageData;
-            _artworkFormat = [NSNumber numberWithInteger:_shadow.artwork.imageDataFormat];
-        } else {
-            _artwork = nil;
-            _artworkFormat = [NSNumber numberWithInteger:ITLibArtworkFormatNone];
         }
     }
     
     return _artwork;
+}
+
+- (NSNumber* _Nullable)artworkFormat
+{
+    if (_shadow != nil) {
+        _artworkFormat = [NSNumber numberWithInteger:_shadow.artwork.imageDataFormat];
+    }
+    
+    if (_artworkFormat == nil && _artwork != nil) {
+        _artworkFormat = [NSNumber numberWithInteger:[MediaMetaData artworkFormatForData:self.artwork]];
+    }
+    
+    return _artworkFormat;
 }
 
 - (NSImage*)imageFromArtwork
@@ -780,7 +830,7 @@ NSString* const kMediaMetaDataMapTypeNumber = @"number";
         return [self writeToMP3FileWithError:error] == 0;
     }
     if (type == MediaMetaDataFileFormatTypeMP4) {
-        return [self writeToMP4FileWithError:error];
+        return [self writeToMP4FileWithError:error] == 0;
     }
     
     NSString* description = [NSString stringWithFormat:@"Unsupport filetype for modifying metadata"];

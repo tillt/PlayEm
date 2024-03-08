@@ -31,7 +31,7 @@ NSString* const kMediaMetaDataMapKeyMP3 = @"mp3";
 NSString* const kMediaMetaDataMapKeyMP4 = @"mp4";
 NSString* const kMediaMetaDataMapKeyType = @"type";
 NSString* const kMediaMetaDataMapKeyKey = @"key";
-NSString* const kMediaMetaDataMapKeyKeySpace = @"keySpace";
+//NSString* const kMediaMetaDataMapKeyKeySpace = @"keySpace";
 NSString* const kMediaMetaDataMapKeyIdentifier = @"identifier";
 NSString* const kMediaMetaDataMapKeyKeys = @"keys";
 NSString* const kMediaMetaDataMapKeyOrder = @"order";
@@ -42,8 +42,8 @@ NSString* const kMediaMetaDataMapTypeTuple = @"tuple";
 NSString* const kMediaMetaDataMapTypeTuple48 = @"tuple48";
 NSString* const kMediaMetaDataMapTypeTuple64 = @"tuple64";
 NSString* const kMediaMetaDataMapTypeNumber = @"number";
-NSString* const kMediaMetaDataMapTypeNumber8 = @"number8";
-NSString* const kMediaMetaDataMapTypeNumber16 = @"number16";
+//NSString* const kMediaMetaDataMapTypeNumber8 = @"number8";
+//NSString* const kMediaMetaDataMapTypeNumber16 = @"number16";
 
 @implementation MediaMetaData
 
@@ -125,7 +125,6 @@ NSString* const kMediaMetaDataMapTypeNumber16 = @"number16";
             },
             kMediaMetaDataMapKeyMP4: @{
                 kMediaMetaDataMapKeyKey: AVMetadataiTunesMetadataKeyAlbum,
-                kMediaMetaDataMapKeyKeySpace: AVMetadataKeySpaceiTunes,
             },
         },
         @"albumArtist": @{
@@ -134,7 +133,6 @@ NSString* const kMediaMetaDataMapTypeNumber16 = @"number16";
             },
             kMediaMetaDataMapKeyMP4: @{
                 kMediaMetaDataMapKeyKey: AVMetadataiTunesMetadataKeyAlbumArtist,
-                kMediaMetaDataMapKeyKeySpace: AVMetadataKeySpaceiTunes,
             },
         },
         @"artist": @{
@@ -143,7 +141,6 @@ NSString* const kMediaMetaDataMapTypeNumber16 = @"number16";
             },
             kMediaMetaDataMapKeyMP4: @{
                 kMediaMetaDataMapKeyKey: AVMetadataiTunesMetadataKeyArtist,
-                kMediaMetaDataMapKeyKeySpace: AVMetadataKeySpaceiTunes,
             },
         },
         @"artwork": @{
@@ -153,7 +150,6 @@ NSString* const kMediaMetaDataMapTypeNumber16 = @"number16";
             },
             kMediaMetaDataMapKeyMP4: @{
                 kMediaMetaDataMapKeyKey: AVMetadataiTunesMetadataKeyCoverArt,
-                kMediaMetaDataMapKeyKeySpace: AVMetadataKeySpaceiTunes,
                 kMediaMetaDataMapKeyType: kMediaMetaDataMapTypeImage,
             },
         },
@@ -163,7 +159,6 @@ NSString* const kMediaMetaDataMapTypeNumber16 = @"number16";
             },
             kMediaMetaDataMapKeyMP4: @{
                 kMediaMetaDataMapKeyKey: AVMetadataiTunesMetadataKeyUserComment,
-                kMediaMetaDataMapKeyKeySpace: AVMetadataKeySpaceiTunes,
             },
         },
         @"composer": @{
@@ -172,7 +167,6 @@ NSString* const kMediaMetaDataMapTypeNumber16 = @"number16";
             },
             kMediaMetaDataMapKeyMP4: @{
                 kMediaMetaDataMapKeyKey: AVMetadataiTunesMetadataKeyComposer,
-                kMediaMetaDataMapKeyKeySpace: AVMetadataKeySpaceiTunes,
             },
         },
         @"compilation": @{
@@ -181,8 +175,7 @@ NSString* const kMediaMetaDataMapTypeNumber16 = @"number16";
             },
             kMediaMetaDataMapKeyMP4: @{
                 kMediaMetaDataMapKeyKey: AVMetadataiTunesMetadataKeyDiscCompilation,
-                kMediaMetaDataMapKeyKeySpace: AVMetadataKeySpaceiTunes,
-                kMediaMetaDataMapKeyType: kMediaMetaDataMapTypeNumber8,
+                kMediaMetaDataMapKeyType: kMediaMetaDataMapTypeNumber,
             },
         },
         @"lyrics": @{
@@ -191,7 +184,6 @@ NSString* const kMediaMetaDataMapTypeNumber16 = @"number16";
             },
             kMediaMetaDataMapKeyMP4: @{
                 kMediaMetaDataMapKeyKey: AVMetadataiTunesMetadataKeyLyrics,
-                kMediaMetaDataMapKeyKeySpace: AVMetadataKeySpaceiTunes,
             },
         },
         @"label": @{
@@ -200,7 +192,6 @@ NSString* const kMediaMetaDataMapTypeNumber16 = @"number16";
             },
             kMediaMetaDataMapKeyMP4: @{
                 kMediaMetaDataMapKeyKey: AVMetadataiTunesMetadataKeyRecordCompany,
-                kMediaMetaDataMapKeyKeySpace: AVMetadataKeySpaceiTunes,
             },
         },
         @"disk": @{
@@ -211,8 +202,7 @@ NSString* const kMediaMetaDataMapTypeNumber16 = @"number16";
             },
             kMediaMetaDataMapKeyMP4: @{
                 kMediaMetaDataMapKeyKey: AVMetadataiTunesMetadataKeyDiscNumber,
-                kMediaMetaDataMapKeyKeySpace: AVMetadataKeySpaceiTunes,
-                kMediaMetaDataMapKeyType: kMediaMetaDataMapTypeTuple48,
+                kMediaMetaDataMapKeyType: kMediaMetaDataMapTypeTuple,
                 kMediaMetaDataMapKeyOrder: @0,
             },
         },
@@ -224,8 +214,7 @@ NSString* const kMediaMetaDataMapTypeNumber16 = @"number16";
             },
             kMediaMetaDataMapKeyMP4: @{
                 kMediaMetaDataMapKeyKey: AVMetadataiTunesMetadataKeyDiscNumber,
-                kMediaMetaDataMapKeyKeySpace: AVMetadataKeySpaceiTunes,
-                kMediaMetaDataMapKeyType: kMediaMetaDataMapTypeTuple48,
+                kMediaMetaDataMapKeyType: kMediaMetaDataMapTypeTuple,
                 kMediaMetaDataMapKeyOrder: @1,
             },
         },
@@ -240,7 +229,6 @@ NSString* const kMediaMetaDataMapTypeNumber16 = @"number16";
             },
             kMediaMetaDataMapKeyMP4: @{
                 kMediaMetaDataMapKeyKey: AVMetadataiTunesMetadataKeyUserGenre,
-                kMediaMetaDataMapKeyKeySpace: AVMetadataKeySpaceiTunes,
             },
         },
         @"key": @{
@@ -254,8 +242,7 @@ NSString* const kMediaMetaDataMapTypeNumber16 = @"number16";
             },
             kMediaMetaDataMapKeyMP4: @{
                 kMediaMetaDataMapKeyKey: AVMetadataiTunesMetadataKeyBeatsPerMin,
-                kMediaMetaDataMapKeyKeySpace: AVMetadataKeySpaceiTunes,
-                kMediaMetaDataMapKeyType: kMediaMetaDataMapTypeNumber16,
+                kMediaMetaDataMapKeyType: kMediaMetaDataMapTypeNumber,
             },
         },
         @"title": @{
@@ -264,7 +251,6 @@ NSString* const kMediaMetaDataMapTypeNumber16 = @"number16";
             },
             kMediaMetaDataMapKeyMP4: @{
                 kMediaMetaDataMapKeyKey: AVMetadataiTunesMetadataKeySongName,
-                kMediaMetaDataMapKeyKeySpace: AVMetadataKeySpaceiTunes,
             },
         },
         @"track": @{
@@ -275,8 +261,7 @@ NSString* const kMediaMetaDataMapTypeNumber16 = @"number16";
             },
             kMediaMetaDataMapKeyMP4: @{
                 kMediaMetaDataMapKeyKey: AVMetadataiTunesMetadataKeyTrackNumber,
-                kMediaMetaDataMapKeyKeySpace: AVMetadataKeySpaceiTunes,
-                kMediaMetaDataMapKeyType: kMediaMetaDataMapTypeTuple64,
+                kMediaMetaDataMapKeyType: kMediaMetaDataMapTypeTuple,
                 kMediaMetaDataMapKeyOrder: @0,
             },
         },
@@ -288,8 +273,7 @@ NSString* const kMediaMetaDataMapTypeNumber16 = @"number16";
             },
             kMediaMetaDataMapKeyMP4: @{
                 kMediaMetaDataMapKeyKey: AVMetadataiTunesMetadataKeyTrackNumber,
-                kMediaMetaDataMapKeyKeySpace: AVMetadataKeySpaceiTunes,
-                kMediaMetaDataMapKeyType: kMediaMetaDataMapTypeTuple64,
+                kMediaMetaDataMapKeyType: kMediaMetaDataMapTypeTuple,
                 kMediaMetaDataMapKeyOrder: @1,
             },
         },
@@ -300,7 +284,7 @@ NSString* const kMediaMetaDataMapTypeNumber16 = @"number16";
             },
             kMediaMetaDataMapKeyMP4: @{
                 kMediaMetaDataMapKeyKey: AVMetadataiTunesMetadataKeyReleaseDate,
-                kMediaMetaDataMapKeyKeySpace: AVMetadataKeySpaceiTunes,
+                kMediaMetaDataMapKeyType: kMediaMetaDataMapTypeDate,
             },
         },
     };
@@ -651,7 +635,8 @@ NSString* const kMediaMetaDataMapTypeNumber16 = @"number16";
         return valueObject;
     }
     
-    if ([valueObject isKindOfClass:[NSNumber class]] && [valueObject intValue] > 0) {
+    if ([valueObject isKindOfClass:[NSNumber class]] && 
+        [valueObject intValue] > 0) {
         return [valueObject stringValue];
     }
     

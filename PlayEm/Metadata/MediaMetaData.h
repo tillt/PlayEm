@@ -35,7 +35,6 @@ extern NSString* const kMediaMetaDataMapKeyMP3;
 extern NSString* const kMediaMetaDataMapKeyMP4;
 extern NSString* const kMediaMetaDataMapKeyType;
 extern NSString* const kMediaMetaDataMapKeyKey;
-extern NSString* const kMediaMetaDataMapKeyKeySpace;
 extern NSString* const kMediaMetaDataMapKeyKeys;
 extern NSString* const kMediaMetaDataMapKeyOrder;
 extern NSString* const kMediaMetaDataMapKeyIdentifier;
@@ -43,11 +42,7 @@ extern NSString* const kMediaMetaDataMapTypeString;
 extern NSString* const kMediaMetaDataMapTypeDate;
 extern NSString* const kMediaMetaDataMapTypeImage;
 extern NSString* const kMediaMetaDataMapTypeTuple;
-extern NSString* const kMediaMetaDataMapTypeTuple48;
-extern NSString* const kMediaMetaDataMapTypeTuple64;
 extern NSString* const kMediaMetaDataMapTypeNumber;
-extern NSString* const kMediaMetaDataMapTypeNumber8;
-extern NSString* const kMediaMetaDataMapTypeNumber16;
 
 
 

@@ -103,8 +103,8 @@ typedef enum : NSUInteger {
         color = focussed;
     }
 
-    [color setStroke];
     [color setFill];
+    [color setStroke];
 
     RoundingMask roundingMask = RoundedNone;
 

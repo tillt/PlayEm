@@ -17,6 +17,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (NSArray<MediaMetaData*>*)selectedSongMetas;
 - (NSArray<NSString*>*)knownGenres;
 - (void)metaChangedForMeta:(MediaMetaData *)meta updatedMeta:(MediaMetaData *)updatedMeta;
+- (void)finalizeMetaUpdates;
 @end
 
 @interface InfoPanelController : NSViewController <NSTextFieldDelegate, NSTextViewDelegate, NSTabViewDelegate, NSComboBoxDataSource, NSComboBoxDelegate>

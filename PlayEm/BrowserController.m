@@ -204,8 +204,6 @@
     [filtered replaceObjectAtIndex:index withObject:updatedMeta];
     NSLog(@"replaced metadata in filteredObject %p with %p", meta, updatedMeta);
     self.filteredItems = filtered;
-
-    [self reloadData];
 }
 
 - (NSMutableArray*)cacheFromiTunesLibrary:(ITLibrary*)library

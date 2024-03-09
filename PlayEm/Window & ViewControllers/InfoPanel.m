@@ -539,6 +539,7 @@ NSString* const kInfoNumberMultipleValues = @"-";
                 MediaMetaData* meta = dict[@"old"];
                 [self.delegate metaChangedForMeta:meta updatedMeta:patchedMeta];
             }
+            [self.delegate finalizeMetaUpdates];
             self.metas = [self.delegate selectedSongMetas];
         });
     });
@@ -715,6 +716,7 @@ NSString* const kInfoNumberMultipleValues = @"-";
                 MediaMetaData* meta = dict[@"old"];
                 [self.delegate metaChangedForMeta:meta updatedMeta:patchedMeta];
             }
+            [self.delegate finalizeMetaUpdates];
             self.metas = [self.delegate selectedSongMetas];
             callback();
         });

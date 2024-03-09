@@ -422,6 +422,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     _songsCount.textColor = [NSColor tertiaryLabelColor];
     _songsCount.bordered = NO;
     _songsCount.alignment = NSTextAlignmentCenter;
+    _songsCount.selectable = NO;
     _songsCount.autoresizingMask = NSViewWidthSizable;
     
     [self.window.contentView addSubview:_songsCount];
@@ -566,6 +567,8 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     _genreTable.style = NSTableViewStyleAutomatic;
     _genreTable.backgroundColor = [NSColor clearColor];
     _genreTable.tag = VIEWTAG_GENRE;
+    _genreTable.style = NSTableViewStylePlain;
+
     
     col = [[NSTableColumn alloc] init];
     col.title = @"Genre";
@@ -586,6 +589,8 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     _artistsTable = [[NSTableView alloc] initWithFrame:NSZeroRect];
     _artistsTable.tag = VIEWTAG_ARTISTS;
     _artistsTable.backgroundColor = [NSColor clearColor];
+    _artistsTable.style = NSTableViewStylePlain;
+
     col = [[NSTableColumn alloc] init];
     col.title = @"Artist";
     col.width = selectorTableViewWidth - selectorColumnInset;
@@ -604,6 +609,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     _albumsTable = [[NSTableView alloc] initWithFrame:sv.bounds];
     _albumsTable.tag = VIEWTAG_ALBUMS;
     _albumsTable.backgroundColor = [NSColor clearColor];
+    _albumsTable.style = NSTableViewStylePlain;
     col = [[NSTableColumn alloc] init];
     col.title = @"Album";
     col.width = selectorTableViewWidth - selectorColumnInset;
@@ -622,6 +628,8 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     _temposTable = [[NSTableView alloc] initWithFrame:sv.bounds];
     _temposTable.tag = VIEWTAG_TEMPO;
     _temposTable.backgroundColor = [NSColor clearColor];
+    _temposTable.style = NSTableViewStylePlain;
+
     col = [[NSTableColumn alloc] init];
     col.title = @"BPM";
     col.width = selectorTableViewHalfWidth - selectorColumnInset;
@@ -640,6 +648,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     _keysTable = [[NSTableView alloc] initWithFrame:NSZeroRect];
     _keysTable.tag = VIEWTAG_KEY;
     _keysTable.backgroundColor = [NSColor clearColor];
+    _keysTable.style = NSTableViewStylePlain;
     col = [[NSTableColumn alloc] init];
     col.title = @"Key";
     col.width = selectorTableViewHalfWidth - selectorColumnInset;
@@ -667,6 +676,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     _songsTable.autosaveName = @"SongsTable";
     _songsTable.autosaveTableColumns = YES;
     _songsTable.allowsMultipleSelection = YES;
+    _songsTable.style = NSTableViewStylePlain;
 
     col = [[NSTableColumn alloc] initWithIdentifier:@"TrackCell"];
     col.title = @"Track";
@@ -719,7 +729,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     col = [[NSTableColumn alloc] initWithIdentifier:@"KeyCell"];
     col.title = @"Key";
     col.width = keyColumnWidth - selectorColumnInset;
-    //col.sortDescriptorPrototype = [[NSSortDescriptor alloc] initWithKey:@"key" ascending:YES selector:@selector(compare:)];
+    col.sortDescriptorPrototype = [[NSSortDescriptor alloc] initWithKey:@"key" ascending:YES selector:@selector(compare:)];
     [_songsTable addTableColumn:col];
 
     sv.documentView = _songsTable;
@@ -1843,9 +1853,19 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
 
 - (void)metaChangedForMeta:(MediaMetaData *)meta updatedMeta:(MediaMetaData *)updatedMeta
 {
-    NSLog(@"meta changed - need to update the browser");
+    NSLog(@"meta changed");
+    if (self.meta == meta) {
+        NSLog(@"active meta changed");
+        [self setMeta:updatedMeta];
+    }
+    NSLog(@"need to update the browser");
     [_browser metaChangedForMeta:meta updatedMeta:updatedMeta];
-    [self setMeta:updatedMeta];
+}
+
+- (void)finalizeMetaUpdates
+{
+    NSLog(@"reloading browser");
+    [_browser reloadData];
 }
 
 @end

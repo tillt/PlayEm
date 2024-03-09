@@ -40,6 +40,7 @@ NS_ASSUME_NONNULL_BEGIN
                songsTable:(NSTableView*)songsTable
                  delegate:(id <BrowserControllerDelegate>)delegate;
 - (void)loadITunesLibrary;
+- (void)reloadData;
 - (void)metaChangedForMeta:(MediaMetaData *)meta updatedMeta:(MediaMetaData *)updatedMeta;
 - (NSArray<NSString*>*)knownGenres;
 - (IBAction)playNext:(id)sender;

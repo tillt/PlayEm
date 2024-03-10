@@ -54,7 +54,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (strong, nonatomic) BrowserController* browser;
 
-@property (strong, nonatomic) InfoPanelController* infoPanel;
+//@property (strong, nonatomic) InfoPanelController* infoPanel;
 
 
 @property (strong, nonatomic) ScopeView* smallScopeView;

@@ -74,7 +74,9 @@ os_log_t pointsOfInterest;
 @property (strong, nonatomic) ControlPanelController* controlPanelController;
 
 @property (strong, nonatomic) NSPopover* popOver;
-@property (strong, nonatomic) NSPopover* infoPopOver;
+//@property (strong, nonatomic) NSPopover* infoPopOver;
+
+@property (strong, nonatomic) NSWindowController* infoWindowController;
 
 @property (strong, nonatomic) BeatLayerDelegate* beatLayerDelegate;
 @property (strong, nonatomic) WaveLayerDelegate* waveLayerDelegate;
@@ -319,8 +321,6 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     toolBar.delegate = self;
     self.window.toolbar = toolBar;
 
-    _infoPanel = [[InfoPanelController alloc] initWithDelegate:self];
-    
     _beatLayerDelegate = [BeatLayerDelegate new];
 
     WaveWindowController* __weak weakSelf = self;
@@ -1170,22 +1170,21 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
 
 - (void)showInfo:(id)sender
 {
-    [_infoPanel view];
-    
-    _infoPopOver = [[NSPopover alloc] init];
-    _infoPopOver.contentViewController = _infoPanel;
-    _infoPopOver.contentSize = _infoPanel.view.bounds.size;
-    _infoPopOver.animates = YES;
-    _infoPopOver.behavior = NSPopoverBehaviorTransient;
+    InfoPanelController* info = [[InfoPanelController alloc] initWithDelegate:self];
 
-    NSRect entryRect = NSMakeRect(105.0,
-                                  self.window.contentView.frame.size.height - 3.0,
-                                  2.0,
-                                  2.0);
-   
-    [_infoPopOver showRelativeToRect:entryRect
-                              ofView:self.window.contentView
-                       preferredEdge:NSMinYEdge];
+    self.infoWindowController = [NSWindowController new];
+
+    NSWindow* window = [NSWindow windowWithContentViewController:info];
+    window.titleVisibility = NSWindowTitleHidden;
+    window.movableByWindowBackground = YES;
+    window.titlebarAppearsTransparent = YES;
+    [window standardWindowButton:NSWindowZoomButton].hidden = YES;
+    [window standardWindowButton:NSWindowCloseButton].hidden = YES;
+    [window standardWindowButton:NSWindowMiniaturizeButton].hidden = YES;
+    
+    _infoWindowController.window = window;
+
+    [_infoWindowController showWindow:self];
 }
 
 - (void)showPlaylist:(id)sender

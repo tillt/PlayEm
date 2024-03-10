@@ -57,28 +57,6 @@ const size_t kMaxFramesPerBuffer = 16384;
     return self;
 }
 
-//+ (void)abort
-//{
-//    NSLog(@"aborting decoding synchronously");
-//    if (_queueOperation != NULL) {
-//        dispatch_block_cancel(_queueOperation);
-//    }
-//}
-//
-//+ (void)abortWithContinuation:(nonnull void (^)(void))block
-//{
-//    NSLog(@"aborting decoding with continuation");
-//    if (_queueOperation != NULL) {
-//        dispatch_block_cancel(_queueOperation);
-//        dispatch_block_notify(_queueOperation, dispatch_get_main_queue(), ^{
-//            _queueOperation = NULL;
-//            block();
-//        });
-//    } else {
-//        block();
-//    }
-//}
-
 - (void)abortWithCallback:(void (^)(void))callback;
 {
     if (_queueOperation != NULL) {

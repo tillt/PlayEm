@@ -70,6 +70,7 @@ typedef enum : NSUInteger {
     } else {
         [path lineToPoint:CGPointMake(selectionRect.origin.x + selectionRect.size.width, selectionRect.origin.y + selectionRect.size.height)];
         [path lineToPoint:CGPointMake(selectionRect.origin.x, selectionRect.origin.y + selectionRect.size.height)];
+        //[path moveToPoint:CGPointMake(selectionRect.origin.x, selectionRect.origin.y + selectionRect.size.height)];
     }
 
     if (roundAtTop) {
@@ -83,7 +84,7 @@ typedef enum : NSUInteger {
         [path lineToPoint:CGPointMake(selectionRect.origin.x, selectionRect.origin.y)];
     }
 
-    [path closePath];
+    //[path closePath];
 
     return path;
 }

@@ -25,9 +25,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (readonly, assign, nonatomic) AVAudioFormat* format;
 
-//+ (void)abort;
-//+ (void)abortWithContinuation:(nonnull void (^)(void))block;
-
 - (void)abortWithCallback:(void (^)(void))callback;
 
 - (id)initWithPath:(NSString*)path error:(NSError**)error;

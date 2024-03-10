@@ -120,7 +120,7 @@ static const double kLevelDecreaseValue = 0.042;
     dispatch_semaphore_t _inFlightSemaphore;
     id <MTLDevice> _device;
     id <MTLCommandQueue> _commandQueue;
-
+    
     id <MTLBuffer> _dynamicUniformBuffer;
     //id <MTLBuffer> _sampleUniformBuffer;
     id <MTLBuffer> _frequencyUniformBuffer;
@@ -206,6 +206,7 @@ static NSSize _originalSize __attribute__((unused)) = {0.0,0.0};
             _originalSize.width = view.frame.size.width;
             _originalSize.height = view.frame.size.height;
         }
+        
         [self mtkView:view drawableSizeWillChange:view.frame.size];
 
         //_feedbackColorFactor = vector4(0.974f, 0.92f, 0.2f, 1.0f);
@@ -805,7 +806,6 @@ float rgb_from_srgb(float c)
     /// Respond to drawable size or orientation changes here
     ///
     ///
-    
     float widthFactor = size.width / view.bounds.size.width;
     float heightFactor = size.height / view.bounds.size.height;
     
@@ -820,35 +820,26 @@ float rgb_from_srgb(float c)
     _frequencyLineWidth = (frequencyLineWidth - spaceWidth) / size.width;
     
     float sigma = ScaleWithOriginalFrame(0.7f, _originalSize.width, size.width);
-    _blur = [[MPSImageGaussianBlur alloc] initWithDevice:_device sigma:sigma];
-    _blur.edgeMode = MPSImageEdgeModeClamp;
-//    float width = (((ceil(scaleWithOriginalFrame(5.0f, _originalSize.height, _originalSize.height + size.height / 50.0f))) / 2) * 2) + 1;
-//    float height = (((ceil(scaleWithOriginalFrame(3.0f, _originalSize.height, _originalSize.height + size.height / 50.0f))) / 2) * 2) + 1;
-//    float width = (((ceil(scaleWithOriginalFrame(5.0f, _originalSize.height, size.height))) / 2) * 2) + 1;
-//    float height = (((ceil(scaleWithOriginalFrame(3.0f, _originalSize.height, size.height))) / 2) * 2) + 1;
 
-//    float width = (((ceil(scaleWithOriginalFrame(5.0f, _originalSize.height * _originalSize.width, size.height * size.width))) / 2) * 2) + 1;
-//    float height = (((ceil(scaleWithOriginalFrame(3.0f, _originalSize.height * _originalSize.width, size.height * size.width))) / 2) * 2) + 1;
-      float width = (((ceil(ScaleWithOriginalFrame(3.0f, _originalSize.height, _originalSize.height + (size.height/30) ))) / 2) * 2) + 1;
-      float height = (((ceil(ScaleWithOriginalFrame(3.0f, _originalSize.height, _originalSize.height + (size.height/30) ))) / 2) * 2) + 1;
-//    float width = 5.0f;
-//    float height = 3.0f;
+    @synchronized (self) {
+        _blur = [[MPSImageGaussianBlur alloc] initWithDevice:_device sigma:sigma];
+        _blur.edgeMode = MPSImageEdgeModeClamp;
+    };
 
-    _erode = [[MPSImageAreaMin alloc] initWithDevice:_device kernelWidth:width kernelHeight:height];
-//    width = ((((int)ceil(scaleWithOriginalFrame(31.0f, _originalSize.height, _originalSize.height + size.height / 50.0f))) / 2) * 2) + 1;
-//    height = ((((int)ceil(scaleWithOriginalFrame(17.0f, _originalSize.height, _originalSize.height + size.height / 50.0f))) / 2) * 2) + 1;
-//    width = ((((int)ceil(scaleWithOriginalFrame(31.0f, _originalSize.height, _originalSize.height + (size.height / 2.0)))) / 2) * 2) + 1;
-//    height = ((((int)ceil(scaleWithOriginalFrame(17.0f, _originalSize.height, _originalSize.height + ( size.height / 2.0)))) / 2) * 2) + 1;
+    float width = (((ceil(ScaleWithOriginalFrame(3.0f, _originalSize.height, _originalSize.height + (size.height/30) ))) / 2) * 2) + 1;
+    float height = (((ceil(ScaleWithOriginalFrame(3.0f, _originalSize.height, _originalSize.height + (size.height/30) ))) / 2) * 2) + 1;
 
-    //width = ((((int)ceil(scaleWithOriginalFrame(31.0f, _originalSize.height, _originalSize.height))) / 2) * 2) + 1;
-//    width = ((((int)ceil(scaleWithOriginalFrame(17.0f, _originalSize.height * _originalSize.width, size.height * size.width))) / 2) * 2) + 1;
-//    height = ((((int)ceil(scaleWithOriginalFrame(17.0f, _originalSize.height * _originalSize.width, size.height * size.width))) / 2) * 2) + 1;
+    @synchronized (self) {
+        _erode = [[MPSImageAreaMin alloc] initWithDevice:_device kernelWidth:width kernelHeight:height];
+    };
 
     width = ((((int)ceil(ScaleWithOriginalFrame(17.0f, _originalSize.height, _originalSize.height + (size.height/30) ))) / 2) * 2) + 1;
     height = ((((int)ceil(ScaleWithOriginalFrame(17.0f, _originalSize.height, _originalSize.height + (size.height/30) ))) / 2) * 2) + 1;
 
-    _bloom = [[MPSImageBox alloc] initWithDevice:_device kernelWidth:width kernelHeight:height];
-    
+    @synchronized (self) {
+        _bloom = [[MPSImageBox alloc] initWithDevice:_device kernelWidth:width kernelHeight:height];
+    };
+
     _projectionMatrix = matrix_orthographic(-size.width, size.width, size.height, -size.height, 0, 0);
     _projectionMatrix = matrix_multiply(matrix4x4_scale(1.0f, _lineAspectRatio, 0.0), _projectionMatrix);
     _projectionMatrix = matrix_multiply(matrix4x4_scale(widthFactor, heightFactor, 0.0), _projectionMatrix);
@@ -907,10 +898,11 @@ float rgb_from_srgb(float c)
     }
 
     {
-        /// Second pass rendering code: Scope bloom
-        [_bloom encodeToCommandBuffer:commandBuffer
-                             sourceTexture:_scopeTargetTexture
-                        destinationTexture:_bufferTexture];
+        @synchronized (self) {
+            [_bloom encodeToCommandBuffer:commandBuffer
+                                 sourceTexture:_scopeTargetTexture
+                            destinationTexture:_bufferTexture];
+        }
     }
 
     {
@@ -970,15 +962,17 @@ float rgb_from_srgb(float c)
     }
     
     {
-        /// Fifth pass rendering code: Scope with last scope bloom again
-        [_bloom encodeToCommandBuffer:commandBuffer
-                             sourceTexture:_composeTargetTexture
-                        destinationTexture:_bufferTexture];
-
-        /// Sixths pass rendering code: Scope with last scope erode to reduce artefact creep
-        [_erode encodeToCommandBuffer:commandBuffer
-                             sourceTexture:_bufferTexture
-                        destinationTexture:_lastTexture];
+        @synchronized (self) {
+            /// Fifth pass rendering code: Scope with last scope bloom again
+            [_bloom encodeToCommandBuffer:commandBuffer
+                            sourceTexture:_composeTargetTexture
+                       destinationTexture:_bufferTexture];
+            
+            /// Sixths pass rendering code: Scope with last scope erode to reduce artefact creep
+            [_erode encodeToCommandBuffer:commandBuffer
+                            sourceTexture:_bufferTexture
+                       destinationTexture:_lastTexture];
+        }
     }
 
     {
@@ -1009,10 +1003,12 @@ float rgb_from_srgb(float c)
     }
 
     {
-        /// Eigths pass rendering code: Frequency and last frequencies blur.
-        [_blur encodeToCommandBuffer:commandBuffer
-                             sourceTexture:_frequenciesComposeTargetTexture
-                        destinationTexture:_lastFrequenciesTexture];
+        @synchronized (self) {
+            /// Eigths pass rendering code: Frequency and last frequencies blur.
+            [_blur encodeToCommandBuffer:commandBuffer
+                           sourceTexture:_frequenciesComposeTargetTexture
+                      destinationTexture:_lastFrequenciesTexture];
+        };
     }
 
     {

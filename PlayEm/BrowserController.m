@@ -957,6 +957,9 @@
 
 - (NSArray<NSString*>*)knownGenres
 {
+    if (_genres.count == 0) {
+        return nil;
+    }
     return [_genres subarrayWithRange:NSMakeRange(1, _genres.count - 1)];
 }
 

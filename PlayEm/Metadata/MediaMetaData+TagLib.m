@@ -287,9 +287,6 @@
     for (NSString* key in [tagMap allKeys]) {
         // Lets not create records from data we dont need on the destination.
         NSString* mediaKey = tagMap[key][kMediaMetaDataMapKeys][0];
-        if ([self valueForKey:mediaKey] == nil) {
-            continue;
-        }
 
         NSString* type = tagMap[key][kMediaMetaDataMapKeyType];
         if ([type isEqualToString:kMediaMetaDataMapTypeImage]) {
@@ -322,11 +319,10 @@
             }
             // NOTE: We are possible reducing the accuracy of a DATE as we will only store the year
             // while the original may have had day and month included.
-            
             NSLog(@"setting tag: \"%@\" = \"%@\"", key, value);
             taglib_property_set(file,
                                 [key cStringUsingEncoding:NSUTF8StringEncoding],
-                                [value cStringUsingEncoding:NSUTF8StringEncoding]);
+                                value.length > 0 ? [value cStringUsingEncoding:NSUTF8StringEncoding] : NULL);
         }
     }
     

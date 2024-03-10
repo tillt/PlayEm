@@ -209,20 +209,7 @@ static NSSize _originalSize __attribute__((unused)) = {0.0,0.0};
         
         [self mtkView:view drawableSizeWillChange:view.frame.size];
 
-        //_feedbackColorFactor = vector4(0.974f, 0.92f, 0.2f, 1.0f);
-
-        //_feedbackColorFactor = vector4(0.9034f, 0.72f, 0.1f, 1.0f);
-
-
-        //_feedbackColorFactor = vector4(0.9288f, 0.82f, 0.17f, 1.0f);
-        //feedbackColorFactor = vector4(0.9588f, 0.82f, 0.07f, 1.0f);
-
         _feedbackColorFactor = vector4(0.9588f, 0.90f, 0.37f, 1.0f);
-
-        //_feedbackColorFactor = vector4(0.9200f, 0.80f, 0.00f, 1.0f);
-
-
-        //_feedbackColorFactor = vector4(0.33f, 0.29f, 0.17f, 1.0f);
         _feedbackProjectionMatrix = matrix4x4_scale(1.0f, 1.0f, 1.0f);
 
         _fftWindow = [[NSMutableData alloc] initWithCapacity:sizeof(float) * kWindowSamples];
@@ -552,6 +539,20 @@ float rgb_from_srgb(float c)
     //scope.paused = YES;
 }
 
+- (void)updateVolumeLevelDisplay:(double)maxValue 
+{
+    // Use a logarithmic scale as that is much closer to what we perceive. Neatly fake
+    // ourselves into the slope.
+    float logval = log10f(10.0 + (maxValue * 100.0f)) - 1.0f;
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if (self.level.doubleValue < logval) {
+            self.level.doubleValue = logval;
+        } else {
+            self.level.doubleValue -= MIN(self.level.doubleValue, kLevelDecreaseValue);
+        }
+    });
+}
+
 - (void)_updateEngine
 {
     /// Update any engine state before encoding rendering commands to our drawable
@@ -785,18 +786,7 @@ float rgb_from_srgb(float c)
         node[i].position[1] = 0.0;
     }
 
-    /// Update the volume level display.
-
-    // Use a logarithmic scale as that is much closer to what we perceive. Neatly fake
-    // ourselves into the slope.
-    float logval = log10f(10.0 + (maxValue * 100.0f)) - 1.0f;
-    dispatch_async(dispatch_get_main_queue(), ^{
-        if (self.level.doubleValue < logval) {
-            self.level.doubleValue = logval;
-        } else {
-            self.level.doubleValue -= MIN(self.level.doubleValue, kLevelDecreaseValue);
-        }
-    });
+    [self updateVolumeLevelDisplay:maxValue];
 }
 
 #pragma mark - MTKViewDelegate

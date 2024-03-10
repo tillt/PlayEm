@@ -356,7 +356,7 @@
 
 - (int)writeToMP4FileWithError:(NSError**)error
 {
-    NSDictionary* mp4TagMap = [MediaMetaData mp4TagMap];
-    return [self writeToTagLibFileWithError:error tagMap:mp4TagMap];
+    NSDictionary* mp3TagMap = [MediaMetaData mp3TagMap];
+    return [self writeToTagLibFileWithError:error tagMap:mp3TagMap];
 }
 @end

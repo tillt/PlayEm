@@ -574,6 +574,11 @@ NSString* const kInfoNumberMultipleValues = @"-";
     });
 }
 
+- (void)viewWillDisappear
+{
+    [[NSApplication sharedApplication] stopModal];
+}
+
 - (void)setMetas:(NSMutableArray<MediaMetaData*>*)metas
 {
     _metas = metas;

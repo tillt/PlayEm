@@ -1170,22 +1170,21 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
 
 - (void)showInfo:(BOOL)processCurrentSong
 {
-    InfoPanelController* info = [[InfoPanelController alloc] initWithDelegate:self];
-    info.processCurrentSong = processCurrentSong;
+    if (_infoWindowController == nil) {
+        InfoPanelController* info = [[InfoPanelController alloc] initWithDelegate:self];
+        self.infoWindowController = [NSWindowController new];
+        NSWindow* window = [NSWindow windowWithContentViewController:info];
+        window.titleVisibility = NSWindowTitleHidden;
+        window.movableByWindowBackground = YES;
+        window.titlebarAppearsTransparent = YES;
+        [window standardWindowButton:NSWindowZoomButton].hidden = YES;
+        [window standardWindowButton:NSWindowCloseButton].hidden = YES;
+        [window standardWindowButton:NSWindowMiniaturizeButton].hidden = YES;
+        _infoWindowController.window = window;
+    }
 
-    self.infoWindowController = [NSWindowController new];
-
-    NSWindow* window = [NSWindow windowWithContentViewController:info];
-    window.titleVisibility = NSWindowTitleHidden;
-    window.movableByWindowBackground = YES;
-    window.titlebarAppearsTransparent = YES;
-    [window standardWindowButton:NSWindowZoomButton].hidden = YES;
-    [window standardWindowButton:NSWindowCloseButton].hidden = YES;
-    [window standardWindowButton:NSWindowMiniaturizeButton].hidden = YES;
-    
-    _infoWindowController.window = window;
-
-    [_infoWindowController showWindow:self];
+    ((InfoPanelController*)_infoWindowController.contentViewController).processCurrentSong = processCurrentSong;
+    [[NSApplication sharedApplication] runModalForWindow:_infoWindowController.window];
 }
 
 - (void)showInfoForCurrentSong:(id)sender

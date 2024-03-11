@@ -1151,17 +1151,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
 
     [_metalWaveView removeFromSuperview];
     _metalWaveView = mwv;
-
-//    if (_audioController && _visualSample) {
-//        [_renderer play:_audioController visual:_visualSample scope:sv];
-//    }
-
-    //[parent addSubview:_controlPanel positioned:NSWindowAbove relativeTo:nil];
-//    [parent addSubview:_effectBelowInfo positioned:NSWindowAbove relativeTo:nil];
-//    assert(_effectBelowPlaylist);
-//    [parent addSubview:_effectBelowPlaylist positioned:NSWindowAbove relativeTo:nil];
 }
-
 
 - (void)setPlaybackActive:(BOOL)active
 {

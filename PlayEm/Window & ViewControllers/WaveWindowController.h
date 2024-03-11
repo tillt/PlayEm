@@ -89,7 +89,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (BOOL)loadDocumentFromURL:(NSURL*)url meta:(nullable MediaMetaData*)meta;
 - (IBAction)toggleFullScreen:(id)sender;
 - (IBAction)loadITunesLibrary:(id)sender;
-- (IBAction)showInfo:(id)sender;
+- (IBAction)showInfoForCurrentSong:(id)sender;
+- (IBAction)showInfoForSelectedSongs:(id)sender;
 - (IBAction)showPlaylist:(id)sender;
 
 @end

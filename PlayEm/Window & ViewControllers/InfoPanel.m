@@ -481,7 +481,12 @@ NSString* const kInfoNumberMultipleValues = @"-";
 {
     NSLog(@"InfoPanel becoming visible");
     
-    NSMutableArray* metas = [NSMutableArray arrayWithArray:[_delegate selectedSongMetas]];
+    NSMutableArray* metas = nil;
+    if (self.processCurrentSong) {
+        metas = [NSMutableArray arrayWithObject:[_delegate currentSongMeta]];
+    } else {
+        metas = [NSMutableArray arrayWithArray:[_delegate selectedSongMetas]];
+    }
     
     if (metas == nil) {
         NSLog(@"No meta available right now");
@@ -559,7 +564,12 @@ NSString* const kInfoNumberMultipleValues = @"-";
                 [self.delegate metaChangedForMeta:meta updatedMeta:patchedMeta];
             }
             [self.delegate finalizeMetaUpdates];
-            self.metas = [self.delegate selectedSongMetas];
+            
+            if (self.processCurrentSong) {
+                self.metas = [NSArray arrayWithObject:[self.delegate currentSongMeta]];
+            } else {
+                self.metas = [self.delegate selectedSongMetas];
+            }
         });
     });
 }

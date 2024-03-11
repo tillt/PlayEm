@@ -98,7 +98,7 @@
    
     _coverButton = [NSButton buttonWithImage:[NSImage imageNamed:@"UnknownSong"]
                                       target:_delegate
-                                      action:@selector(showInfo:)];
+                                      action:@selector(showInfoForCurrentSong:)];
     _coverButton.bezelStyle = NSBezelStyleTexturedSquare;
     _coverButton.imagePosition = NSImageOnly;
     _coverButton.imageScaling = NSImageScaleProportionallyUpOrDown;
@@ -110,6 +110,7 @@
     _coverButton.wantsLayer = YES;
     _coverButton.layer.cornerRadius = 10;
     _coverButton.layer.masksToBounds = NO;
+    _coverButton.enabled = NO;
     [self.view addSubview:_coverButton];
    
     CALayer* layer = [CALayer new];
@@ -341,6 +342,7 @@
         [NSString stringWithFormat:@"%@ — %@", meta.artist, meta.album] :
         (meta.album.length > 0 ? meta.album : (meta.artist.length > 0 ?
                                                meta.artist : @"unknown") );
+    _coverButton.enabled = YES;
 }
 
 @end

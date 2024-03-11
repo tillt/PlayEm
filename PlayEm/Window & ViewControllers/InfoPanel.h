@@ -22,6 +22,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface InfoPanelController : NSViewController <NSTextFieldDelegate, NSTextViewDelegate, NSTabViewDelegate, NSComboBoxDataSource, NSComboBoxDelegate>
 @property (weak, nonatomic) id<InfoPanelControllerDelegate> delegate;
+@property (assign, nonatomic) BOOL processCurrentSong;
 
 - (id)initWithDelegate:(id<InfoPanelControllerDelegate>)delegate;
 

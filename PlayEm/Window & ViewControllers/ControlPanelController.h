@@ -15,7 +15,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @protocol ControlPanelControllerDelegate <NSObject>
 
-- (void)showInfo:(id)sender;
+- (void)showInfoForCurrentSong:(id)sender;
+- (void)showInfoForSelectedSongs:(id)sender;
 - (void)playPause:(id)sender;
 - (void)volumeChange:(id)sender;
 

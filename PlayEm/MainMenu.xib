@@ -319,7 +319,7 @@
                             <menuItem title="Info" id="v5e-hV-TSp">
                                 <modifierMask key="keyEquivalentModifierMask"/>
                                 <connections>
-                                    <action selector="showInfo:" target="-1" id="8X8-Xi-whH"/>
+                                    <action selector="showInfoForSelectedSongs:" target="-1" id="XcS-oG-crW"/>
                                 </connections>
                             </menuItem>
                             <menuItem title="Playlist" id="P7M-Th-XxO" userLabel="Playlist">

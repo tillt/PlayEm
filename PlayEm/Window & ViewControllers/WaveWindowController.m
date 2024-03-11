@@ -409,7 +409,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     [item setKeyEquivalentModifierMask:NSEventModifierFlagCommand];
     [menu addItem:item];
     [menu addItem:[NSMenuItem separatorItem]];
-    [menu addItemWithTitle:@"Show Info" action:@selector(showInfo:) keyEquivalent:@""];
+    [menu addItemWithTitle:@"Show Info" action:@selector(showInfoForSelectedSongs:) keyEquivalent:@""];
     [menu addItem:[NSMenuItem separatorItem]];
     [menu addItemWithTitle:@"Show in Finder" action:@selector(showInFinder:) keyEquivalent:@""];
     
@@ -1168,9 +1168,10 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     _controlPanelController.playPause.state = active ? NSControlStateValueOn : NSControlStateValueOff;
 }
 
-- (void)showInfo:(id)sender
+- (void)showInfo:(BOOL)processCurrentSong
 {
     InfoPanelController* info = [[InfoPanelController alloc] initWithDelegate:self];
+    info.processCurrentSong = processCurrentSong;
 
     self.infoWindowController = [NSWindowController new];
 
@@ -1185,6 +1186,16 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     _infoWindowController.window = window;
 
     [_infoWindowController showWindow:self];
+}
+
+- (void)showInfoForCurrentSong:(id)sender
+{
+    [self showInfo:YES];
+}
+
+- (void)showInfoForSelectedSongs:(id)sender
+{
+    [self showInfo:NO];
 }
 
 - (void)showPlaylist:(id)sender

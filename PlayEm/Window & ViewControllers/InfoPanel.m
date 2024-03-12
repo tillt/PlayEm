@@ -702,8 +702,6 @@ NSString* const kInfoNumberMultipleValues = @"-";
     self.mutatedKeys = [NSMutableDictionary dictionary];
 }
 
-
-
 - (void)okPressed:(id)sender
 {
     // End all editing.

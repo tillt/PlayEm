@@ -38,6 +38,7 @@ NS_ASSUME_NONNULL_BEGIN
               albumsTable:(NSTableView*)albumsTable
               temposTable:(NSTableView*)temposTable
                songsTable:(NSTableView*)songsTable
+                keysTable:(NSTableView*)keysTable
                  delegate:(id <BrowserControllerDelegate>)delegate;
 - (void)loadITunesLibrary;
 - (void)reloadData;

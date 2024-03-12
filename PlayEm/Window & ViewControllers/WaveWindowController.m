@@ -152,15 +152,15 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 - (void)playPrevious:(id)sender
 {
     // Do we have something in our playlist?
-    MediaMetaData* meta = [_playlist previousItem];
-    if (meta == nil) {
-        // Then maybe we can just get the next song from the songs browser list.
-        //- (IBAction)playNext:(id)sender
-        // Find the topmost selected song and use that one to play next.
-        [self stop];
-    }
-
-    [self loadDocumentFromURL:nextMeta.location meta:nextMeta];
+//    MediaMetaData* meta = [_playlist previousItem];
+//    if (meta == nil) {
+//        // Then maybe we can just get the next song from the songs browser list.
+//        //- (IBAction)playNext:(id)sender
+//        // Find the topmost selected song and use that one to play next.
+//        [self stop];
+//    }
+//
+//    [self loadDocumentFromURL:nextMeta.location meta:nextMeta];
 }
 
 - (void)mediaKeyTap:(SPMediaKeyTap*)keyTap receivedMediaKeyEvent:(NSEvent*)event
@@ -860,6 +860,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
                                                   albumsTable:_albumsTable
                                                   temposTable:_temposTable
                                                    songsTable:_songsTable
+                                                    keysTable:_keysTable
                                                      delegate:self];
 
     // Replace the header cell in all of the main tables on this view.
@@ -1286,19 +1287,11 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
                                                              _effectBelowPlaylist.frame.origin.y,
                                                              _effectBelowPlaylist.frame.size.width,
                                                              _effectBelowPlaylist.frame.size.height);
-//            _controlPanel.animator.frame = NSMakeRect(_controlPanel.frame.origin.x,
-//                                                      _controlPanel.frame.origin.y,
-//                                                      maxX - _controlPanel.frame.origin.x,
-//                                                      _controlPanel.frame.size.height);
         } else {
             _effectBelowPlaylist.animator.frame = NSMakeRect(self.window.contentView.frame.origin.x + self.window.contentView.frame.size.width,
                                                              _effectBelowPlaylist.frame.origin.y,
                                                              _effectBelowPlaylist.frame.size.width,
                                                              _effectBelowPlaylist.frame.size.height);
-//            _controlPanel.animator.frame = NSMakeRect(_controlPanel.frame.origin.x,
-//                                                      _controlPanel.frame.origin.y,
-//                                                      maxX - _controlPanel.frame.origin.x,
-//                                                      _controlPanel.frame.size.height);
         }
     } completionHandler:^{
         if (!isShow) {

@@ -56,6 +56,7 @@
               albumsTable:(NSTableView*)albumsTable
               temposTable:(NSTableView*)temposTable
                songsTable:(NSTableView*)songsTable
+                keysTable:(NSTableView*)keysTable
                  delegate:(id<BrowserControllerDelegate>)delegate
 {
     self = [super init];
@@ -89,6 +90,10 @@
         _temposTable = temposTable;
         _temposTable.dataSource = self;
         _temposTable.delegate = self;
+
+        _keysTable = keysTable;
+        _keysTable.dataSource = self;
+        _keysTable.delegate = self;
 
         _songsTable = songsTable;
         _songsTable.dataSource = self;
@@ -392,6 +397,7 @@
         if ((genre == nil || (d.genre && d.genre.length && [d.genre isEqualTo:genre])) &&
             (artist == nil || (d.artist && d.artist.length && [d.artist isEqualTo:artist])) &&
             (album == nil || (d.album && d.album.length && [d.album isEqualTo:album])) &&
+            (key == nil || (d.key && d.key.length && [d.key isEqualTo:key])) &&
             (tempo == nil || (d.tempo && [[d.tempo stringValue] isEqualTo:tempo]))) {
             [filtered addObject:d];
         }
@@ -440,6 +446,9 @@
         if (d.tempo && [d.tempo intValue] > 0) {
             NSString* t = [d.tempo stringValue];
             filteredTempos[t] = t;
+        }
+        if (d.key && d.key.length > 0) {
+            filteredKeys[d.key] = d.key;
         }
         dispatch_async(dispatch_get_main_queue(), ^{
             [self.delegate loadLibraryState:LoadStateLoading 

@@ -37,6 +37,7 @@
 #import "WaveLayerDelegate.h"
 #import "ProfilingPointsOfInterest.h"
 #import "NSAlert+BetterError.h"
+#import "SPMediaKeyTap.h"
 
 #import "MusicAuthenticationController.h"
 
@@ -56,6 +57,8 @@ os_log_t pointsOfInterest;
     BeatEventIterator _beatEffectIteratorContext;
     unsigned long long _beatEffectAtFrame;
     unsigned long long _beatEffectRampUpFrames;
+    
+    BOOL _mediakeyJustJumped;
 }
 
 @property (assign, nonatomic) CGFloat windowBarHeight;
@@ -81,6 +84,8 @@ os_log_t pointsOfInterest;
 @property (strong, nonatomic) BeatLayerDelegate* beatLayerDelegate;
 @property (strong, nonatomic) WaveLayerDelegate* waveLayerDelegate;
 @property (strong, nonatomic) WaveLayerDelegate* totalWaveLayerDelegate;
+
+@property (strong, nonatomic) SPMediaKeyTap* keyTap;
 
 //@property (strong, nonatomic) dispatch_queue_t waveQueue;
 //@property (strong, nonatomic) dispatch_queue_t scopeQueue;
@@ -128,6 +133,77 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
     os_signpost_interval_end(pointsOfInterest, POICADisplayLink, "CADisplayLink");
 
     return kCVReturnSuccess;
+}
+
+- (void)playNext:(id)sender
+{
+    // Do we have something in our playlist?
+    MediaMetaData* meta = [_playlist nextItem];
+    if (meta == nil) {
+        // Then maybe we can just get the next song from the songs browser list.
+        //- (IBAction)playNext:(id)sender
+        // Find the topmost selected song and use that one to play next.
+        [self stop];
+    }
+
+    [self loadDocumentFromURL:meta.location meta:meta];
+}
+
+- (void)playPrevious:(id)sender
+{
+    // Do we have something in our playlist?
+    MediaMetaData* meta = [_playlist previousItem];
+    if (meta == nil) {
+        // Then maybe we can just get the next song from the songs browser list.
+        //- (IBAction)playNext:(id)sender
+        // Find the topmost selected song and use that one to play next.
+        [self stop];
+    }
+
+    [self loadDocumentFromURL:nextMeta.location meta:nextMeta];
+}
+
+- (void)mediaKeyTap:(SPMediaKeyTap*)keyTap receivedMediaKeyEvent:(NSEvent*)event
+{
+    assert([event type] == NSEventTypeSystemDefined && [event subtype] == SPSystemDefinedEventMediaKeys);
+
+    int keyCode = (([event data1] & 0xFFFF0000) >> 16);
+    int keyFlags = ([event data1] & 0x0000FFFF);
+    int keyState = (((keyFlags & 0xFF00) >> 8)) == 0xA;
+    int keyRepeat = (keyFlags & 0x1);
+
+    if (keyCode == NX_KEYTYPE_PLAY && keyState == 0) {
+        [self playPause:self];
+    }
+
+    if ((keyCode == NX_KEYTYPE_FAST || keyCode == NX_KEYTYPE_NEXT) && !_mediakeyJustJumped) {
+        if (keyState == 0 && keyRepeat == 0) {
+            [self playNext:self];
+        } else if (keyRepeat == 1) {
+//                [_playerController jumpForwardShort];
+//                b_mediakeyJustJumped = YES;
+//                [self performSelector:@selector(resetMediaKeyJump)
+//                           withObject: NULL
+//                           afterDelay:0.25];
+        }
+    }
+
+    if ((keyCode == NX_KEYTYPE_REWIND || keyCode == NX_KEYTYPE_PREVIOUS) && !_mediakeyJustJumped) {
+        if (keyState == 0 && keyRepeat == 0) {
+            [self playPrevious:self];
+        } else if (keyRepeat == 1) {
+//            [_playerController jumpBackwardShort];
+            _mediakeyJustJumped = YES;
+            [self performSelector:@selector(resetMediaKeyJump)
+                       withObject: NULL
+                       afterDelay:0.25];
+        }
+    }
+}
+
+- (void)resetMediaKeyJump
+{
+    _mediakeyJustJumped = NO;
 }
 
 - (id)init
@@ -324,6 +400,13 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     _beatLayerDelegate = [BeatLayerDelegate new];
 
     WaveWindowController* __weak weakSelf = self;
+    
+    self.keyTap = [[SPMediaKeyTap alloc] initWithDelegate:self];
+    if([SPMediaKeyTap usesGlobalMediaKeyTap]) {
+        [_keyTap startWatchingMediaKeys];
+    } else {
+        NSLog(@"Media key monitoring disabled");
+    }
 
     self.waveLayerDelegate = [WaveLayerDelegate new];
     self.waveLayerDelegate.offsetBlock = ^CGFloat{

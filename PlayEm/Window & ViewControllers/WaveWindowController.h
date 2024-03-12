@@ -18,6 +18,7 @@
 #import "WaveRenderer.h"
 #import "ControlPanelController.h"
 #import "InfoPanel.h"
+#import "SPMediaKeyTap.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -44,7 +45,8 @@ NS_ASSUME_NONNULL_BEGIN
                                                       ControlPanelControllerDelegate,
                                                       InfoPanelControllerDelegate,
                                                       NSSplitViewDelegate,
-                                                      NSMenuDelegate>
+                                                      NSMenuDelegate,
+                                                      SPMediaKeyTapDelegate>
   
 @property (nonatomic, strong) AudioController* audioController;
 

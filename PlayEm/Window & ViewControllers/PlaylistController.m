@@ -179,7 +179,6 @@
     return result;
 }
 
-
 -(void)tableViewSelectionDidChange:(NSNotification *)notification
 {
     NSTableView* tableView = [notification object];

@@ -924,7 +924,8 @@
 
 - (NSView*)tableView:(NSTableView*)tableView viewForTableColumn:(NSTableColumn *)tableColumn row:(NSInteger)row
 {
-    NSTableCellView *result = [tableView makeViewWithIdentifier:tableColumn.identifier owner:self];
+    NSTableCellView* result = [tableView makeViewWithIdentifier:tableColumn.identifier owner:self];
+
     if (result == nil)
     {
         result = [[NSTableCellView alloc] initWithFrame:NSMakeRect(0.0,
@@ -933,12 +934,15 @@
                                                                    14.0)];
     
         NSTextField* tf = [[NSTextField alloc] initWithFrame:NSInsetRect(result.frame, 0, -4)];
+        tf.autoresizingMask = NSViewWidthSizable;
         tf.editable = NO;
         tf.font = [NSFont systemFontOfSize:11.0];
         tf.drawsBackground = NO;
         tf.bordered = NO;
+        tf.lineBreakMode = NSLineBreakByTruncatingTail;
         tf.textColor = [NSColor secondaryLabelColor];
         [result addSubview:tf];
+        result.autoresizingMask = NSViewHeightSizable | NSViewWidthSizable;
         result.textField = tf;
         result.identifier = tableColumn.identifier;
     }

@@ -639,19 +639,17 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     _splitSelectors.identifier = @"HorizontalSplitters";
     _splitSelectors.dividerStyle = NSSplitViewDividerStyleThin;
     
-    sv = [[NSScrollView alloc] initWithFrame:NSMakeRect(0.0,
-                                                                      0.0,
-                                                                      selectorTableViewWidth,
-                                                                      selectorTableViewHeight)];
+    sv = [[NSScrollView alloc] initWithFrame:NSMakeRect(  0.0,
+                                                          0.0,
+                                                          selectorTableViewWidth,
+                                                          selectorTableViewHeight)];
     sv.hasVerticalScroller = YES;
     sv.autoresizingMask = kViewFullySizeable;
     sv.drawsBackground = NO;
     _genreTable = [[NSTableView alloc] initWithFrame:NSZeroRect];
-    _genreTable.style = NSTableViewStyleAutomatic;
-    _genreTable.backgroundColor = [NSColor clearColor];
     _genreTable.tag = VIEWTAG_GENRE;
+    _genreTable.backgroundColor = [NSColor clearColor];
     _genreTable.style = NSTableViewStylePlain;
-
     
     col = [[NSTableColumn alloc] init];
     col.title = @"Genre";

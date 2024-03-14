@@ -26,6 +26,8 @@ NSString* const kInfoNumberMultipleValues = @"-";
 
 @interface InfoPanelController ()
 
+@property (strong, nonatomic) NSProgressIndicator* progress;
+
 @property (strong, nonatomic) NSImageView* smallCoverView;
 @property (strong, nonatomic) NSImageView* largeCoverView;
 
@@ -388,6 +390,19 @@ NSString* const kInfoNumberMultipleValues = @"-";
 //    view.autoresizingMask = NSViewWidthSizable | NSViewHeightSizable;
 
     NSView* view = [[NSView alloc] initWithFrame:NSMakeRect(0.0,  0.0, self.preferredContentSize.width, self.preferredContentSize.height)];
+    
+    CGFloat progressIndicatorWidth = 32;
+    CGFloat progressIndicatorHeight = 32;
+    _progress = [[NSProgressIndicator alloc] initWithFrame:NSMakeRect((view.frame.size.width - progressIndicatorWidth) / 2.0,
+                                                                      view.frame.size.height - (progressIndicatorHeight + 20.0),
+                                                                      progressIndicatorWidth,
+                                                                      progressIndicatorHeight)];
+    _progress.style = NSProgressIndicatorStyleSpinning;
+    _progress.displayedWhenStopped = NO;
+    _progress.autoresizingMask =  NSViewNotSizable | NSViewMinXMargin | NSViewMaxXMargin| NSViewMinYMargin | NSViewMaxYMargin;
+    _progress.indeterminate = YES;
+
+    [view addSubview:_progress];
 
     _smallCoverView = [NSImageView imageViewWithImage:[NSImage imageNamed:@"UnknownSong"]];
     _smallCoverView.alignment = NSViewHeightSizable | NSViewWidthSizable | NSViewMinYMargin | NSViewMaxYMargin;
@@ -533,7 +548,13 @@ NSString* const kInfoNumberMultipleValues = @"-";
     }
     
     self.deltaMeta = [MediaMetaData new];
+
+    _progress.hidden = NO;
+    [_progress startAnimation:self];
     
+    _titleTextField.stringValue = @"loading...";
+    _artistTextField.stringValue = @"loading...";
+    _albumTextField.stringValue = @"loading...";
     // Lets confirm the metadata from the file itself - iTunes doesnt give us all the
     // beauty we need and it may also rely on outdated informations. iTunes does the
     // same when showing the info from a library entry.
@@ -542,13 +563,11 @@ NSString* const kInfoNumberMultipleValues = @"-";
         NSMutableArray* patchedMetas = [NSMutableArray array];
         for (MediaMetaData* meta in metas) {
             MediaMetaData* patchedMeta = [meta copy];
-            NSLog(@"reading metadata from file");
             if (![patchedMeta readFromFileWithError:&error]) {
                 NSLog(@"no metadata found or failed to read with error: %@", error);
                 continue;
             }
             if ([meta isEqualToMediaMetaData:patchedMeta]) {
-                NSLog(@"nothing changed, skipping patched metadata as it is not patched at all - as far as we can tell now");
                 continue;
             }
             NSMutableDictionary* dict = [NSMutableDictionary dictionary];
@@ -558,7 +577,6 @@ NSString* const kInfoNumberMultipleValues = @"-";
         }
         dispatch_async(dispatch_get_main_queue(), ^{
             for (NSDictionary* dict in patchedMetas) {
-                NSLog(@"InfoPanel gathered differing metadata and informs delegate");
                 MediaMetaData* patchedMeta = dict[@"new"];
                 MediaMetaData* meta = dict[@"old"];
                 [self.delegate metaChangedForMeta:meta updatedMeta:patchedMeta];
@@ -570,6 +588,8 @@ NSString* const kInfoNumberMultipleValues = @"-";
             } else {
                 self.metas = [self.delegate selectedSongMetas];
             }
+            
+            [self.progress stopAnimation:self];
         });
     });
 }

@@ -1928,12 +1928,9 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
 
 - (void)metaChangedForMeta:(MediaMetaData *)meta updatedMeta:(MediaMetaData *)updatedMeta
 {
-    NSLog(@"meta changed");
     if (self.meta == meta) {
-        NSLog(@"active meta changed");
         [self setMeta:updatedMeta];
     }
-    NSLog(@"need to update the browser");
     [_browser metaChangedForMeta:meta updatedMeta:updatedMeta];
 }
 

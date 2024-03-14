@@ -132,6 +132,8 @@
     const char* _Nullable fileName = [path cStringUsingEncoding:NSUTF8StringEncoding];
     NSAssert(fileName != NULL, @"failed to convert filename");
     
+    taglib_set_strings_unicode(FALSE);
+    
     TagLib_File* file = taglib_file_new(fileName);
     if (file == NULL) {
         NSString* description = @"Cannot load file using tagLib";
@@ -182,9 +184,7 @@
                 NSString* values = [NSString stringWithCString:*valPtr
                                                       encoding:NSUTF8StringEncoding];
                 NSDictionary* map = mp3TagMap[key];
-                if (map == nil) {
-                    NSLog(@"ignoring unsupported ID3 tag key: %@ with value(s) \"%@\"", key, values);
-                } else {
+                if (map != nil) {
                     NSString* type = map[kMediaMetaDataMapKeyType];
                     
                     if ([type isEqualToString:kMediaMetaDataMapTypeString]) {
@@ -267,6 +267,8 @@
 {
     NSString* path = [self.location path];
     
+    taglib_set_strings_unicode(TRUE);
+
     TagLib_File* file = taglib_file_new([path cStringUsingEncoding:NSUTF8StringEncoding]);
     
     if (file == NULL) {

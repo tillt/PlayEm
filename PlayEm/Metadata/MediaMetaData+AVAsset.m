@@ -108,12 +108,12 @@
 - (BOOL)readFromAVAsset:(AVAsset *)asset
 {
     NSDictionary* id3Genres = [MediaMetaData id3GenreMap];
-    NSLog(@"read metadata from AVAsset:%@", asset );
+    //NSLog(@"reading metadata from AVAsset:%@", asset );
     // Note, this code uses a pre 10.10 compatible way of parsing the tags - newer versions
     // of macOS do support proper identifiers
     for (NSString* format in [asset availableMetadataFormats]) {
         for (AVMetadataItem* item in [asset metadataForFormat:format]) {
-            NSLog(@"%@ (%@): %@ dataType: %@ extra:%@", [item commonKey], [item keyString], [item value], [item dataType], [item extraAttributes]);
+            //NSLog(@"%@ (%@): %@ dataType: %@ extra:%@", [item commonKey], [item keyString], [item value], [item dataType], [item extraAttributes]);
             if ([item commonKey] == nil) {
                 if ([[item keyString] isEqualToString:@"TYER"] || [[item keyString] isEqualToString:@"@day"]  || [[item keyString] isEqualToString:@"TDRL"] ) {
                     self.year = [NSNumber numberWithInt:[(NSString*)[item value] intValue]];
@@ -146,7 +146,7 @@
                     self.disk = [NSNumber numberWithShort:ntohs(tuple[1])];
                     self.disks = [NSNumber numberWithShort:ntohs(tuple[2])];
                 } else {
-                    NSLog(@"questionable metadata: %@ (%@): %@", [item commonKey], [item keyString], [item value]);
+                    //NSLog(@"ignoring unsupported metadata: %@ (%@): %@", [item commonKey], [item keyString], [item value]);
                 }
             } else if ([[item commonKey] isEqualToString:@"title"]) {
                 self.title = (NSString*)[item value];
@@ -165,16 +165,16 @@
                 self.genre = id3Genres[genreNumber];
             } else if ([[item commonKey] isEqualToString:@"artwork"]) {
                 if (item.dataValue != nil) {
-                    NSLog(@"item.dataValue artwork");
+                    //NSLog(@"item.dataValue artwork");
                     self.artwork = item.dataValue;
                 } else if (item.value != nil) {
-                    NSLog(@"item.value artwork");
+                    //NSLog(@"item.value artwork");
                     self.artwork = (NSData*)item.value;
                 } else {
                     NSLog(@"unknown artwork");
                 }
             } else {
-                NSLog(@"questionable metadata: %@ (%@): %@", [item commonKey], [item keyString], [item value]);
+                //NSLog(@"ignoring unsupported metadata: %@ (%@): %@", [item commonKey], [item keyString], [item value]);
             }
         }
     }
@@ -184,7 +184,7 @@
 - (BOOL)readFromMP4FileWithError:(NSError**)error
 {
     AVAsset* asset = [AVURLAsset URLAssetWithURL:self.location options:nil];
-    NSLog(@"%@", asset);
+    //NSLog(@"%@", asset);
     return [self readFromAVAsset:asset];
 }
 

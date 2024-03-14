@@ -5,7 +5,7 @@
 //  Created by Till Toenshoff on 08.11.20.
 //  Copyright © 2020 Till Toenshoff. All rights reserved.
 //
-
+#include <stdlib.h>
 #import "MediaMetaData.h"
 
 #import <AVFoundation/AVFoundation.h>
@@ -61,13 +61,19 @@ NSString* const kMediaMetaDataMapTypeNumber = @"number";
     
     NSString* fileExtension = [url pathExtension];
     
-    if ([fileExtension isEqualToString:@"mp4"] || [fileExtension isEqualToString:@"m4a"]) {
+    if ([fileExtension isEqualToString:@"mp4"] || [fileExtension isEqualToString:@"m4v"] || [fileExtension isEqualToString:@"m4r"] || [fileExtension isEqualToString:@"m4a"]) {
         return MediaMetaDataFileFormatTypeMP4;
     }
     if ([fileExtension isEqualToString:@"mp3"]) {
         return MediaMetaDataFileFormatTypeMP3;
     }
-    
+    if ([fileExtension isEqualToString:@"aif"] || [fileExtension isEqualToString:@"aiff"]) {
+        return MediaMetaDataFileFormatTypeAIFF;
+    }
+    if ([fileExtension isEqualToString:@"wav"]) {
+        return MediaMetaDataFileFormatTypeWAV;
+    }
+
     NSString* description = [NSString stringWithFormat:@"Unknown file type (%@)", fileExtension];
     if (error) {
         NSDictionary* userInfo = @{
@@ -793,17 +799,116 @@ NSString* const kMediaMetaDataMapTypeNumber = @"number";
     NSAssert(NO, @"should never get here");
 }
 
+- (NSString*)correctedKeyNotation:(NSString*)key
+{
+    NSDictionary* mixWheel = @{
+        @"Abmin": @"1A",
+        //        G♯ minor/A♭ minor,
+        @"G#min": @"1A",
+        @"Bmaj":  @"1B",
+        //        B major/C♭ major,
+        @"Cbmaj": @"1B",
+        @"Ebmin": @"2A",
+        //        D♯ minor/E♭ minor,
+        @"D#min": @"2A",
+        @"F#maj": @"2B",
+        //        F♯ major/G♭ major,
+        @"Gbmaj": @"2B",
+        @"A#min": @"3A",
+        //        A♯ minor/B♭ minor.
+        @"Bbmin": @"3A",
+        @"C#maj": @"3B",
+        //        C♯ major/D♭ major
+        @"Dbmaj": @"3B",
+        @"Fmin":  @"4A",
+        @"Abmaj": @"4B",
+        @"Cmin":  @"5A",
+        @"Ebmaj": @"5B",
+        @"Gmin":  @"6A",
+        @"Bbmaj": @"6B",
+        @"Dmin":  @"7A",
+        @"Fmaj":  @"7B",
+        @"Amin":  @"8A",
+        @"Cmaj":  @"8B",
+        @"Emin":  @"9A",
+        @"Gmaj":  @"9B",
+        @"Bmin":  @"10A",
+        @"Dmaj":  @"10B",
+        @"F#min": @"11A",
+        @"Amaj":  @"11B",
+        @"Dbmin": @"12A",
+        @"Emaj":  @"12B",
+    };
+    
+    if (key == nil || key.length == 0) {
+        return nil;
+    }
+
+    NSArray* properValues = [mixWheel allValues];
+    if ([properValues indexOfObject:key] != NSNotFound) {
+        return key;
+    }
+    
+    NSString* mappedKey = [mixWheel objectForKey:key];
+    if (mappedKey != nil) {
+        return mappedKey;
+    }
+
+    if (key.length > 1) {
+        // Get a possible note specifier.
+        NSString* s = [key substringWithRange:NSMakeRange(1,1)];
+        // We have seen such monster.
+        if ([s isEqualToString:@"o"]) {
+            key = [NSString stringWithFormat:@"%@#%@", [key substringToIndex:1], [key substringFromIndex:2]];
+        }
+    }
+
+    NSString* patchedKey = nil;
+    unichar p = [key characterAtIndex:0];
+    unichar t = [key characterAtIndex:key.length - 1];
+
+    if ((p >= '1' && p <= '9')) {
+        if (t == 'm' || t == 'n') {
+            patchedKey = [NSString stringWithFormat:@"%@A", [key substringToIndex:key.length - 1]];
+        } else {
+            patchedKey = [NSString stringWithFormat:@"%@B", key];
+        }
+        return patchedKey;
+    } if (t == 'm') {
+        patchedKey = [NSString stringWithFormat:@"%@in", key];
+    } else if (t != 'n') {
+        patchedKey = [NSString stringWithFormat:@"%@maj", key];
+    } else {
+        patchedKey = key;
+    }
+    
+    mappedKey = [mixWheel objectForKey:patchedKey];
+    if (mappedKey != nil) {
+        return mappedKey;
+    }
+    
+    NSLog(@"couldnt map key %@ (%@)", key, patchedKey);
+    return key;
+}
+
 - (BOOL)readFromFileWithError:(NSError**)error
 {
     MediaMetaDataFileFormatType type = [MediaMetaData fileTypeWithURL:self.location error:error];
+    
+    BOOL ret = NO;
     if (type == MediaMetaDataFileFormatTypeMP3) {
-        return [self readFromMP3FileWithError:error] == 0;
+        ret = [self readFromMP3FileWithError:error] == 0;
     }
     if (type == MediaMetaDataFileFormatTypeMP4) {
-        return [self readFromMP4FileWithError:error];
+        ret = [self readFromMP4FileWithError:error];
     }
-    NSAssert(NO, @"should not have gotten here");
-    return NO;
+    if (type == MediaMetaDataFileFormatTypeWAV || type == MediaMetaDataFileFormatTypeAIFF) {
+        ret = [self readFromMP3FileWithError:error];
+    }
+    if (ret == YES) {
+        _key = [self correctedKeyNotation:_key];
+    }
+    return ret;
 }
 
 - (BOOL)writeToFileWithError:(NSError**)error

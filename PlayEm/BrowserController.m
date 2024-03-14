@@ -119,20 +119,56 @@
     NSMutableArray<MediaMetaData*>* __block cachedLibrary = _cachedLibrary;
     NSArray<MediaMetaData*>* __block filteredItems = _filteredItems;
 
+    NSString* genre = _genresTable.selectedRow > 0 ? _genres[_genresTable.selectedRow] : nil;
+    NSString* artist = _artistsTable.selectedRow > 0 ? _artists[_artistsTable.selectedRow] : nil;
+    NSString* album = _albumsTable.selectedRow > 0 ? _albums[_albumsTable.selectedRow] : nil;
+    NSString* tempo = _temposTable.selectedRow > 0 ? _tempos[_temposTable.selectedRow] : nil;
+    NSString* key = _keysTable.selectedRow > 0 ? _keys[_keysTable.selectedRow] : nil;
+    
     dispatch_async(_filterQueue, ^{
-        // Apply sorting.
-        filteredItems = [cachedLibrary sortedArrayUsingDescriptors:descriptors];
+        // Apply filtering and sorting.
+        filteredItems = [[weakSelf filterMediaItems:cachedLibrary
+                                              genre:genre
+                                             artist:artist
+                                              album:album
+                                              tempo:tempo
+                                                key:key] sortedArrayUsingDescriptors:descriptors];
 
+        // This weird construct shall assure that we only reload those columns that are
+        // undetermined by a selection with a priority built in. 
+        // That means that if the user selected an `album` but nothing else, `reloadData`
+        // will re-populate the `tempos` and the `keys` columns. If the user had selected a
+        // `genre` but nothing else, all but the `genres` column get reloaded. If the user
+        // selected a `key` but nothing else, nothing gets reloaded.
+        NSMutableArray* destGenres = nil;
+        NSMutableArray* destArtists = nil;
+        NSMutableArray* destAlbums = nil;
+        NSMutableArray* destTempos = nil;
+        NSMutableArray* destKeys = nil;
+        if (key == nil) {
+            destKeys = weakSelf.keys;
+            if (tempo == nil) {
+                destTempos = weakSelf.tempos;
+                if (album == nil) {
+                    destAlbums = weakSelf.albums;
+                    if (artist == nil) {
+                        destArtists = weakSelf.artists;
+                        if (genre == nil) {
+                            destGenres = weakSelf.genres;
+                        }
+                    }
+                }
+            }
+        }
         [weakSelf columnsFromMediaItems:filteredItems
-                                 genres:weakSelf.genres
-                                artists:weakSelf.artists
-                                 albums:weakSelf.albums
-                                 tempos:weakSelf.tempos
-                                   keys:weakSelf.keys];
-        
+                                 genres:destGenres
+                                artists:destArtists
+                                 albums:destAlbums
+                                 tempos:destTempos
+                                   keys:destKeys];
+
         dispatch_async(dispatch_get_main_queue(), ^{
             weakSelf.filteredItems = filteredItems;
-            weakSelf.cachedLibrary = cachedLibrary;
 
             NSIndexSet* genreSelections = [self->_genresTable selectedRowIndexes];
             NSIndexSet* artistSelections = [self->_artistsTable selectedRowIndexes];
@@ -201,13 +237,13 @@
     NSUInteger index = [self.cachedLibrary indexOfObject:meta];
     NSAssert(index != NSNotFound, @"MediaMetaData %p updated does not exist in cached library", meta);
     [self.cachedLibrary replaceObjectAtIndex:index withObject:updatedMeta];
-    NSLog(@"replaced metadata in cachedLibrary %p with %p", meta, updatedMeta);
+    //NSLog(@"replaced metadata in cachedLibrary %p with %p", meta, updatedMeta);
 
     NSMutableArray* filtered = [NSMutableArray arrayWithArray:_filteredItems];
     index = [filtered indexOfObject:meta];
     NSAssert(index != NSNotFound, @"MediaMetaData %p updated does not exist in filtered library", meta);
     [filtered replaceObjectAtIndex:index withObject:updatedMeta];
-    NSLog(@"replaced metadata in filteredObject %p with %p", meta, updatedMeta);
+    //NSLog(@"replaced metadata in filteredObject %p with %p", meta, updatedMeta);
     self.filteredItems = filtered;
 }
 
@@ -522,7 +558,7 @@
 
     NSArray<NSSortDescriptor*>* descriptors = [_songsTable sortDescriptors];
 
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
+    dispatch_async(_filterQueue, ^{
         weakSelf.filteredItems = [[self filterMediaItems:weakSelf.cachedLibrary
                                                   genre:genre
                                                  artist:artist
@@ -591,7 +627,7 @@
 
     NSArray<NSSortDescriptor*>* descriptors = [_songsTable sortDescriptors];
 
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
+    dispatch_async(_filterQueue, ^{
         weakSelf.filteredItems = [[weakSelf filterMediaItems:weakSelf.cachedLibrary
                                                       genre:genre
                                                      artist:artist
@@ -652,7 +688,7 @@
 
     NSArray<NSSortDescriptor*>* descriptors = [_songsTable sortDescriptors];
 
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
+    dispatch_async(_filterQueue, ^{
         weakSelf.filteredItems = [[weakSelf filterMediaItems:weakSelf.cachedLibrary
                                                        genre:genre
                                                       artist:artist
@@ -699,13 +735,13 @@
     NSString* genre = _genresTable.selectedRow > 0 ? _genres[_genresTable.selectedRow] : nil;
     NSString* artist = _artistsTable.selectedRow > 0 ? _artists[_artistsTable.selectedRow] : nil;
     NSString* album = _albumsTable.selectedRow > 0 ? _albums[_albumsTable.selectedRow] : nil;
-    NSString* tempo = _temposTable.selectedRow > 0 ? _tempos[row] : nil;
+    NSString* tempo = _temposTable.selectedRow > 0 ? _tempos[_temposTable.selectedRow] : nil;
     NSString* key = row > 0 ? _keys[row] : nil;
 
     BrowserController* __weak weakSelf = self;
     NSArray<NSSortDescriptor*>* descriptors = [_songsTable sortDescriptors];
 
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
+    dispatch_async(_filterQueue, ^{
         weakSelf.filteredItems = [[weakSelf filterMediaItems:weakSelf.cachedLibrary
                                                        genre:genre
                                                       artist:artist
@@ -735,7 +771,7 @@
     BrowserController* __weak weakSelf = self;
     NSArray<NSSortDescriptor*>* descriptors = [_songsTable sortDescriptors];
 
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
+    dispatch_async(_filterQueue, ^{
         weakSelf.filteredItems = [[weakSelf filterMediaItems:weakSelf.cachedLibrary
                                                        genre:genre
                                                       artist:artist
@@ -764,7 +800,6 @@
             self->_updatingKeys = YES;
             [weakSelf.keysTable selectRowIndexes:zeroSet byExtendingSelection:NO];
             self->_updatingKeys = NO;
-
         });
     });
     return;
@@ -796,6 +831,9 @@
 
     NSTableView* tableView = [notification object];
     NSInteger row = [tableView selectedRow];
+    if (row == -1) {
+        return;
+    }
 
     switch(tableView.tag) {
         case VIEWTAG_GENRE:
@@ -820,6 +858,9 @@
 
 - (BOOL)tableView:(NSTableView*)tableView shouldSelectRow:(NSInteger)row
 {
+    if (row == -1) {
+        return NO;
+    }
     switch(tableView.tag) {
         case VIEWTAG_GENRE: {
             return YES;
@@ -978,7 +1019,6 @@
     [self.songsTable.selectedRowIndexes enumerateIndexesWithOptions:NSEnumerationReverse
                                                          usingBlock:^(NSUInteger idx, BOOL *stop) {
         MediaMetaData* meta = self.filteredItems[idx];
-        NSLog(@"selected meta %@", meta);
         [metas addObject:meta];
     }];
     return metas;

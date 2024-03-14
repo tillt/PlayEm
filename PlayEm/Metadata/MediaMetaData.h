@@ -97,6 +97,8 @@ extern NSString* const kMediaMetaDataMapTypeNumber;
 
 - (BOOL)readFromFileWithError:(NSError**)error;
 - (BOOL)writeToFileWithError:(NSError**)error;
+
+- (NSString*)correctedKeyNotation:(NSString*)key;
 @end
 
 NS_ASSUME_NONNULL_END

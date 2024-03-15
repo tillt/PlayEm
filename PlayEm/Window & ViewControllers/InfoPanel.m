@@ -344,7 +344,7 @@ NSString* const kInfoNumberMultipleValues = @"-";
                                        imageWidth);
     _largeCoverView.wantsLayer = YES;
     _largeCoverView.layer.borderColor = [NSColor separatorColor].CGColor;
-    _largeCoverView.layer.borderWidth = 1.0f;
+    _largeCoverView.layer.borderWidth = 2.0f;
     _largeCoverView.layer.cornerRadius = 7.0f;
     _largeCoverView.layer.masksToBounds = YES;
     [view addSubview:_largeCoverView];
@@ -562,9 +562,10 @@ NSString* const kInfoNumberMultipleValues = @"-";
     _titleTextField.stringValue = @"loading...";
     _artistTextField.stringValue = @"loading...";
     _albumTextField.stringValue = @"loading...";
-    // Lets confirm the metadata from the file itself - iTunes doesnt give us all the
+    // Lets confirm the metadata from the files - iTunes doesnt give us all the
     // beauty we need and it may also rely on outdated informations. iTunes does the
-    // same when showing the info from a library entry.
+    // same when showing the info from a library entry - it reads up the latest info
+    // from the song file metadata.
     dispatch_async(_metaIOQueue, ^{
         NSError* error = nil;
         NSMutableArray* patchedMetas = [NSMutableArray array];
@@ -606,18 +607,37 @@ NSString* const kInfoNumberMultipleValues = @"-";
     [[NSApplication sharedApplication] stopModal];
 }
 
-- (void)setMetas:(NSMutableArray<MediaMetaData*>*)metas
+- (void)updateViewHeader:(NSMutableDictionary<NSString *,NSNumber *> *)deltaKeys occurances:(NSMutableDictionary<NSString *,NSMutableDictionary *> *)occurances 
 {
-    _metas = metas;
-
-    if (self.view == nil) {
-        return;
+    if (![deltaKeys[@"artwork"] boolValue] && _commonMeta.artwork != nil) {
+        _largeCoverView.image = [_commonMeta imageFromArtwork];
+        _smallCoverView.image = [_commonMeta imageFromArtwork];
+    } else {
+        _largeCoverView.image = [NSImage imageNamed:@"UnknownSong"];
+        _smallCoverView.image = [NSImage imageNamed:@"UnknownSong"];
     }
     
-    if ([_metas count] == 0) {
-        return;
+    if ([_metas count] > 1) {
+        _titleTextField.stringValue = [NSString stringWithFormat:@"%ld artists selected", [[occurances[@"artist"] allKeys] count] ];
+    } else {
+        _titleTextField.stringValue = _commonMeta.title;
     }
+    
+    if ([_metas count] > 1) {
+        _artistTextField.stringValue = [NSString stringWithFormat:@"%ld albums selected", [[occurances[@"album"] allKeys] count]];
+    } else {
+        _artistTextField.stringValue = _commonMeta.artist;
+    }
+    
+    if ([_metas count] == 1) {
+        _albumTextField.stringValue = _commonMeta.album;
+    } else {
+        _albumTextField.stringValue = [NSString stringWithFormat:@"%ld songs selected", [_metas count]];
+    }
+}
 
+- (void)updateControls
+{
     // Identify any meta that is common / not common in the given list.
     NSMutableDictionary<NSString*,NSNumber*>* deltaKeys = [NSMutableDictionary dictionary];
     //NSMutableDictionary<NSString*,NSNumber*>* commonKeys = [NSMutableDictionary dictionary];
@@ -636,54 +656,29 @@ NSString* const kInfoNumberMultipleValues = @"-";
             if (dictionary == nil) {
                 dictionary = [NSMutableDictionary dictionary];
             }
-            
             NSString* stringValue = [meta stringForKey:key];
-            dictionary[stringValue] = @"1";
+            dictionary[stringValue] = @YES;
             occurances[key] = dictionary;
         }
     }
- 
-    if (![deltaKeys[@"artwork"] boolValue] && _commonMeta.artwork != nil) {
-        _largeCoverView.image = [_commonMeta imageFromArtwork];
-        _smallCoverView.image = [_commonMeta imageFromArtwork];
-    } else {
-        _largeCoverView.image = [NSImage imageNamed:@"UnknownSong"];
-        _smallCoverView.image = [NSImage imageNamed:@"UnknownSong"];
-    }
-
-    if ([_metas count] > 1) {
-        _titleTextField.stringValue = [NSString stringWithFormat:@"%ld artists selected", [[occurances[@"artist"] allKeys] count] ];
-    } else {
-        _titleTextField.stringValue = _commonMeta.title;
-    }
-
-    if ([_metas count] > 1) {
-        _artistTextField.stringValue = [NSString stringWithFormat:@"%ld albums selected", [[occurances[@"album"] allKeys] count]];
-    } else {
-        _artistTextField.stringValue = _commonMeta.artist;
-    }
-
-    if ([_metas count] == 1) {
-        _albumTextField.stringValue = _commonMeta.album;
-    } else {
-        _albumTextField.stringValue = [NSString stringWithFormat:@"%ld songs selected", [_metas count]];
-    }
     
+    [self updateViewHeader:deltaKeys occurances:occurances];
+
     if (![deltaKeys[@"lyrics"] boolValue] && _commonMeta.lyrics != nil) {
         [_lyricsTextView setString:_commonMeta.lyrics];
     } else {
         [_lyricsTextView setString:@""];
         if ([deltaKeys[@"lyrics"] boolValue]) {
-            NSColor* color = [NSColor secondaryLabelColor];
             NSDictionary* attrs = @{
-                NSForegroundColorAttributeName: color,
+                NSForegroundColorAttributeName: [NSColor tertiaryLabelColor],
                 NSFontAttributeName: [NSFont systemFontOfSize:[NSFont systemFontSize]],
             };
             _lyricsTextView.placeholderAttributedString = [[NSAttributedString alloc] initWithString:kInfoTextMultipleValues
                                                                                           attributes:attrs];
         }
     }
-
+    self.deltaKeys = deltaKeys;
+    
     NSArray<NSString*>* keys = [_viewControls allKeys];
     
     for (NSString* key in keys) {
@@ -691,7 +686,7 @@ NSString* const kInfoNumberMultipleValues = @"-";
         if (control == nil) {
             continue;
         }
-
+        
         if ([deltaKeys objectForKey:key] == nil) {
             // The meta data in question is common.
             NSString* value = @"";
@@ -714,9 +709,8 @@ NSString* const kInfoNumberMultipleValues = @"-";
             }
             NSString* placeHolder = [_viewConfiguration[kInfoPageKeyDetails][key] objectForKey:@"placeholder"];
             if (placeHolder != nil && [control respondsToSelector:@selector(cell)]) {
-                NSColor* color = [NSColor tertiaryLabelColor];
                 NSDictionary* attrs = @{
-                    NSForegroundColorAttributeName: color,
+                    NSForegroundColorAttributeName: [NSColor tertiaryLabelColor],
                     NSFontAttributeName: [NSFont systemFontOfSize:[NSFont systemFontSize]],
                 };
                 NSTextFieldCell* cell = [control cell];
@@ -725,7 +719,22 @@ NSString* const kInfoNumberMultipleValues = @"-";
             }
         }
     }
-    self.deltaKeys = deltaKeys;
+}
+
+- (void)setMetas:(NSMutableArray<MediaMetaData*>*)metas
+{
+    _metas = metas;
+
+    if (self.view == nil) {
+        return;
+    }
+    
+    if ([_metas count] == 0) {
+        return;
+    }
+
+    [self updateControls];
+
     self.mutatedKeys = [NSMutableDictionary dictionary];
 }
 
@@ -744,7 +753,7 @@ NSString* const kInfoNumberMultipleValues = @"-";
                 dataValue = self.deltaMeta.artwork;
                 NSLog(@"applying the meta image change");
             } else {
-                NSString* stringValue = [self.deltaMeta stringForKey:key];
+                stringValue = [self.deltaMeta stringForKey:key];
                 NSLog(@"applying the meta change for %@ towards \"%@\"", key, stringValue);
             }
             for (MediaMetaData* meta in self.metas) {
@@ -752,12 +761,11 @@ NSString* const kInfoNumberMultipleValues = @"-";
                 if (patchedMeta == nil) {
                     patchedMeta = [meta copy];
                 }
-                if (stringValue != nil) {
-                    [patchedMeta updateWithKey:key string:stringValue];
-                    patchedMetas[meta.location] = patchedMeta;
-                }
                 if (dataValue != nil) {
                     patchedMeta.artwork = dataValue;
+                    patchedMetas[meta.location] = patchedMeta;
+                } else {
+                    [patchedMeta updateWithKey:key string:stringValue];
                     patchedMetas[meta.location] = patchedMeta;
                 }
             }
@@ -823,17 +831,34 @@ NSString* const kInfoNumberMultipleValues = @"-";
     NSString* stringValue = [textField stringValue];
     
     [self patchMetasAtKey:key string:stringValue];
+    textField.placeholderAttributedString = nil;
+}
+
+- (void)controlTextDidChange:(NSNotification *)notification
+{
+    NSTextField* textField = [notification object];
+//    NSString *key = nil;
+//    for (NSString* k in [_viewControls allKeys]) {
+//        if ([_viewControls valueForKey:k] == textField) {
+//            key = k;
+//            break;
+//        }
+//    }
+//    NSAssert(key != nil, @"couldnt find the key for the control that triggered the notification");
+
+    textField.placeholderAttributedString = nil;
 }
 
 #pragma mark - NSTextView delegate
 
 - (void)textDidEndEditing:(NSNotification *)notification
 {
-    NSTextView* textView = [notification object];
+    TextViewWithPlaceholder* textView = [notification object];
     
     NSString* stringValue = textView.string;
     
     [self patchMetasAtKey:@"lyrics" string:stringValue];
+    //textView.placeholderAttributedString = nil;
 }
 
 #pragma mark - NSComboBox delegate
@@ -881,6 +906,7 @@ NSString* const kInfoNumberMultipleValues = @"-";
     if (data == nil) {
         return NO;
     }
+    // Handrolled `patchMetaAsKey:string:` for `artwork` data.
     _deltaMeta.artwork = data;
     _mutatedKeys[@"artwork"] = @YES;
 

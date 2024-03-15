@@ -296,6 +296,8 @@
     _genres = [NSMutableArray array];
     _artists = [NSMutableArray array];
     _albums = [NSMutableArray array];
+    _keys = [NSMutableArray array];
+    _tempos = [NSMutableArray array];
     
     [_genresTable beginUpdates];
     [_genresTable selectRowIndexes:zeroSet byExtendingSelection:NO];

@@ -540,13 +540,13 @@ NSString* const kInfoNumberMultipleValues = @"-";
     [self.tabView addTabViewItem:_lyricsTabViewItem];
     [self loadLyricsWithView:_lyricsTabViewItem.view];
 
-    if ([metas count] == 1) {
-        vc = [NSViewController new];
-        self.fileTabViewItem = [NSTabViewItem tabViewItemWithViewController:vc];
-        [_fileTabViewItem setLabel:kInfoPageKeyFile];
-        [self.tabView addTabViewItem:_fileTabViewItem];
-        [self loadFileWithView:_fileTabViewItem.view];
-    }
+//    if ([metas count] == 1) {
+//        vc = [NSViewController new];
+//        self.fileTabViewItem = [NSTabViewItem tabViewItemWithViewController:vc];
+//        [_fileTabViewItem setLabel:kInfoPageKeyFile];
+//        [self.tabView addTabViewItem:_fileTabViewItem];
+//        [self loadFileWithView:_fileTabViewItem.view];
+//    }
 
     [self.view addSubview:_tabView];
 

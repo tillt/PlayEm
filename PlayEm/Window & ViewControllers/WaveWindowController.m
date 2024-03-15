@@ -968,8 +968,8 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     CGRect contentRect = [self.window contentRectForFrameRect:rect];
     _windowBarHeight = self.window.frame.size.height - contentRect.size.height;
 
-    //[self.window registerForDraggedTypes:[NSArray arrayWithObjects: NSPasteboardTypeFileURL, NSPasteboardTypeSound, nil]];
-    //self.window.delegate = self;
+    [self.window registerForDraggedTypes:[NSArray arrayWithObjects: NSPasteboardTypeFileURL, NSPasteboardTypeSound, nil]];
+    self.window.delegate = self;
 
     _playlist = [[PlaylistController alloc] initWithPlaylistTable:_playlistTable delegate:self];
 

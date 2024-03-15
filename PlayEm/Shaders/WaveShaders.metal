@@ -69,8 +69,6 @@ vertex ColorInOut waveTileVertexShader(const constant VisualPair* pairs [[ buffe
   
     const float top = pairs[instance].negativeAverage - uniforms.lineWidth;
     const float bottom = pairs[instance].positiveAverage + uniforms.lineWidth;
-//    const float top = -1.0;
-//    const float bottom = 1.0;
 
     float4 startPosition = matrix * float4(x, top, 0.0f, 1.0f);
     float4 endPosition = matrix * float4(x, bottom, 0.0f, 1.0f);

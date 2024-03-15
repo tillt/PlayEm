@@ -344,8 +344,6 @@ NSString* const kMediaMetaDataMapTypeNumber = @"number";
         case 0x49:
         case 0x4D:
             return ITLibArtworkFormatTIFF;
-        default:
-            return ITLibArtworkFormatNone;
     }
     return ITLibArtworkFormatNone;
 }
@@ -608,12 +606,12 @@ NSString* const kMediaMetaDataMapTypeNumber = @"number";
 
 - (NSNumber* _Nullable)artworkFormat
 {
-    if (_shadow != nil) {
-        _artworkFormat = [NSNumber numberWithInteger:_shadow.artwork.imageDataFormat];
+    if (_shadow == nil) {
+        return _artworkFormat;
     }
     
-    if (_artworkFormat == nil && _artwork != nil) {
-        _artworkFormat = [NSNumber numberWithInteger:[MediaMetaData artworkFormatForData:self.artwork]];
+    if (_artworkFormat == nil) {
+        _artworkFormat = [NSNumber numberWithInteger:_shadow.artwork.imageDataFormat];
     }
     
     return _artworkFormat;

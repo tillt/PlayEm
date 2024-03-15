@@ -763,6 +763,8 @@ NSString* const kInfoNumberMultipleValues = @"-";
                 }
                 if (dataValue != nil) {
                     patchedMeta.artwork = dataValue;
+                    ITLibArtworkFormat format = [MediaMetaData artworkFormatForData:dataValue];
+                    patchedMeta.artworkFormat = [NSNumber numberWithInteger:format];
                     patchedMetas[meta.location] = patchedMeta;
                 } else {
                     [patchedMeta updateWithKey:key string:stringValue];

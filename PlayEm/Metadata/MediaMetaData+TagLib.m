@@ -267,7 +267,7 @@
 {
     NSString* path = [self.location path];
     
-    taglib_set_strings_unicode(TRUE);
+    //taglib_set_strings_unicode(TRUE);
 
     TagLib_File* file = taglib_file_new([path cStringUsingEncoding:NSUTF8StringEncoding]);
     
@@ -294,7 +294,8 @@
         if ([type isEqualToString:kMediaMetaDataMapTypeImage]) {
             unsigned int imageFormat = [self.artworkFormat intValue];
             NSString* mimeType = [MediaMetaData mimeTypeForArtworkFormat:imageFormat];
-            const char* m = [mimeType cStringUsingEncoding:NSStringEncodingConversionAllowLossy];
+            NSAssert(mimeType != nil, @"no mime type known for this picture");
+            const char* m = [mimeType cStringUsingEncoding:NSUTF8StringEncoding];
             TAGLIB_COMPLEX_PROPERTY_PICTURE(props,
                                             self.artwork.bytes,
                                             (unsigned int)self.artwork.length,

@@ -86,6 +86,7 @@ extern NSString* const kMediaMetaDataMapTypeNumber;
 + (NSArray<NSString*>*)mediaDataKeysWithFileFormatType:(MediaMetaDataFileFormatType)type;
 
 + (NSString*)mimeTypeForArtworkFormat:(ITLibArtworkFormat)formatNumber;
++ (ITLibArtworkFormat)artworkFormatForData:(NSData*)data;
 
 - (BOOL)isEqualToMediaMetaData:(MediaMetaData*)other;
 - (BOOL)isEqualToMediaMetaData:(MediaMetaData*)other atKey:key;

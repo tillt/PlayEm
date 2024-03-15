@@ -53,6 +53,8 @@ NSString* const kInfoNumberMultipleValues = @"-";
 @property (strong, nonatomic) NSTextField* artistTextField;
 @property (strong, nonatomic) NSTextField* albumTextField;
 
+@property (strong, nonatomic) NSButton* googleArtwork;
+
 @property (strong, nonatomic) NSDictionary* viewConfiguration;
 @property (strong, nonatomic) NSDictionary* deltaKeys;
 @property (strong, nonatomic) NSMutableDictionary* mutatedKeys;
@@ -330,10 +332,24 @@ NSString* const kInfoNumberMultipleValues = @"-";
     y += kRowSpace;
 }
 
+-(void)googleArtwork:(id)sender
+{
+    NSString* insert = [NSString stringWithFormat:@"\"%@\"+\"%@\"", self.commonMeta.title, self.commonMeta.artist];
+    NSString* urlPath = [NSString stringWithFormat:@"https://www.google.com/search?tbm=isch&q=%@", insert];
+    [[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:urlPath]];
+}
+
 - (void)loadArtworkWithView:(NSView*)view
 {
     const CGFloat imageWidth = 400.0;
-    
+
+    _googleArtwork = [NSButton buttonWithTitle:@"google" target:self action:@selector(googleArtwork:)];
+    _googleArtwork.frame = CGRectMake(view.bounds.size.width - (40.0 + 80.0),
+                                      view.bounds.size.height - 70.0,
+                                      80.0,
+                                      23.0f);
+    [view addSubview:_googleArtwork];
+
     _largeCoverView = [DragImageFileView new];
     _largeCoverView.image = [NSImage imageNamed:@"UnknownSong"];
     _largeCoverView.alignment = NSViewHeightSizable | NSViewWidthSizable | NSViewMinYMargin | NSViewMaxYMargin;
@@ -848,7 +864,7 @@ NSString* const kInfoNumberMultipleValues = @"-";
 //    }
 //    NSAssert(key != nil, @"couldnt find the key for the control that triggered the notification");
 
-    textField.placeholderAttributedString = nil;
+//    textField.placeholderAttributedString = nil;
 }
 
 #pragma mark - NSTextView delegate
@@ -911,6 +927,8 @@ NSString* const kInfoNumberMultipleValues = @"-";
     // Handrolled `patchMetaAsKey:string:` for `artwork` data.
     _deltaMeta.artwork = data;
     _mutatedKeys[@"artwork"] = @YES;
+    _deltaMeta.artworkFormat = [NSNumber numberWithInteger:[MediaMetaData artworkFormatForData:data]];
+    _mutatedKeys[@"artworkFormat"] = @YES;
 
     NSImage* image = [_deltaMeta imageFromArtwork];
     self.largeCoverView.image = image;

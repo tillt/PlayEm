@@ -8,6 +8,8 @@
 
 #import <Cocoa/Cocoa.h>
 
+#import "DragImageFileView.h"
+
 NS_ASSUME_NONNULL_BEGIN
 
 @class MediaMetaData;
@@ -20,7 +22,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)finalizeMetaUpdates;
 @end
 
-@interface InfoPanelController : NSViewController <NSTextFieldDelegate, NSTextViewDelegate, NSTabViewDelegate, NSComboBoxDataSource, NSComboBoxDelegate>
+@interface InfoPanelController : NSViewController <NSTextFieldDelegate, NSTextViewDelegate, NSTabViewDelegate, NSComboBoxDataSource, NSComboBoxDelegate, DragImageFileViewDelegate>
 @property (weak, nonatomic) id<InfoPanelControllerDelegate> delegate;
 @property (assign, nonatomic) BOOL processCurrentSong;
 

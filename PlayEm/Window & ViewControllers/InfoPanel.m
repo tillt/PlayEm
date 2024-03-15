@@ -9,6 +9,7 @@
 #import "InfoPanel.h"
 #import "MediaMetaData.h"
 #import "TextViewWithPlaceholder.h"
+#import "DragImageFileView.h"
 
 typedef enum : NSUInteger {
     InfoControlTypeText,
@@ -29,7 +30,7 @@ NSString* const kInfoNumberMultipleValues = @"-";
 @property (strong, nonatomic) NSProgressIndicator* progress;
 
 @property (strong, nonatomic) NSImageView* smallCoverView;
-@property (strong, nonatomic) NSImageView* largeCoverView;
+@property (strong, nonatomic) DragImageFileView* largeCoverView;
 
 @property (strong, nonatomic) TextViewWithPlaceholder* lyricsTextView;
 
@@ -332,8 +333,9 @@ NSString* const kInfoNumberMultipleValues = @"-";
 - (void)loadArtworkWithView:(NSView*)view
 {
     const CGFloat imageWidth = 400.0;
-       
-    _largeCoverView = [NSImageView imageViewWithImage:[NSImage imageNamed:@"UnknownSong"]];
+    
+    _largeCoverView = [DragImageFileView new];
+    _largeCoverView.image = [NSImage imageNamed:@"UnknownSong"];
     _largeCoverView.alignment = NSViewHeightSizable | NSViewWidthSizable | NSViewMinYMargin | NSViewMaxYMargin;
     _largeCoverView.imageScaling = NSImageScaleProportionallyUpOrDown;
     _largeCoverView.frame = CGRectMake((self.view.bounds.size.width - (imageWidth + 20.0)) / 2.0f,
@@ -345,8 +347,13 @@ NSString* const kInfoNumberMultipleValues = @"-";
     _largeCoverView.layer.borderWidth = 1.0f;
     _largeCoverView.layer.cornerRadius = 7.0f;
     _largeCoverView.layer.masksToBounds = YES;
-    
     [view addSubview:_largeCoverView];
+    
+    _largeCoverView.delegate = self;
+    
+    NSArray *dragTypes = [NSArray arrayWithObjects:NSCreateFileContentsPboardType(@"jpeg"), NSCreateFileContentsPboardType(@"jpg"), NSCreateFileContentsPboardType(@"png"), nil];
+    [_largeCoverView registerForDraggedTypes:dragTypes];
+    _largeCoverView.allowsCutCopyPaste = YES;
 }
 
 - (void)loadLyricsWithView:(NSView*)view
@@ -415,7 +422,7 @@ NSString* const kInfoNumberMultipleValues = @"-";
 
     CGFloat fontSize = 24.0f;
     CGFloat x = imageWidth + 40.0;
-    CGFloat fieldWidth = view.frame.size.width - (imageWidth + 100.0);
+    CGFloat fieldWidth = view.frame.size.width - (imageWidth + 40.0);
     CGFloat y = view.frame.size.height - 30.0;
 
     NSTextField* textField = [NSTextField textFieldWithString:@""];
@@ -731,16 +738,28 @@ NSString* const kInfoNumberMultipleValues = @"-";
         NSMutableDictionary* patchedMetas = [NSMutableDictionary dictionary];
 
         for (NSString* key in [self.mutatedKeys allKeys]) {
-            NSString* stringValue = [self.deltaMeta stringForKey:key];
-            NSLog(@"applying the meta change for %@ towards \"%@\"", key, stringValue);
-            
+            NSString* stringValue = nil;
+            NSData* dataValue = nil;
+            if ([key isEqualToString:@"artwork"]) {
+                dataValue = self.deltaMeta.artwork;
+                NSLog(@"applying the meta image change");
+            } else {
+                NSString* stringValue = [self.deltaMeta stringForKey:key];
+                NSLog(@"applying the meta change for %@ towards \"%@\"", key, stringValue);
+            }
             for (MediaMetaData* meta in self.metas) {
                 MediaMetaData* patchedMeta = [patchedMetas objectForKey:meta.location];
                 if (patchedMeta == nil) {
                     patchedMeta = [meta copy];
                 }
-                [patchedMeta updateWithKey:key string:stringValue];
-                patchedMetas[meta.location] = patchedMeta;
+                if (stringValue != nil) {
+                    [patchedMeta updateWithKey:key string:stringValue];
+                    patchedMetas[meta.location] = patchedMeta;
+                }
+                if (dataValue != nil) {
+                    patchedMeta.artwork = dataValue;
+                    patchedMetas[meta.location] = patchedMeta;
+                }
             }
         }
         
@@ -852,6 +871,24 @@ NSString* const kInfoNumberMultipleValues = @"-";
 - (nullable id)comboBox:(NSComboBox *)comboBox objectValueForItemAtIndex:(NSInteger)index
 {
     return [_delegate knownGenres][index];
+}
+
+#pragma mark - DragImageFileViewDelegate
+
+- (BOOL)performDragOperationWithURL:(NSURL*)url
+{
+    NSData* data = [NSData dataWithContentsOfURL:url];
+    if (data == nil) {
+        return NO;
+    }
+    _deltaMeta.artwork = data;
+    _mutatedKeys[@"artwork"] = @YES;
+
+    NSImage* image = [_deltaMeta imageFromArtwork];
+    self.largeCoverView.image = image;
+    self.smallCoverView.image = image;
+
+    return YES;
 }
 
 @end

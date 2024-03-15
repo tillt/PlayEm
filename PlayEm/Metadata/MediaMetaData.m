@@ -799,6 +799,8 @@ NSString* const kMediaMetaDataMapTypeNumber = @"number";
     NSAssert(NO, @"should never get here");
 }
 
+// The MixWheel is not entirely deterministic, we are trying
+// to catch all synonymous scales here additionally to the 24 sectors.
 - (NSString*)correctedKeyNotation:(NSString*)key
 {
     NSDictionary* mixWheel = @{
@@ -874,7 +876,9 @@ NSString* const kMediaMetaDataMapTypeNumber = @"number";
             patchedKey = [NSString stringWithFormat:@"%@B", key];
         }
         return patchedKey;
-    } if (t == 'm') {
+    } 
+
+    if (t == 'm') {
         patchedKey = [NSString stringWithFormat:@"%@in", key];
     } else if (t != 'n') {
         patchedKey = [NSString stringWithFormat:@"%@maj", key];

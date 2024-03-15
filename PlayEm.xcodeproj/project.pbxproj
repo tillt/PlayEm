@@ -66,6 +66,7 @@
 		BBDB1B402B644AD500A953F7 /* MetalWaveView.m in Sources */ = {isa = PBXBuildFile; fileRef = BBDB1B3F2B644AD500A953F7 /* MetalWaveView.m */; };
 		BBDB1B452B69D18A00A953F7 /* WaveTile.m in Sources */ = {isa = PBXBuildFile; fileRef = BBDB1B442B69D18A00A953F7 /* WaveTile.m */; };
 		BBDBBA792BA3AF9F003A80C1 /* DragImageFileView.m in Sources */ = {isa = PBXBuildFile; fileRef = BBDBBA782BA3AF9F003A80C1 /* DragImageFileView.m */; };
+		BBDBBA7B2BA4B013003A80C1 /* WaveShaders.metal in Sources */ = {isa = PBXBuildFile; fileRef = BBDBBA7A2BA4B013003A80C1 /* WaveShaders.metal */; };
 		BBDC988A250E81D0008B19D1 /* BrowserController.m in Sources */ = {isa = PBXBuildFile; fileRef = BBDC9889250E81D0008B19D1 /* BrowserController.m */; };
 		BBDC988C250E8347008B19D1 /* iTunesLibrary.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BBDC988B250E8347008B19D1 /* iTunesLibrary.framework */; };
 		BBDEBD3D2A99417A0085E6D8 /* WaveLayerDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = BBDEBD3C2A99417A0085E6D8 /* WaveLayerDelegate.m */; };
@@ -203,6 +204,7 @@
 		BBDB1B442B69D18A00A953F7 /* WaveTile.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WaveTile.m; sourceTree = "<group>"; };
 		BBDBBA772BA3AF9F003A80C1 /* DragImageFileView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DragImageFileView.h; sourceTree = "<group>"; };
 		BBDBBA782BA3AF9F003A80C1 /* DragImageFileView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DragImageFileView.m; sourceTree = "<group>"; };
+		BBDBBA7A2BA4B013003A80C1 /* WaveShaders.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = WaveShaders.metal; sourceTree = "<group>"; };
 		BBDC9888250E81CF008B19D1 /* BrowserController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BrowserController.h; sourceTree = "<group>"; };
 		BBDC9889250E81D0008B19D1 /* BrowserController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = BrowserController.m; sourceTree = "<group>"; };
 		BBDC988B250E8347008B19D1 /* iTunesLibrary.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = iTunesLibrary.framework; path = System/Library/Frameworks/iTunesLibrary.framework; sourceTree = SDKROOT; };
@@ -256,6 +258,7 @@
 			isa = PBXGroup;
 			children = (
 				BBE2846C246765A700BE9D7F /* Shaders.metal */,
+				BBDBBA7A2BA4B013003A80C1 /* WaveShaders.metal */,
 			);
 			path = Shaders;
 			sourceTree = "<group>";
@@ -609,6 +612,7 @@
 				BBC43B7328D296B800CD1080 /* AVMetadataItem+THAdditions.m in Sources */,
 				BB097A092921967700D33E44 /* LevelIndicatorCell.m in Sources */,
 				BB26B51129442E9A006EBAA7 /* AudioProcessing.m in Sources */,
+				BBDBBA7B2BA4B013003A80C1 /* WaveShaders.metal in Sources */,
 				BB2CB58724827A0900D47258 /* AudioController.m in Sources */,
 				BB2CB5652481A92600D47258 /* WaveWindowController.m in Sources */,
 				BB8A100728FF49E400FC6013 /* Scroller.m in Sources */,

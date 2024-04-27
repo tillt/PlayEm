@@ -22,6 +22,8 @@ NS_ASSUME_NONNULL_BEGIN
 @class MediaMetaData;
 
 @protocol BrowserControllerDelegate <NSObject>
+- (MediaMetaData*)currentSongMeta;
+- (BOOL)playing;
 - (void)browseSelectedUrl:(NSURL*)url meta:(MediaMetaData*)meta;
 - (void)loadLibraryState:(LoadState)state;
 - (void)loadLibraryState:(LoadState)state value:(double)value;
@@ -42,6 +44,7 @@ NS_ASSUME_NONNULL_BEGIN
                  delegate:(id <BrowserControllerDelegate>)delegate;
 - (void)loadITunesLibrary;
 - (void)reloadData;
+- (void)beatEffect;
 - (void)metaChangedForMeta:(MediaMetaData *)meta updatedMeta:(MediaMetaData *)updatedMeta;
 - (NSArray<NSString*>*)knownGenres;
 - (IBAction)playNext:(id)sender;

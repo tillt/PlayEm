@@ -91,9 +91,9 @@ typedef enum : NSUInteger {
 
 - (void)drawSelectionInRect:(NSRect)dirtyRect
 {
-    if (self.selectionHighlightStyle == NSTableViewSelectionHighlightStyleNone) {
-        return;
-    }
+//    if (self.selectionHighlightStyle == NSTableViewSelectionHighlightStyleNone) {
+//        return;
+//    }
 
     NSColor* highlighted = [NSColor unemphasizedSelectedTextBackgroundColor];
     NSColor* focussed = [[Defaults sharedDefaults] regularBeamColor];
@@ -151,11 +151,11 @@ typedef enum : NSUInteger {
     [bg set];
     NSRectFill(fillRect);
 
-//    if (isHighlighted) {
+    if (isHighlighted) {
 //        //[[NSColor colorWithDeviceWhite:0.2 alpha:0.1] set];
-//        [[NSColor colorWithDeviceWhite:0.8 alpha:0.1] set];
-//        NSRectFillUsingOperation(fillRect, NSCompositingOperationSourceOver);
-//    }
+        [[NSColor colorWithDeviceWhite:1.0 alpha:1.0] set];
+        NSRectFillUsingOperation(fillRect, NSCompositingOperationSourceOver);
+    }
 
     [self drawInteriorWithFrame:CGRectInset(fillRect, 0.0, 7.0) inView:view];
 }

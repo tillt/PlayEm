@@ -216,7 +216,7 @@
 
     [CATransaction begin];
     [CATransaction setDisableActions:YES];
-
+    
     if (_followTime) {
         CGPoint pointVisible = CGPointMake(floor(head - (self.enclosingScrollView.bounds.size.width / 2.0)), 
                                            0.0f);

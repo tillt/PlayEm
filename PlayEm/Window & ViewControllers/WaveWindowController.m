@@ -75,6 +75,7 @@ os_log_t pointsOfInterest;
 @property (strong, nonatomic) MediaMetaData* meta;
 
 @property (strong, nonatomic) ControlPanelController* controlPanelController;
+@property (strong, nonatomic) MusicAuthenticationController* authenticator;
 
 @property (strong, nonatomic) NSPopover* popOver;
 //@property (strong, nonatomic) NSPopover* infoPopOver;
@@ -86,6 +87,10 @@ os_log_t pointsOfInterest;
 @property (strong, nonatomic) WaveLayerDelegate* totalWaveLayerDelegate;
 
 @property (strong, nonatomic) SPMediaKeyTap* keyTap;
+
+// _displayLink;
+
+//@property (strong, nonatomic) CADisplayLink* displayLink;
 
 //@property (strong, nonatomic) dispatch_queue_t waveQueue;
 //@property (strong, nonatomic) dispatch_queue_t scopeQueue;
@@ -102,6 +107,10 @@ os_log_t pointsOfInterest;
 }
 
 // Vertical sync callback.
+//
+// Note: So far this doesnt work properly on ProVision displays -
+// as a result we see stuttering CoreAnimation playback. This likely
+// is because the signalled callback frequency remains at a fixed 60hz.
 static CVReturn renderCallback(CVDisplayLinkRef displayLink,
                                const CVTimeStamp* inNow,
                                const CVTimeStamp* inOutputTime,
@@ -134,6 +143,34 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 
     return kCVReturnSuccess;
 }
+
+//- (void)renderCallback:(CADisplayLink *)sender
+//{
+//    static unsigned int counter = 0;
+//
+//    os_signpost_interval_begin(pointsOfInterest, POICADisplayLink, "CADisplayLink");
+//
+//    //assert(displayLinkContext);
+//    //WaveWindowController* controller = (__bridge WaveWindowController*)displayLinkContext;
+//
+//    ++counter;
+//    
+////    CVTimeStamp delta = *inOutputTime - *inNow;
+////
+//    AVAudioFramePosition frame = self.audioController.currentFrame;
+//    
+//    //[controller updateWaveFrame:frame];
+//    [self updateScopeFrame:frame];
+//
+//    //dispatch_async(dispatch_get_main_queue(), ^{
+//        os_signpost_interval_begin(pointsOfInterest, POISetCurrentFrame, "SetCurrentFrame");
+//        self.currentFrame = frame;
+//        os_signpost_interval_end(pointsOfInterest, POISetCurrentFrame, "SetCurrentFrame");
+//    //});
+//    os_signpost_interval_end(pointsOfInterest, POICADisplayLink, "CADisplayLink");
+//
+//    //return kCVReturnSuccess;
+//}
 
 - (void)playNext:(id)sender
 {
@@ -224,7 +261,7 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 
 - (void)updateWaveFrame:(AVAudioFramePosition)frame
 {
-    _metalWaveView.currentFrame = frame;
+//    _metalWaveView.currentFrame = frame;
 }
 
 - (void)dealloc
@@ -269,6 +306,9 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 - (void)beatEffectRun
 {
     [self setBPM:[_beatSample currentTempo:&_beatEffectIteratorContext]];
+
+    //[_browser beatEffect];
+    
     // Thats a weird mid-point but hey...
     CGSize mid = CGSizeMake((_controlPanelController.beatIndicator.layer.bounds.size.width - 1) / 2,
                             _controlPanelController.beatIndicator.layer.bounds.size.height - 2);
@@ -404,6 +444,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     self.keyTap = [[SPMediaKeyTap alloc] initWithDelegate:self];
     if([SPMediaKeyTap usesGlobalMediaKeyTap]) {
         [_keyTap startWatchingMediaKeys];
+        NSLog(@"Watching for mediakeys");
     } else {
         NSLog(@"Media key monitoring disabled");
     }
@@ -438,6 +479,11 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     _beatLayerDelegate.waveView = _waveView;
     self.totalWaveLayerDelegate.color = _waveView.color;
     self.waveLayerDelegate.color = _waveView.color;
+
+//    self.authenticator = [MusicAuthenticationController new];
+//    [self.authenticator requestAppleMusicDeveloperTokenWithCompletion:^(NSString* token){
+//        NSLog(@"token: %@", token);
+//    }];
 }
 
 - (void)loadViews
@@ -758,6 +804,8 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     _songsTable.autosaveTableColumns = YES;
     _songsTable.allowsMultipleSelection = YES;
     _songsTable.style = NSTableViewStylePlain;
+    
+    [_songsTable selectionHighlightStyle];
 
     col = [[NSTableColumn alloc] initWithIdentifier:@"TrackCell"];
     col.title = @"Track";
@@ -981,23 +1029,29 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
 
 - (void)setupDisplayLink
 {
-//    dispatch_queue_attr_t attr = dispatch_queue_attr_make_with_qos_class(DISPATCH_QUEUE_SERIAL, QOS_CLASS_USER_INTERACTIVE, 0);
-//
-//    _scopeQueue = dispatch_queue_create("PlayEm.ScopeQueue", attr);
-//    _waveQueue = dispatch_queue_create("PlayEm.WaveQueue", attr);
+    //    dispatch_queue_attr_t attr = dispatch_queue_attr_make_with_qos_class(DISPATCH_QUEUE_SERIAL, QOS_CLASS_USER_INTERACTIVE, 0);
+    //
+    //    _scopeQueue = dispatch_queue_create("PlayEm.ScopeQueue", attr);
+    //    _waveQueue = dispatch_queue_create("PlayEm.WaveQueue", attr);
     
-    //CGDirectDisplayID   displayID = CGMainDisplayID();
-    NSLog(@"setting up display link..");
-    CVReturn            error = kCVReturnSuccess;
-    error = CVDisplayLinkCreateWithActiveCGDisplays(&_displayLink);
-    if (error) {
-        NSLog(@"DisplayLink created with error:%d", error);
-        _displayLink = NULL;
-    } else {
-        CVDisplayLinkSetOutputCallback(_displayLink, 
-                                       renderCallback,
-                                       (__bridge void *)self);
-    }
+    CGDirectDisplayID   displayID = CGMainDisplayID();
+        NSLog(@"setting up display link..");
+        CVReturn            error = kCVReturnSuccess;
+        error = CVDisplayLinkCreateWithActiveCGDisplays(&_displayLink);
+        if (error) {
+            NSLog(@"DisplayLink created with error:%d", error);
+            _displayLink = NULL;
+        } else {
+            CVDisplayLinkSetOutputCallback(_displayLink,
+                                           renderCallback,
+                                           (__bridge void *)self);
+        }
+    
+//    NSScreen* screen = [NSScreen mainScreen];
+//    
+//    self.displayLink = [screen displayLinkWithTarget:self selector:@selector(renderCallback:)];
+//    [self.displayLink addToRunLoop:[NSRunLoop currentRunLoop]
+//                           forMode:NSRunLoopCommonModes];
 }
 
 - (id)supplementalTargetForAction:(SEL)action sender:(id)sender
@@ -1231,8 +1285,8 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     assert(parent);
     [parent addSubview:mwv];
 
-    [_metalWaveView removeFromSuperview];
-    _metalWaveView = mwv;
+//    [_metalWaveView removeFromSuperview];
+//    _metalWaveView = mwv;
 }
 
 - (void)setPlaybackActive:(BOOL)active
@@ -1554,14 +1608,14 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     _audioController.sample = _lazySample;
     _waveView.frames = _lazySample.frames;
     _waveRenderer.visualSample = self.visualSample;
-    _metalWaveView.frames = _lazySample.frames;
+    //_metalWaveView.frames = _lazySample.frames;
     _totalView.frames = _lazySample.frames;
     
-    _metalWaveView.documentTotalRect = CGRectMake( 0.0,
-                                                     0.0,
-                                                     self.visualSample.width,
-                                                     self.metalWaveView.bounds.size.height);
-
+//    _metalWaveView.documentTotalRect = CGRectMake( 0.0,
+//                                                     0.0,
+//                                                     self.visualSample.width,
+//                                                     self.metalWaveView.bounds.size.height);
+//
 
     _waveView.frame = CGRectMake(0.0,
                                      0.0,
@@ -1607,9 +1661,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     [self.playlist setCurrent:meta];
     
     // Update meta data in playback box.
-    if (_controlPanelController) {
-        _controlPanelController.meta = meta;
-    }
+    _controlPanelController.meta = meta;
 }
 
 #pragma mark Drag & Drop
@@ -1875,6 +1927,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
 {
     // Remove our hook to the vsync.
     CVDisplayLinkStop(_displayLink);
+    //[self.displayLink invalidate];
 
     [self unlockScreen];
 
@@ -1909,14 +1962,19 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
 
 #pragma mark - InfoPanelControllerDelegate
 
+- (BOOL)playing
+{
+    return _audioController.playing;
+}
+
 - (MediaMetaData*)currentSongMeta
 {
-    return self.meta;
+    return _meta;
 }
 
 - (NSArray<MediaMetaData*>*)selectedSongMetas
 {
-    return [self.browser selectedSongMetas];
+    return [_browser selectedSongMetas];
 }
 
 - (NSArray<NSString*>*)knownGenres

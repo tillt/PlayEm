@@ -33,6 +33,7 @@
     switch (status) {
         case SKCloudServiceAuthorizationStatusNotDetermined:{
             // Not determined: ask for permission.
+            // NOTE: This may open a system request for confirming permissions.
             [SKCloudServiceController requestAuthorization:^(SKCloudServiceAuthorizationStatus status) {
                 NSLog(@"status %ld", status);
                 [self checkPermissions];
@@ -65,12 +66,14 @@
     [_cloudServiceController requestUserTokenForDeveloperToken:developerToken completionHandler:^(NSString * _Nullable userToken, NSError * _Nullable error){
         if (error != nil) {
             NSLog(@"Error requesting user token for developer token: %@", error);
-            return;
+        } else {
+            NSLog(@"user token: %@", userToken);
         }
-        NSLog(@"user token: %@", userToken);
+
         [self capabilities];
+
+        completionBlock(userToken);
     }];
-    
 }
 
 - (void)capabilities

@@ -14,8 +14,12 @@
 #import <iTunesLibrary/ITLibAlbum.h>
 #import <iTunesLibrary/ITLibArtwork.h>
 
-#import "MediaMetaData.h"
+#import <CoreImage/CoreImage.h>
 
+#import "CAShapeLayer+Path.h"
+#import "NSBezierPath+CGPath.h"
+#import "ProfilingPointsOfInterest.h"
+#import "MediaMetaData.h"
 #import "TableHeaderCell.h"
 
 #import "NSString+BeautifulPast.h"
@@ -39,6 +43,9 @@
 @property (nonatomic, strong) NSArray<MediaMetaData*>* filteredItems;
 
 @property (strong, nonatomic) dispatch_queue_t filterQueue;
+
+@property (nonatomic, strong) CALayer* playbackFeedbackLayer;
+@property (nonatomic, strong) CIFilter* playbackFeedbackBloomFilter;
 
 @end
 
@@ -99,6 +106,11 @@
         _songsTable.dataSource = self;
         _songsTable.delegate = self;
         _songsTable.doubleAction = @selector(doubleClickedSongsTableRow:);
+        
+        _playbackFeedbackBloomFilter = [CIFilter filterWithName:@"CIBloom"];
+        [_playbackFeedbackBloomFilter setDefaults];
+        [_playbackFeedbackBloomFilter setValue: [NSNumber numberWithFloat:3.0] forKey: @"inputRadius"];
+        [_playbackFeedbackBloomFilter setValue: [NSNumber numberWithFloat:1.0] forKey: @"inputIntensity"];
         
         dispatch_queue_attr_t attr = dispatch_queue_attr_make_with_qos_class(DISPATCH_QUEUE_SERIAL,
                                                                              QOS_CLASS_USER_INTERACTIVE,
@@ -389,6 +401,87 @@
     });
 }
 
+static const NSTimeInterval kBeatEffectRampUp = 0.05f;
+static const NSTimeInterval kBeatEffectRampDown = 0.5f;
+
+- (void)beatEffect
+{
+//    // Change the actual data value in the layer to the final value.
+//    _playbackFeedbackLayer.opacity = 1.0;
+//
+//    NSInteger activeRow = [_filteredItems indexOfObject:_delegate.currentSongMeta];
+//
+//    for (int i = 0;i < _songsTable.tableColumns.count;i++) {
+//        NSTableCellView *cellView = [_songsTable viewAtColumn:i
+//                                                          row:activeRow
+//                                              makeIfNecessary:NO];
+//        cellView.textField.animator.textColor = [NSColor whiteColor];
+//    }
+//
+//    [NSAnimationContext runAnimationGroup:^(NSAnimationContext *context) {
+//        [context setDuration:kBeatEffectRampUp];
+//        [context setAllowsImplicitAnimation:YES];
+//        [context setTimingFunction:[CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseIn]];
+//        [self->_playbackFeedbackLayer setValue:[NSNumber numberWithFloat:1.5]
+//                                    forKeyPath:@"backgroundFilters.CIBloom.inputRadius"];
+//        [self->_playbackFeedbackLayer setValue:[NSNumber numberWithFloat:1.0]
+//                                    forKeyPath:@"backgroundFilters.CIBloom.inputIntensity"];
+//
+//        for (int i = 0;i < _songsTable.tableColumns.count;i++) {
+//            NSTableCellView *cellView = [_songsTable viewAtColumn:i
+//                                                              row:activeRow
+//                                                  makeIfNecessary:NO];
+//            cellView.textField.animator.textColor = [NSColor whiteColor];
+//        }
+//    } completionHandler:^{
+//        [NSAnimationContext runAnimationGroup:^(NSAnimationContext *context) {
+//            [context setDuration:kBeatEffectRampDown];
+//            [context setAllowsImplicitAnimation:YES];
+//            [context setTimingFunction:[CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseOut]];
+//            [self->_playbackFeedbackLayer setValue:[NSNumber numberWithFloat:0.1]
+//                                        forKeyPath:@"backgroundFilters.CIBloom.inputRadius"];
+//            [self->_playbackFeedbackLayer setValue:[NSNumber numberWithFloat:1.0]
+//                                        forKeyPath:@"backgroundFilters.CIBloom.inputIntensity"];
+//
+//            for (int i = 0;i < _songsTable.tableColumns.count;i++) {
+//                NSTableCellView *cellView = [_songsTable viewAtColumn:i
+//                                                                  row:activeRow
+//                                                      makeIfNecessary:NO];
+//                cellView.textField.animator.textColor = [NSColor secondaryLabelColor];
+//            }
+//        }];
+//    }];
+}
+
+- (void)setPlayerLayerToRow:(NSInteger)row
+{
+//    if (_playbackFeedbackLayer == nil) {
+//        _songsTable.layer = [_songsTable makeBackingLayer];
+//        _songsTable.layer.masksToBounds = NO;
+//
+//        _playbackFeedbackLayer = [CALayer layer];
+//        //_playbackFeedbackLayer.backgroundFilters = @[ clampFilter, bloomFilter ];
+//        _playbackFeedbackLayer.backgroundFilters = @[ _playbackFeedbackBloomFilter ];
+//
+//        _playbackFeedbackLayer.anchorPoint = CGPointMake(0.5, 0.5);
+//        _playbackFeedbackLayer.masksToBounds = NO;
+//        _playbackFeedbackLayer.zPosition = 1.9;
+//        _playbackFeedbackLayer.name = @"playbackFeedbackLayer";
+//        _playbackFeedbackLayer.mask = [CAShapeLayer MaskLayerFromRect:CGRectMake(0.0, 0.0, _songsTable.frame.size.width, _songsTable.rowHeight)];
+//        _playbackFeedbackLayer.frame = CGRectMake(0.0, 0.0, _songsTable.frame.size.width, _songsTable.rowHeight);
+//
+//        [_songsTable.layer addSublayer:_playbackFeedbackLayer];
+//    }
+//    NSRect f = [_songsTable frameOfCellAtColumn:0 row:row];
+//    _playbackFeedbackLayer.frame = CGRectMake(0.0, f.origin.y, _songsTable.frame.size.width, f.size.height);
+//    
+//    //NSTableRowView* rowView = [_songsTable rowViewAtRow:row makeIfNecessary:NO];
+//    //rowView.emphasized = YES;
+//    NSIndexSet* rowSet = [NSIndexSet indexSetWithIndex:row];
+//    NSIndexSet* columnSet = [NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0, _songsTable.numberOfColumns)];
+//    [_songsTable reloadDataForRowIndexes:rowSet columnIndexes:columnSet];
+}
+
 - (IBAction)playNext:(id)sender
 {
     [self.songsTable.selectedRowIndexes enumerateIndexesWithOptions:NSEnumerationReverse
@@ -541,7 +634,14 @@
 
 - (NSTableRowView*)tableView:(NSTableView*)tableView rowViewForRow:(NSInteger)row
 {
-    return [TableRowView new];
+    static NSString* const kRowIdentifier = @"PlayEmTableRow";
+    
+    TableRowView* rowView = [tableView makeViewWithIdentifier:kRowIdentifier owner:self];
+    if (rowView == nil) {
+        rowView = [TableRowView new];
+        rowView.identifier = kRowIdentifier;
+    }
+    return rowView;
 }
 
 -(void)genresTableViewSelectionDidChange:(NSInteger)row
@@ -825,6 +925,7 @@
             NSLog(@"that item (%p) is of unknown location type %@", item, item.locationType);
     }
     if (url != nil && _delegate != nil) {
+//        [self setPlayerLayerToRow:row];
         [self.delegate browseSelectedUrl:url meta:item];
     }
 }
@@ -928,8 +1029,7 @@
 {
     NSTableCellView* result = [tableView makeViewWithIdentifier:tableColumn.identifier owner:self];
 
-    if (result == nil)
-    {
+    if (result == nil) {
         result = [[NSTableCellView alloc] initWithFrame:NSMakeRect(0.0,
                                                                    0.0,
                                                                    tableColumn.width,

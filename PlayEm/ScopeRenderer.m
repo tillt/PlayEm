@@ -660,7 +660,7 @@ float rgb_from_srgb(float c)
             performFFT(self->_fftSetup, window, kWindowSamples, frequencyBufferAddress);
             logscaleFFT(self->_logMap, frequencyBufferAddress);
             
-//            performMel(_dctSetup, window, kWindowSamples / 16, frequencyBufferAddress);
+//            performMel(_dctSetup, window, kWindowSamples, frequencyBufferAddress);
         }
     });
 
@@ -793,15 +793,19 @@ float rgb_from_srgb(float c)
 
 - (void)mtkView:(nonnull MTKView *)view drawableSizeWillChange:(CGSize)size
 {
+//    if (size.height < 32.0) {
+//        size.height = 32.0;
+//    }
     /// Respond to drawable size or orientation changes here
     ///
     ///
-    float widthFactor = size.width / view.bounds.size.width;
-    float heightFactor = size.height / view.bounds.size.height;
+    float widthFactor = size.width / _originalSize.width;
+    float heightFactor = size.height / _originalSize.height;
     
     _lineAspectRatio = size.height / size.width;
     
-    _lineWidth = 3.0f / size.height;
+    const float linePoints = 3.0f;
+    _lineWidth = linePoints / size.height;
 
     float frequencyLineWidth = size.width / kScaledFrequencyDataLength;
 
@@ -816,8 +820,8 @@ float rgb_from_srgb(float c)
         _blur.edgeMode = MPSImageEdgeModeClamp;
     };
 
-    float width = (((ceil(ScaleWithOriginalFrame(3.0f, _originalSize.height, _originalSize.height + (size.height/30) ))) / 2) * 2) + 1;
-    float height = (((ceil(ScaleWithOriginalFrame(3.0f, _originalSize.height, _originalSize.height + (size.height/30) ))) / 2) * 2) + 1;
+    float width = (((ceil(ScaleWithOriginalFrame(linePoints, _originalSize.height, _originalSize.height + (size.height/30) ))) / 2) * 2) + 1;
+    float height = (((ceil(ScaleWithOriginalFrame(linePoints, _originalSize.height, _originalSize.height + (size.height/30) ))) / 2) * 2) + 1;
 
     @synchronized (self) {
         _erode = [[MPSImageAreaMin alloc] initWithDevice:_device kernelWidth:width kernelHeight:height];
@@ -1075,7 +1079,7 @@ float rgb_from_srgb(float c)
         [blitEncoder endEncoding];
 */
 
-        [commandBuffer presentDrawable:view.currentDrawable afterMinimumDuration:1.0 / 120.0];
+        [commandBuffer presentDrawable:view.currentDrawable afterMinimumDuration:1.0 / 100.0];
     }
 
     [commandBuffer commit];

@@ -78,6 +78,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (strong, nonatomic) IBOutlet NSProgressIndicator* progress;
 @property (strong, nonatomic) IBOutlet NSProgressIndicator* trackLoadProgress;
 @property (strong, nonatomic) IBOutlet NSProgressIndicator* trackRenderProgress;
+@property (strong, nonatomic) IBOutlet NSProgressIndicator* trackSeekingProgress;
 
 @property (strong, nonatomic) IBOutlet NSSplitView* split;
 @property (strong, nonatomic) IBOutlet NSSplitView* splitSelectors;
@@ -89,6 +90,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (id)init;
 - (void)setCurrentFrame:(unsigned long long)frame;
 - (BOOL)loadDocumentFromURL:(NSURL*)url meta:(nullable MediaMetaData*)meta;
++ (NSURL*)encodeQueryItemsWithUrl:(NSURL*)url frame:(unsigned long long)frame playing:(BOOL)playing;
 - (IBAction)toggleFullScreen:(id)sender;
 - (IBAction)loadITunesLibrary:(id)sender;
 - (IBAction)showInfoForCurrentSong:(id)sender;

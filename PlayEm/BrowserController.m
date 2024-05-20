@@ -406,9 +406,9 @@ static const NSTimeInterval kBeatEffectRampDown = 0.5f;
 
 - (void)beatEffect
 {
-//    // Change the actual data value in the layer to the final value.
-//    _playbackFeedbackLayer.opacity = 1.0;
-//
+    // Change the actual data value in the layer to the final value.
+    _playbackFeedbackLayer.opacity = 1.0;
+
 //    NSInteger activeRow = [_filteredItems indexOfObject:_delegate.currentSongMeta];
 //
 //    for (int i = 0;i < _songsTable.tableColumns.count;i++) {
@@ -418,65 +418,182 @@ static const NSTimeInterval kBeatEffectRampDown = 0.5f;
 //        cellView.textField.animator.textColor = [NSColor whiteColor];
 //    }
 //
+    
+    CAAnimationGroup* group = [CAAnimationGroup animation];
+    [self->_playbackFeedbackLayer setValue:[NSNumber numberWithFloat:1.0]
+                                forKeyPath:@"backgroundFilters.CIBloom.inputIntensity"];
+    
+    NSMutableArray* animations = [NSMutableArray array];
+    CABasicAnimation* animation = [CABasicAnimation animationWithKeyPath:@"backgroundFilters.CIBloom.inputRadius"];
+//    animation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionLinear];
+//    animation.fromValue = [NSNumber numberWithFloat:0.0];
+//    animation.toValue = [NSNumber numberWithFloat:3.5];
+//    animation.fillMode = kCAFillModeBoth;
+//    animation.removedOnCompletion = NO;
+//    
+//    [animations addObject:animation];
+
+    animation = [CABasicAnimation animationWithKeyPath:@"textColor"];
+    animation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionLinear];
+    animation.fromValue = (id)[[NSColor secondaryLabelColor] CGColor];
+    animation.toValue = (id)[[NSColor whiteColor] CGColor];
+    animation.fillMode = kCAFillModeBoth;
+    animation.removedOnCompletion = NO;
+
+    [animations addObject:animation];
+
+    group.animations = animations;
+    group.duration = 0.05;
+    group.delegate = self;
+    [group setValue:@"BeatAnimationUp" forKey:@"name"];
+    [self->_playbackFeedbackLayer addAnimation:group forKey:@"BeatAnimationUp"];
+    
+    
 //    [NSAnimationContext runAnimationGroup:^(NSAnimationContext *context) {
-//        [context setDuration:kBeatEffectRampUp];
+//        [context setDuration:0.05f];
 //        [context setAllowsImplicitAnimation:YES];
 //        [context setTimingFunction:[CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseIn]];
-//        [self->_playbackFeedbackLayer setValue:[NSNumber numberWithFloat:1.5]
+//        [self->_playbackFeedbackLayer setValue:[NSNumber numberWithFloat:3.5]
 //                                    forKeyPath:@"backgroundFilters.CIBloom.inputRadius"];
 //        [self->_playbackFeedbackLayer setValue:[NSNumber numberWithFloat:1.0]
 //                                    forKeyPath:@"backgroundFilters.CIBloom.inputIntensity"];
 //
-//        for (int i = 0;i < _songsTable.tableColumns.count;i++) {
-//            NSTableCellView *cellView = [_songsTable viewAtColumn:i
-//                                                              row:activeRow
-//                                                  makeIfNecessary:NO];
-//            cellView.textField.animator.textColor = [NSColor whiteColor];
-//        }
+////        for (int i = 0;i < _songsTable.tableColumns.count;i++) {
+////            NSTableCellView *cellView = [_songsTable viewAtColumn:i
+////                                                              row:activeRow
+////                                                  makeIfNecessary:NO];
+////            cellView.textField.animator.textColor = [NSColor whiteColor];
+////        }
 //    } completionHandler:^{
 //        [NSAnimationContext runAnimationGroup:^(NSAnimationContext *context) {
-//            [context setDuration:kBeatEffectRampDown];
+//            [context setDuration:2.9f];
 //            [context setAllowsImplicitAnimation:YES];
-//            [context setTimingFunction:[CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseOut]];
-//            [self->_playbackFeedbackLayer setValue:[NSNumber numberWithFloat:0.1]
+//            [context setTimingFunction:[CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseIn]];
+//            [self->_playbackFeedbackLayer setValue:[NSNumber numberWithFloat:0.0]
 //                                        forKeyPath:@"backgroundFilters.CIBloom.inputRadius"];
 //            [self->_playbackFeedbackLayer setValue:[NSNumber numberWithFloat:1.0]
 //                                        forKeyPath:@"backgroundFilters.CIBloom.inputIntensity"];
-//
-//            for (int i = 0;i < _songsTable.tableColumns.count;i++) {
-//                NSTableCellView *cellView = [_songsTable viewAtColumn:i
-//                                                                  row:activeRow
-//                                                      makeIfNecessary:NO];
-//                cellView.textField.animator.textColor = [NSColor secondaryLabelColor];
-//            }
+////            for (int i = 0;i < self->_songsTable.tableColumns.count;i++) {
+////                NSTableCellView *cellView = [self->_songsTable viewAtColumn:i
+////                                                                  row:activeRow
+////                                                      makeIfNecessary:NO];
+////                cellView.textField.animator.textColor = [NSColor secondaryLabelColor];
+////            }
 //        }];
 //    }];
 }
 
+- (void)animationDidStop:(CAAnimation *)anim
+                finished:(BOOL)isFinished
+{
+    NSString* name = [anim valueForKey:@"name"];
+    if ([name isEqualToString:@"BeatAnimationUp"]) {
+        NSMutableArray* animations = [NSMutableArray array];
+
+        CAAnimationGroup* group = [CAAnimationGroup animation];
+        CABasicAnimation* animation = [CABasicAnimation animationWithKeyPath:@"backgroundFilters.CIBloom.inputRadius"];
+
+//        CABasicAnimation* animation = [CABasicAnimation animationWithKeyPath:@"backgroundFilters.CIBloom.inputRadius"];
+//        animation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionLinear];
+//        animation.fromValue = [NSNumber numberWithFloat:3.5];
+//        animation.toValue = [NSNumber numberWithFloat:1.0];
+//        animation.fillMode = kCAFillModeBoth;
+//        animation.removedOnCompletion = NO;
+//        [animation setValue:@"BeatAnimationDown" forKey:@"name"];
+//        
+//        [animations addObject:animation];
+
+        animation = [CABasicAnimation animationWithKeyPath:@"textColor"];
+        animation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionLinear];
+        animation.fromValue = (id)[[NSColor whiteColor] CGColor];
+        animation.toValue = (id)[[NSColor blackColor] CGColor];
+        animation.fillMode = kCAFillModeBoth;
+        animation.removedOnCompletion = NO;
+        [animation setValue:@"TextColor" forKey:@"name"];
+
+        [animations addObject:animation];
+
+        group.removedOnCompletion = NO;
+        group.duration = 0.3;
+        group.animations = animations;
+        [self->_playbackFeedbackLayer addAnimation:group forKey:@"BeatAnimationDown"];
+    }
+}
+
+//- (void)beatEffect
+//{
+//    // Change the actual data value in the layer to the final value.
+//    _playbackFeedbackLayer.opacity = 1.0;
+//
+////    NSInteger activeRow = [_filteredItems indexOfObject:_delegate.currentSongMeta];
+////
+////    for (int i = 0;i < _songsTable.tableColumns.count;i++) {
+////        NSTableCellView *cellView = [_songsTable viewAtColumn:i
+////                                                          row:activeRow
+////                                              makeIfNecessary:NO];
+////        cellView.textField.animator.textColor = [NSColor whiteColor];
+////    }
+////
+//    [NSAnimationContext runAnimationGroup:^(NSAnimationContext *context) {
+//        [context setDuration:0.05f];
+//        [context setAllowsImplicitAnimation:YES];
+//        [context setTimingFunction:[CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseIn]];
+//        [self->_playbackFeedbackLayer setValue:[NSNumber numberWithFloat:3.5]
+//                                    forKeyPath:@"backgroundFilters.CIBloom.inputRadius"];
+//        [self->_playbackFeedbackLayer setValue:[NSNumber numberWithFloat:1.0]
+//                                    forKeyPath:@"backgroundFilters.CIBloom.inputIntensity"];
+//
+////        for (int i = 0;i < _songsTable.tableColumns.count;i++) {
+////            NSTableCellView *cellView = [_songsTable viewAtColumn:i
+////                                                              row:activeRow
+////                                                  makeIfNecessary:NO];
+////            cellView.textField.animator.textColor = [NSColor whiteColor];
+////        }
+//    } completionHandler:^{
+//        [NSAnimationContext runAnimationGroup:^(NSAnimationContext *context) {
+//            [context setDuration:2.9f];
+//            [context setAllowsImplicitAnimation:YES];
+//            [context setTimingFunction:[CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseIn]];
+//            [self->_playbackFeedbackLayer setValue:[NSNumber numberWithFloat:0.0]
+//                                        forKeyPath:@"backgroundFilters.CIBloom.inputRadius"];
+//            [self->_playbackFeedbackLayer setValue:[NSNumber numberWithFloat:1.0]
+//                                        forKeyPath:@"backgroundFilters.CIBloom.inputIntensity"];
+////            for (int i = 0;i < self->_songsTable.tableColumns.count;i++) {
+////                NSTableCellView *cellView = [self->_songsTable viewAtColumn:i
+////                                                                  row:activeRow
+////                                                      makeIfNecessary:NO];
+////                cellView.textField.animator.textColor = [NSColor secondaryLabelColor];
+////            }
+//        }];
+//    }];
+//}
+
+
+
 - (void)setPlayerLayerToRow:(NSInteger)row
 {
-//    if (_playbackFeedbackLayer == nil) {
-//        _songsTable.layer = [_songsTable makeBackingLayer];
-//        _songsTable.layer.masksToBounds = NO;
-//
-//        _playbackFeedbackLayer = [CALayer layer];
-//        //_playbackFeedbackLayer.backgroundFilters = @[ clampFilter, bloomFilter ];
-//        _playbackFeedbackLayer.backgroundFilters = @[ _playbackFeedbackBloomFilter ];
-//
-//        _playbackFeedbackLayer.anchorPoint = CGPointMake(0.5, 0.5);
-//        _playbackFeedbackLayer.masksToBounds = NO;
-//        _playbackFeedbackLayer.zPosition = 1.9;
-//        _playbackFeedbackLayer.name = @"playbackFeedbackLayer";
-//        _playbackFeedbackLayer.mask = [CAShapeLayer MaskLayerFromRect:CGRectMake(0.0, 0.0, _songsTable.frame.size.width, _songsTable.rowHeight)];
-//        _playbackFeedbackLayer.frame = CGRectMake(0.0, 0.0, _songsTable.frame.size.width, _songsTable.rowHeight);
-//
-//        [_songsTable.layer addSublayer:_playbackFeedbackLayer];
-//    }
-//    NSRect f = [_songsTable frameOfCellAtColumn:0 row:row];
-//    _playbackFeedbackLayer.frame = CGRectMake(0.0, f.origin.y, _songsTable.frame.size.width, f.size.height);
-//    
-//    //NSTableRowView* rowView = [_songsTable rowViewAtRow:row makeIfNecessary:NO];
-//    //rowView.emphasized = YES;
+    if (_playbackFeedbackLayer == nil) {
+        _songsTable.layer = [_songsTable makeBackingLayer];
+        _songsTable.layer.masksToBounds = NO;
+
+        _playbackFeedbackLayer = [CALayer layer];
+        //_playbackFeedbackLayer.backgroundFilters = @[ clampFilter, bloomFilter ];
+        _playbackFeedbackLayer.backgroundFilters = @[ _playbackFeedbackBloomFilter ];
+
+        _playbackFeedbackLayer.anchorPoint = CGPointMake(0.5, 0.5);
+        _playbackFeedbackLayer.masksToBounds = NO;
+        _playbackFeedbackLayer.zPosition = 1.9;
+        _playbackFeedbackLayer.name = @"playbackFeedbackLayer";
+        _playbackFeedbackLayer.mask = [CAShapeLayer MaskLayerFromRect:CGRectMake(0.0, 0.0, _songsTable.frame.size.width, _songsTable.rowHeight)];
+        _playbackFeedbackLayer.frame = CGRectMake(0.0, 0.0, _songsTable.frame.size.width, _songsTable.rowHeight);
+
+        [_songsTable.layer addSublayer:_playbackFeedbackLayer];
+    }
+    NSRect f = [_songsTable frameOfCellAtColumn:0 row:row];
+    _playbackFeedbackLayer.frame = CGRectMake(0.0, f.origin.y, _songsTable.frame.size.width, f.size.height);
+    
+//    NSTableRowView* rowView = [_songsTable rowViewAtRow:row makeIfNecessary:NO];
+//    rowView.emphasized = YES;
 //    NSIndexSet* rowSet = [NSIndexSet indexSetWithIndex:row];
 //    NSIndexSet* columnSet = [NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0, _songsTable.numberOfColumns)];
 //    [_songsTable reloadDataForRowIndexes:rowSet columnIndexes:columnSet];
@@ -925,7 +1042,7 @@ static const NSTimeInterval kBeatEffectRampDown = 0.5f;
             NSLog(@"that item (%p) is of unknown location type %@", item, item.locationType);
     }
     if (url != nil && _delegate != nil) {
-//        [self setPlayerLayerToRow:row];
+        [self setPlayerLayerToRow:row];
         [self.delegate browseSelectedUrl:url meta:item];
     }
 }
@@ -937,7 +1054,7 @@ static const NSTimeInterval kBeatEffectRampDown = 0.5f;
     if (row == -1) {
         return;
     }
-
+    
     switch(tableView.tag) {
         case VIEWTAG_GENRE:
             [self genresTableViewSelectionDidChange:row];
@@ -1028,13 +1145,27 @@ static const NSTimeInterval kBeatEffectRampDown = 0.5f;
 - (NSView*)tableView:(NSTableView*)tableView viewForTableColumn:(NSTableColumn *)tableColumn row:(NSInteger)row
 {
     NSTableCellView* result = [tableView makeViewWithIdentifier:tableColumn.identifier owner:self];
+    CATextLayer* textLayer = nil;
+    
+    NSIndexSet* selections = [tableView selectedRowIndexes];
 
     if (result == nil) {
         result = [[NSTableCellView alloc] initWithFrame:NSMakeRect(0.0,
                                                                    0.0,
-                                                                   tableColumn.width,
+                                                                   tableColumn.width - 6.0,
                                                                    14.0)];
-    
+        result.wantsLayer = YES;
+        
+        textLayer = [CATextLayer layer];
+        textLayer.font =  (__bridge  CFTypeRef)[NSFont systemFontOfSize:11.0];
+        textLayer.fontSize = 11.0;
+        textLayer.wrapped = NO;
+        textLayer.truncationMode = kCATruncationEnd;
+        textLayer.allowsEdgeAntialiasing = YES;
+        textLayer.contentsScale = [[NSScreen mainScreen] backingScaleFactor];
+        textLayer.foregroundColor =  [NSColor secondaryLabelColor].CGColor;
+        
+        /*
         NSTextField* tf = [[NSTextField alloc] initWithFrame:NSInsetRect(result.frame, 0, -4)];
         tf.autoresizingMask = NSViewWidthSizable;
         tf.editable = NO;
@@ -1044,9 +1175,18 @@ static const NSTimeInterval kBeatEffectRampDown = 0.5f;
         tf.lineBreakMode = NSLineBreakByTruncatingTail;
         tf.textColor = [NSColor secondaryLabelColor];
         [result addSubview:tf];
+         */
+        textLayer.frame = NSMakeRect(result.bounds.origin.x + 2.0,
+                                     result.bounds.origin.y + 4.0,
+                                     result.bounds.size.width,
+                                     result.bounds.size.height);
+        [result.layer addSublayer:textLayer];
+        
         result.autoresizingMask = NSViewHeightSizable | NSViewWidthSizable;
-        result.textField = tf;
+        //result.textField = tf;
         result.identifier = tableColumn.identifier;
+    } else {
+        textLayer = result.layer.sublayers[0];
     }
 
     NSString* string = nil;
@@ -1106,7 +1246,8 @@ static const NSTimeInterval kBeatEffectRampDown = 0.5f;
         string = @"";
     }
 
-    [result.textField setStringValue:string];
+    //[result.textField setStringValue:string];
+    textLayer.string = string;
 
     return result;
 }

@@ -22,6 +22,7 @@ const size_t kWindowSamples = kFrequencyDataLength * 8;
 
 vDSP_DFT_Setup initDCT(void)
 {
+    //vDSP_Length(
     return vDSP_DCT_CreateSetup(NULL, 1 << (unsigned int)(round(log2((float)kFilterBankCount))), vDSP_DCT_II);
 }
 
@@ -70,27 +71,86 @@ COMPLEX_SPLIT* allocComplexSplit(size_t strideLength)
 
 void performDFT(vDSP_DFT_Setup dct, float* data, size_t numberOfFrames, float* frequencyData)
 {
+    static float* hanningWindow = NULL;
+    if (hanningWindow == NULL) {
+        hanningWindow = (float*)malloc(sizeof(float) * numberOfFrames);
+        vDSP_hann_window(hanningWindow, numberOfFrames, vDSP_HANN_DENORM);
+    }
+ 
+    vDSP_vmul(data, 1,
+              hanningWindow, 1,
+              data, 1,
+              numberOfFrames);
+
     vDSP_DCT_Execute(dct, data, frequencyData);
 }
 
+typedef void(^windowingFunction)(int numberOfFrames, float* data);
+
+static windowingFunction kNoWindowingBlock = ^(int numberOfFrames, float* data){};
+
+static windowingFunction kHanningBlock = ^(int numberOfFrames, float* data){
+    static float* window = NULL;
+    if (window == NULL) {
+        window = (float*)malloc(sizeof(float) * numberOfFrames);
+        vDSP_hann_window(window, numberOfFrames, vDSP_HANN_DENORM);
+    }
+    // Apply hanning window function vector.
+    vDSP_vmul(data, 1,
+              window, 1,
+              data, 1,
+              numberOfFrames);
+};
+
+static windowingFunction kHammingBlock = ^(int numberOfFrames, float* data){
+    static float* window = NULL;
+    if (window == NULL) {
+        window = (float*)malloc(sizeof(float) * numberOfFrames);
+        vDSP_hamm_window(window, numberOfFrames, 0);
+    }
+    // Apply hamming window function vector.
+    vDSP_vmul(data, 1,
+              window, 1,
+              data, 1,
+              numberOfFrames);
+};
+
+static windowingFunction kBlackmanBlock = ^(int numberOfFrames, float* data){
+    static float* window = NULL;
+    if (window == NULL) {
+        window = (float*)malloc(sizeof(float) * numberOfFrames);
+        vDSP_blkman_window(window, numberOfFrames, 0);
+    }
+    // Apply blackman window function vector.
+    vDSP_vmul(data, 1,
+              window, 1,
+              data, 1,
+              numberOfFrames);
+};
+
 void performFFT(FFTSetup fft, float* data, size_t numberOfFrames, float* frequencyData)
 {
+    const windowingFunction windowing = kBlackmanBlock;
+
     const float fftNormFactor = 1.0f / kFrequencyDataLength;
 
     // 2^(round(log2(numberOfFrames)).
     const size_t framesOver2 = numberOfFrames / 2;
+    //const size_t framesOver2 = numberOfFrames;
     const int bufferLog2 = round(log2(numberOfFrames));
 
+    windowing((int)numberOfFrames, data);
+  
     static COMPLEX_SPLIT* output = NULL;
     static COMPLEX_SPLIT* computeBuffer = NULL;
-    
     if (output == NULL) {
         // Altivec's functions rely on 16-byte aligned memory locations. We use `malloc` here to make
         // sure the buffers fit that limit.
         output = allocComplexSplit(framesOver2);
         computeBuffer = allocComplexSplit(framesOver2);
     }
-    // Put all of the even numbered elements into outReal and odd numbered into outImaginary.
+
+    // Put all of the even numbered elements into out.real and odd numbered into out.imag.
     vDSP_ctoz((COMPLEX*)data, 2, output, 1, framesOver2);
     // For best possible speed, we are using the buffered variant of that FFT calculation.
     vDSP_fft_zript(fft, output, 1, computeBuffer, bufferLog2, kFFTDirection_Forward);
@@ -98,7 +158,7 @@ void performFFT(FFTSetup fft, float* data, size_t numberOfFrames, float* frequen
     vDSP_vsmul(output->realp, 1, &fftNormFactor, output->realp, 1, kFrequencyDataLength);
     vDSP_vsmul(output->imagp, 1, &fftNormFactor, output->imagp, 1, kFrequencyDataLength);
     // Take the absolute value of the output to get in range of 0 to 1.
-    vDSP_zvabs(output, 1, frequencyData, 1, kFrequencyDataLength );
+    vDSP_zvabs(output, 1, frequencyData, 1, kFrequencyDataLength);
 }
 
 // Scales the linear frequency domain over into a logarithmic one. Or at least something
@@ -270,6 +330,21 @@ void performMel(vDSP_DFT_Setup dct, float* values, int sampleCount, float* melDa
     performDFT(dct, values, sampleCount, frequencyData);
     
     vDSP_vabs(frequencyData, 1, frequencyData, 1, sampleCount);
+    
+//    cblas_sgemm(CblasRowMajor,
+//                CblasTrans,
+//                CblasTrans,
+//                Int32(MelSpectrogram.signalCount),
+//                Int32(MelSpectrogram.filterBankCount),
+//                Int32(MelSpectrogram.sampleCount),
+//                1,
+//                frequencyDomainValuesPtr.baseAddress,
+//                Int32(MelSpectrogram.signalCount),
+//                filterBank.baseAddress,
+//                Int32(MelSpectrogram.sampleCount),
+//                0,
+//                sgemmResult.baseAddress,
+//                Int32(MelSpectrogram.filterBankCount))
     
     // Multiply two matrices...
     cblas_sgemm(CblasRowMajor,

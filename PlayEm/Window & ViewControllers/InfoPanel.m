@@ -854,7 +854,7 @@ NSString* const kInfoNumberMultipleValues = @"-";
 
 - (void)controlTextDidChange:(NSNotification *)notification
 {
-    NSTextField* textField = [notification object];
+//    NSTextField* textField = [notification object];
 //    NSString *key = nil;
 //    for (NSString* k in [_viewControls allKeys]) {
 //        if ([_viewControls valueForKey:k] == textField) {

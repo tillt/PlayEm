@@ -46,13 +46,21 @@ static const float kPixelPerSecond = 120.0f;
 static const NSTimeInterval kBeatEffectRampUp = 0.05f;
 static const NSTimeInterval kBeatEffectRampDown = 0.5f;
 
+const CGFloat kDefaultWidth = 1180;
+const CGFloat kDefaultHeight = 1050;
+
+const CGFloat kMinScopeViewHeigth = 63.0f;
+
+static const int kSplitPositionCount = 5;
+
 os_log_t pointsOfInterest;
 
 @interface WaveWindowController ()
 {
-    CGFloat splitPosition[2];
-    CGFloat splitPositionMemory[2];
-    CGFloat splitSelectorPositionMemory[5];
+
+    CGFloat splitPosition[kSplitPositionCount];
+    CGFloat splitPositionMemory[kSplitPositionCount];
+    CGFloat splitSelectorPositionMemory[kSplitPositionCount];
     
     BeatEventIterator _beatEffectIteratorContext;
     unsigned long long _beatEffectAtFrame;
@@ -183,7 +191,7 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
         [self stop];
     }
 
-    [self loadDocumentFromURL:meta.location meta:meta];
+    [self loadDocumentFromURL:[WaveWindowController encodeQueryItemsWithUrl:meta.location frame:0LL playing:YES] meta:meta];
 }
 
 - (void)playPrevious:(id)sender
@@ -307,7 +315,7 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 {
     [self setBPM:[_beatSample currentTempo:&_beatEffectIteratorContext]];
 
-    //[_browser beatEffect];
+    [_browser beatEffect];
     
     // Thats a weird mid-point but hey...
     CGSize mid = CGSizeMake((_controlPanelController.beatIndicator.layer.bounds.size.width - 1) / 2,
@@ -384,6 +392,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
 
 #pragma mark Window lifecycle
 
+/// Allow screen sleep.
 - (BOOL)unlockScreen
 {
     if (_noSleepAssertionID == 0) {
@@ -396,6 +405,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     return ret == kIOReturnSuccess;
 }
 
+/// Prevent screen sleep.
 - (BOOL)lockScreen
 {
     if (_noSleepAssertionID != 0) {
@@ -416,8 +426,8 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
 - (void)loadWindow
 {
     NSLog(@"loadWindow...");
-
-    self.window = [[NSWindow alloc] initWithContentRect:NSMakeRect(0, 0, 1180, 1050)
+    NSRect frame = NSMakeRect(0, 0, kDefaultWidth, kDefaultHeight);
+    self.window = [[NSWindow alloc] initWithContentRect:frame
                                               styleMask: NSWindowStyleMaskTitled
                                                        | NSWindowStyleMaskClosable
                                                        | NSWindowStyleMaskUnifiedTitleAndToolbar
@@ -429,6 +439,12 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     self.window.titlebarAppearsTransparent = YES;
     self.window.titleVisibility = NO;
     self.window.movableByWindowBackground = YES;
+    self.shouldCascadeWindows = NO;
+    self.window.contentView.wantsLayer = YES;
+    self.window.contentView.layer.backgroundColor = [[[Defaults sharedDefaults] backColor] CGColor];
+    self.window.contentView.autoresizesSubviews = YES;
+    self.window.contentView.translatesAutoresizingMaskIntoConstraints = YES;
+    self.window.contentView.autoresizingMask = NSViewHeightSizable | NSViewWidthSizable;
 
     NSToolbar* toolBar = [[NSToolbar alloc] init];
     toolBar.displayMode = NSToolbarDisplayModeIconOnly;
@@ -436,6 +452,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     toolBar.autosavesConfiguration = NO;
     toolBar.delegate = self;
     self.window.toolbar = toolBar;
+    //self.window.frameAutosaveName = @"PlayEmWindowFrame";
 
     _beatLayerDelegate = [BeatLayerDelegate new];
 
@@ -471,16 +488,17 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     [self.window addTitlebarAccessoryViewController:_controlPanelController];
 
     _splitViewController = [NSSplitViewController new];
-    
-    [self.window center];
-    
+
     [self loadViews];
-    
+
     _beatLayerDelegate.waveView = _waveView;
     self.totalWaveLayerDelegate.color = _waveView.color;
     self.waveLayerDelegate.color = _waveView.color;
 
-//    self.authenticator = [MusicAuthenticationController new];
+    //[self.window setFrameUsingName:@"PlayEmWindowFrame"];
+
+
+    //    self.authenticator = [MusicAuthenticationController new];
 //    [self.authenticator requestAppleMusicDeveloperTokenWithCompletion:^(NSString* token){
 //        NSLog(@"token: %@", token);
 //    }];
@@ -488,17 +506,15 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
 
 - (void)loadViews
 {
-    NSSize size = self.window.contentView.frame.size;
-    
     const CGFloat totalWaveViewHeight = 46.0;
     const CGFloat scrollingWaveViewHeight = 158.0;
-    const CGFloat metalWaveViewHeight = 0.0;
-    const CGFloat scopeViewHeight = 353.0;
+    //const CGFloat metalWaveViewHeight = 0.0;
+    const CGFloat defaultScopeViewHeight = 353.0;
     //const CGFloat infoFxViewWidth = 465.0;
     const CGFloat playlistFxViewWidth = 280.0;
     const CGFloat statusLineHeight = 14.0;
     const CGFloat songsTableViewHeight = 307.0;
-    const CGFloat selectorTableViewWidth = floor(size.width / 4);
+    const CGFloat selectorTableViewWidth = floor(self.window.contentView.bounds.size.width / 4);
     const CGFloat selectorTableViewHeight = 200.0;
    
     const CGFloat selectorTableViewHalfWidth = floor(selectorTableViewWidth / 2.0);
@@ -517,15 +533,24 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
 
     const CGFloat progressIndicatorWidth = 32.0;
     const CGFloat progressIndicatorHeight = 32.0;
-    
-    const CGFloat totalHeight =
-        totalWaveViewHeight +
-        scrollingWaveViewHeight +
-        scopeViewHeight +
-        selectorTableViewHeight +
-        songsTableViewHeight;
-    
-    CGFloat y = 0.0;
+
+    CGFloat scopeViewHeight = self.window.contentView.bounds.size.height - (songsTableViewHeight + selectorTableViewHeight + totalWaveViewHeight + scrollingWaveViewHeight);
+
+//    const CGFloat totalHeight =
+//        scopeViewHeight +
+//        scrollingWaveViewHeight +
+//        totalWaveViewHeight +
+//        selectorTableViewHeight +
+//        songsTableViewHeight;
+
+//    const CGFloat totalHeight =
+//        scopeViewHeight +
+//        scrollingWaveViewHeight +
+//        totalWaveViewHeight +
+//        selectorTableViewHeight +
+//        songsTableViewHeight;
+
+    //CGFloat y = 0.0;
     
     const NSAutoresizingMaskOptions kViewFullySizeable = NSViewHeightSizable | NSViewWidthSizable;
     
@@ -543,9 +568,9 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     [menu addItemWithTitle:@"Show in Finder" action:@selector(showInFinder:) keyEquivalent:@""];
     
     // Status Line.
-    _songsCount = [[NSTextField alloc] initWithFrame:NSMakeRect(0.0,
-                                                                0.0,
-                                                                size.width,
+    _songsCount = [[NSTextField alloc] initWithFrame:NSMakeRect(self.window.contentView.bounds.origin.x,
+                                                                self.window.contentView.bounds.origin.y,
+                                                                self.window.contentView.bounds.size.width,
                                                                 statusLineHeight)];
     _songsCount.font = [NSFont systemFontOfSize:11.0];
     _songsCount.textColor = [NSColor tertiaryLabelColor];
@@ -553,64 +578,67 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     _songsCount.alignment = NSTextAlignmentCenter;
     _songsCount.selectable = NO;
     _songsCount.autoresizingMask = NSViewWidthSizable;
+    _songsCount.translatesAutoresizingMaskIntoConstraints = YES;
     
     [self.window.contentView addSubview:_songsCount];
-    y += statusLineHeight;
-    
-    _split = [[NSSplitView alloc] initWithFrame:NSMakeRect(0.0,
-                                                           y,
-                                                           size.width,
-                                                           totalHeight)];
-    _split.autoresizingMask = kViewFullySizeable;
-    _split.dividerStyle = NSSplitViewDividerStyleThin;
-    _split.autosaveName = @"VerticalSplitter";
-    _split.delegate = self;
-    _split.identifier = @"VerticalSplitter";
 
     // Below Visuals.
-    CGFloat height = totalWaveViewHeight + metalWaveViewHeight + scrollingWaveViewHeight + scopeViewHeight;
+    CGFloat height = scopeViewHeight +
+    scrollingWaveViewHeight +
+    totalWaveViewHeight;
+
+    _split = [[NSSplitView alloc] initWithFrame:NSMakeRect(self.window.contentView.bounds.origin.x,
+                                                           self.window.contentView.bounds.origin.y + statusLineHeight,
+                                                           self.window.contentView.bounds.size.width,
+                                                           self.window.contentView.bounds.size.height - statusLineHeight)];
+    _split.autoresizingMask = kViewFullySizeable;
+    _split.autoresizesSubviews = YES;
+    _split.dividerStyle = NSSplitViewDividerStyleThin;
+    _split.delegate = self;
+    _split.identifier = @"VerticalSplitterID";
+    _split.translatesAutoresizingMaskIntoConstraints = YES;
     
-    _belowVisuals = [[NSView alloc] initWithFrame:NSMakeRect(0.0,
-                                                             y,
-                                                             size.width,
-                                                             height )];
+    _belowVisuals = [[NSView alloc] initWithFrame:NSMakeRect(self.window.contentView.bounds.origin.x,
+                                                             self.window.contentView.bounds.origin.y,
+                                                             self.window.contentView.bounds.size.width,
+                                                             height)];
     _belowVisuals.autoresizingMask = kViewFullySizeable;
-    
-    self.window.contentView.wantsLayer = YES;
-    self.window.contentView.layer.backgroundColor = [[[Defaults sharedDefaults] backColor] CGColor];
-    
-    //
-    _totalView = [[TotalWaveView alloc] initWithFrame:NSMakeRect(0.0,
-                                                                 0.0,
-                                                                 size.width,
+    _belowVisuals.autoresizesSubviews = YES;
+    _belowVisuals.wantsLayer = YES;
+    _belowVisuals.translatesAutoresizingMaskIntoConstraints = YES;
+
+    _totalView = [[TotalWaveView alloc] initWithFrame:NSMakeRect(_belowVisuals.bounds.origin.x,
+                                                                 _belowVisuals.bounds.origin.y,
+                                                                 _belowVisuals.bounds.size.width,
                                                                  totalWaveViewHeight)];
     _totalView.layerDelegate = self.totalWaveLayerDelegate;
-    _totalView.autoresizingMask = NSViewWidthSizable | NSViewMaxYMargin;
+    _totalView.autoresizingMask = NSViewWidthSizable;
+    _totalView.translatesAutoresizingMaskIntoConstraints = YES;
     [_belowVisuals addSubview:_totalView];
     
-    TiledScrollView* tiledSV = [[TiledScrollView alloc] initWithFrame:NSMakeRect(0.0,
-                                                                                 totalWaveViewHeight,
-                                                                                 size.width,
+    TiledScrollView* tiledSV = [[TiledScrollView alloc] initWithFrame:NSMakeRect(_belowVisuals.bounds.origin.x,
+                                                                                 _belowVisuals.bounds.origin.y + totalWaveViewHeight,
+                                                                                 _belowVisuals.bounds.size.width,
                                                                                  scrollingWaveViewHeight)];
-    tiledSV.autoresizingMask = NSViewWidthSizable | NSViewMaxYMargin;
+    tiledSV.autoresizingMask = NSViewWidthSizable;
     tiledSV.drawsBackground = NO;
     tiledSV.verticalScrollElasticity = NSScrollElasticityNone;
-
     _waveView = [[WaveView alloc] initWithFrame:tiledSV.bounds];
+    _waveView.autoresizingMask = NSViewWidthSizable;
+    _waveView.translatesAutoresizingMaskIntoConstraints = YES;
     _waveView.waveLayerDelegate = self.waveLayerDelegate;
     _waveView.headDelegate = tiledSV;
     _waveView.color = [[Defaults sharedDefaults] regularBeamColor];
     _waveView.beatLayerDelegate = self.beatLayerDelegate;
     tiledSV.documentView = _waveView;
-    
     [_belowVisuals addSubview:tiledSV];
 
-    NSBox* line = [[NSBox alloc] initWithFrame:NSMakeRect(0.0, totalWaveViewHeight, size.width, 1.0)];
+    NSBox* line = [[NSBox alloc] initWithFrame:NSMakeRect(_belowVisuals.bounds.origin.x, _belowVisuals.bounds.origin.y + totalWaveViewHeight, _belowVisuals.bounds.size.width, 1.0)];
     line.boxType = NSBoxSeparator;
     line.autoresizingMask = NSViewWidthSizable;
     [_belowVisuals addSubview:line];
     
-    /*
+/*
     _metalWaveView = [[MetalWaveView alloc] initWithFrame:NSMakeRect(0.0,
                                                                         totalWaveViewHeight + scrollingWaveViewHeight,
                                                                         size.width,
@@ -621,20 +649,20 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     [_belowVisuals addSubview:_metalWaveView];
 */
 
-    line = [[NSBox alloc] initWithFrame:NSMakeRect(0.0, scrollingWaveViewHeight + totalWaveViewHeight - 1, size.width, 1.0)];
-    line.boxType = NSBoxSeparator;
-    line.autoresizingMask = NSViewWidthSizable;
-    [_belowVisuals addSubview:line];
+//    line = [[NSBox alloc] initWithFrame:NSMakeRect(0.0, scrollingWaveViewHeight + totalWaveViewHeight - 1, size.width, 1.0)];
+//    line.boxType = NSBoxSeparator;
+//    line.autoresizingMask = NSViewWidthSizable;
+//    [_belowVisuals addSubview:line];
 
-    line = [[NSBox alloc] initWithFrame:NSMakeRect(0.0, metalWaveViewHeight + scrollingWaveViewHeight + totalWaveViewHeight - 1, size.width, 1.0)];
+    line = [[NSBox alloc] initWithFrame:NSMakeRect(_belowVisuals.bounds.origin.x, _belowVisuals.bounds.origin.y + scrollingWaveViewHeight + totalWaveViewHeight - 1, _belowVisuals.bounds.size.width, 1.0)];
     line.boxType = NSBoxSeparator;
     line.autoresizingMask = NSViewWidthSizable;
     [_belowVisuals addSubview:line];
     
-    _effectBelowPlaylist = [[NSVisualEffectView alloc] initWithFrame:NSMakeRect(size.width,
-                                                                                 0.0,
-                                                                                 playlistFxViewWidth,
-                                                                                 height)];
+    _effectBelowPlaylist = [[NSVisualEffectView alloc] initWithFrame:NSMakeRect(_belowVisuals.bounds.size.width,
+                                                                                _belowVisuals.bounds.origin.y,
+                                                                                playlistFxViewWidth,
+                                                                                height)];
     _effectBelowPlaylist.autoresizingMask = NSViewHeightSizable | NSViewMinXMargin;
     
     NSScrollView* sv = [[NSScrollView alloc] initWithFrame:_effectBelowPlaylist.bounds];
@@ -661,9 +689,12 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     sv.documentView = _playlistTable;
     [_effectBelowPlaylist addSubview:sv];
 
-    [self putScopeViewWithFrame:NSMakeRect(0.0,
-                                           totalWaveViewHeight + scrollingWaveViewHeight +  metalWaveViewHeight,
-                                           size.width,
+    NSLog(@"scopeview height = %f", scopeViewHeight);
+    NSLog(@"scopeview superview height = %f", _belowVisuals.frame.size.height);
+    //NSLog(@"remaining height = %d", );
+    [self putScopeViewWithFrame:NSMakeRect(_belowVisuals.bounds.origin.x,
+                                           _belowVisuals.bounds.origin.y + totalWaveViewHeight + scrollingWaveViewHeight,
+                                           _belowVisuals.bounds.size.width,
                                            scopeViewHeight)
                          onView:_belowVisuals];
     _smallScopeView = _scopeView;
@@ -675,14 +706,14 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     ///
     /// Genre, Artist, Album, BPM, Key Tables.
     ///
-    _splitSelectors = [[NSSplitView alloc] initWithFrame:NSMakeRect(0.0,
-                                                                                0.0,
-                                                                                size.width,
-                                                                                selectorTableViewHeight)];
+    _splitSelectors = [[NSSplitView alloc] initWithFrame:NSMakeRect(_split.bounds.origin.x,
+                                                                    _split.bounds.origin.y,
+                                                                    _split.bounds.size.width,
+                                                                    selectorTableViewHeight)];
     _splitSelectors.autosaveName = @"HorizontalSplitters";
     _splitSelectors.vertical = YES;
     _splitSelectors.delegate = self;
-    _splitSelectors.identifier = @"HorizontalSplitters";
+    _splitSelectors.identifier = @"HorizontalSplittersID";
     _splitSelectors.dividerStyle = NSSplitViewDividerStyleThin;
     
     sv = [[NSScrollView alloc] initWithFrame:NSMakeRect(  0.0,
@@ -789,9 +820,9 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     ///
     /// Songs Table.
     ///
-    sv = [[NSScrollView alloc] initWithFrame:NSMakeRect(0.0,
-                                                        0.0,
-                                                        size.width,
+    sv = [[NSScrollView alloc] initWithFrame:NSMakeRect(_split.bounds.origin.x,
+                                                        _split.bounds.origin.y,
+                                                        _split.bounds.size.width,
                                                         songsTableViewHeight)];
     sv.hasVerticalScroller = YES;
     sv.drawsBackground = NO;
@@ -866,8 +897,8 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
 
     [self.window.contentView addSubview:_split];
     
-    _progress = [[NSProgressIndicator alloc] initWithFrame:NSMakeRect((size.width - progressIndicatorWidth) / 2.0,
-                                                                      (size.height - progressIndicatorHeight) / 4.0,
+    _progress = [[NSProgressIndicator alloc] initWithFrame:NSMakeRect((self.window.contentView.bounds.size.width - progressIndicatorWidth) / 2.0,
+                                                                      (self.window.contentView.bounds.size.height - progressIndicatorHeight) / 4.0,
                                                                       progressIndicatorWidth,
                                                                       progressIndicatorHeight)];
     _progress.style = NSProgressIndicatorStyleSpinning;
@@ -876,8 +907,8 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     
     [self.window.contentView addSubview:_progress];
     
-    _trackRenderProgress = [[NSProgressIndicator alloc] initWithFrame:NSMakeRect((size.width - progressIndicatorWidth) / 2.0,
-                                                                                 (size.height - progressIndicatorHeight) / 2.0,
+    _trackRenderProgress = [[NSProgressIndicator alloc] initWithFrame:NSMakeRect((self.window.contentView.bounds.size.width - progressIndicatorWidth) / 2.0,
+                                                                                 (self.window.contentView.bounds.size.height - progressIndicatorHeight) / 2.0,
                                                                                  progressIndicatorWidth,
                                                                                  progressIndicatorHeight)];
     _trackRenderProgress.style = NSProgressIndicatorStyleSpinning;
@@ -886,8 +917,8 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     
     [self.window.contentView addSubview:_trackRenderProgress];
 
-    _trackLoadProgress = [[NSProgressIndicator alloc] initWithFrame:NSMakeRect((size.width - progressIndicatorWidth) / 2.0,
-                                                                               (size.height - progressIndicatorHeight) / 2.0,
+    _trackLoadProgress = [[NSProgressIndicator alloc] initWithFrame:NSMakeRect((self.window.contentView.bounds.size.width - progressIndicatorWidth) / 2.0,
+                                                                               (self.window.contentView.bounds.size.height - progressIndicatorHeight) / 2.0,
                                                                                progressIndicatorWidth,
                                                                                progressIndicatorHeight)];
     _trackLoadProgress.style = NSProgressIndicatorStyleSpinning;
@@ -1034,18 +1065,18 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     //    _scopeQueue = dispatch_queue_create("PlayEm.ScopeQueue", attr);
     //    _waveQueue = dispatch_queue_create("PlayEm.WaveQueue", attr);
     
-    CGDirectDisplayID   displayID = CGMainDisplayID();
-        NSLog(@"setting up display link..");
-        CVReturn            error = kCVReturnSuccess;
-        error = CVDisplayLinkCreateWithActiveCGDisplays(&_displayLink);
-        if (error) {
-            NSLog(@"DisplayLink created with error:%d", error);
-            _displayLink = NULL;
-        } else {
-            CVDisplayLinkSetOutputCallback(_displayLink,
-                                           renderCallback,
-                                           (__bridge void *)self);
-        }
+    //CGDirectDisplayID   displayID = CGMainDisplayID();
+    NSLog(@"setting up display link..");
+    CVReturn            error = kCVReturnSuccess;
+    error = CVDisplayLinkCreateWithActiveCGDisplays(&_displayLink);
+    if (error) {
+        NSLog(@"DisplayLink created with error:%d", error);
+        _displayLink = NULL;
+    } else {
+        CVDisplayLinkSetOutputCallback(_displayLink,
+                                       renderCallback,
+                                       (__bridge void *)self);
+    }
     
 //    NSScreen* screen = [NSScreen mainScreen];
 //    
@@ -1081,6 +1112,41 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
 
 - (void)windowWillClose:(NSNotification *)notification
 {
+    // Take a snapshot of the current playback state.
+    AVAudioFramePosition currentFrame = [_audioController currentFrame];
+    NSNumber* currentFrameValue = [NSNumber numberWithUnsignedLongLong:currentFrame];
+    NSNumber* playingValue = [NSNumber numberWithBool:[_audioController playing]];
+    
+    NSDocumentController* dc = [NSDocumentController sharedDocumentController];
+    NSURL* recentURL = dc.recentDocumentURLs[0];
+    NSLog(@"current file:%@", [recentURL filePathURL]);
+    NSLog(@"current frame: %lld", currentFrame);
+    
+    //NSString* filePath = [[recentURL filePathURL] absoluteString];
+    NSError* error = nil;
+
+    NSURLComponents* components = [NSURLComponents componentsWithString:[recentURL.filePathURL absoluteString]];
+    NSMutableArray<NSURLQueryItem*>* queryItems = [NSMutableArray array];
+    NSURLQueryItem* item = [NSURLQueryItem queryItemWithName:@"CurrentFrame" value:[currentFrameValue stringValue]];
+    [queryItems addObject:item];
+    item = [NSURLQueryItem queryItemWithName:@"Playing" value:[playingValue stringValue]];
+    [queryItems addObject:item];
+    components.queryItems = queryItems;
+    
+    recentURL = [components URL];
+
+    NSData* bookmark = nil;
+    bookmark = [recentURL bookmarkDataWithOptions:NSURLBookmarkCreationWithSecurityScope
+                   includingResourceValuesForKeys:nil
+                                    relativeToURL:nil // Make it app-scoped
+                                            error:&error];
+    if (error) {
+        NSLog(@"Error creating bookmark for URL (%@): %@", recentURL, error);
+        [NSApp presentError:error];
+    }
+    NSUserDefaults* userDefaults = [NSUserDefaults standardUserDefaults];
+    [userDefaults setObject:bookmark forKey:@"bookmark"];
+    
     // Abort all the async operations that might be in flight.
     [_lazySample abortWithCallback:^{
         [self stop];
@@ -1091,7 +1157,13 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
 
 - (void)windowDidEndLiveResize:(NSNotification *)notification
 {
-    [self putScopeViewWithFrame:NSMakeRect(_scopeView.frame.origin.x, _scopeView.frame.origin.y, _scopeView.frame.size.width, _scopeView.frame.size.height) onView:_belowVisuals];
+//    CGFloat newHeight = _belowVisuals.frame.size.height - (_totalView.bounds.size.height + _waveView.bounds.size.height);
+//    CGFloat y = _totalView.bounds.size.height + _waveView.bounds.size.height + newHeight;
+//    [self putScopeViewWithFrame:NSMakeRect(_scopeView.frame.origin.x, _totalView.bounds.size.height + _waveView.bounds.size.height + newHeight, _belowVisuals.frame.size.width, newHeight) onView:_belowVisuals];
+    NSSize newSize = NSMakeSize(_belowVisuals.bounds.size.width, _belowVisuals.bounds.size.height - (_totalView.bounds.size.height + _waveView.bounds.size.height));
+    NSLog(@"windowDidResize with `ScopeView` to height %f", newSize.height);
+    [_renderer mtkView:_scopeView drawableSizeWillChange:newSize];
+
     [_totalVisual setPixelPerSecond:_totalView.bounds.size.width / _lazySample.duration];
     [_totalView resize];
     [_totalView refresh];
@@ -1099,8 +1171,13 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
 
 - (void)windowDidResize:(NSNotification *)notification
 {
-    NSLog(@"windowDidResize to width %f", _scopeView.bounds.size.width);
-    [_renderer mtkView:_scopeView drawableSizeWillChange:_scopeView.bounds.size];
+    NSLog(@"windowDidResize with `ContentView` to height %f", self.window.contentView.bounds.size.height);
+    NSLog(@"windowDidResize with `BelowVisuals` to height %f", _belowVisuals.bounds.size.height);
+
+    NSSize newSize = NSMakeSize(_belowVisuals.bounds.size.width,
+                                _belowVisuals.bounds.size.height - (_totalView.bounds.size.height + _waveView.bounds.size.height));
+    NSLog(@"windowDidResize with `ScopeView` to height %f", newSize.height);
+    [_renderer mtkView:_scopeView drawableSizeWillChange:newSize];
 }
 
 - (void)windowWillEnterFullScreen:(NSNotification *)notification
@@ -1149,14 +1226,13 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
         [self relayoutAnimated:YES];
         [window.animator setFrame:[[NSScreen mainScreen] frame] display:YES];
     } completionHandler:^{
-/*        [CATransaction begin];
+        [CATransaction begin];
         [CATransaction setDisableActions:YES];
         [window setStyleMask:([window styleMask] | NSWindowStyleMaskFullScreen)];
         //[window.contentView addSubview:self.belowVisuals];
         self.belowVisuals.frame = NSMakeRect(0.0f, 0.0f, window.screen.frame.size.width, window.screen.frame.size.height);
         //[self putScopeViewWithFrame:NSMakeRect(0.0f, 0.0f, window.screen.frame.size.width, window.screen.frame.size.height) onView:window.contentView];
         [CATransaction commit];
-        */
     }];
 }
 
@@ -1188,15 +1264,14 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     _temposTable.enclosingScrollView.animator.hidden = toFullscreen ? YES : NO;
     _keysTable.enclosingScrollView.animator.hidden = toFullscreen ? YES : NO;
 
-   if (toFullscreen) {
-       memcpy(splitPositionMemory, splitPosition, sizeof(CGFloat) * 3);
-
-//        // Restore the old positions.
-//        [_splitSelectors setPosition:splitSelectorPositionMemory[0] ofDividerAtIndex:0];
-//        [_splitSelectors setPosition:splitSelectorPositionMemory[1] ofDividerAtIndex:1];
-//        [_splitSelectors setPosition:splitSelectorPositionMemory[2] ofDividerAtIndex:2];
-//        [_splitSelectors setPosition:splitSelectorPositionMemory[3] ofDividerAtIndex:3];
-//        [_splitSelectors setPosition:splitSelectorPositionMemory[4] ofDividerAtIndex:4];
+    if (toFullscreen) {
+        memcpy(splitPositionMemory, splitPosition, sizeof(CGFloat) * kSplitPositionCount);
+        // Restore the old positions.
+        [_splitSelectors setPosition:splitSelectorPositionMemory[0] ofDividerAtIndex:0];
+        [_splitSelectors setPosition:splitSelectorPositionMemory[1] ofDividerAtIndex:1];
+        [_splitSelectors setPosition:splitSelectorPositionMemory[2] ofDividerAtIndex:2];
+        [_splitSelectors setPosition:splitSelectorPositionMemory[3] ofDividerAtIndex:3];
+        [_splitSelectors setPosition:splitSelectorPositionMemory[4] ofDividerAtIndex:4];
     }
 
     [_splitSelectors adjustSubviews];
@@ -1208,8 +1283,8 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     if (!toFullscreen) {
         // We quickly stash the position memory for making sure the first position set
         // can trash the stored positions immediately.
-        CGFloat positions[3];
-        memcpy(positions, splitPositionMemory, sizeof(CGFloat) * 3);
+        CGFloat positions[kSplitPositionCount];
+        memcpy(positions, splitPositionMemory, sizeof(CGFloat) * kSplitPositionCount);
         [_split setPosition:splitPositionMemory[0] ofDividerAtIndex:0];
         [_split setPosition:splitPositionMemory[1] ofDividerAtIndex:1];
     }
@@ -1229,10 +1304,8 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     sv.colorPixelFormat = MTLPixelFormatBGRA8Unorm;
     sv.depthStencilPixelFormat = MTLPixelFormatInvalid;
     sv.drawableSize = frame.size;
-
-    sv.autoresizingMask = NSViewHeightSizable | NSViewWidthSizable | NSViewMaxYMargin;
-   
-    sv.autoResizeDrawable = NO;
+    sv.autoresizingMask = NSViewHeightSizable | NSViewWidthSizable;
+    sv.autoResizeDrawable = YES;
 
     self.renderer = [[ScopeRenderer alloc] initWithMetalKitView:sv
                                                           color:[[Defaults sharedDefaults] lightBeamColor]
@@ -1249,45 +1322,45 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     [_scopeView removeFromSuperview];
     _scopeView = sv;
 
-    if (_audioController && _visualSample) {
-        [_renderer play:_audioController visual:_visualSample scope:sv];
-    }
-
     //[parent addSubview:_controlPanel positioned:NSWindowAbove relativeTo:nil];
 //    [parent addSubview:_effectBelowInfo positioned:NSWindowAbove relativeTo:nil];
     assert(_effectBelowPlaylist);
     [parent addSubview:_effectBelowPlaylist positioned:NSWindowAbove relativeTo:nil];
+
+    if (_audioController && _visualSample) {
+        [_renderer play:_audioController visual:_visualSample scope:sv];
+    }
 }
 
-// Yeah right - what a shitty name for a function that does so much more!
-- (void)putMetalWaveViewWithFrame:(NSRect)frame onView:(NSView*)parent
-{
-    assert(frame.size.width * frame.size.height);
-    MetalWaveView* mwv = [[MetalWaveView alloc] initWithFrame:frame
-                                              device:MTLCreateSystemDefaultDevice()];
-    assert(mwv);
-    //sv.colorPixelFormat = MTLPixelFormatBGRA10_XR_sRGB;
-    mwv.colorPixelFormat = MTLPixelFormatBGRA8Unorm;
-    mwv.depthStencilPixelFormat = MTLPixelFormatInvalid;
-    mwv.drawableSize = frame.size;
-
-    mwv.autoresizingMask = NSViewHeightSizable | NSViewWidthSizable | NSViewMaxYMargin;
-   
-    mwv.autoResizeDrawable = NO;
-
-    self.waveRenderer = [[WaveRenderer alloc] initWithView:mwv
-                                                      color:[[Defaults sharedDefaults] lightBeamColor]
-                                                 background:[[Defaults sharedDefaults] backColor]
-                                                   delegate:self];
-    _renderer.level = self.controlPanelController.level;
-    mwv.delegate = _waveRenderer;
-
-    assert(parent);
-    [parent addSubview:mwv];
-
-//    [_metalWaveView removeFromSuperview];
-//    _metalWaveView = mwv;
-}
+//// Yeah right - what a shitty name for a function that does so much more!
+//- (void)putMetalWaveViewWithFrame:(NSRect)frame onView:(NSView*)parent
+//{
+//    assert(frame.size.width * frame.size.height);
+//    MetalWaveView* mwv = [[MetalWaveView alloc] initWithFrame:frame
+//                                              device:MTLCreateSystemDefaultDevice()];
+//    assert(mwv);
+//    //sv.colorPixelFormat = MTLPixelFormatBGRA10_XR_sRGB;
+//    mwv.colorPixelFormat = MTLPixelFormatBGRA8Unorm;
+//    mwv.depthStencilPixelFormat = MTLPixelFormatInvalid;
+//    mwv.drawableSize = frame.size;
+//
+//    mwv.autoresizingMask = NSViewHeightSizable | NSViewWidthSizable | NSViewMaxYMargin;
+//   
+//    mwv.autoResizeDrawable = NO;
+//
+//    self.waveRenderer = [[WaveRenderer alloc] initWithView:mwv
+//                                                      color:[[Defaults sharedDefaults] lightBeamColor]
+//                                                 background:[[Defaults sharedDefaults] backColor]
+//                                                   delegate:self];
+//    _renderer.level = self.controlPanelController.level;
+//    mwv.delegate = _waveRenderer;
+//
+//    assert(parent);
+//    [parent addSubview:mwv];
+//
+////    [_metalWaveView removeFromSuperview];
+////    _metalWaveView = mwv;
+//}
 
 - (void)setPlaybackActive:(BOOL)active
 {
@@ -1443,6 +1516,15 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
 
 #pragma mark Splitter delegate
 
+//- (void)splitView:(NSSplitView *)splitView resizeSubviewsWithOldSize:(NSSize)oldSize
+//{
+//    if (splitView == _split) {
+//        //renderer mtkView:_scopeView drawableSizeWillChange:_scopeView.bounds.size];
+//        NSLog(@"old size %@", NSStringFromSize(oldSize));
+//        NSLog(@"new size %@", NSStringFromSize(_scopeView.bounds.size));
+//    }
+//}
+
 - (void)splitViewWillResizeSubviews:(NSNotification *)notification
 {
     NSSplitView* sv = notification.object;
@@ -1451,10 +1533,19 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     if (sv == _split) {
         if (indexNumber != nil) {
             switch(indexNumber.intValue) {
-                case 0:
-                    NSLog(@"splitViewWillResizeSubview 0 to height %f", _scopeView.bounds.size.height);
-                    [_renderer mtkView:_scopeView drawableSizeWillChange:_scopeView.bounds.size];
+                case 0: {
+                    //NSSize newSize = NSMakeSize(_split.bounds.size.width, _split.bounds.size.height - (_totalView.bounds.size.height + _waveView.bounds.size.height));
+//                    NSSize newSize = NSMakeSize(_belowVisuals.bounds.size.width, _belowVisuals.bounds.size.height - (_totalView.bounds.size.height + _waveView.bounds.size.height));
+//                    NSLog(@"splitViewWillResizeSubview 0 `ScopeView` to height %f", newSize.height);
+//                    if (newSize.height > 0.0) {
+//                        [_renderer mtkView:_scopeView drawableSizeWillChange:newSize];
+//                    }
+//                    NSSize newSize = NSMakeSize(_belowVisuals.bounds.size.width, _belowVisuals.bounds.size.height - (_totalView.bounds.size.height + _waveView.bounds.size.height));
+//                    NSLog(@"windowDidResize with `ScopeView` to height %f", newSize.height);
+//                    [_renderer mtkView:_scopeView drawableSizeWillChange:newSize];
+
                     break;
+                }
                 case 1:
                     NSLog(@"splitViewWillResizeSubview 1 to height %f", _splitSelectors.bounds.size.height);
                     break;
@@ -1465,6 +1556,20 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
         }
     }
 }
+
+/*
+- (CGFloat)splitView:(NSSplitView *)splitView constrainMinCoordinate:(CGFloat)proposedMinimumPosition ofSubviewAt:(NSInteger)dividerIndex
+{
+    CGFloat ret = 0.0f;
+    if (splitView == _split) {
+        if (dividerIndex == 0) {
+            //_totalView.translatesAutoresizingMaskIntoConstraints
+            ret = _totalView.bounds.size.height + _waveView.bounds.size.height + kMinScopeViewHeigth;
+        }
+    }
+    return ret;
+}
+ */
 
 - (BOOL)splitView:(NSSplitView *)splitView canCollapseSubview:(NSView *)subview
 {
@@ -1500,13 +1605,11 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
         }
     } else if (sv == _split) {
         switch(indexNumber.intValue) {
-            case 0:
-                NSLog(@"splitViewDidResizeSubview 0 to height %f", _belowVisuals.bounds.size.height);
-                [self putScopeViewWithFrame:NSMakeRect(_scopeView.frame.origin.x,
-                                                       _scopeView.frame.origin.y,
-                                                       _scopeView.frame.size.width,
-                                                       _scopeView.frame.size.height) onView:_belowVisuals];
+            case 0: {
+                NSSize newSize = NSMakeSize(_belowVisuals.bounds.size.width, _belowVisuals.bounds.size.height - (_totalView.bounds.size.height + _waveView.bounds.size.height));
+                [_renderer mtkView:_scopeView drawableSizeWillChange:newSize];
                 break;
+            }
         }
         splitPosition[0] = _belowVisuals.bounds.size.height;
         splitPosition[1] = _belowVisuals.bounds.size.height + _splitSelectors.bounds.size.height;
@@ -1524,7 +1627,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
 
     if ([openDlg runModal] == NSModalResponseOK) {
         for(NSURL* url in [openDlg URLs]) {
-            [self loadDocumentFromURL:url meta:nil];
+            [self loadDocumentFromURL:[WaveWindowController encodeQueryItemsWithUrl:url frame:0LL playing:YES] meta:nil];
         }
     } else {
         return;
@@ -1538,7 +1641,24 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
         _audioController = [AudioController new];
         _audioController.delegate = self;
     }
+    
+    if (url == nil) {
+        return NO;
+    }
+    
+    BOOL playing = NO;
+    unsigned long long frame = 0LL;
 
+    NSURLComponents* components = [NSURLComponents componentsWithURL:url
+                                             resolvingAgainstBaseURL:YES];
+
+    NSPredicate* predicate = [NSPredicate predicateWithFormat:@"name=%@", @"CurrentFrame"];
+    NSURLQueryItem* item = [[components.queryItems filteredArrayUsingPredicate:predicate] firstObject];
+    frame = [[item value] longLongValue];
+
+    predicate = [NSPredicate predicateWithFormat:@"name=%@", @"Playing"];
+    item = [[components.queryItems filteredArrayUsingPredicate:predicate] firstObject];
+    playing = [[item value] boolValue];
     if (![url checkResourceIsReachableAndReturnError:&error]) {
         if (error != nil) {
             NSAlert* alert = [NSAlert betterAlertWithError:error action:@"load" url:url];
@@ -1546,12 +1666,12 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
         }
         return NO;
     }
-    
+
     if (meta == nil) {
         // Not being able to get metadata is not a reason to error out.
         meta = [MediaMetaData mediaMetaDataWithURL:url error:&error];
     }
-    
+
     LazySample* lazySample = [[LazySample alloc] initWithPath:url.path error:&error];
     if (lazySample == nil) {
         if (error) {
@@ -1561,21 +1681,19 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
         return NO;
     }
     [[NSDocumentController sharedDocumentController] noteNewRecentDocumentURL:url];
-    
     [self setMeta:meta];
-
     if (_lazySample != nil) {
         [_lazySample abortWithCallback:^{
-            [self loadLazySample:lazySample];
+            [self loadLazySample:lazySample nextFrame:frame playing:playing];
         }];
     } else {
-        [self loadLazySample:lazySample];
+        [self loadLazySample:lazySample nextFrame:frame playing:playing];
     }
 
     return YES;
 }
 
-- (void)loadLazySample:(LazySample*)lazySample
+- (void)loadLazySample:(LazySample*)lazySample nextFrame:(unsigned long long)nextFrame playing:(BOOL)playing
 {
     // We keep a reference around so that the `sample` setter will cause the possibly
     // ongoing decode of a previous sample to get aborted.
@@ -1593,8 +1711,9 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     _waveLayerDelegate.visualSample = self.visualSample;
 
     _totalVisual = [[VisualSample alloc] initWithSample:self.lazySample
-                                             pixelPerSecond:self.totalView.bounds.size.width / _lazySample.duration
-                                                  tileWidth:kTotalWaveViewTileWidth];
+                                         pixelPerSecond:self.totalView.bounds.size.width / _lazySample.duration
+                                              tileWidth:kTotalWaveViewTileWidth];
+
     _totalWaveLayerDelegate.visualSample = self.totalVisual;
 
     [_lazySample decodeAsyncWithCallback:^(BOOL decodeFinished){
@@ -1618,12 +1737,14 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
 //
 
     _waveView.frame = CGRectMake(0.0,
-                                     0.0,
-                                     self.visualSample.width,
-                                     self.waveView.bounds.size.height);
+                                 0.0,
+                                 self.visualSample.width,
+                                 self.waveView.bounds.size.height);
     [_totalView refresh];
-        
-    [_audioController playWhenReady];
+
+    if (playing) {
+        [_audioController playWhenReady:(unsigned long long)nextFrame];
+    }
 }
 
 - (void)lazySampleDecoded
@@ -1695,7 +1816,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     if (pboard.pasteboardItems.count <= 1) {
         NSURL* url = [NSURL URLFromPasteboard:pboard];
         if (url) {
-            if ([self loadDocumentFromURL:url meta:nil]) {
+            if ([self loadDocumentFromURL:[WaveWindowController encodeQueryItemsWithUrl:url frame:0LL playing:YES] meta:nil]) {
                 return YES;
             }
         }
@@ -1804,9 +1925,26 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     [_playlist addLater:meta];
 }
 
++ (NSURL*)encodeQueryItemsWithUrl:(NSURL*)url frame:(unsigned long long)frame playing:(BOOL)playing
+{
+    NSNumber* currentFrameValue = @(frame);
+    NSNumber* playingValue = @(playing);
+
+    NSURLComponents* components = [NSURLComponents componentsWithString:[url.filePathURL absoluteString]];
+    NSMutableArray<NSURLQueryItem*>* queryItems = [NSMutableArray array];
+
+    NSURLQueryItem* item = [NSURLQueryItem queryItemWithName:@"CurrentFrame" value:[currentFrameValue stringValue]];
+    [queryItems addObject:item];
+
+    item = [NSURLQueryItem queryItemWithName:@"Playing" value:[playingValue stringValue]];
+    [queryItems addObject:item];
+    components.queryItems = queryItems;
+    return [components URL];
+}
+
 - (void)browseSelectedUrl:(NSURL*)url meta:(MediaMetaData*)meta
 {
-    [self loadDocumentFromURL:url meta:meta];
+    [self loadDocumentFromURL:[WaveWindowController encodeQueryItemsWithUrl:url frame:0LL playing:YES] meta:meta];
 }
 
 - (void)loadProgress:(NSProgressIndicator*)progress state:(LoadState)state value:(double)value
@@ -1920,7 +2058,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
         return;
     }
 
-    [self loadDocumentFromURL:item.location meta:item];
+    [self loadDocumentFromURL:[WaveWindowController encodeQueryItemsWithUrl:item.location frame:0LL playing:YES] meta:item];
 }
 
 - (void)stop

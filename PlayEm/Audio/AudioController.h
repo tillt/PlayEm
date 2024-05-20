@@ -41,7 +41,7 @@ typedef void (^TapBlock) (unsigned long long, float*, unsigned int);
 
 - (id)init;
 - (void)playPause;
-- (void)playWhenReady;
+- (void)playWhenReady:(unsigned long long)nextFrame;
 
 - (void)startTapping:(TapBlock)tap;
 - (void)stopTapping;

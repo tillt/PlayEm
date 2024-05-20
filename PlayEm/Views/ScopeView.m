@@ -24,7 +24,7 @@ const double kControlPanelVisiblePhase = 10.0f;
 {
     [super awakeFromNib];
     
-    self.preferredFramesPerSecond = 30.0f;
+    self.preferredFramesPerSecond = 100.0f;
 //    assert(_playPause);
 //
 //    self.playPause.wantsLayer = YES;
@@ -94,4 +94,17 @@ const double kControlPanelVisiblePhase = 10.0f;
     [self delayHide];
 }
 */
+
+- (void)setFrame:(NSRect)frame
+{
+    if (frame.size.height <= 10.0f) {
+        NSLog(@"this should never happen");
+//        return;
+    }
+   // assert(frame.size.height > 10.0f);
+    [super setFrame:frame];
+    NSLog(@"set frame %@", NSStringFromRect(frame));
+    //[_renderer mtkView:_scopeView drawableSizeWillChange:newSize];
+}
+
 @end

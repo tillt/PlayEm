@@ -38,12 +38,15 @@ static const double kScrollSpeed = 1.0 / 24.0;
         _first.anchorPoint = CGPointMake(0.0, 0.0);
         _first.frame = self.bounds;
         _first.allowsEdgeAntialiasing = YES;
+        _first.contentsScale = [[NSScreen mainScreen] backingScaleFactor];
+
         [self.layer addSublayer:_first];
         
-        _second = [[CATextLayer alloc] init];
+        _second = [CATextLayer layer];
         _second.anchorPoint = CGPointMake(0.0, 0.0);
         _second.frame = self.bounds;
         _second.allowsEdgeAntialiasing = YES;
+        _second.contentsScale = [[NSScreen mainScreen] backingScaleFactor];
         [self.layer addSublayer:_second];
         
         _font = [NSFont systemFontOfSize:13.0];
@@ -104,8 +107,6 @@ static const double kScrollSpeed = 1.0 / 24.0;
 - (void)addAnimation:(CATextLayer*)layer
 {
     CGFloat width = ceil([(NSAttributedString*)layer.string size].width);
-
-    [CATransaction begin];
 
     CABasicAnimation* animation = [CABasicAnimation animationWithKeyPath:@"position"];
     animation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionLinear];

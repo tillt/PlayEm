@@ -33,23 +33,37 @@
 
 - (BOOL)application:(NSApplication*)sender openFile:(NSString*)filename
 {
-    return [[self waveController] loadDocumentFromURL:[NSURL fileURLWithPath:filename] meta:nil];
+    NSURL* url = [NSURL fileURLWithPath:filename];
+    return [[self waveController] loadDocumentFromURL:[WaveWindowController encodeQueryItemsWithUrl:url frame:0LL playing:YES] meta:nil];
 }
 
 - (void)application:(NSApplication*)application openURLs:(NSArray<NSURL*>*)urls
 {
-    [[self waveController] loadDocumentFromURL:urls[0] meta:nil];
+    [[self waveController] loadDocumentFromURL:[WaveWindowController encodeQueryItemsWithUrl:urls[0] frame:0LL playing:YES] meta:nil];
 }
 
 - (void)applicationDidFinishLaunching:(NSNotification*)aNotification
 {
-    //NSLog(@"%@", [[NSUserDefaults standardUserDefaults] dictionaryRepresentation]);
+    NSLog(@"%@", [[NSUserDefaults standardUserDefaults] dictionaryRepresentation]);
+
     [[[self waveController] window] makeKeyAndOrderFront:self];
+
+    NSUserDefaults* userDefaults = [NSUserDefaults standardUserDefaults];
+    NSData* bookmark = [userDefaults objectForKey:@"bookmark"];
+
+    NSError* error = nil;
+    NSURL* url = [NSURL URLByResolvingBookmarkData:bookmark
+                                           options:NSURLBookmarkResolutionWithSecurityScope
+                                     relativeToURL:nil
+                               bookmarkDataIsStale:nil
+                                             error:&error];
+
+    [[self waveController] loadDocumentFromURL:url meta:nil];
 }
 
 - (void)applicationWillTerminate:(NSNotification*)aNotification
 {
-    //NSLog(@"%@", [[NSUserDefaults standardUserDefaults] dictionaryRepresentation]);
+    NSLog(@"%@", [[NSUserDefaults standardUserDefaults] dictionaryRepresentation]);
 }
 
 @end

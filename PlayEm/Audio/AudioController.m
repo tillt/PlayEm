@@ -226,13 +226,19 @@ void bufferCallback(void* user_data, AudioQueueRef queue, AudioQueueBufferRef bu
     _context.tapBlock = NULL;
 }
 
-- (void)playWhenReady
+- (void)playWhenReady:(unsigned long long)nextFrame
 {
     if (self.playing) {
+        NSLog(@"playing already");
         return;
     }
     
-    if (_context.sample.decodedFrames > _context.sample.rate * kEnoughSecondsDecoded) {
+    if (nextFrame + (_context.sample.rate * kEnoughSecondsDecoded) >= _context.sample.frames) {
+        NSLog(@"too late for restarting from that position again");
+        nextFrame = 0LL;
+    }
+    
+    if (_context.sample.decodedFrames > nextFrame + (_context.sample.rate * kEnoughSecondsDecoded)) {
         NSLog(@"got enough data already.");
         [self playPause];
         return;
@@ -243,10 +249,11 @@ void bufferCallback(void* user_data, AudioQueueRef queue, AudioQueueBufferRef bu
     // TODO: We should use something more appropriate here, preventing polling.
     _timer = [NSTimer scheduledTimerWithTimeInterval:kDecodingPollInterval
                                              repeats:YES block:^(NSTimer* timer){
-        if (self->_context.sample.decodedFrames >= self->_context.sample.rate * kEnoughSecondsDecoded) {
+        if (self->_context.sample.decodedFrames >= nextFrame + (self->_context.sample.rate * kEnoughSecondsDecoded)) {
             NSLog(@"waiting done, starting playback.");
             [timer invalidate];
             self.timer = nil;
+            [self setCurrentFrame:nextFrame];
             if (!self.playing) {
                 [self playPause];
             }

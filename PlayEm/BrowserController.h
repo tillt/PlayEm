@@ -8,6 +8,7 @@
 
 #import <Cocoa/Cocoa.h>
 #import <Foundation/Foundation.h>
+#import <Quartz/Quartz.h>
 #import "LoadState.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -32,7 +33,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)updateSongsCount:(size_t)songs;
 @end
 
-@interface BrowserController : NSResponder <NSTableViewDelegate, NSTableViewDataSource>
+@interface BrowserController : NSResponder <NSTableViewDelegate, NSTableViewDataSource, CAAnimationDelegate>
 @property (nonatomic, weak) id <BrowserControllerDelegate> delegate;
 
 - (id)initWithGenresTable:(NSTableView*)genresTable

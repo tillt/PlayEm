@@ -9,6 +9,7 @@
 #import "ScopeView.h"
 #import "UIView+Visibility.h"
 
+NSString * const kScopeViewDidLiveResizeNotification = @"ScopeViewDidLiveResizeNotification";
 const double kControlPanelVisiblePhase = 10.0f;
 
 @interface ScopeView ()
@@ -20,11 +21,46 @@ const double kControlPanelVisiblePhase = 10.0f;
    
 }
 
+- (nonnull instancetype)initWithFrame:(CGRect)frameRect device:(nullable id<MTLDevice>)device
+{
+    self = [super initWithFrame:frameRect device:device];
+    if (self) {
+        self.colorPixelFormat = MTLPixelFormatBGRA8Unorm;
+        self.depthStencilPixelFormat = MTLPixelFormatInvalid;
+        self.drawableSize = frameRect.size;
+        self.autoresizingMask = NSViewHeightSizable | NSViewWidthSizable;
+        self.autoResizeDrawable = YES;
+    }
+    return self;
+}
+
+/*
+
+
+ ScopeView* sv = [[ScopeView alloc] initWithFrame:frame
+                                           device:MTLCreateSystemDefaultDevice()];
+ assert(sv);
+ self.renderer = [[ScopeRenderer alloc] initWithMetalKitView:sv
+                                                       color:[[Defaults sharedDefaults] lightBeamColor]
+                                                    fftColor:[[Defaults sharedDefaults] fftColor]
+                                                  background:[[Defaults sharedDefaults] backColor]
+                                                    delegate:self];
+ _renderer.level = self.controlPanelController.level;
+ sv.delegate = _renderer;
+ sv.paused = YES;
+
+ */
+
+
+/*
+ */
+
+
 - (void)awakeFromNib
 {
     [super awakeFromNib];
     
-    self.preferredFramesPerSecond = 100.0f;
+//    self.preferredFramesPerSecond = 100.0f;
 //    assert(_playPause);
 //
 //    self.playPause.wantsLayer = YES;
@@ -36,6 +72,7 @@ const double kControlPanelVisiblePhase = 10.0f;
 //    self.controlPanel.material = NSVisualEffectMaterialMenu;
 //    self.controlPanel.blendingMode = NSVisualEffectBlendingModeWithinWindow;
 }
+
 
 
 /*
@@ -106,5 +143,14 @@ const double kControlPanelVisiblePhase = 10.0f;
     NSLog(@"set frame %@", NSStringFromRect(frame));
     //[_renderer mtkView:_scopeView drawableSizeWillChange:newSize];
 }
+
+- (void)viewDidEndLiveResize
+{
+    [super viewDidEndLiveResize];
+    
+    [[NSNotificationCenter defaultCenter] postNotificationName:kScopeViewDidLiveResizeNotification
+                                                        object:self];
+}
+
 
 @end

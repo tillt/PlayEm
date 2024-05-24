@@ -208,7 +208,7 @@
 
 - (void)updateScrollingState
 {
-    CGFloat head = floor((_currentFrame * self.bounds.size.width) / _frames);
+    //CGFloat head = floor((_currentFrame * self.enclosingScrollView.bounds.size.width) / _frames);
    
     extern os_log_t pointsOfInterest;
     
@@ -216,12 +216,27 @@
 
     [CATransaction begin];
     [CATransaction setDisableActions:YES];
-    
+
+    os_signpost_interval_begin(pointsOfInterest, POIUpdateHeadPosition, "UpdateHeadPosition");
+    [self _updateHeadPosition];
+    os_signpost_interval_end(pointsOfInterest, POIUpdateHeadPosition, "UpdateHeadPosition");
+
     if (_followTime) {
-        CGPoint pointVisible = CGPointMake(floor(head - (self.enclosingScrollView.bounds.size.width / 2.0)), 
+        CGPoint pointVisible = CGPointMake(floor(_head - (self.enclosingScrollView.bounds.size.width / 2.0)),
                                            0.0f);
+
+
+//        CGPoint pointVisible = CGPointMake(floor(head - (self.enclosingScrollView.documentVisibleRect.size.width / 2.0)),
+//                                           0.0f);
+
         os_signpost_interval_begin(pointsOfInterest, POIScrollPoint, "ScrollPoint");
         [self scrollPoint:pointVisible];
+
+//        [self scrollRectToVisible:CGRectMake(floor(head - (self.enclosingScrollView.bounds.size.width / 2.0)),
+//                                             0.0,
+//                                             self.enclosingScrollView.bounds.size.width,
+//                                             self.bounds.size.height)];
+
         os_signpost_interval_end(pointsOfInterest, POIScrollPoint, "ScrollPoint");
     } else {
         // If the user has just requested some scrolling, do not interfere but wait

@@ -38,10 +38,12 @@ typedef void (^TapBlock) (unsigned long long, float*, unsigned int);
 
 @property (nonatomic, assign, readonly) int64_t currentOffset;
 @property (nonatomic, assign, readonly) BOOL playing;
+@property (nonatomic, assign, readonly) BOOL paused;
 
 - (id)init;
 - (void)playPause;
 - (void)playWhenReady:(unsigned long long)nextFrame;
+- (void)seekWhenReady:(unsigned long long)nextFrame;
 
 - (void)startTapping:(TapBlock)tap;
 - (void)stopTapping;

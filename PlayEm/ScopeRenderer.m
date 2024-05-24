@@ -22,6 +22,7 @@
 
 #import "ShaderTypes.h"
 #import "ScopeShaderTypes.h"
+#import "ScopeView.h"
 
 #import "VisualSample.h"
 
@@ -48,6 +49,8 @@ static const double kLevelDecreaseValue = 0.042;
 @property (strong, nonatomic) NSMutableData* blockFrequencyData;
 
 @property (weak, nonatomic) id<ScopeRendererDelegate> delegate;
+
+@property (strong, nonatomic) dispatch_queue_t renderQueue;
 
 @end
 
@@ -173,10 +176,12 @@ static const double kLevelDecreaseValue = 0.042;
     vDSP_DFT_Setup _dctSetup;
     
     float* _logMap;
+    
+    NSSize _originalSize;
+    NSSize _defaultSize;
 }
 
 // Really? WHY?? Why is this a static?
-static NSSize _originalSize __attribute__((unused)) = {0.0,0.0};
 //static NSSize _originalSize=@{0.0f, 0.0f};
 
 -(nonnull instancetype)initWithMetalKitView:(nonnull MTKView *)view
@@ -192,7 +197,6 @@ static NSSize _originalSize __attribute__((unused)) = {0.0,0.0};
         _sampleStepping = 1;
         _frequencyStepping = 1;
         //_frequencyCount = 256;
-        _device = view.device;
         _color = color;
         _fftColor = fftColor;
         _msaaCount = 4;
@@ -201,13 +205,6 @@ static NSSize _originalSize __attribute__((unused)) = {0.0,0.0};
         _lineAspectRatio = 0.0f;
         _frequencyLineWidth = 0.0f;
         _inFlightSemaphore = dispatch_semaphore_create(kMaxBuffersInFlight);
-
-        if (_originalSize.width == 0.0f) {
-            _originalSize.width = view.frame.size.width;
-            _originalSize.height = view.frame.size.height;
-        }
-        
-        [self mtkView:view drawableSizeWillChange:view.frame.size];
 
         _feedbackColorFactor = vector4(0.9588f, 0.90f, 0.37f, 1.0f);
         _feedbackProjectionMatrix = matrix4x4_scale(1.0f, 1.0f, 1.0f);
@@ -219,11 +216,22 @@ static NSSize _originalSize __attribute__((unused)) = {0.0,0.0};
         
         _delegate = delegate;
         
-        [self _loadMetalWithView:view];
+        _originalSize = NSMakeSize(0.0f, 0.0f);
+        _defaultSize = NSMakeSize(640.0, 480.0f);
+        
+        [[NSNotificationCenter defaultCenter] addObserver:self
+                                                 selector:@selector(scopeViewDidLiveResize:)
+                                                     name:kScopeViewDidLiveResizeNotification
+                                                   object:nil];
+    
+        [self loadMetalWithView:view];
         
         _commandQueue = [_device newCommandQueue];
 
-        [self _buildMesh];
+        dispatch_queue_attr_t attr = dispatch_queue_attr_make_with_qos_class(DISPATCH_QUEUE_SERIAL,
+                                                                             QOS_CLASS_USER_INTERACTIVE,
+                                                                             0);
+        _renderQueue = dispatch_queue_create("PlayEm.RenderingQueue", attr);
     }
 
     return self;
@@ -265,16 +273,26 @@ float rgb_from_srgb(float c)
     return c;
 }
 
-- (void)_loadMetalWithView:(nonnull MTKView*)view;
+- (void)scopeViewDidLiveResize:(NSNotification *)notification
+{
+    @synchronized (self) {
+        [self loadMetalWithView:notification.object];
+    };
+}
+
+- (void)loadMetalWithView:(nonnull MTKView*)view;
 {
     assert(view.frame.size.width * view.frame.size.height);
     NSError *error;
+
+    _device = view.device;
+    _originalSize.width = view.frame.size.width;
+    _originalSize.height = view.frame.size.height;
 
     /// Load Metal state objects and initalize renderer dependent view properties.
     view.colorPixelFormat = MTLPixelFormatBGRA8Unorm;
     view.sampleCount = 1;
     view.clearColor = [GraphicsTools MetalClearColorFromColor:_background];
-    //view.paused = NO;
     view.framebufferOnly = YES;
     
     // Set up a texture for rendering to and sampling from
@@ -476,10 +494,7 @@ float rgb_from_srgb(float c)
     _frequencyUniformBuffer = [_device newBufferWithLength:frequencyBufferSize
                                                    options:MTLResourceStorageModeShared];
     _frequencyUniformBuffer.label = @"FrequenciesBuffer";
-}
-
-- (void)_buildMesh
-{
+    
     [self _updateMeshWithLevel:1.000f];
 }
 
@@ -616,7 +631,7 @@ float rgb_from_srgb(float c)
         sourceChannels[channelIndex] = (float*)data.bytes;
     }
 
-    dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INTERACTIVE, 0), ^{
+    dispatch_async(_renderQueue, ^{
         const size_t frame = self.currentFrame;
 
         /// Copy FFT data.
@@ -793,9 +808,6 @@ float rgb_from_srgb(float c)
 
 - (void)mtkView:(nonnull MTKView *)view drawableSizeWillChange:(CGSize)size
 {
-//    if (size.height < 32.0) {
-//        size.height = 32.0;
-//    }
     /// Respond to drawable size or orientation changes here
     ///
     ///
@@ -807,28 +819,28 @@ float rgb_from_srgb(float c)
     const float linePoints = 3.0f;
     _lineWidth = linePoints / size.height;
 
-    float frequencyLineWidth = size.width / kScaledFrequencyDataLength;
+    const float frequencyLineWidth = size.width / kScaledFrequencyDataLength;
 
-    float spaceWidth = frequencyLineWidth / 5.0;
+    const float spaceWidth = frequencyLineWidth / 5.0;
     _frequencySpaceWidth = spaceWidth / size.width;
     _frequencyLineWidth = (frequencyLineWidth - spaceWidth) / size.width;
     
-    float sigma = ScaleWithOriginalFrame(0.7f, _originalSize.width, size.width);
+    const float sigma = ScaleWithOriginalFrame(0.7f, _defaultSize.width, size.width);
 
     @synchronized (self) {
         _blur = [[MPSImageGaussianBlur alloc] initWithDevice:_device sigma:sigma];
         _blur.edgeMode = MPSImageEdgeModeClamp;
     };
 
-    float width = (((ceil(ScaleWithOriginalFrame(linePoints, _originalSize.height, _originalSize.height + (size.height/30) ))) / 2) * 2) + 1;
-    float height = (((ceil(ScaleWithOriginalFrame(linePoints, _originalSize.height, _originalSize.height + (size.height/30) ))) / 2) * 2) + 1;
+    float width = (((ceil(ScaleWithOriginalFrame(linePoints, _defaultSize.height, _defaultSize.height + (size.height/30) ))) / 2) * 2) + 1;
+    float height = (((ceil(ScaleWithOriginalFrame(linePoints, _defaultSize.height, _defaultSize.height + (size.height/30) ))) / 2) * 2) + 1;
 
     @synchronized (self) {
         _erode = [[MPSImageAreaMin alloc] initWithDevice:_device kernelWidth:width kernelHeight:height];
     };
 
-    width = ((((int)ceil(ScaleWithOriginalFrame(17.0f, _originalSize.height, _originalSize.height + (size.height/30) ))) / 2) * 2) + 1;
-    height = ((((int)ceil(ScaleWithOriginalFrame(17.0f, _originalSize.height, _originalSize.height + (size.height/30) ))) / 2) * 2) + 1;
+    width = ((((int)ceil(ScaleWithOriginalFrame(17.0f, _defaultSize.height, _defaultSize.height + (size.height/30) ))) / 2) * 2) + 1;
+    height = ((((int)ceil(ScaleWithOriginalFrame(17.0f, _defaultSize.height, _defaultSize.height + (size.height/30) ))) / 2) * 2) + 1;
 
     @synchronized (self) {
         _bloom = [[MPSImageBox alloc] initWithDevice:_device kernelWidth:width kernelHeight:height];
@@ -855,10 +867,8 @@ float rgb_from_srgb(float c)
         dispatch_semaphore_signal(block_sema);
     }];
     
-    
     [self _updateDynamicBufferState];
     [self _updateEngine];
-    
     
     {
         /// First pass rendering code: Drawing the scope line.
@@ -1035,10 +1045,14 @@ float rgb_from_srgb(float c)
 
     /// Delay getting the currentRenderPassDescriptor until we absolutely need it to avoid
     ///   holding onto the drawable and blocking the display pipeline any longer than necessar
-    MTLRenderPassDescriptor* renderPassDescriptor = view.currentRenderPassDescriptor;
+    ///
+    MTLRenderPassDescriptor* renderPassDescriptor = nil;
+
+    @synchronized (self) {
+        renderPassDescriptor = view.currentRenderPassDescriptor;
+    }
 
     if(renderPassDescriptor != nil) {
-
         /// Final pass rendering code: Display on screen.
         id<MTLRenderCommandEncoder> renderEncoder =
             [commandBuffer renderCommandEncoderWithDescriptor:renderPassDescriptor];

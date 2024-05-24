@@ -55,10 +55,6 @@ NS_ASSUME_NONNULL_BEGIN
 @property (strong, nonatomic) BeatTrackedSample* beatSample;
 
 @property (strong, nonatomic) BrowserController* browser;
-
-//@property (strong, nonatomic) InfoPanelController* infoPanel;
-
-
 @property (strong, nonatomic) ScopeView* smallScopeView;
 @property (strong, nonatomic) IBOutlet NSView* belowVisuals;
 @property (strong, nonatomic) IBOutlet TotalWaveView* totalView;
@@ -91,7 +87,6 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)setCurrentFrame:(unsigned long long)frame;
 - (BOOL)loadDocumentFromURL:(NSURL*)url meta:(nullable MediaMetaData*)meta;
 + (NSURL*)encodeQueryItemsWithUrl:(NSURL*)url frame:(unsigned long long)frame playing:(BOOL)playing;
-- (IBAction)toggleFullScreen:(id)sender;
 - (IBAction)loadITunesLibrary:(id)sender;
 - (IBAction)showInfoForCurrentSong:(id)sender;
 - (IBAction)showInfoForSelectedSongs:(id)sender;

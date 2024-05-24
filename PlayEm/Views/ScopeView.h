@@ -10,9 +10,9 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface ScopeView : MTKView
+extern NSString * const kScopeViewDidLiveResizeNotification;
 
-//@property (assign, nonatomic) BOOL playbackActive;
+@interface ScopeView : MTKView
 
 //- (void)updatedControlPanel;
 

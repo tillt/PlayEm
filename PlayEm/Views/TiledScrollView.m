@@ -66,8 +66,8 @@ const CGFloat kDirectWaveViewTileWidth = 256.0f;
     _rastaLayer.backgroundColor = [[NSColor colorWithPatternImage:[NSImage imageNamed:@"LargeRastaPattern"]] CGColor];
     _rastaLayer.contentsScale = NSViewLayerContentsPlacementScaleProportionallyToFill;
     _rastaLayer.anchorPoint = CGPointMake(1.0, 0.0);
-    _rastaLayer.frame = NSMakeRect(0.0,
-                                   0.0,
+    _rastaLayer.frame = NSMakeRect(self.bounds.origin.x,
+                                   self.bounds.origin.y,
                                    self.bounds.size.width,
                                    self.bounds.size.height);
     _rastaLayer.zPosition = 1.1;
@@ -244,15 +244,15 @@ const CGFloat kDirectWaveViewTileWidth = 256.0f;
                                    self.documentVisibleRect.size.width,
                                    _rastaLayer.frame.size.height);
     if (NSPointInRect(NSMakePoint(head, 1.0f), self.documentVisibleRect)) {
-        _aheadVibranceFxLayer.position = CGPointMake(head + 0.0 - self.documentVisibleRect.origin.x, 0.0f);
-        _trailBloomFxLayer.position = CGPointMake((head + 4.0) - self.documentVisibleRect.origin.x, 0.0f);
+        _aheadVibranceFxLayer.position = CGPointMake(head + 0.0 - self.documentVisibleRect.origin.x, self.bounds.origin.y);
+        _trailBloomFxLayer.position = CGPointMake((head + 4.0) - self.documentVisibleRect.origin.x, self.bounds.origin.y);
     } else {
         if (head < self.documentVisibleRect.origin.x) {
-            _aheadVibranceFxLayer.position = CGPointMake(0.0f, 0.0f);
-            _trailBloomFxLayer.position = CGPointMake(0.0f, 0.0f);
+            _aheadVibranceFxLayer.position = CGPointMake(self.bounds.origin.x, self.documentVisibleRect.origin.y);
+            _trailBloomFxLayer.position = CGPointMake(self.bounds.origin.x, self.documentVisibleRect.origin.y);
         } else {
-            _aheadVibranceFxLayer.position = CGPointMake(self.documentVisibleRect.size.width, 0.0f);
-            _trailBloomFxLayer.position = CGPointMake(self.documentVisibleRect.size.width, 0.0f);
+            _aheadVibranceFxLayer.position = CGPointMake(self.documentVisibleRect.size.width, self.bounds.origin.y);
+            _trailBloomFxLayer.position = CGPointMake(self.documentVisibleRect.size.width, self.bounds.origin.y);
         }
     }
 }

@@ -14,7 +14,7 @@
 #import "ProfilingPointsOfInterest.h"
 
 @interface WaveView ()
-- (void)updateHeadPosition;
+- (void)updateHeadPositionTransaction;
 @end
 
 @interface WaveView () // Private
@@ -27,25 +27,28 @@
 
 @implementation WaveView
 
+- (nonnull instancetype)initWithFrame:(CGRect)frameRect
+{
+    self = [super initWithFrame:frameRect];
+    if (self) {
+        self.layer = [self makeBackingLayer];
+        self.layer.masksToBounds = NO;
+    }
+    return self;
+}
 
 - (void)viewDidMoveToSuperview
 {
     [super viewDidMoveToSuperview];
-    
-    self.layer = [self makeBackingLayer];
-    self.layer.masksToBounds = NO;
-    //self.layer.shouldRasterize = YES;
-
+    _head = -1.0;
     _headLayer = [CALayer layer];
-    
     NSImage* image = [NSImage imageNamed:@"CurrentTime"];
     image.resizingMode = NSImageResizingModeTile;
     
     CIFilter* clampFilter = [CIFilter filterWithName:@"CIAffineClamp"];
     [clampFilter setDefaults];
 
-    //CGFloat scaleFactor = 1.15;
-    CGFloat scaleFactor = 1.05;
+    CGFloat scaleFactor = 1.15;
 
     CGAffineTransform transform = CGAffineTransformScale(CGAffineTransformMakeTranslation(0.0, self.enclosingScrollView.bounds.size.height * -(scaleFactor - 1.0) / 2.0), 1.0, scaleFactor);
     [clampFilter setValue:[NSValue valueWithBytes:&transform objCType:@encode(CGAffineTransform)] forKey:@"inputTransform"];
@@ -79,16 +82,8 @@
     _headBloomFxLayer.zPosition = 1.9;
     _headBloomFxLayer.name = @"HeadBloomFxLayer";
     _headBloomFxLayer.mask = [CAShapeLayer MaskLayerFromRect:_headBloomFxLayer.frame];
-
     [self.layer addSublayer:_headLayer];
     [self.layer addSublayer:_headBloomFxLayer];
-    
-    _hudLayer = [CALayer layer];
-    _hudLayer.anchorPoint = CGPointMake(0.5, 0.0);
-    _hudLayer.frame = CGRectMake(0.0, 0.0, floor(_headImageSize.width), height);
-    //_hudLayer.compositingFilter = [CIFilter filterWithName:@"CISourceAtopCompositing"];
-    _hudLayer.zPosition = 2.0;
-    _hudLayer.name = @"HUDLayer";
 
     const unsigned int trailingBloomLayerCount = 3;
     NSMutableArray* layers = [NSMutableArray array];
@@ -114,8 +109,7 @@
     _trailBloomFxLayers = [layers copy];
 
     _followTime = YES;
-    _userMomentum = NO;
-}
+    _userMomentum = NO;}
 
 - (void)dealloc
 {
@@ -159,16 +153,16 @@
 - (void)layout
 {
     [super layout];
-    [self updateHeadPosition];
+    [self updateHeadPositionTransaction];
 }
 
-- (void)_updateHeadPosition
+- (void)setHead:(CGFloat)position
 {
-    if (_frames == 0.0) {
+    if (_head == position) {
         return;
     }
     
-    _head = floor(( _currentFrame * self.bounds.size.width) / _frames);
+    _head = position;
 
     _headLayer.position = CGPointMake(_head, 0.0);
     _headBloomFxLayer.position = CGPointMake(_head, 0.0);
@@ -183,14 +177,20 @@
     [_headDelegate updatedHeadPosition];
 }
 
-- (void)updateHeadPosition
+- (CGFloat)calcHead
 {
-   [CATransaction begin];
-   [CATransaction setDisableActions:YES];
+    if (_frames == 0.0) {
+        return 0.0;
+    }
+    return floor(( _currentFrame * self.bounds.size.width) / _frames);
+}
 
-    [self _updateHeadPosition];
-
-   [CATransaction commit];
+- (void)updateHeadPositionTransaction
+{
+    [CATransaction begin];
+    [CATransaction setDisableActions:YES];
+    self.head = [self calcHead];
+    [CATransaction commit];
 }
 
 - (void)setCurrentFrame:(unsigned long long)frame
@@ -218,24 +218,15 @@
     [CATransaction setDisableActions:YES];
 
     os_signpost_interval_begin(pointsOfInterest, POIUpdateHeadPosition, "UpdateHeadPosition");
-    [self _updateHeadPosition];
+    self.head = [self calcHead];
     os_signpost_interval_end(pointsOfInterest, POIUpdateHeadPosition, "UpdateHeadPosition");
 
     if (_followTime) {
-        CGPoint pointVisible = CGPointMake(floor(_head - (self.enclosingScrollView.bounds.size.width / 2.0)),
-                                           0.0f);
-
-
-//        CGPoint pointVisible = CGPointMake(floor(head - (self.enclosingScrollView.documentVisibleRect.size.width / 2.0)),
-//                                           0.0f);
+        CGPoint pointVisible = CGPointMake(self.enclosingScrollView.bounds.origin.x + floor(_head - (self.enclosingScrollView.bounds.size.width / 2.0)),
+                                           self.enclosingScrollView.bounds.origin.y + floor(self.enclosingScrollView.bounds.size.height / 2.0));
 
         os_signpost_interval_begin(pointsOfInterest, POIScrollPoint, "ScrollPoint");
         [self scrollPoint:pointVisible];
-
-//        [self scrollRectToVisible:CGRectMake(floor(head - (self.enclosingScrollView.bounds.size.width / 2.0)),
-//                                             0.0,
-//                                             self.enclosingScrollView.bounds.size.width,
-//                                             self.bounds.size.height)];
 
         os_signpost_interval_end(pointsOfInterest, POIScrollPoint, "ScrollPoint");
     } else {
@@ -246,14 +237,11 @@
             // time with the scrollview.
             const CGFloat delta = 1.0f;
             CGFloat visibleCenter = self.enclosingScrollView.documentVisibleRect.origin.x + (self.enclosingScrollView.documentVisibleRect.size.width / 2.0f);
-            if (visibleCenter - delta <= head && visibleCenter + delta >= head) {
+            if (visibleCenter - delta <= _head && visibleCenter + delta >= _head) {
                 _followTime = YES;
             }
         }
     }
-    os_signpost_interval_begin(pointsOfInterest, POIUpdateHeadPosition, "UpdateHeadPosition");
-    [self _updateHeadPosition];
-    os_signpost_interval_end(pointsOfInterest, POIUpdateHeadPosition, "UpdateHeadPosition");
 
     [CATransaction commit];
 

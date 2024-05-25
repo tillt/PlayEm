@@ -254,7 +254,7 @@ void bufferCallback(void* user_data, AudioQueueRef queue, AudioQueueBufferRef bu
     }];
 }
 
-- (void)playWhenReady:(unsigned long long)nextFrame
+- (void)playWhenReady:(unsigned long long)nextFrame paused:(BOOL)paused
 {
     if (self.playing) {
         NSLog(@"playing already");
@@ -278,12 +278,15 @@ void bufferCallback(void* user_data, AudioQueueRef queue, AudioQueueBufferRef bu
     _timer = [NSTimer scheduledTimerWithTimeInterval:kDecodingPollInterval
                                              repeats:YES block:^(NSTimer* timer){
         if (self->_context.sample.decodedFrames >= nextFrame + (self->_context.sample.rate * kEnoughSecondsDecoded)) {
-            NSLog(@"waiting done, starting playback.");
+            NSLog(@"waiting done, triggering...");
             [timer invalidate];
             self.timer = nil;
             [self setCurrentFrame:nextFrame];
             if (!self.playing) {
-                [self playPause];
+                [self play];
+            }
+            if (paused) {
+                [self pause];
             }
         } else {
             NSLog(@"still waiting for more decoded audio data...");
@@ -293,37 +296,56 @@ void bufferCallback(void* user_data, AudioQueueRef queue, AudioQueueBufferRef bu
 
 - (void)playPause
 {
+    if (!self.playing) {
+        [self play];
+    } else {
+        [self pause];
+    }
+}
+
+- (void)pause
+{
     if (_queue == NULL) {
         NSLog(@"no queue");
         return;
     }
-    if (!self.playing) {
-        if (_context.endOfStream) {
-            _context.endOfStream = NO;
-            self.currentFrame = 0;
-            _context.seekFrame = 0;
-            NSLog(@"resetting playback position to start of sample");
-            for (int i = 0; i < kPlaybackBufferCount; i++) {
-                bufferCallback(&_context,
-                               _queue,
-                               _context.buffers[i]);
-            }
-        }
 
-        NSLog(@"starting audioqueue");
-        OSStatus res = AudioQueueStart(_queue, NULL);
-        assert(0 == res);
+    NSLog(@"pausing audioqueue");
+    OSStatus res = AudioQueuePause(_queue);
+    assert(0 == res);
 
-        _isPaused = NO;
-        [self.delegate audioControllerPlaybackPlaying];
-    } else {
-        NSLog(@"pausing audioqueue");
-        OSStatus res = AudioQueuePause(_queue);
-        assert(0 == res);
+    _isPaused = YES;
+    [self.delegate audioControllerPlaybackPaused];
+}
 
-        _isPaused = YES;
-        [self.delegate audioControllerPlaybackPaused];
+- (void)play
+{
+    if (_queue == NULL) {
+        NSLog(@"no queue");
+        return;
     }
+    if (self.playing) {
+        NSLog(@"already playing");
+        return;
+    }
+    if (_context.endOfStream) {
+        _context.endOfStream = NO;
+        self.currentFrame = 0;
+        _context.seekFrame = 0;
+        NSLog(@"resetting playback position to start of sample");
+        for (int i = 0; i < kPlaybackBufferCount; i++) {
+            bufferCallback(&_context,
+                           _queue,
+                           _context.buffers[i]);
+        }
+    }
+
+    NSLog(@"starting audioqueue");
+    OSStatus res = AudioQueueStart(_queue, NULL);
+    assert(0 == res);
+
+    _isPaused = NO;
+    [self.delegate audioControllerPlaybackPlaying];
 }
 
 - (NSTimeInterval)currentTime

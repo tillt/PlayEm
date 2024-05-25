@@ -30,117 +30,121 @@ const CGFloat kDirectWaveViewTileWidth = 256.0f;
 
 @implementation TiledScrollView
 
+- (nonnull instancetype)initWithFrame:(CGRect)frameRect
+{
+    self = [super initWithFrame:frameRect];
+    if (self) {
+        self.automaticallyAdjustsContentInsets = NO;
+        self.contentInsets = NSEdgeInsetsMake(0.0, 0.0, 0.0, 0.0);
+        
+        self.backgroundColor = [[Defaults sharedDefaults] backColor];
+        
+        self.allowsMagnification = NO;
+        
+        Scroller* scroller = [Scroller new];
+        scroller.color = [NSColor redColor];
+        self.horizontalScroller = scroller;
+        
+        self.wantsLayer = YES;
+        self.layer = [self makeBackingLayer];
+        self.layerContentsRedrawPolicy = NSViewLayerContentsRedrawOnSetNeedsDisplay;
+        self.layer.masksToBounds = NO;
+        
+        CIFilter* vibranceFilter = [CIFilter filterWithName:@"CIColorControls"];
+        [vibranceFilter setDefaults];
+        [vibranceFilter setValue:[NSNumber numberWithFloat:0.10] forKey:@"inputSaturation"];
+        [vibranceFilter setValue:[NSNumber numberWithFloat:0.0001] forKey:@"inputBrightness"];
+
+        CIFilter* darkenFilter = [CIFilter filterWithName:@"CIGammaAdjust"];
+        [darkenFilter setDefaults];
+        [darkenFilter setValue:[NSNumber numberWithFloat:2.5] forKey:@"inputPower"];
+        
+        _rastaLayer = [CALayer layer];
+        _rastaLayer.backgroundColor = [[NSColor colorWithPatternImage:[NSImage imageNamed:@"LargeRastaPattern"]] CGColor];
+        _rastaLayer.contentsScale = NSViewLayerContentsPlacementScaleProportionallyToFill;
+        _rastaLayer.anchorPoint = CGPointMake(1.0, 0.0);
+        _rastaLayer.frame = NSMakeRect(self.bounds.origin.x,
+                                       self.bounds.origin.y,
+                                       self.bounds.size.width,
+                                       self.bounds.size.height);
+        _rastaLayer.zPosition = 1.1;
+        _rastaLayer.opacity = 0.7;
+        _rastaLayer.compositingFilter = [CIFilter filterWithName:@"CISourceAtopCompositing"];
+        
+        _aheadVibranceFxLayer = [CALayer layer];
+        _aheadVibranceFxLayer.backgroundFilters = @[ darkenFilter, vibranceFilter ];
+        _aheadVibranceFxLayer.anchorPoint = CGPointMake(0.0, 0.0);
+        // FIXME: This looks weird - why 4?
+        _aheadVibranceFxLayer.frame = CGRectMake(0.0, 0.0, self.bounds.size.width * 4, self.bounds.size.height);
+        _aheadVibranceFxLayer.masksToBounds = NO;
+        _aheadVibranceFxLayer.zPosition = 1.0;
+        
+        _aheadVibranceFxLayerMask = [CAShapeLayer layer];
+        NSRect rect = _aheadVibranceFxLayer.frame;
+        _aheadVibranceFxLayerMask.fillRule = kCAFillRuleEvenOdd;
+        NSBezierPath* path = [NSBezierPath bezierPath];
+        [path appendBezierPathWithRect:rect];
+        _aheadVibranceFxLayerMask.path = [NSBezierPath CGPathFromPath:path];
+        _aheadVibranceFxLayer.mask = _aheadVibranceFxLayerMask;
+        
+        CIFilter* trailBloomFilter = [CIFilter filterWithName:@"CIBloom"];
+        [trailBloomFilter setDefaults];
+        [trailBloomFilter setValue:[NSNumber numberWithFloat:3.0] forKey:@"inputRadius"];
+        [trailBloomFilter setValue:[NSNumber numberWithFloat:1.0] forKey:@"inputIntensity"];
+        
+        _trailBloomFxLayer = [CALayer layer];
+        _trailBloomFxLayer.backgroundFilters = @[ trailBloomFilter ];
+        _trailBloomFxLayer.anchorPoint = CGPointMake(1.0, 0.0);
+        // FIXME: This looks weird - why 4?
+        _trailBloomFxLayer.frame = CGRectMake(0.0, 0.0, self.bounds.size.width * 4, self.bounds.size.height);
+        _trailBloomFxLayer.masksToBounds = NO;
+        _trailBloomFxLayer.zPosition = 1.9;
+        _trailBloomFxLayer.name = @"TailBloomFxLayer";
+        _trailBloomFxLayer.mask = [CAShapeLayer MaskLayerFromRect:_trailBloomFxLayer.frame];
+
+        [[NSNotificationCenter defaultCenter]
+           addObserver:self
+              selector:@selector(WillStartLiveScroll:)
+                  name:NSScrollViewWillStartLiveScrollNotification
+                object:self];
+        [[NSNotificationCenter defaultCenter]
+           addObserver:self
+              selector:@selector(DidLiveScroll:)
+                  name:NSScrollViewDidLiveScrollNotification
+                object:self];
+        [[NSNotificationCenter defaultCenter]
+           addObserver:self
+              selector:@selector(DidEndLiveScroll:)
+                  name:NSScrollViewDidEndLiveScrollNotification
+                object:self];
+    }
+    return self;
+}
+
 - (void)viewDidMoveToSuperview
 {
     [super viewDidMoveToSuperview];
-    
-    self.automaticallyAdjustsContentInsets = NO;
-    self.contentInsets = NSEdgeInsetsMake(0.0, 0.0, 0.0, 0.0);
-    
-    self.backgroundColor = [[Defaults sharedDefaults] backColor];
-    
-    self.allowsMagnification = NO;
-    
-    Scroller* scroller = [Scroller new];
-    scroller.color = [NSColor redColor];
-    self.horizontalScroller = scroller;
-    
-    self.wantsLayer = YES;
-    self.layer = [self makeBackingLayer];
-    self.layerContentsRedrawPolicy = NSViewLayerContentsRedrawOnSetNeedsDisplay;
-    self.layer.masksToBounds = NO;
-    
-    CGFloat width = self.bounds.size.width;
-    CGFloat height = self.bounds.size.height;
-    
-    CIFilter* vibranceFilter = [CIFilter filterWithName:@"CIColorControls"];
-    [vibranceFilter setDefaults];
-    [vibranceFilter setValue:[NSNumber numberWithFloat:0.10] forKey:@"inputSaturation"];
-    [vibranceFilter setValue:[NSNumber numberWithFloat:0.0001] forKey:@"inputBrightness"];
-
-    CIFilter* darkenFilter = [CIFilter filterWithName:@"CIGammaAdjust"];
-    [darkenFilter setDefaults];
-    [darkenFilter setValue:[NSNumber numberWithFloat:2.5] forKey:@"inputPower"];
-    
-    _rastaLayer = [CALayer layer];
-    _rastaLayer.backgroundColor = [[NSColor colorWithPatternImage:[NSImage imageNamed:@"LargeRastaPattern"]] CGColor];
-    _rastaLayer.contentsScale = NSViewLayerContentsPlacementScaleProportionallyToFill;
-    _rastaLayer.anchorPoint = CGPointMake(1.0, 0.0);
-    _rastaLayer.frame = NSMakeRect(self.bounds.origin.x,
-                                   self.bounds.origin.y,
-                                   self.bounds.size.width,
-                                   self.bounds.size.height);
-    _rastaLayer.zPosition = 1.1;
-    _rastaLayer.opacity = 0.7;
-    _rastaLayer.compositingFilter = [CIFilter filterWithName:@"CISourceAtopCompositing"];
-    
-    _aheadVibranceFxLayer = [CALayer layer];
-    _aheadVibranceFxLayer.backgroundFilters = @[ darkenFilter, vibranceFilter ];
-    _aheadVibranceFxLayer.anchorPoint = CGPointMake(0.0, 0.0);
-    // FIXME: This looks weird - why 4?
-    _aheadVibranceFxLayer.frame = CGRectMake(0.0, 0.0, width * 4, height);
-    _aheadVibranceFxLayer.masksToBounds = NO;
-    _aheadVibranceFxLayer.zPosition = 1.0;
-    
-    _aheadVibranceFxLayerMask = [CAShapeLayer layer];
-    NSRect rect = _aheadVibranceFxLayer.frame;
-    _aheadVibranceFxLayerMask.fillRule = kCAFillRuleEvenOdd;
-    NSBezierPath* path = [NSBezierPath bezierPath];
-    [path appendBezierPathWithRect:rect];
-    _aheadVibranceFxLayerMask.path = [NSBezierPath CGPathFromPath:path];
-    _aheadVibranceFxLayer.mask = _aheadVibranceFxLayerMask;
-    
-    CIFilter* trailBloomFilter = [CIFilter filterWithName:@"CIBloom"];
-    [trailBloomFilter setDefaults];
-    [trailBloomFilter setValue:[NSNumber numberWithFloat:3.0] forKey:@"inputRadius"];
-    [trailBloomFilter setValue:[NSNumber numberWithFloat:1.0] forKey:@"inputIntensity"];
-    
-    _trailBloomFxLayer = [CALayer layer];
-    _trailBloomFxLayer.backgroundFilters = @[ trailBloomFilter ];
-    _trailBloomFxLayer.anchorPoint = CGPointMake(1.0, 0.0);
-    // FIXME: This looks weird - why 4?
-    _trailBloomFxLayer.frame = CGRectMake(0.0, 0.0, width * 4, height);
-    _trailBloomFxLayer.masksToBounds = NO;
-    _trailBloomFxLayer.zPosition = 1.9;
-    _trailBloomFxLayer.name = @"TailBloomFxLayer";
-    _trailBloomFxLayer.mask = [CAShapeLayer MaskLayerFromRect:_trailBloomFxLayer.frame];
 
     [self.layer addSublayer:_trailBloomFxLayer];
     [self.layer addSublayer:_aheadVibranceFxLayer];
     [self.layer addSublayer:_rastaLayer];
 
     [self updateTiles];
-    
-    [[NSNotificationCenter defaultCenter]
-       addObserver:self
-          selector:@selector(WillStartLiveScroll:)
-              name:NSScrollViewWillStartLiveScrollNotification
-            object:self];
-    [[NSNotificationCenter defaultCenter]
-       addObserver:self
-          selector:@selector(DidLiveScroll:)
-              name:NSScrollViewDidLiveScrollNotification
-            object:self];
-    [[NSNotificationCenter defaultCenter]
-       addObserver:self
-          selector:@selector(DidEndLiveScroll:)
-              name:NSScrollViewDidEndLiveScrollNotification
-            object:self];
 }
 
 - (void)WillStartLiveScroll:(NSNotification*)notification
 {
-    [(WaveView*)self.documentView updateHeadPosition];
+    [(WaveView*)self.documentView updateHeadPositionTransaction];
 }
 
 - (void)DidLiveScroll:(NSNotification*)notification
 {
-    [(WaveView*)self.documentView updateHeadPosition];
+    [(WaveView*)self.documentView updateHeadPositionTransaction];
 }
 
 - (void)DidEndLiveScroll:(NSNotification*)notification
 {
-    [(WaveView*)self.documentView updateHeadPosition];
+    [(WaveView*)self.documentView updateHeadPositionTransaction];
 }
 
 - (NSMutableArray*)reusableViews
@@ -238,16 +242,16 @@ const CGFloat kDirectWaveViewTileWidth = 256.0f;
 
 - (void)updatedHeadPosition
 {
-    CGFloat head = ((WaveView*)self.documentView).head;
+    WaveView* wv = (WaveView*)self.documentView;
     _rastaLayer.frame = NSMakeRect(_rastaLayer.frame.origin.x,
                                    _rastaLayer.frame.origin.y,
                                    self.documentVisibleRect.size.width,
                                    _rastaLayer.frame.size.height);
-    if (NSPointInRect(NSMakePoint(head, 1.0f), self.documentVisibleRect)) {
-        _aheadVibranceFxLayer.position = CGPointMake(head + 0.0 - self.documentVisibleRect.origin.x, self.bounds.origin.y);
-        _trailBloomFxLayer.position = CGPointMake((head + 4.0) - self.documentVisibleRect.origin.x, self.bounds.origin.y);
+    if (NSPointInRect(NSMakePoint(wv.head, 1.0f), self.documentVisibleRect)) {
+        _aheadVibranceFxLayer.position = CGPointMake(wv.head + 0.0 - self.documentVisibleRect.origin.x, self.bounds.origin.y);
+        _trailBloomFxLayer.position = CGPointMake((wv.head + 4.0) - self.documentVisibleRect.origin.x, self.bounds.origin.y);
     } else {
-        if (head < self.documentVisibleRect.origin.x) {
+        if (wv.head < self.documentVisibleRect.origin.x) {
             _aheadVibranceFxLayer.position = CGPointMake(self.bounds.origin.x, self.documentVisibleRect.origin.y);
             _trailBloomFxLayer.position = CGPointMake(self.bounds.origin.x, self.documentVisibleRect.origin.y);
         } else {

@@ -48,6 +48,7 @@ static const NSTimeInterval kBeatEffectRampDown = 0.5f;
 
 const CGFloat kDefaultWidth = 1180.0f;
 const CGFloat kDefaultHeight = 1050.0f;
+
 const CGFloat kMinWidth = 465.0f;
 const CGFloat kMinHeight = 100.0f;      // Constraints on the subviews make this a minimum
                                         // that is never reached.
@@ -138,11 +139,10 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 
     ++counter;
     
-//    CVTimeStamp delta = *inOutputTime - *inNow;
-//    
+ //   CVTimeStamp delta = *inOutputTime - *inNow;
+//
     AVAudioFramePosition frame = controller.audioController.currentFrame;
     
-    //[controller updateWaveFrame:frame];
     [controller updateScopeFrame:frame];
 
     dispatch_async(dispatch_get_main_queue(), ^{
@@ -192,6 +192,7 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
         //- (IBAction)playNext:(id)sender
         // Find the topmost selected song and use that one to play next.
         [self stop];
+        return;
     }
 
     [self loadDocumentFromURL:[WaveWindowController encodeQueryItemsWithUrl:meta.location frame:0LL playing:YES] meta:meta];
@@ -199,16 +200,17 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 
 - (void)playPrevious:(id)sender
 {
-    // Do we have something in our playlist?
+//    // Do we have something in our playlist?
 //    MediaMetaData* meta = [_playlist previousItem];
 //    if (meta == nil) {
 //        // Then maybe we can just get the next song from the songs browser list.
 //        //- (IBAction)playNext:(id)sender
 //        // Find the topmost selected song and use that one to play next.
 //        [self stop];
+//        return;
 //    }
 //
-//    [self loadDocumentFromURL:nextMeta.location meta:nextMeta];
+//    [self loadDocumentFromURL:[WaveWindowController encodeQueryItemsWithUrl:meta.location frame:0LL playing:YES] meta:meta];
 }
 
 - (void)mediaKeyTap:(SPMediaKeyTap*)keyTap receivedMediaKeyEvent:(NSEvent*)event
@@ -228,11 +230,10 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
         if (keyState == 0 && keyRepeat == 0) {
             [self playNext:self];
         } else if (keyRepeat == 1) {
-//                [_playerController jumpForwardShort];
-//                b_mediakeyJustJumped = YES;
-//                [self performSelector:@selector(resetMediaKeyJump)
-//                           withObject: NULL
-//                           afterDelay:0.25];
+            _mediakeyJustJumped = YES;
+            [self performSelector:@selector(resetMediaKeyJump)
+                           withObject: NULL
+                           afterDelay:0.25];
         }
     }
 
@@ -240,7 +241,6 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
         if (keyState == 0 && keyRepeat == 0) {
             [self playPrevious:self];
         } else if (keyRepeat == 1) {
-//            [_playerController jumpBackwardShort];
             _mediakeyJustJumped = YES;
             [self performSelector:@selector(resetMediaKeyJump)
                        withObject: NULL
@@ -268,11 +268,6 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 {
     _renderer.currentFrame = frame;
     [_scopeView draw];
-}
-
-- (void)updateWaveFrame:(AVAudioFramePosition)frame
-{
-//    _metalWaveView.currentFrame = frame;
 }
 
 - (void)dealloc
@@ -435,7 +430,9 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     | NSWindowStyleMaskUnifiedTitleAndToolbar
     | NSWindowStyleMaskMiniaturizable
     | NSWindowStyleMaskResizable;
-    
+
+    self.shouldCascadeWindows = NO;
+
     self.window = [[NSWindow alloc] initWithContentRect:NSMakeRect(0, 0, kDefaultWidth, kDefaultHeight)
                                               styleMask:style
                                                 backing:NSBackingStoreBuffered defer:YES];
@@ -445,7 +442,6 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     self.window.titlebarAppearsTransparent = YES;
     self.window.titleVisibility = NO;
     self.window.movableByWindowBackground = YES;
-    self.shouldCascadeWindows = NO;
     self.window.contentView.wantsLayer = YES;
     self.window.contentView.layer.backgroundColor = [[[Defaults sharedDefaults] backColor] CGColor];
     self.window.contentView.autoresizesSubviews = YES;
@@ -462,7 +458,6 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     toolBar.autosavesConfiguration = NO;
     toolBar.delegate = self;
     self.window.toolbar = toolBar;
-    //self.window.frameAutosaveName = @"PlayEmWindowFrame";
 
     _beatLayerDelegate = [BeatLayerDelegate new];
 
@@ -505,9 +500,6 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     self.totalWaveLayerDelegate.color = _waveView.color;
     self.waveLayerDelegate.color = _waveView.color;
 
-    //[self.window setFrameUsingName:@"PlayEmWindowFrame"];
-
-
     //    self.authenticator = [MusicAuthenticationController new];
 //    [self.authenticator requestAppleMusicDeveloperTokenWithCompletion:^(NSString* token){
 //        NSLog(@"token: %@", token);
@@ -545,8 +537,8 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     const CGFloat progressIndicatorHeight = 32.0;
 
     CGFloat scopeViewHeight = self.window.contentView.bounds.size.height - (songsTableViewHeight + selectorTableViewHeight + totalWaveViewHeight + scrollingWaveViewHeight);
-    if (scopeViewHeight <= 0.0) {
-        scopeViewHeight = 1.0;
+    if (scopeViewHeight <= kMinScopeHeight) {
+        scopeViewHeight = kMinScopeHeight;
     }
     const NSAutoresizingMaskOptions kViewFullySizeable = NSViewHeightSizable | NSViewWidthSizable;
     
@@ -603,14 +595,6 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     _belowVisuals.wantsLayer = YES;
     _belowVisuals.translatesAutoresizingMaskIntoConstraints = YES;
     
-//    [_belowVisuals addConstraint:[NSLayoutConstraint constraintWithItem:_waveView
-//          attribute:NSLayoutAttributeHeight
-//          relatedBy:NSLayoutRelationGreaterThanOrEqual
-//          toItem:nil
-//          attribute:NSLayoutAttributeNotAnAttribute
-//          multiplier:1.0
-//          constant:totalWaveViewHeight + scrollingWaveViewHeight + 64.0]];
-//
     _totalView = [[TotalWaveView alloc] initWithFrame:NSMakeRect(_belowVisuals.bounds.origin.x,
                                                                  _belowVisuals.bounds.origin.y,
                                                                  _belowVisuals.bounds.size.width,
@@ -626,38 +610,24 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
                                                                                  scrollingWaveViewHeight)];
     tiledSV.autoresizingMask = NSViewWidthSizable;
     tiledSV.drawsBackground = NO;
+    tiledSV.translatesAutoresizingMaskIntoConstraints = YES;
     tiledSV.verticalScrollElasticity = NSScrollElasticityNone;
+
     _waveView = [[WaveView alloc] initWithFrame:tiledSV.bounds];
-    _waveView.autoresizingMask = NSViewWidthSizable;
+    _waveView.autoresizingMask = NSViewNotSizable;
     _waveView.translatesAutoresizingMaskIntoConstraints = YES;
     _waveView.waveLayerDelegate = self.waveLayerDelegate;
     _waveView.headDelegate = tiledSV;
     _waveView.color = [[Defaults sharedDefaults] regularBeamColor];
     _waveView.beatLayerDelegate = self.beatLayerDelegate;
+
     tiledSV.documentView = _waveView;
     [_belowVisuals addSubview:tiledSV];
     
-
     NSBox* line = [[NSBox alloc] initWithFrame:NSMakeRect(_belowVisuals.bounds.origin.x, _belowVisuals.bounds.origin.y + totalWaveViewHeight, _belowVisuals.bounds.size.width, 1.0)];
     line.boxType = NSBoxSeparator;
     line.autoresizingMask = NSViewWidthSizable;
     [_belowVisuals addSubview:line];
-    
-/*
-    _metalWaveView = [[MetalWaveView alloc] initWithFrame:NSMakeRect(0.0,
-                                                                        totalWaveViewHeight + scrollingWaveViewHeight,
-                                                                        size.width,
-                                                                        metalWaveViewHeight)];
-    _metalWaveView.autoresizingMask = NSViewWidthSizable | NSViewMaxYMargin;
-    //mvw.drawsBackground = NO;
-    //mvw.verticalScrollElasticity = NSScrollElasticityNone;
-    [_belowVisuals addSubview:_metalWaveView];
-*/
-
-//    line = [[NSBox alloc] initWithFrame:NSMakeRect(0.0, scrollingWaveViewHeight + totalWaveViewHeight - 1, size.width, 1.0)];
-//    line.boxType = NSBoxSeparator;
-//    line.autoresizingMask = NSViewWidthSizable;
-//    [_belowVisuals addSubview:line];
 
     line = [[NSBox alloc] initWithFrame:NSMakeRect(_belowVisuals.bounds.origin.x, _belowVisuals.bounds.origin.y + scrollingWaveViewHeight + totalWaveViewHeight - 1, _belowVisuals.bounds.size.width, 1.0)];
     line.boxType = NSBoxSeparator;
@@ -694,16 +664,14 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     sv.documentView = _playlistTable;
     [_effectBelowPlaylist addSubview:sv];
 
-    NSLog(@"scopeview height = %f", scopeViewHeight);
-    NSLog(@"scopeview superview height = %f", _belowVisuals.frame.size.height);
-    //NSLog(@"remaining height = %d", );
-    [self initScopeViewWithFrame:NSMakeRect(_belowVisuals.bounds.origin.x,
-                                           _belowVisuals.bounds.origin.y + totalWaveViewHeight + scrollingWaveViewHeight,
-                                           _belowVisuals.bounds.size.width,
-                                           scopeViewHeight)
+    [self scopeViewWithFrame:NSMakeRect(_belowVisuals.bounds.origin.x,
+                                        _belowVisuals.bounds.origin.y + totalWaveViewHeight + scrollingWaveViewHeight,
+                                        _belowVisuals.bounds.size.width,
+                                        scopeViewHeight)
                          onView:_belowVisuals];
-    _smallScopeView = _scopeView;
 
+    _smallScopeView = _scopeView;
+    
     [_belowVisuals addSubview:_effectBelowPlaylist];
     
     [_split addArrangedSubview:_belowVisuals];
@@ -1009,38 +977,6 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     
     _smallBelowVisualsFrame = _belowVisuals.frame;
     
-    _scopeView.device = MTLCreateSystemDefaultDevice();
-    if(!_scopeView.device) {
-        NSLog(@"Metal is not supported on this device");
-    } else {
-        _renderer = [[ScopeRenderer alloc] initWithMetalKitView:_scopeView
-                                                          color:[[Defaults sharedDefaults] lightBeamColor]
-                                                       fftColor:[[Defaults sharedDefaults] fftColor]
-                                                     background:[[Defaults sharedDefaults] backColor]
-                                                       delegate:self];
-        _renderer.level = self.controlPanelController.level;
-        
-        //[self _loadMetalWithView:_scopeView];
-        
-        [_renderer mtkView:_scopeView drawableSizeWillChange:_scopeView.bounds.size];
-        _scopeView.delegate = _renderer;
-        _scopeView.layer.opaque = YES;
-    }
-    
-    //    _metalWaveView.device = MTLCreateSystemDefaultDevice();
-    //    if(!_metalWaveView.device) {
-    //        NSLog(@"Metal is not supported on this device");
-    //    } else {
-    //        _waveRenderer = [[WaveRenderer alloc] initWithView:_metalWaveView
-    //                                                          color:[[Defaults sharedDefaults] lightBeamColor]
-    //                                                     background:[[Defaults sharedDefaults] backColor]
-    //                                                       delegate:self];
-    //        [_waveRenderer mtkView:_metalWaveView drawableSizeWillChange:_metalWaveView.bounds.size];
-    //        _metalWaveView.delegate = _waveRenderer;
-    //        _metalWaveView.layer.opaque = YES;
-    //    }
-    
-    
     {
         CIFilter* colorFilter = [CIFilter filterWithName:@ "CIFalseColor"];
         
@@ -1092,6 +1028,8 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     
     _playlist = [[PlaylistController alloc] initWithPlaylistTable:_playlistTable delegate:self];
     
+    [self.renderer loadMetalWithView:self.scopeView];
+
     [self setupDisplayLink];
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(ScrollViewStartsLiveScrolling:) name:@"NSScrollViewWillStartLiveScrollNotification" object:nil];
@@ -1209,13 +1147,9 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
 
 - (void)windowDidEndLiveResize:(NSNotification *)notification
 {
-//    CGFloat newHeight = _belowVisuals.frame.size.height - (_totalView.bounds.size.height + _waveView.bounds.size.height);
-//    CGFloat y = _totalView.bounds.size.height + _waveView.bounds.size.height + newHeight;
-//    [self putScopeViewWithFrame:NSMakeRect(_scopeView.frame.origin.x, _totalView.bounds.size.height + _waveView.bounds.size.height + newHeight, _belowVisuals.frame.size.width, newHeight) onView:_belowVisuals];
-    NSSize newSize = NSMakeSize(_belowVisuals.bounds.size.width, _belowVisuals.bounds.size.height - (_totalView.bounds.size.height + _waveView.bounds.size.height));
-    NSLog(@"windowDidResize with `ScopeView` to height %f", newSize.height);
-    [_renderer mtkView:_scopeView drawableSizeWillChange:newSize];
-
+    // The scope view takes are of itself by reacting to `viewDidEndLiveResize`.
+//    [_waveView ];
+    
     [_totalVisual setPixelPerSecond:_totalView.bounds.size.width / _lazySample.duration];
     [_totalView resize];
     [_totalView refresh];
@@ -1344,22 +1278,15 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     NSLog(@"relayout to fullscreen %X\n", toFullscreen);
 }
 
-- (void)initScopeViewWithFrame:(NSRect)frame onView:(NSView*)parent
+- (ScopeView*)scopeViewWithFrame:(NSRect)frame onView:(NSView*)parent
 {
     assert(frame.size.width * frame.size.height);
 
     ScopeView* sv = [[ScopeView alloc] initWithFrame:frame
                                               device:MTLCreateSystemDefaultDevice()];
     assert(sv);
-
-    self.renderer = [[ScopeRenderer alloc] initWithMetalKitView:sv
-                                                          color:[[Defaults sharedDefaults] lightBeamColor]
-                                                       fftColor:[[Defaults sharedDefaults] fftColor]
-                                                     background:[[Defaults sharedDefaults] backColor]
-                                                       delegate:self];
-    _renderer.level = self.controlPanelController.level;
-    sv.delegate = _renderer;
     sv.paused = YES;
+    sv.layer.opaque = YES;
 
     assert(parent);
     [parent addSubview:sv];
@@ -1378,9 +1305,21 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     assert(_effectBelowPlaylist);
     [parent addSubview:_effectBelowPlaylist positioned:NSWindowAbove relativeTo:nil];
 
+    _renderer = [[ScopeRenderer alloc] initWithMetalKitView:sv
+                                                      color:[[Defaults sharedDefaults] lightBeamColor]
+                                                   fftColor:[[Defaults sharedDefaults] fftColor]
+                                                 background:[[Defaults sharedDefaults] backColor]
+                                                   delegate:self];
+    _renderer.level = self.controlPanelController.level;
+    sv.delegate = _renderer;
+
+    [_renderer mtkView:sv drawableSizeWillChange:sv.bounds.size];
+
     if (_audioController && _visualSample) {
         [_renderer play:_audioController visual:_visualSample scope:sv];
     }
+
+    return sv;
 }
 
 //// Yeah right - what a shitty name for a function that does so much more!
@@ -1771,26 +1710,14 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     _audioController.sample = _lazySample;
     _waveView.frames = _lazySample.frames;
     _waveRenderer.visualSample = self.visualSample;
-    //_metalWaveView.frames = _lazySample.frames;
     _totalView.frames = _lazySample.frames;
-    
-//    _metalWaveView.documentTotalRect = CGRectMake( 0.0,
-//                                                     0.0,
-//                                                     self.visualSample.width,
-//                                                     self.metalWaveView.bounds.size.height);
-//
-
     _waveView.frame = CGRectMake(0.0,
                                  0.0,
                                  self.visualSample.width,
                                  self.waveView.bounds.size.height);
     [_totalView refresh];
 
-    if (playing) {
-        [_audioController playWhenReady:(unsigned long long)nextFrame];
-    } else if (nextFrame > 0){
-        [_audioController seekWhenReady:(unsigned long long)nextFrame];
-    }
+    [_audioController playWhenReady:(unsigned long long)nextFrame paused:!playing];
 }
 
 - (void)lazySampleDecoded

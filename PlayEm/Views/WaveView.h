@@ -21,7 +21,7 @@
 
 @property (assign, nonatomic) CGSize headImageSize;
 @property (strong, nonatomic) CALayer* headLayer;
-@property (strong, nonatomic) CALayer* hudLayer;
+//@property (strong, nonatomic) CALayer* hudLayer;
 @property (assign, nonatomic) unsigned long long frames;
 @property (assign, nonatomic) unsigned long long currentFrame;
 @property (strong, nonatomic) NSColor* color;
@@ -37,7 +37,7 @@
 //- (void)updateCurrentTime:(NSTimeInterval)seconds;
 - (void)userInitiatedScrolling;
 - (void)userEndsScrolling;
-- (void)updateHeadPosition;
+- (void)updateHeadPositionTransaction;
 - (void)invalidateTiles;
 
 @end

@@ -268,7 +268,7 @@ void bufferCallback(void* user_data, AudioQueueRef queue, AudioQueueBufferRef bu
     
     if (_context.sample.decodedFrames > nextFrame + (_context.sample.rate * kEnoughSecondsDecoded)) {
         NSLog(@"got enough data already.");
-        [self playPause];
+        [self play];
         return;
     }
 
@@ -282,9 +282,7 @@ void bufferCallback(void* user_data, AudioQueueRef queue, AudioQueueBufferRef bu
             [timer invalidate];
             self.timer = nil;
             [self setCurrentFrame:nextFrame];
-            if (!self.playing) {
-                [self play];
-            }
+            [self play];
             if (paused) {
                 [self pause];
             }

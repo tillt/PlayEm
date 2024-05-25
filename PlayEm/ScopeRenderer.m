@@ -177,12 +177,18 @@ static const double kLevelDecreaseValue = 0.042;
     
     float* _logMap;
     
-    NSSize _originalSize;
-    NSSize _defaultSize;
-}
+    NSSize _originalSize;   // Used while live resizing.
+    NSSize _defaultSize;    // Sizes that match a good ratio as shader paramenters.
+    
+    CGFloat _newBlurSigma;
+    BOOL _invalidateBlurSigma;
 
-// Really? WHY?? Why is this a static?
-//static NSSize _originalSize=@{0.0f, 0.0f};
+    CGSize _newBloomSize;
+    BOOL _invalidateBloomSize;
+
+    CGSize _newErodeSize;
+    BOOL _invalidateErodeSize;
+}
 
 -(nonnull instancetype)initWithMetalKitView:(nonnull MTKView *)view
                                       color:(NSColor*)color

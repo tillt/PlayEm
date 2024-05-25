@@ -179,7 +179,7 @@
                                  tempos:destTempos
                                    keys:destKeys];
 
-        dispatch_async(dispatch_get_main_queue(), ^{
+        dispatch_sync(dispatch_get_main_queue(), ^{
             weakSelf.filteredItems = filteredItems;
 
             NSIndexSet* genreSelections = [self->_genresTable selectedRowIndexes];
@@ -361,7 +361,7 @@
                                  tempos:weakSelf.tempos
                                    keys:weakSelf.keys];
         
-        dispatch_async(dispatch_get_main_queue(), ^{
+        dispatch_sync(dispatch_get_main_queue(), ^{
             //[_delegate loadLibraryState:LoadStateStopped value:0.0];
             
             [weakSelf.genresTable beginUpdates];
@@ -792,7 +792,7 @@ static const NSTimeInterval kBeatEffectRampDown = 0.5f;
                                  tempos:weakSelf.tempos
                                    keys:weakSelf.keys];
 
-        dispatch_async(dispatch_get_main_queue(), ^{
+        dispatch_sync(dispatch_get_main_queue(), ^{
             [weakSelf.artistsTable beginUpdates];
             [weakSelf.artistsTable reloadData];
             [weakSelf.artistsTable endUpdates];
@@ -861,7 +861,7 @@ static const NSTimeInterval kBeatEffectRampDown = 0.5f;
                                  tempos:weakSelf.tempos
                                    keys:weakSelf.keys];
 
-        dispatch_async(dispatch_get_main_queue(), ^{
+        dispatch_sync(dispatch_get_main_queue(), ^{
             [weakSelf.albumsTable beginUpdates];
             [weakSelf.albumsTable reloadData];
             [weakSelf.albumsTable endUpdates];
@@ -922,7 +922,7 @@ static const NSTimeInterval kBeatEffectRampDown = 0.5f;
                                  tempos:weakSelf.tempos
                                    keys:weakSelf.keys];
 
-        dispatch_async(dispatch_get_main_queue(), ^{
+        dispatch_sync(dispatch_get_main_queue(), ^{
             [weakSelf.temposTable beginUpdates];
             [weakSelf.temposTable reloadData];
             [weakSelf.temposTable endUpdates];
@@ -975,7 +975,7 @@ static const NSTimeInterval kBeatEffectRampDown = 0.5f;
                                  tempos:nil
                                    keys:weakSelf.keys];
 
-        dispatch_async(dispatch_get_main_queue(), ^{
+        dispatch_sync(dispatch_get_main_queue(), ^{
             [weakSelf.keysTable beginUpdates];
             [weakSelf.keysTable reloadData];
             [weakSelf.keysTable endUpdates];
@@ -1016,7 +1016,7 @@ static const NSTimeInterval kBeatEffectRampDown = 0.5f;
                                                        tempo:tempo
                                                          key:key] sortedArrayUsingDescriptors:descriptors];
 
-        dispatch_async(dispatch_get_main_queue(), ^{
+        dispatch_sync(dispatch_get_main_queue(), ^{
             [weakSelf.songsTable beginUpdates];
             [weakSelf.songsTable reloadData];
             [weakSelf.songsTable endUpdates];

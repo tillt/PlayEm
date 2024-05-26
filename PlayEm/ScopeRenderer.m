@@ -179,15 +179,6 @@ static const double kLevelDecreaseValue = 0.042;
     
     NSSize _originalSize;   // Used while live resizing.
     NSSize _defaultSize;    // Sizes that match a good ratio as shader paramenters.
-    
-    CGFloat _newBlurSigma;
-    BOOL _invalidateBlurSigma;
-
-    CGSize _newBloomSize;
-    BOOL _invalidateBloomSize;
-
-    CGSize _newErodeSize;
-    BOOL _invalidateErodeSize;
 }
 
 -(nonnull instancetype)initWithMetalKitView:(nonnull MTKView *)view
@@ -205,7 +196,7 @@ static const double kLevelDecreaseValue = 0.042;
         //_frequencyCount = 256;
         _color = color;
         _fftColor = fftColor;
-        _msaaCount = 4;
+        _msaaCount = 1;
         _background = background;
         _lineWidth = 0.0f;
         _lineAspectRatio = 0.0f;
@@ -230,14 +221,15 @@ static const double kLevelDecreaseValue = 0.042;
                                                      name:kScopeViewDidLiveResizeNotification
                                                    object:nil];
     
-        [self loadMetalWithView:view];
-        
-        _commandQueue = [_device newCommandQueue];
-
         dispatch_queue_attr_t attr = dispatch_queue_attr_make_with_qos_class(DISPATCH_QUEUE_SERIAL,
                                                                              QOS_CLASS_USER_INTERACTIVE,
                                                                              0);
         _renderQueue = dispatch_queue_create("PlayEm.RenderingQueue", attr);
+
+        _device = view.device;
+        _commandQueue = [_device newCommandQueue];
+
+        [self loadMetalWithView:view];
     }
 
     return self;
@@ -281,19 +273,16 @@ float rgb_from_srgb(float c)
 
 - (void)scopeViewDidLiveResize:(NSNotification *)notification
 {
-    @synchronized (self) {
-        [self loadMetalWithView:notification.object];
-    };
+    [self loadMetalWithView:notification.object];
 }
 
-- (void)loadMetalWithView:(nonnull MTKView*)view;
+- (void)loadMetalWithView:(nonnull MTKView*)view
 {
     assert(view.frame.size.width * view.frame.size.height);
     NSError *error;
 
-    _device = view.device;
-    _originalSize.width = view.frame.size.width;
-    _originalSize.height = view.frame.size.height;
+    _originalSize.width = view.bounds.size.width;
+    _originalSize.height = view.bounds.size.height;
 
     /// Load Metal state objects and initalize renderer dependent view properties.
     view.colorPixelFormat = MTLPixelFormatBGRA8Unorm;
@@ -344,14 +333,12 @@ float rgb_from_srgb(float c)
     
     _scopeTargetTexture = [_device newTextureWithDescriptor:texDescriptor];
     _frequenciesTargetTexture = [_device newTextureWithDescriptor:texDescriptor];
-    
-    // FIXME: MSAA count alternative code is rubbish -- currently only works with MSAA > 1
 
     _scopePass = [[MTLRenderPassDescriptor alloc] init];
     _scopePass.colorAttachments[0].texture = _scopeMSAATexture;
     _scopePass.colorAttachments[0].loadAction = MTLLoadActionClear;
     _scopePass.colorAttachments[0].clearColor = MTLClearColorMake(0.0, 0.0, 0.0, 0.0);
-    _scopePass.colorAttachments[0].storeAction = _msaaCount > 1 ? MTLStoreActionMultisampleResolve : MTLStoreActionStore;
+    _scopePass.colorAttachments[0].storeAction = _msaaCount > 1 ? MTLStoreActionMultisampleResolve : MTLStoreActionStoreAndMultisampleResolve;
     _scopePass.colorAttachments[0].resolveTexture = _scopeTargetTexture;
 
     // Set up pipeline for rendering the scope to the offscreen texture. Reuse the
@@ -376,7 +363,7 @@ float rgb_from_srgb(float c)
     _frequenciesPass.colorAttachments[0].texture = _frequenciesMSAATexture;
     _frequenciesPass.colorAttachments[0].loadAction = MTLLoadActionClear;
     _frequenciesPass.colorAttachments[0].clearColor = MTLClearColorMake(0.0, 0.0, 0.0, 0.0);
-    _frequenciesPass.colorAttachments[0].storeAction = _msaaCount > 1 ? MTLStoreActionMultisampleResolve : MTLStoreActionStore;
+    _frequenciesPass.colorAttachments[0].storeAction = _msaaCount > 1 ? MTLStoreActionMultisampleResolve : MTLStoreActionStoreAndMultisampleResolve;
     _frequenciesPass.colorAttachments[0].resolveTexture = _frequenciesTargetTexture;
 
     // Set up pipeline for rendering the frequencies to the offscreen texture.
@@ -601,15 +588,8 @@ float rgb_from_srgb(float c)
     uniforms->frequencyLineWidth = _frequencyLineWidth;
     uniforms->frequencySpaceWidth = _frequencySpaceWidth;
 
-    matrix_float4x4 modelMatrix = matrix4x4_identity();
-    matrix_float4x4 viewMatrix = matrix4x4_identity();
-    
-    //vector_float3 rotationAxis = {0, 0, 1};
-    //matrix_float4x4 modelMatrix = matrix4x4_rotation(_rotation, rotationAxis);
-    //_rotation += 0.01;
-    
-    uniforms->modelViewMatrix = matrix_multiply(viewMatrix, modelMatrix);
-    
+    uniforms->modelViewMatrix = matrix4x4_identity();
+     
     if (_visual == nil) {
         return;
     }
@@ -639,50 +619,52 @@ float rgb_from_srgb(float c)
 
     dispatch_async(_renderQueue, ^{
         const size_t frame = self.currentFrame;
-
-        /// Copy FFT data.
-        if (frame >= 0) {
-            float* window = self.fftWindow.mutableBytes;
-            
-            // We try to offset around the current head -- meaning the FFT window shall
-            // start half its size before the head and end with half its size ahead.
-            // This may not be a great strategy from a scientific angle - it is a straight-
-            // forward thing to do.
-            unsigned long long f = frame > (kWindowSamples / 2) ? frame - (kWindowSamples / 2) : 0;
-            
-            float* sourceChannels[channels];
-            for (int channelIndex=0; channelIndex < channels; channelIndex++) {
-                NSMutableData* data = self.blockSourceChannelData[channelIndex];
-                sourceChannels[channelIndex] = data.mutableBytes;
-            }
-            
-            // Gather up to one window full of mono sound data.
-            size_t samplesToGo = [self.visual.sample rawSampleFromFrameOffset:f
-                                                                       frames:kWindowSamples
-                                                                      outputs:sourceChannels];
-            
-            for (size_t i = 0; i < samplesToGo; i++) {
-                float data = 0;
-                for (size_t channelIndex = 0; channelIndex < channels; channelIndex++) {
-                    data += sourceChannels[channelIndex][i];
-                }
-                data /= channels;
-                ++f;
-                window[i] = data;
-                if (f > sampleFrames) {
-                    break;
-                }
-            }
-            
-            uint8_t bufferIndex = (self->_uniformBufferIndex + 1) % kMaxBuffersInFlight;
-            uint32_t frequencyBufferOffset = (uint32_t)self->_alignedUFrequenciesSize * bufferIndex;
-            void* frequencyBufferAddress = ((uint8_t *)self->_frequencyUniformBuffer.contents) + frequencyBufferOffset;
-
-            performFFT(self->_fftSetup, window, kWindowSamples, frequencyBufferAddress);
-            logscaleFFT(self->_logMap, frequencyBufferAddress);
-            
-//            performMel(_dctSetup, window, kWindowSamples, frequencyBufferAddress);
+        
+        if (frame < 0) {
+            return;
         }
+ 
+        /// Copy FFT data.
+        float* window = self.fftWindow.mutableBytes;
+        
+        // We try to offset around the current head -- meaning the FFT window shall
+        // start half its size before the head and end with half its size ahead.
+        // This may not be a great strategy from a scientific angle - it is a straight-
+        // forward thing to do.
+        unsigned long long f = frame > (kWindowSamples / 2) ? frame - (kWindowSamples / 2) : 0;
+        
+        float* sourceChannels[channels];
+        for (int channelIndex=0; channelIndex < channels; channelIndex++) {
+            NSMutableData* data = self.blockSourceChannelData[channelIndex];
+            sourceChannels[channelIndex] = data.mutableBytes;
+        }
+        
+        // Gather up to one window full of mono sound data.
+        size_t samplesToGo = [self.visual.sample rawSampleFromFrameOffset:f
+                                                                   frames:kWindowSamples
+                                                                  outputs:sourceChannels];
+        
+        for (size_t i = 0; i < samplesToGo; i++) {
+            float data = 0;
+            for (size_t channelIndex = 0; channelIndex < channels; channelIndex++) {
+                data += sourceChannels[channelIndex][i];
+            }
+            data /= channels;
+            ++f;
+            window[i] = data;
+            if (f > sampleFrames) {
+                break;
+            }
+        }
+        
+        uint8_t bufferIndex = (self->_uniformBufferIndex + 1) % kMaxBuffersInFlight;
+        uint32_t frequencyBufferOffset = (uint32_t)self->_alignedUFrequenciesSize * bufferIndex;
+        void* frequencyBufferAddress = ((uint8_t *)self->_frequencyUniformBuffer.contents) + frequencyBufferOffset;
+
+        performFFT(self->_fftSetup, window, kWindowSamples, frequencyBufferAddress);
+        logscaleFFT(self->_logMap, frequencyBufferAddress);
+        
+//            performMel(_dctSetup, window, kWindowSamples, frequencyBufferAddress);
     });
 
     
@@ -823,54 +805,36 @@ float rgb_from_srgb(float c)
     _lineAspectRatio = size.height / size.width;
     
     const float linePoints = 3.0f;
+    const float erodePoints = 3.0f;
+    const float bloomPoints = 17.0f;
+
     _lineWidth = linePoints / size.height;
-
+    
     const float frequencyLineWidth = size.width / kScaledFrequencyDataLength;
-
+    
     const float spaceWidth = frequencyLineWidth / 5.0;
     _frequencySpaceWidth = spaceWidth / size.width;
     _frequencyLineWidth = (frequencyLineWidth - spaceWidth) / size.width;
     
     float sigma = ScaleWithOriginalFrame(0.7f, _defaultSize.width, size.width);
-    if (sigma != _newBlurSigma) {
-        _newBlurSigma = sigma;
-        _invalidateBlurSigma = YES;
-    }
-
-    CGSize erodeSize = NSMakeSize((((ceil(ScaleWithOriginalFrame(linePoints, _defaultSize.height, _defaultSize.height + (size.height/30) ))) / 2) * 2) + 1, 
-                                  (((ceil(ScaleWithOriginalFrame(linePoints, _defaultSize.height, _defaultSize.height + (size.height/30) ))) / 2) * 2) + 1);
-    if (!CGSizeEqualToSize(_newErodeSize, erodeSize)) {
-        _newErodeSize = erodeSize;
-        _invalidateErodeSize = YES;
-    }
-
-    CGSize bloomSize = NSMakeSize(((((int)ceil(ScaleWithOriginalFrame(17.0f, _defaultSize.height, _defaultSize.height + (size.height/30) ))) / 2) * 2) + 1, 
-                                  ((((int)ceil(ScaleWithOriginalFrame(17.0f, _defaultSize.height, _defaultSize.height + (size.height/30) ))) / 2) * 2) + 1);
-    if (!CGSizeEqualToSize(_newBloomSize, bloomSize)) {
-        _newBloomSize = bloomSize;
-        _invalidateBloomSize = YES;
-    }
-
+    CGSize erodeSize = NSMakeSize((((ceil(ScaleWithOriginalFrame(erodePoints, _defaultSize.height, _defaultSize.height + (size.height/30) ))) / 2) * 2) + 1,
+                                  (((ceil(ScaleWithOriginalFrame(erodePoints, _defaultSize.height, _defaultSize.height + (size.height/30) ))) / 2) * 2) + 1);
+    CGSize bloomSize = NSMakeSize(((((int)ceil(ScaleWithOriginalFrame(bloomPoints, _defaultSize.height, _defaultSize.height + (size.height/30) ))) / 2) * 2) + 1,
+                                  ((((int)ceil(ScaleWithOriginalFrame(bloomPoints, _defaultSize.height, _defaultSize.height + (size.height/30) ))) / 2) * 2) + 1);
+    dispatch_sync(_renderQueue, ^{
+        _blur = [[MPSImageGaussianBlur alloc] initWithDevice:view.device sigma:sigma];
+        _blur.edgeMode = MPSImageEdgeModeClamp;
+        _erode = [[MPSImageAreaMin alloc] initWithDevice:view.device
+                                             kernelWidth:erodeSize.width
+                                            kernelHeight:erodeSize.height];
+        _bloom = [[MPSImageBox alloc] initWithDevice:view.device
+                                         kernelWidth:bloomSize.width
+                                        kernelHeight:bloomSize.height];
+    });
+    
     _projectionMatrix = matrix_orthographic(-size.width, size.width, size.height, -size.height, 0, 0);
     _projectionMatrix = matrix_multiply(matrix4x4_scale(1.0f, _lineAspectRatio, 0.0), _projectionMatrix);
     _projectionMatrix = matrix_multiply(matrix4x4_scale(widthFactor, heightFactor, 0.0), _projectionMatrix);
-}
-
-- (void)_updateShaderParameters
-{
-    if (_invalidateBlurSigma) {
-        _blur = [[MPSImageGaussianBlur alloc] initWithDevice:_device sigma:_newBlurSigma];
-        _blur.edgeMode = MPSImageEdgeModeClamp;
-        _invalidateBlurSigma = NO;
-    }
-    if (_invalidateErodeSize) {
-        _erode = [[MPSImageAreaMin alloc] initWithDevice:_device kernelWidth:_newErodeSize.width kernelHeight:_newErodeSize.height];
-        _invalidateErodeSize = NO;
-    }
-    if (_invalidateBloomSize) {
-        _bloom = [[MPSImageBox alloc] initWithDevice:_device kernelWidth:_newBloomSize.width kernelHeight:_newBloomSize.height];
-        _invalidateBloomSize = NO;
-    }
 }
 
 - (void)drawInMTKView:(nonnull MTKView *)view
@@ -878,194 +842,191 @@ float rgb_from_srgb(float c)
     ///
     /// Per frame updates here
     ///
+    dispatch_semaphore_wait(_inFlightSemaphore, DISPATCH_TIME_FOREVER);
+    
+    id<MTLCommandBuffer> commandBuffer = [_commandQueue commandBuffer];
+    commandBuffer.label = @"Scope Command Buffer";
+    
+    __block dispatch_semaphore_t block_sema = _inFlightSemaphore;
+    [commandBuffer addCompletedHandler:^(id<MTLCommandBuffer> buffer) {
+        dispatch_semaphore_signal(block_sema);
+    }];
+    
+    [self _updateDynamicBufferState];
+    [self _updateEngine];
+    
+    {
+        /// First pass rendering code: Drawing the scope line.
+        
+        id<MTLRenderCommandEncoder> renderEncoder = [commandBuffer renderCommandEncoderWithDescriptor:_scopePass];
+        
+        renderEncoder.label = @"Scope Texture Render Pass";
+        
+        [renderEncoder setFrontFacingWinding:MTLWindingCounterClockwise];
+        [renderEncoder setCullMode:MTLCullModeFront];
+        [renderEncoder setRenderPipelineState:_scopeState];
+        
+        [renderEncoder setVertexBuffer:_dynamicUniformBuffer
+                                offset:_uniformBufferOffset
+                               atIndex:BufferIndexUniforms];
+        
+        [renderEncoder setFragmentBuffer:_dynamicUniformBuffer
+                                  offset:_uniformBufferOffset
+                                 atIndex:BufferIndexUniforms];
+        
+        [renderEncoder setVertexBuffer:_linesUniformBuffer
+                                offset:_linesBufferOffset
+                               atIndex:BufferIndexScopeLines];
+        
+        [renderEncoder drawPrimitives:MTLPrimitiveTypeTriangleStrip
+                          vertexStart:0
+                          vertexCount:5
+                        instanceCount:(_sampleCount + (_sampleStepping - 1))/ _sampleStepping];
+        
+        [renderEncoder endEncoding];
+    }
+    
+    dispatch_sync(_renderQueue, ^{
+        [_bloom encodeToCommandBuffer:commandBuffer
+                        sourceTexture:_scopeTargetTexture
+                   destinationTexture:_bufferTexture];
+    });
+    
+    {
+        /// Third pass rendering code: Drawing the frequency pattern
+        
+        id<MTLRenderCommandEncoder> renderEncoder = [commandBuffer renderCommandEncoderWithDescriptor:_frequenciesPass];
+        
+        renderEncoder.label = @"Frequency Texture Render Pass";
+        
+        [renderEncoder setFrontFacingWinding:MTLWindingCounterClockwise];
+        [renderEncoder setCullMode:MTLCullModeBack];
+        [renderEncoder setRenderPipelineState:_frequenciesState];
+        
+        [renderEncoder setVertexBuffer:_dynamicUniformBuffer
+                                offset:_uniformBufferOffset
+                               atIndex:BufferIndexUniforms];
+        
+        [renderEncoder setFragmentBuffer:_dynamicUniformBuffer
+                                  offset:_uniformBufferOffset
+                                 atIndex:BufferIndexUniforms];
+        
+        [renderEncoder setVertexBuffer:_frequencyUniformBuffer
+                                offset:_frequencyBufferOffset
+                               atIndex:BufferIndexFrequencies];
+        
+        [renderEncoder drawPrimitives:MTLPrimitiveTypeTriangleStrip
+                          vertexStart:0
+                          vertexCount:4 * (kScaledFrequencyDataLength + (_frequencyStepping - 1))/ _frequencyStepping];
+        [renderEncoder endEncoding];
+    }
+    
+    {
+        /// Fourth pass rendering code:  Scope compose with last scope
+        
+        id<MTLRenderCommandEncoder> renderEncoder = [commandBuffer renderCommandEncoderWithDescriptor:_composePass];
+        
+        renderEncoder.label = @"Scope Compose Texture Render Pass";
+        
+        [renderEncoder setRenderPipelineState:_composeState];
+        
+        // Set the offscreen texture with the bloomed scope as the source texture.
+        [renderEncoder setFragmentTexture:_bufferTexture atIndex:TextureIndexScope];
+        
+        // Set the offscreen texture from the last scope round as the source texture.
+        [renderEncoder setFragmentTexture:_lastTexture atIndex:TextureIndexLast];
+        
+        [renderEncoder setFragmentBuffer:_dynamicUniformBuffer
+                                  offset:_uniformBufferOffset
+                                 atIndex:BufferIndexUniforms];
+        
+        // Draw quad with rendered texture.
+        [renderEncoder drawPrimitives:MTLPrimitiveTypeTriangleStrip
+                          vertexStart:0
+                          vertexCount:4];
+        
+        [renderEncoder endEncoding];
+    }
 
-    @synchronized (self) {
-        dispatch_semaphore_wait(_inFlightSemaphore, DISPATCH_TIME_FOREVER);
+    dispatch_sync(_renderQueue, ^{
+        /// Fifth pass rendering code: Scope with last scope bloom again
+        [_bloom encodeToCommandBuffer:commandBuffer
+                        sourceTexture:_composeTargetTexture
+                   destinationTexture:_bufferTexture];
         
-        id <MTLCommandBuffer> commandBuffer = [_commandQueue commandBuffer];
-        commandBuffer.label = @"Scope Command Buffer";
+        /// Sixths pass rendering code: Scope with last scope erode to reduce artefact creep
+        [_erode encodeToCommandBuffer:commandBuffer
+                        sourceTexture:_bufferTexture
+                   destinationTexture:_lastTexture];
+    });
+    
+    {
+        /// Sevenths pass rendering code: Frequency and last frequencies composing
         
-        __block dispatch_semaphore_t block_sema = _inFlightSemaphore;
-        [commandBuffer addCompletedHandler:^(id<MTLCommandBuffer> buffer) {
-            dispatch_semaphore_signal(block_sema);
-        }];
+        id<MTLRenderCommandEncoder> renderEncoder = [commandBuffer renderCommandEncoderWithDescriptor:_frequenciesComposePass];
         
-        [self _updateShaderParameters];
-        [self _updateDynamicBufferState];
-        [self _updateEngine];
+        renderEncoder.label = @"Frequency Compose Texture Render Pass";
         
-        {
-            /// First pass rendering code: Drawing the scope line.
-            
-            id<MTLRenderCommandEncoder> renderEncoder = [commandBuffer renderCommandEncoderWithDescriptor:_scopePass];
-            
-            renderEncoder.label = @"Scope Texture Render Pass";
-            
-            [renderEncoder setFrontFacingWinding:MTLWindingCounterClockwise];
-            [renderEncoder setCullMode:MTLCullModeFront];
-            [renderEncoder setRenderPipelineState:_scopeState];
-            
-            [renderEncoder setVertexBuffer:_dynamicUniformBuffer
-                                    offset:_uniformBufferOffset
-                                   atIndex:BufferIndexUniforms];
-            
-            [renderEncoder setFragmentBuffer:_dynamicUniformBuffer
-                                      offset:_uniformBufferOffset
-                                     atIndex:BufferIndexUniforms];
-            
-            [renderEncoder setVertexBuffer:_linesUniformBuffer
-                                    offset:_linesBufferOffset
-                                   atIndex:BufferIndexScopeLines];
-            
-            [renderEncoder drawPrimitives:MTLPrimitiveTypeTriangleStrip
-                              vertexStart:0
-                              vertexCount:5
-                            instanceCount:(_sampleCount + (_sampleStepping - 1))/ _sampleStepping];
-            
-            [renderEncoder endEncoding];
-        }
+        [renderEncoder setRenderPipelineState:_frequenciesComposeState];
         
-        {
-            [_bloom encodeToCommandBuffer:commandBuffer
-                            sourceTexture:_scopeTargetTexture
-                       destinationTexture:_bufferTexture];
-        }
+        // Set the offscreen texture as the source texture.
+        [renderEncoder setFragmentTexture:_frequenciesTargetTexture atIndex:TextureIndexScope];
         
-        {
-            /// Third pass rendering code: Drawing the frequency pattern
-            
-            id<MTLRenderCommandEncoder> renderEncoder = [commandBuffer renderCommandEncoderWithDescriptor:_frequenciesPass];
-            
-            renderEncoder.label = @"Frequency Texture Render Pass";
-            
-            [renderEncoder setFrontFacingWinding:MTLWindingCounterClockwise];
-            [renderEncoder setCullMode:MTLCullModeBack];
-            [renderEncoder setRenderPipelineState:_frequenciesState];
-            
-            [renderEncoder setVertexBuffer:_dynamicUniformBuffer
-                                    offset:_uniformBufferOffset
-                                   atIndex:BufferIndexUniforms];
-            
-            [renderEncoder setFragmentBuffer:_dynamicUniformBuffer
-                                      offset:_uniformBufferOffset
-                                     atIndex:BufferIndexUniforms];
-            
-            [renderEncoder setVertexBuffer:_frequencyUniformBuffer
-                                    offset:_frequencyBufferOffset
-                                   atIndex:BufferIndexFrequencies];
-            
-            [renderEncoder drawPrimitives:MTLPrimitiveTypeTriangleStrip
-                              vertexStart:0
-                              vertexCount:4 * (kScaledFrequencyDataLength + (_frequencyStepping - 1))/ _frequencyStepping];
-            [renderEncoder endEncoding];
-        }
+        // Set the offscreen texture as the source texture.
+        [renderEncoder setFragmentTexture:_lastFrequenciesTexture atIndex:TextureIndexLast];
         
-        {
-            /// Fourth pass rendering code:  Scope compose with last scope
-            
-            id<MTLRenderCommandEncoder> renderEncoder = [commandBuffer renderCommandEncoderWithDescriptor:_composePass];
-            
-            renderEncoder.label = @"Scope Compose Texture Render Pass";
-            
-            [renderEncoder setRenderPipelineState:_composeState];
-            
-            // Set the offscreen texture with the bloomed scope as the source texture.
-            [renderEncoder setFragmentTexture:_bufferTexture atIndex:TextureIndexScope];
-            
-            // Set the offscreen texture from the last scope round as the source texture.
-            [renderEncoder setFragmentTexture:_lastTexture atIndex:TextureIndexLast];
-            
-            [renderEncoder setFragmentBuffer:_dynamicUniformBuffer
-                                      offset:_uniformBufferOffset
-                                     atIndex:BufferIndexUniforms];
-            
-            // Draw quad with rendered texture.
-            [renderEncoder drawPrimitives:MTLPrimitiveTypeTriangleStrip
-                              vertexStart:0
-                              vertexCount:4];
-            
-            [renderEncoder endEncoding];
-        }
+        [renderEncoder setFragmentBuffer:_dynamicUniformBuffer
+                                  offset:_uniformBufferOffset
+                                 atIndex:BufferIndexUniforms];
         
-        {
-            /// Fifth pass rendering code: Scope with last scope bloom again
-            [_bloom encodeToCommandBuffer:commandBuffer
-                            sourceTexture:_composeTargetTexture
-                       destinationTexture:_bufferTexture];
-            
-            /// Sixths pass rendering code: Scope with last scope erode to reduce artefact creep
-            [_erode encodeToCommandBuffer:commandBuffer
-                            sourceTexture:_bufferTexture
-                       destinationTexture:_lastTexture];
-        }
+        // Draw quad with rendered texture.
+        [renderEncoder drawPrimitives:MTLPrimitiveTypeTriangleStrip
+                          vertexStart:0
+                          vertexCount:4];
         
-        {
-            /// Sevenths pass rendering code: Frequency and last frequencies composing
-            
-            id<MTLRenderCommandEncoder> renderEncoder = [commandBuffer renderCommandEncoderWithDescriptor:_frequenciesComposePass];
-            
-            renderEncoder.label = @"Frequency Compose Texture Render Pass";
-            
-            [renderEncoder setRenderPipelineState:_frequenciesComposeState];
-            
-            // Set the offscreen texture as the source texture.
-            [renderEncoder setFragmentTexture:_frequenciesTargetTexture atIndex:TextureIndexScope];
-            
-            // Set the offscreen texture as the source texture.
-            [renderEncoder setFragmentTexture:_lastFrequenciesTexture atIndex:TextureIndexLast];
-            
-            [renderEncoder setFragmentBuffer:_dynamicUniformBuffer
-                                      offset:_uniformBufferOffset
-                                     atIndex:BufferIndexUniforms];
-            
-            // Draw quad with rendered texture.
-            [renderEncoder drawPrimitives:MTLPrimitiveTypeTriangleStrip
-                              vertexStart:0
-                              vertexCount:4];
-            
-            [renderEncoder endEncoding];
-        }
+        [renderEncoder endEncoding];
+    }
+    
+    dispatch_sync(_renderQueue, ^{
+        /// Eigths pass rendering code: Frequency and last frequencies blur.
+        [_blur encodeToCommandBuffer:commandBuffer
+                       sourceTexture:_frequenciesComposeTargetTexture
+                  destinationTexture:_lastFrequenciesTexture];
+    });
+    
+    {
+        /// Nineth pass rendering code: Compose scope and frequencies
         
-        {
-            /// Eigths pass rendering code: Frequency and last frequencies blur.
-            [_blur encodeToCommandBuffer:commandBuffer
-                           sourceTexture:_frequenciesComposeTargetTexture
-                      destinationTexture:_lastFrequenciesTexture];
-        }
+        id<MTLRenderCommandEncoder> renderEncoder = [commandBuffer renderCommandEncoderWithDescriptor:_postComposePass];
         
-        {
-            /// Nineth pass rendering code: Compose scope and frequencies
-            
-            id<MTLRenderCommandEncoder> renderEncoder = [commandBuffer renderCommandEncoderWithDescriptor:_postComposePass];
-            
-            renderEncoder.label = @"Scope and Frequencies Compose Texture Render Pass";
-            
-            [renderEncoder setRenderPipelineState:_postComposeState];
-            
-            // Source is the last frequencies texture with feedback.
-            [renderEncoder setFragmentTexture:_lastFrequenciesTexture atIndex:TextureIndexScope];
-            
-            // Source is the last scope texture with feedback.
-            [renderEncoder setFragmentTexture:_lastTexture atIndex:TextureIndexLast];
-            
-            [renderEncoder setFragmentBuffer:_dynamicUniformBuffer
-                                      offset:_uniformBufferOffset
-                                     atIndex:BufferIndexUniforms];
-            
-            // Draw quad with rendered texture.
-            [renderEncoder drawPrimitives:MTLPrimitiveTypeTriangleStrip
-                              vertexStart:0
-                              vertexCount:4];
-            
-            [renderEncoder endEncoding];
-        }
+        renderEncoder.label = @"Scope and Frequencies Compose Texture Render Pass";
         
+        [renderEncoder setRenderPipelineState:_postComposeState];
         
-        /// Delay getting the currentRenderPassDescriptor until we absolutely need it to avoid
-        ///   holding onto the drawable and blocking the display pipeline any longer than necessar
-        ///
+        // Source is the last frequencies texture with feedback.
+        [renderEncoder setFragmentTexture:_lastFrequenciesTexture atIndex:TextureIndexScope];
+        
+        // Source is the last scope texture with feedback.
+        [renderEncoder setFragmentTexture:_lastTexture atIndex:TextureIndexLast];
+        
+        [renderEncoder setFragmentBuffer:_dynamicUniformBuffer
+                                  offset:_uniformBufferOffset
+                                 atIndex:BufferIndexUniforms];
+        
+        // Draw quad with rendered texture.
+        [renderEncoder drawPrimitives:MTLPrimitiveTypeTriangleStrip
+                          vertexStart:0
+                          vertexCount:4];
+        
+        [renderEncoder endEncoding];
+    }
+    
+    
+/// Delay getting the currentRenderPassDescriptor until we absolutely need it to avoid
+///   holding onto the drawable and blocking the display pipeline any longer than necessar
+///
+    dispatch_sync(_renderQueue, ^{
         MTLRenderPassDescriptor* renderPassDescriptor = view.currentRenderPassDescriptor;
-        
         if(renderPassDescriptor != nil) {
             /// Final pass rendering code: Display on screen.
             id<MTLRenderCommandEncoder> renderEncoder =
@@ -1090,7 +1051,7 @@ float rgb_from_srgb(float c)
         }
         
         [commandBuffer commit];
-    }
+    });
 }
 
 @end

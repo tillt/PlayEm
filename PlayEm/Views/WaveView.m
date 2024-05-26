@@ -158,10 +158,6 @@
 
 - (void)setHead:(CGFloat)position
 {
-    if (_head == position) {
-        return;
-    }
-    
     _head = position;
 
     _headLayer.position = CGPointMake(_head, 0.0);
@@ -217,12 +213,12 @@
     [CATransaction begin];
     [CATransaction setDisableActions:YES];
 
+    CGFloat head = [self calcHead];
     os_signpost_interval_begin(pointsOfInterest, POIUpdateHeadPosition, "UpdateHeadPosition");
-    self.head = [self calcHead];
     os_signpost_interval_end(pointsOfInterest, POIUpdateHeadPosition, "UpdateHeadPosition");
 
     if (_followTime) {
-        CGPoint pointVisible = CGPointMake(self.enclosingScrollView.bounds.origin.x + floor(_head - (self.enclosingScrollView.bounds.size.width / 2.0)),
+        CGPoint pointVisible = CGPointMake(self.enclosingScrollView.bounds.origin.x + floor(head - (self.enclosingScrollView.bounds.size.width / 2.0)),
                                            self.enclosingScrollView.bounds.origin.y + floor(self.enclosingScrollView.bounds.size.height / 2.0));
 
         os_signpost_interval_begin(pointsOfInterest, POIScrollPoint, "ScrollPoint");
@@ -237,12 +233,13 @@
             // time with the scrollview.
             const CGFloat delta = 1.0f;
             CGFloat visibleCenter = self.enclosingScrollView.documentVisibleRect.origin.x + (self.enclosingScrollView.documentVisibleRect.size.width / 2.0f);
-            if (visibleCenter - delta <= _head && visibleCenter + delta >= _head) {
+            if (visibleCenter - delta <= head && visibleCenter + delta >= head) {
                 _followTime = YES;
             }
         }
     }
 
+    self.head = head;
     [CATransaction commit];
 
     os_signpost_interval_end(pointsOfInterest, POIUpdateScrollingState, "UpdateScrollingState");

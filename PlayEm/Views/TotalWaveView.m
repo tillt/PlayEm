@@ -245,15 +245,12 @@ const CGFloat kTotalWaveViewTileWidth = 8.0f;
         for (CGFloat y = yMin; y < yMax; y += tileSize.height) {
             NSInteger tag = x / tileSize.width;
             if ([self viewWithTag:tag] == nil) {
-                NSLog(@"needs a new one for %ld", tag);
                 NSRect rect = NSMakeRect(x, y, tileSize.width, tileSize.height);
                 TileView* v = [[TileView alloc] initWithFrame:rect];
                 v.layer.delegate = self.layerDelegate;
                 v.tag = tag;
                 [v.layer setNeedsDisplay];
                 [sv addObject:v];
-            } else {
-                NSLog(@"view %ld found", tag);
             }
         }
     }

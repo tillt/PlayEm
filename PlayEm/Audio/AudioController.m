@@ -20,6 +20,8 @@ const unsigned int kPlaybackBufferCount = 2;
 static const float kDecodingPollInterval = 0.3f;
 static const float kEnoughSecondsDecoded = 5.0f;
 
+NSString * const kAudioControllerChangedPlaybackStateNotification = @"AudioControllerChangedPlaybackStateNotification";
+
 typedef struct {
     int                         bufferIndex;
     AudioQueueBufferRef         buffers[kPlaybackBufferCount];
@@ -113,8 +115,12 @@ void propertyCallback (void* user_data, AudioQueueRef queue, AudioQueuePropertyI
         NSLog(@"audio now running = %d", isRunning);
         if (isRunning) {
             [context->delegate audioControllerPlaybackStarted];
+            [[NSNotificationCenter defaultCenter] postNotificationName:kAudioControllerChangedPlaybackStateNotification
+                                                                object:nil];
         } else {
             [context->delegate audioControllerPlaybackEnded];
+            [[NSNotificationCenter defaultCenter] postNotificationName:kAudioControllerChangedPlaybackStateNotification
+                                                                object:nil];
         }
     });
 }
@@ -286,6 +292,8 @@ void bufferCallback(void* user_data, AudioQueueRef queue, AudioQueueBufferRef bu
 
     _isPaused = YES;
     [self.delegate audioControllerPlaybackPaused];
+    [[NSNotificationCenter defaultCenter] postNotificationName:kAudioControllerChangedPlaybackStateNotification
+                                                        object:self];
 }
 
 - (void)play
@@ -316,6 +324,8 @@ void bufferCallback(void* user_data, AudioQueueRef queue, AudioQueueBufferRef bu
 
     _isPaused = NO;
     [self.delegate audioControllerPlaybackPlaying];
+    [[NSNotificationCenter defaultCenter] postNotificationName:kAudioControllerChangedPlaybackStateNotification
+                                                        object:self];
 }
 
 - (NSTimeInterval)currentTime

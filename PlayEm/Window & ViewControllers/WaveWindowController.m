@@ -664,11 +664,39 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     sv.documentView = _playlistTable;
     [_effectBelowPlaylist addSubview:sv];
 
-    [self scopeViewWithFrame:NSMakeRect(_belowVisuals.bounds.origin.x,
-                                        _belowVisuals.bounds.origin.y + totalWaveViewHeight + scrollingWaveViewHeight,
-                                        _belowVisuals.bounds.size.width,
-                                        scopeViewHeight)
-                         onView:_belowVisuals];
+    ScopeView* scv = [[ScopeView alloc] initWithFrame:NSMakeRect(_belowVisuals.bounds.origin.x,
+                                                                _belowVisuals.bounds.origin.y + totalWaveViewHeight + scrollingWaveViewHeight,
+                                                                _belowVisuals.bounds.size.width,
+                                                                scopeViewHeight)
+                                              device:MTLCreateSystemDefaultDevice()];
+    [_belowVisuals addSubview:scv];
+    
+    [_belowVisuals addConstraint:[NSLayoutConstraint constraintWithItem:scv
+                                                       attribute:NSLayoutAttributeHeight
+                                                       relatedBy:NSLayoutRelationGreaterThanOrEqual
+                                                          toItem:nil
+                                                       attribute:NSLayoutAttributeNotAnAttribute
+                                                      multiplier:1.0
+                                                        constant:kMinScopeHeight]];
+
+    [_scopeView removeFromSuperview];
+    _scopeView = scv;
+    
+    [_belowVisuals addSubview:_effectBelowPlaylist positioned:NSWindowAbove relativeTo:nil];
+
+    _renderer = [[ScopeRenderer alloc] initWithMetalKitView:scv
+                                                      color:[[Defaults sharedDefaults] lightBeamColor]
+                                                   fftColor:[[Defaults sharedDefaults] fftColor]
+                                                 background:[[Defaults sharedDefaults] backColor]
+                                                   delegate:self];
+    _renderer.level = self.controlPanelController.level;
+    scv.delegate = _renderer;
+
+    [_renderer mtkView:scv drawableSizeWillChange:scv.bounds.size];
+
+    if (_audioController && _visualSample) {
+        [_renderer play:_audioController visual:_visualSample scope:scv];
+    }
 
     _smallScopeView = _scopeView;
     
@@ -1277,50 +1305,49 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     [_split adjustSubviews];
     NSLog(@"relayout to fullscreen %X\n", toFullscreen);
 }
-
-- (ScopeView*)scopeViewWithFrame:(NSRect)frame onView:(NSView*)parent
-{
-    assert(frame.size.width * frame.size.height);
-
-    ScopeView* sv = [[ScopeView alloc] initWithFrame:frame
-                                              device:MTLCreateSystemDefaultDevice()];
-    assert(sv);
-    sv.paused = YES;
-    sv.layer.opaque = YES;
-
-    assert(parent);
-    [parent addSubview:sv];
-    
-    [parent addConstraint:[NSLayoutConstraint constraintWithItem:sv
-                                                       attribute:NSLayoutAttributeHeight
-                                                       relatedBy:NSLayoutRelationGreaterThanOrEqual
-                                                          toItem:nil
-                                                       attribute:NSLayoutAttributeNotAnAttribute
-                                                      multiplier:1.0
-                                                        constant:kMinScopeHeight]];
-
-    [_scopeView removeFromSuperview];
-    _scopeView = sv;
-    
-    assert(_effectBelowPlaylist);
-    [parent addSubview:_effectBelowPlaylist positioned:NSWindowAbove relativeTo:nil];
-
-    _renderer = [[ScopeRenderer alloc] initWithMetalKitView:sv
-                                                      color:[[Defaults sharedDefaults] lightBeamColor]
-                                                   fftColor:[[Defaults sharedDefaults] fftColor]
-                                                 background:[[Defaults sharedDefaults] backColor]
-                                                   delegate:self];
-    _renderer.level = self.controlPanelController.level;
-    sv.delegate = _renderer;
-
-    [_renderer mtkView:sv drawableSizeWillChange:sv.bounds.size];
-
-    if (_audioController && _visualSample) {
-        [_renderer play:_audioController visual:_visualSample scope:sv];
-    }
-
-    return sv;
-}
+//
+//- (ScopeView*)scopeViewWithFrame:(NSRect)frame onView:(NSView*)parent
+//{
+//    assert(frame.size.width * frame.size.height);
+//    ScopeView* sv = [[ScopeView alloc] initWithFrame:frame
+//                                              device:MTLCreateSystemDefaultDevice()];
+//    assert(sv);
+//    sv.paused = YES;
+//    sv.layer.opaque = YES;
+//
+//    assert(parent);
+//    [parent addSubview:sv];
+//    
+//    [parent addConstraint:[NSLayoutConstraint constraintWithItem:sv
+//                                                       attribute:NSLayoutAttributeHeight
+//                                                       relatedBy:NSLayoutRelationGreaterThanOrEqual
+//                                                          toItem:nil
+//                                                       attribute:NSLayoutAttributeNotAnAttribute
+//                                                      multiplier:1.0
+//                                                        constant:kMinScopeHeight]];
+//
+//    [_scopeView removeFromSuperview];
+//    _scopeView = sv;
+//    
+//    assert(_effectBelowPlaylist);
+//    [parent addSubview:_effectBelowPlaylist positioned:NSWindowAbove relativeTo:nil];
+//
+//    _renderer = [[ScopeRenderer alloc] initWithMetalKitView:sv
+//                                                      color:[[Defaults sharedDefaults] lightBeamColor]
+//                                                   fftColor:[[Defaults sharedDefaults] fftColor]
+//                                                 background:[[Defaults sharedDefaults] backColor]
+//                                                   delegate:self];
+//    _renderer.level = self.controlPanelController.level;
+//    sv.delegate = _renderer;
+//
+//    [_renderer mtkView:sv drawableSizeWillChange:sv.bounds.size];
+//
+//    if (_audioController && _visualSample) {
+//        [_renderer play:_audioController visual:_visualSample scope:sv];
+//    }
+//
+//    return sv;
+//}
 
 //// Yeah right - what a shitty name for a function that does so much more!
 //- (void)putMetalWaveViewWithFrame:(NSRect)frame onView:(NSView*)parent
@@ -2019,6 +2046,12 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
 
     [self unlockScreen];
 
+    // Stop the scope rendering.
+    [_renderer stop:_scopeView];
+
+    // Remove our hook to the vsync.
+    CVDisplayLinkStop(_displayLink);
+
     MediaMetaData* item = nil;
     if (_controlPanelController.loop.state == NSControlStateValueOn) {
         [self playPause:self];
@@ -2036,14 +2069,6 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
 
 - (void)stop
 {
-    // Remove our hook to the vsync.
-    CVDisplayLinkStop(_displayLink);
-    //[self.displayLink invalidate];
-
-    [self unlockScreen];
-
-    // Stop the scope rendering.
-    [_renderer stop:_scopeView];
 }
 
 #pragma mark - Control Panel delegate

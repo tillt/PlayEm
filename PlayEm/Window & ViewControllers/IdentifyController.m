@@ -7,6 +7,7 @@
 //
 
 #import "IdentifyController.h"
+#import <WebKit/WebKit.h>
 #import <ShazamKit/ShazamKit.h>
 
 #import "AudioController.h"
@@ -22,6 +23,7 @@
 @property (strong, nonatomic) NSTextField* genreField;
 
 @property (strong, nonatomic) NSTextField* titleField;
+@property (strong, nonatomic) WKWebView* svgView;
 @property (strong, nonatomic) NSImageView* coverView;
 @property (strong, nonatomic) NSButton* clipButton;
 @property (strong, nonatomic) NSButton* scButton;
@@ -70,7 +72,7 @@
 - (void)loadView
 {
     NSLog(@"loadView");
- 
+    
     const CGFloat kPopoverWidth = 300.0f;
     const CGFloat kPopoverHeight = 380.0f;
     
@@ -81,19 +83,20 @@
     const CGFloat kTitleFontSize = 19.0f;
     const CGFloat kGenreFontSize = 13.0f;
     const CGFloat kCopyButtonFontSize = kGenreFontSize;
-
+    
     const CGFloat kIndicatorWidth = kTitleFontSize;
     const CGFloat kIndicatorHeight = kIndicatorWidth;
     
     const CGFloat kTextFieldWidth = kPopoverWidth - (2.0f * kBorderWidth);
     const CGFloat kTextFieldHeight = kTitleFontSize + 8.0f;
-
+    
     const CGFloat kCoverViewWidth = 260.0;
     const CGFloat kCoverViewHeight = kCoverViewWidth;
-
+    
     self.view = [[NSView alloc] initWithFrame:NSMakeRect(0.0, 0.0, kPopoverWidth, kPopoverHeight)];
     
     CGFloat y = kPopoverHeight - (kCoverViewHeight + kBorderHeight);
+    
     
     _coverView = [[NSImageView alloc] initWithFrame:NSMakeRect(floorf((kPopoverWidth - kCoverViewWidth) / 2.0f),
                                                                y,
@@ -105,8 +108,20 @@
     _coverView.layer.cornerRadius = 7;
     _coverView.layer.masksToBounds = YES;
     [_coverView setAction:@selector(musicURLClicked:)];
-
+    
     [self.view addSubview:_coverView];
+    
+    _svgView = [[WKWebView alloc] initWithFrame:NSMakeRect(floorf((kPopoverWidth - kCoverViewWidth) / 2.0f),
+                                                           y,
+                                                           kCoverViewWidth,
+                                                           kCoverViewHeight)];
+    _svgView.wantsLayer = YES;
+    _svgView.layer.cornerRadius = 7;
+    _svgView.layer.masksToBounds = YES;
+    NSDataAsset* asset = [[NSDataAsset alloc] initWithName:@"IdentificationActive"];
+    [_svgView loadData:[asset data] MIMEType:@"image/svg+xml" characterEncodingName:@"" baseURL:[NSURL URLWithString:@""]];
+
+    [self.view addSubview:_svgView];
 
     y -= kTextFieldHeight + kRowSpace + kRowSpace + kRowSpace;
 
@@ -171,7 +186,7 @@
 
     y += kRowSpace;
 
-    _matchingIndicator = [[NSProgressIndicator alloc] initWithFrame:NSMakeRect(kPopoverWidth - (kBorderWidth + kIndicatorWidth),
+    _matchingIndicator = [[NSProgressIndicator alloc] initWithFrame:NSMakeRect(kPopoverWidth - (kIndicatorWidth + 4),
                                                                                y,
                                                                                kIndicatorWidth,
                                                                                kIndicatorHeight)];
@@ -215,6 +230,7 @@
 
 - (void)reset
 {
+    _svgView.animator.hidden = NO;
     _coverView.animator.image = [NSImage imageNamed:@"UnknownSong"];
     _titleField.animator.stringValue = @"???";
     _genreField.animator.stringValue = @"";
@@ -287,6 +303,7 @@
             dispatch_async(dispatch_queue_create("AsyncImageQueue", NULL), ^{
                 NSImage *image = [[NSImage alloc] initWithContentsOfURL:match.mediaItems[0].artworkURL];
                 dispatch_async(dispatch_get_main_queue(), ^{
+                    self.svgView.animator.hidden = YES;
                     self.coverView.animator.image = image;
                     self.imageURL = match.mediaItems[0].artworkURL;
                 });

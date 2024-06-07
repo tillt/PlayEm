@@ -17,7 +17,7 @@
 		BB25CF59255857BC005BFC32 /* MediaMetaData.m in Sources */ = {isa = PBXBuildFile; fileRef = BB25CF58255857BC005BFC32 /* MediaMetaData.m */; };
 		BB26B51129442E9A006EBAA7 /* AudioProcessing.m in Sources */ = {isa = PBXBuildFile; fileRef = BB26B51029442E9A006EBAA7 /* AudioProcessing.m */; };
 		BB2CB5652481A92600D47258 /* WaveWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = BB2CB5642481A92600D47258 /* WaveWindowController.m */; };
-		BB2CB58724827A0900D47258 /* AudioController.m in Sources */ = {isa = PBXBuildFile; fileRef = BB2CB58624827A0900D47258 /* AudioController.m */; };
+		BB2CB58724827A0900D47258 /* AudioController.mm in Sources */ = {isa = PBXBuildFile; fileRef = BB2CB58624827A0900D47258 /* AudioController.mm */; };
 		BB2CF8AD259EB66900D6BA03 /* LazySample.m in Sources */ = {isa = PBXBuildFile; fileRef = BB2CF8AC259EB66900D6BA03 /* LazySample.m */; };
 		BB3B8D982B86C9B7006AEFCA /* tag_c.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BB3B8D962B86C9B7006AEFCA /* tag_c.framework */; };
 		BB3B8D992B86C9B7006AEFCA /* tag_c.framework in Embed Libraries */ = {isa = PBXBuildFile; fileRef = BB3B8D962B86C9B7006AEFCA /* tag_c.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
@@ -116,7 +116,7 @@
 		BB2CB5632481A92600D47258 /* WaveWindowController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WaveWindowController.h; sourceTree = "<group>"; };
 		BB2CB5642481A92600D47258 /* WaveWindowController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WaveWindowController.m; sourceTree = "<group>"; };
 		BB2CB58524827A0900D47258 /* AudioController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AudioController.h; sourceTree = "<group>"; };
-		BB2CB58624827A0900D47258 /* AudioController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AudioController.m; sourceTree = "<group>"; };
+		BB2CB58624827A0900D47258 /* AudioController.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = AudioController.mm; sourceTree = "<group>"; };
 		BB2CF8AB259EB66900D6BA03 /* LazySample.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LazySample.h; sourceTree = "<group>"; };
 		BB2CF8AC259EB66900D6BA03 /* LazySample.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = LazySample.m; sourceTree = "<group>"; };
 		BB3B8D8C2B85285E006AEFCA /* ProfilingPointsOfInterest.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ProfilingPointsOfInterest.h; sourceTree = "<group>"; };
@@ -249,7 +249,7 @@
 				BB26B51229442ECF006EBAA7 /* AudioProcessing.h */,
 				BB26B51029442E9A006EBAA7 /* AudioProcessing.m */,
 				BB2CB58524827A0900D47258 /* AudioController.h */,
-				BB2CB58624827A0900D47258 /* AudioController.m */,
+				BB2CB58624827A0900D47258 /* AudioController.mm */,
 			);
 			path = Audio;
 			sourceTree = "<group>";
@@ -613,7 +613,7 @@
 				BB097A092921967700D33E44 /* LevelIndicatorCell.m in Sources */,
 				BB26B51129442E9A006EBAA7 /* AudioProcessing.m in Sources */,
 				BBDBBA7B2BA4B013003A80C1 /* WaveShaders.metal in Sources */,
-				BB2CB58724827A0900D47258 /* AudioController.m in Sources */,
+				BB2CB58724827A0900D47258 /* AudioController.mm in Sources */,
 				BB2CB5652481A92600D47258 /* WaveWindowController.m in Sources */,
 				BB8A100728FF49E400FC6013 /* Scroller.m in Sources */,
 				BBDBBA792BA3AF9F003A80C1 /* DragImageFileView.m in Sources */,
@@ -791,6 +791,10 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)",
 				);
+				HEADER_SEARCH_PATHS = (
+					/usr/local/include,
+					/opt/homebrew/include,
+				);
 				INFOPLIST_FILE = PlayEm/Info.plist;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.music";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -832,6 +836,10 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)",
+				);
+				HEADER_SEARCH_PATHS = (
+					/usr/local/include,
+					/opt/homebrew/include,
 				);
 				INFOPLIST_FILE = PlayEm/Info.plist;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.music";

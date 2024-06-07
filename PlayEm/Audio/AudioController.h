@@ -14,7 +14,6 @@ NS_ASSUME_NONNULL_BEGIN
 extern const unsigned int kPlaybackBufferFrames;
 extern const unsigned int kPlaybackBufferCount;
 
-
 @class LazySample;
 
 @protocol AudioControllerDelegate <NSObject>
@@ -40,10 +39,11 @@ typedef void (^TapBlock) (unsigned long long, float*, unsigned int);
 @property (nonatomic, assign, readonly) BOOL playing;
 @property (nonatomic, assign, readonly) BOOL paused;
 
+@property (nonatomic, assign) double tempoShift;
+
 - (id)init;
 - (void)playPause;
 - (void)playWhenReady:(unsigned long long)nextFrame paused:(BOOL)paused;
-
 - (void)startTapping:(TapBlock)tap;
 - (void)stopTapping;
 

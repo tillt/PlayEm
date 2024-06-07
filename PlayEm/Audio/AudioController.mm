@@ -15,6 +15,10 @@
 #import "LazySample.h"
 #import "ProfilingPointsOfInterest.h"
 
+//#define support_rubberband YES
+
+#include "rubberband/RubberBandStretcher.h"
+
 const unsigned int kPlaybackBufferFrames = 4096;
 const unsigned int kPlaybackBufferCount = 2;
 static const float kDecodingPollInterval = 0.3f;
@@ -31,6 +35,7 @@ typedef struct {
     signed long long            seekFrame;
     BOOL                        endOfStream;
     TapBlock                    tapBlock;
+    RubberBand::RubberBandStretcher* stretcher;
 } AudioContext;
 
 @interface AudioController ()
@@ -104,7 +109,7 @@ void propertyCallback (void* user_data, AudioQueueRef queue, AudioQueuePropertyI
         return;
     }
     assert(user_data);
-    AudioContext* context = user_data;
+    AudioContext* context = (AudioContext*)user_data;
 
     // Get the status of the property.
     UInt32 isRunning = FALSE;
@@ -130,7 +135,7 @@ void bufferCallback(void* user_data, AudioQueueRef queue, AudioQueueBufferRef bu
     os_signpost_interval_begin(pointsOfInterest, POIAudioBufferCallback, "AudioBufferCallback");
 
     assert(user_data);
-    AudioContext* context = user_data;
+    AudioContext* context = (AudioContext*)user_data;
     
     int bufferIndex = -1;
     for (int i = 0; i < kPlaybackBufferCount; i++) {
@@ -141,11 +146,39 @@ void bufferCallback(void* user_data, AudioQueueRef queue, AudioQueueBufferRef bu
     }
     buffer->mUserData = user_data;
     unsigned int frames = buffer->mAudioDataByteSize / context->sample.frameSize;
-    
     float* p = (float*)buffer->mAudioData;
+
+#ifdef support_rubberband
+    // your time-processing object checks how many samples it can get from Rubber Band already (available), 
+    // as there may be some in its internal buffers;
+    if (context->stretcher->available() > 0) {
+        context->stretcher->retrieve(p, frames);
+        /*
+        size_t RubberBand::RubberBandStretcher::retrieve    (    float *const *     output,
+        size_t     samples
+        )        const
+         */
+    }
+    
+    
+    // if that is not enough:
+    // it queries how many the Rubber Band stretcher needs at input before it can produce more at output (getSamplesRequired);
+
+    // it calls back into its audio source to obtain that number of samples;
     unsigned long long fetched = [context->sample rawSampleFromFrameOffset:context->nextFrame
                                                                    frames:frames
                                                                      data:p];
+
+    // it runs the stretcher (process), receives the available output (retrieve), and repeats if necessary
+
+    unsigned long long fetched = ;
+    
+
+#else
+    unsigned long long fetched = [context->sample rawSampleFromFrameOffset:context->nextFrame
+                                                                   frames:frames
+                                                                     data:p];
+#endif
     // Pad last frame with silence, if needed.
     if (fetched < frames) {
         memset(p + fetched * context->sample.channels, 0, (frames - fetched) * context->sample.frameSize);
@@ -188,11 +221,21 @@ void bufferCallback(void* user_data, AudioQueueRef queue, AudioQueueBufferRef bu
     [self reset];
 }
 
+- (void)setTempoShift:(double)tempoShift
+{
+    assert(_queue != nil);
+}
+
+- (double)tempoShift
+{
+    if (_queue ==  nil) {
+        return 1.0;
+    }
+    return 1.0;
+}
+
 - (void)setOutputVolume:(double)volume
 {
-    if (_outputVolume == volume) {
-        return;
-    }
     assert(_queue != nil);
     AudioQueueSetParameter(_queue, kAudioQueueParam_Volume, volume);
     _outputVolume = volume;
@@ -317,11 +360,11 @@ void bufferCallback(void* user_data, AudioQueueRef queue, AudioQueueBufferRef bu
                            _context.buffers[i]);
         }
     }
-
+    
     NSLog(@"starting audioqueue");
     OSStatus res = AudioQueueStart(_queue, NULL);
     assert(0 == res);
-
+    
     _isPaused = NO;
     [self.delegate audioControllerPlaybackPlaying];
     [[NSNotificationCenter defaultCenter] postNotificationName:kAudioControllerChangedPlaybackStateNotification
@@ -434,7 +477,12 @@ void bufferCallback(void* user_data, AudioQueueRef queue, AudioQueueBufferRef bu
     uint32_t primed = 0;
     res = AudioQueuePrime(_queue, 0, &primed);
     assert((res == 0) && primed > 0);
-
+    
+#ifdef support_rubberband
+    _context.stretcher = new RubberBand::RubberBandStretcher(sample.rate, sample.channels);
+    _context.stretcher->setTimeRatio(1.2);
+    _context.stretcher->setPitchScale(1.02);
+#endif
     return;
 }
 @end

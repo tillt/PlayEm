@@ -19,6 +19,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)showInfoForSelectedSongs:(id)sender;
 - (void)playPause:(id)sender;
 - (void)volumeChange:(id)sender;
+- (void)tempoChange:(id)sender;
 
 @end
 
@@ -32,6 +33,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (strong, nonatomic) NSButton* loop;
 @property (strong, nonatomic) NSButton* shuffle;
 @property (strong, nonatomic) NSSlider* volumeSlider;
+@property (strong, nonatomic) NSSlider* tempoSlider;
 @property (strong, nonatomic) NSLevelIndicator* level;
 @property (strong, nonatomic) CIFilter* zoomBlur;
 @property (strong, nonatomic) MediaMetaData* meta;

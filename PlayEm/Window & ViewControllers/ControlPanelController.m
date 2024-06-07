@@ -47,9 +47,12 @@
     
     const CGFloat volumeSliderY = 10.0;
     
+    const CGFloat controlPanelWidth = 920.0;
     const CGFloat controlPanelHeight = 56.0;
+
     const CGFloat timeLabelWidth = 152.0;
     const CGFloat timeLabelHeight = 16.0;
+
     const CGFloat coverButtonX = 5.0;
     
     const CGFloat bpmLabelWidth = 60.0f;
@@ -68,11 +71,11 @@
     
     const CGFloat largeSymbolFontSize = 21.0;
     const CGFloat regularSymbolFontSize = 13.0;
-    
+   
     const CGFloat loopButtonY = playPauseButtonY + floor((largeSymbolFontSize -
                                                           regularSymbolFontSize) / 2.0);
 
-    NSVisualEffectView* fxView = [[NSVisualEffectView alloc] initWithFrame:NSMakeRect(0.0, 0.0, 782.0, controlPanelHeight)];
+    NSVisualEffectView* fxView = [[NSVisualEffectView alloc] initWithFrame:NSMakeRect(0.0, 0.0, controlPanelWidth, controlPanelHeight)];
     fxView.material = NSVisualEffectMaterialSheet;
     self.view = fxView;
     self.view.autoresizingMask = NSViewWidthSizable | NSViewHeightSizable;
@@ -256,6 +259,47 @@
     sliderHeight);
     [self.view addSubview:textField];
     
+    _tempoSlider = [[NSSlider alloc] initWithFrame:NSMakeRect(_volumeSlider.frame.origin.x + _volumeSlider.frame.size.width + 70,
+                                                               volumeSliderY,
+                                                               sliderWidth,
+                                                               sliderHeight)];
+    _tempoSlider.trackFillColor = [NSColor labelColor];
+    _tempoSlider.vertical = NO;
+    _tempoSlider.maxValue = 2.0;
+    _tempoSlider.minValue = 0.5;
+    _tempoSlider.floatValue = 1.0;
+    _tempoSlider.controlSize = NSControlSizeMini;
+    [_tempoSlider setAction:@selector(tempoChange:)];
+    [self.view addSubview:_tempoSlider];
+    
+    textField = [NSTextField textFieldWithString:@"􀆊"];
+    textField.bordered = NO;
+    textField.textColor = [NSColor secondaryLabelColor];
+    textField.drawsBackground = NO;
+    textField.editable = NO;
+    textField.selectable = NO;
+    textField.alignment = NSTextAlignmentRight;
+    textField.font = [NSFont systemFontOfSize:16.0f];
+    textField.frame = NSMakeRect(_tempoSlider.frame.origin.x - 30.0,
+                                 _tempoSlider.frame.origin.y,
+                                 30.0,
+                                 sliderHeight);
+    [self.view addSubview:textField];
+    
+    textField = [NSTextField textFieldWithString:@"􀰫"];
+    textField.bordered = NO;
+    textField.textColor = [NSColor secondaryLabelColor];
+    textField.drawsBackground = NO;
+    textField.editable = NO;
+    textField.selectable = NO;
+    textField.alignment = NSTextAlignmentLeft;
+    textField.font = [NSFont systemFontOfSize:16.0f];
+    textField.frame = NSMakeRect(_tempoSlider.frame.origin.x + _tempoSlider.frame.size.width,
+                                 _volumeSlider.frame.origin.y,
+                                 30.0,
+                                 sliderHeight);
+    [self.view addSubview:textField];
+    
     _level = [[NSLevelIndicator alloc] initWithFrame:NSMakeRect(_volumeSlider.frame.origin.x + 2.0,
                                                                 _volumeSlider.frame.origin.y + levelHeight - 4.0,
                                                                 sliderWidth - 4,
@@ -322,6 +366,11 @@
     layer.compositingFilter = [CIFilter filterWithName:@"CISourceAtopCompositing"];
     layer.opacity = 0.5;
     [_level.layer addSublayer:layer];
+}
+
+- (void)tempoChange:(id)sender
+{
+    [_delegate tempoChange:sender];
 }
 
 - (void)volumeChange:(id)sender

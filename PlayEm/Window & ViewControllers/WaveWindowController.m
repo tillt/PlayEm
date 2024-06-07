@@ -53,8 +53,7 @@ const CGFloat kMinWidth = 465.0f;
 const CGFloat kMinHeight = 100.0f;      // Constraints on the subviews make this a minimum
                                         // that is never reached.
 const CGFloat kMinScopeHeight = 64.0f;  // Smaller would still me ok...
-const CGFloat kMinTableHeight = 0.0f;   // Header- and single row height summed pose the
-                                        // minimally viable total height.
+const CGFloat kMinTableHeight = 0.0f;   // Just forget about it.
 
 static const int kSplitPositionCount = 5;
 
@@ -2076,6 +2075,11 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
 - (void)volumeChange:(id)sender
 {
     _audioController.outputVolume = _controlPanelController.volumeSlider.doubleValue;
+}
+
+- (void)tempoChange:(id)sender
+{
+    _audioController.tempoShift = _controlPanelController.tempoSlider.doubleValue;
 }
 
 - (void)playPause:(id)sender

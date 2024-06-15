@@ -312,6 +312,7 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 {
     [self setBPM:[_beatSample currentTempo:&_beatEffectIteratorContext]];
 
+    // THis might go away... beats are too unreliable for cool visuals :(
     [_browser beatEffect];
     
     // Thats a weird mid-point but hey...
@@ -499,7 +500,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     self.totalWaveLayerDelegate.color = _waveView.color;
     self.waveLayerDelegate.color = _waveView.color;
 
-    //    self.authenticator = [MusicAuthenticationController new];
+//    self.authenticator = [MusicAuthenticationController new];
 //    [self.authenticator requestAppleMusicDeveloperTokenWithCompletion:^(NSString* token){
 //        NSLog(@"token: %@", token);
 //    }];
@@ -842,62 +843,62 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     sv.autoresizingMask = kViewFullySizeable;
     _songsTable = [[NSTableView alloc] initWithFrame:NSZeroRect];
     _songsTable.backgroundColor = [NSColor clearColor];
-    _songsTable.tag = VIEWTAG_FILTERED;
+    _songsTable.tag = VIEWTAG_SONGS;
     _songsTable.menu = menu;
     _songsTable.autosaveTableColumns = YES;
     _songsTable.allowsMultipleSelection = YES;
     _songsTable.style = NSTableViewStylePlain;
     [_songsTable selectionHighlightStyle];
 
-    col = [[NSTableColumn alloc] initWithIdentifier:@"TrackCell"];
+    col = [[NSTableColumn alloc] initWithIdentifier:kSongsColTrackNumber];
     col.title = @"Track";
     col.width = trackColumnWidth - selectorColumnInset;
     col.sortDescriptorPrototype = [[NSSortDescriptor alloc] initWithKey:@"track" ascending:YES selector:@selector(compare:)];
     [_songsTable addTableColumn:col];
     
-    col = [[NSTableColumn alloc] initWithIdentifier:@"TitleCell"];
+    col = [[NSTableColumn alloc] initWithIdentifier:kSongsColTitle];
     col.title = @"Title";
     col.width = titleColumnWidth - selectorColumnInset;
     col.sortDescriptorPrototype = [[NSSortDescriptor alloc] initWithKey:@"title" ascending:YES selector:@selector(compare:)];
     [_songsTable addTableColumn:col];
     
-    col = [[NSTableColumn alloc] initWithIdentifier:@"TimeCell"];
+    col = [[NSTableColumn alloc] initWithIdentifier:kSongsColTime];
     col.title = @"Time";
     col.width = timeColumnWidth - selectorColumnInset;
     col.sortDescriptorPrototype = [[NSSortDescriptor alloc] initWithKey:@"duration" ascending:YES selector:@selector(compare:)];
     [_songsTable addTableColumn:col];
     
-    col = [[NSTableColumn alloc] initWithIdentifier:@"ArtistCell"];
+    col = [[NSTableColumn alloc] initWithIdentifier:kSongsColArtist];
     col.title = @"Artist";
     col.width = artistColumnWidth - selectorColumnInset;
     col.sortDescriptorPrototype = [[NSSortDescriptor alloc] initWithKey:@"artist" ascending:YES selector:@selector(compare:)];
     [_songsTable addTableColumn:col];
     
-    col = [[NSTableColumn alloc] initWithIdentifier:@"AlbumCell"];
+    col = [[NSTableColumn alloc] initWithIdentifier:kSongsColAlbum];
     col.title = @"Album";
     col.width = albumColumnWidth - selectorColumnInset;
     col.sortDescriptorPrototype = [[NSSortDescriptor alloc] initWithKey:@"album" ascending:YES selector:@selector(compare:)];
     [_songsTable addTableColumn:col];
     
-    col = [[NSTableColumn alloc] initWithIdentifier:@"GenreCell"];
+    col = [[NSTableColumn alloc] initWithIdentifier:kSongsColGenre];
     col.title = @"Genre";
     col.width = genreColumnWidth - selectorColumnInset;
     col.sortDescriptorPrototype = [[NSSortDescriptor alloc] initWithKey:@"genre" ascending:YES selector:@selector(compare:)];
     [_songsTable addTableColumn:col];
     
-    col = [[NSTableColumn alloc] initWithIdentifier:@"AddedCell"];
+    col = [[NSTableColumn alloc] initWithIdentifier:kSongsColAdded];
     col.title = @"Added";
     col.width = addedColumnWidth - selectorColumnInset;
     col.sortDescriptorPrototype = [[NSSortDescriptor alloc] initWithKey:@"added" ascending:YES selector:@selector(compare:)];
     [_songsTable addTableColumn:col];
 
-    col = [[NSTableColumn alloc] initWithIdentifier:@"TempoCell"];
+    col = [[NSTableColumn alloc] initWithIdentifier:kSongsColTempo];
     col.title = @"Tempo";
     col.width = tempoColumnWidth - selectorColumnInset;
     col.sortDescriptorPrototype = [[NSSortDescriptor alloc] initWithKey:@"tempo" ascending:YES selector:@selector(compare:)];
     [_songsTable addTableColumn:col];
 
-    col = [[NSTableColumn alloc] initWithIdentifier:@"KeyCell"];
+    col = [[NSTableColumn alloc] initWithIdentifier:kSongsColKey];
     col.title = @"Key";
     col.width = keyColumnWidth - selectorColumnInset;
     col.sortDescriptorPrototype = [[NSSortDescriptor alloc] initWithKey:@"key" ascending:YES selector:@selector(compare:)];
@@ -1134,7 +1135,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
 
     currentFrame = [_audioController currentFrame];
 
-    NSNumber* currentFrameValue = [NSNumber numberWithUnsignedLongLong:currentFrame];
+    NSNumber* currentFrameValue = [NSNumber numberWithLongLong:currentFrame];
     
     NSDocumentController* dc = [NSDocumentController sharedDocumentController];
     NSURL* recentURL = dc.recentDocumentURLs[0];
@@ -1782,6 +1783,8 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     
     // Update meta data in playback box.
     _controlPanelController.meta = meta;
+    
+    [_browser setCurrentMeta:meta];
 }
 
 #pragma mark Drag & Drop
@@ -1928,12 +1931,16 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
 {
     NSNumber* currentFrameValue = @(frame);
     NSNumber* playingValue = @(playing);
+//    NSNumber* loopingValue = @()
 
     NSURLComponents* components = [NSURLComponents componentsWithString:[url.filePathURL absoluteString]];
     NSMutableArray<NSURLQueryItem*>* queryItems = [NSMutableArray array];
 
     NSURLQueryItem* item = [NSURLQueryItem queryItemWithName:@"CurrentFrame" value:[currentFrameValue stringValue]];
     [queryItems addObject:item];
+
+//    NSURLQueryItem* item = [NSURLQueryItem queryItemWithName:@"Looping" value:[_audioController.lop]];
+//    [queryItems addObject:item];
 
     item = [NSURLQueryItem queryItemWithName:@"Playing" value:[playingValue stringValue]];
     [queryItems addObject:item];
@@ -2100,7 +2107,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     return [[super restorableStateKeyPaths] arrayByAddingObject:@"frameForNonFullScreenMode"];
 }
 
-#pragma mark - InfoPanelControllerDelegate
+#pragma mark - Info Panel delegate
 
 - (BOOL)playing
 {

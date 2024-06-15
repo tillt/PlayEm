@@ -19,6 +19,7 @@
 
 #import "MediaMetaData+TagLib.h"
 #import "MediaMetaData+AVAsset.h"
+#import "MediaMetaData+StateAdditions.h"
 
 ///
 /// MediaMetaData is lazily holding metadata for library entries to allow for extending iTunes provided data.
@@ -802,23 +803,23 @@ NSString* const kMediaMetaDataMapTypeNumber = @"number";
 - (NSString*)correctedKeyNotation:(NSString*)key
 {
     NSDictionary* mixWheel = @{
-        @"Abmin": @"1A",
         //        G♯ minor/A♭ minor,
+        @"Abmin": @"1A",
         @"G#min": @"1A",
-        @"Bmaj":  @"1B",
         //        B major/C♭ major,
+        @"Bmaj":  @"1B",
         @"Cbmaj": @"1B",
-        @"Ebmin": @"2A",
         //        D♯ minor/E♭ minor,
+        @"Ebmin": @"2A",
         @"D#min": @"2A",
-        @"F#maj": @"2B",
         //        F♯ major/G♭ major,
+        @"F#maj": @"2B",
         @"Gbmaj": @"2B",
-        @"A#min": @"3A",
         //        A♯ minor/B♭ minor.
+        @"A#min": @"3A",
         @"Bbmin": @"3A",
-        @"C#maj": @"3B",
         //        C♯ major/D♭ major
+        @"C#maj": @"3B",
         @"Dbmaj": @"3B",
         @"Fmin":  @"4A",
         @"Abmaj": @"4B",

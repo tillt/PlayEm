@@ -18,7 +18,18 @@ NS_ASSUME_NONNULL_BEGIN
 #define VIEWTAG_ALBUMS   44
 #define VIEWTAG_TEMPO    45
 #define VIEWTAG_KEY      46
-#define VIEWTAG_FILTERED 50
+#define VIEWTAG_SONGS    50
+
+extern NSString* const kSongsColTrackNumber;
+extern NSString* const kSongsColTitle;
+extern NSString* const kSongsColArtist;
+extern NSString* const kSongsColAlbum;
+extern NSString* const kSongsColTime;
+extern NSString* const kSongsColTempo;
+extern NSString* const kSongsColKey;
+extern NSString* const kSongsColAdded;
+extern NSString* const kSongsColGenre;
+
 
 @class MediaMetaData;
 
@@ -45,6 +56,7 @@ NS_ASSUME_NONNULL_BEGIN
                  delegate:(id <BrowserControllerDelegate>)delegate;
 - (void)loadITunesLibrary;
 - (void)reloadData;
+- (void)setCurrentMeta:(MediaMetaData*)meta;
 - (void)beatEffect;
 - (void)metaChangedForMeta:(MediaMetaData *)meta updatedMeta:(MediaMetaData *)updatedMeta;
 - (NSArray<NSString*>*)knownGenres;

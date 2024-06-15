@@ -47,7 +47,11 @@
     
     const CGFloat volumeSliderY = 10.0;
     
+#ifdef support_rubberband
     const CGFloat controlPanelWidth = 920.0;
+#else
+    const CGFloat controlPanelWidth = 775.0;
+#endif
     const CGFloat controlPanelHeight = 56.0;
 
     const CGFloat timeLabelWidth = 152.0;
@@ -259,6 +263,7 @@
     sliderHeight);
     [self.view addSubview:textField];
     
+#ifdef support_rubberband
     _tempoSlider = [[NSSlider alloc] initWithFrame:NSMakeRect(_volumeSlider.frame.origin.x + _volumeSlider.frame.size.width + 70,
                                                                volumeSliderY,
                                                                sliderWidth,
@@ -271,6 +276,7 @@
     _tempoSlider.controlSize = NSControlSizeMini;
     [_tempoSlider setAction:@selector(tempoChange:)];
     [self.view addSubview:_tempoSlider];
+    
     
     textField = [NSTextField textFieldWithString:@"􀆊"];
     textField.bordered = NO;
@@ -299,7 +305,8 @@
                                  30.0,
                                  sliderHeight);
     [self.view addSubview:textField];
-    
+#endif
+
     _level = [[NSLevelIndicator alloc] initWithFrame:NSMakeRect(_volumeSlider.frame.origin.x + 2.0,
                                                                 _volumeSlider.frame.origin.y + levelHeight - 4.0,
                                                                 sliderWidth - 4,

@@ -19,6 +19,11 @@
 		BB2CB5652481A92600D47258 /* WaveWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = BB2CB5642481A92600D47258 /* WaveWindowController.m */; };
 		BB2CB58724827A0900D47258 /* AudioController.mm in Sources */ = {isa = PBXBuildFile; fileRef = BB2CB58624827A0900D47258 /* AudioController.mm */; };
 		BB2CF8AD259EB66900D6BA03 /* LazySample.m in Sources */ = {isa = PBXBuildFile; fileRef = BB2CF8AC259EB66900D6BA03 /* LazySample.m */; };
+		BB3926FF2C14B43E009C7B32 /* TableRowView.m in Sources */ = {isa = PBXBuildFile; fileRef = BB3926FE2C14B43E009C7B32 /* TableRowView.m */; };
+		BB3927022C14C606009C7B32 /* TableCellView.m in Sources */ = {isa = PBXBuildFile; fileRef = BB3927012C14C606009C7B32 /* TableCellView.m */; };
+		BB3927052C1783DD009C7B32 /* IdentificationActiveView.m in Sources */ = {isa = PBXBuildFile; fileRef = BB3927042C1783DD009C7B32 /* IdentificationActiveView.m */; };
+		BB3927092C1BA8BD009C7B32 /* NSURL+WithoutParameters.m in Sources */ = {isa = PBXBuildFile; fileRef = BB3927082C1BA8BD009C7B32 /* NSURL+WithoutParameters.m */; };
+		BB39270C2C1CD1E3009C7B32 /* MediaMetaData+StateAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = BB39270B2C1CD1E3009C7B32 /* MediaMetaData+StateAdditions.m */; };
 		BB3B8D982B86C9B7006AEFCA /* tag_c.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BB3B8D962B86C9B7006AEFCA /* tag_c.framework */; };
 		BB3B8D992B86C9B7006AEFCA /* tag_c.framework in Embed Libraries */ = {isa = PBXBuildFile; fileRef = BB3B8D962B86C9B7006AEFCA /* tag_c.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		BB3B8D9A2B86C9B7006AEFCA /* tag.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BB3B8D972B86C9B7006AEFCA /* tag.framework */; };
@@ -119,6 +124,17 @@
 		BB2CB58624827A0900D47258 /* AudioController.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = AudioController.mm; sourceTree = "<group>"; };
 		BB2CF8AB259EB66900D6BA03 /* LazySample.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LazySample.h; sourceTree = "<group>"; };
 		BB2CF8AC259EB66900D6BA03 /* LazySample.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = LazySample.m; sourceTree = "<group>"; };
+		BB3926FD2C14B3FA009C7B32 /* TableRowView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TableRowView.h; sourceTree = "<group>"; };
+		BB3926FE2C14B43E009C7B32 /* TableRowView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TableRowView.m; sourceTree = "<group>"; };
+		BB3927002C14C606009C7B32 /* TableCellView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TableCellView.h; sourceTree = "<group>"; };
+		BB3927012C14C606009C7B32 /* TableCellView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TableCellView.m; sourceTree = "<group>"; };
+		BB3927032C1783DD009C7B32 /* IdentificationActiveView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = IdentificationActiveView.h; path = "PlayEm/Window & ViewControllers/IdentificationActiveView.h"; sourceTree = SOURCE_ROOT; };
+		BB3927042C1783DD009C7B32 /* IdentificationActiveView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = IdentificationActiveView.m; path = "PlayEm/Window & ViewControllers/IdentificationActiveView.m"; sourceTree = SOURCE_ROOT; };
+		BB3927062C17A3C4009C7B32 /* TableViewExtraState.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TableViewExtraState.h; sourceTree = "<group>"; };
+		BB3927072C1BA8BD009C7B32 /* NSURL+WithoutParameters.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "NSURL+WithoutParameters.h"; path = "Window & ViewControllers/NSURL+WithoutParameters.h"; sourceTree = "<group>"; };
+		BB3927082C1BA8BD009C7B32 /* NSURL+WithoutParameters.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = "NSURL+WithoutParameters.m"; path = "Window & ViewControllers/NSURL+WithoutParameters.m"; sourceTree = "<group>"; };
+		BB39270A2C1CD1E3009C7B32 /* MediaMetaData+StateAdditions.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "MediaMetaData+StateAdditions.h"; sourceTree = "<group>"; };
+		BB39270B2C1CD1E3009C7B32 /* MediaMetaData+StateAdditions.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "MediaMetaData+StateAdditions.m"; sourceTree = "<group>"; };
 		BB3B8D8C2B85285E006AEFCA /* ProfilingPointsOfInterest.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ProfilingPointsOfInterest.h; sourceTree = "<group>"; };
 		BB3B8D962B86C9B7006AEFCA /* tag_c.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = tag_c.framework; sourceTree = "<group>"; };
 		BB3B8D972B86C9B7006AEFCA /* tag.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = tag.framework; sourceTree = "<group>"; };
@@ -339,6 +355,8 @@
 				BBC43B7228D296B800CD1080 /* AVMetadataItem+THAdditions.m */,
 				BBC2AF712B8B5ACA0077EB5E /* MediaMetaData+AVAsset.h */,
 				BBC2AF722B8B5B5A0077EB5E /* MediaMetaData+AVAsset.m */,
+				BB39270A2C1CD1E3009C7B32 /* MediaMetaData+StateAdditions.h */,
+				BB39270B2C1CD1E3009C7B32 /* MediaMetaData+StateAdditions.m */,
 			);
 			path = Metadata;
 			sourceTree = "<group>";
@@ -346,6 +364,8 @@
 		BBC8B32D293C47D900F5D38E /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				BB3927032C1783DD009C7B32 /* IdentificationActiveView.h */,
+				BB3927042C1783DD009C7B32 /* IdentificationActiveView.m */,
 				BBDFAC80259A68E200092458 /* ProgressView.h */,
 				BBDFAC81259A68E200092458 /* ProgressView.m */,
 				BBAD7D53262B96D800089ACC /* ScopeView.h */,
@@ -364,6 +384,11 @@
 				BB5A2C222B925CD300040209 /* TextViewWithPlaceholder.m */,
 				BBDBBA772BA3AF9F003A80C1 /* DragImageFileView.h */,
 				BBDBBA782BA3AF9F003A80C1 /* DragImageFileView.m */,
+				BB3927062C17A3C4009C7B32 /* TableViewExtraState.h */,
+				BB3927002C14C606009C7B32 /* TableCellView.h */,
+				BB3927012C14C606009C7B32 /* TableCellView.m */,
+				BB3926FD2C14B3FA009C7B32 /* TableRowView.h */,
+				BB3926FE2C14B43E009C7B32 /* TableRowView.m */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -446,6 +471,8 @@
 				BB7C6268293144890019AF25 /* Defaults.m */,
 				BB3B8D8C2B85285E006AEFCA /* ProfilingPointsOfInterest.h */,
 				BB8571022972152B0004218B /* README.md */,
+				BB3927072C1BA8BD009C7B32 /* NSURL+WithoutParameters.h */,
+				BB3927082C1BA8BD009C7B32 /* NSURL+WithoutParameters.m */,
 			);
 			path = PlayEm;
 			sourceTree = "<group>";
@@ -583,6 +610,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				BB3927052C1783DD009C7B32 /* IdentificationActiveView.m in Sources */,
 				BB8A100C290586E500FC6013 /* CAShapeLayer+Path.m in Sources */,
 				BB9401882AD0974900B7B150 /* AcceleratedBiquadFilter.m in Sources */,
 				BBC2AF7A2B8DF0960077EB5E /* NSAlert+BetterError.m in Sources */,
@@ -596,6 +624,7 @@
 				BBC43B7028D28CDD00CD1080 /* InfoPanel.m in Sources */,
 				BB541F662B9FA17600BF7F7B /* SPMediaKeyTap.m in Sources */,
 				BB03622925FE57E800FA0A7E /* TotalWaveView.m in Sources */,
+				BB3927092C1BA8BD009C7B32 /* NSURL+WithoutParameters.m in Sources */,
 				BB25CF59255857BC005BFC32 /* MediaMetaData.m in Sources */,
 				BB8571012972078A0004218B /* IndexedBlockOperation.m in Sources */,
 				BB896FF32928874500B41809 /* TableHeaderCell.m in Sources */,
@@ -627,11 +656,14 @@
 				BBDEBD3D2A99417A0085E6D8 /* WaveLayerDelegate.m in Sources */,
 				BB0D5281244CEE22007C909F /* VisualSample.m in Sources */,
 				BBDA2FFE2A7FCEEC0084E2B6 /* BeatTrackedSample.m in Sources */,
+				BB3926FF2C14B43E009C7B32 /* TableRowView.m in Sources */,
 				BBDB1B402B644AD500A953F7 /* MetalWaveView.m in Sources */,
 				BBB37D21290F4A7E0007A6BB /* PlaylistController.m in Sources */,
 				BBDFAC82259A68E200092458 /* ProgressView.m in Sources */,
 				BB2CF8AD259EB66900D6BA03 /* LazySample.m in Sources */,
+				BB3927022C14C606009C7B32 /* TableCellView.m in Sources */,
 				BB0C5D9327768D2400856978 /* MatrixUtilities.m in Sources */,
+				BB39270C2C1CD1E3009C7B32 /* MediaMetaData+StateAdditions.m in Sources */,
 				BBDB1B452B69D18A00A953F7 /* WaveTile.m in Sources */,
 				BBCE23512B5C9235003892F3 /* WaveRenderer.m in Sources */,
 			);

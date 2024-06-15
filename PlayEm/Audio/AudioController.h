@@ -16,6 +16,7 @@ extern const unsigned int kPlaybackBufferCount;
 
 @class LazySample;
 
+// TODO: Consider a one to many event post instead.
 @protocol AudioControllerDelegate <NSObject>
 
 - (void)audioControllerPlaybackStarted;

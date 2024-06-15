@@ -12,6 +12,7 @@
 
 #import "AudioController.h"
 #import "LazySample.h"
+#import "IdentificationActiveView.h"
 
 @interface IdentifyController ()
 
@@ -23,7 +24,8 @@
 @property (strong, nonatomic) NSTextField* genreField;
 
 @property (strong, nonatomic) NSTextField* titleField;
-@property (strong, nonatomic) WKWebView* svgView;
+@property (strong, nonatomic) IdentificationActiveView* identificationActiveView;
+//@property (strong, nonatomic) WKWebView* svgView;
 @property (strong, nonatomic) NSImageView* coverView;
 @property (strong, nonatomic) NSButton* clipButton;
 @property (strong, nonatomic) NSButton* scButton;
@@ -93,10 +95,12 @@
     const CGFloat kCoverViewWidth = 260.0;
     const CGFloat kCoverViewHeight = kCoverViewWidth;
     
-    self.view = [[NSView alloc] initWithFrame:NSMakeRect(0.0, 0.0, kPopoverWidth, kPopoverHeight)];
+    self.view = [[NSView alloc] initWithFrame:NSMakeRect(0.0, 
+                                                         0.0,
+                                                         kPopoverWidth,
+                                                         kPopoverHeight)];
     
     CGFloat y = kPopoverHeight - (kCoverViewHeight + kBorderHeight);
-    
     
     _coverView = [[NSImageView alloc] initWithFrame:NSMakeRect(floorf((kPopoverWidth - kCoverViewWidth) / 2.0f),
                                                                y,
@@ -106,22 +110,30 @@
     _coverView.imageScaling = NSImageScaleProportionallyUpOrDown;
     _coverView.wantsLayer = YES;
     _coverView.layer.cornerRadius = 7;
+    _coverView.hidden = YES;
     _coverView.layer.masksToBounds = YES;
     [_coverView setAction:@selector(musicURLClicked:)];
     
     [self.view addSubview:_coverView];
     
-    _svgView = [[WKWebView alloc] initWithFrame:NSMakeRect(floorf((kPopoverWidth - kCoverViewWidth) / 2.0f),
-                                                           y,
-                                                           kCoverViewWidth,
-                                                           kCoverViewHeight)];
-    _svgView.wantsLayer = YES;
-    _svgView.layer.cornerRadius = 7;
-    _svgView.layer.masksToBounds = YES;
-    NSDataAsset* asset = [[NSDataAsset alloc] initWithName:@"IdentificationActive"];
-    [_svgView loadData:[asset data] MIMEType:@"image/svg+xml" characterEncodingName:@"" baseURL:[NSURL URLWithString:@""]];
+//    _svgView = [[WKWebView alloc] initWithFrame:NSMakeRect(floorf((kPopoverWidth - kCoverViewWidth) / 2.0f),
+//                                                           y,
+//                                                           kCoverViewWidth,
+//                                                           kCoverViewHeight)];
+//    _svgView.wantsLayer = YES;
+//    _svgView.layer.cornerRadius = 7;
+//    _svgView.layer.masksToBounds = YES;
+//    NSDataAsset* asset = [[NSDataAsset alloc] initWithName:@"IdentificationActive"];
+//    [_svgView loadData:[asset data] MIMEType:@"video/quicktime" characterEncodingName:@"" baseURL:[NSURL URLWithString:@""]];
+//    [self.view addSubview:_svgView];
+    _identificationActiveView = [[IdentificationActiveView alloc] initWithFrame:NSMakeRect( floorf((kPopoverWidth - kCoverViewWidth) / 2.0f),
+                                                                                            y,
+                                                                                            kCoverViewWidth,
+                                                                                            kCoverViewHeight)];
+    _identificationActiveView.hidden = NO;
+    [self.view addSubview:_identificationActiveView];
 
-    [self.view addSubview:_svgView];
+    [_identificationActiveView startAnimating];
 
     y -= kTextFieldHeight + kRowSpace + kRowSpace + kRowSpace;
 
@@ -129,11 +141,12 @@
     _clipButton.font = [NSFont systemFontOfSize:kCopyButtonFontSize];
     _clipButton.bordered = NO;
     [_clipButton setButtonType:NSButtonTypeMomentaryPushIn];
+
     _clipButton.bezelStyle = NSBezelStyleTexturedRounded;
-    _clipButton.frame = NSMakeRect(kPopoverWidth - (kCopyButtonFontSize + kBorderWidth),
-                                  y,
-                                  kCopyButtonFontSize + kBorderWidth,
-                                  kTextFieldHeight);
+    _clipButton.frame = NSMakeRect( kPopoverWidth - (kCopyButtonFontSize + kBorderWidth),
+                                    y,
+                                    kCopyButtonFontSize + kBorderWidth,
+                                    kTextFieldHeight);
     [self.view addSubview:_clipButton];
 
     y -= kTextFieldHeight;
@@ -143,10 +156,10 @@
     _scButton.bordered = NO;
     [_scButton setButtonType:NSButtonTypeMomentaryPushIn];
     _scButton.bezelStyle = NSBezelStyleTexturedRounded;
-    _scButton.frame = NSMakeRect(kPopoverWidth - (kCopyButtonFontSize + kBorderWidth),
-                                  y,
-                                  kCopyButtonFontSize + kBorderWidth,
-                                  kTextFieldHeight);
+    _scButton.frame = NSMakeRect(   kPopoverWidth - (kCopyButtonFontSize + kBorderWidth),
+                                    y,
+                                    kCopyButtonFontSize + kBorderWidth,
+                                    kTextFieldHeight);
     [self.view addSubview:_scButton];
 
     _titleField = [NSTextField textFieldWithString:@"???"];
@@ -192,7 +205,7 @@
                                                                                kIndicatorHeight)];
     _matchingIndicator.style = NSProgressIndicatorStyleSpinning;
     _matchingIndicator.displayedWhenStopped = NO;
-    _matchingIndicator.autoresizingMask =  NSViewNotSizable | NSViewMinXMargin | NSViewMaxXMargin| NSViewMinYMargin | NSViewMaxYMargin;
+    _matchingIndicator.autoresizingMask = NSViewNotSizable | NSViewMinXMargin | NSViewMaxXMargin| NSViewMinYMargin | NSViewMaxYMargin;
     [self.view addSubview:_matchingIndicator];
     [_matchingIndicator startAnimation:self];
 }
@@ -207,10 +220,14 @@
 {
     NSString* title = [_titleField.stringValue stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
     title = [title stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLFragmentAllowedCharacterSet]];
+
     NSURL* queryURL = [NSURL URLWithString:[NSString stringWithFormat:@"https://soundcloud.com/search?q=%@", title]];
     NSURL* appURL = [[NSWorkspace sharedWorkspace] URLForApplicationToOpenURL:queryURL];
-    NSWorkspaceOpenConfiguration* configuration = [[NSWorkspaceOpenConfiguration alloc] init];
-    [[NSWorkspace sharedWorkspace] openURLs:[NSArray arrayWithObject:queryURL] withApplicationAtURL:appURL configuration:configuration completionHandler:^(NSRunningApplication* app, NSError* error){
+    NSWorkspaceOpenConfiguration* configuration = [NSWorkspaceOpenConfiguration new];
+    [[NSWorkspace sharedWorkspace] openURLs:[NSArray arrayWithObject:queryURL]
+                       withApplicationAtURL:appURL
+                              configuration:configuration
+                          completionHandler:^(NSRunningApplication* app, NSError* error){
     }];
 }
 
@@ -223,17 +240,22 @@
     // URL. That way we get things displayed even in cases where
     // Music.app does not show iCloud.Music.
     NSURL* appURL = [[NSWorkspace sharedWorkspace] URLForApplicationToOpenURL:_musicURL];
-    NSWorkspaceOpenConfiguration* configuration = [[NSWorkspaceOpenConfiguration alloc] init];
-    [[NSWorkspace sharedWorkspace] openURLs:[NSArray arrayWithObject:_musicURL] withApplicationAtURL:appURL configuration:configuration completionHandler:^(NSRunningApplication* app, NSError* error){
+    NSWorkspaceOpenConfiguration* configuration = [NSWorkspaceOpenConfiguration new];
+    [[NSWorkspace sharedWorkspace] openURLs:[NSArray arrayWithObject:_musicURL]
+                       withApplicationAtURL:appURL
+                              configuration:configuration
+                          completionHandler:^(NSRunningApplication* app, NSError* error){
     }];
 }
 
 - (void)reset
 {
-    _svgView.animator.hidden = NO;
+    //_svgView.animator.hidden = NO;
+    _coverView.hidden = YES;
     _coverView.animator.image = [NSImage imageNamed:@"UnknownSong"];
-    _titleField.animator.stringValue = @"???";
-    _genreField.animator.stringValue = @"";
+    _identificationActiveView.hidden = NO;
+    _titleField.animator.stringValue = @"";
+    _genreField.animator.stringValue = @"all ears ...";
     _imageURL = nil;
     _musicURL = nil;
     _clipButton.animator.alphaValue = 0.0;
@@ -303,7 +325,8 @@
             dispatch_async(dispatch_queue_create("AsyncImageQueue", NULL), ^{
                 NSImage *image = [[NSImage alloc] initWithContentsOfURL:match.mediaItems[0].artworkURL];
                 dispatch_async(dispatch_get_main_queue(), ^{
-                    self.svgView.animator.hidden = YES;
+                    self.identificationActiveView.animator.hidden = YES;
+                    self.coverView.animator.hidden = NO;
                     self.coverView.animator.image = image;
                     self.imageURL = match.mediaItems[0].artworkURL;
                 });
@@ -314,10 +337,23 @@
 
 - (void)session:(SHSession *)session didNotFindMatchForSignature:(SHSignature *)signature error:(nullable NSError *)error
 {
+    NSArray<NSString*>* messages = @[   @"... so far, not known ...",
+                                        @"... that reminds me of ...",
+                                        @"... almost got it but then ...",
+                                        @"... crunching hard but so far ...",
+                                        @"... dont tell me someone pitched this stuff ...",
+                                        @"... heard this the other day ...",
+                                        @"... nah, no idea ...",
+                                        @"... hah, yeah I think I know this one ...",
+                                        @"... darn, I swear that one I know for sure ...",
+                                        @"... slipped my mind, knew it the other day ...",
+                                        @"... wasnt that done by that dude ...",
+                                        @"... wait! what was that again..." ];
+    int r = arc4random_uniform((unsigned int)messages.count);
     NSLog(@"didNotFindMatchForSignature - error was: %@", error);
     dispatch_async(dispatch_get_main_queue(), ^{
         [self reset];
-        self.titleField.animator.stringValue = @"unknown!";
+        self.genreField.animator.stringValue = messages[r];
     });
 }
 

@@ -282,12 +282,14 @@ void bufferCallback(void* user_data, AudioQueueRef queue, AudioQueueBufferRef bu
         return;
     }
     
-    if (nextFrame + (_context.sample.rate * kEnoughSecondsDecoded) >= _context.sample.frames) {
+    const unsigned long long enoughFrames = _context.sample.rate * kEnoughSecondsDecoded;
+    
+    if (nextFrame + enoughFrames >= _context.sample.frames) {
         NSLog(@"too late for restarting from that position again");
         nextFrame = 0LL;
     }
     
-    if (_context.sample.decodedFrames > nextFrame + (_context.sample.rate * kEnoughSecondsDecoded)) {
+    if (_context.sample.decodedFrames >= nextFrame + enoughFrames) {
         NSLog(@"got enough data already.");
         [self play];
         return;

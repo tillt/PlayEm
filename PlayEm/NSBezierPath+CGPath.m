@@ -26,7 +26,7 @@
                 CGPathAddLineToPoint(cgPath, NULL, ps[0].x, ps[0].y);
                 break;
             }
-            case NSBezierPathElementCurveTo: {
+            case NSBezierPathElementCubicCurveTo: {
                 CGPathAddCurveToPoint(cgPath, NULL, ps[0].x, ps[0].y, ps[1].x, ps[1].y, ps[2].x, ps[2].y);
                 break;
             }

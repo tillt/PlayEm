@@ -10,17 +10,10 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface TableRowView : NSTableRowView
-- (void)drawSelectionInRect:(NSRect)dirtyRect;
-@end
-
 @interface TableHeaderCell : NSTableHeaderCell
 - (void)drawWithFrame:(CGRect)cellFrame
           highlighted:(BOOL)isHighlighted
                inView:(NSView *)view;
 @end
-
-
-
 
 NS_ASSUME_NONNULL_END

@@ -19,10 +19,26 @@
 #import "CAShapeLayer+Path.h"
 #import "NSBezierPath+CGPath.h"
 #import "ProfilingPointsOfInterest.h"
+
 #import "MediaMetaData.h"
+#import "MediaMetaData+StateAdditions.h"
+
 #import "TableHeaderCell.h"
+#import "TableRowView.h"
+#import "TableCellView.h"
 
 #import "NSString+BeautifulPast.h"
+#import "NSURL+WithoutParameters.h"
+
+NSString* const kSongsColTrackNumber = @"TrackCell";
+NSString* const kSongsColTitle = @"TitleCell";
+NSString* const kSongsColArtist = @"ArtistCell";
+NSString* const kSongsColAlbum = @"AlbumCell";
+NSString* const kSongsColTime = @"TimeCell";
+NSString* const kSongsColTempo = @"TempoCell";
+NSString* const kSongsColKey = @"KeyCell";
+NSString* const kSongsColAdded = @"AddedCell";
+NSString* const kSongsColGenre = @"GenreCell";
 
 @interface BrowserController ()
 @property (nonatomic, strong) ITLibrary* library;
@@ -35,6 +51,8 @@
 @property (nonatomic, weak) NSTableView* keysTable;
 @property (nonatomic, weak) NSTableView* songsTable;
 
+@property (nonatomic, strong) NSURL* lastLocation;
+
 @property (nonatomic, strong) NSMutableArray<NSString*>* genres;
 @property (nonatomic, strong) NSMutableArray<NSString*>* artists;
 @property (nonatomic, strong) NSMutableArray<NSString*>* albums;
@@ -44,7 +62,7 @@
 
 @property (strong, nonatomic) dispatch_queue_t filterQueue;
 
-@property (nonatomic, strong) CALayer* playbackFeedbackLayer;
+//@property (nonatomic, strong) CALayer* playbackFeedbackLayer;
 @property (nonatomic, strong) CIFilter* playbackFeedbackBloomFilter;
 
 @end
@@ -69,6 +87,8 @@
     self = [super init];
     if (self) {
         _delegate = delegate;
+        
+        _lastLocation = nil;
 
         _updatingGenres = NO;
         _updatingArtists = NO;
@@ -106,11 +126,6 @@
         _songsTable.dataSource = self;
         _songsTable.delegate = self;
         _songsTable.doubleAction = @selector(doubleClickedSongsTableRow:);
-        
-        _playbackFeedbackBloomFilter = [CIFilter filterWithName:@"CIBloom"];
-        [_playbackFeedbackBloomFilter setDefaults];
-        [_playbackFeedbackBloomFilter setValue: [NSNumber numberWithFloat:3.0] forKey: @"inputRadius"];
-        [_playbackFeedbackBloomFilter setValue: [NSNumber numberWithFloat:1.0] forKey: @"inputIntensity"];
         
         dispatch_queue_attr_t attr = dispatch_queue_attr_make_with_qos_class(DISPATCH_QUEUE_SERIAL,
                                                                              QOS_CLASS_USER_INTERACTIVE,
@@ -404,49 +419,122 @@
 static const NSTimeInterval kBeatEffectRampUp = 0.05f;
 static const NSTimeInterval kBeatEffectRampDown = 0.5f;
 
-- (void)beatEffect
+- (NSUInteger)songsRowForURL:(NSURL*)needle
+{
+    // Get currently playing meta item index.
+    return [_filteredItems indexOfObjectPassingTest:^BOOL(MediaMetaData* meta, NSUInteger idx, BOOL *stop) {
+        return [meta.location.absoluteString isEqualToString:needle.absoluteString];
+    }];
+}
+
+- (void)setCurrentMeta:(MediaMetaData*)meta
+{
+    NSURL* current = [meta.location URLWithoutParameters];
+    [MediaMetaData setActiveLocation:current];
+    
+    NSMutableIndexSet* indexes = [NSMutableIndexSet indexSet];
+    NSUInteger index = [_filteredItems indexOfObjectPassingTest:^BOOL(MediaMetaData* meta, NSUInteger idx, BOOL *stop) {
+        return [meta.location.absoluteString isEqualToString:current.absoluteString];
+    }];
+    if (index != NSNotFound) {
+        [indexes addIndex:index];
+    }
+    
+    NSUInteger lastIndex = [_filteredItems indexOfObjectPassingTest:^BOOL(MediaMetaData* meta, NSUInteger idx, BOOL *stop) {
+        return [meta.location.absoluteString isEqualToString:_lastLocation.absoluteString];
+    }];
+    if (lastIndex != NSNotFound) {
+        [indexes addIndex:lastIndex];
+    }
+    [_songsTable reloadDataForRowIndexes:indexes
+                           columnIndexes:[NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0, _songsTable.numberOfColumns)]];
+    
+    _lastLocation = current;
+}
+
+- (NSUInteger)currentSongRow
 {
     // Change the actual data value in the layer to the final value.
-    _playbackFeedbackLayer.opacity = 1.0;
+    //_playbackFeedbackLayer.opacity = 1.0;
+    NSURL* current = [_delegate.currentSongMeta.location URLWithoutParameters];
+    return [self songsRowForURL:current];
+}
 
-//    NSInteger activeRow = [_filteredItems indexOfObject:_delegate.currentSongMeta];
-//
+- (void)beatEffect
+{
+    // Get currently playing meta item index.
+    NSUInteger activeRow = [self currentSongRow];
+    if (activeRow == NSNotFound) {
+        NSLog(@"that song doesnt seem to exist in our list of filtered items");
+        return;
+    }
+    NSUInteger count = [self numberOfRowsInTableView:_songsTable];
+    if (activeRow >= count) {
+        NSLog(@"table doesnt even have that many entries - there is no row %ld in %ld rows", activeRow, count);
+    } else {
+//        TableRowView* rowView = [_songsTable rowViewAtRow:activeRow makeIfNecessary:YES];
+    }
+    
+    //[rowView];
+    //                                                         row:activeRow
+    //                                             makeIfNecessary:NO];
+    
+    //CAAnimationGroup* group = [CAAnimationGroup animation];
+    //NSMutableArray* animations = [NSMutableArray array];
+
 //    for (int i = 0;i < _songsTable.tableColumns.count;i++) {
-//        NSTableCellView *cellView = [_songsTable viewAtColumn:i
-//                                                          row:activeRow
-//                                              makeIfNecessary:NO];
-//        cellView.textField.animator.textColor = [NSColor whiteColor];
-//    }
+//        TableCellView *cellView = [_songsTable viewAtColumn:i
+//                                                         row:activeRow
+//                                             makeIfNecessary:NO];
 //
+//        CABasicAnimation* animation = [CABasicAnimation animationWithKeyPath:@"foregroundColor"];
+//        animation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionLinear];
+//        animation.fromValue = (id)[[NSColor secondaryLabelColor] CGColor];
+//        animation.toValue = (id)[[NSColor labelColor] CGColor];
+//        animation.fillMode = kCAFillModeBoth;
+//        animation.removedOnCompletion = YES;
+//
+//        animation.duration = 0.05;
+//        animation.delegate = self;
+//        [animation setValue:@"BeatAnimationUp" forKey:@"name"];
+//
+//        //[animations addObject:animation];
+//
+//        [cellView.textLayer addAnimation:animation forKey:@"BeatAnimationUp"];
+//    }
+
     
-    CAAnimationGroup* group = [CAAnimationGroup animation];
-    [self->_playbackFeedbackLayer setValue:[NSNumber numberWithFloat:1.0]
-                                forKeyPath:@"backgroundFilters.CIBloom.inputIntensity"];
-    
-    NSMutableArray* animations = [NSMutableArray array];
-    CABasicAnimation* animation = [CABasicAnimation animationWithKeyPath:@"backgroundFilters.CIBloom.inputRadius"];
-//    animation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionLinear];
-//    animation.fromValue = [NSNumber numberWithFloat:0.0];
-//    animation.toValue = [NSNumber numberWithFloat:3.5];
-//    animation.fillMode = kCAFillModeBoth;
-//    animation.removedOnCompletion = NO;
-//    
-//    [animations addObject:animation];
 
-    animation = [CABasicAnimation animationWithKeyPath:@"textColor"];
-    animation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionLinear];
-    animation.fromValue = (id)[[NSColor secondaryLabelColor] CGColor];
-    animation.toValue = (id)[[NSColor whiteColor] CGColor];
-    animation.fillMode = kCAFillModeBoth;
-    animation.removedOnCompletion = NO;
+//    [self->_playbackFeedbackLayer setValue:[NSNumber numberWithFloat:1.0]
+//                                forKeyPath:@"backgroundFilters.CIBloom.inputIntensity"];
 
-    [animations addObject:animation];
+//    for (NSTableRowView* row in )
+//    for (NSTableCellView* cell in [row viewAtColumn:<#(NSInteger)#>)
+    {
+//        CABasicAnimation* animation = [CABasicAnimation animationWithKeyPath:@"backgroundFilters.CIBloom.inputRadius"];
+    //    animation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionLinear];
+    //    animation.fromValue = [NSNumber numberWithFloat:0.0];
+    //    animation.toValue = [NSNumber numberWithFloat:3.5];
+    //    animation.fillMode = kCAFillModeBoth;
+    //    animation.removedOnCompletion = NO;
+    //
+    //    [animations addObject:animation];
 
-    group.animations = animations;
-    group.duration = 0.05;
-    group.delegate = self;
-    [group setValue:@"BeatAnimationUp" forKey:@"name"];
-    [self->_playbackFeedbackLayer addAnimation:group forKey:@"BeatAnimationUp"];
+//        CABasicAnimation* animation = [CABasicAnimation animationWithKeyPath:@"textColor"];
+//        animation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionLinear];
+//        animation.fromValue = (id)[[NSColor secondaryLabelColor] CGColor];
+//        animation.toValue = (id)[[NSColor labelColor] CGColor];
+//        animation.fillMode = kCAFillModeBoth;
+//        animation.removedOnCompletion = NO;
+//
+//        [animations addObject:animation];
+    }
+
+//    group.animations = animations;
+//    group.duration = 0.05;
+//    group.delegate = self;
+//    [group setValue:@"BeatAnimationUp" forKey:@"name"];
+//    [self->_playbackFeedbackLayer addAnimation:group forKey:@"BeatAnimationUp"];
     
     
 //    [NSAnimationContext runAnimationGroup:^(NSAnimationContext *context) {
@@ -491,7 +579,7 @@ static const NSTimeInterval kBeatEffectRampDown = 0.5f;
         NSMutableArray* animations = [NSMutableArray array];
 
         CAAnimationGroup* group = [CAAnimationGroup animation];
-        CABasicAnimation* animation = [CABasicAnimation animationWithKeyPath:@"backgroundFilters.CIBloom.inputRadius"];
+        //CABasicAnimation* animation = [CABasicAnimation animationWithKeyPath:@"backgroundFilters.CIBloom.inputRadius"];
 
 //        CABasicAnimation* animation = [CABasicAnimation animationWithKeyPath:@"backgroundFilters.CIBloom.inputRadius"];
 //        animation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionLinear];
@@ -503,7 +591,7 @@ static const NSTimeInterval kBeatEffectRampDown = 0.5f;
 //        
 //        [animations addObject:animation];
 
-        animation = [CABasicAnimation animationWithKeyPath:@"textColor"];
+        CABasicAnimation* animation = [CABasicAnimation animationWithKeyPath:@"textColor"];
         animation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionLinear];
         animation.fromValue = (id)[[NSColor whiteColor] CGColor];
         animation.toValue = (id)[[NSColor blackColor] CGColor];
@@ -516,7 +604,7 @@ static const NSTimeInterval kBeatEffectRampDown = 0.5f;
         group.removedOnCompletion = NO;
         group.duration = 0.3;
         group.animations = animations;
-        [self->_playbackFeedbackLayer addAnimation:group forKey:@"BeatAnimationDown"];
+        //[self->_playbackFeedbackLayer addAnimation:group forKey:@"BeatAnimationDown"];
     }
 }
 
@@ -570,34 +658,35 @@ static const NSTimeInterval kBeatEffectRampDown = 0.5f;
 
 
 
-- (void)setPlayerLayerToRow:(NSInteger)row
-{
-    if (_playbackFeedbackLayer == nil) {
-        _songsTable.layer = [_songsTable makeBackingLayer];
-        _songsTable.layer.masksToBounds = NO;
 
-        _playbackFeedbackLayer = [CALayer layer];
-        //_playbackFeedbackLayer.backgroundFilters = @[ clampFilter, bloomFilter ];
-        _playbackFeedbackLayer.backgroundFilters = @[ _playbackFeedbackBloomFilter ];
-
-        _playbackFeedbackLayer.anchorPoint = CGPointMake(0.5, 0.5);
-        _playbackFeedbackLayer.masksToBounds = NO;
-        _playbackFeedbackLayer.zPosition = 1.9;
-        _playbackFeedbackLayer.name = @"playbackFeedbackLayer";
-        _playbackFeedbackLayer.mask = [CAShapeLayer MaskLayerFromRect:CGRectMake(0.0, 0.0, _songsTable.frame.size.width, _songsTable.rowHeight)];
-        _playbackFeedbackLayer.frame = CGRectMake(0.0, 0.0, _songsTable.frame.size.width, _songsTable.rowHeight);
-
-        [_songsTable.layer addSublayer:_playbackFeedbackLayer];
-    }
-    NSRect f = [_songsTable frameOfCellAtColumn:0 row:row];
-    _playbackFeedbackLayer.frame = CGRectMake(0.0, f.origin.y, _songsTable.frame.size.width, f.size.height);
-    
-//    NSTableRowView* rowView = [_songsTable rowViewAtRow:row makeIfNecessary:NO];
-//    rowView.emphasized = YES;
-//    NSIndexSet* rowSet = [NSIndexSet indexSetWithIndex:row];
-//    NSIndexSet* columnSet = [NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0, _songsTable.numberOfColumns)];
-//    [_songsTable reloadDataForRowIndexes:rowSet columnIndexes:columnSet];
-}
+//- (void)setPlayerLayerToRow:(NSInteger)row
+//{
+//    if (_playbackFeedbackLayer == nil) {
+//        _songsTable.layer = [_songsTable makeBackingLayer];
+//        _songsTable.layer.masksToBounds = NO;
+//
+//        _playbackFeedbackLayer = [CALayer layer];
+//        //_playbackFeedbackLayer.backgroundFilters = @[ clampFilter, bloomFilter ];
+//        _playbackFeedbackLayer.backgroundFilters = @[ _playbackFeedbackBloomFilter ];
+//
+//        _playbackFeedbackLayer.anchorPoint = CGPointMake(0.5, 0.5);
+//        _playbackFeedbackLayer.masksToBounds = NO;
+//        _playbackFeedbackLayer.zPosition = 1.9;
+//        _playbackFeedbackLayer.name = @"playbackFeedbackLayer";
+//        _playbackFeedbackLayer.mask = [CAShapeLayer MaskLayerFromRect:CGRectMake(0.0, 0.0, _songsTable.frame.size.width, _songsTable.rowHeight)];
+//        _playbackFeedbackLayer.frame = CGRectMake(0.0, 0.0, _songsTable.frame.size.width, _songsTable.rowHeight);
+//
+//        [_songsTable.layer addSublayer:_playbackFeedbackLayer];
+//    }
+//    NSRect f = [_songsTable frameOfCellAtColumn:0 row:row];
+//    _playbackFeedbackLayer.frame = CGRectMake(0.0, f.origin.y, _songsTable.frame.size.width, f.size.height);
+//    
+////    NSTableRowView* rowView = [_songsTable rowViewAtRow:row makeIfNecessary:NO];
+////    rowView.emphasized = YES;
+////    NSIndexSet* rowSet = [NSIndexSet indexSetWithIndex:row];
+////    NSIndexSet* columnSet = [NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0, _songsTable.numberOfColumns)];
+////    [_songsTable reloadDataForRowIndexes:rowSet columnIndexes:columnSet];
+//}
 
 - (IBAction)playNext:(id)sender
 {
@@ -738,27 +827,6 @@ static const NSTimeInterval kBeatEffectRampDown = 0.5f;
     dispatch_async(dispatch_get_main_queue(), ^{
         [self.delegate loadLibraryState:LoadStateStopped];
     });
-}
-
-- (BOOL)tableView:(NSTableView *)tableView
- shouldTypeSelectForEvent:(NSEvent *)event
-  withCurrentSearchString:(NSString *)searchString
-{
-    NSLog(@"current event: %@", event.debugDescription);
-    NSLog(@"current Search String: '%@'", searchString);
-    return YES;
-}
-
-- (NSTableRowView*)tableView:(NSTableView*)tableView rowViewForRow:(NSInteger)row
-{
-    static NSString* const kRowIdentifier = @"PlayEmTableRow";
-    
-    TableRowView* rowView = [tableView makeViewWithIdentifier:kRowIdentifier owner:self];
-    if (rowView == nil) {
-        rowView = [TableRowView new];
-        rowView.identifier = kRowIdentifier;
-    }
-    return rowView;
 }
 
 -(void)genresTableViewSelectionDidChange:(NSInteger)row
@@ -1042,9 +1110,47 @@ static const NSTimeInterval kBeatEffectRampDown = 0.5f;
             NSLog(@"that item (%p) is of unknown location type %@", item, item.locationType);
     }
     if (url != nil && _delegate != nil) {
-        [self setPlayerLayerToRow:row];
+        //[self setPlayerLayerToRow:row];
         [self.delegate browseSelectedUrl:url meta:item];
     }
+}
+
+-(NSString*)formattedDuration:(NSTimeInterval)interval
+{
+    NSDateComponentsFormatter* formatter = [[NSDateComponentsFormatter alloc] init];
+    formatter.allowedUnits = NSCalendarUnitHour | NSCalendarUnitMinute | NSCalendarUnitSecond;
+    formatter.zeroFormattingBehavior = NSDateComponentsFormatterZeroFormattingBehaviorDropLeading;
+    return [formatter stringFromTimeInterval:interval / 1000];
+}
+
+- (NSArray<NSString*>*)knownGenres
+{
+    if (_genres.count == 0) {
+        return nil;
+    }
+    return [_genres subarrayWithRange:NSMakeRange(1, _genres.count - 1)];
+}
+
+- (NSArray<MediaMetaData*>*)selectedSongMetas
+{
+    __block NSMutableArray<MediaMetaData*>* metas = [NSMutableArray array];;
+    [self.songsTable.selectedRowIndexes enumerateIndexesWithOptions:NSEnumerationReverse
+                                                         usingBlock:^(NSUInteger idx, BOOL *stop) {
+        MediaMetaData* meta = self.filteredItems[idx];
+        [metas addObject:meta];
+    }];
+    return metas;
+}
+
+#pragma mark - Table View delegate
+
+- (BOOL)tableView:(NSTableView *)tableView
+ shouldTypeSelectForEvent:(NSEvent *)event
+  withCurrentSearchString:(NSString *)searchString
+{
+    NSLog(@"current event: %@", event.debugDescription);
+    NSLog(@"current Search String: '%@'", searchString);
+    return YES;
 }
 
 -(void)tableViewSelectionDidChange:(NSNotification *)notification{
@@ -1071,7 +1177,7 @@ static const NSTimeInterval kBeatEffectRampDown = 0.5f;
         case VIEWTAG_KEY:
             [self keysTableSelectionDidChange:row];
         break;
-        case VIEWTAG_FILTERED:
+        case VIEWTAG_SONGS:
             break;
     }
 }
@@ -1082,57 +1188,22 @@ static const NSTimeInterval kBeatEffectRampDown = 0.5f;
         return NO;
     }
     switch(tableView.tag) {
-        case VIEWTAG_GENRE: {
+        case VIEWTAG_GENRE:
             return YES;
-        }
-        case VIEWTAG_ARTISTS: {
+        case VIEWTAG_ARTISTS:
             return YES;
-        }
-        case VIEWTAG_ALBUMS: {
+        case VIEWTAG_ALBUMS:
             return YES;
-        }
-        case VIEWTAG_TEMPO: {
+        case VIEWTAG_TEMPO:
             return YES;
-        }
-        case VIEWTAG_KEY: {
+        case VIEWTAG_KEY:
             return YES;
-        }
-        case VIEWTAG_FILTERED: {
+        case VIEWTAG_SONGS:
             return YES;
-        }
         default:
             return YES;
     }
     return NO;
-}
-
-- (NSInteger)numberOfRowsInTableView:(NSTableView*)tableView
-{
-    switch(tableView.tag) {
-        case VIEWTAG_GENRE:
-            return _genres.count;
-        case VIEWTAG_ARTISTS:
-            return _artists.count;
-        case VIEWTAG_ALBUMS:
-            return _albums.count;
-        case VIEWTAG_TEMPO:
-            return _tempos.count;
-        case VIEWTAG_KEY:
-            return _keys.count;
-        case VIEWTAG_FILTERED:
-            return _filteredItems.count;
-        default:
-            return 0;
-    }
-    return 0;
-}
-
--(NSString*)formattedDuration:(NSTimeInterval)interval
-{
-    NSDateComponentsFormatter* formatter = [[NSDateComponentsFormatter alloc] init];
-    formatter.allowedUnits = NSCalendarUnitHour | NSCalendarUnitMinute | NSCalendarUnitSecond;
-    formatter.zeroFormattingBehavior = NSDateComponentsFormatterZeroFormattingBehaviorDropLeading;
-    return [formatter stringFromTimeInterval:interval / 1000];
 }
 
 - (void)tableView:(NSTableView*)tableView sortDescriptorsDidChange:(NSArray<NSSortDescriptor*>*)oldDescriptors
@@ -1142,51 +1213,37 @@ static const NSTimeInterval kBeatEffectRampDown = 0.5f;
     [tableView reloadData];
 }
 
+- (void)tableView:(NSTableView *)tableView didAddRowView:(NSTableRowView *)rowView forRow:(NSInteger)row
+{
+    MediaMetaData* data = [_delegate currentSongMeta];
+    NSUInteger currentRow = [self songsRowForURL:data.location];
+    if (row == currentRow) {
+        NSLog(@"that row marks the currently playing meta and we should colorize this somethow");
+    }
+}
+
+- (NSTableRowView*)tableView:(NSTableView*)tableView rowViewForRow:(NSInteger)row
+{
+    static NSString* const kRowIdentifier = @"PlayEmTableRow";
+    
+    TableRowView* rowView = [tableView makeViewWithIdentifier:kRowIdentifier owner:self];
+    if (rowView == nil) {
+        rowView = [TableRowView new];
+        rowView.identifier = kRowIdentifier;
+    }
+    return rowView;
+}
+
 - (NSView*)tableView:(NSTableView*)tableView viewForTableColumn:(NSTableColumn *)tableColumn row:(NSInteger)row
 {
-    NSTableCellView* result = [tableView makeViewWithIdentifier:tableColumn.identifier owner:self];
-    CATextLayer* textLayer = nil;
+    TableCellView* result = [tableView makeViewWithIdentifier:tableColumn.identifier owner:self];
     
-    NSIndexSet* selections = [tableView selectedRowIndexes];
-
     if (result == nil) {
-        result = [[NSTableCellView alloc] initWithFrame:NSMakeRect(0.0,
-                                                                   0.0,
-                                                                   tableColumn.width - 6.0,
-                                                                   14.0)];
-        result.wantsLayer = YES;
-        
-        textLayer = [CATextLayer layer];
-        textLayer.font =  (__bridge  CFTypeRef)[NSFont systemFontOfSize:11.0];
-        textLayer.fontSize = 11.0;
-        textLayer.wrapped = NO;
-        textLayer.truncationMode = kCATruncationEnd;
-        textLayer.allowsEdgeAntialiasing = YES;
-        textLayer.contentsScale = [[NSScreen mainScreen] backingScaleFactor];
-        textLayer.foregroundColor =  [NSColor secondaryLabelColor].CGColor;
-        
-        /*
-        NSTextField* tf = [[NSTextField alloc] initWithFrame:NSInsetRect(result.frame, 0, -4)];
-        tf.autoresizingMask = NSViewWidthSizable;
-        tf.editable = NO;
-        tf.font = [NSFont systemFontOfSize:11.0];
-        tf.drawsBackground = NO;
-        tf.bordered = NO;
-        tf.lineBreakMode = NSLineBreakByTruncatingTail;
-        tf.textColor = [NSColor secondaryLabelColor];
-        [result addSubview:tf];
-         */
-        textLayer.frame = NSMakeRect(result.bounds.origin.x + 2.0,
-                                     result.bounds.origin.y + 4.0,
-                                     result.bounds.size.width,
-                                     result.bounds.size.height);
-        [result.layer addSublayer:textLayer];
-        
-        result.autoresizingMask = NSViewHeightSizable | NSViewWidthSizable;
-        //result.textField = tf;
+        result = [[TableCellView alloc] initWithFrame:NSMakeRect(0.0,
+                                                                 0.0,
+                                                                 tableColumn.width,
+                                                                 tableView.rowHeight )];
         result.identifier = tableColumn.identifier;
-    } else {
-        textLayer = result.layer.sublayers[0];
     }
 
     NSString* string = nil;
@@ -1211,7 +1268,7 @@ static const NSTimeInterval kBeatEffectRampDown = 0.5f;
             assert(row < _keys.count);
             string = _keys[row];
         break;
-        case VIEWTAG_FILTERED:
+        case VIEWTAG_SONGS:
             assert(row < _filteredItems.count);
             if ([tableColumn.identifier isEqualToString:@"TrackCell"]) {
                 if ([_filteredItems[row].track intValue] > 0) {
@@ -1238,6 +1295,7 @@ static const NSTimeInterval kBeatEffectRampDown = 0.5f;
             } else if ([tableColumn.identifier isEqualToString:@"GenreCell"]) {
                 string = _filteredItems[row].genre;
             }
+            [result setExtraState:_filteredItems[row].active];
         break;
         default:
             string = @"<??? UNKNOWN ???>";
@@ -1246,29 +1304,33 @@ static const NSTimeInterval kBeatEffectRampDown = 0.5f;
         string = @"";
     }
 
-    //[result.textField setStringValue:string];
-    textLayer.string = string;
-
+    result.textLayer.string = string;
+    
     return result;
 }
 
-- (NSArray<NSString*>*)knownGenres
+#pragma mark - Table View data source
+
+- (NSInteger)numberOfRowsInTableView:(NSTableView*)tableView
 {
-    if (_genres.count == 0) {
-        return nil;
+    switch(tableView.tag) {
+        case VIEWTAG_GENRE:
+            return _genres.count;
+        case VIEWTAG_ARTISTS:
+            return _artists.count;
+        case VIEWTAG_ALBUMS:
+            return _albums.count;
+        case VIEWTAG_TEMPO:
+            return _tempos.count;
+        case VIEWTAG_KEY:
+            return _keys.count;
+        case VIEWTAG_SONGS:
+            return _filteredItems.count;
+        default:
+            return 0;
     }
-    return [_genres subarrayWithRange:NSMakeRange(1, _genres.count - 1)];
+    return 0;
 }
 
-- (NSArray<MediaMetaData*>*)selectedSongMetas
-{
-    __block NSMutableArray<MediaMetaData*>* metas = [NSMutableArray array];;
-    [self.songsTable.selectedRowIndexes enumerateIndexesWithOptions:NSEnumerationReverse
-                                                         usingBlock:^(NSUInteger idx, BOOL *stop) {
-        MediaMetaData* meta = self.filteredItems[idx];
-        [metas addObject:meta];
-    }];
-    return metas;
-}
 
 @end

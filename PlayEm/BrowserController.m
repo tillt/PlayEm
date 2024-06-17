@@ -432,22 +432,21 @@ static const NSTimeInterval kBeatEffectRampDown = 0.5f;
     NSURL* current = [meta.location URLWithoutParameters];
     [MediaMetaData setActiveLocation:current];
     
-    NSMutableIndexSet* indexes = [NSMutableIndexSet indexSet];
-    NSUInteger index = [_filteredItems indexOfObjectPassingTest:^BOOL(MediaMetaData* meta, NSUInteger idx, BOOL *stop) {
-        return [meta.location.absoluteString isEqualToString:current.absoluteString];
-    }];
-    if (index != NSNotFound) {
-        [indexes addIndex:index];
-    }
-    
     NSUInteger lastIndex = [_filteredItems indexOfObjectPassingTest:^BOOL(MediaMetaData* meta, NSUInteger idx, BOOL *stop) {
         return [meta.location.absoluteString isEqualToString:_lastLocation.absoluteString];
     }];
-    if (lastIndex != NSNotFound) {
-        [indexes addIndex:lastIndex];
+    if (lastIndex != NSNotFound && lastIndex < [_songsTable numberOfRows]) {
+        TableRowView* rowView = [_songsTable rowViewAtRow:lastIndex makeIfNecessary:YES];
+        [rowView setExtraState:kExtraStateNormal];
     }
-    [_songsTable reloadDataForRowIndexes:indexes
-                           columnIndexes:[NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0, _songsTable.numberOfColumns)]];
+
+    NSUInteger index = [_filteredItems indexOfObjectPassingTest:^BOOL(MediaMetaData* meta, NSUInteger idx, BOOL *stop) {
+        return [meta.location.absoluteString isEqualToString:current.absoluteString];
+    }];
+    if (index != NSNotFound && index < [_songsTable numberOfRows]) {
+        TableRowView* rowView = [_songsTable rowViewAtRow:index makeIfNecessary:YES];
+        [rowView setExtraState:kExtraStateActive];
+    }
     
     _lastLocation = current;
 }
@@ -1215,20 +1214,22 @@ static const NSTimeInterval kBeatEffectRampDown = 0.5f;
 
 - (void)tableView:(NSTableView *)tableView didAddRowView:(NSTableRowView *)rowView forRow:(NSInteger)row
 {
-    MediaMetaData* data = [_delegate currentSongMeta];
-    NSUInteger currentRow = [self songsRowForURL:data.location];
-    if (row == currentRow) {
-        NSLog(@"that row marks the currently playing meta and we should colorize this somethow");
+    TableRowView* view = (TableRowView*)rowView;
+    if (tableView.tag == VIEWTAG_SONGS) {
+        [view setExtraState:_filteredItems[row].active];
     }
 }
 
 - (NSTableRowView*)tableView:(NSTableView*)tableView rowViewForRow:(NSInteger)row
 {
     static NSString* const kRowIdentifier = @"PlayEmTableRow";
-    
+
     TableRowView* rowView = [tableView makeViewWithIdentifier:kRowIdentifier owner:self];
     if (rowView == nil) {
-        rowView = [TableRowView new];
+        rowView = [[TableRowView alloc] initWithFrame:NSMakeRect(0.0, 
+                                                                 0.0,
+                                                                 tableView.bounds.size.width,
+                                                                 tableView.rowHeight)];
         rowView.identifier = kRowIdentifier;
     }
     return rowView;
@@ -1270,10 +1271,12 @@ static const NSTimeInterval kBeatEffectRampDown = 0.5f;
         break;
         case VIEWTAG_SONGS:
             assert(row < _filteredItems.count);
+
             if ([tableColumn.identifier isEqualToString:@"TrackCell"]) {
                 if ([_filteredItems[row].track intValue] > 0) {
                     string = [_filteredItems[row].track stringValue];
                 }
+                [result.textLayer setAlignmentMode:kCAAlignmentRight];
             } else if ([tableColumn.identifier isEqualToString:@"TitleCell"]) {
                 string = _filteredItems[row].title;
             } else if ([tableColumn.identifier isEqualToString:@"ArtistCell"]) {
@@ -1282,12 +1285,14 @@ static const NSTimeInterval kBeatEffectRampDown = 0.5f;
                 string = _filteredItems[row].album;
             } else if ([tableColumn.identifier isEqualToString:@"TimeCell"]) {
                 string = [self formattedDuration:[_filteredItems[row].duration floatValue]];
+                [result.textLayer setAlignmentMode:kCAAlignmentRight];
             } else if ([tableColumn.identifier isEqualToString:@"TempoCell"]) {
                 if ([_filteredItems[row].tempo intValue] > 0) {
                     string = [_filteredItems[row].tempo stringValue];
                 } else {
                     string = @"";
                 }
+                [result.textLayer setAlignmentMode:kCAAlignmentRight];
             } else if ([tableColumn.identifier isEqualToString:@"KeyCell"]) {
                 string = _filteredItems[row].key;
             } else if ([tableColumn.identifier isEqualToString:@"AddedCell"]) {
@@ -1295,10 +1300,9 @@ static const NSTimeInterval kBeatEffectRampDown = 0.5f;
             } else if ([tableColumn.identifier isEqualToString:@"GenreCell"]) {
                 string = _filteredItems[row].genre;
             }
-            [result setExtraState:_filteredItems[row].active];
         break;
         default:
-            string = @"<??? UNKNOWN ???>";
+            string = @"<??? UNHANDLED TABLEVIEW ???>";
     }
     if (string == nil) {
         string = @"";
@@ -1331,6 +1335,5 @@ static const NSTimeInterval kBeatEffectRampDown = 0.5f;
     }
     return 0;
 }
-
 
 @end

@@ -9,8 +9,12 @@
 #import "TableRowView.h"
 
 #import <Foundation/Foundation.h>
+#import <Quartz/Quartz.h>
 #import "TableCellView.h"
+#import "CAShapeLayer+Path.h"
 #import "Defaults.h"
+
+static const double kFontSize = 11.0f;
 
 typedef enum : NSUInteger {
     RoundedNone = 0,
@@ -19,6 +23,66 @@ typedef enum : NSUInteger {
 } RoundingMask;
 
 @implementation TableRowView
+
++ (CIFilter*)sharedBloomFilter
+{
+    static dispatch_once_t once;
+    static CIFilter* sharedInstance;
+    dispatch_once(&once, ^{
+        sharedInstance = [CIFilter filterWithName:@"CIBloom"];
+        [sharedInstance setDefaults];
+        [sharedInstance setValue:[NSNumber numberWithFloat:3.0]
+                          forKey: @"inputRadius"];
+        [sharedInstance setValue:[NSNumber numberWithFloat:1.0]
+                          forKey: @"inputIntensity"];
+    });
+    return sharedInstance;
+}
+
+- (id)initWithFrame:(NSRect)frameRect
+{
+    self = [super initWithFrame:frameRect];
+    if (self) {
+        self.wantsLayer = YES;
+        self.autoresizingMask = NSViewHeightSizable | NSViewWidthSizable;
+        self.clipsToBounds = YES;
+        self.layerContentsRedrawPolicy = NSViewLayerContentsRedrawOnSetNeedsDisplay;
+    }
+    return self;
+}
+
+- (CALayer*)makeBackingLayer
+{
+    CALayer* layer = [CALayer layer];
+    layer.masksToBounds = NO;
+    layer.autoresizingMask = kCALayerWidthSizable;
+    layer.frame = self.bounds;
+
+    _effectLayer = [CALayer layer];
+    _effectLayer.backgroundFilters = @[ [TableRowView sharedBloomFilter] ];
+    _effectLayer.anchorPoint = CGPointMake(0.5, 0.5);
+    _effectLayer.masksToBounds = NO;
+    _effectLayer.autoresizingMask = kCALayerWidthSizable;
+    _effectLayer.zPosition = 1.9;
+    _effectLayer.mask = [CAShapeLayer MaskLayerFromRect:self.bounds];
+    _effectLayer.frame = self.bounds;
+    _effectLayer.hidden = YES;
+    [layer addSublayer:_effectLayer];
+    
+    _symbolLayer = [CATextLayer layer];
+    _symbolLayer.fontSize = kFontSize;
+    _symbolLayer.font =  (__bridge  CFTypeRef)[NSFont systemFontOfSize:kFontSize weight:NSFontWeightMedium];
+    _symbolLayer.wrapped = NO;
+    _symbolLayer.autoresizingMask = kCALayerWidthSizable;
+    _symbolLayer.truncationMode = kCATruncationEnd;
+    _symbolLayer.allowsEdgeAntialiasing = YES;
+    _symbolLayer.contentsScale = [[NSScreen mainScreen] backingScaleFactor];
+    _symbolLayer.foregroundColor = [[Defaults sharedDefaults] lightBeamColor].CGColor;
+    _symbolLayer.frame = NSInsetRect(self.bounds, 5.0, 5.0);
+    [layer addSublayer:_symbolLayer];
+    
+    return layer;
+}
 
 - (NSBezierPath*)selectionPathWithRoundingMask:(RoundingMask)rounding
 {
@@ -91,9 +155,18 @@ typedef enum : NSUInteger {
 
 - (void)setExtraState:(ExtraState)extraState
 {
-    for (int i = 0; i < self.numberOfColumns; i++) {
+    for (int i = 0; i < [self numberOfColumns]; i++) {
         TableCellView* view = [self viewAtColumn:i];
         view.extraState = extraState;
+    }
+    if (extraState == kExtraStateActive) {
+        _symbolLayer.string = @"􀊄";
+        _effectLayer.hidden = NO;
+        _symbolLayer.hidden = NO;
+    } else {
+        _symbolLayer.string = @"";
+        _effectLayer.hidden = YES;
+        _symbolLayer.hidden = YES;
     }
     _extraState = extraState;
 }

@@ -7,9 +7,12 @@
 //
 
 #import "InfoPanel.h"
+#import <Quartz/Quartz.h>
+
 #import "MediaMetaData.h"
 #import "TextViewWithPlaceholder.h"
 #import "DragImageFileView.h"
+#import "CAShapeLayer+Path.h"
 
 typedef enum : NSUInteger {
     InfoControlTypeText,
@@ -59,9 +62,26 @@ NSString* const kInfoNumberMultipleValues = @"-";
 @property (strong, nonatomic) NSDictionary* deltaKeys;
 @property (strong, nonatomic) NSMutableDictionary* mutatedKeys;
 
+@property (strong, nonatomic) CALayer* effectLayer;
+
 @end
 
 @implementation InfoPanelController
+
++ (CIFilter*)sharedBloomFilter
+{
+    static dispatch_once_t once;
+    static CIFilter* sharedInstance;
+    dispatch_once(&once, ^{
+        sharedInstance = [CIFilter filterWithName:@"CIBloom"];
+        [sharedInstance setDefaults];
+        [sharedInstance setValue:[NSNumber numberWithFloat:3.0]
+                          forKey: @"inputRadius"];
+        [sharedInstance setValue:[NSNumber numberWithFloat:1.0]
+                          forKey: @"inputIntensity"];
+    });
+    return sharedInstance;
+}
 
 - (id)initWithDelegate:(id<InfoPanelControllerDelegate>)delegate
 {
@@ -370,6 +390,13 @@ NSString* const kInfoNumberMultipleValues = @"-";
     NSArray *dragTypes = [NSArray arrayWithObjects:NSCreateFileContentsPboardType(@"jpeg"), NSCreateFileContentsPboardType(@"jpg"), NSCreateFileContentsPboardType(@"png"), nil];
     [_largeCoverView registerForDraggedTypes:dragTypes];
     _largeCoverView.allowsCutCopyPaste = YES;
+    
+//    _effectLayer = [CALayer new];
+//    _effectLayer.backgroundFilters = @[ [InfoPanelController sharedBloomFilter] ];
+//    _effectLayer.frame = NSInsetRect(_largeCoverView.bounds, -10, -10);
+//    _effectLayer.masksToBounds = NO;
+//    _effectLayer.mask = [CAShapeLayer MaskLayerFromRect:_effectLayer.bounds];
+//    [_largeCoverView.layer addSublayer:_effectLayer];
 }
 
 - (void)loadLyricsWithView:(NSView*)view

@@ -160,7 +160,10 @@ typedef enum : NSUInteger {
         view.extraState = extraState;
     }
     if (extraState == kExtraStateActive) {
-        _symbolLayer.string = @"􀊄";
+        _symbolLayer.string = @"􀊥";
+        //_symbolLayer.string = @"􀊩";
+        //_symbolLayer.string = @"􀊄";
+        //_symbolLayer.string = @"􀊆";
         _effectLayer.hidden = NO;
         _symbolLayer.hidden = NO;
     } else {

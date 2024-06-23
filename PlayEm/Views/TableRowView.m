@@ -58,17 +58,6 @@ typedef enum : NSUInteger {
     layer.autoresizingMask = kCALayerWidthSizable;
     layer.frame = self.bounds;
 
-    _effectLayer = [CALayer layer];
-    _effectLayer.backgroundFilters = @[ [TableRowView sharedBloomFilter] ];
-    _effectLayer.anchorPoint = CGPointMake(0.5, 0.5);
-    _effectLayer.masksToBounds = NO;
-    _effectLayer.autoresizingMask = kCALayerWidthSizable;
-    _effectLayer.zPosition = 1.9;
-    _effectLayer.mask = [CAShapeLayer MaskLayerFromRect:self.bounds];
-    _effectLayer.frame = self.bounds;
-    _effectLayer.hidden = YES;
-    [layer addSublayer:_effectLayer];
-    
     _symbolLayer = [CATextLayer layer];
     _symbolLayer.fontSize = kFontSize;
     _symbolLayer.font =  (__bridge  CFTypeRef)[NSFont systemFontOfSize:kFontSize weight:NSFontWeightMedium];
@@ -80,6 +69,17 @@ typedef enum : NSUInteger {
     _symbolLayer.foregroundColor = [[Defaults sharedDefaults] lightBeamColor].CGColor;
     _symbolLayer.frame = NSInsetRect(self.bounds, 5.0, 5.0);
     [layer addSublayer:_symbolLayer];
+    
+    _effectLayer = [CALayer layer];
+    _effectLayer.backgroundFilters = @[ [TableRowView sharedBloomFilter] ];
+    _effectLayer.anchorPoint = CGPointMake(0.5, 0.5);
+    _effectLayer.masksToBounds = NO;
+    _effectLayer.autoresizingMask = kCALayerWidthSizable;
+    _effectLayer.zPosition = 1.9;
+    _effectLayer.mask = [CAShapeLayer MaskLayerFromRect:self.bounds];
+    _effectLayer.frame = self.bounds;
+    _effectLayer.hidden = YES;
+    [layer addSublayer:_effectLayer];
     
     return layer;
 }

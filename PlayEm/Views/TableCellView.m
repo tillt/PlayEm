@@ -15,6 +15,16 @@ static const double kFontSize = 11.0f;
 
 @implementation TableCellView
 
++ (NSFont*)sharedFont
+{
+    static dispatch_once_t once;
+    static NSFont* sharedInstance;
+    dispatch_once(&once, ^{
+        sharedInstance = [NSFont systemFontOfSize:kFontSize weight:NSFontWeightMedium];
+    });
+    return sharedInstance;
+}
+
 - (id)initWithFrame:(NSRect)frameRect
 {
     self = [super initWithFrame:frameRect];
@@ -36,7 +46,7 @@ static const double kFontSize = 11.0f;
 
     _textLayer = [CATextLayer layer];
     _textLayer.fontSize = kFontSize;
-    _textLayer.font =  (__bridge  CFTypeRef)[NSFont systemFontOfSize:kFontSize weight:NSFontWeightMedium];
+    _textLayer.font =  (__bridge  CFTypeRef)[TableCellView sharedFont];
     _textLayer.wrapped = NO;
     _textLayer.autoresizingMask = kCALayerWidthSizable;
     _textLayer.truncationMode = kCATruncationEnd;
@@ -49,43 +59,11 @@ static const double kFontSize = 11.0f;
     return layer;
 }
 
-- (void)setExtraState:(ExtraState)extraState
+- (void)updatedStyle
 {
     NSColor* color = nil;
 
     switch (self.backgroundStyle) {
-        case NSBackgroundStyleNormal:
-            color = [NSColor secondaryLabelColor];
-            break;
-        case NSBackgroundStyleEmphasized:
-            color = [NSColor labelColor];
-            break;
-        case NSBackgroundStyleRaised:
-            color = [NSColor linkColor];
-            break;
-        case NSBackgroundStyleLowered:
-            color = [NSColor linkColor];
-            break;
-    }
-
-    if (extraState == kExtraStateActive) {
-        color = [[Defaults sharedDefaults] lightBeamColor];
-    }
-
-    _textLayer.foregroundColor = color.CGColor;
-
-    _extraState = extraState;
-    
-    [self setNeedsDisplay:YES];
-}
-
-- (void)setBackgroundStyle:(NSBackgroundStyle)backgroundStyle
-{
-    [super setBackgroundStyle:backgroundStyle];
-
-    NSColor* color = nil;
-
-    switch (backgroundStyle) {
         case NSBackgroundStyleNormal:
             color = [NSColor secondaryLabelColor];
             break;
@@ -105,6 +83,18 @@ static const double kFontSize = 11.0f;
     }
 
     _textLayer.foregroundColor = color.CGColor;
+}
+
+- (void)setExtraState:(ExtraState)extraState
+{
+    _extraState = extraState;
+    [self updatedStyle];
+}
+
+- (void)setBackgroundStyle:(NSBackgroundStyle)backgroundStyle
+{
+    [super setBackgroundStyle:backgroundStyle];
+    [self updatedStyle];
 }
 
 @end

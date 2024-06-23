@@ -140,7 +140,7 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
     
  //   CVTimeStamp delta = *inOutputTime - *inNow;
 //
-    AVAudioFramePosition frame = controller.audioController.currentFrame;
+    AVAudioFramePosition frame = controller.audioController.currentFrame >= controller.audioController.latency ? controller.audioController.currentFrame  - controller.audioController.latency : controller.audioController.currentFrame;
     
     [controller updateScopeFrame:frame];
 

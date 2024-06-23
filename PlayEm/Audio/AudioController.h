@@ -47,6 +47,7 @@ typedef void (^TapBlock) (unsigned long long, float*, unsigned int);
 - (void)playWhenReady:(unsigned long long)nextFrame paused:(BOOL)paused;
 - (void)startTapping:(TapBlock)tap;
 - (void)stopTapping;
+- (AVAudioFramePosition)latency;
 
 @end
 

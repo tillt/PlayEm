@@ -14,7 +14,14 @@
 #import "MediaMetaData.h"
 #import "MediaMetaData+TagLib.h"
 
+#import "NSURL+WithoutParameters.h"
+
 @implementation MediaMetaData(TagLib)
+
++ (void)setupTaglib
+{
+    taglib_set_strings_unicode(TRUE);
+}
 
 + (NSDictionary<NSString*, NSDictionary<NSString*, NSString*>*>*)mp3TagMap
 {
@@ -115,7 +122,7 @@
 + (MediaMetaData*)mediaMetaDataFromMP3FileWithURL:(NSURL*)url error:(NSError**)error
 {
     MediaMetaData* meta = [[MediaMetaData alloc] init];
-    meta.location = [url filePathURL];
+    meta.location = [[url filePathURL] URLWithoutParameters];
     meta.locationType = [NSNumber numberWithUnsignedInteger:MediaMetaDataLocationTypeFile];
 
     if ([meta readFromMP3FileWithError:error] != 0) {
@@ -131,8 +138,6 @@
     
     const char* _Nullable fileName = [path cStringUsingEncoding:NSUTF8StringEncoding];
     NSAssert(fileName != NULL, @"failed to convert filename");
-    
-    taglib_set_strings_unicode(FALSE);
     
     TagLib_File* file = taglib_file_new(fileName);
     if (file == NULL) {
@@ -153,6 +158,7 @@
     TagLib_Tag* tag = taglib_file_tag(file);
 
     if(tag != NULL) {
+        // Process the taglib standard stuff - a ID3 v1 data subset by its selection.
         [self updateWithKey:@"title" string:[NSString stringWithCString:taglib_tag_title(tag)
                                                                encoding:NSUTF8StringEncoding]];
         [self updateWithKey:@"artist" string:[NSString stringWithCString:taglib_tag_artist(tag)
@@ -168,7 +174,8 @@
     }
     
     NSDictionary* mp3TagMap = [MediaMetaData mp3TagMap];
-    
+
+    // Process dates, tuples and non standard string values.
     char** propertiesMap = taglib_property_keys(file);
     if (propertiesMap != NULL) {
         char** keyPtr = propertiesMap;
@@ -216,6 +223,7 @@
         taglib_property_free(propertiesMap);
     }
     
+    // Process artwork.
     char** complexKeys = taglib_complex_property_keys(file);
     if (complexKeys != NULL) {
         char** keyPtr = complexKeys;
@@ -267,8 +275,6 @@
 {
     NSString* path = [self.location path];
     
-    //taglib_set_strings_unicode(TRUE);
-
     TagLib_File* file = taglib_file_new([path cStringUsingEncoding:NSUTF8StringEncoding]);
     
     if (file == NULL) {

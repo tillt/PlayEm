@@ -340,6 +340,10 @@ AVAudioFramePosition latency(UInt32 deviceId, AudioObjectPropertyScope scope)
         _isPaused = NO;
         _queue = NULL;
         _outputVolume = 1.0;
+
+        AudioObjectPropertyAddress defaultDevicePropertyAddress = { kAudioHardwarePropertyDefaultOutputDevice, kAudioObjectPropertyScopeGlobal, kAudioObjectPropertyElementMain };
+        OSStatus res = AudioObjectAddPropertyListener(kAudioObjectSystemObject, &defaultDevicePropertyAddress, propertyCallbackDefaultDevice, &_context);
+        assert(res == 0);
     }
     return self;
 }
@@ -347,6 +351,12 @@ AVAudioFramePosition latency(UInt32 deviceId, AudioObjectPropertyScope scope)
 - (void)dealloc
 {
     [self reset];
+    
+    AudioObjectPropertyAddress defaultDevicePropertyAddress = { kAudioHardwarePropertyDefaultOutputDevice, kAudioObjectPropertyScopeGlobal, kAudioObjectPropertyElementMain };
+    AudioObjectRemovePropertyListener(kAudioObjectSystemObject,
+                                      &defaultDevicePropertyAddress,
+                                      propertyCallbackDefaultDevice,
+                                      &_context);
 }
 
 - (void)setTempoShift:(double)tempoShift
@@ -538,12 +548,6 @@ AVAudioFramePosition latency(UInt32 deviceId, AudioObjectPropertyScope scope)
                 _context.buffers[i] = NULL;
             }
         }
-        AudioObjectPropertyAddress defaultDevicePropertyAddress = { kAudioHardwarePropertyDefaultOutputDevice, kAudioObjectPropertyScopeGlobal, kAudioObjectPropertyElementMain };
-        AudioObjectRemovePropertyListener(kAudioObjectSystemObject,
-                                          &defaultDevicePropertyAddress,
-                                          propertyCallbackDefaultDevice,
-                                          &_context);
-
         AudioQueueRemovePropertyListener(_queue, kAudioQueueProperty_IsRunning, propertyCallbackIsRunning, &_context);
 
         AudioQueueDispose(_queue, true);
@@ -619,18 +623,8 @@ AVAudioFramePosition latency(UInt32 deviceId, AudioObjectPropertyScope scope)
                                         &_context);
     assert(res == 0);
 
-    AudioObjectPropertyAddress defaultDevicePropertyAddress = { kAudioHardwarePropertyDefaultOutputDevice, kAudioObjectPropertyScopeGlobal, kAudioObjectPropertyElementMain };
-   
-    res = AudioObjectAddPropertyListener(kAudioObjectSystemObject,
-                                         &defaultDevicePropertyAddress,
-                                         propertyCallbackDefaultDevice,
-                                         &_context);
-    assert(res == 0);
-
     // Assert the new queue inherits our volume desires.
-    AudioQueueSetParameter(_queue,
-                           kAudioQueueParam_Volume,
-                           _outputVolume);
+    AudioQueueSetParameter(_queue, kAudioQueueParam_Volume, _outputVolume);
    
     uint32_t primed = 0;
     res = AudioQueuePrime(_queue, 0, &primed);

@@ -63,7 +63,7 @@
 
 - (void)applicationWillTerminate:(NSNotification*)aNotification
 {
-    NSLog(@"%@", [[NSUserDefaults standardUserDefaults] dictionaryRepresentation]);
+    //NSLog(@"%@", [[NSUserDefaults standardUserDefaults] dictionaryRepresentation]);
 }
 
 @end

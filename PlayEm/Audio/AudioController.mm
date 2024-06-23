@@ -57,7 +57,7 @@ typedef struct {
 
 NSString* deviceName(UInt32 deviceId)
 {
-    AudioObjectPropertyAddress namePropertyAddress = { kAudioDevicePropertyDeviceNameCFString, kAudioObjectPropertyScopeGlobal, kAudioObjectPropertyElementMaster };
+    AudioObjectPropertyAddress namePropertyAddress = { kAudioDevicePropertyDeviceNameCFString, kAudioObjectPropertyScopeGlobal, kAudioObjectPropertyElementMain };
 
     CFStringRef nameRef;
     UInt32 propertySize = sizeof(nameRef);
@@ -80,7 +80,7 @@ AudioObjectID outputDevice(void)
 {
     UInt32 deviceId;
     UInt32 propertySize = sizeof(deviceId);
-    AudioObjectPropertyAddress theAddress = { kAudioHardwarePropertyDefaultOutputDevice, kAudioObjectPropertyScopeGlobal, kAudioObjectPropertyElementMaster };
+    AudioObjectPropertyAddress theAddress = { kAudioHardwarePropertyDefaultOutputDevice, kAudioObjectPropertyScopeGlobal, kAudioObjectPropertyElementMain };
 
     OSStatus result = AudioObjectGetPropertyData(kAudioObjectSystemObject,
                                                  &theAddress,
@@ -275,7 +275,7 @@ void bufferCallback(void* user_data, AudioQueueRef queue, AudioQueueBufferRef bu
 AVAudioFramePosition latency(UInt32 deviceId, AudioObjectPropertyScope scope)
 {
     //NSLog(@"device %@, latency %d", nameRef);
-    AudioObjectPropertyAddress deviceLatencyPropertyAddress = { kAudioDevicePropertyLatency, scope, kAudioObjectPropertyElementMaster };
+    AudioObjectPropertyAddress deviceLatencyPropertyAddress = { kAudioDevicePropertyLatency, scope, kAudioObjectPropertyElementMain };
     UInt32 deviceLatency;
     UInt32 propertySize = sizeof(deviceLatency);
     OSStatus result = result = AudioObjectGetPropertyData(deviceId, &deviceLatencyPropertyAddress, 0, NULL, &propertySize, &deviceLatency);
@@ -284,7 +284,7 @@ AVAudioFramePosition latency(UInt32 deviceId, AudioObjectPropertyScope scope)
         return -1;
     }
 
-    AudioObjectPropertyAddress safetyOffsetPropertyAddress = { kAudioDevicePropertySafetyOffset, scope, kAudioObjectPropertyElementMaster };
+    AudioObjectPropertyAddress safetyOffsetPropertyAddress = { kAudioDevicePropertySafetyOffset, scope, kAudioObjectPropertyElementMain };
     UInt32 safetyOffset;
     propertySize = sizeof(safetyOffset);
     result = AudioObjectGetPropertyData(deviceId, &safetyOffsetPropertyAddress, 0, NULL, &propertySize, &safetyOffset);
@@ -293,7 +293,7 @@ AVAudioFramePosition latency(UInt32 deviceId, AudioObjectPropertyScope scope)
         return -1;
     }
 
-    AudioObjectPropertyAddress bufferSizePropertyAddress = { kAudioDevicePropertyBufferFrameSize, scope, kAudioObjectPropertyElementMaster };
+    AudioObjectPropertyAddress bufferSizePropertyAddress = { kAudioDevicePropertyBufferFrameSize, scope, kAudioObjectPropertyElementMain };
     UInt32 bufferSize;
     propertySize = sizeof(bufferSize);
     result = AudioObjectGetPropertyData(deviceId, &bufferSizePropertyAddress, 0, NULL, &propertySize, &bufferSize);
@@ -302,7 +302,7 @@ AVAudioFramePosition latency(UInt32 deviceId, AudioObjectPropertyScope scope)
         return -1;
     }
 
-    AudioObjectPropertyAddress streamsPropertyAddress = { kAudioDevicePropertyStreams, scope, kAudioObjectPropertyElementMaster };
+    AudioObjectPropertyAddress streamsPropertyAddress = { kAudioDevicePropertyStreams, scope, kAudioObjectPropertyElementMain };
 
     UInt32 streamLatency = 0;
     UInt32 streamsSize = 0;
@@ -317,7 +317,7 @@ AVAudioFramePosition latency(UInt32 deviceId, AudioObjectPropertyScope scope)
         }
 
         // get the latency of the first stream
-        AudioObjectPropertyAddress streamLatencyPropertyAddress = { kAudioStreamPropertyLatency, scope, kAudioObjectPropertyElementMaster };
+        AudioObjectPropertyAddress streamLatencyPropertyAddress = { kAudioStreamPropertyLatency, scope, kAudioObjectPropertyElementMain };
         propertySize = sizeof(streamLatency);
         result = AudioObjectGetPropertyData (ids[0], &streamLatencyPropertyAddress, 0, NULL, &propertySize, &streamLatency);
         if (result != noErr) {
@@ -538,7 +538,14 @@ AVAudioFramePosition latency(UInt32 deviceId, AudioObjectPropertyScope scope)
                 _context.buffers[i] = NULL;
             }
         }
+        AudioObjectPropertyAddress defaultDevicePropertyAddress = { kAudioHardwarePropertyDefaultOutputDevice, kAudioObjectPropertyScopeGlobal, kAudioObjectPropertyElementMain };
+        AudioObjectRemovePropertyListener(kAudioObjectSystemObject,
+                                          &defaultDevicePropertyAddress,
+                                          propertyCallbackDefaultDevice,
+                                          &_context);
+
         AudioQueueRemovePropertyListener(_queue, kAudioQueueProperty_IsRunning, propertyCallbackIsRunning, &_context);
+
         AudioQueueDispose(_queue, true);
         _queue = NULL;
     }
@@ -612,11 +619,9 @@ AVAudioFramePosition latency(UInt32 deviceId, AudioObjectPropertyScope scope)
                                         &_context);
     assert(res == 0);
 
-    AudioObjectPropertyAddress defaultDevicePropertyAddress = { kAudioHardwarePropertyDefaultOutputDevice, kAudioObjectPropertyScopeGlobal, kAudioObjectPropertyElementMaster };
-
-    
-    // Listen for kAudio.
-    res = AudioObjectAddPropertyListener((AudioObjectID)kAudioObjectSystemObject,
+    AudioObjectPropertyAddress defaultDevicePropertyAddress = { kAudioHardwarePropertyDefaultOutputDevice, kAudioObjectPropertyScopeGlobal, kAudioObjectPropertyElementMain };
+   
+    res = AudioObjectAddPropertyListener(kAudioObjectSystemObject,
                                          &defaultDevicePropertyAddress,
                                          propertyCallbackDefaultDevice,
                                          &_context);
@@ -630,61 +635,6 @@ AVAudioFramePosition latency(UInt32 deviceId, AudioObjectPropertyScope scope)
     uint32_t primed = 0;
     res = AudioQueuePrime(_queue, 0, &primed);
     assert((res == 0) && primed > 0);
-
-//    UInt32 thePropSize;
-//    AudioDeviceID defaultAudioDevice;
-    
-    NSString * deviceUID;
-    UInt32 deviceTypeSize;
-
-    res = AudioQueueGetPropertySize(_queue,kAudioQueueProperty_CurrentDevice, &deviceTypeSize);
-    assert(res == 0);
-
-    res = AudioQueueGetProperty (_queue,kAudioQueueProperty_CurrentDevice, &deviceUID, &deviceTypeSize);
-    assert(res == 0);
-
-    
-    
-    //    // get the device list
-//    AudioObjectPropertyAddress thePropertyAddress = { kAudioHardwarePropertyDefaultOutputDevice, kAudioObjectPropertyScopeGlobal, kAudioObjectPropertyElementMaster };
-//
-//    res = AudioObjectGetPropertyDataSize(kAudioObjectSystemObject, &thePropertyAddress, 0, NULL, &thePropSize);
-//    assert(res == 0);
-//
-//    res = AudioObjectGetPropertyData(kAudioObjectSystemObject, &thePropertyAddress, 0, NULL, &thePropSize, &defaultAudioDevice);
-//    assert(res == 0);
-
-//    CFStringRef theDeviceName;
-//
-//    // get the device name
-//    thePropSize = sizeof(CFStringRef);
-//    thePropertyAddress.mSelector = kAudioObjectPropertyName;
-//    thePropertyAddress.mScope = kAudioObjectPropertyScopeGlobal;
-//    thePropertyAddress.mElement = kAudioObjectPropertyElementMaster;
-//
-//    // get the name of the device
-//    res = AudioObjectGetPropertyData((AudioObjectID)defaultAudioDevice, thePropertyAddress, 0, NULL, &thePropSize, &theDeviceName);
-//
-//    // get the uid of the device
-//    CFStringRef theDeviceUID;
-//    thePropertyAddress.mSelector = kAudioDevicePropertyDeviceUID;
-//    res = AudioObjectGetPropertyData( (AudioObjectID)defaultAudioDevice, &thePropertyAddress, 0, NULL, &thePropSize, &theDeviceUID);
-//
-//
-//    result = AudioQueueSetProperty( playerState.mQueue,
-//                                            kAudioQueueProperty_CurrentDevice,
-//                                            &theDeviceUID,
-//                                            sizeof(theDeviceUID));
-    // Get the latency property
-//    UInt32 latency;
-//    UInt32 size = sizeof(UInt32);
-//    AudioObjectPropertyAddress propertyAddress = { kAudioDevicePropertyLatency, kAudioObjectPropertyScopeGlobal, kAudioObjectPropertyElementMaster };
-//
-//    res = AudioObjectGetPropertyData(deviceUID, &propertyAddress, 0, NULL, &size, &latency);
-//    assert(res == 0);
-//
-//    NSLog(@"Audio output latency: %u frames", latency);
-
     
 #ifdef support_rubberband
     _context.stretcher = new RubberBand::RubberBandStretcher(sample.rate, sample.channels);

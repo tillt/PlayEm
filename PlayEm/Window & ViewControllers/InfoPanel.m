@@ -602,6 +602,9 @@ NSString* const kInfoNumberMultipleValues = @"-";
     _progress.hidden = NO;
     [_progress startAnimation:self];
     
+    NSString* const kPatchedMetaKey = @"new";
+    NSString* const kOriginalMetaKey = @"old";
+    
     _titleTextField.stringValue = @"loading...";
     _artistTextField.stringValue = @"loading...";
     _albumTextField.stringValue = @"loading...";
@@ -622,23 +625,20 @@ NSString* const kInfoNumberMultipleValues = @"-";
                 continue;
             }
             NSMutableDictionary* dict = [NSMutableDictionary dictionary];
-            [dict setObject:patchedMeta forKey:@"new"];
-            [dict setObject:meta forKey:@"old"];
+            [dict setObject:patchedMeta forKey:kPatchedMetaKey];
+            [dict setObject:meta forKey:kOriginalMetaKey];
             [patchedMetas addObject:dict];
         }
         dispatch_async(dispatch_get_main_queue(), ^{
             for (NSDictionary* dict in patchedMetas) {
-                MediaMetaData* patchedMeta = dict[@"new"];
-                MediaMetaData* meta = dict[@"old"];
-                [self.delegate metaChangedForMeta:meta updatedMeta:patchedMeta];
+                MediaMetaData* patchedMeta = dict[kPatchedMetaKey];
+                MediaMetaData* meta = dict[kOriginalMetaKey];
+                [self.delegate metaChangedForMeta:meta 
+                                      updatedMeta:patchedMeta];
             }
             [self.delegate finalizeMetaUpdates];
             
-            if (self.processCurrentSong) {
-                self.metas = [NSArray arrayWithObject:[self.delegate currentSongMeta]];
-            } else {
-                self.metas = [self.delegate selectedSongMetas];
-            }
+            self.metas = metas;
             
             [self.progress stopAnimation:self];
         });
@@ -820,7 +820,10 @@ NSString* const kInfoNumberMultipleValues = @"-";
             NSError* error = nil;
             for (MediaMetaData* meta in self.metas) {
                 MediaMetaData* patchedMeta = [patchedMetas objectForKey:meta.location];
-                NSAssert(patchedMeta != nil, @"patcheroo fauxpas - we should have a patched object here");
+                if (patchedMeta == nil) {
+                    NSLog(@"there is no change for %@", meta.location);
+                    continue;
+                }
                 [patchedMeta writeToFileWithError:&error];
                 [self.delegate metaChangedForMeta:meta updatedMeta:patchedMeta];
             }

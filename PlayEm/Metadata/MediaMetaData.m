@@ -21,6 +21,8 @@
 #import "MediaMetaData+AVAsset.h"
 #import "MediaMetaData+StateAdditions.h"
 
+#import "NSURL+WithoutParameters.h"
+
 ///
 /// MediaMetaData is lazily holding metadata for library entries to allow for extending iTunes provided data.
 /// iTunes provided data are held in a shadow item until data is requested and thus copied in. iTunes metadata
@@ -91,19 +93,16 @@ NSString* const kMediaMetaDataMapTypeNumber = @"number";
 + (MediaMetaData*)mediaMetaDataWithURL:(NSURL*)url error:(NSError**)error
 {
     MediaMetaData* meta = [[MediaMetaData alloc] init];
-    meta.location = [url filePathURL];
+    meta.location = [[url filePathURL] URLWithoutParameters];
     [meta readFromFileWithError:error];
     return meta;
 }
 
-+ (MediaMetaData*)mediaMetaDataWithURL:(NSURL*)url asset:(AVAsset *)asset error:(NSError**)error
++ (MediaMetaData*)mediaMetaDataWithURL:(NSURL*)url asset:(AVAsset*)asset error:(NSError**)error
 {
     MediaMetaData* meta = [[MediaMetaData alloc] init];
-    
-    meta.location = url;
-    
+    meta.location = [url URLWithoutParameters];
     [meta readFromAVAsset:asset];
-    
     return meta;
 }
 
@@ -717,6 +716,7 @@ NSString* const kMediaMetaDataMapTypeNumber = @"number";
         NSData* otherData = other.artwork;
         
         if (![thisData isEqualToData:otherData]) {
+            NSLog(@"mismatch at artwork");
             return NO;
         }
     } else {
@@ -724,6 +724,7 @@ NSString* const kMediaMetaDataMapTypeNumber = @"number";
         NSString* otherValue = [other stringForKey:key];
         
         if (![thisValue isEqualToString:otherValue]) {
+            NSLog(@"mismatch at key %@ with \"%@\" != \"%@\"", key, thisValue, otherValue);
             return NO;
         }
     }
@@ -748,6 +749,9 @@ NSString* const kMediaMetaDataMapTypeNumber = @"number";
 
 - (BOOL)isEqualToMediaMetaData:(MediaMetaData*)other
 {
+    if (other == nil) {
+        return NO;
+    }
     MediaMetaDataFileFormatType thisType = [MediaMetaData fileTypeWithURL:self.location
                                                                     error:nil];
     MediaMetaDataFileFormatType otherType = [MediaMetaData fileTypeWithURL:other.location
@@ -758,7 +762,6 @@ NSString* const kMediaMetaDataMapTypeNumber = @"number";
     }
     
     NSArray<NSString*>* supportedKeys = [MediaMetaData mediaDataKeysWithFileFormatType:thisType];
-
     return [self isEqualToMediaMetaData:other forKeys:supportedKeys];
 }
 

@@ -101,7 +101,7 @@ os_log_t pointsOfInterest;
 
 // _displayLink;
 
-//@property (strong, nonatomic) CADisplayLink* displayLink;
+@property (strong, nonatomic) CADisplayLink* displayLink;
 
 //@property (strong, nonatomic) dispatch_queue_t waveQueue;
 //@property (strong, nonatomic) dispatch_queue_t scopeQueue;
@@ -113,74 +113,75 @@ os_log_t pointsOfInterest;
 
 @implementation WaveWindowController
 {
-    CVDisplayLinkRef _displayLink;
+//    CVDisplayLinkRef _displayLink;
     IOPMAssertionID _noSleepAssertionID;
+    dispatch_queue_t _displayLinkQueue;
 }
 
 // Vertical sync callback.
 //
-// Note: So far this doesnt work properly on ProVision displays -
+// Note: So far this doesnt work properly on ProMotion displays -
 // as a result we see stuttering CoreAnimation playback. This likely
-// is because the signalled callback frequency remains at a fixed 60hz.
-static CVReturn renderCallback(CVDisplayLinkRef displayLink,
-                               const CVTimeStamp* inNow,
-                               const CVTimeStamp* inOutputTime,
-                               CVOptionFlags flagsIn,
-                               CVOptionFlags* flagsOut,
-                               void* displayLinkContext)
-{
-    static unsigned int counter = 0;
-
-    os_signpost_interval_begin(pointsOfInterest, POICADisplayLink, "CADisplayLink");
-
-    assert(displayLinkContext);
-    WaveWindowController* controller = (__bridge WaveWindowController*)displayLinkContext;
-
-    ++counter;
-    
- //   CVTimeStamp delta = *inOutputTime - *inNow;
-//
-    AVAudioFramePosition frame = controller.audioController.currentFrame >= controller.audioController.latency ? controller.audioController.currentFrame  - controller.audioController.latency : controller.audioController.currentFrame;
-    
-    [controller updateScopeFrame:frame];
-
-    dispatch_async(dispatch_get_main_queue(), ^{
-        os_signpost_interval_begin(pointsOfInterest, POISetCurrentFrame, "SetCurrentFrame");
-        controller.currentFrame = frame;
-        os_signpost_interval_end(pointsOfInterest, POISetCurrentFrame, "SetCurrentFrame");
-    });
-    os_signpost_interval_end(pointsOfInterest, POICADisplayLink, "CADisplayLink");
-
-    return kCVReturnSuccess;
-}
-
-//- (void)renderCallback:(CADisplayLink *)sender
+// is because the signalled callback frequency remains at a fixed 60hz
+// even for ProMotion devices.
+//static CVReturn renderCallback(CVDisplayLinkRef displayLink,
+//                               const CVTimeStamp* inNow,
+//                               const CVTimeStamp* inOutputTime,
+//                               CVOptionFlags flagsIn,
+//                               CVOptionFlags* flagsOut,
+//                               void* displayLinkContext)
 //{
 //    static unsigned int counter = 0;
 //
 //    os_signpost_interval_begin(pointsOfInterest, POICADisplayLink, "CADisplayLink");
 //
-//    //assert(displayLinkContext);
-//    //WaveWindowController* controller = (__bridge WaveWindowController*)displayLinkContext;
+//    assert(displayLinkContext);
+//    WaveWindowController* controller = (__bridge WaveWindowController*)displayLinkContext;
 //
 //    ++counter;
-//    
-////    CVTimeStamp delta = *inOutputTime - *inNow;
-////
-//    AVAudioFramePosition frame = self.audioController.currentFrame;
-//    
-//    //[controller updateWaveFrame:frame];
-//    [self updateScopeFrame:frame];
 //
-//    //dispatch_async(dispatch_get_main_queue(), ^{
+//    AVAudioFramePosition frame = controller.audioController.currentFrame >= controller.audioController.latency ? controller.audioController.currentFrame  - controller.audioController.latency : controller.audioController.currentFrame;
+//
+//    // Add the delay until the video gets visible to the playhead position for compensation.
+//    double fps = inOutputTime->rateScalar * (double)inOutputTime->videoTimeScale / (double)inOutputTime->videoRefreshPeriod;
+//    NSTimeInterval duration = 1.0 / fps;
+//    frame += [controller.audioController frameCountDeltaWithTimeDelta:duration];
+//    
+//    [controller updateScopeFrame:frame];
+//
+//    dispatch_async(dispatch_get_main_queue(), ^{
 //        os_signpost_interval_begin(pointsOfInterest, POISetCurrentFrame, "SetCurrentFrame");
-//        self.currentFrame = frame;
+//        controller.currentFrame = frame;
 //        os_signpost_interval_end(pointsOfInterest, POISetCurrentFrame, "SetCurrentFrame");
-//    //});
+//    });
 //    os_signpost_interval_end(pointsOfInterest, POICADisplayLink, "CADisplayLink");
 //
-//    //return kCVReturnSuccess;
+//    return kCVReturnSuccess;
 //}
+
+- (void)renderCallback:(CADisplayLink *)sender
+{
+    static unsigned int counter = 0;
+
+    os_signpost_interval_begin(pointsOfInterest, POICADisplayLink, "CADisplayLink");
+
+    ++counter;
+
+//    dispatch_async(_displayLinkQueue, ^{
+    
+    AVAudioFramePosition delta = self.audioController.latency + [self.audioController frameCountDeltaWithTimeDelta:sender.duration];
+    AVAudioFramePosition frame = self.audioController.currentFrame >= delta ? self.audioController.currentFrame  - delta : self.audioController.currentFrame;
+    // Add the delay until the video gets visible to the playhead position for compensation
+//
+    [self updateScopeFrame:frame];
+
+//    AVAudioFramePosition frame = _audioController.currentFrame >= _audioController.latency ? _audioController.currentFrame  - _audioController.latency : _audioController.currentFrame;
+//    frame += [self.audioController frameCountDeltaWithTimeDelta:sender.duration];
+    os_signpost_interval_begin(pointsOfInterest, POISetCurrentFrame, "SetCurrentFrame");
+    self.currentFrame = frame;
+    os_signpost_interval_end(pointsOfInterest, POISetCurrentFrame, "SetCurrentFrame");
+    os_signpost_interval_end(pointsOfInterest, POICADisplayLink, "CADisplayLink");
+}
 
 - (void)playNext:(id)sender
 {
@@ -266,14 +267,14 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 - (void)updateScopeFrame:(AVAudioFramePosition)frame
 {
     _renderer.currentFrame = frame;
-    [_scopeView draw];
+//    [_scopeView draw];
 }
 
 - (void)dealloc
 {
-    if (_displayLink) {
-        CVDisplayLinkRelease(_displayLink);
-    }
+//    if (_displayLink) {
+//        CVDisplayLinkRelease(_displayLink);
+//    }
 }
 
 - (void)setLazySample:(LazySample*)sample
@@ -1077,23 +1078,29 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     //    _waveQueue = dispatch_queue_create("PlayEm.WaveQueue", attr);
     
     //CGDirectDisplayID   displayID = CGMainDisplayID();
-    NSLog(@"setting up display link..");
-    CVReturn            error = kCVReturnSuccess;
-    error = CVDisplayLinkCreateWithActiveCGDisplays(&_displayLink);
-    if (error) {
-        NSLog(@"DisplayLink created with error:%d", error);
-        _displayLink = NULL;
-    } else {
-        CVDisplayLinkSetOutputCallback(_displayLink,
-                                       renderCallback,
-                                       (__bridge void *)self);
-    }
+
+//    NSLog(@"setting up display link..");
+//    CVReturn            error = kCVReturnSuccess;
+//    error = CVDisplayLinkCreateWithActiveCGDisplays(&_displayLink);
+//    if (error) {
+//        NSLog(@"DisplayLink created with error:%d", error);
+//        _displayLink = NULL;
+//    } else {
+//        CVDisplayLinkSetOutputCallback(_displayLink,
+//                                       renderCallback,
+//                                       (__bridge void *)self);
+//    }
     
-//    NSScreen* screen = [NSScreen mainScreen];
-//    
-//    self.displayLink = [screen displayLinkWithTarget:self selector:@selector(renderCallback:)];
-//    [self.displayLink addToRunLoop:[NSRunLoop currentRunLoop]
-//                           forMode:NSRunLoopCommonModes];
+    dispatch_queue_attr_t attr = dispatch_queue_attr_make_with_qos_class(DISPATCH_QUEUE_SERIAL,
+                                                                         QOS_CLASS_USER_INTERACTIVE,
+                                                                         0);
+    _displayLinkQueue = dispatch_queue_create("PlayEm.DisplayLinkQueue", attr);
+    
+    NSScreen* screen = [NSScreen mainScreen];
+    _displayLink = [screen displayLinkWithTarget:self selector:@selector(renderCallback:)];
+    _displayLink.preferredFrameRateRange = CAFrameRateRangeMake(60.0, 120.0, 120.0);
+    [_displayLink addToRunLoop:[NSRunLoop currentRunLoop]
+                           forMode:NSRunLoopCommonModes];
 }
 
 - (id)supplementalTargetForAction:(SEL)action sender:(id)sender
@@ -2012,7 +2019,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
 {
     NSLog(@"audioControllerPlaybackStarted");
     // Establish a link and callback invoked on vsync.
-    CVDisplayLinkStart(_displayLink);
+    //CVDisplayLinkStart(_displayLink);
     // Start the scope renderer.
     [_renderer play:_audioController visual:_visualSample scope:_scopeView];
     // Make state obvious to user.
@@ -2056,7 +2063,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     [_renderer stop:_scopeView];
 
     // Remove our hook to the vsync.
-    CVDisplayLinkStop(_displayLink);
+    //CVDisplayLinkStop(_displayLink);
 
     MediaMetaData* item = nil;
     if (_controlPanelController.loop.state == NSControlStateValueOn) {

@@ -531,6 +531,11 @@ AVAudioFramePosition latency(UInt32 deviceId, AudioObjectPropertyScope scope)
     _context.nextFrame = newFrame;
 }
 
+- (AVAudioFramePosition)frameCountDeltaWithTimeDelta:(NSTimeInterval)duration
+{
+    return ceil(_context.sample.rate * duration);
+}
+
 - (void)reset
 {
     NSLog(@"reset audio");

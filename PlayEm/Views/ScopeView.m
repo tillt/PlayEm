@@ -30,7 +30,7 @@ const double kControlPanelVisiblePhase = 10.0f;
         self.drawableSize = frameRect.size;
         self.autoresizingMask = NSViewHeightSizable | NSViewWidthSizable;
         self.autoResizeDrawable = YES;
-        self.paused = YES;
+        self.paused = NO;
         self.layer.opaque = YES;
     }
     return self;

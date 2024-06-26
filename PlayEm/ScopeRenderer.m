@@ -538,13 +538,13 @@ float rgb_from_srgb(float c)
     _visual = visual;
     _minTriggerOffset = 0;
 
-    //scope.paused = NO;
+    scope.paused = NO;
 }
 
 - (void)stop:(MTKView *)scope
 {
     NSLog(@"renderer stopping.");
-    //scope.paused = YES;
+    scope.paused = YES;
 }
 
 - (void)updateVolumeLevelDisplay:(double)maxValue 

@@ -181,10 +181,12 @@ void logscaleFFT(float* map, float* frequencyData)
     //    => buffer[7] = freq[i] * 0.74
     //    => buffer[8] = freq[i] * 0.26
     for (int i=0; i < kFrequencyDataLength;i++) {
-        const unsigned int leftIndex = (int)map[i];
+        double preComma;
+        const double postComma = modf(map[i], &preComma);
+        const unsigned int leftIndex = preComma;
         const unsigned int rightIndex =  leftIndex + 1;
-        const float rightFragment = map[i] - (int)map[i];
-        const float leftFragment = 1.0f - rightFragment;
+        const double rightFragment = postComma;
+        const double leftFragment = 1.0f - rightFragment;
         buffer[leftIndex] += frequencyData[i] * leftFragment;
         counters[leftIndex] += leftFragment;
         buffer[rightIndex] += frequencyData[i] * rightFragment;

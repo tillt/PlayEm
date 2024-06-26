@@ -167,16 +167,13 @@ os_log_t pointsOfInterest;
 
     ++counter;
 
-//    dispatch_async(_displayLinkQueue, ^{
-    
-    AVAudioFramePosition delta = self.audioController.latency + [self.audioController frameCountDeltaWithTimeDelta:sender.duration];
-    AVAudioFramePosition frame = self.audioController.currentFrame >= delta ? self.audioController.currentFrame  - delta : self.audioController.currentFrame;
-    // Add the delay until the video gets visible to the playhead position for compensation
-//
-    [self updateScopeFrame:frame];
+    // Substract the latency introduced by the output device setup to compensate and get
+    // video in sync with audible audio.
+    AVAudioFramePosition delta = self.audioController.latency;
+    AVAudioFramePosition frame = self.audioController.currentFrame >= delta ? self.audioController.currentFrame + delta : self.audioController.currentFrame;
+    // Add the delay until the video gets visible to the playhead position for compensation.
+    frame += [self.audioController frameCountDeltaWithTimeDelta:sender.duration];
 
-//    AVAudioFramePosition frame = _audioController.currentFrame >= _audioController.latency ? _audioController.currentFrame  - _audioController.latency : _audioController.currentFrame;
-//    frame += [self.audioController frameCountDeltaWithTimeDelta:sender.duration];
     os_signpost_interval_begin(pointsOfInterest, POISetCurrentFrame, "SetCurrentFrame");
     self.currentFrame = frame;
     os_signpost_interval_end(pointsOfInterest, POISetCurrentFrame, "SetCurrentFrame");
@@ -1494,6 +1491,8 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
 
 - (void)setCurrentFrame:(unsigned long long)frame
 {
+    [self updateScopeFrame:frame];
+
     if (_waveView.currentFrame == frame) {
         return;
     }

@@ -247,6 +247,7 @@ NSString* const kMediaMetaDataMapTypeNumber = @"number";
         @"tempo": @{
             kMediaMetaDataMapKeyMP3: @{
                 kMediaMetaDataMapKey: @"BPM",
+                kMediaMetaDataMapKeyType: kMediaMetaDataMapTypeNumber,
             },
             kMediaMetaDataMapKeyMP4: @{
                 kMediaMetaDataMapKey: AVMetadataiTunesMetadataKeyBeatsPerMin,
@@ -628,6 +629,7 @@ NSString* const kMediaMetaDataMapTypeNumber = @"number";
     if (self.artwork == nil) {
         return [NSImage imageNamed:@"UnknownSong"];
     }
+
     return [[NSImage alloc] initWithData:self.artwork];
 }
 

@@ -196,7 +196,9 @@
                 if (map != nil) {
                     NSString* type = map[kMediaMetaDataMapKeyType];
                     
-                    if ([type isEqualToString:kMediaMetaDataMapTypeString]) {
+                    if ([type isEqualToString:kMediaMetaDataMapTypeNumber]) {
+                        [self updateWithKey:map[kMediaMetaDataMapKeys][0] string:values];
+                    } else if ([type isEqualToString:kMediaMetaDataMapTypeString]) {
                         [self updateWithKey:map[kMediaMetaDataMapKeys][0] string:values];
                     } else if ([type isEqualToString:kMediaMetaDataMapTypeTuple]) {
                         NSArray<NSString*>* components = [values componentsSeparatedByString:@"/"];

@@ -36,7 +36,6 @@
         }
 
         NSString* mp3Key = mediaMetaKeyMap[mediaDataKey][kMediaMetaDataMapKeyMP3][kMediaMetaDataMapKey];
-        
         NSString* type = kMediaMetaDataMapTypeString;
         NSString* t = mediaMetaKeyMap[mediaDataKey][kMediaMetaDataMapKeyMP3][kMediaMetaDataMapKeyType];
         if (t != nil) {
@@ -47,6 +46,7 @@
         if (mp3TagMap[mp3Key] == nil) {
             mp3Dictionary = [NSMutableDictionary dictionary];
         }
+
         mp3Dictionary[kMediaMetaDataMapKeyType] = type;
         
         NSMutableArray* mediaKeys = mp3Dictionary[kMediaMetaDataMapKeys];
@@ -90,10 +90,12 @@
         if (t != nil) {
             type = t;
         }
+
         NSMutableDictionary* mp4Dictionary = mp4TagMap[mp4Key];
         if (mp4TagMap[mp4Key] == nil) {
             mp4Dictionary = [NSMutableDictionary dictionary];
         }
+
         mp4Dictionary[kMediaMetaDataMapKeyType] = type;
         
         NSMutableArray* mediaKeys = mp4Dictionary[kMediaMetaDataMapKeys];

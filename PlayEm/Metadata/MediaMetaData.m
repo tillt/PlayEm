@@ -64,13 +64,17 @@ NSString* const kMediaMetaDataMapTypeNumber = @"number";
     
     NSString* fileExtension = [url pathExtension];
     
-    if ([fileExtension isEqualToString:@"mp4"] || [fileExtension isEqualToString:@"m4v"] || [fileExtension isEqualToString:@"m4r"] || [fileExtension isEqualToString:@"m4a"]) {
+    if ([fileExtension isEqualToString:@"mp4"] 
+        || [fileExtension isEqualToString:@"m4v"]
+        || [fileExtension isEqualToString:@"m4r"]
+        || [fileExtension isEqualToString:@"m4a"]) {
         return MediaMetaDataFileFormatTypeMP4;
     }
     if ([fileExtension isEqualToString:@"mp3"]) {
         return MediaMetaDataFileFormatTypeMP3;
     }
-    if ([fileExtension isEqualToString:@"aif"] || [fileExtension isEqualToString:@"aiff"]) {
+    if ([fileExtension isEqualToString:@"aif"] 
+        || [fileExtension isEqualToString:@"aiff"]) {
         return MediaMetaDataFileFormatTypeAIFF;
     }
     if ([fileExtension isEqualToString:@"wav"]) {
@@ -640,8 +644,8 @@ NSString* const kMediaMetaDataMapTypeNumber = @"number";
 
 - (NSString*)description
 {
-    return [NSString stringWithFormat:@"Title: %@ -- Album: %@ -- Artist: %@ -- Location: %@ -- Address: %p -- Artwork format: %@",
-            self.title, self.album, self.artist, self.location, (void*)self, self.artworkFormat];
+    return [NSString stringWithFormat:@"Title: %@ -- Album: %@ -- Artist: %@ -- Location: %@ -- Address: %p -- Artwork format: %@ -- Tempo: %@ -- Key: %@ -- Duration: %@",
+            self.title, self.album, self.artist, self.location, (void*)self, self.artworkFormat, self.tempo, self.key, self.duration];
 }
 
 - (id)copyWithZone:(NSZone *)zone
@@ -768,7 +772,8 @@ NSString* const kMediaMetaDataMapTypeNumber = @"number";
 - (void)updateWithKey:(NSString*)key string:(NSString*)string
 {
     // Rather involved way to retrieve the Class from a member (that may be set to nil).
-    objc_property_t property = class_getProperty(self.class, [key cStringUsingEncoding:NSUTF8StringEncoding]);
+    objc_property_t property = class_getProperty(self.class, 
+                                                 [key cStringUsingEncoding:NSUTF8StringEncoding]);
     const char * const attrString = property_getAttributes(property);
     const char *typeString = attrString + 1;
     const char *next = NSGetSizeAndAlignment(typeString, NULL, NULL);
@@ -923,7 +928,7 @@ NSString* const kMediaMetaDataMapTypeNumber = @"number";
         NSString* description = @"Cannot sync item back as it lacks a location";
         if (error) {
             NSDictionary* userInfo = @{
-                NSLocalizedDescriptionKey: description,
+                NSLocalizedDescriptionKey:description,
             };
             *error = [NSError errorWithDomain:[[NSBundle bundleForClass:[self class]] bundleIdentifier]
                                          code:-1
@@ -947,7 +952,7 @@ NSString* const kMediaMetaDataMapTypeNumber = @"number";
     NSString* description = [NSString stringWithFormat:@"Unsupport filetype for modifying metadata"];
     if (error) {
         NSDictionary* userInfo = @{
-            NSLocalizedDescriptionKey: description,
+            NSLocalizedDescriptionKey:description,
         };
         *error = [NSError errorWithDomain:[[NSBundle bundleForClass:[self class]] bundleIdentifier]
                                      code:-1

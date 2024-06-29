@@ -259,7 +259,7 @@ os_log_t pointsOfInterest;
     [self setBPM:[_beatSample currentTempo:&_beatEffectIteratorContext]];
 
     // THis might go away... beats are too unreliable for cool visuals :(
-    [_browser beatEffect];
+   // [_browser beatEffect];
     
     // Thats a weird mid-point but hey...
     CGSize mid = CGSizeMake((_controlPanelController.beatIndicator.layer.bounds.size.width - 1) / 2,

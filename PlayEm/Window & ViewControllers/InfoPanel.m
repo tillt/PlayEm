@@ -683,7 +683,7 @@ static const CGFloat kViewLeftMargin = 10.0f;
 
 - (void)updateControls
 {
-    if (_metas == nil) {
+    if (_metas == nil || [_metas count] == 0) {
         return;
     }
     // Identify any meta that is common / not common in the given list.

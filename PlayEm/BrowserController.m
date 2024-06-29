@@ -125,6 +125,7 @@ NSString* const kSongsColGenre = @"GenreCell";
         _songsTable = songsTable;
         _songsTable.dataSource = self;
         _songsTable.delegate = self;
+        _songsTable.allowsTypeSelect = YES;
         _songsTable.doubleAction = @selector(doubleClickedSongsTableRow:);
         
         dispatch_queue_attr_t attr = dispatch_queue_attr_make_with_qos_class(DISPATCH_QUEUE_SERIAL,
@@ -1143,13 +1144,18 @@ static const NSTimeInterval kBeatEffectRampDown = 0.5f;
 
 #pragma mark - Table View delegate
 
-- (BOOL)tableView:(NSTableView *)tableView
- shouldTypeSelectForEvent:(NSEvent *)event
-  withCurrentSearchString:(NSString *)searchString
+- (BOOL)tableView:(NSTableView*)tableView shouldTypeSelectForEvent:(NSEvent*)event withCurrentSearchString:(NSString*)searchString
 {
     NSLog(@"current event: %@", event.debugDescription);
-    NSLog(@"current Search String: '%@'", searchString);
+    NSLog(@"current search string: '%@'", searchString);
     return YES;
+}
+
+- (NSString*)tableView:(NSTableView*)tableView
+typeSelectStringForTableColumn:(NSTableColumn*)tableColumn
+                    row:(NSInteger)row
+{
+    return [self stringValueForRow:row tableColumn:tableColumn tableView:tableView];
 }
 
 -(void)tableViewSelectionDidChange:(NSNotification *)notification{
@@ -1235,6 +1241,67 @@ static const NSTimeInterval kBeatEffectRampDown = 0.5f;
     return rowView;
 }
 
+- (NSString *)stringValueForRow:(NSInteger)row tableColumn:(NSTableColumn* _Nullable)tableColumn tableView:(NSTableView* _Nonnull)tableView
+{
+    NSString* string = nil;
+    switch(tableView.tag) {
+        case VIEWTAG_GENRE:
+            assert(row < _genres.count);
+            string = _genres[row];
+            break;
+        case VIEWTAG_ARTISTS:
+            assert(row < _artists.count);
+            string = _artists[row];
+            break;
+        case VIEWTAG_ALBUMS:
+            assert(row < _albums.count);
+            string = _albums[row];
+            break;
+        case VIEWTAG_TEMPO:
+            assert(row < _tempos.count);
+            string = _tempos[row];
+            break;
+        case VIEWTAG_KEY:
+            assert(row < _keys.count);
+            string = _keys[row];
+            break;
+        case VIEWTAG_SONGS:
+            assert(row < _filteredItems.count);
+            
+            if ([tableColumn.identifier isEqualToString:@"TrackCell"]) {
+                if ([_filteredItems[row].track intValue] > 0) {
+                    string = [_filteredItems[row].track stringValue];
+                }
+            } else if ([tableColumn.identifier isEqualToString:@"TitleCell"]) {
+                string = _filteredItems[row].title;
+            } else if ([tableColumn.identifier isEqualToString:@"ArtistCell"]) {
+                string = _filteredItems[row].artist;
+            } else if ([tableColumn.identifier isEqualToString:@"AlbumCell"]) {
+                string = _filteredItems[row].album;
+            } else if ([tableColumn.identifier isEqualToString:@"TimeCell"]) {
+                string = [self formattedDuration:[_filteredItems[row].duration floatValue]];
+            } else if ([tableColumn.identifier isEqualToString:@"TempoCell"]) {
+                if ([_filteredItems[row].tempo intValue] > 0) {
+                    string = [_filteredItems[row].tempo stringValue];
+                } else {
+                    string = @"";
+                }
+            } else if ([tableColumn.identifier isEqualToString:@"KeyCell"]) {
+                string = _filteredItems[row].key;
+            } else if ([tableColumn.identifier isEqualToString:@"AddedCell"]) {
+                string = [NSString BeautifulPast:_filteredItems[row].added];
+            } else if ([tableColumn.identifier isEqualToString:@"GenreCell"]) {
+                string = _filteredItems[row].genre;
+            }
+            break;
+        default:
+            string = @"<??? UNHANDLED TABLEVIEW ???>";
+    }
+
+    return string;
+}
+    
+
 - (NSView*)tableView:(NSTableView*)tableView viewForTableColumn:(NSTableColumn *)tableColumn row:(NSInteger)row
 {
     TableCellView* result = [tableView makeViewWithIdentifier:tableColumn.identifier owner:self];
@@ -1245,71 +1312,19 @@ static const NSTimeInterval kBeatEffectRampDown = 0.5f;
                                                                  tableColumn.width,
                                                                  tableView.rowHeight )];
         result.identifier = tableColumn.identifier;
-    }
-
-    NSString* string = nil;
-    switch(tableView.tag) {
-        case VIEWTAG_GENRE:
-            assert(row < _genres.count);
-            string = _genres[row];
-        break;
-        case VIEWTAG_ARTISTS:
-            assert(row < _artists.count);
-            string = _artists[row];
-        break;
-        case VIEWTAG_ALBUMS:
-            assert(row < _albums.count);
-            string = _albums[row];
-        break;
-        case VIEWTAG_TEMPO:
-            assert(row < _tempos.count);
-            string = _tempos[row];
-        break;
-        case VIEWTAG_KEY:
-            assert(row < _keys.count);
-            string = _keys[row];
-        break;
-        case VIEWTAG_SONGS:
-            assert(row < _filteredItems.count);
-
+        if (tableView.tag == VIEWTAG_SONGS) {
             if ([tableColumn.identifier isEqualToString:@"TrackCell"]) {
-                if ([_filteredItems[row].track intValue] > 0) {
-                    string = [_filteredItems[row].track stringValue];
-                }
                 [result.textLayer setAlignmentMode:kCAAlignmentRight];
-            } else if ([tableColumn.identifier isEqualToString:@"TitleCell"]) {
-                string = _filteredItems[row].title;
-            } else if ([tableColumn.identifier isEqualToString:@"ArtistCell"]) {
-                string = _filteredItems[row].artist;
-            } else if ([tableColumn.identifier isEqualToString:@"AlbumCell"]) {
-                string = _filteredItems[row].album;
             } else if ([tableColumn.identifier isEqualToString:@"TimeCell"]) {
-                string = [self formattedDuration:[_filteredItems[row].duration floatValue]];
                 [result.textLayer setAlignmentMode:kCAAlignmentRight];
             } else if ([tableColumn.identifier isEqualToString:@"TempoCell"]) {
-                if ([_filteredItems[row].tempo intValue] > 0) {
-                    string = [_filteredItems[row].tempo stringValue];
-                } else {
-                    string = @"";
-                }
                 [result.textLayer setAlignmentMode:kCAAlignmentRight];
-            } else if ([tableColumn.identifier isEqualToString:@"KeyCell"]) {
-                string = _filteredItems[row].key;
-            } else if ([tableColumn.identifier isEqualToString:@"AddedCell"]) {
-                string = [NSString BeautifulPast:_filteredItems[row].added];
-            } else if ([tableColumn.identifier isEqualToString:@"GenreCell"]) {
-                string = _filteredItems[row].genre;
             }
-        break;
-        default:
-            string = @"<??? UNHANDLED TABLEVIEW ???>";
-    }
-    if (string == nil) {
-        string = @"";
+        }
     }
 
-    result.textLayer.string = string;
-    
+    result.textLayer.string = [self stringValueForRow:row tableColumn:tableColumn tableView:tableView];
+
     return result;
 }
 

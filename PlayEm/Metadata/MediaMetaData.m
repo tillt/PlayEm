@@ -224,11 +224,13 @@ NSString* const kMediaMetaDataMapTypeNumber = @"number";
                 kMediaMetaDataMapOrder: @1,
             },
         },
-        @"duration": @{
-            kMediaMetaDataMapKeyMP3: @{
-                kMediaMetaDataMapKey: @"LENGTH",
-            },
-        },
+// Duration from MP3 ID3 tags is commonly not exact enough for our purposes.
+//        @"duration": @{
+//            kMediaMetaDataMapKeyMP3: @{
+//                kMediaMetaDataMapKey: @"LENGTH",
+//                kMediaMetaDataMapKeyType: kMediaMetaDataMapTypeNumber,
+//            },
+//        },
         @"genre": @{
             kMediaMetaDataMapKeyMP3: @{
                 kMediaMetaDataMapKey: @"GENRE",

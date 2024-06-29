@@ -89,7 +89,6 @@ os_log_t pointsOfInterest;
 @property (strong, nonatomic) MusicAuthenticationController* authenticator;
 
 @property (strong, nonatomic) NSPopover* popOver;
-//@property (strong, nonatomic) NSPopover* infoPopOver;
 
 @property (strong, nonatomic) NSWindowController* infoWindowController;
 
@@ -99,12 +98,7 @@ os_log_t pointsOfInterest;
 
 @property (strong, nonatomic) SPMediaKeyTap* keyTap;
 
-// _displayLink;
-
 @property (strong, nonatomic) CADisplayLink* displayLink;
-
-//@property (strong, nonatomic) dispatch_queue_t waveQueue;
-//@property (strong, nonatomic) dispatch_queue_t scopeQueue;
 
 - (void)stop;
 
@@ -113,51 +107,9 @@ os_log_t pointsOfInterest;
 
 @implementation WaveWindowController
 {
-//    CVDisplayLinkRef _displayLink;
     IOPMAssertionID _noSleepAssertionID;
     dispatch_queue_t _displayLinkQueue;
 }
-
-// Vertical sync callback.
-//
-// Note: So far this doesnt work properly on ProMotion displays -
-// as a result we see stuttering CoreAnimation playback. This likely
-// is because the signalled callback frequency remains at a fixed 60hz
-// even for ProMotion devices.
-//static CVReturn renderCallback(CVDisplayLinkRef displayLink,
-//                               const CVTimeStamp* inNow,
-//                               const CVTimeStamp* inOutputTime,
-//                               CVOptionFlags flagsIn,
-//                               CVOptionFlags* flagsOut,
-//                               void* displayLinkContext)
-//{
-//    static unsigned int counter = 0;
-//
-//    os_signpost_interval_begin(pointsOfInterest, POICADisplayLink, "CADisplayLink");
-//
-//    assert(displayLinkContext);
-//    WaveWindowController* controller = (__bridge WaveWindowController*)displayLinkContext;
-//
-//    ++counter;
-//
-//    AVAudioFramePosition frame = controller.audioController.currentFrame >= controller.audioController.latency ? controller.audioController.currentFrame  - controller.audioController.latency : controller.audioController.currentFrame;
-//
-//    // Add the delay until the video gets visible to the playhead position for compensation.
-//    double fps = inOutputTime->rateScalar * (double)inOutputTime->videoTimeScale / (double)inOutputTime->videoRefreshPeriod;
-//    NSTimeInterval duration = 1.0 / fps;
-//    frame += [controller.audioController frameCountDeltaWithTimeDelta:duration];
-//    
-//    [controller updateScopeFrame:frame];
-//
-//    dispatch_async(dispatch_get_main_queue(), ^{
-//        os_signpost_interval_begin(pointsOfInterest, POISetCurrentFrame, "SetCurrentFrame");
-//        controller.currentFrame = frame;
-//        os_signpost_interval_end(pointsOfInterest, POISetCurrentFrame, "SetCurrentFrame");
-//    });
-//    os_signpost_interval_end(pointsOfInterest, POICADisplayLink, "CADisplayLink");
-//
-//    return kCVReturnSuccess;
-//}
 
 - (void)renderCallback:(CADisplayLink *)sender
 {
@@ -264,14 +216,10 @@ os_log_t pointsOfInterest;
 - (void)updateScopeFrame:(AVAudioFramePosition)frame
 {
     _renderer.currentFrame = frame;
-//    [_scopeView draw];
 }
 
 - (void)dealloc
 {
-//    if (_displayLink) {
-//        CVDisplayLinkRelease(_displayLink);
-//    }
 }
 
 - (void)setLazySample:(LazySample*)sample
@@ -342,7 +290,6 @@ os_log_t pointsOfInterest;
 
 static const NSString* kPlaylistToolbarIdentifier = @"Playlist";
 static const NSString* kIdentifyToolbarIdentifier = @"Identify";
-//static const NSString* kIdentifyToolbarIdentifier = @"Info";
 
 - (NSArray*)toolbarDefaultItemIdentifiers:(NSToolbar*)toolbar
 {
@@ -1069,30 +1016,6 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
 
 - (void)setupDisplayLink
 {
-    //    dispatch_queue_attr_t attr = dispatch_queue_attr_make_with_qos_class(DISPATCH_QUEUE_SERIAL, QOS_CLASS_USER_INTERACTIVE, 0);
-    //
-    //    _scopeQueue = dispatch_queue_create("PlayEm.ScopeQueue", attr);
-    //    _waveQueue = dispatch_queue_create("PlayEm.WaveQueue", attr);
-    
-    //CGDirectDisplayID   displayID = CGMainDisplayID();
-
-//    NSLog(@"setting up display link..");
-//    CVReturn            error = kCVReturnSuccess;
-//    error = CVDisplayLinkCreateWithActiveCGDisplays(&_displayLink);
-//    if (error) {
-//        NSLog(@"DisplayLink created with error:%d", error);
-//        _displayLink = NULL;
-//    } else {
-//        CVDisplayLinkSetOutputCallback(_displayLink,
-//                                       renderCallback,
-//                                       (__bridge void *)self);
-//    }
-    
-    dispatch_queue_attr_t attr = dispatch_queue_attr_make_with_qos_class(DISPATCH_QUEUE_SERIAL,
-                                                                         QOS_CLASS_USER_INTERACTIVE,
-                                                                         0);
-    _displayLinkQueue = dispatch_queue_create("PlayEm.DisplayLinkQueue", attr);
-    
     NSScreen* screen = [NSScreen mainScreen];
     _displayLink = [screen displayLinkWithTarget:self selector:@selector(renderCallback:)];
     _displayLink.preferredFrameRateRange = CAFrameRateRangeMake(60.0, 120.0, 120.0);
@@ -1309,79 +1232,6 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     [_split adjustSubviews];
     NSLog(@"relayout to fullscreen %X\n", toFullscreen);
 }
-//
-//- (ScopeView*)scopeViewWithFrame:(NSRect)frame onView:(NSView*)parent
-//{
-//    assert(frame.size.width * frame.size.height);
-//    ScopeView* sv = [[ScopeView alloc] initWithFrame:frame
-//                                              device:MTLCreateSystemDefaultDevice()];
-//    assert(sv);
-//    sv.paused = YES;
-//    sv.layer.opaque = YES;
-//
-//    assert(parent);
-//    [parent addSubview:sv];
-//    
-//    [parent addConstraint:[NSLayoutConstraint constraintWithItem:sv
-//                                                       attribute:NSLayoutAttributeHeight
-//                                                       relatedBy:NSLayoutRelationGreaterThanOrEqual
-//                                                          toItem:nil
-//                                                       attribute:NSLayoutAttributeNotAnAttribute
-//                                                      multiplier:1.0
-//                                                        constant:kMinScopeHeight]];
-//
-//    [_scopeView removeFromSuperview];
-//    _scopeView = sv;
-//    
-//    assert(_effectBelowPlaylist);
-//    [parent addSubview:_effectBelowPlaylist positioned:NSWindowAbove relativeTo:nil];
-//
-//    _renderer = [[ScopeRenderer alloc] initWithMetalKitView:sv
-//                                                      color:[[Defaults sharedDefaults] lightBeamColor]
-//                                                   fftColor:[[Defaults sharedDefaults] fftColor]
-//                                                 background:[[Defaults sharedDefaults] backColor]
-//                                                   delegate:self];
-//    _renderer.level = self.controlPanelController.level;
-//    sv.delegate = _renderer;
-//
-//    [_renderer mtkView:sv drawableSizeWillChange:sv.bounds.size];
-//
-//    if (_audioController && _visualSample) {
-//        [_renderer play:_audioController visual:_visualSample scope:sv];
-//    }
-//
-//    return sv;
-//}
-
-//// Yeah right - what a shitty name for a function that does so much more!
-//- (void)putMetalWaveViewWithFrame:(NSRect)frame onView:(NSView*)parent
-//{
-//    assert(frame.size.width * frame.size.height);
-//    MetalWaveView* mwv = [[MetalWaveView alloc] initWithFrame:frame
-//                                              device:MTLCreateSystemDefaultDevice()];
-//    assert(mwv);
-//    //sv.colorPixelFormat = MTLPixelFormatBGRA10_XR_sRGB;
-//    mwv.colorPixelFormat = MTLPixelFormatBGRA8Unorm;
-//    mwv.depthStencilPixelFormat = MTLPixelFormatInvalid;
-//    mwv.drawableSize = frame.size;
-//
-//    mwv.autoresizingMask = NSViewHeightSizable | NSViewWidthSizable | NSViewMaxYMargin;
-//   
-//    mwv.autoResizeDrawable = NO;
-//
-//    self.waveRenderer = [[WaveRenderer alloc] initWithView:mwv
-//                                                      color:[[Defaults sharedDefaults] lightBeamColor]
-//                                                 background:[[Defaults sharedDefaults] backColor]
-//                                                   delegate:self];
-//    _renderer.level = self.controlPanelController.level;
-//    mwv.delegate = _waveRenderer;
-//
-//    assert(parent);
-//    [parent addSubview:mwv];
-//
-////    [_metalWaveView removeFromSuperview];
-////    _metalWaveView = mwv;
-//}
 
 - (void)setPlaybackActive:(BOOL)active
 {
@@ -1390,20 +1240,27 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
 
 - (void)showInfo:(BOOL)processCurrentSong
 {
-    if (_infoWindowController == nil) {
-        InfoPanelController* info = [[InfoPanelController alloc] initWithDelegate:self];
-        self.infoWindowController = [NSWindowController new];
-        NSWindow* window = [NSWindow windowWithContentViewController:info];
-        window.titleVisibility = NSWindowTitleHidden;
-        window.movableByWindowBackground = YES;
-        window.titlebarAppearsTransparent = YES;
-        [window standardWindowButton:NSWindowZoomButton].hidden = YES;
-        [window standardWindowButton:NSWindowCloseButton].hidden = YES;
-        [window standardWindowButton:NSWindowMiniaturizeButton].hidden = YES;
-        _infoWindowController.window = window;
+    NSArray* metas = nil;
+
+    if (processCurrentSong) {
+        metas = [NSArray arrayWithObject:_meta];
+    } else {
+        metas = [NSArray arrayWithArray:[_browser selectedSongMetas]];
     }
 
-    ((InfoPanelController*)_infoWindowController.contentViewController).processCurrentSong = processCurrentSong;
+    InfoPanelController* info = [[InfoPanelController alloc] initWithMetas:metas];
+    info.delegate = self;
+
+    self.infoWindowController = [NSWindowController new];
+    NSWindow* window = [NSWindow windowWithContentViewController:info];
+    window.titleVisibility = NSWindowTitleHidden;
+    window.movableByWindowBackground = YES;
+    window.titlebarAppearsTransparent = YES;
+    [window standardWindowButton:NSWindowZoomButton].hidden = YES;
+    [window standardWindowButton:NSWindowCloseButton].hidden = YES;
+    [window standardWindowButton:NSWindowMiniaturizeButton].hidden = YES;
+    _infoWindowController.window = window;
+
     [[NSApplication sharedApplication] runModalForWindow:_infoWindowController.window];
 }
 
@@ -1622,7 +1479,8 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     } else if (sv == _split) {
         switch(indexNumber.intValue) {
             case 0: {
-                NSSize newSize = NSMakeSize(_belowVisuals.bounds.size.width, _belowVisuals.bounds.size.height - (_totalView.bounds.size.height + _waveView.bounds.size.height));
+                NSSize newSize = NSMakeSize(_belowVisuals.bounds.size.width, 
+                                            _belowVisuals.bounds.size.height - (_totalView.bounds.size.height + _waveView.bounds.size.height));
                 [_renderer mtkView:_scopeView drawableSizeWillChange:newSize];
                 break;
             }
@@ -1755,7 +1613,8 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
 
 - (void)lazySampleDecoded
 {
-    BeatTrackedSample* beatSample = [[BeatTrackedSample alloc] initWithSample:_lazySample framesPerPixel:self.visualSample.framesPerPixel];
+    BeatTrackedSample* beatSample = [[BeatTrackedSample alloc] initWithSample:_lazySample 
+                                                               framesPerPixel:self.visualSample.framesPerPixel];
     self.beatLayerDelegate.beatSample = beatSample;
 
     if (_beatSample != nil) {
@@ -1923,12 +1782,17 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
 
 #pragma mark Browser delegate
 
-- (void)addToPlaylistNext:(MediaMetaData *)meta
+- (MediaMetaData*)currentSongMeta
+{
+    return _meta;
+}
+
+- (void)addToPlaylistNext:(MediaMetaData*)meta
 {
     [_playlist addNext:meta];
 }
 
-- (void)addToPlaylistLater:(MediaMetaData *)meta
+- (void)addToPlaylistLater:(MediaMetaData*)meta
 {
     [_playlist addLater:meta];
 }
@@ -2017,8 +1881,6 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
 - (void)audioControllerPlaybackStarted
 {
     NSLog(@"audioControllerPlaybackStarted");
-    // Establish a link and callback invoked on vsync.
-    //CVDisplayLinkStart(_displayLink);
     // Start the scope renderer.
     [_renderer play:_audioController visual:_visualSample scope:_scopeView];
     // Make state obvious to user.
@@ -2060,9 +1922,6 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
 
     // Stop the scope rendering.
     [_renderer stop:_scopeView];
-
-    // Remove our hook to the vsync.
-    //CVDisplayLinkStop(_displayLink);
 
     MediaMetaData* item = nil;
     if (_controlPanelController.loop.state == NSControlStateValueOn) {
@@ -2120,22 +1979,12 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     return _audioController.playing;
 }
 
-- (MediaMetaData*)currentSongMeta
-{
-    return _meta;
-}
-
-- (NSArray<MediaMetaData*>*)selectedSongMetas
-{
-    return [_browser selectedSongMetas];
-}
-
 - (NSArray<NSString*>*)knownGenres
 {
     return [_browser knownGenres];
 }
 
-- (void)metaChangedForMeta:(MediaMetaData *)meta updatedMeta:(MediaMetaData *)updatedMeta
+- (void)metaChangedForMeta:(MediaMetaData*)meta updatedMeta:(MediaMetaData*)updatedMeta
 {
     if (self.meta == meta) {
         [self setMeta:updatedMeta];

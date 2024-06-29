@@ -15,8 +15,6 @@ NS_ASSUME_NONNULL_BEGIN
 @class MediaMetaData;
 
 @protocol InfoPanelControllerDelegate <NSObject>
-- (MediaMetaData*)currentSongMeta;
-- (NSArray<MediaMetaData*>*)selectedSongMetas;
 - (NSArray<NSString*>*)knownGenres;
 - (void)metaChangedForMeta:(MediaMetaData *)meta updatedMeta:(MediaMetaData *)updatedMeta;
 - (void)finalizeMetaUpdates;
@@ -26,7 +24,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (weak, nonatomic) id<InfoPanelControllerDelegate> delegate;
 @property (assign, nonatomic) BOOL processCurrentSong;
 
-- (id)initWithDelegate:(id<InfoPanelControllerDelegate>)delegate;
+- (id)initWithMetas:(NSArray<MediaMetaData*>*)metas;
 
 @end
 

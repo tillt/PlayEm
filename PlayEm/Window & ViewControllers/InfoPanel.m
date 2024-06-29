@@ -28,6 +28,11 @@ NSString* const kInfoPageKeyFile = @"File";
 NSString* const kInfoTextMultipleValues = @"Mixed";
 NSString* const kInfoNumberMultipleValues = @"-";
 
+static const CGFloat kBigFontSize = 24.0f;
+static const CGFloat kNormalFontSize = 13.0f;
+static const CGFloat kViewTopMargin = 20.0f;
+static const CGFloat kViewLeftMargin = 10.0f;
+
 @interface InfoPanelController ()
 
 @property (strong, nonatomic) NSProgressIndicator* progress;
@@ -83,11 +88,11 @@ NSString* const kInfoNumberMultipleValues = @"-";
     return sharedInstance;
 }
 
-- (id)initWithDelegate:(id<InfoPanelControllerDelegate>)delegate
+- (id)initWithMetas:(NSArray<MediaMetaData*>*)metas
 {
     self = [super init];
     if (self) {
-        _delegate = delegate;
+        _metas = metas;
 
         _viewConfiguration = @{
             kInfoPageKeyDetails: @{
@@ -214,13 +219,13 @@ NSString* const kInfoNumberMultipleValues = @"-";
         
         unsigned int rows = 1;
         number = [_viewConfiguration[pageKey][key] objectForKey:@"rows"];
-        if (number != nil){
+        if (number != nil) {
             rows = [number intValue];
         }
         
         number = [_viewConfiguration[pageKey][key] objectForKey:@"type"];
         InfoControlType type = InfoControlTypeText;
-        if (number != nil){
+        if (number != nil) {
             type = [number intValue];
         }
 
@@ -238,7 +243,7 @@ NSString* const kInfoNumberMultipleValues = @"-";
         textField.selectable = NO;
         textField.alignment = NSTextAlignmentRight;
         textField.frame = NSMakeRect(kBorderWidth,
-                                     y - floor((rowUnitHeight - 13.0) / 2.0f),
+                                     y - floor((rowUnitHeight - kNormalFontSize) / 2.0f),
                                      nameFieldWidth,
                                      (rows * rowUnitHeight) + kRowInset);
         [view addSubview:textField];
@@ -317,9 +322,10 @@ NSString* const kInfoNumberMultipleValues = @"-";
             textField.editable = NO;
             textField.selectable = NO;
             textField.alignment = NSTextAlignmentLeft;
+
             CGFloat dynamicWidth = textField.attributedStringValue.size.width + kBorderWidth;
             textField.frame = NSMakeRect(x + width,
-                                         y - floor((rowUnitHeight - 13.0) / 2.0f),
+                                         y - floor((rowUnitHeight - kNormalFontSize) / 2.0f),
                                          dynamicWidth,
                                          (rows * rowUnitHeight) + kRowInset);
             [view addSubview:textField];
@@ -374,8 +380,8 @@ NSString* const kInfoNumberMultipleValues = @"-";
     _largeCoverView.image = [NSImage imageNamed:@"UnknownSong"];
     _largeCoverView.alignment = NSViewHeightSizable | NSViewWidthSizable | NSViewMinYMargin | NSViewMaxYMargin;
     _largeCoverView.imageScaling = NSImageScaleProportionallyUpOrDown;
-    _largeCoverView.frame = CGRectMake((self.view.bounds.size.width - (imageWidth + 20.0)) / 2.0f,
-                                       20.0f,
+    _largeCoverView.frame = CGRectMake((self.view.bounds.size.width - (imageWidth + (2 * kViewLeftMargin))) / 2.0f,
+                                       kViewTopMargin,
                                        imageWidth,
                                        imageWidth);
     _largeCoverView.wantsLayer = YES;
@@ -387,7 +393,10 @@ NSString* const kInfoNumberMultipleValues = @"-";
     
     _largeCoverView.delegate = self;
     
-    NSArray *dragTypes = [NSArray arrayWithObjects:NSCreateFileContentsPboardType(@"jpeg"), NSCreateFileContentsPboardType(@"jpg"), NSCreateFileContentsPboardType(@"png"), nil];
+    NSArray *dragTypes = [NSArray arrayWithObjects: NSCreateFileContentsPboardType(@"jpeg"),
+                                                    NSCreateFileContentsPboardType(@"jpg"),
+                                                    NSCreateFileContentsPboardType(@"png"), 
+                                                    nil];
     [_largeCoverView registerForDraggedTypes:dragTypes];
     _largeCoverView.allowsCutCopyPaste = YES;
     
@@ -403,8 +412,8 @@ NSString* const kInfoNumberMultipleValues = @"-";
 {
     NSScrollView* scrollView = [TextViewWithPlaceholder scrollableTextView];
     self.lyricsTextView = scrollView.documentView;
-    scrollView.frame = CGRectMake(  20.0f,
-                                    20.0f,
+    scrollView.frame = CGRectMake(  kViewLeftMargin * 2,
+                                    kViewTopMargin,
                                     self.view.bounds.size.width - 60.0f,
                                     self.view.bounds.size.height - 240.0f);
 
@@ -417,7 +426,7 @@ NSString* const kInfoNumberMultipleValues = @"-";
     _lyricsTextView.drawsBackground = NO;
     _lyricsTextView.alignment = NSTextAlignmentLeft;
     _lyricsTextView.delegate = self;
-    _lyricsTextView.font = [NSFont systemFontOfSize:13.0f];
+    _lyricsTextView.font = [NSFont systemFontOfSize:kNormalFontSize];
     
     [view addSubview:scrollView];
 }
@@ -434,7 +443,7 @@ NSString* const kInfoNumberMultipleValues = @"-";
 
     const CGFloat imageWidth = 100.0f;
     const CGFloat kRowInset = 4.0f;
-    
+
 //    NSVisualEffectView* view = [[NSVisualEffectView alloc] initWithFrame:NSMakeRect(0.0, 0.0, self.preferredContentSize.width, self.preferredContentSize.height)];
 //    view.material = NSVisualEffectMaterialTitlebar;
 //    view.autoresizingMask = NSViewWidthSizable | NSViewHeightSizable;
@@ -444,7 +453,7 @@ NSString* const kInfoNumberMultipleValues = @"-";
     CGFloat progressIndicatorWidth = 32;
     CGFloat progressIndicatorHeight = 32;
     _progress = [[NSProgressIndicator alloc] initWithFrame:NSMakeRect((view.frame.size.width - progressIndicatorWidth) / 2.0,
-                                                                      view.frame.size.height - (progressIndicatorHeight + 20.0),
+                                                                      view.frame.size.height - (progressIndicatorHeight + kViewTopMargin),
                                                                       progressIndicatorWidth,
                                                                       progressIndicatorHeight)];
     _progress.style = NSProgressIndicatorStyleSpinning;
@@ -457,13 +466,12 @@ NSString* const kInfoNumberMultipleValues = @"-";
     _smallCoverView = [NSImageView imageViewWithImage:[NSImage imageNamed:@"UnknownSong"]];
     _smallCoverView.alignment = NSViewHeightSizable | NSViewWidthSizable | NSViewMinYMargin | NSViewMaxYMargin;
     _smallCoverView.imageScaling = NSImageScaleProportionallyUpOrDown;
-    _smallCoverView.frame = CGRectMake( 20.0,
-                                        self.preferredContentSize.height - imageWidth + 10.0,
+    _smallCoverView.frame = CGRectMake( kViewTopMargin,
+                                        kViewLeftMargin + self.preferredContentSize.height - imageWidth,
                                         imageWidth,
                                         imageWidth);
     [view addSubview:_smallCoverView];
 
-    CGFloat fontSize = 24.0f;
     CGFloat x = imageWidth + 40.0;
     CGFloat fieldWidth = view.frame.size.width - (imageWidth + 40.0);
     CGFloat y = view.frame.size.height - 30.0;
@@ -471,7 +479,7 @@ NSString* const kInfoNumberMultipleValues = @"-";
     NSTextField* textField = [NSTextField textFieldWithString:@""];
     textField.bordered = NO;
     textField.textColor = [NSColor labelColor];
-    textField.font = [NSFont systemFontOfSize:fontSize];
+    textField.font = [NSFont systemFontOfSize:kBigFontSize];
     textField.drawsBackground = NO;
     textField.editable = NO;
     textField.selectable = NO;
@@ -481,17 +489,16 @@ NSString* const kInfoNumberMultipleValues = @"-";
     textField.frame = NSMakeRect(x,
                                  y,
                                  fieldWidth,
-                                 fontSize + kRowInset);
+                                 kBigFontSize + kRowInset);
     [view addSubview:textField];
     self.titleTextField = textField;
 
-    y -= fontSize + kRowInset - 10.0f;
+    y -= kBigFontSize + kRowInset - 10.0f;
 
-    fontSize = 13.0f;
     textField = [NSTextField textFieldWithString:@""];
     textField.bordered = NO;
     textField.textColor = [NSColor secondaryLabelColor];
-    textField.font = [NSFont systemFontOfSize:fontSize];
+    textField.font = [NSFont systemFontOfSize:kNormalFontSize];
     textField.drawsBackground = NO;
     textField.editable = NO;
     textField.cell.truncatesLastVisibleLine = YES;
@@ -501,16 +508,16 @@ NSString* const kInfoNumberMultipleValues = @"-";
     textField.frame = NSMakeRect(x,
                                  y,
                                  fieldWidth,
-                                 fontSize + kRowInset);
+                                 kNormalFontSize + kRowInset);
     [view addSubview:textField];
     self.artistTextField = textField;
 
-    y -= fontSize + kRowInset;
+    y -= kNormalFontSize + kRowInset;
 
     textField = [NSTextField textFieldWithString:@""];
     textField.bordered = NO;
     textField.textColor = [NSColor secondaryLabelColor];
-    textField.font = [NSFont systemFontOfSize:fontSize weight:NSFontWeightRegular];
+    textField.font = [NSFont systemFontOfSize:kNormalFontSize weight:NSFontWeightRegular];
     textField.drawsBackground = NO;
     textField.editable = NO;
     textField.selectable = NO;
@@ -521,7 +528,7 @@ NSString* const kInfoNumberMultipleValues = @"-";
     textField.frame = NSMakeRect(x,
                                  y,
                                  fieldWidth,
-                                 fontSize + kRowInset);
+                                 kNormalFontSize + kRowInset);
     [view addSubview:textField];
     self.albumTextField = textField;
 
@@ -545,24 +552,12 @@ NSString* const kInfoNumberMultipleValues = @"-";
 - (void)viewWillAppear
 {
     NSLog(@"InfoPanel becoming visible");
-    
-    NSMutableArray* metas = nil;
-    if (self.processCurrentSong) {
-        metas = [NSMutableArray arrayWithObject:[_delegate currentSongMeta]];
-    } else {
-        metas = [NSMutableArray arrayWithArray:[_delegate selectedSongMetas]];
-    }
-    
-    if (metas == nil) {
-        NSLog(@"No meta available right now");
-        return;
-    }
 
     if (_tabView != nil) {
         [_tabView removeFromSuperview];
     }
     
-    self.tabView = [[NSTabView alloc] initWithFrame:NSMakeRect(0.0, 40.0, self.view.frame.size.width, self.view.frame.size.height - (100.0 + 40.0))];
+    self.tabView = [[NSTabView alloc] initWithFrame:NSMakeRect(0.0, kViewTopMargin * 2, self.view.frame.size.width, self.view.frame.size.height - (100.0 + (kViewTopMargin * 2)))];
     self.tabView.delegate = self;
     
     NSViewController* vc = [NSViewController new];
@@ -615,13 +610,16 @@ NSString* const kInfoNumberMultipleValues = @"-";
     dispatch_async(_metaIOQueue, ^{
         NSError* error = nil;
         NSMutableArray* patchedMetas = [NSMutableArray array];
-        for (MediaMetaData* meta in metas) {
+        NSMutableArray* unpatchedMetas = [NSMutableArray array];
+        for (MediaMetaData* meta in self.metas) {
             MediaMetaData* patchedMeta = [meta copy];
             if (![patchedMeta readFromFileWithError:&error]) {
+                [unpatchedMetas addObject:meta];
                 NSLog(@"no metadata found or failed to read with error: %@", error);
                 continue;
             }
             if ([meta isEqualToMediaMetaData:patchedMeta]) {
+                [unpatchedMetas addObject:meta];
                 continue;
             }
             NSMutableDictionary* dict = [NSMutableDictionary dictionary];
@@ -630,17 +628,20 @@ NSString* const kInfoNumberMultipleValues = @"-";
             [patchedMetas addObject:dict];
         }
         dispatch_async(dispatch_get_main_queue(), ^{
+            NSMutableArray* metas = [NSMutableArray arrayWithArray:unpatchedMetas];
             for (NSDictionary* dict in patchedMetas) {
                 MediaMetaData* patchedMeta = dict[kPatchedMetaKey];
                 MediaMetaData* meta = dict[kOriginalMetaKey];
                 [self.delegate metaChangedForMeta:meta 
                                       updatedMeta:patchedMeta];
+                [metas addObject:patchedMeta];
             }
             [self.delegate finalizeMetaUpdates];
             
-            self.metas = metas;
-            
             [self.progress stopAnimation:self];
+
+            self.metas = metas;
+            [self updateControls];
         });
     });
 }
@@ -650,7 +651,8 @@ NSString* const kInfoNumberMultipleValues = @"-";
     [[NSApplication sharedApplication] stopModal];
 }
 
-- (void)updateViewHeader:(NSMutableDictionary<NSString *,NSNumber *> *)deltaKeys occurances:(NSMutableDictionary<NSString *,NSMutableDictionary *> *)occurances 
+- (void)updateViewHeader:(NSMutableDictionary<NSString *,NSNumber *> *)deltaKeys 
+              occurances:(NSMutableDictionary<NSString *,NSMutableDictionary *> *)occurances
 {
     if (![deltaKeys[@"artwork"] boolValue] && _commonMeta.artwork != nil) {
         _largeCoverView.image = [_commonMeta imageFromArtwork];
@@ -681,6 +683,9 @@ NSString* const kInfoNumberMultipleValues = @"-";
 
 - (void)updateControls
 {
+    if (_metas == nil) {
+        return;
+    }
     // Identify any meta that is common / not common in the given list.
     NSMutableDictionary<NSString*,NSNumber*>* deltaKeys = [NSMutableDictionary dictionary];
     //NSMutableDictionary<NSString*,NSNumber*>* commonKeys = [NSMutableDictionary dictionary];
@@ -769,15 +774,18 @@ NSString* const kInfoNumberMultipleValues = @"-";
     _metas = metas;
 
     if (self.view == nil) {
+        NSLog(@"no view yet - nothing to show");
         return;
     }
     
     if ([_metas count] == 0) {
+        NSLog(@"no metas handed over - nothing to show");
         return;
     }
-
+    //
     [self updateControls];
 
+    // Fresh metas did not get mutated just yet.
     self.mutatedKeys = [NSMutableDictionary dictionary];
 }
 

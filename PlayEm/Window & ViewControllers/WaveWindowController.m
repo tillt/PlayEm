@@ -115,21 +115,21 @@ os_log_t pointsOfInterest;
 {
     static unsigned int counter = 0;
 
-    os_signpost_interval_begin(pointsOfInterest, POICADisplayLink, "CADisplayLink");
+    //os_signpost_interval_begin(pointsOfInterest, POICADisplayLink, "CADisplayLink");
 
     ++counter;
 
     // Substract the latency introduced by the output device setup to compensate and get
     // video in sync with audible audio.
     AVAudioFramePosition delta = self.audioController.latency;
-    AVAudioFramePosition frame = self.audioController.currentFrame >= delta ? self.audioController.currentFrame + delta : self.audioController.currentFrame;
+    AVAudioFramePosition frame = self.audioController.currentFrame >= delta ? self.audioController.currentFrame - delta : self.audioController.currentFrame;
     // Add the delay until the video gets visible to the playhead position for compensation.
     frame += [self.audioController frameCountDeltaWithTimeDelta:sender.duration];
 
-    os_signpost_interval_begin(pointsOfInterest, POISetCurrentFrame, "SetCurrentFrame");
+    //os_signpost_interval_begin(pointsOfInterest, POISetCurrentFrame, "SetCurrentFrame");
     self.currentFrame = frame;
-    os_signpost_interval_end(pointsOfInterest, POISetCurrentFrame, "SetCurrentFrame");
-    os_signpost_interval_end(pointsOfInterest, POICADisplayLink, "CADisplayLink");
+    //os_signpost_interval_end(pointsOfInterest, POISetCurrentFrame, "SetCurrentFrame");
+    //os_signpost_interval_end(pointsOfInterest, POICADisplayLink, "CADisplayLink");
 }
 
 - (void)playNext:(id)sender

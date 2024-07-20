@@ -19,6 +19,9 @@
 @end
 
 @implementation PlaylistController
+{
+    BOOL _preventSelection;
+}
 
 - (id)initWithPlaylistTable:(NSTableView*)table 
                  delegate:(id<PlaylistControllerDelegate>)delegate
@@ -31,6 +34,7 @@
         _table = table;
         _table.dataSource = self;
         _table.delegate = self;
+        _preventSelection = NO;
     }
     return self;
 }
@@ -42,9 +46,10 @@
 
 - (void)addNext:(MediaMetaData*)item
 {
-    [_table beginUpdates];
     [_list insertObject:item atIndex:0];
-    [_table insertRowsAtIndexes:[NSIndexSet indexSetWithIndex:_history.count] withAnimation:NSTableViewAnimationSlideRight];
+    [_table beginUpdates];
+    [_table insertRowsAtIndexes:[NSIndexSet indexSetWithIndex:_history.count]
+                  withAnimation:NSTableViewAnimationSlideRight];
     [_table endUpdates];
 }
 
@@ -52,16 +57,21 @@
 {
     [_list addObject:item];
     [_table beginUpdates];
-    [_table insertRowsAtIndexes:[NSIndexSet indexSetWithIndex:_history.count + _list.count-1] withAnimation:NSTableViewAnimationSlideUp];
+    [_table insertRowsAtIndexes:[NSIndexSet indexSetWithIndex:_history.count + _list.count - 1] 
+                  withAnimation:NSTableViewAnimationSlideUp];
     [_table endUpdates];
 }
 
 - (void)touchedItem:(MediaMetaData*)item
 {
     [_history addObject:item];
+    
+    _preventSelection = YES;
     [_table beginUpdates];
-    [_table insertRowsAtIndexes:[NSIndexSet indexSetWithIndex:_history.count-1] withAnimation:NSTableViewAnimationSlideRight];
+    [_table insertRowsAtIndexes:[NSIndexSet indexSetWithIndex:_history.count - 1] 
+                  withAnimation:NSTableViewAnimationSlideRight];
     [_table endUpdates];
+    _preventSelection = NO;
     //NSUInteger low = 0;
 //    NSUInteger low = _history.count < 2 ? 0 : _history.count - 2;
 //    NSUInteger high = _list.count == 0 ? low : low + _list.count - 1;
@@ -79,7 +89,8 @@
     if (item != nil) {
         [_list removeObjectAtIndex:0];
         [_table beginUpdates];
-        [_table removeRowsAtIndexes:[NSIndexSet indexSetWithIndex:_history.count] withAnimation:NSTableViewAnimationSlideDown];
+        [_table removeRowsAtIndexes:[NSIndexSet indexSetWithIndex:_history.count] 
+                      withAnimation:NSTableViewAnimationSlideDown];
         [_table endUpdates];
     }
     return item;
@@ -111,7 +122,7 @@
 - (NSView*)tableView:(NSTableView*)tableView viewForTableColumn:(NSTableColumn *)tableColumn row:(NSInteger)row
 {
     NSLog(@"tableView: viewForTableColumn:%@ row:%ld", [tableColumn description], row);
-    NSView *result = [tableView makeViewWithIdentifier:tableColumn.identifier owner:self];
+    NSView* result = [tableView makeViewWithIdentifier:tableColumn.identifier owner:self];
     
     if (result == nil) {
         if ([tableColumn.identifier isEqualToString:@"CoverColumn"]) {
@@ -179,7 +190,7 @@
     return result;
 }
 
--(void)tableViewSelectionDidChange:(NSNotification *)notification
+-(void)tableViewSelectionDidChange:(NSNotification*)notification
 {
     NSTableView* tableView = [notification object];
     NSInteger row = [tableView selectedRow];
@@ -195,21 +206,27 @@
         meta = _history[row];
         [_history removeObjectAtIndex:row];
     } else {
+        NSInteger index = row - _history.count;
         // We selected from the queue.
-        meta = _list[row - (_history.count )];
-        [_list removeObjectAtIndex:row - (_history.count )];
+        meta = _list[index];
+        [_list removeObjectAtIndex:index];
     }
+    
+    _preventSelection = YES;
 
     [_table beginUpdates];
-    [_table removeRowsAtIndexes:[NSIndexSet indexSetWithIndex:row] withAnimation:NSTableViewAnimationSlideDown];
+    [_table removeRowsAtIndexes:[NSIndexSet indexSetWithIndex:row] 
+                  withAnimation:NSTableViewAnimationSlideDown];
     [_table endUpdates];
+
+    _preventSelection = NO;
 
     [self.delegate browseSelectedUrl:meta.location meta:meta];
 }
 
 - (BOOL)tableView:(NSTableView*)tableView shouldSelectRow:(NSInteger)row
 {
-    return YES;
+    return !_preventSelection;
 }
 
 @end

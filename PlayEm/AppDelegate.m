@@ -15,8 +15,8 @@
 
 @interface AppDelegate ()
 
-@property (weak, nonatomic) IBOutlet NSWindow *waveWindow;
-@property (strong, nonatomic) WaveWindowController *waveController;
+@property (weak, nonatomic) IBOutlet NSWindow* waveWindow;
+@property (strong, nonatomic) WaveWindowController* waveController;
 
 @end
 

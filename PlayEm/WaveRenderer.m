@@ -605,28 +605,6 @@ static NSSize _originalSize __attribute__((unused)) = {0.0,0.0};
         [renderEncoder endEncoding];
     }
 
-//    {
-//        id<MTLRenderCommandEncoder> renderEncoder = [commandBuffer renderCommandEncoderWithDescriptor:_wavePass];
-//        renderEncoder.label = @"Wave Current Time Render Pass";
-//        
-//        [renderEncoder setRenderPipelineState:_currentTimeState];
-//        [renderEncoder setVertexBuffer:_dynamicUniformBuffer
-//                                offset:_uniformBufferOffset
-//                               atIndex:WaveBufferIndexUniforms];
-//        [renderEncoder setFragmentBuffer:_dynamicUniformBuffer
-//                                  offset:_uniformBufferOffset
-//                                 atIndex:WaveBufferIndexUniforms];
-//
-//        [renderEncoder setFragmentTexture:_waveTargetTexture
-//                                  atIndex:WaveTextureIndexSource];
-//
-//        [renderEncoder drawPrimitives:MTLPrimitiveTypeTriangleStrip
-//                          vertexStart:0
-//                          vertexCount:4];
-//
-//        [renderEncoder endEncoding];
-//    }
-
     {
         [_bloom encodeToCommandBuffer:commandBuffer
                              sourceTexture:_waveTargetTexture

@@ -1400,15 +1400,6 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
 
 #pragma mark Splitter delegate
 
-//- (void)splitView:(NSSplitView *)splitView resizeSubviewsWithOldSize:(NSSize)oldSize
-//{
-//    if (splitView == _split) {
-//        //renderer mtkView:_scopeView drawableSizeWillChange:_scopeView.bounds.size];
-//        NSLog(@"old size %@", NSStringFromSize(oldSize));
-//        NSLog(@"new size %@", NSStringFromSize(_scopeView.bounds.size));
-//    }
-//}
-
 - (void)splitViewWillResizeSubviews:(NSNotification *)notification
 {
     NSSplitView* sv = notification.object;
@@ -1440,20 +1431,6 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
         }
     }
 }
-
-/*
-- (CGFloat)splitView:(NSSplitView *)splitView constrainMinCoordinate:(CGFloat)proposedMinimumPosition ofSubviewAt:(NSInteger)dividerIndex
-{
-    CGFloat ret = 0.0f;
-    if (splitView == _split) {
-        if (dividerIndex == 0) {
-            //_totalView.translatesAutoresizingMaskIntoConstraints
-            ret = _totalView.bounds.size.height + _waveView.bounds.size.height + kMinScopeViewHeigth;
-        }
-    }
-    return ret;
-}
- */
 
 - (BOOL)splitView:(NSSplitView *)splitView canCollapseSubview:(NSView *)subview
 {

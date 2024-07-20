@@ -241,36 +241,6 @@ static const double kLevelDecreaseValue = 0.042;
     destroyLogMap(_logMap);
 }
 
-float srgb_from_rgb(float c)
-{
-    if (isnan(c))
-        c = 0.0;
-    
-    if (c > 1.0)
-        c = 1.0;
-    else if (c < 0.0)
-        c = 0.0;
-    else if (c < 0.0031308)
-        c = 12.92 * c;
-    else
-        c = 1.055 * pow(c, 1.0/2.4) - 0.055;
-    
-    // Convert to integer scale: c = c * 255.0
-    // Convert to integer: c = c + 0.5
-    // Drop the decimal fraction. The remaining floating-point(integral) value
-    // is converted directly to an integer.
-    return c;
-}
-
-float rgb_from_srgb(float c)
-{
-    if (c <= 0.04045)
-        c = c / 12.92;
-    else
-        c = pow((c + 0.055) / 1.055, 2.4);
-    return c;
-}
-
 - (void)scopeViewDidLiveResize:(NSNotification *)notification
 {
     [self loadMetalWithView:notification.object];

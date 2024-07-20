@@ -687,14 +687,12 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     _genreTable.backgroundColor = [NSColor clearColor];
     _genreTable.style = NSTableViewStylePlain;
     
-    
     col = [[NSTableColumn alloc] init];
     col.title = @"Genre";
     col.identifier = @"Genre";
     col.width = selectorTableViewWidth - selectorColumnInset;
     [_genreTable addTableColumn:col];
     sv.documentView = _genreTable;
-    //[self.window.contentView addSubview:sv];
     [_splitSelectors addArrangedSubview:sv];
     
     [_splitSelectors addConstraint:[NSLayoutConstraint constraintWithItem:sv
@@ -723,7 +721,6 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     col.width = selectorTableViewWidth - selectorColumnInset;
     [_artistsTable addTableColumn:col];
     sv.documentView = _artistsTable;
-    //[self.window.contentView addSubview:sv];
     [_splitSelectors addArrangedSubview:sv];
     
     sv = [[NSScrollView alloc] initWithFrame:NSMakeRect(0.0,
@@ -743,7 +740,6 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     col.width = selectorTableViewWidth - selectorColumnInset;
     [_albumsTable addTableColumn:col];
     sv.documentView = _albumsTable;
-    //[self.window.contentView addSubview:sv];
     [_splitSelectors addArrangedSubview:sv];
     
     sv = [[NSScrollView alloc] initWithFrame:NSMakeRect(0.0,
@@ -764,7 +760,6 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     col.width = selectorTableViewHalfWidth - selectorColumnInset;
     [_temposTable addTableColumn:col];
     sv.documentView = _temposTable;
-    //[self.window.contentView addSubview:sv];
     [_splitSelectors addArrangedSubview:sv];
     
     sv = [[NSScrollView alloc] initWithFrame:NSMakeRect(0.0,
@@ -786,7 +781,6 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     sv.documentView = _keysTable;
     [_splitSelectors addArrangedSubview:sv];
     
-    //[self.window.contentView addSubview:splitSelectors];
     [_split addArrangedSubview:_splitSelectors];
     
     ///
@@ -952,9 +946,6 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
                                             _keysTable ];
     
     for (NSTableView *table in fixupTables) {
-        //table.style = NSTableViewStyleSourceList;
-        //table.style = NSTableViewStylePlain;
-        //table.headerView = [[NSTableHeaderView alloc] init];
         for (NSTableColumn *column in [table tableColumns]) {
             TableHeaderCell* cell = [[TableHeaderCell alloc] initTextCell:[[column headerCell] stringValue]];
             [column setHeaderCell:cell];
@@ -1452,9 +1443,16 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
 
 - (void)splitViewDidResizeSubviews:(NSNotification *)notification
 {
-    /*
-     A notification that is posted to the default notification center by NSSplitView when a split view has just resized its subviews either as a result of its own resizing or during the dragging of one of its dividers by the user. Starting in Mac OS 10.5, if the notification is being sent because the user is dragging a divider, the notification's user info dictionary contains an entry whose key is @"NSSplitViewDividerIndex" and whose value is an NSInteger-wrapping NSNumber that is the index of the divider being dragged. Starting in Mac OS 12.0, the notification will contain the user info dictionary during resize and layout events as well.
-     */
+/*
+     A notification that is posted to the default notification center by NSSplitView when a 
+     split view has just resized its subviews either as a result of its own resizing or during
+     the dragging of one of its dividers by the user.
+     Starting in Mac OS 10.5, if the notification is being sent because the user is dragging
+     a divider, the notification's user info dictionary contains an entry whose key is
+     @"NSSplitViewDividerIndex" and whose value is an NSInteger-wrapping NSNumber that is
+     the index of the divider being dragged. Starting in Mac OS 12.0, the notification will
+     contain the user info dictionary during resize and layout events as well.
+*/
     NSSplitView* sv = notification.object;
     NSNumber* indexNumber = notification.userInfo[@"NSSplitViewDividerIndex"];
 
@@ -1490,7 +1488,6 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
         splitPosition[1] = _belowVisuals.bounds.size.height + _splitSelectors.bounds.size.height;
     }
 }
-
 
 #pragma mark Document lifecycle
 
@@ -1802,7 +1799,6 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
 {
     NSNumber* currentFrameValue = @(frame);
     NSNumber* playingValue = @(playing);
-//    NSNumber* loopingValue = @()
 
     NSURLComponents* components = [NSURLComponents componentsWithString:[url.filePathURL absoluteString]];
     NSMutableArray<NSURLQueryItem*>* queryItems = [NSMutableArray array];
@@ -1936,7 +1932,10 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
         return;
     }
 
-    [self loadDocumentFromURL:[WaveWindowController encodeQueryItemsWithUrl:item.location frame:0LL playing:YES] meta:item];
+    [self loadDocumentFromURL:[WaveWindowController
+                               encodeQueryItemsWithUrl:item.location
+                               frame:0LL
+                               playing:YES] meta:item];
 }
 
 - (void)stop

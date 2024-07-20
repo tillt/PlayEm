@@ -22,7 +22,6 @@
 #import "LoadState.h"
 #import "MediaMetaData.h"
 #import "ScopeRenderer.h"
-#import "WaveRenderer.h"
 #import "TotalWaveView.h"
 #import "WaveView.h"
 #import "MetalWaveView.h"
@@ -1598,7 +1597,6 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
 
     _audioController.sample = _lazySample;
     _waveView.frames = _lazySample.frames;
-    _waveRenderer.visualSample = self.visualSample;
     _totalView.frames = _lazySample.frames;
     _waveView.frame = CGRectMake(0.0,
                                  0.0,

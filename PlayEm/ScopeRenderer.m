@@ -739,8 +739,8 @@ static const double kLevelDecreaseValue = 0.042;
             data += sourceChannels[channelIndex][i];
         }
         data /= channels;
-        
         meterValue = data * data;
+
         if (meterValue > maxValue) {
             maxValue = meterValue;
         }

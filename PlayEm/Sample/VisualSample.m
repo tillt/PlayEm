@@ -127,7 +127,7 @@
 
 - (void)garbageCollectOperationsOutsideOfWindow:(size_t)window width:(size_t)width
 {
-    const size_t prerenderTileDistance = 5;
+    const size_t prerenderTileDistance = 2;
 
     size_t left = 0;
     if ((window / _tileWidth) >= prerenderTileDistance) {
@@ -141,6 +141,7 @@
             IndexedBlockOperation* operation = [_operations objectForKey:pageNumber];
             [operation cancelAndWait];
             [_operations removeObjectForKey:pageNumber];
+            NSLog(@"garbage collecting tile %@", pageNumber);
         }
     }
 }

@@ -75,7 +75,6 @@
 		BBDC988A250E81D0008B19D1 /* BrowserController.m in Sources */ = {isa = PBXBuildFile; fileRef = BBDC9889250E81D0008B19D1 /* BrowserController.m */; };
 		BBDC988C250E8347008B19D1 /* iTunesLibrary.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BBDC988B250E8347008B19D1 /* iTunesLibrary.framework */; };
 		BBDEBD3D2A99417A0085E6D8 /* WaveLayerDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = BBDEBD3C2A99417A0085E6D8 /* WaveLayerDelegate.m */; };
-		BBDFAC82259A68E200092458 /* ProgressView.m in Sources */ = {isa = PBXBuildFile; fileRef = BBDFAC81259A68E200092458 /* ProgressView.m */; };
 		BBE284682467612F00BE9D7F /* ScopeRenderer.m in Sources */ = {isa = PBXBuildFile; fileRef = BBE284672467612F00BE9D7F /* ScopeRenderer.m */; };
 		BBE2846D246765BD00BE9D7F /* Shaders.metal in Sources */ = {isa = PBXBuildFile; fileRef = BBE2846C246765A700BE9D7F /* Shaders.metal */; };
 		BBE2846F2467669500BE9D7F /* MetalKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BBE2846E2467669500BE9D7F /* MetalKit.framework */; };
@@ -226,8 +225,6 @@
 		BBDC988B250E8347008B19D1 /* iTunesLibrary.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = iTunesLibrary.framework; path = System/Library/Frameworks/iTunesLibrary.framework; sourceTree = SDKROOT; };
 		BBDEBD3B2A99417A0085E6D8 /* WaveLayerDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WaveLayerDelegate.h; sourceTree = "<group>"; };
 		BBDEBD3C2A99417A0085E6D8 /* WaveLayerDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WaveLayerDelegate.m; sourceTree = "<group>"; };
-		BBDFAC80259A68E200092458 /* ProgressView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ProgressView.h; sourceTree = "<group>"; };
-		BBDFAC81259A68E200092458 /* ProgressView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ProgressView.m; sourceTree = "<group>"; };
 		BBE284662467612F00BE9D7F /* ScopeRenderer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ScopeRenderer.h; sourceTree = "<group>"; };
 		BBE284672467612F00BE9D7F /* ScopeRenderer.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ScopeRenderer.m; sourceTree = "<group>"; };
 		BBE2846A2467640800BE9D7F /* ShaderTypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ShaderTypes.h; sourceTree = "<group>"; };
@@ -366,8 +363,6 @@
 			children = (
 				BB3927032C1783DD009C7B32 /* IdentificationActiveView.h */,
 				BB3927042C1783DD009C7B32 /* IdentificationActiveView.m */,
-				BBDFAC80259A68E200092458 /* ProgressView.h */,
-				BBDFAC81259A68E200092458 /* ProgressView.m */,
 				BBAD7D53262B96D800089ACC /* ScopeView.h */,
 				BBAD7D54262B973C00089ACC /* ScopeView.m */,
 				BBDB1B3E2B644AD500A953F7 /* MetalWaveView.h */,
@@ -659,7 +654,6 @@
 				BB3926FF2C14B43E009C7B32 /* TableRowView.m in Sources */,
 				BBDB1B402B644AD500A953F7 /* MetalWaveView.m in Sources */,
 				BBB37D21290F4A7E0007A6BB /* PlaylistController.m in Sources */,
-				BBDFAC82259A68E200092458 /* ProgressView.m in Sources */,
 				BB2CF8AD259EB66900D6BA03 /* LazySample.m in Sources */,
 				BB3927022C14C606009C7B32 /* TableCellView.m in Sources */,
 				BB0C5D9327768D2400856978 /* MatrixUtilities.m in Sources */,

@@ -24,7 +24,12 @@ double logVolume(const double input)
 {
     // Use a logarithmic scale as that is much closer to what we perceive. Neatly fake
     // ourselves into the slope.
-    return log10(10.0 + (input * 100.0f)) - 1.0f;
+    
+    double absoluteValue = fabs(input);
+    double sign = input / absoluteValue;
+    
+    return sign * (log10(10.0 + (absoluteValue * 100.0f)) - 1.0f);
+
 }
 
 vDSP_DFT_Setup initDCT(void)

@@ -16,6 +16,7 @@ extern const size_t kScaledFrequencyDataLength;
 extern const size_t kWindowSamples;
 
 vDSP_DFT_Setup initDCT(void);
+double logVolume(const double input);
 
 FFTSetup initFFT(void);
 void destroyFFT(FFTSetup setup);

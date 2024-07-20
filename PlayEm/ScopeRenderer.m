@@ -519,9 +519,8 @@ static const double kLevelDecreaseValue = 0.042;
 
 - (void)updateVolumeLevelDisplay:(double)maxValue 
 {
-    // Use a logarithmic scale as that is much closer to what we perceive. Neatly fake
-    // ourselves into the slope.
-    float logval = log10f(10.0 + (maxValue * 100.0f)) - 1.0f;
+    double logval = logVolume(maxValue);
+
     dispatch_async(dispatch_get_main_queue(), ^{
         if (self.level.doubleValue < logval) {
             self.level.doubleValue = logval;
@@ -637,7 +636,6 @@ static const double kLevelDecreaseValue = 0.042;
 //            performMel(_dctSetup, window, kWindowSamples, frequencyBufferAddress);
     });
 
-    
     size_t previousAttemptAt = -1;
     while (bestPositiveStreakLength == 0) {
         previousAttemptAt = offset;
@@ -682,6 +680,7 @@ static const double kLevelDecreaseValue = 0.042;
             for (size_t channelIndex = 0; channelIndex < channels; channelIndex++) {
                 data += sourceChannels[channelIndex][i];
             }
+            
             data /= channels;
             
             if (!triggered) {
@@ -740,7 +739,7 @@ static const double kLevelDecreaseValue = 0.042;
             data += sourceChannels[channelIndex][i];
         }
         data /= channels;
-
+        
         meterValue = data * data;
         if (meterValue > maxValue) {
             maxValue = meterValue;

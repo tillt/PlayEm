@@ -238,7 +238,7 @@
                 for (int channel = 0; channel < channels; channel++) {
                     s += data[channel][frameIndex];
                 }
-                s /= (float)channels;
+                s /= channels;
 
                 frameIndex++;
                 counter += 1.0;

@@ -790,6 +790,8 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     _songsTable.backgroundColor = [NSColor clearColor];
     _songsTable.tag = VIEWTAG_SONGS;
     _songsTable.menu = menu;
+    _songsTable.autoresizingMask = NSViewNotSizable;
+    _songsTable.columnAutoresizingStyle = NSTableViewNoColumnAutoresizing;
     _songsTable.autosaveTableColumns = YES;
     _songsTable.allowsMultipleSelection = YES;
     _songsTable.style = NSTableViewStylePlain;
@@ -798,54 +800,63 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     col = [[NSTableColumn alloc] initWithIdentifier:kSongsColTrackNumber];
     col.title = @"Track";
     col.width = trackColumnWidth - selectorColumnInset;
+    col.resizingMask = NSTableColumnUserResizingMask;
     col.sortDescriptorPrototype = [[NSSortDescriptor alloc] initWithKey:@"track" ascending:YES selector:@selector(compare:)];
     [_songsTable addTableColumn:col];
     
     col = [[NSTableColumn alloc] initWithIdentifier:kSongsColTitle];
     col.title = @"Title";
     col.width = titleColumnWidth - selectorColumnInset;
+    col.resizingMask = NSTableColumnUserResizingMask;
     col.sortDescriptorPrototype = [[NSSortDescriptor alloc] initWithKey:@"title" ascending:YES selector:@selector(compare:)];
     [_songsTable addTableColumn:col];
     
     col = [[NSTableColumn alloc] initWithIdentifier:kSongsColTime];
     col.title = @"Time";
     col.width = timeColumnWidth - selectorColumnInset;
+    col.resizingMask = NSTableColumnUserResizingMask;
     col.sortDescriptorPrototype = [[NSSortDescriptor alloc] initWithKey:@"duration" ascending:YES selector:@selector(compare:)];
     [_songsTable addTableColumn:col];
     
     col = [[NSTableColumn alloc] initWithIdentifier:kSongsColArtist];
     col.title = @"Artist";
     col.width = artistColumnWidth - selectorColumnInset;
+    col.resizingMask = NSTableColumnUserResizingMask;
     col.sortDescriptorPrototype = [[NSSortDescriptor alloc] initWithKey:@"artist" ascending:YES selector:@selector(compare:)];
     [_songsTable addTableColumn:col];
     
     col = [[NSTableColumn alloc] initWithIdentifier:kSongsColAlbum];
     col.title = @"Album";
     col.width = albumColumnWidth - selectorColumnInset;
+    col.resizingMask = NSTableColumnUserResizingMask;
     col.sortDescriptorPrototype = [[NSSortDescriptor alloc] initWithKey:@"album" ascending:YES selector:@selector(compare:)];
     [_songsTable addTableColumn:col];
     
     col = [[NSTableColumn alloc] initWithIdentifier:kSongsColGenre];
     col.title = @"Genre";
     col.width = genreColumnWidth - selectorColumnInset;
+    col.resizingMask = NSTableColumnAutoresizingMask | NSTableColumnUserResizingMask;
     col.sortDescriptorPrototype = [[NSSortDescriptor alloc] initWithKey:@"genre" ascending:YES selector:@selector(compare:)];
     [_songsTable addTableColumn:col];
     
     col = [[NSTableColumn alloc] initWithIdentifier:kSongsColAdded];
     col.title = @"Added";
     col.width = addedColumnWidth - selectorColumnInset;
+    col.resizingMask = NSTableColumnUserResizingMask;
     col.sortDescriptorPrototype = [[NSSortDescriptor alloc] initWithKey:@"added" ascending:YES selector:@selector(compare:)];
     [_songsTable addTableColumn:col];
 
     col = [[NSTableColumn alloc] initWithIdentifier:kSongsColTempo];
     col.title = @"Tempo";
     col.width = tempoColumnWidth - selectorColumnInset;
+    col.resizingMask = NSTableColumnUserResizingMask;
     col.sortDescriptorPrototype = [[NSSortDescriptor alloc] initWithKey:@"tempo" ascending:YES selector:@selector(compare:)];
     [_songsTable addTableColumn:col];
 
     col = [[NSTableColumn alloc] initWithIdentifier:kSongsColKey];
     col.title = @"Key";
     col.width = keyColumnWidth - selectorColumnInset;
+    col.resizingMask = NSTableColumnUserResizingMask;
     col.sortDescriptorPrototype = [[NSSortDescriptor alloc] initWithKey:@"key" ascending:YES selector:@selector(compare:)];
     [_songsTable addTableColumn:col];
 

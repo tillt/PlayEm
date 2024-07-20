@@ -65,7 +65,6 @@
     }
 }
 
-
 - (void)setPixelPerSecond:(double)pixelPerSecond
 {
     if (_pixelPerSecond == pixelPerSecond) {
@@ -129,12 +128,13 @@
 - (void)garbageCollectOperationsOutsideOfWindow:(size_t)window width:(size_t)width
 {
     const size_t prerenderTileDistance = 5;
+
     size_t left = 0;
-    if ((window / _tileWidth) >= 5) {
+    if ((window / _tileWidth) >= prerenderTileDistance) {
         left = (window / _tileWidth) - prerenderTileDistance;
     }
     size_t right = prerenderTileDistance + ((window + width) / _tileWidth);
-
+    
     NSArray* keys = [_operations allKeys];
     for (NSNumber* pageNumber in keys) {
         if (pageNumber.integerValue < left || pageNumber.integerValue > right) {

@@ -30,8 +30,7 @@ static const double kFontSize = 11.0f;
     self = [super initWithFrame:frameRect];
     if (self) {
         self.wantsLayer = YES;
-        self.autoresizingMask = NSViewHeightSizable | NSViewWidthSizable;
-        self.clipsToBounds = YES;
+        self.needsLayout = YES;
         self.layerContentsRedrawPolicy = NSViewLayerContentsRedrawOnSetNeedsDisplay;
     }
     return self;
@@ -40,17 +39,20 @@ static const double kFontSize = 11.0f;
 - (CALayer*)makeBackingLayer
 {
     CALayer* layer = [CALayer layer];
-    layer.masksToBounds = NO;
-    layer.autoresizingMask = kCALayerWidthSizable;
+    layer.masksToBounds = YES;
+    layer.drawsAsynchronously = YES;
+    layer.autoresizingMask = kCALayerNotSizable;
     layer.frame = self.bounds;
 
     _textLayer = [CATextLayer layer];
+    _textLayer.drawsAsynchronously = YES;
     _textLayer.fontSize = kFontSize;
     _textLayer.font =  (__bridge  CFTypeRef)[TableCellView sharedFont];
     _textLayer.wrapped = NO;
     _textLayer.autoresizingMask = kCALayerWidthSizable;
     _textLayer.truncationMode = kCATruncationEnd;
     _textLayer.allowsEdgeAntialiasing = YES;
+    _textLayer.masksToBounds = YES;
     _textLayer.contentsScale = [[NSScreen mainScreen] backingScaleFactor];
     _textLayer.foregroundColor = [NSColor secondaryLabelColor].CGColor;
     _textLayer.frame = NSInsetRect(self.bounds, 0.0, 5.0);

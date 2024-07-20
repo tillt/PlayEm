@@ -44,7 +44,6 @@ typedef enum : NSUInteger {
     self = [super initWithFrame:frameRect];
     if (self) {
         self.wantsLayer = YES;
-        self.autoresizingMask = NSViewHeightSizable | NSViewWidthSizable;
         self.clipsToBounds = YES;
         self.layerContentsRedrawPolicy = NSViewLayerContentsRedrawOnSetNeedsDisplay;
     }

@@ -46,14 +46,14 @@ static const float kPixelPerSecond = 120.0f;
 static const NSTimeInterval kBeatEffectRampUp = 0.05f;
 static const NSTimeInterval kBeatEffectRampDown = 0.5f;
 
-const CGFloat kDefaultWidth = 1180.0f;
-const CGFloat kDefaultHeight = 1050.0f;
+const CGFloat kDefaultWindowWidth = 1180.0f;
+const CGFloat kDefaultWindowHeight = 1050.0f;
 
-const CGFloat kMinWidth = 465.0f;
-const CGFloat kMinHeight = 100.0f;      // Constraints on the subviews make this a minimum
-                                        // that is never reached.
-const CGFloat kMinScopeHeight = 64.0f;  // Smaller would still me ok...
-const CGFloat kMinTableHeight = 0.0f;   // Just forget about it.
+const CGFloat kMinWindowWidth = 465.0f;
+const CGFloat kMinWindowHeight = 100.0f;    // Constraints on the subviews make this a minimum
+                                            // that is never reached.
+const CGFloat kMinScopeHeight = 64.0f;      // Smaller would still be ok...
+const CGFloat kMinTableHeight = 0.0f;       // Just forget about it.
 
 static const int kSplitPositionCount = 5;
 
@@ -378,11 +378,11 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
 
     self.shouldCascadeWindows = NO;
 
-    self.window = [[NSWindow alloc] initWithContentRect:NSMakeRect(0, 0, kDefaultWidth, kDefaultHeight)
+    self.window = [[NSWindow alloc] initWithContentRect:NSMakeRect(0, 0, kDefaultWindowWidth, kDefaultWindowHeight)
                                               styleMask:style
                                                 backing:NSBackingStoreBuffered defer:YES];
 
-    self.window.minSize = NSMakeSize(kMinWidth, kMinHeight);
+    self.window.minSize = NSMakeSize(kMinWindowWidth, kMinWindowHeight);
     self.window.titlebarSeparatorStyle = NSTitlebarSeparatorStyleLine;
     self.window.titlebarAppearsTransparent = YES;
     self.window.titleVisibility = NO;
@@ -489,16 +489,29 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     
     NSMenu* menu = [NSMenu new];
     
-    NSMenuItem* item = [[NSMenuItem alloc] initWithTitle:@"Play Next" action:@selector(playNext:) keyEquivalent:@"n"];
+    NSMenuItem* item = [[NSMenuItem alloc] initWithTitle:@"Play Next" 
+                                                  action:@selector(playNextInPlaylist:)
+                                           keyEquivalent:@"n"];
     [item setKeyEquivalentModifierMask:NSEventModifierFlagCommand];
     [menu addItem:item];
-    item = [[NSMenuItem alloc] initWithTitle:@"Play Later" action:@selector(playLater:) keyEquivalent:@"l"];
+
+    item = [[NSMenuItem alloc] initWithTitle:@"Play Later" 
+                                      action:@selector(playLaterInPlaylist:)
+                               keyEquivalent:@"l"];
     [item setKeyEquivalentModifierMask:NSEventModifierFlagCommand];
     [menu addItem:item];
+
     [menu addItem:[NSMenuItem separatorItem]];
-    [menu addItemWithTitle:@"Show Info" action:@selector(showInfoForSelectedSongs:) keyEquivalent:@""];
+
+    [menu addItemWithTitle:@"Show Info"
+                    action:@selector(showInfoForSelectedSongs:)
+             keyEquivalent:@""];
+
     [menu addItem:[NSMenuItem separatorItem]];
-    [menu addItemWithTitle:@"Show in Finder" action:@selector(showInFinder:) keyEquivalent:@""];
+
+    [menu addItemWithTitle:@"Show in Finder"
+                    action:@selector(showInFinder:)
+             keyEquivalent:@""];
     
     // Status Line.
     _songsCount = [[NSTextField alloc] initWithFrame:NSMakeRect(self.window.contentView.bounds.origin.x,

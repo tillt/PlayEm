@@ -34,12 +34,16 @@
 - (BOOL)application:(NSApplication*)sender openFile:(NSString*)filename
 {
     NSURL* url = [NSURL fileURLWithPath:filename];
-    return [[self waveController] loadDocumentFromURL:[WaveWindowController encodeQueryItemsWithUrl:url frame:0LL playing:YES] meta:nil];
+    url = [WaveWindowController encodeQueryItemsWithUrl:url frame:0LL playing:YES];
+    return [[self waveController] loadDocumentFromURL:url meta:nil];
 }
 
 - (void)application:(NSApplication*)application openURLs:(NSArray<NSURL*>*)urls
 {
-    [[self waveController] loadDocumentFromURL:[WaveWindowController encodeQueryItemsWithUrl:urls[0] frame:0LL playing:YES] meta:nil];
+    NSURL* url = [WaveWindowController encodeQueryItemsWithUrl:urls[0]
+                                                         frame:0LL
+                                                       playing:YES];
+    [[self waveController] loadDocumentFromURL:url meta:nil];
 }
 
 - (void)applicationDidFinishLaunching:(NSNotification*)aNotification

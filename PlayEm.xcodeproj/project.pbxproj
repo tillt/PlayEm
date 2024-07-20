@@ -67,7 +67,6 @@
 		BBD24D6A2432948B00DC2A81 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = BBD24D692432948B00DC2A81 /* main.m */; };
 		BBDA2FFE2A7FCEEC0084E2B6 /* BeatTrackedSample.m in Sources */ = {isa = PBXBuildFile; fileRef = BBDA2FFD2A7FCEEC0084E2B6 /* BeatTrackedSample.m */; };
 		BBDB1B3D2B640AA700A953F7 /* build_dmg.sh in Resources */ = {isa = PBXBuildFile; fileRef = BBDB1B3C2B640AA700A953F7 /* build_dmg.sh */; };
-		BBDB1B402B644AD500A953F7 /* MetalWaveView.m in Sources */ = {isa = PBXBuildFile; fileRef = BBDB1B3F2B644AD500A953F7 /* MetalWaveView.m */; };
 		BBDB1B452B69D18A00A953F7 /* WaveTile.m in Sources */ = {isa = PBXBuildFile; fileRef = BBDB1B442B69D18A00A953F7 /* WaveTile.m */; };
 		BBDBBA792BA3AF9F003A80C1 /* DragImageFileView.m in Sources */ = {isa = PBXBuildFile; fileRef = BBDBBA782BA3AF9F003A80C1 /* DragImageFileView.m */; };
 		BBDBBA7B2BA4B013003A80C1 /* WaveShaders.metal in Sources */ = {isa = PBXBuildFile; fileRef = BBDBBA7A2BA4B013003A80C1 /* WaveShaders.metal */; };
@@ -209,8 +208,6 @@
 		BBDA2FFC2A7FCCB70084E2B6 /* BeatTrackedSample.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BeatTrackedSample.h; sourceTree = "<group>"; };
 		BBDA2FFD2A7FCEEC0084E2B6 /* BeatTrackedSample.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = BeatTrackedSample.m; sourceTree = "<group>"; };
 		BBDB1B3C2B640AA700A953F7 /* build_dmg.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = build_dmg.sh; sourceTree = "<group>"; };
-		BBDB1B3E2B644AD500A953F7 /* MetalWaveView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MetalWaveView.h; sourceTree = "<group>"; };
-		BBDB1B3F2B644AD500A953F7 /* MetalWaveView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MetalWaveView.m; sourceTree = "<group>"; };
 		BBDB1B422B65CC0500A953F7 /* VisualPair.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VisualPair.h; sourceTree = "<group>"; };
 		BBDB1B432B69D18A00A953F7 /* WaveTile.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WaveTile.h; sourceTree = "<group>"; };
 		BBDB1B442B69D18A00A953F7 /* WaveTile.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WaveTile.m; sourceTree = "<group>"; };
@@ -362,8 +359,6 @@
 				BB3927042C1783DD009C7B32 /* IdentificationActiveView.m */,
 				BBAD7D53262B96D800089ACC /* ScopeView.h */,
 				BBAD7D54262B973C00089ACC /* ScopeView.m */,
-				BBDB1B3E2B644AD500A953F7 /* MetalWaveView.h */,
-				BBDB1B3F2B644AD500A953F7 /* MetalWaveView.m */,
 				BB097A0A2921B1E500D33E44 /* ScrollingTextView.h */,
 				BB097A0B2921B1E500D33E44 /* ScrollingTextView.m */,
 				BBCE1DD7257C3CAB006CE886 /* TiledScrollView.h */,
@@ -647,7 +642,6 @@
 				BB0D5281244CEE22007C909F /* VisualSample.m in Sources */,
 				BBDA2FFE2A7FCEEC0084E2B6 /* BeatTrackedSample.m in Sources */,
 				BB3926FF2C14B43E009C7B32 /* TableRowView.m in Sources */,
-				BBDB1B402B644AD500A953F7 /* MetalWaveView.m in Sources */,
 				BBB37D21290F4A7E0007A6BB /* PlaylistController.m in Sources */,
 				BB2CF8AD259EB66900D6BA03 /* LazySample.m in Sources */,
 				BB3927022C14C606009C7B32 /* TableCellView.m in Sources */,

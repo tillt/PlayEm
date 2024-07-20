@@ -24,7 +24,6 @@
 #import "ScopeRenderer.h"
 #import "TotalWaveView.h"
 #import "WaveView.h"
-#import "MetalWaveView.h"
 #import "UIView+Visibility.h"
 #import "InfoPanel.h"
 #import "ScrollingTextView.h"
@@ -77,7 +76,6 @@ os_log_t pointsOfInterest;
 @property (assign, nonatomic) CGFloat smallSplitter2Position;
 
 @property (strong, nonatomic) ScopeRenderer* renderer;
-@property (strong, nonatomic) WaveRenderer* waveRenderer;
 @property (assign, nonatomic) CGRect preFullscreenFrame;
 @property (strong, nonatomic) LazySample* lazySample;
 @property (assign, nonatomic) BOOL inTransition;

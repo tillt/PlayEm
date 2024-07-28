@@ -9,6 +9,8 @@
 #import "IdentificationActiveView.h"
 #import <Quartz/Quartz.h>
 
+NSString * const kLayerImageName = @"IdentificationActiveStill";
+
 @implementation IdentificationActiveView
 
 - (id)initWithFrame:(NSRect)frameRect
@@ -31,7 +33,7 @@
     layer.frame = self.bounds;
 
     _imageLayer = [CALayer layer];
-    _imageLayer.contents = [NSImage imageNamed:@"IdentificationActiveStill"];
+    _imageLayer.contents = [NSImage imageNamed:kLayerImageName];
     _imageLayer.autoresizingMask = kCALayerWidthSizable | kCALayerHeightSizable;
     _imageLayer.allowsEdgeAntialiasing = YES;
     _imageLayer.contentsScale = [[NSScreen mainScreen] backingScaleFactor];
@@ -61,7 +63,7 @@
 
 - (void)stopAnimating
 {
-    
+    [_imageLayer removeAllAnimations];
 }
 
 

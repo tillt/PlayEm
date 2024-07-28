@@ -192,13 +192,11 @@ const CGFloat kTotalWaveViewTileWidth = 8.0f;
     for (CGFloat x = xMin; x < xMax; x += tileSize.width) {
         for (CGFloat y = yMin; y < yMax; y += tileSize.height) {
             NSRect rect = NSMakeRect(x, y, tileSize.width, tileSize.height);
-            //NSLog(@"rect %@", NSStringFromRect(rect));
             TileView* v = [[TileView alloc] initWithFrame:rect];
-            //[v setValue:[NSString stringWithFormat:@"%dx%d", x / tileSize.width, y / tileSize.height] forKey:@""]
             v.tag = x / tileSize.width;
             v.layer.delegate = self.layerDelegate;
-            [v.layer setNeedsDisplay];
             [sv addObject:v];
+            [v.layer setNeedsDisplay];
         }
     }
     for (NSView* v in [sv reverseObjectEnumerator]) {
@@ -211,7 +209,6 @@ const CGFloat kTotalWaveViewTileWidth = 8.0f;
 {
     view.layer = [view makeBackingLayer];
     view.layerContentsRedrawPolicy = NSViewLayerContentsRedrawOnSetNeedsDisplay;
-    //[view.layer setValue:[NSNumber numberWithBool:YES] forKey:@"isTotalView"];
 
     [super addSubview:view];
     
@@ -273,7 +270,6 @@ const CGFloat kTotalWaveViewTileWidth = 8.0f;
 @implementation TileView
 
 @synthesize tag;
-
 
 - (CALayer*)makeBackingLayer
 {

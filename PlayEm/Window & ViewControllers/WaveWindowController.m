@@ -110,16 +110,11 @@ os_log_t pointsOfInterest;
 
 - (void)renderCallback:(CADisplayLink *)sender
 {
-    static unsigned int counter = 0;
-
     //os_signpost_interval_begin(pointsOfInterest, POICADisplayLink, "CADisplayLink");
-
-    ++counter;
-
     // Substract the latency introduced by the output device setup to compensate and get
     // video in sync with audible audio.
-    AVAudioFramePosition delta = self.audioController.latency;
-    AVAudioFramePosition frame = self.audioController.currentFrame >= delta ? self.audioController.currentFrame - delta : self.audioController.currentFrame;
+    const AVAudioFramePosition delta = self.audioController.latency;
+    AVAudioFramePosition frame = self.audioController.currentFrame >= delta ? self.audioController.currentFrame - delta : 0;
     // Add the delay until the video gets visible to the playhead position for compensation.
     frame += [self.audioController frameCountDeltaWithTimeDelta:sender.duration];
 
@@ -1028,8 +1023,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
 
 - (void)setupDisplayLink
 {
-    NSScreen* screen = [NSScreen mainScreen];
-    _displayLink = [screen displayLinkWithTarget:self selector:@selector(renderCallback:)];
+    _displayLink = [self.window displayLinkWithTarget:self selector:@selector(renderCallback:)];
     _displayLink.preferredFrameRateRange = CAFrameRateRangeMake(60.0, 120.0, 120.0);
     [_displayLink addToRunLoop:[NSRunLoop currentRunLoop]
                            forMode:NSRunLoopCommonModes];

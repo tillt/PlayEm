@@ -18,7 +18,6 @@ NS_ASSUME_NONNULL_BEGIN
 @interface TableCellView : NSTableCellView
 
 @property (nonatomic, strong) CATextLayer* textLayer;
-@property (nonatomic, strong) CALayer* effectLayer;
 @property (nonatomic, assign) ExtraState extraState;
 
 @end

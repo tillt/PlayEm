@@ -462,40 +462,14 @@ static const NSTimeInterval kBeatEffectRampDown = 0.5f;
     return [self songsRowForURL:current];
 }
 
+
+
 - (void)animationDidStop:(CAAnimation *)anim
                 finished:(BOOL)isFinished
 {
     NSString* name = [anim valueForKey:@"name"];
-    if ([name isEqualToString:@"BeatAnimationUp"]) {
-        NSMutableArray* animations = [NSMutableArray array];
-
-        CAAnimationGroup* group = [CAAnimationGroup animation];
-        //CABasicAnimation* animation = [CABasicAnimation animationWithKeyPath:@"backgroundFilters.CIBloom.inputRadius"];
-
-//        CABasicAnimation* animation = [CABasicAnimation animationWithKeyPath:@"backgroundFilters.CIBloom.inputRadius"];
-//        animation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionLinear];
-//        animation.fromValue = [NSNumber numberWithFloat:3.5];
-//        animation.toValue = [NSNumber numberWithFloat:1.0];
-//        animation.fillMode = kCAFillModeBoth;
-//        animation.removedOnCompletion = NO;
-//        [animation setValue:@"BeatAnimationDown" forKey:@"name"];
-//        
-//        [animations addObject:animation];
-
-        CABasicAnimation* animation = [CABasicAnimation animationWithKeyPath:@"textColor"];
-        animation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionLinear];
-        animation.fromValue = (id)[[NSColor whiteColor] CGColor];
-        animation.toValue = (id)[[NSColor blackColor] CGColor];
-        animation.fillMode = kCAFillModeBoth;
-        animation.removedOnCompletion = NO;
-        [animation setValue:@"TextColor" forKey:@"name"];
-
-        [animations addObject:animation];
-
-        group.removedOnCompletion = NO;
-        group.duration = 0.3;
-        group.animations = animations;
-        //[self->_playbackFeedbackLayer addAnimation:group forKey:@"BeatAnimationDown"];
+    if ([name isEqualToString:@"ActiveAnimations"]) {
+        NSLog(@"BLINK DONE");
     }
 }
 
@@ -1138,7 +1112,6 @@ typeSelectStringForTableColumn:(NSTableColumn*)tableColumn
     }
 
     result.textLayer.string = [self stringValueForRow:row tableColumn:tableColumn tableView:tableView];
-    
 
     return result;
 }

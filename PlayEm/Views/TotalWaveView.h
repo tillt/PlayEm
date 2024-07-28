@@ -18,8 +18,6 @@ extern const CGFloat kTotalWaveViewTileWidth;
 @property (assign, nonatomic) unsigned long long frames;
 @property (assign, nonatomic) unsigned long long currentFrame;
 
-
-//- (void)updateDuration:(NSTimeInterval)duration;
 - (void)refresh;
 - (void)resize;
 

@@ -17,12 +17,21 @@
 static const double kFontSize = 11.0f;
 
 typedef enum : NSUInteger {
+    GlowTriggerNone = 0x00,
+    GlowTriggerSelected = 0x01 << 0,
+    GlowTriggerActive = 0x01 << 1,
+} GlowTriggerMask;
+
+typedef enum : NSUInteger {
     RoundedNone = 0,
     RoundedTop = 0x01 << 0,
     RoundedBottom = 0x01 << 1,
 } RoundingMask;
 
 @implementation TableRowView
+{
+    GlowTriggerMask glowTriggerMask;
+}
 
 + (CIFilter*)sharedBloomFilter
 {
@@ -31,7 +40,7 @@ typedef enum : NSUInteger {
     dispatch_once(&once, ^{
         sharedInstance = [CIFilter filterWithName:@"CIBloom"];
         [sharedInstance setDefaults];
-        [sharedInstance setValue:[NSNumber numberWithFloat:3.0]
+        [sharedInstance setValue:[NSNumber numberWithFloat:2.0]
                           forKey: @"inputRadius"];
         [sharedInstance setValue:[NSNumber numberWithFloat:1.0]
                           forKey: @"inputIntensity"];
@@ -46,6 +55,7 @@ typedef enum : NSUInteger {
         self.wantsLayer = YES;
         self.clipsToBounds = YES;
         self.layerContentsRedrawPolicy = NSViewLayerContentsRedrawOnSetNeedsDisplay;
+        glowTriggerMask = GlowTriggerNone;
     }
     return self;
 }
@@ -56,6 +66,8 @@ typedef enum : NSUInteger {
     layer.masksToBounds = NO;
     layer.autoresizingMask = kCALayerWidthSizable;
     layer.frame = self.bounds;
+    
+    CGRect symbolRect = CGRectMake(0.0, 0.0, self.bounds.size.height, self.bounds.size.height);
 
     _symbolLayer = [CATextLayer layer];
     _symbolLayer.fontSize = kFontSize;
@@ -66,7 +78,7 @@ typedef enum : NSUInteger {
     _symbolLayer.allowsEdgeAntialiasing = YES;
     _symbolLayer.contentsScale = [[NSScreen mainScreen] backingScaleFactor];
     _symbolLayer.foregroundColor = [[Defaults sharedDefaults] lightBeamColor].CGColor;
-    _symbolLayer.frame = NSInsetRect(self.bounds, 5.0, 5.0);
+    _symbolLayer.frame = NSInsetRect(symbolRect, 5.0, 5.0);
     [layer addSublayer:_symbolLayer];
     
     _effectLayer = [CALayer layer];
@@ -152,6 +164,17 @@ typedef enum : NSUInteger {
     return path;
 }
 
+- (void)setSelected:(BOOL)selected
+{
+    [super setSelected:selected];
+
+    if (selected) {
+        [self addGlowReason:GlowTriggerSelected];
+    } else {
+        [self removeGlowReason:GlowTriggerSelected];
+    }
+}
+
 - (void)setExtraState:(ExtraState)extraState
 {
     for (int i = 0; i < [self numberOfColumns]; i++) {
@@ -160,17 +183,31 @@ typedef enum : NSUInteger {
     }
     if (extraState == kExtraStateActive) {
         _symbolLayer.string = @"􀊥";
-        //_symbolLayer.string = @"􀊩";
-        //_symbolLayer.string = @"􀊄";
-        //_symbolLayer.string = @"􀊆";
-        _effectLayer.hidden = NO;
+        [self addGlowReason:GlowTriggerActive];
         _symbolLayer.hidden = NO;
     } else {
+        [self removeGlowReason:GlowTriggerActive];
         _symbolLayer.string = @"";
-        _effectLayer.hidden = YES;
         _symbolLayer.hidden = YES;
     }
     _extraState = extraState;
+}
+
+- (void)addGlowReason:(GlowTriggerMask)triggerMask
+{
+    glowTriggerMask |= triggerMask;
+    [self updatedGlow];
+}
+
+- (void)removeGlowReason:(GlowTriggerMask)triggerMask
+{
+    glowTriggerMask &= triggerMask ^ 0xFFFF;
+    [self updatedGlow];
+}
+
+- (void)updatedGlow
+{
+    _effectLayer.hidden = glowTriggerMask == GlowTriggerNone;
 }
 
 - (void)drawSelectionInRect:(NSRect)dirtyRect
@@ -201,6 +238,63 @@ typedef enum : NSUInteger {
 
     [path fill];
     [path stroke];
+
+    if (self.selected) {
+        [self addGlowReason:GlowTriggerSelected];
+    } else {
+        [self removeGlowReason:GlowTriggerSelected];
+    }
 }
+
+- (CAAnimationGroup*)effectAnimation
+{
+    CAAnimationGroup* upGroup = [CAAnimationGroup animation];
+    NSMutableArray* animations = [NSMutableArray array];
+
+    CABasicAnimation* animation = [CABasicAnimation animationWithKeyPath:@"backgroundFilters.CIBloom.inputRadius"];
+    animation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionLinear];
+    animation.fromValue = [NSNumber numberWithFloat:3.5];
+    animation.toValue = [NSNumber numberWithFloat:1.0];
+    animation.fillMode = kCAFillModeBoth;
+    animation.removedOnCompletion = NO;
+    [animation setValue:@"ActiveAnimationUp" forKey:@"name"];
+
+    [animations addObject:animation];
+
+    upGroup.removedOnCompletion = NO;
+    upGroup.duration = 0.2;
+    upGroup.animations = animations;
+
+    CAAnimationGroup* downGroup = [CAAnimationGroup animation];
+    animations = [NSMutableArray array];
+
+    animation = [CABasicAnimation animationWithKeyPath:@"backgroundFilters.CIBloom.inputRadius"];
+    animation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionLinear];
+    animation.fromValue = [NSNumber numberWithFloat:1.0];
+    animation.toValue = [NSNumber numberWithFloat:3.5];
+    animation.fillMode = kCAFillModeBoth;
+    animation.removedOnCompletion = NO;
+
+    [animations addObject:animation];
+
+    downGroup.removedOnCompletion = NO;
+    downGroup.duration = 1.8;
+    downGroup.animations = animations;
+    [downGroup setValue:@"ActiveAnimationDown" forKey:@"name"];
+
+    CAAnimationGroup* group = [CAAnimationGroup animation];
+    animations = [NSMutableArray array];
+
+    [animations addObject:upGroup];
+    [animations addObject:downGroup];
+
+    group.removedOnCompletion = NO;
+    group.animations = animations;
+    group.repeatCount = HUGE_VALF;
+    [group setValue:@"EffectActiveAnimations" forKey:@"name"];
+
+    return group;
+}
+
 
 @end

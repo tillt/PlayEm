@@ -65,25 +65,24 @@ static const double kFontSize = 11.0f;
 {
     NSColor* color = nil;
 
-    switch (self.backgroundStyle) {
-        case NSBackgroundStyleNormal:
-            color = [NSColor secondaryLabelColor];
-            break;
-        case NSBackgroundStyleEmphasized:
-            color = [NSColor labelColor];
-            break;
-        case NSBackgroundStyleRaised:
-            color = [NSColor linkColor];
-            break;
-        case NSBackgroundStyleLowered:
-            color = [NSColor linkColor];
-            break;
-    }
-
     if (_extraState == kExtraStateActive) {
         color = [[Defaults sharedDefaults] lightBeamColor];
+    } else {
+        switch (self.backgroundStyle) {
+            case NSBackgroundStyleNormal:
+                color = [NSColor secondaryLabelColor];
+                break;
+            case NSBackgroundStyleEmphasized:
+                color = [NSColor labelColor];
+                break;
+            case NSBackgroundStyleRaised:
+                color = [NSColor linkColor];
+                break;
+            case NSBackgroundStyleLowered:
+                color = [NSColor linkColor];
+                break;
+        }
     }
-
     _textLayer.foregroundColor = color.CGColor;
 }
 
@@ -97,6 +96,40 @@ static const double kFontSize = 11.0f;
 {
     [super setBackgroundStyle:backgroundStyle];
     [self updatedStyle];
+}
+
+- (CAAnimationGroup*)textColorAnimation
+{
+    CAAnimationGroup* group = [CAAnimationGroup animation];
+    NSMutableArray* animations = [NSMutableArray array];
+
+    CABasicAnimation* animation = [CABasicAnimation animationWithKeyPath:@"foregroundColor"];
+    animation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionLinear];
+    animation.fromValue = (id)[[NSColor secondaryLabelColor] CGColor];
+    animation.toValue = (id)[[[Defaults sharedDefaults] lightBeamColor] CGColor];
+    animation.fillMode = kCAFillModeForwards;
+    animation.removedOnCompletion = NO;
+    [animation setValue:@"TextColorUp" forKey:@"name"];
+    animation.removedOnCompletion = NO;
+    animation.duration = 0.2;
+    [animations addObject:animation];
+
+    animation = [CABasicAnimation animationWithKeyPath:@"foregroundColor"];
+    animation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionLinear];
+    animation.fromValue = (id)[[[Defaults sharedDefaults] lightBeamColor] CGColor];
+    animation.toValue = (id)[[NSColor secondaryLabelColor] CGColor];
+    animation.fillMode = kCAFillModeForwards;
+    animation.removedOnCompletion = NO;
+    animation.duration = 1.8;
+    [animation setValue:@"TextColorDown" forKey:@"name"];
+    [animations addObject:animation];
+
+    group.removedOnCompletion = NO;
+    group.animations = animations;
+    group.repeatCount = HUGE_VALF;
+    [group setValue:@"TextColorActiveAnimations" forKey:@"name"];
+
+    return group;
 }
 
 @end

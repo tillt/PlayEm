@@ -33,7 +33,6 @@
 @property (strong, nonatomic) NSURL* imageURL;
 @property (strong, nonatomic) NSURL* musicURL;
 
-@property (strong, nonatomic) NSProgressIndicator* matchingIndicator;
 @property (strong, nonatomic) dispatch_queue_t identifyQueue;
 
 @end
@@ -116,16 +115,6 @@
     
     [self.view addSubview:_coverView];
     
-//    _svgView = [[WKWebView alloc] initWithFrame:NSMakeRect(floorf((kPopoverWidth - kCoverViewWidth) / 2.0f),
-//                                                           y,
-//                                                           kCoverViewWidth,
-//                                                           kCoverViewHeight)];
-//    _svgView.wantsLayer = YES;
-//    _svgView.layer.cornerRadius = 7;
-//    _svgView.layer.masksToBounds = YES;
-//    NSDataAsset* asset = [[NSDataAsset alloc] initWithName:@"IdentificationActive"];
-//    [_svgView loadData:[asset data] MIMEType:@"video/quicktime" characterEncodingName:@"" baseURL:[NSURL URLWithString:@""]];
-//    [self.view addSubview:_svgView];
     _identificationActiveView = [[IdentificationActiveView alloc] initWithFrame:NSMakeRect( floorf((kPopoverWidth - kCoverViewWidth) / 2.0f),
                                                                                             y,
                                                                                             kCoverViewWidth,
@@ -143,7 +132,7 @@
     [_clipButton setButtonType:NSButtonTypeMomentaryPushIn];
 
     _clipButton.bezelStyle = NSBezelStyleTexturedRounded;
-    _clipButton.frame = NSMakeRect( kPopoverWidth - (kCopyButtonFontSize + kBorderWidth),
+    _clipButton.frame = NSMakeRect( kPopoverWidth - (kCopyButtonFontSize + (2.0 * kBorderWidth)),
                                     y,
                                     kCopyButtonFontSize + kBorderWidth,
                                     kTextFieldHeight);
@@ -156,7 +145,7 @@
     _scButton.bordered = NO;
     [_scButton setButtonType:NSButtonTypeMomentaryPushIn];
     _scButton.bezelStyle = NSBezelStyleTexturedRounded;
-    _scButton.frame = NSMakeRect(   kPopoverWidth - (kCopyButtonFontSize + kBorderWidth),
+    _scButton.frame = NSMakeRect(   kPopoverWidth - (kCopyButtonFontSize + (2.0 * kBorderWidth)),
                                     y,
                                     kCopyButtonFontSize + kBorderWidth,
                                     kTextFieldHeight);
@@ -176,7 +165,7 @@
     _titleField.lineBreakMode = NSLineBreakByWordWrapping;
     _titleField.frame = NSMakeRect(kBorderWidth,
                                    y,
-                                   kTextFieldWidth - kCopyButtonFontSize,
+                                   kTextFieldWidth - (kCopyButtonFontSize + (2.0 * kBorderWidth)),
                                    kTextFieldHeight * 2.0f);
     _titleField.preferredMaxLayoutWidth = _titleField.frame.size.width;
     [self.view addSubview:_titleField];
@@ -198,16 +187,6 @@
     [self.view addSubview:_genreField];
 
     y += kRowSpace;
-
-    _matchingIndicator = [[NSProgressIndicator alloc] initWithFrame:NSMakeRect(kPopoverWidth - (kIndicatorWidth + 4),
-                                                                               y,
-                                                                               kIndicatorWidth,
-                                                                               kIndicatorHeight)];
-    _matchingIndicator.style = NSProgressIndicatorStyleSpinning;
-    _matchingIndicator.displayedWhenStopped = NO;
-    _matchingIndicator.autoresizingMask = NSViewNotSizable | NSViewMinXMargin | NSViewMaxXMargin| NSViewMinYMargin | NSViewMaxYMargin;
-    [self.view addSubview:_matchingIndicator];
-    [_matchingIndicator startAnimation:self];
 }
 
 - (void)copyTitle:(id)sender
@@ -325,7 +304,7 @@
             dispatch_async(dispatch_queue_create("AsyncImageQueue", NULL), ^{
                 NSImage *image = [[NSImage alloc] initWithContentsOfURL:match.mediaItems[0].artworkURL];
                 dispatch_async(dispatch_get_main_queue(), ^{
-                    self.identificationActiveView.animator.hidden = YES;
+                    self.identificationActiveView.animator.hidden = NO;
                     self.coverView.animator.hidden = NO;
                     self.coverView.animator.image = image;
                     self.imageURL = match.mediaItems[0].artworkURL;

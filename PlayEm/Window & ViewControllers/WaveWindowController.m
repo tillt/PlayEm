@@ -438,7 +438,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     _beatLayerDelegate.waveView = _waveView;
     self.totalWaveLayerDelegate.color = _waveView.color;
     self.waveLayerDelegate.color = _waveView.color;
-
+    
 //    self.authenticator = [MusicAuthenticationController new];
 //    [self.authenticator requestAppleMusicDeveloperTokenWithCompletion:^(NSString* token){
 //        NSLog(@"token: %@", token);
@@ -938,7 +938,6 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
                                             _albumsTable,
                                             _temposTable,
                                             _keysTable ];
-    
     for (NSTableView *table in fixupTables) {
         for (NSTableColumn *column in [table tableColumns]) {
             TableHeaderCell* cell = [[TableHeaderCell alloc] initTextCell:[[column headerCell] stringValue]];

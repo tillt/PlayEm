@@ -45,6 +45,7 @@ extern NSString* const kSongsColGenre;
 @end
 
 @interface BrowserController : NSResponder <NSTableViewDelegate, NSTableViewDataSource, CAAnimationDelegate>
+
 @property (nonatomic, weak) id <BrowserControllerDelegate> delegate;
 
 - (id)initWithGenresTable:(NSTableView*)genresTable

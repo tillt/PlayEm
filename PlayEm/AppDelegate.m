@@ -48,8 +48,6 @@
 
 - (void)applicationDidFinishLaunching:(NSNotification*)aNotification
 {
-    NSLog(@"%@", [[NSUserDefaults standardUserDefaults] dictionaryRepresentation]);
-
     [[[self waveController] window] makeKeyAndOrderFront:self];
 
     NSUserDefaults* userDefaults = [NSUserDefaults standardUserDefaults];
@@ -67,7 +65,6 @@
 
 - (void)applicationWillTerminate:(NSNotification*)aNotification
 {
-    //NSLog(@"%@", [[NSUserDefaults standardUserDefaults] dictionaryRepresentation]);
 }
 
 @end

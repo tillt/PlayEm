@@ -1495,7 +1495,8 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
 
     if ([openDlg runModal] == NSModalResponseOK) {
         for(NSURL* url in [openDlg URLs]) {
-            [self loadDocumentFromURL:[WaveWindowController encodeQueryItemsWithUrl:url frame:0LL playing:YES] meta:nil];
+            [self loadDocumentFromURL:[WaveWindowController encodeQueryItemsWithUrl:url frame:0LL playing:YES]
+                                 meta:nil];
         }
     } else {
         return;

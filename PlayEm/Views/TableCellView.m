@@ -54,7 +54,7 @@ static const double kFontSize = 11.0f;
     _textLayer.allowsEdgeAntialiasing = YES;
     _textLayer.masksToBounds = YES;
     _textLayer.contentsScale = [[NSScreen mainScreen] backingScaleFactor];
-    _textLayer.foregroundColor = [NSColor secondaryLabelColor].CGColor;
+    _textLayer.foregroundColor = [[Defaults sharedDefaults] secondaryLabelColor].CGColor;
     _textLayer.frame = NSInsetRect(self.bounds, 0.0, 5.0);
     [layer addSublayer:_textLayer];
    
@@ -65,15 +65,16 @@ static const double kFontSize = 11.0f;
 {
     NSColor* color = nil;
 
-    if (_extraState == kExtraStateActive) {
+    if (_extraState == kExtraStateActive || _extraState == kExtraStatePlaying) {
         color = [[Defaults sharedDefaults] lightBeamColor];
     } else {
         switch (self.backgroundStyle) {
             case NSBackgroundStyleNormal:
-                color = [NSColor secondaryLabelColor];
+                //color = [NSColor secondaryLabelColor];
+                color = [[Defaults sharedDefaults] secondaryLabelColor];
                 break;
             case NSBackgroundStyleEmphasized:
-                color = [NSColor labelColor];
+                color = [[Defaults sharedDefaults] lightBeamColor];
                 break;
             case NSBackgroundStyleRaised:
                 color = [NSColor linkColor];

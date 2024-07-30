@@ -186,7 +186,7 @@
     _time.editable = NO;
     _time.selectable = NO;
     _time.drawsBackground = NO;
-    _time.textColor = [NSColor secondaryLabelColor];
+    _time.textColor = [[Defaults sharedDefaults] secondaryLabelColor];
     _time.alignment = NSTextAlignmentRight;
     _time.frame = NSMakeRect(_playPause.frame.origin.x - timeLabelWidth,
                              _playPause.frame.origin.y + timeLabelHeight + 8.0,
@@ -196,7 +196,7 @@
    
     NSTextField* textField = [NSTextField textFieldWithString:@"-"];
     textField.bordered = NO;
-    textField.textColor = [NSColor secondaryLabelColor];
+    textField.textColor = [[Defaults sharedDefaults] secondaryLabelColor];
     textField.drawsBackground = NO;
     textField.editable = NO;
     textField.selectable = NO;
@@ -212,7 +212,7 @@
     _duration.editable = NO;
     _duration.selectable = NO;
     _duration.font = [NSFont systemFontOfSize:13.0];
-    _duration.textColor = [NSColor secondaryLabelColor];
+    _duration.textColor = [[Defaults sharedDefaults] secondaryLabelColor];
     _duration.drawsBackground = NO;
     _duration.alignment = NSTextAlignmentLeft;
     _duration.frame = NSMakeRect(textField.frame.origin.x + textField.frame.size.width,
@@ -225,7 +225,7 @@
                                                                volumeSliderY,
                                                                sliderWidth,
                                                                sliderHeight)];
-    _volumeSlider.trackFillColor = [NSColor labelColor];
+    _volumeSlider.trackFillColor = [[Defaults sharedDefaults] lightBeamColor];
     _volumeSlider.vertical = NO;
     _volumeSlider.maxValue = 1.0;
     _volumeSlider.minValue = 0.0;
@@ -237,7 +237,7 @@
     
     textField = [NSTextField textFieldWithString:@"􀊥"];
     textField.bordered = NO;
-    textField.textColor = [NSColor secondaryLabelColor];
+    textField.textColor = [[Defaults sharedDefaults] secondaryLabelColor];
     textField.drawsBackground = NO;
     textField.editable = NO;
     textField.selectable = NO;
@@ -251,7 +251,7 @@
     
     textField = [NSTextField textFieldWithString:@"􀊩"];
     textField.bordered = NO;
-    textField.textColor = [NSColor secondaryLabelColor];
+    textField.textColor = [[Defaults sharedDefaults] secondaryLabelColor];
     textField.drawsBackground = NO;
     textField.editable = NO;
     textField.selectable = NO;
@@ -280,7 +280,7 @@
     
     textField = [NSTextField textFieldWithString:@"􀆊"];
     textField.bordered = NO;
-    textField.textColor = [NSColor secondaryLabelColor];
+    textField.textColor = [[Defaults sharedDefaults] secondaryLabelColor];
     textField.drawsBackground = NO;
     textField.editable = NO;
     textField.selectable = NO;
@@ -294,7 +294,7 @@
     
     textField = [NSTextField textFieldWithString:@"􀰫"];
     textField.bordered = NO;
-    textField.textColor = [NSColor secondaryLabelColor];
+    textField.textColor = [[Defaults sharedDefaults] secondaryLabelColor];
     textField.drawsBackground = NO;
     textField.editable = NO;
     textField.selectable = NO;
@@ -351,7 +351,7 @@
     _bpm.editable = NO;
     _bpm.selectable = NO;
     _bpm.drawsBackground = NO;
-    _bpm.textColor = [NSColor secondaryLabelColor];
+    _bpm.textColor = [[Defaults sharedDefaults] secondaryLabelColor];
     _bpm.alignment = NSTextAlignmentRight;
     _bpm.frame = NSMakeRect(_beatIndicator.frame.origin.x + _beatIndicator.frame.size.width - 4.0f,
                             _playPause.frame.origin.y + bpmLabelHeight + 8.0,

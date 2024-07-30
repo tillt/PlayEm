@@ -7,6 +7,7 @@
 //
 
 #import "PlaylistController.h"
+#import "../Defaults.h"
 
 @interface PlaylistController()
 @property (nonatomic, strong) NSMutableArray<MediaMetaData*>* list;
@@ -141,7 +142,7 @@
             tf.drawsBackground = NO;
             tf.bordered = NO;
             tf.alignment = NSTextAlignmentLeft;
-            tf.textColor = [NSColor secondaryLabelColor];
+            tf.textColor = [[Defaults sharedDefaults] secondaryLabelColor];
             result = tf;
         }
         result.identifier = tableColumn.identifier;
@@ -165,19 +166,19 @@
         if (row >= historyLength) {
             assert(_list.count > row-historyLength);
             string = _list[row-historyLength].title;
-            tf.textColor = [NSColor secondaryLabelColor];
+            tf.textColor = [[Defaults sharedDefaults] secondaryLabelColor];
         } else {
             assert(_history.count > row);
             string = _history[row].title;
             NSColor* color = nil;
             if (row == historyLength-1) {
                 if (_playing) {
-                    color = [NSColor labelColor];
+                    color = [[Defaults sharedDefaults] lightBeamColor];
                 } else {
-                    color = [NSColor secondaryLabelColor];
+                    color = [[Defaults sharedDefaults] secondaryLabelColor];
                 }
             } else {
-                color = [NSColor tertiaryLabelColor];
+                color = [[Defaults sharedDefaults] tertiaryLabelColor];
             }
             tf.textColor = color;
         }

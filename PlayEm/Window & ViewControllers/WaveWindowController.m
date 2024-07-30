@@ -379,6 +379,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     self.window.titlebarAppearsTransparent = YES;
     self.window.titleVisibility = NO;
     self.window.movableByWindowBackground = YES;
+
     self.window.contentView.wantsLayer = YES;
     self.window.contentView.layer.backgroundColor = [[[Defaults sharedDefaults] backColor] CGColor];
     self.window.contentView.autoresizesSubviews = YES;
@@ -511,7 +512,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
                                                                 self.window.contentView.bounds.size.width,
                                                                 statusLineHeight)];
     _songsCount.font = [NSFont systemFontOfSize:11.0];
-    _songsCount.textColor = [NSColor tertiaryLabelColor];
+    _songsCount.textColor = [[Defaults sharedDefaults] tertiaryLabelColor];
     _songsCount.bordered = NO;
     _songsCount.alignment = NSTextAlignmentCenter;
     _songsCount.selectable = NO;

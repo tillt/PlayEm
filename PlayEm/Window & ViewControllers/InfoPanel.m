@@ -13,6 +13,7 @@
 #import "TextViewWithPlaceholder.h"
 #import "DragImageFileView.h"
 #import "CAShapeLayer+Path.h"
+#import "../Defaults.h"
 
 typedef enum : NSUInteger {
     InfoControlTypeText,
@@ -237,7 +238,7 @@ static const CGFloat kViewLeftMargin = 10.0f;
         
         NSTextField* textField = [NSTextField textFieldWithString:key];
         textField.bordered = NO;
-        textField.textColor = [NSColor secondaryLabelColor];
+        textField.textColor = [[Defaults sharedDefaults] secondaryLabelColor];
         textField.drawsBackground = NO;
         textField.editable = NO;
         textField.selectable = NO;
@@ -254,7 +255,7 @@ static const CGFloat kViewLeftMargin = 10.0f;
             case InfoControlTypeText: {
                 textField = [NSTextField textFieldWithString:@""];
                 textField.bordered = editable;
-                textField.textColor = [NSColor labelColor];
+                textField.textColor = [[Defaults sharedDefaults] lightBeamColor];
                 textField.drawsBackground = NO;
                 textField.editable = editable;
                 textField.alignment = NSTextAlignmentLeft;
@@ -317,7 +318,7 @@ static const CGFloat kViewLeftMargin = 10.0f;
         if (extra != nil) {
             NSTextField* textField = [NSTextField textFieldWithString:extra[@"title"]];
             textField.bordered = NO;
-            textField.textColor = [NSColor secondaryLabelColor];
+            textField.textColor = [[Defaults sharedDefaults] secondaryLabelColor];
             textField.drawsBackground = NO;
             textField.editable = NO;
             textField.selectable = NO;
@@ -332,7 +333,7 @@ static const CGFloat kViewLeftMargin = 10.0f;
 
             textField = [NSTextField textFieldWithString:@""];
             textField.bordered = editable;
-            textField.textColor = [NSColor labelColor];
+            textField.textColor = [[Defaults sharedDefaults] lightBeamColor];
             textField.drawsBackground = NO;
             textField.editable = editable;
             textField.alignment = NSTextAlignmentLeft;
@@ -417,7 +418,7 @@ static const CGFloat kViewLeftMargin = 10.0f;
                                     self.view.bounds.size.width - 60.0f,
                                     self.view.bounds.size.height - 240.0f);
 
-    _lyricsTextView.textColor = [NSColor labelColor];
+    _lyricsTextView.textColor = [[Defaults sharedDefaults] lightBeamColor];
     scrollView.drawsBackground = NO;
     scrollView.hasVerticalScroller = YES;
     scrollView.verticalScrollElasticity = NSScrollElasticityNone;
@@ -478,7 +479,7 @@ static const CGFloat kViewLeftMargin = 10.0f;
 
     NSTextField* textField = [NSTextField textFieldWithString:@""];
     textField.bordered = NO;
-    textField.textColor = [NSColor labelColor];
+    textField.textColor = [[Defaults sharedDefaults] lightBeamColor];
     textField.font = [NSFont systemFontOfSize:kBigFontSize];
     textField.drawsBackground = NO;
     textField.editable = NO;
@@ -497,7 +498,7 @@ static const CGFloat kViewLeftMargin = 10.0f;
 
     textField = [NSTextField textFieldWithString:@""];
     textField.bordered = NO;
-    textField.textColor = [NSColor secondaryLabelColor];
+    textField.textColor = [[Defaults sharedDefaults] secondaryLabelColor];
     textField.font = [NSFont systemFontOfSize:kNormalFontSize];
     textField.drawsBackground = NO;
     textField.editable = NO;
@@ -516,7 +517,7 @@ static const CGFloat kViewLeftMargin = 10.0f;
 
     textField = [NSTextField textFieldWithString:@""];
     textField.bordered = NO;
-    textField.textColor = [NSColor secondaryLabelColor];
+    textField.textColor = [[Defaults sharedDefaults] secondaryLabelColor];
     textField.font = [NSFont systemFontOfSize:kNormalFontSize weight:NSFontWeightRegular];
     textField.drawsBackground = NO;
     textField.editable = NO;
@@ -718,7 +719,7 @@ static const CGFloat kViewLeftMargin = 10.0f;
         [_lyricsTextView setString:@""];
         if ([deltaKeys[@"lyrics"] boolValue]) {
             NSDictionary* attrs = @{
-                NSForegroundColorAttributeName: [NSColor tertiaryLabelColor],
+                NSForegroundColorAttributeName: [[Defaults sharedDefaults] tertiaryLabelColor],
                 NSFontAttributeName: [NSFont systemFontOfSize:[NSFont systemFontSize]],
             };
             _lyricsTextView.placeholderAttributedString = [[NSAttributedString alloc] initWithString:kInfoTextMultipleValues
@@ -758,8 +759,8 @@ static const CGFloat kViewLeftMargin = 10.0f;
             NSString* placeHolder = [_viewConfiguration[kInfoPageKeyDetails][key] objectForKey:@"placeholder"];
             if (placeHolder != nil && [control respondsToSelector:@selector(cell)]) {
                 NSDictionary* attrs = @{
-                    NSForegroundColorAttributeName: [NSColor tertiaryLabelColor],
-                    NSFontAttributeName: [NSFont systemFontOfSize:[NSFont systemFontSize]],
+                    NSForegroundColorAttributeName:[[Defaults sharedDefaults] tertiaryLabelColor],
+                    NSFontAttributeName:[NSFont systemFontOfSize:[NSFont systemFontSize]],
                 };
                 NSTextFieldCell* cell = [control cell];
                 cell.placeholderAttributedString = [[NSAttributedString alloc] initWithString:placeHolder

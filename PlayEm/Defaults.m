@@ -59,8 +59,24 @@
                                      blue:0.03f
                                     alpha:0.30f];
 
-        _backColor = [NSColor controlBackgroundColor];
+        _backColor = [NSColor colorWithRed:0.11764706
+                                     green:0.11764706
+                                      blue:0.11764706
+                                     alpha:1.00f];
         
+        _secondaryLabelColor = [NSColor colorWithRed:1.000
+                                               green:1.000
+                                                blue:1.000
+                                               alpha:0.54901961];
+
+        _tertiaryLabelColor = [NSColor colorWithRed:1.000
+                                              green:1.000
+                                               blue:1.000
+                                              alpha:0.54901961];
+
+//        NSLog(@"secondary label color: %.8f,%.8f,%.8f,%.8f", _secondaryLabelColor.redComponent, _secondaryLabelColor.greenComponent, _secondaryLabelColor.blueComponent, _secondaryLabelColor.alphaComponent);
+//        NSLog(@"tertiary label color: %.8f,%.8f,%.8f,%.8f", _tertiaryLabelColor.redComponent, _tertiaryLabelColor.greenComponent, _tertiaryLabelColor.blueComponent, _tertiaryLabelColor.alphaComponent);
+
         _selectionBorderColor = [NSColor colorWithRed:(CGFloat)0x50 / 255.0
                                                 green:(CGFloat)0x36 / 255.0
                                                  blue:(CGFloat)0x14 / 255.0

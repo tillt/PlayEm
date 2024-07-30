@@ -11,6 +11,7 @@
 #import <ShazamKit/ShazamKit.h>
 
 #import "AudioController.h"
+#import "../Defaults.h"
 #import "LazySample.h"
 #import "IdentificationActiveView.h"
 
@@ -159,7 +160,7 @@
     _titleField.cell.wraps = YES;
     _titleField.cell.scrollable = NO;
     _titleField.font = [NSFont systemFontOfSize:kTitleFontSize];
-    _titleField.textColor = [NSColor secondaryLabelColor];
+    _titleField.textColor = [[Defaults sharedDefaults] secondaryLabelColor];
     _titleField.drawsBackground = NO;
     _titleField.alignment = NSTextAlignmentLeft;
     _titleField.lineBreakMode = NSLineBreakByWordWrapping;
@@ -177,7 +178,7 @@
     _genreField.editable = NO;
     _genreField.selectable = YES;
     _genreField.font = [NSFont systemFontOfSize:kGenreFontSize];
-    _genreField.textColor = [NSColor secondaryLabelColor];
+    _genreField.textColor = [[Defaults sharedDefaults] secondaryLabelColor];
     _genreField.drawsBackground = NO;
     _genreField.alignment = NSTextAlignmentLeft;
     _genreField.frame = NSMakeRect(kBorderWidth,

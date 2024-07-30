@@ -1491,6 +1491,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     NSOpenPanel* openDlg = [NSOpenPanel openPanel];
     [openDlg setCanChooseFiles:YES];
     [openDlg setCanChooseDirectories:YES];
+    openDlg.appearance = self.window.appearance;
 
     if ([openDlg runModal] == NSModalResponseOK) {
         for(NSURL* url in [openDlg URLs]) {

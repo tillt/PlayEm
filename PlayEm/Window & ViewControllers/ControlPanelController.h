@@ -39,6 +39,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (strong, nonatomic) MediaMetaData* meta;
 
 - (void)loadView;
+
 @end
 
 NS_ASSUME_NONNULL_END

@@ -56,6 +56,7 @@ extern NSString* const kSongsColGenre;
                  delegate:(id <BrowserControllerDelegate>)delegate;
 - (void)loadITunesLibrary;
 - (void)reloadData;
+- (void)setPlaying:(BOOL)playing;
 - (void)setCurrentMeta:(MediaMetaData*)meta;
 - (void)beatEffect;
 - (void)metaChangedForMeta:(MediaMetaData *)meta updatedMeta:(MediaMetaData *)updatedMeta;

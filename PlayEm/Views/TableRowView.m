@@ -18,8 +18,9 @@ static const double kFontSize = 11.0f;
 
 typedef enum : NSUInteger {
     GlowTriggerNone = 0x00,
-    GlowTriggerSelected = 0x01 << 0,
+    GlowTriggerEmphasized = 0x01 << 0,
     GlowTriggerActive = 0x01 << 1,
+    GlowTriggerSelected = 0x01 << 2,
 } GlowTriggerMask;
 
 typedef enum : NSUInteger {
@@ -40,9 +41,9 @@ typedef enum : NSUInteger {
     dispatch_once(&once, ^{
         sharedInstance = [CIFilter filterWithName:@"CIBloom"];
         [sharedInstance setDefaults];
-        [sharedInstance setValue:[NSNumber numberWithFloat:2.0]
+        [sharedInstance setValue:[NSNumber numberWithFloat:1.5]
                           forKey: @"inputRadius"];
-        [sharedInstance setValue:[NSNumber numberWithFloat:1.0]
+        [sharedInstance setValue:[NSNumber numberWithFloat:0.8]
                           forKey: @"inputIntensity"];
     });
     return sharedInstance;
@@ -175,14 +176,29 @@ typedef enum : NSUInteger {
     }
 }
 
+- (void)setEmphasized:(BOOL)emphasized
+{
+    [super setEmphasized:emphasized];
+
+    if (emphasized) {
+        [self addGlowReason:GlowTriggerEmphasized];
+    } else {
+        [self removeGlowReason:GlowTriggerEmphasized];
+    }
+}
+
 - (void)setExtraState:(ExtraState)extraState
 {
     for (int i = 0; i < [self numberOfColumns]; i++) {
         TableCellView* view = [self viewAtColumn:i];
         view.extraState = extraState;
     }
-    if (extraState == kExtraStateActive) {
-        _symbolLayer.string = @"􀊥";
+    if ((extraState == kExtraStatePlaying) | (extraState == kExtraStateActive)) {
+        if (extraState == kExtraStatePlaying) {
+            _symbolLayer.string = @"􀊥";
+        } else {
+            _symbolLayer.string = @"􀊄";
+        }
         [self addGlowReason:GlowTriggerActive];
         _symbolLayer.hidden = NO;
     } else {
@@ -207,7 +223,9 @@ typedef enum : NSUInteger {
 
 - (void)updatedGlow
 {
-    _effectLayer.hidden = glowTriggerMask == GlowTriggerNone;
+    BOOL showGlow = ((glowTriggerMask & (GlowTriggerSelected | GlowTriggerEmphasized)) == (GlowTriggerSelected | GlowTriggerEmphasized))
+                    | ((glowTriggerMask & GlowTriggerActive) == GlowTriggerActive);
+    _effectLayer.hidden = !showGlow;
 }
 
 - (void)drawSelectionInRect:(NSRect)dirtyRect
@@ -238,12 +256,6 @@ typedef enum : NSUInteger {
 
     [path fill];
     [path stroke];
-
-    if (self.selected) {
-        [self addGlowReason:GlowTriggerSelected];
-    } else {
-        [self removeGlowReason:GlowTriggerSelected];
-    }
 }
 
 - (CAAnimationGroup*)effectAnimation

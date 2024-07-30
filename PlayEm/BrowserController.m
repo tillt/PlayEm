@@ -63,7 +63,7 @@ NSString* const kSongsColGenre = @"GenreCell";
 @property (strong, nonatomic) dispatch_queue_t filterQueue;
 
 //@property (nonatomic, strong) CALayer* playbackFeedbackLayer;
-@property (nonatomic, strong) CIFilter* playbackFeedbackBloomFilter;
+//@property (nonatomic, strong) CIFilter* playbackFeedbackBloomFilter;
 
 @end
 
@@ -422,9 +422,20 @@ NSString* const kSongsColGenre = @"GenreCell";
 static const NSTimeInterval kBeatEffectRampUp = 0.05f;
 static const NSTimeInterval kBeatEffectRampDown = 0.5f;
 
+- (void)setPlaying:(BOOL)playing
+{
+    NSUInteger lastIndex = [_filteredItems indexOfObjectPassingTest:^BOOL(MediaMetaData* meta, NSUInteger idx, BOOL *stop) {
+        return [meta.location.absoluteString isEqualToString:_lastLocation.absoluteString];
+    }];
+    if (lastIndex != NSNotFound && lastIndex < [_songsTable numberOfRows]) {
+        TableRowView* rowView = [_songsTable rowViewAtRow:lastIndex makeIfNecessary:YES];
+        [rowView setExtraState:playing ? kExtraStatePlaying : kExtraStateActive];
+    }
+}
+
 - (NSUInteger)songsRowForURL:(NSURL*)needle
 {
-    // Get currently playing meta item index.
+    // Get currently active meta item index.
     return [_filteredItems indexOfObjectPassingTest:^BOOL(MediaMetaData* meta, NSUInteger idx, BOOL *stop) {
         return [meta.location.absoluteString isEqualToString:needle.absoluteString];
     }];
@@ -462,16 +473,14 @@ static const NSTimeInterval kBeatEffectRampDown = 0.5f;
     return [self songsRowForURL:current];
 }
 
-
-
-- (void)animationDidStop:(CAAnimation *)anim
-                finished:(BOOL)isFinished
-{
-    NSString* name = [anim valueForKey:@"name"];
-    if ([name isEqualToString:@"ActiveAnimations"]) {
-        NSLog(@"BLINK DONE");
-    }
-}
+//- (void)animationDidStop:(CAAnimation *)anim
+//                finished:(BOOL)isFinished
+//{
+//    NSString* name = [anim valueForKey:@"name"];
+//    if ([name isEqualToString:@"ActiveAnimations"]) {
+//        NSLog(@"BLINK DONE");
+//    }
+//}
 
 - (IBAction)playNextInPlaylist:(id)sender
 {
@@ -1068,7 +1077,15 @@ typeSelectStringForTableColumn:(NSTableColumn*)tableColumn
 {
     TableRowView* view = (TableRowView*)rowView;
     if (tableView.tag == VIEWTAG_SONGS) {
-        [view setExtraState:_filteredItems[row].active];
+        if (_filteredItems[row].active) {
+            if (_delegate.playing) {
+                [view setExtraState:kExtraStatePlaying];
+            } else {
+                [view setExtraState:kExtraStateActive];
+            }
+        } else {
+            [view setExtraState:kExtraStateNormal];
+        }
     }
 }
 

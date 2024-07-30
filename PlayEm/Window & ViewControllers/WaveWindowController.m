@@ -1871,10 +1871,13 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     NSLog(@"audioControllerPlaybackStarted");
     // Start the scope renderer.
     [_renderer play:_audioController visual:_visualSample scope:_scopeView];
+
     // Make state obvious to user.
     [self setPlaybackActive:YES];
+
     [_playlist touchedItem:_meta];
     [_playlist setPlaying:YES];
+    [_browser setPlaying:YES];
 
     [self lockScreen];
 }
@@ -1885,6 +1888,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     // Make state obvious to user.
     [self setPlaybackActive:NO];
     [_playlist setPlaying:NO];
+    [_browser setPlaying:NO];
 
     [self unlockScreen];
 }
@@ -1895,6 +1899,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     // Make state obvious to user.
     [self setPlaybackActive:YES];
     [_playlist setPlaying:YES];
+    [_browser setPlaying:YES];
 
     [self lockScreen];
 }
@@ -1905,6 +1910,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     // Make state obvious to user.
     [self setPlaybackActive:NO];
     [_playlist setPlaying:NO];
+    [_browser setPlaying:NO];
 
     [self unlockScreen];
 

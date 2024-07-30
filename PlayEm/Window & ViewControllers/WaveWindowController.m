@@ -379,6 +379,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     self.window.titlebarAppearsTransparent = YES;
     self.window.titleVisibility = NO;
     self.window.movableByWindowBackground = YES;
+    self.window.appearance = [NSAppearance appearanceNamed:NSAppearanceNameDarkAqua];
 
     self.window.contentView.wantsLayer = YES;
     self.window.contentView.layer.backgroundColor = [[[Defaults sharedDefaults] backColor] CGColor];
@@ -1243,11 +1244,13 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
 - (void)setPlaybackActive:(BOOL)active
 {
     _controlPanelController.playPause.state = active ? NSControlStateValueOn : NSControlStateValueOff;
+    //_browser.playPause = active ? NSControlStateValueOn : NSControlStateValueOff;
 }
 
 - (void)showInfo:(BOOL)processCurrentSong
 {
     NSArray* metas = nil;
+    NSApplication* sharedApplication = [NSApplication sharedApplication];
 
     if (processCurrentSong) {
         metas = [NSArray arrayWithObject:_meta];
@@ -1263,12 +1266,13 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     window.titleVisibility = NSWindowTitleHidden;
     window.movableByWindowBackground = YES;
     window.titlebarAppearsTransparent = YES;
+    window.appearance = sharedApplication.mainWindow.appearance;
     [window standardWindowButton:NSWindowZoomButton].hidden = YES;
     [window standardWindowButton:NSWindowCloseButton].hidden = YES;
     [window standardWindowButton:NSWindowMiniaturizeButton].hidden = YES;
     _infoWindowController.window = window;
 
-    [[NSApplication sharedApplication] runModalForWindow:_infoWindowController.window];
+    [sharedApplication runModalForWindow:_infoWindowController.window];
 }
 
 - (void)showInfoForCurrentSong:(id)sender

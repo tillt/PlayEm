@@ -94,7 +94,12 @@
                                 </connections>
                             </menuItem>
                             <menuItem isSeparatorItem="YES" id="aJh-i4-bef"/>
-                            <menuItem title="Play..." keyEquivalent="p" id="aTl-1u-JFS"/>
+                            <menuItem title="Show in Finder" id="r6D-vP-0rH">
+                                <modifierMask key="keyEquivalentModifierMask"/>
+                                <connections>
+                                    <action selector="showInFinder:" target="-1" id="Fxk-5l-xcp"/>
+                                </connections>
+                            </menuItem>
                         </items>
                     </menu>
                 </menuItem>
@@ -333,6 +338,51 @@
                                 <connections>
                                     <action selector="toggleFullScreen:" target="-1" id="QQy-dX-8eM"/>
                                 </connections>
+                            </menuItem>
+                        </items>
+                    </menu>
+                </menuItem>
+                <menuItem title="Controls" id="wqN-Xe-C1y" userLabel="Controls">
+                    <modifierMask key="keyEquivalentModifierMask"/>
+                    <menu key="submenu" title="Controls" id="UI4-yc-mBY">
+                        <items>
+                            <menuItem title="Play" keyEquivalent=" " id="420-WX-xF0">
+                                <modifierMask key="keyEquivalentModifierMask"/>
+                                <connections>
+                                    <action selector="playPause:" target="-1" id="bVT-ID-Eab"/>
+                                </connections>
+                            </menuItem>
+                            <menuItem title="Stop" id="YJk-52-iR6" userLabel="Playlist">
+                                <modifierMask key="keyEquivalentModifierMask"/>
+                            </menuItem>
+                            <menuItem title="Previous Track" id="CXS-lZ-vrj">
+                                <modifierMask key="keyEquivalentModifierMask"/>
+                                <connections>
+                                    <action selector="playPrevious:" target="-1" id="xBZ-S5-RRE"/>
+                                </connections>
+                            </menuItem>
+                            <menuItem title="Next Track" id="2bG-IC-UIj">
+                                <modifierMask key="keyEquivalentModifierMask"/>
+                                <connections>
+                                    <action selector="playNext:" target="-1" id="nVH-xy-PfV"/>
+                                </connections>
+                            </menuItem>
+                            <menuItem isSeparatorItem="YES" id="bI1-Lg-g9L"/>
+                            <menuItem title="Increase Volume" id="jlT-04-kIm">
+                                <modifierMask key="keyEquivalentModifierMask"/>
+                                <connections>
+                                    <action selector="volumeIncrease:" target="-1" id="bnx-al-cuU"/>
+                                </connections>
+                            </menuItem>
+                            <menuItem title="Decrease Volume" id="Hki-EK-6vu">
+                                <modifierMask key="keyEquivalentModifierMask"/>
+                                <connections>
+                                    <action selector="volumeDecrease:" target="-1" id="8qN-7T-oeb"/>
+                                </connections>
+                            </menuItem>
+                            <menuItem isSeparatorItem="YES" id="IVk-OO-dAN"/>
+                            <menuItem title="Repeat" id="oRD-Zb-cYj">
+                                <modifierMask key="keyEquivalentModifierMask"/>
                             </menuItem>
                         </items>
                     </menu>

@@ -399,8 +399,14 @@ void propertyCallbackIsRunning (void* user_data, AudioQueueRef queue, AudioQueue
             [[NSNotificationCenter defaultCenter] postNotificationName:kAudioControllerChangedPlaybackStateNotification
                                                                 object:kPlaybackStatePlaying];
         } else {
-            [[NSNotificationCenter defaultCenter] postNotificationName:kAudioControllerChangedPlaybackStateNotification
-                                                                object:kPlaybackStatePaused];
+            if (context->endOfStream) {
+                context->endOfStream = NO;
+                [[NSNotificationCenter defaultCenter] postNotificationName:kAudioControllerChangedPlaybackStateNotification
+                                                                    object:kPlaybackStateEnded];
+            } else {
+                [[NSNotificationCenter defaultCenter] postNotificationName:kAudioControllerChangedPlaybackStateNotification
+                                                                    object:kPlaybackStatePaused];
+            }
         }
     });
 }
@@ -879,9 +885,6 @@ AVAudioFramePosition totalLatency(UInt32 deviceId, AudioObjectPropertyScope scop
 //
 //    NSLog(@"releasing engine...");
 //    _engine = nil;
-#endif
-
-#ifdef support_avplayer
 #endif
 
     UInt32 deviceId = defaultOutputDevice();

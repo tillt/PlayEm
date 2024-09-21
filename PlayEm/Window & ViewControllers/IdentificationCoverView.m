@@ -8,7 +8,7 @@
 
 #import "IdentificationCoverView.h"
 #import <Quartz/Quartz.h>
-
+#import "CAShapeLayer+Path.h"
 NSString * const kLayerImageName = @"IdentificationActiveStill";
 NSString * const kLayerMaskImageName = @"IdentificationActiveStill";
 
@@ -50,15 +50,32 @@ NSString * const kLayerMaskImageName = @"IdentificationActiveStill";
     _imageLayer.mask = _maskLayer;
     [layer addSublayer:_imageLayer];
 
-    _overlayLayer = [CALayer layer];
-    _overlayLayer.contents = [NSImage imageNamed:kLayerImageName];
-    _overlayLayer.autoresizingMask = kCALayerWidthSizable | kCALayerHeightSizable;
-    _overlayLayer.allowsEdgeAntialiasing = YES;
-    _overlayLayer.contentsScale = [[NSScreen mainScreen] backingScaleFactor];
-//    _overlayLayer.frame = NSInsetRect(self.bounds, 0.0, 5.0);
-    _overlayLayer.opacity = 0.8;
-    _overlayLayer.frame = CGRectMake(-self.bounds.size.width / 2, -self.bounds.size.height / 2, self.bounds.size.width * 2, self.bounds.size.height * 2);
-    [layer addSublayer:_overlayLayer];
+    CIFilter* trailBloomFilter = [CIFilter filterWithName:@"CIBloom"];
+    [trailBloomFilter setDefaults];
+    [trailBloomFilter setValue:[NSNumber numberWithFloat:1.1] forKey:@"inputRadius"];
+    [trailBloomFilter setValue:[NSNumber numberWithFloat:1.0] forKey:@"inputIntensity"];
+    //[trailBloomFilter setValue:[CIImage imageWithCGImage:<#(nonnull CGImageRef)#>] forKey:@"inputImage"];
+
+    _trailBloomFxLayer = [CALayer layer];
+    _trailBloomFxLayer.backgroundFilters = @[ trailBloomFilter ];
+    _trailBloomFxLayer.contents = [NSImage imageNamed:kLayerImageName];
+    _trailBloomFxLayer.contentsScale = [[NSScreen mainScreen] backingScaleFactor];
+    _trailBloomFxLayer.frame = _maskLayer.frame;
+    _trailBloomFxLayer.masksToBounds = NO;
+    _trailBloomFxLayer.zPosition = 1.9;
+    _trailBloomFxLayer.name = @"BloomFxLayer";
+    _trailBloomFxLayer.opacity = 0.5;
+    _trailBloomFxLayer.mask = [CAShapeLayer MaskLayerFromRect:_maskLayer.frame];
+    [_imageLayer addSublayer:_trailBloomFxLayer];
+
+//    _overlayLayer = [CALayer layer];
+//    _overlayLayer.contents = [NSImage imageNamed:kLayerImageName];
+//    _overlayLayer.autoresizingMask = kCALayerWidthSizable | kCALayerHeightSizable;
+//    _overlayLayer.allowsEdgeAntialiasing = YES;
+//    _overlayLayer.contentsScale = [[NSScreen mainScreen] backingScaleFactor];
+//    _overlayLayer.opacity = 0.7;
+//    _overlayLayer.frame = CGRectMake(-self.bounds.size.width / 2, -self.bounds.size.height / 2, self.bounds.size.width * 2, self.bounds.size.height * 2);
+//    [layer addSublayer:_overlayLayer];
 
     return layer;
 }
@@ -72,6 +89,7 @@ NSString * const kLayerMaskImageName = @"IdentificationActiveStill";
     animation.duration = 2.0f;
     CGFloat angleToAdd   = -M_PI_2 * 4;
     [_overlayLayer setValue:@(M_PI_2 * 4.0) forKeyPath:@"transform.rotation.z"];
+    [_trailBloomFxLayer setValue:@(M_PI_2 * 4.0) forKeyPath:@"transform.rotation.z"];
     [_maskLayer setValue:@(M_PI_2 * 4.0) forKeyPath:@"transform.rotation.z"];
 
     animation.toValue = @(0.0);        // model value was already changed. End at that value
@@ -80,12 +98,14 @@ NSString * const kLayerMaskImageName = @"IdentificationActiveStill";
     // Add the animation. Once it completed it will be removed and you will see the value
     // of the model layer which happens to be the same value as the animation stopped at.
     [_overlayLayer addAnimation:animation forKey:@"rotation"];
+    [_trailBloomFxLayer addAnimation:animation forKey:@"rotation"];
     [_maskLayer addAnimation:animation forKey:@"rotation"];
 }
 
 - (void)stopAnimating
 {
     [_overlayLayer removeAllAnimations];
+    [_trailBloomFxLayer removeAllAnimations];
     [_maskLayer removeAllAnimations];
 }
 

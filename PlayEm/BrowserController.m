@@ -334,8 +334,6 @@ NSString* const kSongsColGenre = @"GenreCell";
     
     NSLog(@"Media folder location: %@", _library.mediaFolderLocation.path);
     
-    NSIndexSet* zeroSet = [NSIndexSet indexSetWithIndex:0];
-    
     _filteredItems = nil;
     _cachedLibrary = nil;
     

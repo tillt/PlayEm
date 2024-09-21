@@ -1710,15 +1710,17 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     if (_lazySample != nil) {
         [_audioController decodeAbortWithCallback:^{
             [self loadLazySample:lazySample];
+            [self setMeta:meta];
+            _audioController.sample = lazySample;
+            [_audioController playWhenReady:frame paused:!playing];
         }];
     } else {
         [self loadLazySample:lazySample];
+        [self setMeta:meta];
+
+        _audioController.sample = lazySample;
+        [_audioController playWhenReady:frame paused:!playing];
     }
-
-    [self setMeta:meta];
-
-    _audioController.sample = _lazySample;
-    [_audioController playWhenReady:frame paused:!playing];
 
     return YES;
 }
@@ -1732,19 +1734,19 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     [self loadTrackState:LoadStateInit value:0.0];
     [self loadTrackState:LoadStateStopped value:0.0];
 
-    self.visualSample = [[VisualSample alloc] initWithSample:self.lazySample
-                                              pixelPerSecond:kPixelPerSecond
-                                                   tileWidth:kDirectWaveViewTileWidth];
+    _visualSample = [[VisualSample alloc] initWithSample:_lazySample
+                                          pixelPerSecond:kPixelPerSecond
+                                               tileWidth:kDirectWaveViewTileWidth];
 
     _controlPanelController.bpm.stringValue = @"--- BPM";
     
     _waveLayerDelegate.visualSample = self.visualSample;
 
-    _totalVisual = [[VisualSample alloc] initWithSample:self.lazySample
-                                         pixelPerSecond:self.totalView.bounds.size.width / _lazySample.duration
+    _totalVisual = [[VisualSample alloc] initWithSample:_lazySample
+                                         pixelPerSecond:_totalView.bounds.size.width / _lazySample.duration
                                               tileWidth:kTotalWaveViewTileWidth];
 
-    _totalWaveLayerDelegate.visualSample = self.totalVisual;
+    _totalWaveLayerDelegate.visualSample = _totalVisual;
 
     [_audioController decodeAsyncWithSample:lazySample callback:^(BOOL decodeFinished){
         if (decodeFinished) {

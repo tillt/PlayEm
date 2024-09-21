@@ -747,7 +747,7 @@ AVAudioFramePosition totalLatency(UInt32 deviceId, AudioObjectPropertyScope scop
         }
     }
     
-    NSLog(@"starting audioqueue");
+    NSLog(@"starting audioqueue to play %@", _context.sample.source.url);
     OSStatus res = AudioQueueStart(_context.stream.queue, NULL);
     assert(0 == res);
     _isPaused = NO;
@@ -1111,7 +1111,8 @@ void LogBufferContents(const uint8_t *buffer, size_t length)
         _context.sample = nil;
         return;
     }
-    
+    NSLog(@"audiocontroller update with new sample %@", sample.source.url);
+
     [self reset];
 
     _context.sample = sample;

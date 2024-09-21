@@ -8,6 +8,7 @@
 
 #import <Cocoa/Cocoa.h>
 #import <QuartzCore/QuartzCore.h>
+#import <AVKit/AVKit.h>
 
 #import "AudioController.h"
 #import "BrowserController.h"
@@ -17,7 +18,7 @@
 #import "ScopeView.h"
 #import "ControlPanelController.h"
 #import "InfoPanel.h"
-#import "SPMediaKeyTap.h"
+//#import "SPMediaKeyTap.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -32,11 +33,11 @@ NS_ASSUME_NONNULL_BEGIN
 @class IdentifyController;
 @class WaveView;
 @class MetalWaveView;
+@class AVRoutePickerView;
 
 @interface WaveWindowController : NSWindowController <NSWindowDelegate,
                                                       NSToolbarDelegate,
                                                       NSToolbarItemValidation,
-                                                      AudioControllerDelegate,
                                                       BrowserControllerDelegate,
                                                       PlaylistControllerDelegate,
                                                       ScopeRendererDelegate,
@@ -44,8 +45,9 @@ NS_ASSUME_NONNULL_BEGIN
                                                       InfoPanelControllerDelegate,
                                                       NSSplitViewDelegate,
                                                       NSMenuDelegate,
-                                                      SPMediaKeyTapDelegate>
-  
+                                                      AVRoutePickerViewDelegate>
+//SPMediaKeyTapDelegate>
+
 @property (nonatomic, strong) AudioController* audioController;
 
 @property (strong, nonatomic) VisualSample* totalVisual;
@@ -82,13 +84,19 @@ NS_ASSUME_NONNULL_BEGIN
 @property (strong, nonatomic) NSSplitViewController* splitViewController;
 
 - (id)init;
++ (NSURL*)encodeQueryItemsWithUrl:(NSURL*)url frame:(unsigned long long)frame playing:(BOOL)playing;
 - (void)setCurrentFrame:(unsigned long long)frame;
 - (BOOL)loadDocumentFromURL:(NSURL*)url meta:(nullable MediaMetaData*)meta;
-+ (NSURL*)encodeQueryItemsWithUrl:(NSURL*)url frame:(unsigned long long)frame playing:(BOOL)playing;
 - (IBAction)loadITunesLibrary:(id)sender;
 - (IBAction)showInfoForCurrentSong:(id)sender;
 - (IBAction)showInfoForSelectedSongs:(id)sender;
 - (IBAction)showPlaylist:(id)sender;
+- (IBAction)playNext:(id)sender;
+- (IBAction)playPrevious:(id)sender;
+- (IBAction)togglePause:(id)sender;
+- (IBAction)volumeIncrease:(id)sender;
+- (IBAction)volumeDecrease:(id)sender;
+- (IBAction)seekToFrame:(unsigned long long)frame;
 
 @end
 

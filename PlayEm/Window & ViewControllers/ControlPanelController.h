@@ -17,7 +17,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)showInfoForCurrentSong:(id)sender;
 - (void)showInfoForSelectedSongs:(id)sender;
-- (void)playPause:(id)sender;
+- (void)togglePause:(id)sender;
 - (void)volumeChange:(id)sender;
 - (void)tempoChange:(id)sender;
 

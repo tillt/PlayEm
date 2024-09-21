@@ -157,7 +157,7 @@
     layer.mask = [CAShapeLayer MaskLayerFromRect:layer.bounds];
     [_albumArtistView.layer addSublayer:layer];
     
-    _playPause = [NSButton buttonWithTitle:@"􀊄" target:_delegate action:@selector(playPause:)];
+    _playPause = [NSButton buttonWithTitle:@"􀊄" target:_delegate action:@selector(togglePause:)];
     _playPause.frame = NSMakeRect(_titleView.frame.origin.x + scrollingTextViewWidth + 70.0f,
                                   playPauseButtonY,
                                   playPauseButtonWidth,

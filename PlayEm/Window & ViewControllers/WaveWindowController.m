@@ -9,8 +9,9 @@
 #import <AVFoundation/AVFoundation.h>
 #import <MetalKit/MetalKit.h>
 #import <CoreImage/CoreImage.h>
-
+#import <AVKit/AVKit.h>
 #import <IOKit/pwr_mgt/IOPM.h>
+#import <MediaPlayer/MediaPlayer.h>
 
 #import "WaveWindowController.h"
 #import "AudioController.h"
@@ -35,7 +36,6 @@
 #import "WaveLayerDelegate.h"
 #import "ProfilingPointsOfInterest.h"
 #import "NSAlert+BetterError.h"
-#import "SPMediaKeyTap.h"
 
 #import "MusicAuthenticationController.h"
 
@@ -93,7 +93,9 @@ os_log_t pointsOfInterest;
 @property (strong, nonatomic) WaveLayerDelegate* waveLayerDelegate;
 @property (strong, nonatomic) WaveLayerDelegate* totalWaveLayerDelegate;
 
-@property (strong, nonatomic) SPMediaKeyTap* keyTap;
+//@property (strong, nonatomic) SPMediaKeyTap* keyTap;
+@property (strong, nonatomic) AVRouteDetector* routeDetector;
+@property (strong, nonatomic) AVRoutePickerView* pickerView;
 
 @property (strong, nonatomic) CADisplayLink* displayLink;
 
@@ -113,7 +115,7 @@ os_log_t pointsOfInterest;
     //os_signpost_interval_begin(pointsOfInterest, POICADisplayLink, "CADisplayLink");
     // Substract the latency introduced by the output device setup to compensate and get
     // video in sync with audible audio.
-    const AVAudioFramePosition delta = self.audioController.latency;
+    const AVAudioFramePosition delta = [self.audioController totalLatency];
     AVAudioFramePosition frame = self.audioController.currentFrame >= delta ? self.audioController.currentFrame - delta : 0;
     // Add the delay until the video gets visible to the playhead position for compensation.
     frame += [self.audioController frameCountDeltaWithTimeDelta:sender.duration];
@@ -122,77 +124,6 @@ os_log_t pointsOfInterest;
     self.currentFrame = frame;
     //os_signpost_interval_end(pointsOfInterest, POISetCurrentFrame, "SetCurrentFrame");
     //os_signpost_interval_end(pointsOfInterest, POICADisplayLink, "CADisplayLink");
-}
-
-- (void)playNext:(id)sender
-{
-    // Do we have something in our playlist?
-    MediaMetaData* meta = [_playlist nextItem];
-    if (meta == nil) {
-        // Then maybe we can just get the next song from the songs browser list.
-        //- (IBAction)playNext:(id)sender
-        // Find the topmost selected song and use that one to play next.
-        [self stop];
-        return;
-    }
-
-    [self loadDocumentFromURL:[WaveWindowController encodeQueryItemsWithUrl:meta.location frame:0LL playing:YES] meta:meta];
-}
-
-- (void)playPrevious:(id)sender
-{
-//    // Do we have something in our playlist?
-//    MediaMetaData* meta = [_playlist previousItem];
-//    if (meta == nil) {
-//        // Then maybe we can just get the next song from the songs browser list.
-//        //- (IBAction)playNext:(id)sender
-//        // Find the topmost selected song and use that one to play next.
-//        [self stop];
-//        return;
-//    }
-//
-//    [self loadDocumentFromURL:[WaveWindowController encodeQueryItemsWithUrl:meta.location frame:0LL playing:YES] meta:meta];
-}
-
-- (void)mediaKeyTap:(SPMediaKeyTap*)keyTap receivedMediaKeyEvent:(NSEvent*)event
-{
-    assert([event type] == NSEventTypeSystemDefined && [event subtype] == SPSystemDefinedEventMediaKeys);
-
-    int keyCode = (([event data1] & 0xFFFF0000) >> 16);
-    int keyFlags = ([event data1] & 0x0000FFFF);
-    int keyState = (((keyFlags & 0xFF00) >> 8)) == 0xA;
-    int keyRepeat = (keyFlags & 0x1);
-
-    if (keyCode == NX_KEYTYPE_PLAY && keyState == 0) {
-        [self playPause:self];
-    }
-
-    if ((keyCode == NX_KEYTYPE_FAST || keyCode == NX_KEYTYPE_NEXT) && !_mediakeyJustJumped) {
-        if (keyState == 0 && keyRepeat == 0) {
-            [self playNext:self];
-        } else if (keyRepeat == 1) {
-            _mediakeyJustJumped = YES;
-            [self performSelector:@selector(resetMediaKeyJump)
-                           withObject: NULL
-                           afterDelay:0.25];
-        }
-    }
-
-    if ((keyCode == NX_KEYTYPE_REWIND || keyCode == NX_KEYTYPE_PREVIOUS) && !_mediakeyJustJumped) {
-        if (keyState == 0 && keyRepeat == 0) {
-            [self playPrevious:self];
-        } else if (keyRepeat == 1) {
-            _mediakeyJustJumped = YES;
-            [self performSelector:@selector(resetMediaKeyJump)
-                       withObject: NULL
-                       afterDelay:0.25];
-        }
-    }
-}
-
-- (void)resetMediaKeyJump
-{
-    _mediakeyJustJumped = NO;
 }
 
 - (id)init
@@ -282,15 +213,30 @@ os_log_t pointsOfInterest;
 
 static const NSString* kPlaylistToolbarIdentifier = @"Playlist";
 static const NSString* kIdentifyToolbarIdentifier = @"Identify";
+//static const NSString* kRouteToolbarIdentifier = @"Route";
 
 - (NSArray*)toolbarDefaultItemIdentifiers:(NSToolbar*)toolbar
 {
-    return @[ NSToolbarFlexibleSpaceItemIdentifier, kIdentifyToolbarIdentifier, NSToolbarSpaceItemIdentifier, kPlaylistToolbarIdentifier ];
+    return @[
+        NSToolbarFlexibleSpaceItemIdentifier,
+//        kRouteToolbarIdentifier,
+//        NSToolbarSpaceItemIdentifier,
+        kIdentifyToolbarIdentifier,
+        NSToolbarSpaceItemIdentifier,
+        kPlaylistToolbarIdentifier
+    ];
 }
 
 - (NSArray*)toolbarAllowedItemIdentifiers:(NSToolbar*)toolbar
 {
-    return @[ NSToolbarFlexibleSpaceItemIdentifier, kIdentifyToolbarIdentifier, NSToolbarSpaceItemIdentifier, kPlaylistToolbarIdentifier ];
+    return @[
+        NSToolbarFlexibleSpaceItemIdentifier,
+//        kRouteToolbarIdentifier,
+//        NSToolbarSpaceItemIdentifier,
+        kIdentifyToolbarIdentifier,
+        NSToolbarSpaceItemIdentifier,
+        kPlaylistToolbarIdentifier
+    ];
 }
 
 -(BOOL)validateToolbarItem:(NSToolbarItem*)toolbarItem
@@ -302,8 +248,28 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     return enable;
 }
 
+- (void)routePickerViewWillBeginPresentingRoutes:(AVRoutePickerView *)routePickerView
+{
+    
+}
+
 - (NSToolbarItem *)toolbar:(NSToolbar *)toolbar itemForItemIdentifier:(NSToolbarItemIdentifier)itemIdentifier willBeInsertedIntoToolbar:(BOOL)flag
 {
+//    if (itemIdentifier == kRouteToolbarIdentifier) {
+//        NSToolbarItem* item = [[NSToolbarItem alloc] initWithItemIdentifier:itemIdentifier];
+//        self.routeDetector = [[AVRouteDetector alloc] init];
+//        self.pickerView = [[AVRoutePickerView alloc] initWithFrame:NSMakeRect(0,0,30,30)];
+//        //_pickerView.delegate = self;
+//        //_pickerView.op
+//        //_pickerView.player = _audioController.player;
+//        item.view = _pickerView;
+//        item.target = self;
+//        item.action = @selector(showPlaylist:);
+//        item.label = @"route";
+//        item.bordered = NO;
+//        item.image = [NSImage imageWithSystemSymbolName:@"list.bullet" accessibilityDescription:@""];
+//        return item;
+//    }
     if (itemIdentifier == kPlaylistToolbarIdentifier) {
         NSToolbarItem* item = [[NSToolbarItem alloc] initWithItemIdentifier:itemIdentifier];
         item.target = self;
@@ -402,14 +368,6 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
 
     WaveWindowController* __weak weakSelf = self;
     
-    self.keyTap = [[SPMediaKeyTap alloc] initWithDelegate:self];
-    if([SPMediaKeyTap usesGlobalMediaKeyTap]) {
-        [_keyTap startWatchingMediaKeys];
-        NSLog(@"Watching for mediakeys");
-    } else {
-        NSLog(@"Media key monitoring disabled");
-    }
-
     self.waveLayerDelegate = [WaveLayerDelegate new];
     self.waveLayerDelegate.offsetBlock = ^CGFloat{
         return weakSelf.waveView.enclosingScrollView.documentVisibleRect.origin.x;
@@ -439,57 +397,25 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     self.totalWaveLayerDelegate.color = _waveView.color;
     self.waveLayerDelegate.color = _waveView.color;
     
+    [self subscribeToRemoteCommands];
+    
 //    self.authenticator = [MusicAuthenticationController new];
 //    [self.authenticator requestAppleMusicDeveloperTokenWithCompletion:^(NSString* token){
 //        NSLog(@"token: %@", token);
 //    }];
 }
 
-- (void)loadViews
+- (NSMenu*)songMenu
 {
-    const CGFloat totalHeight = self.window.contentView.bounds.size.height;
-    
-    const CGFloat totalWaveViewHeight = 46.0;
-    const CGFloat scrollingWaveViewHeight = 158.0;
-
-    const CGFloat playlistFxViewWidth = 280.0;
-    const CGFloat statusLineHeight = 14.0;
-    const CGFloat songsTableViewHeight = floor(totalHeight / 4.0);
-    const CGFloat selectorTableViewWidth = floor(self.window.contentView.bounds.size.width / 4);
-    const CGFloat selectorTableViewHeight = floor(totalHeight / 5.0);
-   
-    const CGFloat selectorTableViewHalfWidth = floor(selectorTableViewWidth / 2.0);
-    
-    const CGFloat selectorColumnInset = 17.0;
-    
-    const CGFloat trackColumnWidth = 54.0;
-    const CGFloat titleColumnWidth = 280.0f;
-    const CGFloat timeColumnWidth = 80.0f;
-    const CGFloat artistColumnWidth = 200.0f;
-    const CGFloat albumColumnWidth = 200.0f;
-    const CGFloat genreColumnWidth = 130.0f;
-    const CGFloat addedColumnWidth = 80.0f;
-    const CGFloat tempoColumnWidth = 80.0f;
-    const CGFloat keyColumnWidth = 60.0f;
-
-    const CGFloat progressIndicatorWidth = 32.0;
-    const CGFloat progressIndicatorHeight = 32.0;
-
-    CGFloat scopeViewHeight = self.window.contentView.bounds.size.height - (songsTableViewHeight + selectorTableViewHeight + totalWaveViewHeight + scrollingWaveViewHeight);
-    if (scopeViewHeight <= kMinScopeHeight) {
-        scopeViewHeight = kMinScopeHeight;
-    }
-    const NSAutoresizingMaskOptions kViewFullySizeable = NSViewHeightSizable | NSViewWidthSizable;
-    
     NSMenu* menu = [NSMenu new];
     
-    NSMenuItem* item = [[NSMenuItem alloc] initWithTitle:@"Play Next" 
+    NSMenuItem* item = [[NSMenuItem alloc] initWithTitle:@"Play Next"
                                                   action:@selector(playNextInPlaylist:)
                                            keyEquivalent:@"n"];
     [item setKeyEquivalentModifierMask:NSEventModifierFlagCommand];
     [menu addItem:item];
 
-    item = [[NSMenuItem alloc] initWithTitle:@"Play Later" 
+    item = [[NSMenuItem alloc] initWithTitle:@"Play Later"
                                       action:@selector(playLaterInPlaylist:)
                                keyEquivalent:@"l"];
     [item setKeyEquivalentModifierMask:NSEventModifierFlagCommand];
@@ -503,9 +429,52 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
 
     [menu addItem:[NSMenuItem separatorItem]];
 
-    [menu addItemWithTitle:@"Show in Finder"
+    NSMenuItem* showInFinder = [menu addItemWithTitle:@"Show in Finder"
                     action:@selector(showInFinder:)
              keyEquivalent:@""];
+// TODO: allow disabling depending on the number of songs selected. Note to myself, this here is the wrong place!
+//    size_t numberOfSongsSelected = ;
+//    showInFinder.enabled = numberOfSongsSelected > 1;
+  
+    return menu;
+}
+
+- (void)loadViews
+{
+    const CGFloat totalHeight = self.window.contentView.bounds.size.height;
+    
+    const CGFloat totalWaveViewHeight = 46.0;
+    const CGFloat scrollingWaveViewHeight = 158.0;
+
+    const CGFloat playlistFxViewWidth = 280.0f;
+    const CGFloat statusLineHeight = 14.0f;
+    const CGFloat songsTableViewHeight = floor(totalHeight / 4.0f);
+    const CGFloat selectorTableViewWidth = floor(self.window.contentView.bounds.size.width / 4.0f);
+    const CGFloat selectorTableViewHeight = floor(totalHeight / 5.0f);
+    const CGFloat selectorTableViewMinWidth = 70.0f;
+
+    const CGFloat selectorTableViewHalfWidth = floor(selectorTableViewWidth / 2.0f);
+    
+    const CGFloat selectorColumnInset = 17.0;
+    
+    const CGFloat trackColumnWidth = 54.0f;
+    const CGFloat titleColumnWidth = 280.0f;
+    const CGFloat timeColumnWidth = 80.0f;
+    const CGFloat artistColumnWidth = 200.0f;
+    const CGFloat albumColumnWidth = 200.0f;
+    const CGFloat genreColumnWidth = 130.0f;
+    const CGFloat addedColumnWidth = 80.0f;
+    const CGFloat tempoColumnWidth = 80.0f;
+    const CGFloat keyColumnWidth = 60.0f;
+
+    const CGFloat progressIndicatorWidth = 32.0f;
+    const CGFloat progressIndicatorHeight = 32.0f;
+
+    CGFloat scopeViewHeight = self.window.contentView.bounds.size.height - (songsTableViewHeight + selectorTableViewHeight + totalWaveViewHeight + scrollingWaveViewHeight);
+    if (scopeViewHeight <= kMinScopeHeight) {
+        scopeViewHeight = kMinScopeHeight;
+    }
+    const NSAutoresizingMaskOptions kViewFullySizeable = NSViewHeightSizable | NSViewWidthSizable;
     
     // Status Line.
     _songsCount = [[NSTextField alloc] initWithFrame:NSMakeRect(self.window.contentView.bounds.origin.x,
@@ -685,10 +654,18 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     col.title = @"Genre";
     col.identifier = @"Genre";
     col.width = selectorTableViewWidth - selectorColumnInset;
+    col.minWidth = selectorTableViewMinWidth;
     [_genreTable addTableColumn:col];
     sv.documentView = _genreTable;
     [_splitSelectors addArrangedSubview:sv];
-    
+    [_splitSelectors addConstraint:[NSLayoutConstraint constraintWithItem:sv
+                                                                attribute:NSLayoutAttributeWidth
+                                                                relatedBy:NSLayoutRelationGreaterThanOrEqual
+                                                                   toItem:nil
+                                                                attribute:NSLayoutAttributeNotAnAttribute
+                                                               multiplier:1.0
+                                                                 constant:selectorTableViewMinWidth]];
+
     [_splitSelectors addConstraint:[NSLayoutConstraint constraintWithItem:sv
               attribute:NSLayoutAttributeHeight
               relatedBy:NSLayoutRelationGreaterThanOrEqual
@@ -713,10 +690,18 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     col = [[NSTableColumn alloc] init];
     col.title = @"Artist";
     col.width = selectorTableViewWidth - selectorColumnInset;
+    col.minWidth = selectorTableViewMinWidth;
     [_artistsTable addTableColumn:col];
     sv.documentView = _artistsTable;
     [_splitSelectors addArrangedSubview:sv];
-    
+    [_splitSelectors addConstraint:[NSLayoutConstraint constraintWithItem:sv
+                                                                attribute:NSLayoutAttributeWidth
+                                                                relatedBy:NSLayoutRelationGreaterThanOrEqual
+                                                                   toItem:nil
+                                                                attribute:NSLayoutAttributeNotAnAttribute
+                                                               multiplier:1.0
+                                                                 constant:selectorTableViewMinWidth]];
+
     sv = [[NSScrollView alloc] initWithFrame:NSMakeRect(0.0,
                                                         0.0,
                                                         selectorTableViewWidth,
@@ -732,10 +717,18 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     col = [[NSTableColumn alloc] init];
     col.title = @"Album";
     col.width = selectorTableViewWidth - selectorColumnInset;
+    col.minWidth = selectorTableViewMinWidth;
     [_albumsTable addTableColumn:col];
     sv.documentView = _albumsTable;
     [_splitSelectors addArrangedSubview:sv];
-    
+    [_splitSelectors addConstraint:[NSLayoutConstraint constraintWithItem:sv
+                                                                attribute:NSLayoutAttributeWidth
+                                                                relatedBy:NSLayoutRelationGreaterThanOrEqual
+                                                                   toItem:nil
+                                                                attribute:NSLayoutAttributeNotAnAttribute
+                                                               multiplier:1.0
+                                                                 constant:selectorTableViewMinWidth]];
+
     sv = [[NSScrollView alloc] initWithFrame:NSMakeRect(0.0,
                                                         0.0,
                                                         selectorTableViewHalfWidth,
@@ -752,10 +745,18 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     col = [[NSTableColumn alloc] init];
     col.title = @"BPM";
     col.width = selectorTableViewHalfWidth - selectorColumnInset;
+    col.minWidth = selectorTableViewMinWidth;
     [_temposTable addTableColumn:col];
     sv.documentView = _temposTable;
     [_splitSelectors addArrangedSubview:sv];
-    
+    [_splitSelectors addConstraint:[NSLayoutConstraint constraintWithItem:sv
+                                                                attribute:NSLayoutAttributeWidth
+                                                                relatedBy:NSLayoutRelationGreaterThanOrEqual
+                                                                   toItem:nil
+                                                                attribute:NSLayoutAttributeNotAnAttribute
+                                                               multiplier:1.0
+                                                                 constant:selectorTableViewMinWidth]];
+
     sv = [[NSScrollView alloc] initWithFrame:NSMakeRect(0.0,
                                                         0.0,
                                                         selectorTableViewHalfWidth,
@@ -771,10 +772,18 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     col = [[NSTableColumn alloc] init];
     col.title = @"Key";
     col.width = selectorTableViewHalfWidth - selectorColumnInset;
+    col.minWidth = selectorTableViewMinWidth;
     [_keysTable addTableColumn:col];
     sv.documentView = _keysTable;
     [_splitSelectors addArrangedSubview:sv];
-    
+    [_splitSelectors addConstraint:[NSLayoutConstraint constraintWithItem:sv
+                                                                attribute:NSLayoutAttributeWidth
+                                                                relatedBy:NSLayoutRelationGreaterThanOrEqual
+                                                                   toItem:nil
+                                                                attribute:NSLayoutAttributeNotAnAttribute
+                                                               multiplier:1.0
+                                                                 constant:selectorTableViewMinWidth]];
+
     [_split addArrangedSubview:_splitSelectors];
     
     ///
@@ -790,7 +799,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     _songsTable = [[NSTableView alloc] initWithFrame:NSZeroRect];
     _songsTable.backgroundColor = [NSColor clearColor];
     _songsTable.tag = VIEWTAG_SONGS;
-    _songsTable.menu = menu;
+    _songsTable.menu = [self songMenu];
     _songsTable.autoresizingMask = NSViewNotSizable;
     _songsTable.columnAutoresizingStyle = NSTableViewNoColumnAutoresizing;
     _songsTable.autosaveTableColumns = YES;
@@ -801,6 +810,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     col = [[NSTableColumn alloc] initWithIdentifier:kSongsColTrackNumber];
     col.title = @"Track";
     col.width = trackColumnWidth - selectorColumnInset;
+    col.minWidth = (trackColumnWidth - selectorColumnInset) / 2.0f;
     col.resizingMask = NSTableColumnUserResizingMask;
     col.sortDescriptorPrototype = [[NSSortDescriptor alloc] initWithKey:@"track" ascending:YES selector:@selector(compare:)];
     [_songsTable addTableColumn:col];
@@ -808,6 +818,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     col = [[NSTableColumn alloc] initWithIdentifier:kSongsColTitle];
     col.title = @"Title";
     col.width = titleColumnWidth - selectorColumnInset;
+    col.minWidth = (titleColumnWidth - selectorColumnInset) / 2.0f;
     col.resizingMask = NSTableColumnUserResizingMask;
     col.sortDescriptorPrototype = [[NSSortDescriptor alloc] initWithKey:@"title" ascending:YES selector:@selector(compare:)];
     [_songsTable addTableColumn:col];
@@ -815,6 +826,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     col = [[NSTableColumn alloc] initWithIdentifier:kSongsColTime];
     col.title = @"Time";
     col.width = timeColumnWidth - selectorColumnInset;
+    col.minWidth = (timeColumnWidth - selectorColumnInset) / 2.0;
     col.resizingMask = NSTableColumnUserResizingMask;
     col.sortDescriptorPrototype = [[NSSortDescriptor alloc] initWithKey:@"duration" ascending:YES selector:@selector(compare:)];
     [_songsTable addTableColumn:col];
@@ -822,6 +834,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     col = [[NSTableColumn alloc] initWithIdentifier:kSongsColArtist];
     col.title = @"Artist";
     col.width = artistColumnWidth - selectorColumnInset;
+    col.minWidth = (artistColumnWidth - selectorColumnInset) / 2.0;
     col.resizingMask = NSTableColumnUserResizingMask;
     col.sortDescriptorPrototype = [[NSSortDescriptor alloc] initWithKey:@"artist" ascending:YES selector:@selector(compare:)];
     [_songsTable addTableColumn:col];
@@ -829,6 +842,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     col = [[NSTableColumn alloc] initWithIdentifier:kSongsColAlbum];
     col.title = @"Album";
     col.width = albumColumnWidth - selectorColumnInset;
+    col.minWidth = (albumColumnWidth - selectorColumnInset) / 2.0;
     col.resizingMask = NSTableColumnUserResizingMask;
     col.sortDescriptorPrototype = [[NSSortDescriptor alloc] initWithKey:@"album" ascending:YES selector:@selector(compare:)];
     [_songsTable addTableColumn:col];
@@ -836,6 +850,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     col = [[NSTableColumn alloc] initWithIdentifier:kSongsColGenre];
     col.title = @"Genre";
     col.width = genreColumnWidth - selectorColumnInset;
+    col.minWidth = (genreColumnWidth - selectorColumnInset) / 2.0;
     col.resizingMask = NSTableColumnAutoresizingMask | NSTableColumnUserResizingMask;
     col.sortDescriptorPrototype = [[NSSortDescriptor alloc] initWithKey:@"genre" ascending:YES selector:@selector(compare:)];
     [_songsTable addTableColumn:col];
@@ -843,6 +858,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     col = [[NSTableColumn alloc] initWithIdentifier:kSongsColAdded];
     col.title = @"Added";
     col.width = addedColumnWidth - selectorColumnInset;
+    col.minWidth = (addedColumnWidth - selectorColumnInset) / 2.0;
     col.resizingMask = NSTableColumnUserResizingMask;
     col.sortDescriptorPrototype = [[NSSortDescriptor alloc] initWithKey:@"added" ascending:YES selector:@selector(compare:)];
     [_songsTable addTableColumn:col];
@@ -850,6 +866,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     col = [[NSTableColumn alloc] initWithIdentifier:kSongsColTempo];
     col.title = @"Tempo";
     col.width = tempoColumnWidth - selectorColumnInset;
+    col.minWidth = (tempoColumnWidth - selectorColumnInset) / 2.0;
     col.resizingMask = NSTableColumnUserResizingMask;
     col.sortDescriptorPrototype = [[NSSortDescriptor alloc] initWithKey:@"tempo" ascending:YES selector:@selector(compare:)];
     [_songsTable addTableColumn:col];
@@ -857,6 +874,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     col = [[NSTableColumn alloc] initWithIdentifier:kSongsColKey];
     col.title = @"Key";
     col.width = keyColumnWidth - selectorColumnInset;
+    col.minWidth = (keyColumnWidth - selectorColumnInset) / 2.0;
     col.resizingMask = NSTableColumnUserResizingMask;
     col.sortDescriptorPrototype = [[NSSortDescriptor alloc] initWithKey:@"key" ascending:YES selector:@selector(compare:)];
     [_songsTable addTableColumn:col];
@@ -1011,8 +1029,6 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     
     [self.renderer loadMetalWithView:self.scopeView];
 
-    [self setupDisplayLink];
-    
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(ScrollViewStartsLiveScrolling:) name:@"NSScrollViewWillStartLiveScrollNotification" object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(ScrollViewEndsLiveScrolling:) name:@"NSScrollViewDidEndLiveScrollNotification" object:nil];
     
@@ -1024,14 +1040,27 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
 
 - (void)setupDisplayLink
 {
-    _displayLink = [self.window displayLinkWithTarget:self selector:@selector(renderCallback:)];
-    _displayLink.preferredFrameRateRange = CAFrameRateRangeMake(60.0, 120.0, 120.0);
-    [_displayLink addToRunLoop:[NSRunLoop currentRunLoop]
+    if (_displayLink == nil) {
+        _displayLink = [self.window displayLinkWithTarget:self selector:@selector(renderCallback:)];
+        _displayLink.preferredFrameRateRange = CAFrameRateRangeMake(60.0, 120.0, 120.0);
+        [_displayLink addToRunLoop:[NSRunLoop currentRunLoop]
                            forMode:NSRunLoopCommonModes];
+    }
 }
 
+/*
+ This method is used in the process of finding a target for an action method. If this
+ NSResponder instance does not itself respondsToSelector:action, then
+ supplementalTargetForAction:sender: is called. This method should return an object which
+ responds to the action; if this responder does not have a supplemental object that does
+ that, the implementation of this method should call super's
+ supplementalTargetForAction:sender:.
+ 
+ NSResponder's implementation returns nil.
+*/
 - (id)supplementalTargetForAction:(SEL)action sender:(id)sender
 {
+    NSLog(@"action: %@", NSStringFromSelector(action));
     id target = [super supplementalTargetForAction:action sender:sender];
 
     if (target != nil) {
@@ -1100,7 +1129,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     [userDefaults setObject:bookmark forKey:@"bookmark"];
     
     // Abort all the async operations that might be in flight.
-    [_lazySample abortWithCallback:^{
+    [_audioController decodeAbortWithCallback:^{
         [self stop];
     }];
     //[BeatTrackedSample abort];
@@ -1439,7 +1468,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
 - (void)splitViewDidResizeSubviews:(NSNotification *)notification
 {
 /*
-     A notification that is posted to the default notification center by NSSplitView when a 
+     A notification that is posted to the default notification center by NSSplitView when a
      split view has just resized its subviews either as a result of its own resizing or during
      the dragging of one of its dividers by the user.
      Starting in Mac OS 10.5, if the notification is being sent because the user is dragging
@@ -1473,7 +1502,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     } else if (sv == _split) {
         switch(indexNumber.intValue) {
             case 0: {
-                NSSize newSize = NSMakeSize(_belowVisuals.bounds.size.width, 
+                NSSize newSize = NSMakeSize(_belowVisuals.bounds.size.width,
                                             _belowVisuals.bounds.size.height - (_totalView.bounds.size.height + _waveView.bounds.size.height));
                 [_renderer mtkView:_scopeView drawableSizeWillChange:newSize];
                 break;
@@ -1484,7 +1513,118 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     }
 }
 
-#pragma mark Document lifecycle
+#pragma mark - Media Remote Commands
+
+- (NSArray*)remoteCommands
+{
+    MPRemoteCommandCenter *cc = [MPRemoteCommandCenter sharedCommandCenter];
+    return @[
+        cc.playCommand,
+        cc.pauseCommand,
+        cc.stopCommand,
+        cc.togglePlayPauseCommand,
+        cc.nextTrackCommand,
+        cc.previousTrackCommand,
+        cc.skipForwardCommand,
+        cc.skipBackwardCommand,
+        cc.changePlaybackPositionCommand,
+    ];
+}
+
+- (MPRemoteCommandHandlerStatus )remoteCommandEvent:(MPRemoteCommandEvent *)event
+{
+    MPRemoteCommandCenter *cc = [MPRemoteCommandCenter sharedCommandCenter];
+    if (event.command == cc.playCommand) {
+        [_audioController play];
+        return MPRemoteCommandHandlerStatusSuccess;
+    }
+    if (event.command == cc.pauseCommand) {
+        [_audioController pause];
+        return MPRemoteCommandHandlerStatusSuccess;
+    }
+    if (event.command == cc.togglePlayPauseCommand) {
+        [_audioController togglePause];
+        return MPRemoteCommandHandlerStatusSuccess;
+    }
+    if (event.command == cc.changePlaybackPositionCommand) {
+        MPChangePlaybackPositionCommandEvent *positionEvent = (MPChangePlaybackPositionCommandEvent *)event;
+        [self seekToTime:positionEvent.positionTime + 1];
+        return MPRemoteCommandHandlerStatusSuccess;
+    }
+    if (event.command == cc.nextTrackCommand) {
+        [self playPrevious:self];
+        return MPRemoteCommandHandlerStatusSuccess;
+    }
+    if (event.command == cc.previousTrackCommand) {
+        [self playPrevious:self];
+        return MPRemoteCommandHandlerStatusSuccess;
+    }
+    if (event.command == cc.skipForwardCommand) {
+        [self seekToTime:_audioController.currentTime + 10.0];
+        return MPRemoteCommandHandlerStatusSuccess;
+    }
+    if (event.command == cc.skipBackwardCommand) {
+        [self seekToTime:_audioController.currentTime - 10.0];
+        return MPRemoteCommandHandlerStatusSuccess;
+    }
+//    if (event.command == cc.changeRepeatModeCommand) {
+//        MPChangeRepeatModeCommandEvent *repeatEvent = (MPChangeRepeatModeCommandEvent *)event;
+//        MPRepeatType repeatType = repeatEvent.repeatType;
+//        switch (repeatType) {
+//            case MPRepeatTypeAll:
+//                [playlistController setPlaybackRepeat:VLC_PLAYLIST_PLAYBACK_REPEAT_ALL];
+//                 break;
+//
+//            case MPRepeatTypeOne:
+//                [playlistController setPlaybackRepeat:VLC_PLAYLIST_PLAYBACK_REPEAT_CURRENT];
+//                break;
+//
+//            default:
+//                [playlistController setPlaybackRepeat:VLC_PLAYLIST_PLAYBACK_REPEAT_NONE];;
+//                break;
+//        }
+//        return MPRemoteCommandHandlerStatusSuccess;
+//    }
+//    if (event.command == cc.changeShuffleModeCommand) {
+//        [playlistController setPlaybackOrder:[playlistController playbackOrder] == VLC_PLAYLIST_PLAYBACK_ORDER_NORMAL ? VLC_PLAYLIST_PLAYBACK_ORDER_RANDOM : VLC_PLAYLIST_PLAYBACK_ORDER_NORMAL];
+//        return MPRemoteCommandHandlerStatusSuccess;
+//    }
+
+    NSLog(@"%s Wasn't able to handle remote control event: %s",__PRETTY_FUNCTION__,[event.description UTF8String]);
+    return MPRemoteCommandHandlerStatusCommandFailed;
+}
+
+- (void)subscribeToRemoteCommands
+{
+    MPRemoteCommandCenter *commandCenter = [MPRemoteCommandCenter sharedCommandCenter];
+    
+    //Enable when you want to support these
+    commandCenter.ratingCommand.enabled = NO;
+    commandCenter.likeCommand.enabled = NO;
+    commandCenter.dislikeCommand.enabled = NO;
+    commandCenter.bookmarkCommand.enabled = NO;
+    commandCenter.enableLanguageOptionCommand.enabled = NO;
+    commandCenter.disableLanguageOptionCommand.enabled = NO;
+    commandCenter.seekForwardCommand.enabled = NO;
+    commandCenter.seekBackwardCommand.enabled = NO;
+
+    commandCenter.skipForwardCommand.preferredIntervals = @[@(10.0)];
+    commandCenter.skipBackwardCommand.preferredIntervals = @[@(10.0)];
+    for (MPRemoteCommand *command in [self remoteCommands]) {
+        [command addTarget:self action:@selector(remoteCommandEvent:)];
+    }
+}
+
+- (void)unsubscribeFromRemoteCommands
+{
+    [MPNowPlayingInfoCenter defaultCenter].nowPlayingInfo = nil;
+
+    for (MPRemoteCommand *command in [self remoteCommands]) {
+        [command removeTarget:self];
+    }
+}
+
+#pragma mark - Document lifecycle
 
 - (IBAction)openDocument:(id)sender
 {
@@ -1503,12 +1643,28 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     }
 }
 
+- (void)AudioControllerPlaybackStateChange:(NSNotification*)notification
+{
+    NSString* state = notification.object;
+    if ([state isEqualToString:kPlaybackStateStarted]) {
+        [self audioControllerPlaybackStarted];
+    } else if ([state isEqualToString:kPlaybackStatePlaying]) {
+        [self audioControllerPlaybackPlaying];
+    } else if ([state isEqualToString:kPlaybackStatePaused]) {
+        [self audioControllerPlaybackPaused];
+    } else if ([state isEqualToString:kPlaybackStateEnded]) {
+        [self audioControllerPlaybackEnded];
+    }
+}
+
 - (BOOL)loadDocumentFromURL:(NSURL*)url meta:(MediaMetaData*)meta
 {
     NSError* error = nil;
     if (_audioController == nil) {
         _audioController = [AudioController new];
-        _audioController.delegate = self;
+
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(AudioControllerPlaybackStateChange:) name:kAudioControllerChangedPlaybackStateNotification object:nil];
+
     }
     
     if (url == nil) {
@@ -1550,19 +1706,24 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
         return NO;
     }
     [[NSDocumentController sharedDocumentController] noteNewRecentDocumentURL:url];
-    [self setMeta:meta];
+
     if (_lazySample != nil) {
-        [_lazySample abortWithCallback:^{
-            [self loadLazySample:lazySample nextFrame:frame playing:playing];
+        [_audioController decodeAbortWithCallback:^{
+            [self loadLazySample:lazySample];
         }];
     } else {
-        [self loadLazySample:lazySample nextFrame:frame playing:playing];
+        [self loadLazySample:lazySample];
     }
+
+    [self setMeta:meta];
+
+    _audioController.sample = _lazySample;
+    [_audioController playWhenReady:frame paused:!playing];
 
     return YES;
 }
 
-- (void)loadLazySample:(LazySample*)lazySample nextFrame:(unsigned long long)nextFrame playing:(BOOL)playing
+- (void)loadLazySample:(LazySample*)lazySample
 {
     // We keep a reference around so that the `sample` setter will cause the possibly
     // ongoing decode of a previous sample to get aborted.
@@ -1585,15 +1746,14 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
 
     _totalWaveLayerDelegate.visualSample = self.totalVisual;
 
-    [_lazySample decodeAsyncWithCallback:^(BOOL decodeFinished){
+    [_audioController decodeAsyncWithSample:lazySample callback:^(BOOL decodeFinished){
         if (decodeFinished) {
             [self lazySampleDecoded];
        } else {
             NSLog(@"never finished the decoding");
         }
     }];
-
-    _audioController.sample = _lazySample;
+    
     _waveView.frames = _lazySample.frames;
     _totalView.frames = _lazySample.frames;
     _waveView.frame = CGRectMake(0.0,
@@ -1601,13 +1761,11 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
                                  self.visualSample.width,
                                  self.waveView.bounds.size.height);
     [_totalView refresh];
-
-    [_audioController playWhenReady:(unsigned long long)nextFrame paused:!playing];
 }
 
 - (void)lazySampleDecoded
 {
-    BeatTrackedSample* beatSample = [[BeatTrackedSample alloc] initWithSample:_lazySample 
+    BeatTrackedSample* beatSample = [[BeatTrackedSample alloc] initWithSample:_lazySample
                                                                framesPerPixel:self.visualSample.framesPerPixel];
     self.beatLayerDelegate.beatSample = beatSample;
 
@@ -1634,6 +1792,40 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     }];
 }
 
+- (void)setNowPlayingWithMeta:(MediaMetaData*)meta
+{
+    NSMutableDictionary *songInfo = [[NSMutableDictionary alloc] init];
+    [songInfo setObject:meta.title forKey:MPMediaItemPropertyTitle];
+    [songInfo setObject:meta.artist forKey:MPMediaItemPropertyArtist];
+    [songInfo setObject:meta.album forKey:MPMediaItemPropertyAlbumTitle];
+
+    if (meta.track) {
+        [songInfo setObject:meta.track forKey:MPMediaItemPropertyAlbumTrackNumber];
+    }
+    if (meta.tracks) {
+        [songInfo setObject:meta.tracks forKey:MPMediaItemPropertyAlbumTrackCount];
+    }
+    if (meta.genre) {
+        [songInfo setObject:meta.genre forKey:MPMediaItemPropertyGenre];
+    }
+    if (meta.year) {
+        [songInfo setObject:meta.year forKey:MPMediaItemPropertyReleaseDate];
+    }
+    if (meta.artwork) {
+        NSImage* artworkImage = [meta imageFromArtwork];
+        MPMediaItemArtwork* artwork = [[MPMediaItemArtwork alloc] initWithBoundsSize:artworkImage.size requestHandler:^(CGSize size){
+            return artworkImage;
+        }];
+        [songInfo setObject:artwork forKey:MPMediaItemPropertyArtwork];
+    }
+    
+    [songInfo setObject:@(_audioController.sample.duration) forKey:MPMediaItemPropertyPlaybackDuration];
+    [songInfo setObject:@(_audioController.currentTime) forKey:MPNowPlayingInfoPropertyElapsedPlaybackTime];
+    [songInfo setObject:@(1.0) forKey:MPNowPlayingInfoPropertyPlaybackRate];
+
+    [[MPNowPlayingInfoCenter defaultCenter] setNowPlayingInfo:songInfo];
+}
+
 - (void)setMeta:(MediaMetaData*)meta
 {
     _meta = meta;
@@ -1644,6 +1836,15 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     _controlPanelController.meta = meta;
     
     [_browser setCurrentMeta:meta];
+    [self setNowPlayingWithMeta:meta];
+}
+
+- (void)updateRemotePosition
+{
+    NSMutableDictionary *songInfo = [NSMutableDictionary dictionaryWithDictionary:[[MPNowPlayingInfoCenter defaultCenter] nowPlayingInfo]];
+    [songInfo setObject:@(_audioController.sample.duration) forKey:MPMediaItemPropertyPlaybackDuration];
+    [songInfo setObject:@(_audioController.currentTime) forKey:MPNowPlayingInfoPropertyElapsedPlaybackTime];
+    [[MPNowPlayingInfoCenter defaultCenter] setNowPlayingInfo:songInfo];
 }
 
 #pragma mark Drag & Drop
@@ -1718,10 +1919,10 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     if (NSPointInRect(location, _waveView.bounds)) {
         unsigned long long seekTo = (_visualSample.sample.frames * location.x ) / _waveView.frame.size.width;
         NSLog(@"mouse down in wave view %f:%f -- seeking to %lld\n", location.x, location.y, seekTo);
-        [self progressSeekTo:seekTo];
+        [self seekToFrame:seekTo];
         if (![_audioController playing]) {
             NSLog(@"not playing, he claims...");
-            [_audioController playPause];
+            [_audioController play];
         }
         return;
     }
@@ -1730,10 +1931,10 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     if (NSPointInRect(location, _totalView.bounds)) {
         unsigned long long seekTo = (_totalVisual.sample.frames * location.x ) / _totalView.frame.size.width;
         NSLog(@"mouse down in total wave view %f:%f -- seeking to %lld\n", location.x, location.y, seekTo);
-        [self progressSeekTo:seekTo];
+        [self seekToFrame:seekTo];
         if (![_audioController playing]) {
             NSLog(@"not playing, he claims...");
-            [_audioController playPause];
+            [_audioController play];
         }
     }
 }
@@ -1755,10 +1956,10 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     if (NSPointInRect(location, _waveView.bounds)) {
         unsigned long long seekTo = (_visualSample.sample.frames * location.x ) / _waveView.frame.size.width;
         NSLog(@"mouse down in wave view %f:%f -- seeking to %lld\n", location.x, location.y, seekTo);
-        [self progressSeekTo:seekTo];
+        [self seekToFrame:seekTo];
         if (![_audioController playing]) {
             NSLog(@"not playing, he claims...");
-            [_audioController playPause];
+            [_audioController play];
         }
         return;
     }
@@ -1766,10 +1967,10 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     if (NSPointInRect(location, _totalView.bounds)) {
         unsigned long long seekTo = (_totalVisual.sample.frames * location.x ) / _totalView.frame.size.width;
         NSLog(@"mouse down in total wave view %f:%f -- seeking to %lld\n", location.x, location.y, seekTo);
-        [self progressSeekTo:seekTo];
+        [self seekToFrame:seekTo];
         if (![_audioController playing]) {
             NSLog(@"not playing, he claims...");
-            [_audioController playPause];
+            [_audioController play];
         }
     }
 }
@@ -1801,9 +2002,6 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
 
     NSURLQueryItem* item = [NSURLQueryItem queryItemWithName:@"CurrentFrame" value:[currentFrameValue stringValue]];
     [queryItems addObject:item];
-
-//    NSURLQueryItem* item = [NSURLQueryItem queryItemWithName:@"Looping" value:[_audioController.lop]];
-//    [queryItems addObject:item];
 
     item = [NSURLQueryItem queryItemWithName:@"Playing" value:[playingValue stringValue]];
     [queryItems addObject:item];
@@ -1871,22 +2069,37 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
 
 #pragma mark - Audio delegate
 
-- (void)audioControllerPlaybackStarted
+- (void)startVisuals
 {
-    NSLog(@"audioControllerPlaybackStarted");
     // Start the scope renderer.
     [_renderer play:_audioController visual:_visualSample scope:_scopeView];
 
+    [self setupDisplayLink];
+}
+
+- (void)audioControllerPlaybackStarted
+{
+    NSLog(@"audioControllerPlaybackStarted");
+    [self startVisuals];
+    [_playlist playedMeta:_meta];
+}
+
+- (void)audioControllerPlaybackPlaying
+{
+    NSLog(@"audioControllerPlaybackPlaying");
     // Make state obvious to user.
     [self setPlaybackActive:YES];
 
-    [_playlist touchedItem:_meta];
     [_playlist setPlaying:YES];
     [_browser setPlaying:YES];
 
+    [self setNowPlayingWithMeta:_meta];
+    MPNowPlayingInfoCenter* center = [MPNowPlayingInfoCenter defaultCenter];
+    center.playbackState = MPNowPlayingPlaybackStatePlaying;
+    [self updateRemotePosition];
+
     [self lockScreen];
 }
-
 - (void)audioControllerPlaybackPaused
 {
     NSLog(@"audioControllerPlaybackPaused");
@@ -1895,19 +2108,14 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     [_playlist setPlaying:NO];
     [_browser setPlaying:NO];
 
+    [self setNowPlayingWithMeta:_meta];
+    MPNowPlayingInfoCenter* center = [MPNowPlayingInfoCenter defaultCenter];
+    center.playbackState = MPNowPlayingPlaybackStatePaused;
+    [self updateRemotePosition];
+
     [self unlockScreen];
 }
 
-- (void)audioControllerPlaybackPlaying
-{
-    NSLog(@"audioControllerPlaybackPlaying");
-    // Make state obvious to user.
-    [self setPlaybackActive:YES];
-    [_playlist setPlaying:YES];
-    [_browser setPlaying:YES];
-
-    [self lockScreen];
-}
 
 - (void)audioControllerPlaybackEnded
 {
@@ -1917,6 +2125,11 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     [_playlist setPlaying:NO];
     [_browser setPlaying:NO];
 
+    [self setNowPlayingWithMeta:_meta];
+    MPNowPlayingInfoCenter* center = [MPNowPlayingInfoCenter defaultCenter];
+    center.playbackState = MPNowPlayingPlaybackStateStopped;
+    [self updateRemotePosition];
+
     [self unlockScreen];
 
     // Stop the scope rendering.
@@ -1924,13 +2137,13 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
 
     MediaMetaData* item = nil;
     if (_controlPanelController.loop.state == NSControlStateValueOn) {
-        [self playPause:self];
+        [_audioController play];
         return;
     }
     
     item = [_playlist nextItem];
     if (item == nil) {
-        [self stop];
+        [_audioController pause];
         return;
     }
 
@@ -1940,15 +2153,99 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
                                playing:YES] meta:item];
 }
 
-- (void)stop
+#pragma mark - Control Panel delegate
+
+- (void)playNext:(id)sender
 {
+    // Do we have something in our playlist?
+    MediaMetaData* meta = [_playlist nextItem];
+    if (meta == nil) {
+        // Then maybe we can just get the next song from the songs browser list.
+        //- (IBAction)playNext:(id)sender
+        // Find the topmost selected song and use that one to play next.
+        [self stop];
+        return;
+    }
+
+    [self loadDocumentFromURL:[WaveWindowController encodeQueryItemsWithUrl:meta.location frame:0LL playing:YES] meta:meta];
 }
 
-#pragma mark - Control Panel delegate
+- (void)playPrevious:(id)sender
+{
+//    // Do we have something in our playlist?
+//    MediaMetaData* meta = [_playlist previousItem];
+//    if (meta == nil) {
+//        // Then maybe we can just get the next song from the songs browser list.
+//        //- (IBAction)playNext:(id)sender
+//        // Find the topmost selected song and use that one to play next.
+//        [self stop];
+//        return;
+//    }
+//
+//    [self loadDocumentFromURL:[WaveWindowController encodeQueryItemsWithUrl:meta.location frame:0LL playing:YES] meta:meta];
+}
+//- (void)mediaKeyTap:(SPMediaKeyTap*)keyTap receivedMediaKeyEvent:(NSEvent*)event
+//{
+//    assert([event type] == NSEventTypeSystemDefined && [event subtype] == SPSystemDefinedEventMediaKeys);
+//
+//    int keyCode = (([event data1] & 0xFFFF0000) >> 16);
+//    int keyFlags = ([event data1] & 0x0000FFFF);
+//    int keyState = (((keyFlags & 0xFF00) >> 8)) == 0xA;
+//    int keyRepeat = (keyFlags & 0x1);
+//
+//    if (keyCode == NX_KEYTYPE_PLAY && keyState == 0) {
+//        [self playPause:self];
+//    }
+//
+//    if ((keyCode == NX_KEYTYPE_FAST || keyCode == NX_KEYTYPE_NEXT) && !_mediakeyJustJumped) {
+//        if (keyState == 0 && keyRepeat == 0) {
+//            [self playNext:self];
+//        } else if (keyRepeat == 1) {
+//            _mediakeyJustJumped = YES;
+//            [self performSelector:@selector(resetMediaKeyJump)
+//                           withObject: NULL
+//                           afterDelay:0.25];
+//        }
+//    }
+//
+//    if ((keyCode == NX_KEYTYPE_REWIND || keyCode == NX_KEYTYPE_PREVIOUS) && !_mediakeyJustJumped) {
+//        if (keyState == 0 && keyRepeat == 0) {
+//            [self playPrevious:self];
+//        } else if (keyRepeat == 1) {
+//            _mediakeyJustJumped = YES;
+//            [self performSelector:@selector(resetMediaKeyJump)
+//                       withObject: NULL
+//                       afterDelay:0.25];
+//        }
+//    }
+//}
+
+- (void)resetMediaKeyJump
+{
+    _mediakeyJustJumped = NO;
+}
 
 - (void)volumeChange:(id)sender
 {
     _audioController.outputVolume = _controlPanelController.volumeSlider.doubleValue;
+}
+
+- (void)volumeIncrease:(id)sender
+{
+    double newValue = _controlPanelController.volumeSlider.doubleValue + (_controlPanelController.volumeSlider.maxValue / 16);
+    if (newValue > _controlPanelController.volumeSlider.maxValue) {
+        newValue = _controlPanelController.volumeSlider.maxValue;
+    }
+    _controlPanelController.volumeSlider.doubleValue = newValue;
+}
+
+- (void)volumeDecrease:(id)sender
+{
+    double newValue = _controlPanelController.volumeSlider.doubleValue - (_controlPanelController.volumeSlider.maxValue / 16);
+    if (newValue < 0.0) {
+        newValue = 0.0;
+    }
+    _controlPanelController.volumeSlider.doubleValue = newValue;
 }
 
 - (void)tempoChange:(id)sender
@@ -1956,15 +2253,23 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     _audioController.tempoShift = _controlPanelController.tempoSlider.doubleValue;
 }
 
-- (void)playPause:(id)sender
+- (void)togglePause:(id)sender
 {
-    [_audioController playPause];
+    [_audioController togglePause];
 }
 
-- (void)progressSeekTo:(unsigned long long)frame
+- (void)seekToTime:(NSTimeInterval)time
+{
+    _audioController.currentTime = time;
+    [self beatEffectStart];
+    [self updateRemotePosition];
+}
+
+- (void)seekToFrame:(unsigned long long)frame
 {
     _audioController.currentFrame = frame;
     [self beatEffectStart];
+    [self updateRemotePosition];
 }
 
 #pragma mark - Full Screen Support: Persisting and Restoring Window's Non-FullScreen Frame

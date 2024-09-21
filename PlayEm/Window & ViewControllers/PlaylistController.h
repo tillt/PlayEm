@@ -30,7 +30,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)addLater:(MediaMetaData*)item;
 - (void)addNext:(MediaMetaData*)item;
-- (void)touchedItem:(MediaMetaData*)item;
+- (void)playedMeta:(MediaMetaData*)item;
 
 - (MediaMetaData* _Nullable)nextItem;
 - (MediaMetaData* _Nullable)itemAtIndex:(NSUInteger)index;

@@ -63,7 +63,7 @@
     [_table endUpdates];
 }
 
-- (void)touchedItem:(MediaMetaData*)item
+- (void)playedMeta:(MediaMetaData*)item
 {
     [_history addObject:item];
     
@@ -73,15 +73,8 @@
                   withAnimation:NSTableViewAnimationSlideRight];
     [_table endUpdates];
     _preventSelection = NO;
-    //NSUInteger low = 0;
-//    NSUInteger low = _history.count < 2 ? 0 : _history.count - 2;
-//    NSUInteger high = _list.count == 0 ? low : low + _list.count - 1;
-    //NSUInteger high = 1;
-//    [_table reloadDataForRowIndexes:[NSIndexSet indexSetWithIndexesInRange:NSMakeRange(low, high)]
-//                      columnIndexes:[NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0, 2)]];
-    [_table reloadDataForRowIndexes:[NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0, _list.count + _history.count)]
+    [_table reloadDataForRowIndexes:[NSIndexSet indexSetWithIndexesInRange:NSMakeRange(_history.count - 1, 1)]
                       columnIndexes:[NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0, 2)]];
-
 }
 
 - (MediaMetaData* _Nullable)nextItem

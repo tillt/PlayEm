@@ -13,7 +13,7 @@
 #import "AudioController.h"
 #import "../Defaults.h"
 #import "LazySample.h"
-#import "IdentificationActiveView.h"
+#import "IdentificationCoverView.h"
 
 @interface IdentifyController ()
 
@@ -25,9 +25,10 @@
 @property (strong, nonatomic) NSTextField* genreField;
 
 @property (strong, nonatomic) NSTextField* titleField;
-@property (strong, nonatomic) IdentificationActiveView* identificationActiveView;
+@property (strong, nonatomic) IdentificationCoverView* identificationCoverView;
 //@property (strong, nonatomic) WKWebView* svgView;
-@property (strong, nonatomic) NSImageView* coverView;
+//@property (strong, nonatomic) NSImageView* coverView;
+//@property (strong, nonatomic) CALayer* coverViewMask;
 @property (strong, nonatomic) NSButton* clipButton;
 @property (strong, nonatomic) NSButton* scButton;
 
@@ -102,28 +103,30 @@
     
     CGFloat y = kPopoverHeight - (kCoverViewHeight + kBorderHeight);
     
-    _coverView = [[NSImageView alloc] initWithFrame:NSMakeRect(floorf((kPopoverWidth - kCoverViewWidth) / 2.0f),
-                                                               y,
-                                                               kCoverViewWidth,
-                                                               kCoverViewHeight)];
-    _coverView.image = [NSImage imageNamed:@"UnknownSong"];
-    _coverView.imageScaling = NSImageScaleProportionallyUpOrDown;
-    _coverView.wantsLayer = YES;
-    _coverView.layer.cornerRadius = 7;
-    _coverView.hidden = YES;
-    _coverView.layer.masksToBounds = YES;
-    [_coverView setAction:@selector(musicURLClicked:)];
-    
-    [self.view addSubview:_coverView];
-    
-    _identificationActiveView = [[IdentificationActiveView alloc] initWithFrame:NSMakeRect( floorf((kPopoverWidth - kCoverViewWidth) / 2.0f),
-                                                                                            y,
-                                                                                            kCoverViewWidth,
-                                                                                            kCoverViewHeight)];
-    _identificationActiveView.hidden = NO;
-    [self.view addSubview:_identificationActiveView];
+    _identificationCoverView = [[IdentificationCoverView alloc] initWithFrame:NSMakeRect(floorf((kPopoverWidth - kCoverViewWidth) / 2.0f),
+                                                                           y,
+                                                                           kCoverViewWidth,
+                                                                           kCoverViewHeight)];
+    _identificationCoverView.wantsLayer = YES;
+    _identificationCoverView.imageLayer.contents = [NSImage imageNamed:@"UnknownSong"];
+    _identificationCoverView.imageLayer.cornerRadius = 7;
+    _identificationCoverView.maskLayer.contents = [NSImage imageNamed:@"FadeMask"];;
+    _identificationCoverView.layer.masksToBounds = YES;
 
-    [_identificationActiveView startAnimating];
+//    [_identificationCoverView setAction:@selector(musicURLClicked:)];
+//    _coverView.layer.mask = _coverViewMask;
+//
+    [self.view addSubview:_identificationCoverView];
+    
+//    _identificationCoverView = [[IdentificationCoverView alloc] initWithFrame:NSMakeRect( floorf((kPopoverWidth - kCoverViewWidth) / 2.0f),
+//                                                                                            y,
+//                                                                                            kCoverViewWidth,
+//                                                                                            kCoverViewHeight)];
+//    _identificationCoverView.maskLayer.
+//    _identificationActiveView.hidden = NO;
+//    [self.view addSubview:_identificationCoverView];
+
+    [_identificationCoverView startAnimating];
 
     y -= kTextFieldHeight + kRowSpace + kRowSpace + kRowSpace;
 
@@ -231,9 +234,9 @@
 - (void)reset
 {
     //_svgView.animator.hidden = NO;
-    _coverView.hidden = YES;
-    _coverView.animator.image = [NSImage imageNamed:@"UnknownSong"];
-    _identificationActiveView.hidden = NO;
+    //_coverView.hidden = YES;
+    //_coverView.animator.image = [NSImage imageNamed:@"UnknownSong"];
+    _identificationCoverView.hidden = NO;
     _titleField.animator.stringValue = @"";
     _genreField.animator.stringValue = @"all ears ...";
     _imageURL = nil;
@@ -271,6 +274,7 @@
     [_audioController startTapping:^(unsigned long long offset, float* input, unsigned int frames) {
         dispatch_async(self.identifyQueue, ^{
             [self.stream setFrameLength:frames];
+            // TODO: Yikes, this is a total nono -- we are writing to a read-only pointer!
             float* outputBuffer = self.stream.floatChannelData[0];
             for (int i = 0; i < frames; i++) {
                 float s = 0.0;
@@ -300,14 +304,15 @@
             self.musicURL = match.mediaItems[0].appleMusicURL;
         }
         if (match.mediaItems[0].artworkURL != nil && ![match.mediaItems[0].artworkURL.absoluteString isEqualToString:self.imageURL.absoluteString]) {
-            self.coverView.image = [NSImage imageNamed:@"UnknownSong"];
+            self.identificationCoverView.imageLayer.contents = [NSImage imageNamed:@"UnknownSong"];
             NSLog(@"need to re/load the image as the displayed URL %@ wouldnt match the requested URL %@", self.imageURL.absoluteString, match.mediaItems[0].artworkURL.absoluteString);
             dispatch_async(dispatch_queue_create("AsyncImageQueue", NULL), ^{
                 NSImage *image = [[NSImage alloc] initWithContentsOfURL:match.mediaItems[0].artworkURL];
                 dispatch_async(dispatch_get_main_queue(), ^{
-                    self.identificationActiveView.animator.hidden = NO;
-                    self.coverView.animator.hidden = NO;
-                    self.coverView.animator.image = image;
+//                    self.identificationCoverView.imageLayer  .animator.hidden = NO;
+//                    self.coverView.animator.hidden = NO;
+//                    self.coverView.animator.image = image;
+                    self.identificationCoverView.imageLayer.contents = image;
                     self.imageURL = match.mediaItems[0].artworkURL;
                 });
             });

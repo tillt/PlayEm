@@ -59,7 +59,6 @@ extern NSString* const kSongsColGenre;
 - (void)reloadData;
 - (void)setPlaying:(BOOL)playing;
 - (void)setCurrentMeta:(MediaMetaData*)meta;
-- (void)beatEffect;
 - (void)metaChangedForMeta:(MediaMetaData *)meta updatedMeta:(MediaMetaData *)updatedMeta;
 - (NSArray<NSString*>*)knownGenres;
 - (IBAction)playNextInPlaylist:(id)sender;

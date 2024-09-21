@@ -306,6 +306,22 @@ NSString* const kSongsColGenre = @"GenreCell";
     return cache;
 }
 
+- (void)resetTableView:(NSTableView*)table
+{
+    NSIndexSet* zeroSet = [NSIndexSet indexSetWithIndex:0];
+    [table beginUpdates];
+    [table selectRowIndexes:zeroSet byExtendingSelection:NO];
+    [table reloadData];
+    [table endUpdates];
+}
+
+- (void)reloadTableView:(NSTableView*)table
+{
+    [table beginUpdates];
+    [table reloadData];
+    [table endUpdates];
+}
+
 - (void)loadITunesLibrary
 {
     NSError *error = nil;
@@ -329,35 +345,12 @@ NSString* const kSongsColGenre = @"GenreCell";
     _keys = [NSMutableArray array];
     _tempos = [NSMutableArray array];
     
-    [_genresTable beginUpdates];
-    [_genresTable selectRowIndexes:zeroSet byExtendingSelection:NO];
-    [_genresTable reloadData];
-    [_genresTable endUpdates];
-    
-    [_artistsTable beginUpdates];
-    [_artistsTable selectRowIndexes:zeroSet byExtendingSelection:NO];
-    [_artistsTable reloadData];
-    [_artistsTable endUpdates];
-    
-    [_albumsTable beginUpdates];
-    [_albumsTable selectRowIndexes:zeroSet byExtendingSelection:NO];
-    [_albumsTable reloadData];
-    [_albumsTable endUpdates];
-    
-    [_temposTable beginUpdates];
-    [_temposTable selectRowIndexes:zeroSet byExtendingSelection:NO];
-    [_temposTable reloadData];
-    [_temposTable endUpdates];
-    
-    [_keysTable beginUpdates];
-    [_keysTable selectRowIndexes:zeroSet byExtendingSelection:NO];
-    [_keysTable reloadData];
-    [_keysTable endUpdates];
-    
-    [_songsTable beginUpdates];
-    [_songsTable selectRowIndexes:zeroSet byExtendingSelection:NO];
-    [_songsTable reloadData];
-    [_songsTable endUpdates];
+    [self resetTableView:_genresTable];
+    [self resetTableView:_artistsTable];
+    [self resetTableView:_albumsTable];
+    [self resetTableView:_temposTable];
+    [self resetTableView:_keysTable];
+    [self resetTableView:_songsTable];
     
     BrowserController* __weak weakSelf = self;
     
@@ -380,11 +373,7 @@ NSString* const kSongsColGenre = @"GenreCell";
                                    keys:weakSelf.keys];
         
         dispatch_sync(dispatch_get_main_queue(), ^{
-            //[_delegate loadLibraryState:LoadStateStopped value:0.0];
-            
-            [weakSelf.genresTable beginUpdates];
-            [weakSelf.genresTable reloadData];
-            [weakSelf.genresTable endUpdates];
+            [weakSelf reloadTableView:weakSelf.genresTable];
             
             [weakSelf.delegate updateSongsCount:weakSelf.filteredItems.count];
             
@@ -396,25 +385,11 @@ NSString* const kSongsColGenre = @"GenreCell";
             [weakSelf.genresTable selectRowIndexes:[NSIndexSet indexSetWithIndex:0]
                               byExtendingSelection:NO];
             
-            [weakSelf.albumsTable beginUpdates];
-            [weakSelf.albumsTable reloadData];
-            [weakSelf.albumsTable endUpdates];
-            
-            [weakSelf.artistsTable beginUpdates];
-            [weakSelf.artistsTable reloadData];
-            [weakSelf.artistsTable endUpdates];
-            
-            [weakSelf.temposTable beginUpdates];
-            [weakSelf.temposTable reloadData];
-            [weakSelf.temposTable endUpdates];
-            
-            [weakSelf.songsTable beginUpdates];
-            [weakSelf.songsTable reloadData];
-            [weakSelf.songsTable endUpdates];
-            
-            [weakSelf.keysTable beginUpdates];
-            [weakSelf.keysTable reloadData];
-            [weakSelf.keysTable endUpdates];
+            [weakSelf reloadTableView:weakSelf.albumsTable];
+            [weakSelf reloadTableView:weakSelf.artistsTable];
+            [weakSelf reloadTableView:weakSelf.temposTable];
+            [weakSelf reloadTableView:weakSelf.keysTable];
+            [weakSelf reloadTableView:weakSelf.songsTable];
         });
     });
 }
@@ -504,12 +479,17 @@ static const NSTimeInterval kBeatEffectRampDown = 0.5f;
 
 - (IBAction)showInFinder:(id)sender
 {
-    if (self.songsTable.clickedRow < 0) {
+    MediaMetaData* meta = nil;
+    if (self.songsTable.clickedRow >= 0) {
+        assert(self.songsTable.clickedRow < self.filteredItems.count);
+        meta = self.filteredItems[self.songsTable.clickedRow];
+        NSLog(@"item: %@", self.filteredItems[self.songsTable.clickedRow]);
+    } else if (self.delegate.currentSongMeta != nil) {
+        meta = self.delegate.currentSongMeta;
+    }
+    if (meta == nil) {
         return;
     }
-    assert(self.songsTable.clickedRow < self.filteredItems.count);
-    NSLog(@"item: %@", self.filteredItems[self.songsTable.clickedRow]);
-    MediaMetaData* meta = self.filteredItems[self.songsTable.clickedRow];
     NSArray<NSURL*>* fileURLs = [NSArray arrayWithObjects:meta.location, nil];
     [[NSWorkspace sharedWorkspace] activateFileViewerSelectingURLs:fileURLs];
 }

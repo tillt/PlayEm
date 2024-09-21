@@ -26,9 +26,6 @@
 
 @property (strong, nonatomic) NSTextField* titleField;
 @property (strong, nonatomic) IdentificationCoverView* identificationCoverView;
-//@property (strong, nonatomic) WKWebView* svgView;
-//@property (strong, nonatomic) NSImageView* coverView;
-//@property (strong, nonatomic) CALayer* coverViewMask;
 @property (strong, nonatomic) NSButton* clipButton;
 @property (strong, nonatomic) NSButton* scButton;
 
@@ -304,15 +301,14 @@
             self.musicURL = match.mediaItems[0].appleMusicURL;
         }
         if (match.mediaItems[0].artworkURL != nil && ![match.mediaItems[0].artworkURL.absoluteString isEqualToString:self.imageURL.absoluteString]) {
-            self.identificationCoverView.imageLayer.contents = [NSImage imageNamed:@"UnknownSong"];
             NSLog(@"need to re/load the image as the displayed URL %@ wouldnt match the requested URL %@", self.imageURL.absoluteString, match.mediaItems[0].artworkURL.absoluteString);
             dispatch_async(dispatch_queue_create("AsyncImageQueue", NULL), ^{
                 NSImage *image = [[NSImage alloc] initWithContentsOfURL:match.mediaItems[0].artworkURL];
                 dispatch_async(dispatch_get_main_queue(), ^{
-//                    self.identificationCoverView.imageLayer  .animator.hidden = NO;
-//                    self.coverView.animator.hidden = NO;
-//                    self.coverView.animator.image = image;
-                    self.identificationCoverView.imageLayer.contents = image;
+                    [NSAnimationContext runAnimationGroup:^(NSAnimationContext *context) {
+                        [context setDuration:2.0f];
+                        self.identificationCoverView.animator.imageLayer.contents = image;
+                    }];
                     self.imageURL = match.mediaItems[0].artworkURL;
                 });
             });
@@ -338,7 +334,11 @@
     NSLog(@"didNotFindMatchForSignature - error was: %@", error);
     dispatch_async(dispatch_get_main_queue(), ^{
         [self reset];
-        self.genreField.animator.stringValue = messages[r];
+        [NSAnimationContext runAnimationGroup:^(NSAnimationContext *context) {
+            [context setDuration:2.0f];
+            self.genreField.animator.stringValue = messages[r];
+            self.identificationCoverView.animator.imageLayer.contents = [NSImage imageNamed:@"UnknownSong"];
+        }];
     });
 }
 

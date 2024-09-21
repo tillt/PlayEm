@@ -14,7 +14,6 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, strong) CALayer* imageLayer;
 @property (nonatomic, strong) CALayer* maskLayer;
 @property (nonatomic, strong) CALayer* overlayLayer;
-@property (nonatomic, strong) CALayer* trailBloomFxLayer;
 
 - (void)startAnimating;
 - (void)stopAnimating;

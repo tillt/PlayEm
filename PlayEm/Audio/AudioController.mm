@@ -1174,15 +1174,15 @@ void LogBufferContents(const uint8_t *buffer, size_t length)
     return;
 }
 
-- (void)checkRoute
-{
-    Class MPAVRoutingController = NSClassFromString(@"MPAVRoutingController");
-    Class MPAVRoute = NSClassFromString(@"MPAVRoute");
-
-    id routingController = [[MPAVRoutingController alloc] init];
-    NSArray* availableRoutes = [routingController performSelector:@selector(availableRoutes)];
-
-}
+//- (void)checkRoute
+//{
+//    Class MPAVRoutingController = NSClassFromString(@"MPAVRoutingController");
+//    Class MPAVRoute = NSClassFromString(@"MPAVRoute");
+//
+//    id routingController = [[MPAVRoutingController alloc] init];
+//    NSArray* availableRoutes = [routingController performSelector:@selector(availableRoutes)];
+//
+//}
 
 - (void)decodeAbortWithCallback:(void (^)(void))callback
 {

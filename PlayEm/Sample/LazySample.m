@@ -19,10 +19,8 @@ const size_t kMaxFramesPerBuffer = 16384;
 
 @interface LazySample ()
 
-@property (strong, nonatomic) AVAudioFile* source;
 @property (strong, nonatomic) NSCondition* tileProduced;
 @property (strong, nonatomic) NSMutableDictionary* buffers;
-@property (strong, nonatomic) dispatch_block_t queueOperation;
 
 @end
 
@@ -44,8 +42,6 @@ const size_t kMaxFramesPerBuffer = 16384;
             }
             return nil;
         }
-        
-        _queueOperation = NULL;
     
         AVAudioFormat* format = _source.processingFormat;
         _channels = format.channelCount;
@@ -55,18 +51,6 @@ const size_t kMaxFramesPerBuffer = 16384;
         NSLog(@"...lazy sample initialized");
     }
     return self;
-}
-
-- (void)abortWithCallback:(void (^)(void))callback;
-{
-    if (_queueOperation != NULL) {
-        dispatch_block_cancel(_queueOperation);
-        dispatch_block_notify(_queueOperation, dispatch_get_main_queue(), ^{
-            callback();
-        });
-    } else {
-        callback();
-    }
 }
 
 - (unsigned long long)frames
@@ -89,109 +73,12 @@ const size_t kMaxFramesPerBuffer = 16384;
 {
 }
 
-- (void)decodeAsyncWithCallback:(void (^)(BOOL))callback;
+- (void)addLazyPageIndex:(unsigned long long)pageIndex channels:(NSArray<NSData*>*)channels
 {
-    __block BOOL done = NO;
-    _queueOperation = dispatch_block_create(DISPATCH_BLOCK_NO_QOS_CLASS, ^{
-        done = [self decode];
-    });
-    dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0), _queueOperation);
-    dispatch_block_notify(_queueOperation, dispatch_get_main_queue(), ^{
-        callback(done);
-    });
-}
-
-- (BOOL)decode
-{
-    NSLog(@"decoding sample %@...", self);
-
-    NSError* error = nil;
-
-    AVAudioEngine* engine;
-    AVAudioPlayerNode* player;
-
-    engine = [[AVAudioEngine alloc] init];
-    player = [[AVAudioPlayerNode alloc] init];
-
-    NSLog(@"attaching node...");
-    [engine attachNode:player];
-    NSLog(@"connecting player to engine...");
-    [engine connect:player to:engine.mainMixerNode format:_source.processingFormat];
-    NSLog(@"scheduling file...");
-    [player scheduleFile:_source atTime:0 completionHandler:nil];
-    NSLog(@"enabling manual render...");
-    [engine enableManualRenderingMode:AVAudioEngineManualRenderingModeOffline
-                               format:_source.processingFormat
-                    maximumFrameCount:kMaxFramesPerBuffer
-                                error:&error];
-    NSLog(@"starting engine...");
-    if (![engine startAndReturnError:&error]) {
-        NSLog(@"startAndReturnError failed: %@\n", error);
-        return NO;
-    }
-            
-    AVAudioPCMBuffer* buffer =
-        [[AVAudioPCMBuffer alloc] initWithPCMFormat:engine.manualRenderingFormat
-                                      frameCapacity:kMaxFramesPerBuffer];
-    
-    NSLog(@"manual rendering maximum frame count: %d\n", engine.manualRenderingMaximumFrameCount);
-
-    [player play];
-
-    unsigned long long pageIndex = 0;
-
-    while (engine.manualRenderingSampleTime < _source.length) {
-        if (dispatch_block_testcancel(_queueOperation) != 0) {
-            [player stop];
-            return NO;
-        }
-
-        //NSLog(@"manual rendering sample time: %lld\n", _engine.manualRenderingSampleTime);
-        // `_source.length` is the number of sample frames in the file.
-        // `_engine.manualRenderingSampleTime`
-        unsigned long long frameLeftCount = _source.length - engine.manualRenderingSampleTime;
-        //_engine.manualRenderingMaximumFrameCount
-
-        if ((unsigned long long)buffer.frameCapacity > frameLeftCount) {
-            NSLog(@"last tile rendereing: %lld", pageIndex);
-        }
-        AVAudioFrameCount framesToRender = (AVAudioFrameCount)MIN(frameLeftCount, (long long)buffer.frameCapacity);
-        AVAudioEngineManualRenderingStatus status = [engine renderOffline:framesToRender 
-                                                                 toBuffer:buffer
-                                                                    error:&error];
-
-        switch (status) {
-            case AVAudioEngineManualRenderingStatusSuccess: {
-                unsigned long long rawDataLengthPerChannel = buffer.frameLength * sizeof(float);
-                
-                NSMutableArray<NSData*>* channels = [NSMutableArray array];
-                
-                for (int channelIndex = 0; channelIndex < _channels; channelIndex++) {
-                    NSData* channel = [NSData dataWithBytes:buffer.floatChannelData[channelIndex]
-                                                     length:rawDataLengthPerChannel];
-                    [channels addObject:channel];
-                }
-                [_tileProduced lock];
-                [_buffers setObject:channels forKey:[NSNumber numberWithUnsignedLongLong:pageIndex]];
-                [_tileProduced signal];
-                [_tileProduced unlock];
-                pageIndex++;
-            }
-            // Whenever the engine needs more data, this will get triggered - for our manual
-            // rendering this comes directly before `AVAudioEngineManualRenderingStatusSuccess`.
-            case AVAudioEngineManualRenderingStatusInsufficientDataFromInputNode:
-                break;
-            case AVAudioEngineManualRenderingStatusError:
-                NSLog(@"renderOffline failed: %@\n", error);
-                return NO;
-            case AVAudioEngineManualRenderingStatusCannotDoInCurrentContext:
-                NSLog(@"somehow one round failed, lets retry\n");
-                break;
-        }
-    };
-    NSLog(@"...decoding done");
-
-    return YES;
+    [_tileProduced lock];
+    [_buffers setObject:channels forKey:[NSNumber numberWithUnsignedLongLong:pageIndex]];
+    [_tileProduced signal];
+    [_tileProduced unlock];
 }
 
 - (unsigned long long)rawSampleFromFrameOffset:(unsigned long long)offset
@@ -221,22 +108,12 @@ const size_t kMaxFramesPerBuffer = 16384;
             return orderedFrames - frames;
         }
 
-        BOOL lastRound = NO;
         unsigned long long count = MIN(kMaxFramesPerBuffer - pageOffset, frames);
-        
-        if (_source.length - offset < count) {
-            count = _source.length - offset;
-            lastRound = YES;
-        }
         
         copy(count, pageOffset, _channels, channels);
         
         offset += count;
         frames -= count;
-
-        if (lastRound) {
-            break;
-        }
     };
     return offset - oldOffset;
 }
@@ -245,6 +122,7 @@ const size_t kMaxFramesPerBuffer = 16384;
                                         frames:(unsigned long long)frames
                                        outputs:(float * const _Nonnull * _Nullable)outputs
 {
+    // Prepare the data pointer array to point at our outputs pointers
     float* data[_channels];
     memcpy(data, outputs, _channels * sizeof(float*));
 
@@ -252,6 +130,7 @@ const size_t kMaxFramesPerBuffer = 16384;
     return [self rawSampleFromFrameOffset:offset 
                                    frames:frames
                                      copy:^(unsigned long long count, size_t pageOffset, size_t channels, NSArray* buffers){
+        assert(buffers.count == channels);
         for (int channel = 0; channel < channels; channel++) {
             NSData* buffer = buffers[channel];
             float* source = (float*)buffer.bytes;
@@ -276,6 +155,52 @@ const size_t kMaxFramesPerBuffer = 16384;
             }
         }
     }];
+}
+
+- (void)fromFile
+{
+    FILE* fp;
+    
+    fp = fopen("/tmp/dumpedLazySample.raw", "rb");
+
+    float* windows[_channels];
+    float* data[_channels];
+    const size_t channelWindowFrames = 180000;
+
+    for (int channelIndex=0; channelIndex < _channels; channelIndex++) {
+        windows[channelIndex] = malloc(channelWindowFrames * sizeof(float));
+    }
+    
+    float* output = malloc(self.frameSize * self.frames);
+    float* outp = output;
+    size_t left = self.frames;
+    size_t offset = 0;
+    while(left) {
+        size_t fetchSize = MIN(channelWindowFrames, left);
+        
+        [self rawSampleFromFrameOffset:offset frames:fetchSize outputs:windows];
+
+        for (int channelIndex=0; channelIndex < _channels; channelIndex++) {
+            data[channelIndex] = windows[channelIndex];
+        }
+        for (size_t i=0; i < fetchSize;i++){
+            for (int channelIndex=0; channelIndex < _channels; channelIndex++) {
+                *output = *data[channelIndex];
+                output++;
+                data[channelIndex]++;
+            }
+        }
+        offset += fetchSize;
+        left -= fetchSize;
+    };
+
+    fwrite(outp, self.frames, self.frameSize, fp);
+    fclose(fp);
+    
+    free(outp);
+    for (int channelIndex=0; channelIndex < _channels; channelIndex++) {
+        free(windows[channelIndex]);
+    }
 }
 
 - (void)dumpToFile
@@ -351,7 +276,8 @@ const size_t kMaxFramesPerBuffer = 16384;
 
 - (NSString *)description
 {
-    return [NSString stringWithFormat:@"Channels: %d, Rate: %ld, Encoding: %d, Duration: %.02f seconds", _channels, _rate, _encoding, self.duration];
+    return [NSString stringWithFormat:@"file: %@, channels: %d, rate: %ld, encoding: %d, duration: %.02f seconds",
+            _source.url, _channels, _rate, _encoding, self.duration];
 }
 
 @end

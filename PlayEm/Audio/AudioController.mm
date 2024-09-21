@@ -11,12 +11,19 @@
 #import <CoreServices/CoreServices.h>
 #import <CoreFoundation/CoreFoundation.h>
 #import <AudioToolbox/AudioToolbox.h>
+#import <CoreWLAN/CoreWLAN.h>
+#import <AVKit/AVKit.h>
 
 #import "AudioController.h"
 #import "LazySample.h"
 #import "ProfilingPointsOfInterest.h"
 
 //#define support_rubberband YES
+#define support_multi_output    YES
+//#define support_avaudioengine   YES
+//#define support_avplayer        YES
+#define support_audioqueueplayback  YES
+
 
 #include "rubberband/RubberBandStretcher.h"
 
@@ -24,31 +31,57 @@ const unsigned int kPlaybackBufferFrames = 4096;
 const unsigned int kPlaybackBufferCount = 2;
 static const float kDecodingPollInterval = 0.3f;
 static const float kEnoughSecondsDecoded = 5.0f;
+static const size_t kDecoderBufferFrames = 16384;
 
 NSString * const kAudioControllerChangedPlaybackStateNotification = @"AudioControllerChangedPlaybackStateNotification";
+NSString * const kPlaybackStateStarted = @"started";
+NSString * const kPlaybackStatePaused = @"paused";
+NSString * const kPlaybackStatePlaying = @"playing";
+NSString * const kPlaybackStateEnded = @"ended";
+
+#ifdef support_multi_output
 
 typedef struct {
-    int                         bufferIndex;
+#ifdef support_audioqueueplayback
+    AudioQueueRef               queue;
     AudioQueueBufferRef         buffers[kPlaybackBufferCount];
-    LazySample*                 sample;
+#endif
+    int                         bufferIndex;
     unsigned long long          nextFrame;
-    id<AudioControllerDelegate> delegate;
-    signed long long            seekFrame;
     signed long long            latencyFrames;
+} AudioOutputStream;
+#endif
+
+typedef struct {
+    LazySample*                 sample;
+    AudioOutputStream           stream;
+    unsigned long long          nextFrame;
+    //id<AudioControllerDelegate> delegate;
+    signed long long            seekFrame;
     BOOL                        endOfStream;
     TapBlock                    tapBlock;
+    dispatch_semaphore_t        semaphore;
+#ifdef support_rubberband
     RubberBand::RubberBandStretcher* stretcher;
+#endif
 } AudioContext;
 
 @interface AudioController ()
 {
-    AudioQueueRef           _queue;
     AudioContext            _context;
     BOOL                    _isPaused;
     double                  _outputVolume;
 }
-
 @property (strong, nonatomic) NSTimer* timer;
+#ifdef support_avaudioengine
+@property (strong, nonatomic) AVAudioEngine*              engine;
+@property (strong, nonatomic) AVAudioPlayerNode*          player;
+
+@property (strong, nonatomic) NSArray<AVAudioPCMBuffer*>* buffers;
+#endif
+#ifdef support_avplayer
+#endif
+@property (strong, nonatomic) dispatch_block_t            decodeOperation;
 
 @end
 
@@ -76,7 +109,7 @@ NSString* deviceName(UInt32 deviceId)
     return name;
 }
 
-AudioObjectID outputDevice(void)
+AudioObjectID defaultOutputDevice(void)
 {
     UInt32 deviceId;
     UInt32 propertySize = sizeof(deviceId);
@@ -95,7 +128,182 @@ AudioObjectID outputDevice(void)
     
     return deviceId;
 }
+/*
+airplayOutputDeviceArray()
+{
+    AudioObjectPropertyAddress addr;
+    UInt32 propsize;
 
+    // target all available audio devices
+    addr.mSelector = kAudioHardwarePropertyDevices;
+    addr.mScope = kAudioObjectPropertyScopeWildcard;
+    addr.mElement = kAudioObjectPropertyElementWildcard;
+
+    // get size of available data
+    AudioObjectGetPropertyDataSize(kAudioObjectSystemObject, &addr, 0, NULL, &propsize);
+
+    int nDevices = propsize / sizeof(AudioDeviceID);
+    AudioDeviceID *devids = malloc(propsize);
+
+    // get actual device id array data
+    AudioObjectGetPropertyData(kAudioObjectSystemObject, &addr, 0, NULL, &propsize, devids);
+
+    // target device transport type property
+    addr.mSelector = kAudioDevicePropertyTransportType;
+    addr.mScope = kAudioObjectPropertyScopeGlobal;
+    addr.mElement = kAudioObjectPropertyElementMaster;
+
+    unsigned int transportType = 0;
+    propsize = sizeof(transportType);
+    for (int i=0; i<nDevices; i++) {
+      AudioObjectGetPropertyData(devids[i], &addr, 0, NULL, &propsize, &transportType);
+      
+      if (kAudioDeviceTransportTypeAirPlay == transportType) {
+          // Found AirPlay audio device
+      }
+    }
+
+    free(devids);
+    return nil;
+}*/
+
+//NSArray* airplayOutputDevices()
+//{
+//    CWWiFiClient *wifiClient = [CWWiFiClient sharedWiFiClient];
+//    CWInterface *interface = [wifiClient interface];
+//    
+//    NSError *error = nil;
+//    NSSet *availableNetworks = [interface scanForNetworksWithSSID:nil error:&error];
+//    
+//    if (error) {
+//        NSLog(@"Error scanning for networks: %@", [error localizedDescription]);
+//    } else {
+//        for (CWNetwork* network in availableNetworks) {
+//            NSLog(@"network %@", network);
+////            if ([network isAirPlayCapable]) { // Assuming 'supportsAirPlay' is the equivalent method for 'isAirPlayCapable'
+////                NSLog(@"AirPlay-capable device found: %@", [network ssid]);
+////            }
+//        }
+//    }
+//    return nil;
+//}
+
+NSArray<NSNumber*>* outputDeviceArray()
+{
+    AudioObjectPropertyAddress propertyAddress = {
+        kAudioHardwarePropertyDevices,
+        kAudioObjectPropertyScopeWildcard,
+        kAudioObjectPropertyElementWildcard
+    };
+
+    UInt32 dataSize = 0;
+    OSStatus status = AudioObjectGetPropertyDataSize(kAudioObjectSystemObject,
+                                                     &propertyAddress,
+                                                     0,
+                                                     NULL,
+                                                     &dataSize);
+    if(kAudioHardwareNoError != status) {
+        fprintf(stderr, "AudioObjectGetPropertyDataSize (kAudioHardwarePropertyDevices) failed: %i\n", status);
+        return nil;
+    }
+
+    UInt32 deviceCount = static_cast<UInt32>(dataSize / sizeof(AudioDeviceID));
+
+    AudioDeviceID* audioDevices = static_cast<AudioDeviceID *>(malloc(dataSize));
+    if(NULL == audioDevices) {
+        fputs("Unable to allocate memory", stderr);
+        return nil;
+    }
+
+    status = AudioObjectGetPropertyData(kAudioObjectSystemObject,
+                                        &propertyAddress,
+                                        0,
+                                        NULL,
+                                        &dataSize,
+                                        audioDevices);
+    if(kAudioHardwareNoError != status) {
+        fprintf(stderr, "AudioObjectGetPropertyData (kAudioHardwarePropertyDevices) failed: %i\n", status);
+        free(audioDevices), audioDevices = NULL;
+        return nil;
+    }
+
+    NSMutableArray<NSNumber*>* deviceList = [NSMutableArray array];
+    
+    CFMutableArrayRef outputDeviceArray = CFArrayCreateMutable(kCFAllocatorDefault,
+                                                               deviceCount,
+                                                               &kCFTypeArrayCallBacks);
+    if(NULL == outputDeviceArray) {
+        fputs("CFArrayCreateMutable failed", stderr);
+        free(audioDevices), audioDevices = NULL;
+        return nil;
+    }
+
+    propertyAddress.mSelector = kAudioDevicePropertyTransportType;
+    propertyAddress.mScope = kAudioObjectPropertyScopeGlobal;
+    propertyAddress.mElement = kAudioObjectPropertyElementMaster;
+
+    unsigned int transportType = 0;
+    dataSize = sizeof(transportType);
+
+    for (int i = 0; i < deviceCount; i++) {
+        AudioObjectGetPropertyData(audioDevices[i],
+                                   &propertyAddress,
+                                   0,
+                                   NULL,
+                                   &dataSize,
+                                   &transportType);
+        NSLog(@"device ID %d", audioDevices[i]);
+
+        NSString* name = deviceName(audioDevices[i]);
+        NSLog(@"device name %@", name);
+
+        if (kAudioDeviceTransportTypeAirPlay == transportType) {
+            // Found AirPlay audio device
+            NSLog(@"airplay device!!!");
+        }
+    }
+
+    
+    // Iterate through all the devices and determine which are output-capable
+        
+      //  NSLog(@"device UID %@", deviceUID);
+        
+
+        // Determine if the device is an output device (it is an input device if it has input channels)
+//        dataSize = 0;
+//        propertyAddress.mSelector = kAudioDevicePropertyStreamConfiguration;
+//        status = AudioObjectGetPropertyDataSize(audioDevices[i], &propertyAddress, 0, NULL, &dataSize);
+//        if(kAudioHardwareNoError != status) {
+//            fprintf(stderr, "AudioObjectGetPropertyDataSize (kAudioDevicePropertyStreamConfiguration) failed: %i\n", status);
+//            continue;
+//        }
+
+//        AudioBufferList *bufferList = static_cast<AudioBufferList *>(malloc(dataSize));
+//        if(NULL == bufferList) {
+//            fputs("Unable to allocate memory", stderr);
+//            break;
+//        }
+//
+//        status = AudioObjectGetPropertyData(audioDevices[i], &propertyAddress, 0, NULL, &dataSize, bufferList);
+//        if(kAudioHardwareNoError != status || 0 == bufferList->mNumberBuffers) {
+//            if(kAudioHardwareNoError != status)
+//                fprintf(stderr, "AudioObjectGetPropertyData (kAudioDevicePropertyStreamConfiguration) failed: %i\n", status);
+//            free(bufferList), bufferList = NULL;
+//            continue;
+//        }
+
+//        free(bufferList), bufferList = NULL;
+//    }
+
+    free(audioDevices), audioDevices = NULL;
+
+    // Return a non-mutable copy of the array
+
+    //return copy;
+    return nil;
+}
+
+#ifdef support_audioqueueplayback
 AVAudioFramePosition currentFrame(AudioQueueRef queue, AudioContext* context)
 {
     // Now that we have a timeline included, are we going to see time adjusted
@@ -132,7 +340,7 @@ AVAudioFramePosition currentFrame(AudioQueueRef queue, AudioContext* context)
     if (discontinued) {
         NSLog(@"discontinued queue -- needs reinitializing");
         os_signpost_interval_end(pointsOfInterest, POIGetCurrentFrame, "GetCurrentFrame", "discontinued");
-        return context->nextFrame - context->latencyFrames;
+        return context->nextFrame - context->stream.latencyFrames;
     }
     os_signpost_interval_end(pointsOfInterest, POIGetCurrentFrame, "GetCurrentFrame", "done");
 
@@ -143,6 +351,7 @@ NSTimeInterval currentTime(AudioQueueRef queue, AudioContext* context)
 {
     return ((NSTimeInterval)currentFrame(queue, context) / context->sample.rate);
 }
+#endif
 
 OSStatus propertyCallbackDefaultDevice (AudioObjectID inObjectID, UInt32 inNumberAddresses, const AudioObjectPropertyAddress inAddresses[], void *inClientData)
 {
@@ -156,14 +365,15 @@ OSStatus propertyCallbackDefaultDevice (AudioObjectID inObjectID, UInt32 inNumbe
 
     NSLog(@"new default output");
 
-    UInt32 deviceId = outputDevice();
+    UInt32 deviceId = defaultOutputDevice();
     if (deviceId == 0) {
         return 0;
     }
     dispatch_async(dispatch_get_main_queue(), ^{
         NSString* name = deviceName(deviceId);
-        NSLog(@"audio now using device %@", name);
-        context->latencyFrames = latency(deviceId, kAudioDevicePropertyScopeOutput);
+        NSLog(@"audio output now using device %@", name);
+        context->stream.latencyFrames = totalLatency(deviceId, kAudioDevicePropertyScopeOutput);
+        NSLog(@"audio output latency %lld frames", context->stream.latencyFrames);
     });
     return 0;
 }
@@ -186,66 +396,49 @@ void propertyCallbackIsRunning (void* user_data, AudioQueueRef queue, AudioQueue
     dispatch_async(dispatch_get_main_queue(), ^{
         NSLog(@"audio now running = %d", isRunning);
         if (isRunning) {
-            [context->delegate audioControllerPlaybackStarted];
             [[NSNotificationCenter defaultCenter] postNotificationName:kAudioControllerChangedPlaybackStateNotification
-                                                                object:nil];
+                                                                object:kPlaybackStatePlaying];
         } else {
-            [context->delegate audioControllerPlaybackEnded];
             [[NSNotificationCenter defaultCenter] postNotificationName:kAudioControllerChangedPlaybackStateNotification
-                                                                object:nil];
+                                                                object:kPlaybackStatePaused];
         }
     });
 }
 
+#ifdef support_audioqueueplayback
 void bufferCallback(void* user_data, AudioQueueRef queue, AudioQueueBufferRef buffer)
 {
     os_signpost_interval_begin(pointsOfInterest, POIAudioBufferCallback, "AudioBufferCallback");
-
+    
     assert(user_data);
     AudioContext* context = (AudioContext*)user_data;
-    
-    int bufferIndex = -1;
-    for (int i = 0; i < kPlaybackBufferCount; i++) {
-        if (buffer == context->buffers[i]) {
-            bufferIndex = i;
-            break;
-        }
-    }
+
+    float* p = (float*)buffer->mAudioData;
     buffer->mUserData = user_data;
     unsigned int frames = buffer->mAudioDataByteSize / context->sample.frameSize;
-    float* p = (float*)buffer->mAudioData;
 
-#ifdef support_rubberband
-    // your time-processing object checks how many samples it can get from Rubber Band already (available), 
-    // as there may be some in its internal buffers;
-    if (context->stretcher->available() > 0) {
-        context->stretcher->retrieve(p, frames);
-        /*
-        size_t RubberBand::RubberBandStretcher::retrieve    (    float *const *     output,
-        size_t     samples
-        )        const
-         */
-    }
-    
-    
-    // if that is not enough:
-    // it queries how many the Rubber Band stretcher needs at input before it can produce more at output (getSamplesRequired);
-
-    // it calls back into its audio source to obtain that number of samples;
+//    // your time-processing object checks how many samples it can get from Rubber Band already (available),
+//    // as there may be some in its internal buffers;
+//    if (context->stretcher->available() > 0) {
+//        context->stretcher->retrieve(p, frames);
+//        /*
+//        size_t RubberBand::RubberBandStretcher::retrieve    (    float *const *     output,
+//        size_t     samples
+//        )        const
+//         */
+//    }
+//    // if that is not enough:
+//    // it queries how many the Rubber Band stretcher needs at input before it can produce more at output (getSamplesRequired);
+//    // it calls back into its audio source to obtain that number of samples;
+//    unsigned long long fetched = [context->sample rawSampleFromFrameOffset:context->nextFrame
+//                                                                   frames:frames
+//                                                                     data:p];
+//
+//    // it runs the stretcher (process), receives the available output (retrieve), and repeats if necessary
+//    unsigned long long fetched = ;
     unsigned long long fetched = [context->sample rawSampleFromFrameOffset:context->nextFrame
                                                                    frames:frames
                                                                      data:p];
-
-    // it runs the stretcher (process), receives the available output (retrieve), and repeats if necessary
-
-    unsigned long long fetched = ;
-    
-
-#else
-    unsigned long long fetched = [context->sample rawSampleFromFrameOffset:context->nextFrame
-                                                                   frames:frames
-                                                                     data:p];
-#endif
     // Pad last frame with silence, if needed.
     if (fetched < frames) {
         memset(p + fetched * context->sample.channels, 0, (frames - fetched) * context->sample.frameSize);
@@ -262,44 +455,44 @@ void bufferCallback(void* user_data, AudioQueueRef queue, AudioQueueBufferRef bu
         if (context->tapBlock) {
             context->tapBlock(context->nextFrame, p, frames);
         }
-
         context->nextFrame += fetched;
         // Play this buffer again...
         AudioQueueEnqueueBuffer(queue, buffer, 0, NULL);
     }
-    context->bufferIndex = bufferIndex;
-    
     os_signpost_interval_end(pointsOfInterest, POIAudioBufferCallback, "AudioBufferCallback");
 }
+#endif
 
-AVAudioFramePosition latency(UInt32 deviceId, AudioObjectPropertyScope scope)
+AVAudioFramePosition totalLatency(UInt32 deviceId, AudioObjectPropertyScope scope)
 {
-    //NSLog(@"device %@, latency %d", nameRef);
+    // Get the device latency.
     AudioObjectPropertyAddress deviceLatencyPropertyAddress = { kAudioDevicePropertyLatency, scope, kAudioObjectPropertyElementMain };
     UInt32 deviceLatency;
     UInt32 propertySize = sizeof(deviceLatency);
     OSStatus result = result = AudioObjectGetPropertyData(deviceId, &deviceLatencyPropertyAddress, 0, NULL, &propertySize, &deviceLatency);
     if (result != noErr) {
         NSLog(@"Failed to get latency, err: %d", result);
-        return -1;
+        return 0;
     }
 
+    // Get the safety offset.
     AudioObjectPropertyAddress safetyOffsetPropertyAddress = { kAudioDevicePropertySafetyOffset, scope, kAudioObjectPropertyElementMain };
     UInt32 safetyOffset;
     propertySize = sizeof(safetyOffset);
     result = AudioObjectGetPropertyData(deviceId, &safetyOffsetPropertyAddress, 0, NULL, &propertySize, &safetyOffset);
     if (result != noErr) {
         NSLog(@"Failed to get safety offset, err: %d", result);
-        return -1;
+        return 0;
     }
 
+    // Get the buffer size.
     AudioObjectPropertyAddress bufferSizePropertyAddress = { kAudioDevicePropertyBufferFrameSize, scope, kAudioObjectPropertyElementMain };
     UInt32 bufferSize;
     propertySize = sizeof(bufferSize);
     result = AudioObjectGetPropertyData(deviceId, &bufferSizePropertyAddress, 0, NULL, &propertySize, &bufferSize);
     if (result != noErr) {
         NSLog(@"Failed to get latency, err: %d", result);
-        return -1;
+        return 0;
     }
 
     AudioObjectPropertyAddress streamsPropertyAddress = { kAudioDevicePropertyStreams, scope, kAudioObjectPropertyElementMain };
@@ -308,21 +501,21 @@ AVAudioFramePosition latency(UInt32 deviceId, AudioObjectPropertyScope scope)
     UInt32 streamsSize = 0;
     AudioObjectGetPropertyDataSize (deviceId, &streamsPropertyAddress, 0, NULL, &streamsSize);
     if (streamsSize >= sizeof(AudioStreamID)) {
+        // Get the latency of the first stream.
         NSMutableData* streamIDs = [NSMutableData dataWithCapacity:streamsSize];
         AudioStreamID* ids = (AudioStreamID*)streamIDs.mutableBytes;
         result = AudioObjectGetPropertyData(deviceId, &streamsPropertyAddress, 0, nullptr, &streamsSize, ids);
         if (result != noErr) {
             NSLog(@"Failed to get streams, err: %d", result);
-            return -1;
+            return 0;
         }
 
-        // get the latency of the first stream
         AudioObjectPropertyAddress streamLatencyPropertyAddress = { kAudioStreamPropertyLatency, scope, kAudioObjectPropertyElementMain };
         propertySize = sizeof(streamLatency);
-        result = AudioObjectGetPropertyData (ids[0], &streamLatencyPropertyAddress, 0, NULL, &propertySize, &streamLatency);
+        result = AudioObjectGetPropertyData(ids[0], &streamLatencyPropertyAddress, 0, NULL, &propertySize, &streamLatency);
         if (result != noErr) {
             NSLog(@"Failed to get stream latency, err: %d", result);
-            return -1;
+            return 0;
         }
     }
     
@@ -338,12 +531,21 @@ AVAudioFramePosition latency(UInt32 deviceId, AudioObjectPropertyScope scope)
     self = [super init];
     if (self) {
         _isPaused = NO;
-        _queue = NULL;
+#ifdef support_audioqueueplayback
+        _context.stream.queue = NULL;
+#endif
+#ifdef support_avaudioengine
+        _engine = nil;
+        _player = nil;
+#endif
         _outputVolume = 1.0;
+     
+        _context.semaphore = dispatch_semaphore_create(kPlaybackBufferCount);
 
         AudioObjectPropertyAddress defaultDevicePropertyAddress = { kAudioHardwarePropertyDefaultOutputDevice, kAudioObjectPropertyScopeGlobal, kAudioObjectPropertyElementMain };
         OSStatus res = AudioObjectAddPropertyListener(kAudioObjectSystemObject, &defaultDevicePropertyAddress, propertyCallbackDefaultDevice, &_context);
         assert(res == 0);
+        _decodeOperation = NULL;
     }
     return self;
 }
@@ -361,46 +563,65 @@ AVAudioFramePosition latency(UInt32 deviceId, AudioObjectPropertyScope scope)
 
 - (void)setTempoShift:(double)tempoShift
 {
-    assert(_queue != nil);
+#ifdef support_audioqueueplayback
+    assert(_context.stream.queue != nil);
+#endif
 }
 
 - (double)tempoShift
 {
-    if (_queue ==  nil) {
+#ifdef support_audioqueueplayback
+    if (_context.stream.queue ==  nil) {
         return 1.0;
     }
+#endif
     return 1.0;
 }
 
 - (void)setOutputVolume:(double)volume
 {
-    assert(_queue != nil);
-    AudioQueueSetParameter(_queue, kAudioQueueParam_Volume, volume);
+#ifdef support_audioqueueplayback
+    assert(_context.stream.queue != nil);
+    AudioQueueSetParameter(_context.stream.queue, kAudioQueueParam_Volume, volume);
+#endif
     _outputVolume = volume;
 }
 
 - (double)outputVolume
 {
-    if (_queue ==  nil) {
+#ifdef support_audioqueueplayback
+    if (_context.stream.queue ==  nil) {
         return 0.0;
     }
     AudioQueueParameterValue volume;
-    OSStatus res = AudioQueueGetParameter(_queue, kAudioQueueParam_Volume, &volume);
+    OSStatus res = AudioQueueGetParameter(_context.stream.queue, kAudioQueueParam_Volume, &volume);
     assert(0 == res);
     _outputVolume = volume;
     return volume;
+#endif
+    return _outputVolume;
 }
 
 - (BOOL)playing
 {
-    if (_queue ==  nil) {
+#ifdef support_audioqueueplayback
+    if (_context.stream.queue ==  nil) {
         return NO;
     }
     UInt32 isRunning = false;
     UInt32 size = sizeof(isRunning);
-    OSStatus res = AudioQueueGetProperty(_queue, kAudioQueueProperty_IsRunning, &isRunning, &size);
+    OSStatus res = AudioQueueGetProperty(_context.stream.queue, kAudioQueueProperty_IsRunning, &isRunning, &size);
     assert(0 == res);
     return (isRunning > 0) & !_isPaused;
+#endif
+    
+#ifdef support_avaudioengine
+    return _player.isPlaying & !_isPaused;
+#endif
+    
+#ifdef support_avplayer
+    return _player.timeControlStatus == AVPlayerTimeControlStatusPlaying;
+#endif
 }
 
 - (void)startTapping:(TapBlock)tap
@@ -429,7 +650,12 @@ AVAudioFramePosition latency(UInt32 deviceId, AudioObjectPropertyScope scope)
     
     if (_context.sample.decodedFrames >= nextFrame + enoughFrames) {
         NSLog(@"got enough data already.");
+        self.timer = nil;
+        [self setCurrentFrame:nextFrame];
         [self play];
+        if (paused) {
+            [self pause];
+        }
         return;
     }
 
@@ -453,7 +679,7 @@ AVAudioFramePosition latency(UInt32 deviceId, AudioObjectPropertyScope scope)
     }];
 }
 
-- (void)playPause
+- (void)togglePause
 {
     if (!self.playing) {
         [self play];
@@ -464,29 +690,49 @@ AVAudioFramePosition latency(UInt32 deviceId, AudioObjectPropertyScope scope)
 
 - (void)pause
 {
-    if (_queue == NULL) {
+#ifdef support_audioqueueplayback
+    if (_context.stream.queue == NULL) {
         NSLog(@"no queue");
         return;
     }
 
     NSLog(@"pausing audioqueue");
-    OSStatus res = AudioQueuePause(_queue);
+    OSStatus res = AudioQueuePause(_context.stream.queue);
     assert(0 == res);
+#endif
+
+#ifdef support_avaudioengine
+    [_player pause];
+#endif
 
     _isPaused = YES;
-    [self.delegate audioControllerPlaybackPaused];
+}
+
+#ifdef support_avplayer
+- (void)play
+{
+    if (self.playing) {
+        NSLog(@"already playing");
+        return;
+    }
+    NSLog(@"starting playback...");
+    [_player play];
+
+    _isPaused = NO;
     [[NSNotificationCenter defaultCenter] postNotificationName:kAudioControllerChangedPlaybackStateNotification
                                                         object:self];
 }
+#endif
 
+#ifdef support_audioqueueplayback
 - (void)play
 {
-    if (_queue == NULL) {
-        NSLog(@"no queue");
-        return;
-    }
     if (self.playing) {
         NSLog(@"already playing");
+        return;
+    }
+    if (_context.stream.queue == NULL) {
+        NSLog(@"no queue");
         return;
     }
     if (_context.endOfStream) {
@@ -496,38 +742,101 @@ AVAudioFramePosition latency(UInt32 deviceId, AudioObjectPropertyScope scope)
         NSLog(@"resetting playback position to start of sample");
         for (int i = 0; i < kPlaybackBufferCount; i++) {
             bufferCallback(&_context,
-                           _queue,
-                           _context.buffers[i]);
+                           _context.stream.queue,
+                           _context.stream.buffers[i]);
         }
     }
     
     NSLog(@"starting audioqueue");
-    OSStatus res = AudioQueueStart(_queue, NULL);
+    OSStatus res = AudioQueueStart(_context.stream.queue, NULL);
     assert(0 == res);
-    
     _isPaused = NO;
+
+    [[NSNotificationCenter defaultCenter] postNotificationName:kAudioControllerChangedPlaybackStateNotification
+                                                        object:kPlaybackStateStarted];
+}
+#endif
+
+#ifdef support_avaudioengine
+- (void)play
+{
+    if (self.playing) {
+        NSLog(@"already playing");
+        return;
+    }
+    
+    NSLog(@"starting playback...");
+    [_player play];
+
+    [self.delegate audioControllerPlaybackStarted];
     [self.delegate audioControllerPlaybackPlaying];
+
+    NSLog(@"engine state: %@", [_engine description]);
+    assert(_engine.isRunning);
+    _isPaused = NO;
     [[NSNotificationCenter defaultCenter] postNotificationName:kAudioControllerChangedPlaybackStateNotification
                                                         object:self];
 }
+#endif
 
 - (NSTimeInterval)currentTime
 {
-    return currentTime(_queue, &_context);
+#ifdef support_audioqueueplayback
+    return currentTime(_context.stream.queue, &_context);
+#endif
+#ifdef support_avaudioengine
+    return [self currentFrame] / _context.sample.rate;
+#endif
+#ifdef support_avplayer
+    return CMTimeGetSeconds(_player.currentTime);
+#endif
+}
+
+- (void)setCurrentTime:(NSTimeInterval)time
+{
+    [self setCurrentFrame:time * _context.sample.rate];
 }
 
 - (AVAudioFramePosition)currentFrame
 {
-    return currentFrame(_queue, &_context);
+#ifdef support_audioqueueplayback
+    return currentFrame(_context.stream.queue, &_context);
+#endif
+    
+#ifdef support_avaudioengine
+    if (_player.isPlaying) {
+        AVAudioTime* nodeTime = [_player lastRenderTime];
+        if (nodeTime) {
+            AVAudioTime* playerTime = [_player playerTimeForNodeTime:nodeTime];
+            
+            if (playerTime) {
+                return playerTime.sampleTime;
+                // Calculate playback position in seconds
+                //NSTimeInterval playbackPosition = (NSTimeInterval)playerTime.sampleTime / playerTime.sampleRate;
+                //NSLog(@"Playback Position: %f seconds", playbackPosition);
+            } else {
+                NSLog(@"Player time is not available.");
+            }
+        } else {
+            NSLog(@"Node time is not available.");
+        }
+    } else {
+        NSLog(@"Player not playing.");
+        return _context.nextFrame;
+    }
+    return 0.0;
+#endif
+    
+#ifdef support_avplayer
+    return [self currentTime] * _context.sample.rate;
+#endif
 }
 
 - (void)setCurrentFrame:(AVAudioFramePosition)newFrame
 {
-    AVAudioFramePosition oldFrame = currentFrame(_queue, &_context);
-
+    assert(newFrame < _context.sample.frames);
+    AVAudioFramePosition oldFrame = self.currentFrame;
     _context.seekFrame += newFrame - oldFrame;
-
-    assert(_context.sample.frames > 0);
     _context.nextFrame = newFrame;
 }
 
@@ -544,34 +853,50 @@ AVAudioFramePosition latency(UInt32 deviceId, AudioObjectPropertyScope scope)
     [_timer invalidate];
     _timer = nil;
     
-    if (_queue != NULL) {
-        AudioQueueStop(_queue, TRUE);
+#ifdef support_audioqueueplayback
+    if (_context.stream.queue != NULL) {
+        AudioQueueStop(_context.stream.queue, TRUE);
         
         for (int i = 0; i < kPlaybackBufferCount; i++) {
-            if (_context.buffers[i] != NULL) {
-                AudioQueueFreeBuffer(_queue, _context.buffers[i]);
-                _context.buffers[i] = NULL;
+            if (_context.stream.buffers[i] != NULL) {
+                AudioQueueFreeBuffer(_context.stream.queue, _context.stream.buffers[i]);
+                _context.stream.buffers[i] = NULL;
             }
         }
-        AudioQueueRemovePropertyListener(_queue, kAudioQueueProperty_IsRunning, propertyCallbackIsRunning, &_context);
+        AudioQueueRemovePropertyListener(_context.stream.queue, kAudioQueueProperty_IsRunning, propertyCallbackIsRunning, &_context);
 
-        AudioQueueDispose(_queue, true);
-        _queue = NULL;
+        AudioQueueDispose(_context.stream.queue, true);
+        _context.stream.queue = NULL;
     }
+#endif
     
-    UInt32 deviceId = outputDevice();
+#ifdef support_avaudioengine
+//    [_player stop];
+//    [_engine stop];
+////
+//    NSLog(@"releasing player...");
+//    _player = nil;
+//
+//    NSLog(@"releasing engine...");
+//    _engine = nil;
+#endif
+
+#ifdef support_avplayer
+#endif
+
+    UInt32 deviceId = defaultOutputDevice();
     if (deviceId == 0) {
         NSLog(@"couldnt get output device -- that is unexpected");
         return;
     }
     NSString* name = deviceName(deviceId);
-    _context.latencyFrames = latency(deviceId, kAudioDevicePropertyScopeOutput);
-    NSLog(@"playback will happen on device %@ with a latency of %lld frames", name, _context.latencyFrames);
+    _context.stream.latencyFrames = totalLatency(deviceId, kAudioDevicePropertyScopeOutput);
+    NSLog(@"playback will happen on device %@ with a latency of %lld frames", name, _context.stream.latencyFrames);
 }
 
-- (AVAudioFramePosition)latency
+- (AVAudioFramePosition)totalLatency
 {
-    return _context.latencyFrames;
+    return _context.stream.latencyFrames;
 }
 
 - (LazySample*)sample
@@ -579,6 +904,205 @@ AVAudioFramePosition latency(UInt32 deviceId, AudioObjectPropertyScope scope)
     return _context.sample;
 }
 
+- (NSArray*)createBuffersWithFormat:(AVAudioFormat*)format
+{
+    NSMutableArray* buffers = [NSMutableArray arrayWithCapacity:kPlaybackBufferCount];
+    for (int i=0;i < kPlaybackBufferCount;i++) {
+        AVAudioPCMBuffer* buffer = [[AVAudioPCMBuffer alloc] initWithPCMFormat:format
+                                                                 frameCapacity:kPlaybackBufferFrames];
+        [buffers addObject:buffer];
+    }
+    return buffers;
+}
+
+//- (BOOL)bufferCallback:(AVAudioPCMBuffer*)buffer
+//{
+//    os_signpost_interval_begin(pointsOfInterest, POIAudioBufferCallback, "AudioBufferCallback");
+//    
+//    NSLog(@"buffer : %@", buffer);
+//    //dispatch_semaphore_wait(context->semaphore, DISPATCH_TIME_FOREVER);
+//    unsigned int frames = buffer.frameCapacity;
+//
+//    float* output[2];
+//    
+//    output[0] = buffer.floatChannelData[0];
+//    output[1] = buffer.floatChannelData[1];
+//    unsigned long long fetched = [_context.sample rawSampleFromFrameOffset:_context.nextFrame
+//                                                                    frames:frames
+//                                                                   outputs:output];
+//    _context.nextFrame += fetched;
+//
+//    if (fetched == 0) {
+//        NSLog(@"reached end of stream at %lld", _context.nextFrame);
+//        return NO;
+//    }
+//    
+//    [_player scheduleBuffer:buffer completionHandler:^{
+//        [self bufferCallback:buffer];
+//    }];
+//
+//    os_signpost_interval_end(pointsOfInterest, POIAudioBufferCallback, "AudioBufferCallback");
+//    return YES;
+//}
+
+//- (BOOL)processBuffers
+//{
+//    //dispatch_semaphore_wait(context->semaphore, DISPATCH_TIME_FOREVER);
+//    unsigned int frames = buffer.frameCapacity;
+//
+//    float* output[2];
+//    
+//    output[0] = buffer.floatChannelData[0];
+//    output[1] = buffer.floatChannelData[1];
+//    unsigned long long fetched = [_context.sample rawSampleFromFrameOffset:_context.nextFrame
+//                                                                    frames:frames
+//                                                                   outputs:output];
+//    _context.nextFrame += fetched;
+//
+//    if (fetched == 0) {
+//        NSLog(@"reached end of stream at %lld", _context.nextFrame);
+//        return NO;
+//    }
+//    
+//    [_player scheduleBuffer:buffer completionHandler:^{
+//        [self bufferCallback:buffer];
+//    }];
+//
+//    os_signpost_interval_end(pointsOfInterest, POIAudioBufferCallback, "AudioBufferCallback");
+//    return YES;
+//}
+
+void LogBufferContents(const uint8_t *buffer, size_t length)
+{
+    NSMutableString *bufferString = [NSMutableString stringWithCapacity:length * 3];
+    
+    for (size_t i = 0; i < length; i++) {
+        [bufferString appendFormat:@"%02x ", buffer[i]];
+    }
+
+    NSLog(@"buffer contents: %@", bufferString);
+}
+
+- (BOOL)fillBuffer:(AVAudioPCMBuffer*)buffer
+{
+    NSLog(@"filling buffer : %@", buffer);
+    //dispatch_semaphore_wait(context->semaphore, DISPATCH_TIME_FOREVER);
+    unsigned int frames = buffer.frameCapacity;
+    
+    float* output[2] = { buffer.floatChannelData[0], buffer.floatChannelData[1] };
+    unsigned long long fetched = [_context.sample rawSampleFromFrameOffset:_context.nextFrame
+                                                                    frames:frames
+                                                                   outputs:output];
+    
+    _context.nextFrame += fetched;
+    
+//    LogBufferContents((const uint8_t *)buffer.floatChannelData[0], 32);
+//    LogBufferContents((const uint8_t *)buffer.floatChannelData[1], 32);
+//    LogBufferContents((const uint8_t *)buffer.floatChannelData[0]+32, 32);
+//    LogBufferContents((const uint8_t *)buffer.floatChannelData[1]+32, 32);
+//    LogBufferContents((const uint8_t *)buffer.floatChannelData[0]+64, 32);
+//    LogBufferContents((const uint8_t *)buffer.floatChannelData[1]+64, 32);
+//    LogBufferContents((const uint8_t *)buffer.floatChannelData[0]+96, 32);
+//    LogBufferContents((const uint8_t *)buffer.floatChannelData[1]+96, 32);
+
+    if (fetched == 0) {
+        NSLog(@"reached end of stream at %lld", _context.nextFrame);
+        return NO;
+    }
+    return YES;
+}
+
+#ifdef support_avplayer
+- (BOOL)setupPlayerWithSample:(LazySample*)sample error:(NSError**)error
+{
+    NSLog(@"new engine...");
+    self.player = [[AVPlayer alloc] initWithURL:sample.source.url];
+    return YES;
+}
+#endif
+
+#ifdef support_avaudioengine
+- (void)scheduleNextBuffer
+{
+    int index = self->_context.stream[0].bufferIndex;
+    AVAudioPCMBuffer* buffer = self->_buffers[index];
+    
+    NSLog(@"scheduling %@", buffer);
+    [_player scheduleBuffer:buffer completionHandler:^{
+        NSLog(@"done with %@", buffer);
+        if ([self fillBuffer:buffer]) {
+            [self scheduleNextBuffer];
+        };
+    }];
+
+    _context.stream[0].bufferIndex = (index + 1) % 2;
+}
+
+- (BOOL)setupEngineWithSample:(LazySample*)sample error:(NSError**)error
+{
+    NSLog(@"new engine...");
+    self.engine = [[AVAudioEngine alloc] init];
+
+    self.player = [[AVAudioPlayerNode alloc] init];
+    [_engine attachNode:_player];
+
+    AVAudioFormat* format = sample.source.processingFormat;
+    self.buffers = [self createBuffersWithFormat:format];
+    [self fillBuffer:self->_buffers[0]];
+    [self fillBuffer:self->_buffers[1]];
+
+    NSLog(@"connecting player to engine...");
+    [_engine connect:_player
+                  to:_engine.mainMixerNode
+              format:format];
+
+    [_engine connect:_engine.mainMixerNode
+                  to:_engine.outputNode
+              format:nil];
+
+    NSLog(@"starting engine...");
+    if (![_engine startAndReturnError:error]) {
+        NSLog(@"startAndReturnError failed: %@\n", *error);
+        return NO;
+    }
+    assert(!_engine.isInManualRenderingMode);
+
+    _context.stream[0].bufferIndex = 0;
+
+    NSLog(@"preparing engine...");
+    //[_engine prepare];
+
+    NSLog(@"engine state: %@", [_engine debugDescription]);
+
+//    [self scheduleNextBuffer];
+//    [self scheduleNextBuffer];
+    
+    [_player scheduleFile:sample.source atTime:nil completionHandler:nil];
+
+    return YES;
+}
+#endif
+
+#ifdef support_audioqueueplayback
+- (AudioQueueRef)createQueueWithSample:(LazySample*)sample
+{
+    AudioQueueRef queue = NULL;
+    // Create an audio queue with 32bit floating point samples.
+    AudioStreamBasicDescription fmt;
+    memset(&fmt, 0, sizeof(fmt));
+    fmt.mSampleRate = (Float64)sample.rate;
+    fmt.mFormatID = kAudioFormatLinearPCM;
+    fmt.mFormatFlags = kLinearPCMFormatFlagIsFloat | kAudioFormatFlagIsPacked;
+    fmt.mFramesPerPacket = 1;
+    fmt.mChannelsPerFrame = (uint32_t)sample.channels;
+    fmt.mBytesPerFrame = (unsigned int)_context.sample.frameSize;
+    fmt.mBytesPerPacket = (unsigned int)_context.sample.frameSize;
+    fmt.mBitsPerChannel = 32;
+    OSStatus res = AudioQueueNewOutput(&fmt, bufferCallback, &_context, NULL, NULL, 0, &queue);
+    assert((res == 0) && queue);
+    return queue;
+}
+#endif
 
 - (void)setSample:(LazySample*)sample
 {
@@ -591,50 +1115,53 @@ AVAudioFramePosition latency(UInt32 deviceId, AudioObjectPropertyScope scope)
     [self reset];
 
     _context.sample = sample;
-    _context.delegate = _delegate;
     _context.nextFrame = 0;
     _context.seekFrame = 0;
+    
+#ifdef support_avaudioengine
+    NSError* error = nil;
+    if (![self setupEngineWithSample:_context.sample error:&error]) {
+        NSLog(@"failed to setup engine: %@", error);
+    }
+#endif
 
-    // Create an audio queue with 32bit floating point samples.
-    AudioStreamBasicDescription fmt;
-    memset(&fmt, 0, sizeof(fmt));
-    fmt.mSampleRate = (Float64)sample.rate;
-    fmt.mFormatID = kAudioFormatLinearPCM;
-    fmt.mFormatFlags = kLinearPCMFormatFlagIsFloat | kAudioFormatFlagIsPacked;
-    fmt.mFramesPerPacket = 1;
-    fmt.mChannelsPerFrame = (uint32_t)sample.channels;
-    fmt.mBytesPerFrame = (unsigned int)_context.sample.frameSize;
-    fmt.mBytesPerPacket = (unsigned int)_context.sample.frameSize;
-    fmt.mBitsPerChannel = 32;
-    OSStatus res = AudioQueueNewOutput(&fmt, bufferCallback, &_context, NULL, NULL, 0, &_queue);
-    assert((res == 0) && _queue);
-   
+#ifdef support_avplayer
+    NSError* error = nil;
+    if (![self setupPlayerWithSample:_context.sample error:&error]) {
+        NSLog(@"failed to setup player: %@", error);
+    }
+#endif
+
+#ifdef support_audioqueueplayback
+    _context.stream.queue = [self createQueueWithSample:sample];
+
+    OSStatus res;
     // Create N audio buffers.
     for (int i = 0; i < kPlaybackBufferCount; i++) {
         UInt32 size = (UInt32)_context.sample.frameSize * kPlaybackBufferFrames;
-        res = AudioQueueAllocateBuffer(_queue, size, &_context.buffers[i]);
-        assert((res == 0) && _context.buffers[i]);
-        _context.buffers[i]->mAudioDataByteSize = size;
-        _context.buffers[i]->mUserData = &_context;
-        _context.bufferIndex = i;
+        res = AudioQueueAllocateBuffer(_context.stream.queue, size, &_context.stream.buffers[i]);
+        assert((res == 0) && _context.stream.buffers[i]);
+        _context.stream.buffers[i]->mAudioDataByteSize = size;
+        _context.stream.buffers[i]->mUserData = &_context;
+        _context.stream.bufferIndex = i;
         // Populate buffer with audio data.
-        bufferCallback(&_context, _queue, _context.buffers[i]);
+        bufferCallback(&_context, _context.stream.queue, _context.stream.buffers[i]);
     }
-
     // Listen for kAudioQueueProperty_IsRunning.
-    res = AudioQueueAddPropertyListener(_queue, 
+    res = AudioQueueAddPropertyListener(_context.stream.queue,
                                         kAudioQueueProperty_IsRunning,
                                         propertyCallbackIsRunning,
                                         &_context);
     assert(res == 0);
 
     // Assert the new queue inherits our volume desires.
-    AudioQueueSetParameter(_queue, kAudioQueueParam_Volume, _outputVolume);
-   
+    AudioQueueSetParameter(_context.stream.queue, kAudioQueueParam_Volume, _outputVolume);
+
     uint32_t primed = 0;
-    res = AudioQueuePrime(_queue, 0, &primed);
+    res = AudioQueuePrime(_context.stream.queue, 0, &primed);
     assert((res == 0) && primed > 0);
-    
+#endif
+
 #ifdef support_rubberband
     _context.stretcher = new RubberBand::RubberBandStretcher(sample.rate, sample.channels);
     _context.stretcher->setTimeRatio(1.2);
@@ -642,4 +1169,166 @@ AVAudioFramePosition latency(UInt32 deviceId, AudioObjectPropertyScope scope)
 #endif
     return;
 }
+
+- (void)checkRoute
+{
+    Class MPAVRoutingController = NSClassFromString(@"MPAVRoutingController");
+    Class MPAVRoute = NSClassFromString(@"MPAVRoute");
+
+    id routingController = [[MPAVRoutingController alloc] init];
+    NSArray* availableRoutes = [routingController performSelector:@selector(availableRoutes)];
+
+}
+
+- (void)decodeAbortWithCallback:(void (^)(void))callback
+{
+    if (_decodeOperation != NULL) {
+        dispatch_block_cancel(_decodeOperation);
+        dispatch_block_notify(_decodeOperation, dispatch_get_main_queue(), ^{
+            callback();
+        });
+    } else {
+        callback();
+    }
+}
+
+- (void)decodeAsyncWithSample:(LazySample*)sample callback:(void (^)(BOOL))callback
+{
+#ifdef DEBUGGING
+    __block BOOL done = NO;
+    _queueOperation = dispatch_block_create(DISPATCH_BLOCK_NO_QOS_CLASS, ^{
+        done = [self decode];
+    });
+    dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0), _queueOperation);
+    dispatch_block_notify(_queueOperation, dispatch_get_main_queue(), ^{
+        callback(done);
+    });
+#else
+    __block BOOL done = NO;
+    _decodeOperation = dispatch_block_create(DISPATCH_BLOCK_NO_QOS_CLASS, ^{
+        done = [self decode:sample cancelTest:^{
+            if (dispatch_block_testcancel(self->_decodeOperation) != 0) {
+                return YES;
+            }
+            return NO;
+        }];
+    });
+    
+    // Run the decode operation!
+    dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0), _decodeOperation);
+    // Dispatch a callback on the main thread once decoding is done.
+    dispatch_block_notify(_decodeOperation, dispatch_get_main_queue(), ^{
+        callback(done);
+    });
+#endif
+}
+
+- (BOOL)decode:(LazySample*)sample cancelTest:(BOOL (^)(void))cancelTest
+{
+    NSLog(@"decoding sample %@...", sample);
+    AVAudioEngine* engine = [[AVAudioEngine alloc] init];
+
+    NSLog(@"enabling manual render...");
+    NSError* error = nil;
+    [engine enableManualRenderingMode:AVAudioEngineManualRenderingModeOffline
+                               format:sample.source.processingFormat
+                    maximumFrameCount:kDecoderBufferFrames
+                                error:&error];
+
+    AVAudioPlayerNode* player = [[AVAudioPlayerNode alloc] init];
+
+    NSLog(@"attaching player node...");
+    [engine attachNode:player];
+
+    NSLog(@"connecting player to engine...");
+    [engine connect:player
+                 to:engine.outputNode
+             format:sample.source.processingFormat];
+
+//    [engine connect:engine.mainMixerNode
+//             format:sample.source.processingFormat];
+
+
+    NSLog(@"starting engine...");
+    if (![engine startAndReturnError:&error]) {
+        NSLog(@"startAndReturnError failed: %@\n", error);
+        return NO;
+    }
+
+    NSLog(@"scheduling file...");
+    [player scheduleFile:sample.source atTime:0 completionHandler:nil];
+
+    NSLog(@"engine state: %@", [engine description]);
+
+    AVAudioPCMBuffer* buffer =
+        [[AVAudioPCMBuffer alloc] initWithPCMFormat:engine.manualRenderingFormat
+                                      frameCapacity:kDecoderBufferFrames];
+    
+    NSLog(@"manual rendering maximum frame count: %d\n", engine.manualRenderingMaximumFrameCount);
+
+    [player play];
+
+    unsigned long long pageIndex = 0;
+    
+    BOOL ret = YES;
+
+    while (engine.manualRenderingSampleTime < sample.source.length) {
+        if (cancelTest()) {
+            ret = NO;
+            NSLog(@"...decoding aborted!!!");
+            break;
+        }
+        //NSLog(@"manual rendering sample time: %lld\n", _engine.manualRenderingSampleTime);
+        // `_source.length` is the number of sample frames in the file.
+        // `_engine.manualRenderingSampleTime`
+        unsigned long long frameLeftCount = sample.source.length - engine.manualRenderingSampleTime;
+        //_engine.manualRenderingMaximumFrameCount
+
+        if ((unsigned long long)buffer.frameCapacity > frameLeftCount) {
+            NSLog(@"last tile rendereing: %lld", pageIndex);
+        }
+        AVAudioFrameCount framesToRender = (AVAudioFrameCount)MIN(frameLeftCount, (long long)buffer.frameCapacity);
+        AVAudioEngineManualRenderingStatus status = [engine renderOffline:framesToRender
+                                                                 toBuffer:buffer
+                                                                    error:&error];
+
+        switch (status) {
+            case AVAudioEngineManualRenderingStatusSuccess: {
+                unsigned long long rawDataLengthPerChannel = buffer.frameLength * sizeof(float);
+                
+                NSMutableArray<NSData*>* channels = [NSMutableArray array];
+                
+                for (int channelIndex = 0; channelIndex < sample.channels; channelIndex++) {
+                    NSData* channel = [NSData dataWithBytes:buffer.floatChannelData[channelIndex]
+                                                     length:rawDataLengthPerChannel];
+                    [channels addObject:channel];
+                }
+                [sample addLazyPageIndex:pageIndex channels:channels];
+                pageIndex++;
+            }
+            // Whenever the engine needs more data, this will get triggered - for our manual
+            // rendering this comes directly before `AVAudioEngineManualRenderingStatusSuccess`.
+            case AVAudioEngineManualRenderingStatusInsufficientDataFromInputNode:
+                break;
+            case AVAudioEngineManualRenderingStatusError:
+                NSLog(@"renderOffline failed: %@\n", error);
+                return NO;
+            case AVAudioEngineManualRenderingStatusCannotDoInCurrentContext:
+                NSLog(@"somehow one round failed, lets retry\n");
+                break;
+        }
+    };
+    NSLog(@"...decoding done");
+    [player stop];
+    [engine stop];
+    engine = nil;
+    player = nil;
+    NSLog(@"old engine freed");
+    
+    // Debug output to `/tmp/dumpedLazySample.raw`
+    // [sample dumpToFile];
+
+    return ret;
+}
+
 @end

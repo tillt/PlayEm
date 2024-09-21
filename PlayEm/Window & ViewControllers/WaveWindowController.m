@@ -1712,14 +1712,13 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
             [self loadLazySample:lazySample];
             [self setMeta:meta];
             _audioController.sample = lazySample;
-            [_audioController playWhenReady:frame paused:!playing];
+            [_audioController playSample:lazySample frame:frame paused:!playing];
         }];
     } else {
         [self loadLazySample:lazySample];
         [self setMeta:meta];
-
         _audioController.sample = lazySample;
-        [_audioController playWhenReady:frame paused:!playing];
+        [_audioController playSample:lazySample frame:frame paused:!playing];
     }
 
     return YES;
@@ -1730,11 +1729,11 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     // We keep a reference around so that the `sample` setter will cause the possibly
     // ongoing decode of a previous sample to get aborted.
     self.lazySample = lazySample;
-        
+    
     [self loadTrackState:LoadStateInit value:0.0];
     [self loadTrackState:LoadStateStopped value:0.0];
 
-    _visualSample = [[VisualSample alloc] initWithSample:_lazySample
+    _visualSample = [[VisualSample alloc] initWithSample:lazySample
                                           pixelPerSecond:kPixelPerSecond
                                                tileWidth:kDirectWaveViewTileWidth];
 
@@ -1742,8 +1741,8 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     
     _waveLayerDelegate.visualSample = self.visualSample;
 
-    _totalVisual = [[VisualSample alloc] initWithSample:_lazySample
-                                         pixelPerSecond:_totalView.bounds.size.width / _lazySample.duration
+    _totalVisual = [[VisualSample alloc] initWithSample:lazySample
+                                         pixelPerSecond:_totalView.bounds.size.width / lazySample.duration
                                               tileWidth:kTotalWaveViewTileWidth];
 
     _totalWaveLayerDelegate.visualSample = _totalVisual;
@@ -1756,8 +1755,8 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
         }
     }];
     
-    _waveView.frames = _lazySample.frames;
-    _totalView.frames = _lazySample.frames;
+    _waveView.frames = lazySample.frames;
+    _totalView.frames = lazySample.frames;
     _waveView.frame = CGRectMake(0.0,
                                  0.0,
                                  self.visualSample.width,

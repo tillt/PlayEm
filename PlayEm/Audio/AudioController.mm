@@ -634,13 +634,13 @@ AVAudioFramePosition totalLatency(UInt32 deviceId, AudioObjectPropertyScope scop
     _context.tapBlock = NULL;
 }
 
-- (void)playWhenReady:(unsigned long long)nextFrame paused:(BOOL)paused
+- (void)playSample:(LazySample*)sample frame:(unsigned long long)nextFrame paused:(BOOL)paused
 {
     if (self.playing) {
         NSLog(@"playing already");
         return;
     }
-    
+
     const unsigned long long enoughFrames = _context.sample.rate * kEnoughSecondsDecoded;
     
     if (nextFrame + enoughFrames >= _context.sample.frames) {
@@ -1118,7 +1118,7 @@ void LogBufferContents(const uint8_t *buffer, size_t length)
     _context.sample = sample;
     _context.nextFrame = 0;
     _context.seekFrame = 0;
-    
+
 #ifdef support_avaudioengine
     NSError* error = nil;
     if (![self setupEngineWithSample:_context.sample error:&error]) {

@@ -55,7 +55,7 @@ typedef void (^TapBlock) (unsigned long long, float*, unsigned int);
 - (void)togglePause;
 - (void)play;
 - (void)pause;
-- (void)playWhenReady:(unsigned long long)nextFrame paused:(BOOL)paused;
+- (void)playSample:(LazySample*)sample frame:(unsigned long long)frame paused:(BOOL)paused;
 - (void)startTapping:(TapBlock)tap;
 - (void)stopTapping;
 - (NSTimeInterval)currentTime;

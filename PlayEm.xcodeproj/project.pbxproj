@@ -43,6 +43,7 @@
 		BB8A100728FF49E400FC6013 /* Scroller.m in Sources */ = {isa = PBXBuildFile; fileRef = BB8A100628FF49E400FC6013 /* Scroller.m */; };
 		BB8A100C290586E500FC6013 /* CAShapeLayer+Path.m in Sources */ = {isa = PBXBuildFile; fileRef = BB8A100B290586E500FC6013 /* CAShapeLayer+Path.m */; };
 		BB9401882AD0974900B7B150 /* AcceleratedBiquadFilter.m in Sources */ = {isa = PBXBuildFile; fileRef = BB9401872AD0974900B7B150 /* AcceleratedBiquadFilter.m */; };
+		BB94D1C92CA970D1001D10D0 /* ReducedVisualSample.m in Sources */ = {isa = PBXBuildFile; fileRef = BB94D1C82CA970D1001D10D0 /* ReducedVisualSample.m */; };
 		BB9C77E52A8D5F7C00A138BE /* WaveView.m in Sources */ = {isa = PBXBuildFile; fileRef = BB9C77E42A8D5F7C00A138BE /* WaveView.m */; };
 		BB9C77E72A8D618700A138BE /* CoreImage.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BB9C77E62A8D618700A138BE /* CoreImage.framework */; };
 		BB9CE9B128D388F3008DFF91 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = BB9CE9B028D388F3008DFF91 /* MainMenu.xib */; };
@@ -160,6 +161,8 @@
 		BB8A100B290586E500FC6013 /* CAShapeLayer+Path.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "CAShapeLayer+Path.m"; sourceTree = "<group>"; };
 		BB9401862AD0974900B7B150 /* AcceleratedBiquadFilter.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AcceleratedBiquadFilter.h; sourceTree = "<group>"; };
 		BB9401872AD0974900B7B150 /* AcceleratedBiquadFilter.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AcceleratedBiquadFilter.m; sourceTree = "<group>"; };
+		BB94D1C72CA970D1001D10D0 /* ReducedVisualSample.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ReducedVisualSample.h; sourceTree = "<group>"; };
+		BB94D1C82CA970D1001D10D0 /* ReducedVisualSample.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ReducedVisualSample.m; sourceTree = "<group>"; };
 		BB9C77E32A8D5F3400A138BE /* WaveView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WaveView.h; sourceTree = "<group>"; };
 		BB9C77E42A8D5F7C00A138BE /* WaveView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WaveView.m; sourceTree = "<group>"; };
 		BB9C77E62A8D618700A138BE /* CoreImage.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreImage.framework; path = System/Library/Frameworks/CoreImage.framework; sourceTree = SDKROOT; };
@@ -304,6 +307,8 @@
 				BBDB1B422B65CC0500A953F7 /* VisualPair.h */,
 				BB0D527F244CEE22007C909F /* VisualSample.h */,
 				BB0D5280244CEE22007C909F /* VisualSample.m */,
+				BB94D1C72CA970D1001D10D0 /* ReducedVisualSample.h */,
+				BB94D1C82CA970D1001D10D0 /* ReducedVisualSample.m */,
 				BBDA2FFC2A7FCCB70084E2B6 /* BeatTrackedSample.h */,
 				BBDA2FFD2A7FCEEC0084E2B6 /* BeatTrackedSample.m */,
 				BB9401862AD0974900B7B150 /* AcceleratedBiquadFilter.h */,
@@ -639,6 +644,7 @@
 				BB2CF8AD259EB66900D6BA03 /* LazySample.m in Sources */,
 				BB3927022C14C606009C7B32 /* TableCellView.m in Sources */,
 				BB0C5D9327768D2400856978 /* MatrixUtilities.m in Sources */,
+				BB94D1C92CA970D1001D10D0 /* ReducedVisualSample.m in Sources */,
 				BB39270C2C1CD1E3009C7B32 /* MediaMetaData+StateAdditions.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

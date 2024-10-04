@@ -17,10 +17,6 @@
 {
     // FIXME: losing the error from the previous window
 }
-
-@property (assign, nonatomic) size_t tileWidth;
-@property (assign, nonatomic) double framesPerPixel;
-@property (strong, nonatomic) ConcurrentAccessDictionary* operations;
 @property (strong, nonatomic) NSMutableArray<NSMutableData*>* sampleBuffers;
 
 @end
@@ -41,6 +37,7 @@
         _framesPerPixel = (double)sample.rate / pixelPerSecond;
         _tileWidth = tileWidth;
         assert(_framesPerPixel >= 1.0);
+        
         _sampleBuffers = [NSMutableArray array];
 
         unsigned long long framesNeeded = tileWidth * _framesPerPixel;
@@ -272,6 +269,5 @@
 
     return blockOperation;
 }
-
 
 @end

@@ -16,6 +16,7 @@
 #import "WaveWindowController.h"
 #import "AudioController.h"
 #import "VisualSample.h"
+#import "ReducedVisualSample.h"
 #import "BeatTrackedSample.h"
 #import "LazySample.h"
 #import "BrowserController.h"
@@ -1741,9 +1742,9 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     
     _waveLayerDelegate.visualSample = self.visualSample;
 
-    _totalVisual = [[VisualSample alloc] initWithSample:lazySample
-                                         pixelPerSecond:_totalView.bounds.size.width / lazySample.duration
-                                              tileWidth:kTotalWaveViewTileWidth];
+    _totalVisual = [[ReducedVisualSample alloc] initWithSample:lazySample
+                                                pixelPerSecond:_totalView.bounds.size.width / lazySample.duration
+                                                     tileWidth:kTotalWaveViewTileWidth];
 
     _totalWaveLayerDelegate.visualSample = _totalVisual;
 
@@ -1754,14 +1755,17 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
             NSLog(@"never finished the decoding");
         }
     }];
-    
+
     _waveView.frames = lazySample.frames;
     _totalView.frames = lazySample.frames;
     _waveView.frame = CGRectMake(0.0,
                                  0.0,
                                  self.visualSample.width,
                                  self.waveView.bounds.size.height);
-    [_totalView refresh];
+
+    [_totalVisual prepareWithCallback:^{
+        [_totalView refresh];
+    }];
 }
 
 - (void)lazySampleDecoded

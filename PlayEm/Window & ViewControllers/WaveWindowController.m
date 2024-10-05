@@ -2101,6 +2101,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
 
     [self lockScreen];
 }
+
 - (void)audioControllerPlaybackPaused
 {
     NSLog(@"audioControllerPlaybackPaused");

@@ -55,8 +55,9 @@ NSString * const kLayerMaskImageName = @"IdentificationActiveStill";
     _overlayLayer.autoresizingMask = kCALayerWidthSizable | kCALayerHeightSizable;
     _overlayLayer.allowsEdgeAntialiasing = YES;
     _overlayLayer.contentsScale = [[NSScreen mainScreen] backingScaleFactor];
-    _overlayLayer.opacity = 0.5;
-    _overlayLayer.frame = CGRectMake(-self.bounds.size.width / 2, -self.bounds.size.height / 2, self.bounds.size.width * 2, self.bounds.size.height * 2);
+    _overlayLayer.opacity = 0.7;
+    _overlayLayer.anchorPoint = CGPointMake(0.5, 0.508);
+    _overlayLayer.frame = _maskLayer.frame;
     [layer addSublayer:_overlayLayer];
 
     return layer;

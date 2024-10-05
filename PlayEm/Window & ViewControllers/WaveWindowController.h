@@ -26,6 +26,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @class MediaMetaData;
 @class VisualSample;
+@class ReducedVisualSample;
 @class BeatTrackedSample;
 @class TotalWaveView;
 @class ScrollingTextView;
@@ -50,7 +51,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic, strong) AudioController* audioController;
 
-@property (strong, nonatomic) VisualSample* totalVisual;
+@property (strong, nonatomic) ReducedVisualSample* totalVisual;
 @property (strong, nonatomic) VisualSample* visualSample;
 @property (strong, nonatomic) BeatTrackedSample* beatSample;
 

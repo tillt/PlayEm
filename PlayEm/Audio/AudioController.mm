@@ -538,6 +538,8 @@ AVAudioFramePosition totalLatency(UInt32 deviceId, AudioObjectPropertyScope scop
 #endif
 
     _isPaused = YES;
+    [[NSNotificationCenter defaultCenter] postNotificationName:kAudioControllerChangedPlaybackStateNotification
+                                                        object:kPlaybackStatePaused];
 }
 
 #ifdef support_avplayer
@@ -586,6 +588,8 @@ AVAudioFramePosition totalLatency(UInt32 deviceId, AudioObjectPropertyScope scop
 
     [[NSNotificationCenter defaultCenter] postNotificationName:kAudioControllerChangedPlaybackStateNotification
                                                         object:kPlaybackStateStarted];
+    [[NSNotificationCenter defaultCenter] postNotificationName:kAudioControllerChangedPlaybackStateNotification
+                                                        object:kPlaybackStatePlaying];
 }
 #endif
 

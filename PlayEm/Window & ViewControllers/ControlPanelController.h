@@ -20,6 +20,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)togglePause:(id)sender;
 - (void)volumeChange:(id)sender;
 - (void)tempoChange:(id)sender;
+- (void)resetTempo:(id)sender;
 
 @end
 
@@ -38,6 +39,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (strong, nonatomic) CIFilter* zoomBlur;
 @property (strong, nonatomic) MediaMetaData* meta;
 
+- (id)initWithDelegate:(id<ControlPanelControllerDelegate>)delegate;
 - (void)loadView;
 
 @end

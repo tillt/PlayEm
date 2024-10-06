@@ -47,11 +47,7 @@
     
     const CGFloat volumeSliderY = 10.0;
     
-#ifdef support_rubberband
     const CGFloat controlPanelWidth = 920.0;
-#else
-    const CGFloat controlPanelWidth = 775.0;
-#endif
     const CGFloat controlPanelHeight = 56.0;
 
     const CGFloat timeLabelWidth = 152.0;
@@ -263,20 +259,22 @@
     sliderHeight);
     [self.view addSubview:textField];
     
-#ifdef support_rubberband
     _tempoSlider = [[NSSlider alloc] initWithFrame:NSMakeRect(_volumeSlider.frame.origin.x + _volumeSlider.frame.size.width + 70,
                                                                volumeSliderY,
                                                                sliderWidth,
                                                                sliderHeight)];
     _tempoSlider.trackFillColor = [NSColor labelColor];
     _tempoSlider.vertical = NO;
-    _tempoSlider.maxValue = 2.0;
-    _tempoSlider.minValue = 0.5;
+    _tempoSlider.maxValue = 1.2;
+    _tempoSlider.minValue = 0.8;
     _tempoSlider.floatValue = 1.0;
     _tempoSlider.controlSize = NSControlSizeMini;
     [_tempoSlider setAction:@selector(tempoChange:)];
     [self.view addSubview:_tempoSlider];
     
+    NSClickGestureRecognizer* gesture = [[NSClickGestureRecognizer alloc] initWithTarget:self action:@selector(resetTempo:)];
+    gesture.buttonMask = 0x2; // right mouse
+    [_tempoSlider addGestureRecognizer:gesture];
     
     textField = [NSTextField textFieldWithString:@"􀆊"];
     textField.bordered = NO;
@@ -305,7 +303,6 @@
                                  30.0,
                                  sliderHeight);
     [self.view addSubview:textField];
-#endif
 
     _level = [[NSLevelIndicator alloc] initWithFrame:NSMakeRect(_volumeSlider.frame.origin.x + 2.0,
                                                                 _volumeSlider.frame.origin.y + levelHeight - 4.0,
@@ -373,6 +370,11 @@
     layer.compositingFilter = [CIFilter filterWithName:@"CISourceAtopCompositing"];
     layer.opacity = 0.5;
     [_level.layer addSublayer:layer];
+}
+
+- (void)resetTempo:(id)sender
+{
+    [_delegate resetTempo:sender];
 }
 
 - (void)tempoChange:(id)sender

@@ -70,6 +70,7 @@ typedef struct {
 {
     AudioContext            _context;
     BOOL                    _isPaused;
+    float                   _tempoShift;
     double                  _outputVolume;
 }
 @property (strong, nonatomic) NSTimer* timer;
@@ -393,21 +394,21 @@ AVAudioFramePosition totalLatency(UInt32 deviceId, AudioObjectPropertyScope scop
                                       &_context);
 }
 
-- (void)setTempoShift:(double)tempoShift
+- (void)setTempoShift:(float)tempoShift
 {
 #ifdef support_audioqueueplayback
     assert(_context.stream.queue != nil);
+    AudioQueueSetParameter(_context.stream.queue, kAudioQueueParam_PlayRate, tempoShift);
 #endif
 }
 
-- (double)tempoShift
+- (float)tempoShift
 {
+    float tempoShift = 0.0;
 #ifdef support_audioqueueplayback
-    if (_context.stream.queue ==  nil) {
-        return 1.0;
-    }
+    AudioQueueGetParameter(_context.stream.queue, kAudioQueueParam_PlayRate, &tempoShift);
 #endif
-    return 1.0;
+    return tempoShift;
 }
 
 - (void)setOutputVolume:(double)volume
@@ -933,6 +934,11 @@ void LogBufferContents(const uint8_t *buffer, size_t length)
 
     // Assert the new queue inherits our volume desires.
     AudioQueueSetParameter(_context.stream.queue, kAudioQueueParam_Volume, _outputVolume);
+    UInt32 value = 1;
+    AudioQueueSetProperty(_context.stream.queue, kAudioQueueProperty_EnableTimePitch, &value, sizeof(value));
+    value = kAudioQueueTimePitchAlgorithm_Spectral;
+    AudioQueueSetProperty(_context.stream.queue, kAudioQueueProperty_TimePitchAlgorithm, &value, sizeof(value));
+    AudioQueueSetParameter(_context.stream.queue, kAudioQueueParam_PlayRate, 1.0);
 
     uint32_t primed = 0;
     res = AudioQueuePrime(_context.stream.queue, 0, &primed);

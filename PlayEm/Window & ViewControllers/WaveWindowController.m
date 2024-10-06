@@ -179,7 +179,9 @@ os_log_t pointsOfInterest;
 
 - (void)beatEffectRun
 {
-    [self setBPM:[_beatSample currentTempo:&_beatEffectIteratorContext]];
+    float songTempo = [_beatSample currentTempo:&_beatEffectIteratorContext];
+    
+    [self setBPM:songTempo * _audioController.tempoShift];
 
     // THis might go away... beats are too unreliable for cool visuals :(
    // [_browser beatEffect];
@@ -385,7 +387,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
         return weakSelf.totalView.frame.size.width;
     };
 
-    _controlPanelController = [ControlPanelController new];
+    _controlPanelController = [[ControlPanelController alloc] initWithDelegate:self];
     _controlPanelController.layoutAttribute = NSLayoutAttributeLeft;
     [self.window addTitlebarAccessoryViewController:_controlPanelController];
 
@@ -2253,6 +2255,12 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
 - (void)tempoChange:(id)sender
 {
     _audioController.tempoShift = _controlPanelController.tempoSlider.doubleValue;
+}
+
+- (void)resetTempo:(id)sender
+{
+    _audioController.tempoShift = 1.0;
+    _controlPanelController.tempoSlider.doubleValue = 1.0;
 }
 
 - (void)togglePause:(id)sender

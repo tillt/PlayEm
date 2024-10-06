@@ -47,8 +47,7 @@ typedef void (^TapBlock) (unsigned long long, float*, unsigned int);
 @property (nonatomic, assign, readonly) BOOL playing;
 @property (nonatomic, assign, readonly) BOOL paused;
 
-@property (nonatomic, assign) double tempoShift;
-//@property (strong, nonatomic) AVPlayer* player;
+@property (nonatomic, assign) float tempoShift;
 
 
 - (id)init;

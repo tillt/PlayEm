@@ -19,6 +19,7 @@
 #import "GraphicsTools.h"
 #import "LazySample.h"
 #import "MatrixUtilities.h"
+#import "NSColor+Metal.h"
 
 #import "ShaderTypes.h"
 #import "ScopeShaderTypes.h"
@@ -257,7 +258,7 @@ static const double kLevelDecreaseValue = 0.042;
     /// Load Metal state objects and initalize renderer dependent view properties.
     view.colorPixelFormat = MTLPixelFormatBGRA8Unorm;
     view.sampleCount = 1;
-    view.clearColor = [GraphicsTools MetalClearColorFromColor:_background];
+    view.clearColor = [NSColor MetalClearColorFromColor:_background];
     view.framebufferOnly = YES;
     
     // Set up a texture for rendering to and sampling from
@@ -552,8 +553,8 @@ static const double kLevelDecreaseValue = 0.042;
     uniforms->frequenciesCount = (uint32_t)kScaledFrequencyDataLength;
     uniforms->feedback.matrix = _feedbackProjectionMatrix;
     uniforms->feedback.colorFactor = _feedbackColorFactor;
-    uniforms->color = [GraphicsTools ShaderColorFromColor:_color];
-    uniforms->fftColor = [GraphicsTools ShaderColorFromColor:_fftColor];
+    uniforms->color = [NSColor ShaderColorFromColor:_color];
+    uniforms->fftColor = [NSColor ShaderColorFromColor:_fftColor];
     uniforms->frequencyLineWidth = _frequencyLineWidth;
     uniforms->frequencySpaceWidth = _frequencySpaceWidth;
 

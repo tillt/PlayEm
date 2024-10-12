@@ -77,6 +77,7 @@
 		BBE2846F2467669500BE9D7F /* MetalKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BBE2846E2467669500BE9D7F /* MetalKit.framework */; };
 		BBE5FEB52A892A410001B807 /* BeatLayerDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = BBE5FEB42A892A410001B807 /* BeatLayerDelegate.m */; };
 		BBF7982D2ADC4BAA00893533 /* NSString+BeautifulPast.m in Sources */ = {isa = PBXBuildFile; fileRef = BBF7982C2ADC4BAA00893533 /* NSString+BeautifulPast.m */; };
+		BBF81D932CBB025C0086AECB /* NSColor+Metal.m in Sources */ = {isa = PBXBuildFile; fileRef = BBF81D922CBB025C0086AECB /* NSColor+Metal.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -224,6 +225,8 @@
 		BBE5FEB42A892A410001B807 /* BeatLayerDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = BeatLayerDelegate.m; sourceTree = "<group>"; };
 		BBF7982B2ADC4BAA00893533 /* NSString+BeautifulPast.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSString+BeautifulPast.h"; sourceTree = "<group>"; };
 		BBF7982C2ADC4BAA00893533 /* NSString+BeautifulPast.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSString+BeautifulPast.m"; sourceTree = "<group>"; };
+		BBF81D912CBB025C0086AECB /* NSColor+Metal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSColor+Metal.h"; sourceTree = "<group>"; };
+		BBF81D922CBB025C0086AECB /* NSColor+Metal.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSColor+Metal.m"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -439,6 +442,8 @@
 				BB5A4D8F28FC5C2B003A733C /* NSBezierPath+CGPath.h */,
 				BB5A4D9028FC5C2B003A733C /* NSBezierPath+CGPath.m */,
 				BB9CE9B028D388F3008DFF91 /* MainMenu.xib */,
+				BBF81D912CBB025C0086AECB /* NSColor+Metal.h */,
+				BBF81D922CBB025C0086AECB /* NSColor+Metal.m */,
 				BB25CF55255758CC005BFC32 /* LoadState.h */,
 				BBA623D22620F67500924D44 /* UIView+Visibility.h */,
 				BBA623D32620F6A200924D44 /* UIView+Visibility.m */,
@@ -605,6 +610,7 @@
 				BB3927092C1BA8BD009C7B32 /* NSURL+WithoutParameters.m in Sources */,
 				BB25CF59255857BC005BFC32 /* MediaMetaData.m in Sources */,
 				BB8571012972078A0004218B /* IndexedBlockOperation.m in Sources */,
+				BBF81D932CBB025C0086AECB /* NSColor+Metal.m in Sources */,
 				BB896FF32928874500B41809 /* TableHeaderCell.m in Sources */,
 				BB7C6269293144890019AF25 /* Defaults.m in Sources */,
 				BBD24D6A2432948B00DC2A81 /* main.m in Sources */,

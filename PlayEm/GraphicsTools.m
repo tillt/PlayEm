@@ -15,30 +15,5 @@ float ScaleWithOriginalFrame(float originalValue, float originalSize, float newS
 
 @implementation GraphicsTools
 
-+ (MTLClearColor)MetalClearColorFromColor:(NSColor*)color
-{
-    NSColor *out = [color colorUsingColorSpace:[NSColorSpace deviceRGBColorSpace]];
-
-    double red = [out redComponent];
-    double green = [out greenComponent];
-    double blue = [out blueComponent];
-    double alpha = [out alphaComponent];
-    
-    return MTLClearColorMake(red, green, blue, alpha);
-}
-
-+ (vector_float4)ShaderColorFromColor:(NSColor*)color
-{
-    NSColor *out = [color colorUsingColorSpace:[NSColorSpace deviceRGBColorSpace]];
-
-    double red = [out redComponent];
-    double green = [out greenComponent];
-    double blue = [out blueComponent];
-    double alpha = [out alphaComponent];
-    
-    vector_float4 color_vec = {red, green, blue, alpha};
-    
-    return color_vec;
-}
 
 @end

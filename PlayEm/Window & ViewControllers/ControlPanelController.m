@@ -47,7 +47,7 @@
     
     const CGFloat volumeSliderY = 10.0;
     
-    const CGFloat controlPanelWidth = 920.0;
+    const CGFloat controlPanelWidth = 826.0;
     const CGFloat controlPanelHeight = 56.0;
 
     const CGFloat timeLabelWidth = 152.0;
@@ -238,9 +238,9 @@
     textField.editable = NO;
     textField.selectable = NO;
     textField.alignment = NSTextAlignmentRight;
-    textField.font = [NSFont systemFontOfSize:11.0f];
+    textField.font = [NSFont systemFontOfSize:15.0f];
     textField.frame = NSMakeRect(_volumeSlider.frame.origin.x - 30.0,
-                                 _volumeSlider.frame.origin.y - 2,
+                                 _volumeSlider.frame.origin.y,
                                  30.0,
                                  sliderHeight);
     [self.view addSubview:textField];
@@ -259,7 +259,7 @@
     sliderHeight);
     [self.view addSubview:textField];
     
-    _tempoSlider = [[NSSlider alloc] initWithFrame:NSMakeRect(_volumeSlider.frame.origin.x + _volumeSlider.frame.size.width + 70,
+    _tempoSlider = [[NSSlider alloc] initWithFrame:NSMakeRect(_volumeSlider.frame.origin.x + _volumeSlider.frame.size.width + 50,
                                                                volumeSliderY,
                                                                sliderWidth,
                                                                sliderHeight)];
@@ -328,7 +328,7 @@
     _beatIndicator.selectable = NO;
     _beatIndicator.alignment = NSTextAlignmentCenter;
     _beatIndicator.font = [NSFont systemFontOfSize:3.0f];
-    _beatIndicator.frame = NSMakeRect(_level.frame.origin.x + _level.frame.size.width + 46.0f,
+    _beatIndicator.frame = NSMakeRect(_level.frame.origin.x + _level.frame.size.width + 100.0f,
                             _playPause.frame.origin.y + bpmLabelHeight + 1.0,
                             beatIndicatorWidth,
                             beatIndicatorHeight);

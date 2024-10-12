@@ -357,10 +357,22 @@ NSString* const kMediaMetaDataMapTypeNumber = @"number";
 
 + (NSString*)mimeTypeForArtworkFormat:(ITLibArtworkFormat)format
 {
+    /*
+     ITLibArtworkFormatNone = 0,
+     ITLibArtworkFormatBitmap = 1,
+     ITLibArtworkFormatJPEG = 2,
+     ITLibArtworkFormatJPEG2000 = 3,
+     ITLibArtworkFormatGIF = 4,
+     ITLibArtworkFormatPNG = 5,
+     ITLibArtworkFormatBMP = 6,
+     ITLibArtworkFormatTIFF = 7,
+     ITLibArtworkFormatPICT = 8
+     */
     NSDictionary* mimeMap = @{
         @(ITLibArtworkFormatJPEG): @"image/jpeg",
         @(ITLibArtworkFormatGIF): @"image/gif",
         @(ITLibArtworkFormatPNG): @"image/png",
+        @(ITLibArtworkFormatBMP): @"image/bmp",
         @(ITLibArtworkFormatTIFF): @"image/tiff",
     };
     

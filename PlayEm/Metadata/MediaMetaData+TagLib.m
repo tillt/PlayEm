@@ -252,6 +252,9 @@
                                                               length:attr->value.size];
                                 NSLog(@"updated artwork with %ld bytes of image data", [data length]);
                                 self.artwork = data;
+                                ITLibArtworkFormat format = [MediaMetaData artworkFormatForData:data];
+                                self.artworkFormat = [NSNumber numberWithInteger:format];
+
                             }
                             ++attrPtr;
                         };
@@ -302,9 +305,20 @@
 
         NSString* type = tagMap[key][kMediaMetaDataMapKeyType];
         if ([type isEqualToString:kMediaMetaDataMapTypeImage]) {
+            /*
+             ITLibArtworkFormatNone = 0,
+             ITLibArtworkFormatBitmap = 1,
+             ITLibArtworkFormatJPEG = 2,
+             ITLibArtworkFormatJPEG2000 = 3,
+             ITLibArtworkFormatGIF = 4,
+             ITLibArtworkFormatPNG = 5,
+             ITLibArtworkFormatBMP = 6,
+             ITLibArtworkFormatTIFF = 7,
+             ITLibArtworkFormatPICT = 8
+             */
             unsigned int imageFormat = [self.artworkFormat intValue];
             NSString* mimeType = [MediaMetaData mimeTypeForArtworkFormat:imageFormat];
-            NSAssert(mimeType != nil, @"no mime type known for this picture");
+            NSAssert(mimeType != nil, @"no mime type known for this picture format %d", imageFormat);
             const char* m = [mimeType cStringUsingEncoding:NSUTF8StringEncoding];
             TAGLIB_COMPLEX_PROPERTY_PICTURE(props,
                                             self.artwork.bytes,

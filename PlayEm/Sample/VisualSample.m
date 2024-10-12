@@ -13,6 +13,11 @@
 #import "ConcurrentAccessDictionary.h"
 #import "ProfilingPointsOfInterest.h"
 
+// TODO: Implement DynamicReducedVisualSample
+// Implementation does two things at the same time - it immediately produces the requested
+// tiles while additionally reducing the total amount of source samples towards something
+// resembling a biggest possible visual representation width - ie 8192 pairs.
+
 @interface VisualSample()
 {
     // FIXME: losing the error from the previous window

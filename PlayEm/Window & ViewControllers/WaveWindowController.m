@@ -143,6 +143,7 @@ os_log_t pointsOfInterest;
 
 - (void)dealloc
 {
+    [_displayLink invalidate];
 }
 
 - (void)setLazySample:(LazySample*)sample

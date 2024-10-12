@@ -15,6 +15,8 @@
 #import "LevelIndicatorCell.h"
 #import "MediaMetaData.h"
 
+NSString * const kBPMDefault = @"--- BPM";
+
 @interface ControlPanelController ()
 @property (strong, nonatomic) ScrollingTextView* titleView;
 @property (strong, nonatomic) ScrollingTextView* albumArtistView;
@@ -343,7 +345,7 @@
     layer.mask = [CAShapeLayer MaskLayerFromRect:layer.bounds];
     [_beatIndicator.layer addSublayer:layer];
 
-    _bpm = [NSTextField textFieldWithString:@"--- BPM"];
+    _bpm = [NSTextField textFieldWithString:kBPMDefault];
     _bpm.bordered = NO;
     _bpm.editable = NO;
     _bpm.selectable = NO;
@@ -370,6 +372,16 @@
     layer.compositingFilter = [CIFilter filterWithName:@"CISourceAtopCompositing"];
     layer.opacity = 0.5;
     [_level.layer addSublayer:layer];
+}
+
+- (void)reset
+{
+    [self resetTempoIndicator:self];
+}
+
+- (void)resetTempoIndicator:(id)sender
+{
+    _bpm.stringValue = kBPMDefault;
 }
 
 - (void)resetTempo:(id)sender

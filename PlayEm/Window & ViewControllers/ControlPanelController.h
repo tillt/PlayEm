@@ -41,6 +41,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (id)initWithDelegate:(id<ControlPanelControllerDelegate>)delegate;
 - (void)loadView;
+- (void)reset;
 
 @end
 

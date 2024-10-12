@@ -1742,7 +1742,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
                                           pixelPerSecond:kPixelPerSecond
                                                tileWidth:kDirectWaveViewTileWidth];
 
-    _controlPanelController.bpm.stringValue = @"--- BPM";
+    [_controlPanelController reset];
     
     _waveLayerDelegate.visualSample = self.visualSample;
 

@@ -1042,12 +1042,15 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
 
 - (void)setupDisplayLink
 {
-    if (_displayLink == nil) {
-        _displayLink = [self.window displayLinkWithTarget:self selector:@selector(renderCallback:)];
-        _displayLink.preferredFrameRateRange = CAFrameRateRangeMake(60.0, 120.0, 120.0);
-        [_displayLink addToRunLoop:[NSRunLoop currentRunLoop]
-                           forMode:NSRunLoopCommonModes];
+    NSLog(@"setting up display link...");
+    if (_displayLink != nil) {
+        [_displayLink invalidate];
+        _displayLink = nil;
     }
+    _displayLink = [self.window displayLinkWithTarget:self selector:@selector(renderCallback:)];
+    _displayLink.preferredFrameRateRange = CAFrameRateRangeMake(60.0, 120.0, 120.0);
+    [_displayLink addToRunLoop:[NSRunLoop currentRunLoop]
+                       forMode:NSRunLoopCommonModes];
 }
 
 /*

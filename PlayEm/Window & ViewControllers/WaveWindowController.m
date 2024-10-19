@@ -88,6 +88,7 @@ os_log_t pointsOfInterest;
 @property (strong, nonatomic) NSPopover* popOver;
 
 @property (strong, nonatomic) NSWindowController* infoWindowController;
+@property (strong, nonatomic) NSWindowController* identifyWindowController;
 
 @property (strong, nonatomic) BeatLayerDelegate* beatLayerDelegate;
 @property (strong, nonatomic) WaveLayerDelegate* waveLayerDelegate;
@@ -1350,26 +1351,33 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
 
 - (void)showIdentifier:(id)sender
 {
-    if (_iffy == nil) {
-        _iffy = [[IdentifyController alloc] initWithAudioController:_audioController];
+    NSApplication* sharedApplication = [NSApplication sharedApplication];
+    
+    if (_identifyWindowController == nil) {
+        self.identifyWindowController = [NSWindowController new];
     }
-    [_iffy view];
-    
-    _popOver = [[NSPopover alloc] init];
-    _popOver.contentViewController = _iffy;
-    _popOver.contentSize = _iffy.view.bounds.size;
-    _popOver.animates = YES;
-    _popOver.behavior = NSPopoverBehaviorTransient;
-    _popOver.delegate = _iffy;
 
-    NSRect entryRect = NSMakeRect(self.window.contentView.frame.size.width - 90.0,
-                                  self.window.contentView.frame.size.height - 3.0,
-                                  2.0,
-                                  2.0);
-    
-    [_popOver showRelativeToRect:entryRect
-                          ofView:self.window.contentView
-                   preferredEdge:NSMinYEdge];
+    NSPanel* window;
+    if (_iffy == nil) {
+        self.iffy = [[IdentifyController alloc] initWithAudioController:_audioController];
+        [_iffy view];
+        window = [NSPanel windowWithContentViewController:_iffy];
+        window.styleMask &= ~NSWindowStyleMaskResizable | NSWindowStyleMaskTitled;
+        window.styleMask |= NSWindowStyleMaskUtilityWindow;
+        window.titleVisibility = NSWindowTitleHidden;
+        window.movableByWindowBackground = YES;
+        window.titlebarAppearsTransparent = YES;
+        window.level = NSFloatingWindowLevel;
+        window.appearance = sharedApplication.mainWindow.appearance;
+        [window standardWindowButton:NSWindowZoomButton].hidden = YES;
+        [window standardWindowButton:NSWindowCloseButton].hidden = NO;
+        [window standardWindowButton:NSWindowMiniaturizeButton].hidden = YES;
+        _identifyWindowController.window = window;
+    } else {
+        window = (NSPanel*)_identifyWindowController.window;
+    }
+    [window setFloatingPanel:YES];
+    [window makeKeyAndOrderFront:nil];
 }
 
 - (void)ScrollViewStartsLiveScrolling:(NSNotification*)notification

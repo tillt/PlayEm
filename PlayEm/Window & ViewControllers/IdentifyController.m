@@ -53,18 +53,18 @@
     [super viewDidLoad];
     // Do view setup here.
     NSLog(@"viewDidLoad");
-
 }
 
-- (void)popoverDidShow:(NSNotification *)notification
+- (void)viewWillAppear
 {
-    NSLog(@"popoverDidShow");
+    NSLog(@"IdentifyController.view becoming visible");
     [self shazam:self];
 }
 
-- (void)popoverDidClose:(NSNotification *)notification
+- (void)viewWillDisappear
 {
-    NSLog(@"popoverDidClose");
+    NSLog(@"IdentifyController.view becoming invisible");
+    [[NSApplication sharedApplication] stopModal];
     [_audioController stopTapping];
     [self reset];
 }
@@ -74,10 +74,10 @@
     NSLog(@"loadView");
     
     const CGFloat kPopoverWidth = 300.0f;
-    const CGFloat kPopoverHeight = 380.0f;
+    const CGFloat kPopoverHeight = 360.0f;
     
     const CGFloat kBorderWidth = 20.0f;
-    const CGFloat kBorderHeight = 20.0f;
+    const CGFloat kBorderHeight = 0.0f;
     const CGFloat kRowSpace = 4.0f;
     
     const CGFloat kTitleFontSize = 19.0f;
@@ -101,28 +101,17 @@
     CGFloat y = kPopoverHeight - (kCoverViewHeight + kBorderHeight);
     
     _identificationCoverView = [[IdentificationCoverView alloc] initWithFrame:NSMakeRect(floorf((kPopoverWidth - kCoverViewWidth) / 2.0f),
-                                                                           y,
-                                                                           kCoverViewWidth,
-                                                                           kCoverViewHeight)];
+                                                                                         y,
+                                                                                         kCoverViewWidth,
+                                                                                         kCoverViewHeight)];
     _identificationCoverView.wantsLayer = YES;
     _identificationCoverView.imageLayer.contents = [NSImage imageNamed:@"UnknownSong"];
     _identificationCoverView.imageLayer.cornerRadius = 7;
     _identificationCoverView.maskLayer.contents = [NSImage imageNamed:@"FadeMask"];;
     _identificationCoverView.layer.masksToBounds = YES;
 
-//    [_identificationCoverView setAction:@selector(musicURLClicked:)];
-//    _coverView.layer.mask = _coverViewMask;
-//
     [self.view addSubview:_identificationCoverView];
     
-//    _identificationCoverView = [[IdentificationCoverView alloc] initWithFrame:NSMakeRect( floorf((kPopoverWidth - kCoverViewWidth) / 2.0f),
-//                                                                                            y,
-//                                                                                            kCoverViewWidth,
-//                                                                                            kCoverViewHeight)];
-//    _identificationCoverView.maskLayer.
-//    _identificationActiveView.hidden = NO;
-//    [self.view addSubview:_identificationCoverView];
-
     [_identificationCoverView startAnimating];
 
     y -= kTextFieldHeight + kRowSpace + kRowSpace + kRowSpace;
@@ -243,6 +232,8 @@
 }
 
 // FIXME: This isnt safe as we may pull the sample away below the running session.
+// We need to stop the session when the sample changes.
+// We need to stop the session when the sample playback is done.
 - (void)shazam:(id)sender
 {
     NSLog(@"shazam!");

@@ -13,6 +13,8 @@ NS_ASSUME_NONNULL_BEGIN
 @interface NSString (BeautifulPast)
 
 + (NSString*)BeautifulPast:(NSDate*)past;
++ (NSString*)BeautifulSize:(NSNumber*)size;
+
 
 @end
 

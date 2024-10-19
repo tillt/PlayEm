@@ -14,6 +14,8 @@
 #import "MediaMetaData.h"
 #import "MediaMetaData+TagLib.h"
 
+#import "NSString+BeautifulPast.h"
+
 #import "NSURL+WithoutParameters.h"
 
 @implementation MediaMetaData(TagLib)

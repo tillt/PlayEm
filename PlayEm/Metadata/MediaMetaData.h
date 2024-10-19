@@ -70,11 +70,16 @@ extern NSString* const kMediaMetaDataMapTypeNumber;
 @property (copy, nonatomic, nullable) NSNumber* disks;
 @property (copy, nonatomic, nullable) NSNumber* locationType;
 @property (strong, nonatomic, nullable) NSData* artwork;
-@property (strong, nonatomic, nullable) NSNumber* artworkFormat;
-@property (strong, nonatomic, nullable) NSURL* location;
-@property (strong, nonatomic, nullable) NSDate* added;
+@property (copy, nonatomic, nullable) NSNumber* artworkFormat;
+@property (copy, nonatomic, nullable) NSURL* location;
+@property (copy, nonatomic, nullable) NSDate* added;
 @property (copy, nonatomic, nullable) NSNumber* compilation;
 @property (copy, nonatomic, nullable) NSNumber* duration;
+@property (copy, nonatomic, nullable) NSString* bitrate;
+@property (copy, nonatomic, nullable) NSString* samplerate;
+@property (copy, nonatomic, nullable) NSString* size;
+@property (copy, nonatomic, nullable) NSString* format;
+@property (copy, nonatomic, nullable) NSString* channels;
 
 @property (readonly, nonatomic, nullable) NSImage* imageFromArtwork;
 

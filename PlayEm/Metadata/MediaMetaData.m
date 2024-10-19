@@ -22,6 +22,7 @@
 #import "MediaMetaData+StateAdditions.h"
 
 #import "NSURL+WithoutParameters.h"
+#import "NSString+BeautifulPast.h"
 
 ///
 /// MediaMetaData is lazily holding metadata for library entries to allow for extending iTunes provided data.
@@ -123,6 +124,11 @@ NSString* const kMediaMetaDataMapTypeNumber = @"number";
     return @{
         @"added": @{},
         @"location": @{},
+        @"size": @{},
+        @"format": @{},
+        @"bitrate": @{},
+        @"samplerate": @{},
+        @"channels": @{},
         @"locationType": @{},
         
         @"album": @{
@@ -398,6 +404,71 @@ NSString* const kMediaMetaDataMapTypeNumber = @"number";
     }
     
     return _title;
+}
+
+- (NSString* _Nullable)size
+{
+    if (_shadow == nil) {
+        return _size;
+    }
+    
+    if (_size == nil) {
+        _size = [NSString BeautifulSize:[NSNumber numberWithUnsignedLongLong:_shadow.fileSize]];
+    }
+    
+    return _size;
+}
+
+- (NSString* _Nullable)format
+{
+    if (_shadow == nil) {
+        return _format;
+    }
+    
+    if (_format == nil) {
+        _format = _shadow.kind;
+    }
+    
+    return _format;
+}
+
+- (NSString* _Nullable)samplerate
+{
+    if (_shadow == nil) {
+        return _samplerate;
+    }
+    
+    if (_samplerate == nil) {
+        _samplerate = [NSString stringWithFormat:@"%.1f kHz", _shadow.sampleRate / 1000.0f];
+    }
+    
+    return _samplerate;
+}
+
+- (NSString* _Nullable)channels
+{
+    if (_shadow == nil) {
+        return _channels;
+    }
+    
+    if (_channels == nil) {
+        _channels = @"stereo";
+    }
+    
+    return _channels;
+}
+
+- (NSString* _Nullable)bitrate
+{
+    if (_shadow == nil) {
+        return _bitrate;
+    }
+    
+    if (_bitrate == nil) {
+        _bitrate = [NSString stringWithFormat:@"%ld kbps", (unsigned long)_shadow.bitrate];
+    }
+    
+    return _bitrate;
 }
 
 - (NSString* _Nullable)artist
@@ -692,7 +763,11 @@ NSString* const kMediaMetaDataMapTypeNumber = @"number";
         copy.location = [_location copyWithZone:zone];
         copy.added = [_added copyWithZone:zone];
         copy.duration = [_duration copyWithZone:zone];
-        
+        copy.size = [_size copyWithZone:zone];
+        copy.channels = [_channels copyWithZone:zone];
+        copy.bitrate = [_bitrate copyWithZone:zone];
+        copy.samplerate = [_samplerate copyWithZone:zone];
+
         copy.shadow = _shadow;
     }
     return copy;
@@ -869,11 +944,13 @@ NSString* const kMediaMetaDataMapTypeNumber = @"number";
         return nil;
     }
 
+    // Shortcut when the given key a proper one already.
     NSArray* properValues = [mixWheel allValues];
     if ([properValues indexOfObject:key] != NSNotFound) {
         return key;
     }
-    
+
+    // Easy cases map already, shortcut those.
     NSString* mappedKey = [mixWheel objectForKey:key];
     if (mappedKey != nil) {
         return mappedKey;

@@ -50,7 +50,7 @@ static const CGFloat kViewLeftMargin = 10.0f;
 @property (strong, nonatomic) NSTabViewItem* lyricsTabViewItem;
 @property (strong, nonatomic) NSTabViewItem* fileTabViewItem;
 
-@property (strong, nonatomic) NSDictionary* viewControls;
+@property (strong, nonatomic) NSMutableDictionary* viewControls;
 @property (strong, nonatomic) dispatch_queue_t metaIOQueue;
 
 @property (strong, nonatomic) NSArray<MediaMetaData*>* metas;
@@ -169,14 +169,54 @@ static const CGFloat kViewLeftMargin = 10.0f;
                 },
             },
             kInfoPageKeyFile: @{
-                @"location": @{
+                @"size": @{
                     @"order": @1,
+                    @"width": @340,
+                    @"editable": @NO,
+                },
+                @"duration": @{
+                    @"order": @2,
+                    @"width": @340,
+                    @"editable": @NO,
+                },
+                @"bit rate": @{
+                    @"order": @3,
+                    @"width": @340,
+                    @"key": @"bitrate",
+                    @"editable": @NO,
+                },
+                @"sample rate": @{
+                    @"order": @4,
+                    @"width": @340,
+                    @"key": @"samplerate",
+                    @"editable": @NO,
+                },
+                @"channels": @{
+                    @"order": @5,
+                    @"width": @340,
+                    @"editable": @NO,
+                },
+                @"format": @{
+                    @"order": @6,
+                    @"width": @340,
+                    @"editable": @NO,
+                },
+                @"volume": @{
+                    @"order": @3,
+                    @"width": @340,
+                    @"key": @"bitrate",
+                    @"editable": @NO,
+                },
+                @"location": @{
+                    @"order": @7,
                     @"width": @340,
                     @"rows": @4,
                     @"editable": @NO,
                 },
             },
         };
+        
+        _viewControls = [NSMutableDictionary dictionary];
 
         dispatch_queue_attr_t attr = dispatch_queue_attr_make_with_qos_class(DISPATCH_QUEUE_SERIAL,
                                                                              QOS_CLASS_USER_INTERACTIVE,
@@ -186,7 +226,8 @@ static const CGFloat kViewLeftMargin = 10.0f;
     return self;
 }
 
-- (void)loadDetailsWithView:(NSView*)view
+//- (void)loadDetailsWithView:(NSView*)view
+- (void)loadControlsWithView:(NSView*)view pageKey:(NSString*)pageKey
 {
     //const CGFloat imageWidth = 120.0f;
     const CGFloat nameFieldWidth = 80.0;
@@ -194,10 +235,13 @@ static const CGFloat kViewLeftMargin = 10.0f;
     const CGFloat kBorderWidth = 5.0;
     const CGFloat kRowInset = 4.0f;
     const CGFloat kRowSpace = 10.0f;
-
-    NSMutableDictionary* dict = [NSMutableDictionary dictionary];
     
-    NSArray* orderedKeys = [_viewConfiguration[kInfoPageKeyDetails] keysSortedByValueUsingComparator:^(id obj1, id obj2){
+    NSMutableDictionary* dict = [NSMutableDictionary dictionaryWithDictionary:_viewControls[pageKey]];
+    if (dict == nil) {
+        dict = [NSMutableDictionary dictionary];
+    }
+
+    NSArray* orderedKeys = [_viewConfiguration[pageKey] keysSortedByValueUsingComparator:^(id obj1, id obj2){
         NSNumber *rank1 = [obj1 valueForKeyPath:@"order"];
         NSNumber *rank2 = [obj2 valueForKeyPath:@"order"];
         return (NSComparisonResult)[rank1 compare:rank2];
@@ -207,8 +251,6 @@ static const CGFloat kViewLeftMargin = 10.0f;
     
     CGFloat y = 80.0f;
     
-    NSString* pageKey = kInfoPageKeyDetails;
-
     for (NSString* key in reversed) {
         NSString* configKey = key;
         if ([_viewConfiguration[pageKey][key] objectForKey:@"key"]) {
@@ -274,7 +316,7 @@ static const CGFloat kViewLeftMargin = 10.0f;
                 }
                 
                 textField.frame = NSMakeRect(x,
-                                             y,
+                                             y - floor(editable ? 0.0f : (rowUnitHeight - kNormalFontSize) / 2.0f),
                                              width - kBorderWidth,
                                              (rows * rowUnitHeight) + kRowInset);
                 [view addSubview:textField];
@@ -344,7 +386,7 @@ static const CGFloat kViewLeftMargin = 10.0f;
             textField.usesSingleLineMode = YES;
 
             textField.frame = NSMakeRect(x + width + kBorderWidth + dynamicWidth,
-                                         y,
+                                         y - floor(editable ? 0.0f : (rowUnitHeight - kNormalFontSize) / 2.0f),
                                          width - kBorderWidth,
                                          (rows * rowUnitHeight) + kRowInset);
             [view addSubview:textField];
@@ -354,7 +396,7 @@ static const CGFloat kViewLeftMargin = 10.0f;
 
         y += (rows * rowUnitHeight) + kRowInset + kRowSpace;
     }
-    _viewControls = dict;
+    _viewControls[pageKey] = dict;
 
     y += kRowSpace;
 }
@@ -430,10 +472,6 @@ static const CGFloat kViewLeftMargin = 10.0f;
     _lyricsTextView.font = [NSFont systemFontOfSize:kNormalFontSize];
     
     [view addSubview:scrollView];
-}
-
-- (void)loadFileWithView:(NSView*)view
-{
 }
 
 - (void)loadView
@@ -565,7 +603,7 @@ static const CGFloat kViewLeftMargin = 10.0f;
     self.detailsTabViewItem = [NSTabViewItem tabViewItemWithViewController:vc];
     [_detailsTabViewItem setLabel:kInfoPageKeyDetails];
     [self.tabView addTabViewItem:_detailsTabViewItem];
-    [self loadDetailsWithView:_detailsTabViewItem.view];
+    [self loadControlsWithView:_detailsTabViewItem.view pageKey:kInfoPageKeyDetails];
 
     vc = [NSViewController new];
     self.artworkTabViewItem = [NSTabViewItem tabViewItemWithViewController:vc];
@@ -579,13 +617,13 @@ static const CGFloat kViewLeftMargin = 10.0f;
     [self.tabView addTabViewItem:_lyricsTabViewItem];
     [self loadLyricsWithView:_lyricsTabViewItem.view];
 
-//    if ([metas count] == 1) {
-//        vc = [NSViewController new];
-//        self.fileTabViewItem = [NSTabViewItem tabViewItemWithViewController:vc];
-//        [_fileTabViewItem setLabel:kInfoPageKeyFile];
-//        [self.tabView addTabViewItem:_fileTabViewItem];
-//        [self loadFileWithView:_fileTabViewItem.view];
-//    }
+    if ([self.metas count] == 1) {
+        vc = [NSViewController new];
+        self.fileTabViewItem = [NSTabViewItem tabViewItemWithViewController:vc];
+        [_fileTabViewItem setLabel:kInfoPageKeyFile];
+        [self.tabView addTabViewItem:_fileTabViewItem];
+        [self loadControlsWithView:_fileTabViewItem.view pageKey:kInfoPageKeyFile];
+    }
 
     [self.view addSubview:_tabView];
 
@@ -642,7 +680,6 @@ static const CGFloat kViewLeftMargin = 10.0f;
             [self.progress stopAnimation:self];
 
             self.metas = metas;
-            [self updateControls];
         });
     });
 }
@@ -687,12 +724,12 @@ static const CGFloat kViewLeftMargin = 10.0f;
     if (_metas == nil || [_metas count] == 0) {
         return;
     }
+
     // Identify any meta that is common / not common in the given list.
     NSMutableDictionary<NSString*,NSNumber*>* deltaKeys = [NSMutableDictionary dictionary];
     //NSMutableDictionary<NSString*,NSNumber*>* commonKeys = [NSMutableDictionary dictionary];
     NSMutableDictionary<NSString*,NSMutableDictionary*>* occurances = [NSMutableDictionary dictionary];
     _commonMeta = _metas[0];
-
     for (size_t index = 0; index < [_metas count]; index++) {
         MediaMetaData* meta = _metas[index];
         for (NSString* key in [MediaMetaData mediaMetaKeys]) {
@@ -711,6 +748,7 @@ static const CGFloat kViewLeftMargin = 10.0f;
         }
     }
     
+    // Now that we know all commons and deltas among the metas, we can show it in the header.
     [self updateViewHeader:deltaKeys occurances:occurances];
 
     if (![deltaKeys[@"lyrics"] boolValue] && _commonMeta.lyrics != nil) {
@@ -727,44 +765,47 @@ static const CGFloat kViewLeftMargin = 10.0f;
         }
     }
     self.deltaKeys = deltaKeys;
-    
-    NSArray<NSString*>* keys = [_viewControls allKeys];
-    
-    for (NSString* key in keys) {
-        id control = _viewControls[key];
-        if (control == nil) {
-            continue;
-        }
-        
-        if ([deltaKeys objectForKey:key] == nil) {
-            // The meta data in question is common.
-            NSString* value = @"";
-            value = [_commonMeta stringForKey:key];
-            if (value == nil) {
-                value = @"";
+
+    NSArray<NSString*>* pageKeys = [_viewControls allKeys];
+
+    for (NSString* pageKey in pageKeys) {
+        NSArray<NSString*>* keys = [_viewControls[pageKey] allKeys];
+        for (NSString* key in keys) {
+            id control = _viewControls[pageKey][key];
+            if (control == nil) {
+                continue;
             }
-            if ([control respondsToSelector:@selector(setState:)]) {
-                [control setState:[value isEqualToString:@"1"] ? NSControlStateValueOn : NSControlStateValueOff];
-            } else if ([control respondsToSelector:@selector(setStringValue:)]) {
-                [control setStringValue:value];
-            }
-        } else {
-            // The meta data in question is having mixed states.
-            if ([control respondsToSelector:@selector(setState:)]) {
-                [control setAllowsMixedState:YES];
-                [control setState:NSControlStateValueMixed];
-            } else if ([control respondsToSelector:@selector(setStringValue:)]) {
-                [control setStringValue:@""];
-            }
-            NSString* placeHolder = [_viewConfiguration[kInfoPageKeyDetails][key] objectForKey:@"placeholder"];
-            if (placeHolder != nil && [control respondsToSelector:@selector(cell)]) {
-                NSDictionary* attrs = @{
-                    NSForegroundColorAttributeName:[[Defaults sharedDefaults] tertiaryLabelColor],
-                    NSFontAttributeName:[NSFont systemFontOfSize:[NSFont systemFontSize]],
-                };
-                NSTextFieldCell* cell = [control cell];
-                cell.placeholderAttributedString = [[NSAttributedString alloc] initWithString:placeHolder
-                                                                                   attributes:attrs];
+            
+            if (![pageKey isEqualToString:kInfoPageKeyDetails] || [deltaKeys objectForKey:key] == nil) {
+                // The meta data in question is common.
+                NSString* value = @"";
+                value = [_commonMeta stringForKey:key];
+                if (value == nil) {
+                    value = @"";
+                }
+                if ([control respondsToSelector:@selector(setState:)]) {
+                    [control setState:[value isEqualToString:@"1"] ? NSControlStateValueOn : NSControlStateValueOff];
+                } else if ([control respondsToSelector:@selector(setStringValue:)]) {
+                    [control setStringValue:value];
+                }
+            } else {
+                // The meta data in question is having mixed states.
+                if ([control respondsToSelector:@selector(setState:)]) {
+                    [control setAllowsMixedState:YES];
+                    [control setState:NSControlStateValueMixed];
+                } else if ([control respondsToSelector:@selector(setStringValue:)]) {
+                    [control setStringValue:@""];
+                }
+                NSString* placeHolder = [_viewConfiguration[kInfoPageKeyDetails][key] objectForKey:@"placeholder"];
+                if (placeHolder != nil && [control respondsToSelector:@selector(cell)]) {
+                    NSDictionary* attrs = @{
+                        NSForegroundColorAttributeName:[[Defaults sharedDefaults] tertiaryLabelColor],
+                        NSFontAttributeName:[NSFont systemFontOfSize:[NSFont systemFontSize]],
+                    };
+                    NSTextFieldCell* cell = [control cell];
+                    cell.placeholderAttributedString = [[NSAttributedString alloc] initWithString:placeHolder
+                                                                                       attributes:attrs];
+                }
             }
         }
     }
@@ -856,7 +897,7 @@ static const CGFloat kViewLeftMargin = 10.0f;
 
 - (void)compilationAction:(id)sender
 {   
-    NSButton* button = (NSButton*)_viewControls[@"compilation"];
+    NSButton* button = (NSButton*)_viewControls[kInfoPageKeyDetails][@"compilation"];
 
     // Even if we signalled allowing mixed state, the user decided and this we stop
     // supporting that.
@@ -877,9 +918,14 @@ static const CGFloat kViewLeftMargin = 10.0f;
     NSTextField* textField = [notification object];
     
     NSString *key = nil;
-    for (NSString* k in [_viewControls allKeys]) {
-        if ([_viewControls valueForKey:k] == textField) {
-            key = k;
+    for (NSString* pageKey in [_viewControls allKeys]) {
+        for (NSString* k in [_viewControls[pageKey] allKeys]) {
+            if ([_viewControls[pageKey] valueForKey:k] == textField) {
+                key = k;
+                break;
+            }
+        }
+        if (key != nil) {
             break;
         }
     }

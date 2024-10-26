@@ -40,6 +40,48 @@ NSString * const kLayerMaskImageName = @"IdentificationActiveStill";
     _maskLayer.allowsEdgeAntialiasing = YES;
     _maskLayer.contents = [NSImage imageNamed:@"FadeMask"];;
 
+    _imageCopyLayer = [CALayer layer];
+    _imageCopyLayer.frame = self.bounds;
+    _imageCopyLayer.opacity = 0.07;
+    _imageCopyLayer.contents = [NSImage imageNamed:@"UnknownSong"];
+    _imageCopyLayer.autoresizingMask = kCALayerWidthSizable | kCALayerHeightSizable;
+    _imageCopyLayer.allowsEdgeAntialiasing = YES;
+    _imageCopyLayer.contentsScale = [[NSScreen mainScreen] backingScaleFactor];
+    _imageCopyLayer.frame = NSInsetRect(self.bounds, 0.0, 5.0);
+    _imageCopyLayer.mask = _maskLayer;
+    
+    CIFilter* blurFilter = [CIFilter filterWithName:@"CIGaussianBlur"];
+    [blurFilter setDefaults];
+    [blurFilter setValue:[NSNumber numberWithFloat:1.3] forKey:@"inputRadius"];
+
+    CIFilter* vibranceFilter = [CIFilter filterWithName:@"CIColorControls"];
+    [vibranceFilter setDefaults];
+    [vibranceFilter setValue:[NSNumber numberWithFloat:0.1] forKey:@"inputSaturation"];
+    [vibranceFilter setValue:[NSNumber numberWithFloat:0.001] forKey:@"inputBrightness"];
+
+
+    CIFilter* darkenFilter = [CIFilter filterWithName:@"CIGammaAdjust"];
+    [darkenFilter setDefaults];
+    [darkenFilter setValue:[NSNumber numberWithFloat:2.5] forKey:@"inputPower"];
+    
+    CIFilter* clampFilter = [CIFilter filterWithName:@"CIAffineClamp"];
+    [clampFilter setDefaults];
+    
+    CIFilter* pixelateFilter = [CIFilter filterWithName:@"CISepiaTone"];
+    [pixelateFilter setDefaults];
+    
+    CIFilter* bloomFilter = [CIFilter filterWithName:@"CIBloom"];
+    [bloomFilter setDefaults];
+    [bloomFilter setValue: [NSNumber numberWithFloat:5.0] forKey: @"inputRadius"];
+    [bloomFilter setValue: [NSNumber numberWithFloat:0.7] forKey: @"inputIntensity"];
+
+    //[pixelateFilter setValue:[NSNumber numberWithFloat:15] forKey:@"inputScale"];
+    
+    //CIComicEffect
+    
+    _imageCopyLayer.filters = @[ pixelateFilter   ];
+    [layer addSublayer:_imageCopyLayer];
+
     _imageLayer = [CALayer layer];
     _imageLayer.frame = self.bounds;
     _imageLayer.contents = [NSImage imageNamed:@"UnknownSong"];
@@ -48,6 +90,7 @@ NSString * const kLayerMaskImageName = @"IdentificationActiveStill";
     _imageLayer.contentsScale = [[NSScreen mainScreen] backingScaleFactor];
     _imageLayer.frame = NSInsetRect(self.bounds, 0.0, 5.0);
     _imageLayer.mask = _maskLayer;
+    _imageLayer.filters = @[ bloomFilter     ];
     [layer addSublayer:_imageLayer];
 
     _overlayLayer = [CALayer layer];
@@ -55,12 +98,21 @@ NSString * const kLayerMaskImageName = @"IdentificationActiveStill";
     _overlayLayer.autoresizingMask = kCALayerWidthSizable | kCALayerHeightSizable;
     _overlayLayer.allowsEdgeAntialiasing = YES;
     _overlayLayer.contentsScale = [[NSScreen mainScreen] backingScaleFactor];
-    _overlayLayer.opacity = 0.7;
+    _overlayLayer.opacity = 0.2;
     _overlayLayer.anchorPoint = CGPointMake(0.5, 0.508);
     _overlayLayer.frame = _maskLayer.frame;
     [layer addSublayer:_overlayLayer];
 
     return layer;
+}
+
+- (void)setImage:(NSImage*)image
+{
+    [NSAnimationContext runAnimationGroup:^(NSAnimationContext *context) {
+        [context setDuration:2.0f];
+        self.animator.imageLayer.contents = image;
+        self.animator.imageCopyLayer.contents = image;
+    }];
 }
 
 - (void)startAnimating

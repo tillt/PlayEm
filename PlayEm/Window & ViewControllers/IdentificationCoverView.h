@@ -12,8 +12,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface IdentificationCoverView : NSView
 @property (nonatomic, strong) CALayer* imageLayer;
+@property (nonatomic, strong) CALayer* imageCopyLayer;
 @property (nonatomic, strong) CALayer* maskLayer;
 @property (nonatomic, strong) CALayer* overlayLayer;
+
+@property (nonatomic, strong) NSImage* image;
 
 - (void)startAnimating;
 - (void)stopAnimating;

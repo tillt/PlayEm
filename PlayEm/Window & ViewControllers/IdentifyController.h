@@ -13,7 +13,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @class AudioController;
 
-@interface IdentifyController : NSViewController <SHSessionDelegate>
+@interface IdentifyController : NSViewController <SHSessionDelegate, NSTableViewDelegate, NSTableViewDataSource>
 
 - (id)initWithAudioController:(AudioController*)audioController;
 

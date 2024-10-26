@@ -23,9 +23,6 @@
 //#define support_avplayer        YES
 #define support_audioqueueplayback  YES
 
-
-#include "rubberband/RubberBandStretcher.h"
-
 const unsigned int kPlaybackBufferFrames = 4096;
 const unsigned int kPlaybackBufferCount = 2;
 static const float kDecodingPollInterval = 0.3f;

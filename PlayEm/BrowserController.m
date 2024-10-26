@@ -62,9 +62,6 @@ NSString* const kSongsColGenre = @"GenreCell";
 
 @property (strong, nonatomic) dispatch_queue_t filterQueue;
 
-//@property (nonatomic, strong) CALayer* playbackFeedbackLayer;
-//@property (nonatomic, strong) CIFilter* playbackFeedbackBloomFilter;
-
 @end
 
 @implementation BrowserController
@@ -446,9 +443,6 @@ static const NSTimeInterval kBeatEffectRampDown = 0.5f;
 
 - (MediaMetaData*)nextSong
 {
-    //NSArray<NSSortDescriptor*>* descriptors = [_songsTable sortDescriptors];
-    //assert(descriptors.count > 0);
-    //NSInteger increment = descriptors[0].ascending ? 1 : -1;
     NSUInteger row = [self currentSongRow];
     return [self metaAtSongRow:row + 1];
 }
@@ -461,15 +455,6 @@ static const NSTimeInterval kBeatEffectRampDown = 0.5f;
     }
     return self.filteredItems[row];
 }
-
-//- (void)animationDidStop:(CAAnimation *)anim
-//                finished:(BOOL)isFinished
-//{
-//    NSString* name = [anim valueForKey:@"name"];
-//    if ([name isEqualToString:@"ActiveAnimations"]) {
-//        NSLog(@"BLINK DONE");
-//    }
-//}
 
 - (IBAction)playNextInPlaylist:(id)sender
 {

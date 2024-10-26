@@ -22,21 +22,10 @@ extern NSString * const kPlaybackStateEnded;
 
 @class LazySample;
 
-//// TODO: Consider a one to many event post instead.
-//@protocol AudioControllerDelegate <NSObject>
-//
-//- (void)audioControllerPlaybackStarted;
-//- (void)audioControllerPlaybackPaused;
-//- (void)audioControllerPlaybackPlaying;
-//- (void)audioControllerPlaybackEnded;
-//
-//@end
-
 typedef void (^TapBlock) (unsigned long long, float*, unsigned int);
 
 @interface AudioController : NSObject
 
-//@property (nonatomic, weak) id<AudioControllerDelegate> delegate;
 @property (nonatomic, strong) LazySample* sample;
 @property (nonatomic, assign) AVAudioFramePosition currentFrame;
 

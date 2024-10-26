@@ -667,10 +667,17 @@ AVAudioFramePosition totalLatency(UInt32 deviceId, AudioObjectPropertyScope scop
 
 - (void)setCurrentFrame:(AVAudioFramePosition)newFrame
 {
+    // Secure tapping state.
+    TapBlock tap = _context.tapBlock;
+    [self stopTapping];
+
     assert(newFrame < _context.sample.frames);
     AVAudioFramePosition oldFrame = self.currentFrame;
     _context.seekFrame += newFrame - oldFrame;
     _context.nextFrame = newFrame;
+    
+    // Restore tapping state.
+    [self startTapping:tap];
 }
 
 - (AVAudioFramePosition)frameCountDeltaWithTimeDelta:(NSTimeInterval)duration

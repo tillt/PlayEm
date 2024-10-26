@@ -22,7 +22,6 @@
 		BB2CF8AD259EB66900D6BA03 /* LazySample.m in Sources */ = {isa = PBXBuildFile; fileRef = BB2CF8AC259EB66900D6BA03 /* LazySample.m */; };
 		BB3926FF2C14B43E009C7B32 /* TableRowView.m in Sources */ = {isa = PBXBuildFile; fileRef = BB3926FE2C14B43E009C7B32 /* TableRowView.m */; };
 		BB3927022C14C606009C7B32 /* TableCellView.m in Sources */ = {isa = PBXBuildFile; fileRef = BB3927012C14C606009C7B32 /* TableCellView.m */; };
-		BB3927052C1783DD009C7B32 /* IdentificationCoverView.m in Sources */ = {isa = PBXBuildFile; fileRef = BB3927042C1783DD009C7B32 /* IdentificationCoverView.m */; };
 		BB3927092C1BA8BD009C7B32 /* NSURL+WithoutParameters.m in Sources */ = {isa = PBXBuildFile; fileRef = BB3927082C1BA8BD009C7B32 /* NSURL+WithoutParameters.m */; };
 		BB39270C2C1CD1E3009C7B32 /* MediaMetaData+StateAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = BB39270B2C1CD1E3009C7B32 /* MediaMetaData+StateAdditions.m */; };
 		BB3B8D982B86C9B7006AEFCA /* tag_c.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BB3B8D962B86C9B7006AEFCA /* tag_c.framework */; };
@@ -60,6 +59,7 @@
 		BBC2AF7F2B8FDB140077EB5E /* StoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BBC2AF7E2B8FDB140077EB5E /* StoreKit.framework */; };
 		BBC43B7028D28CDD00CD1080 /* InfoPanel.m in Sources */ = {isa = PBXBuildFile; fileRef = BBC43B6F28D28CDD00CD1080 /* InfoPanel.m */; };
 		BBC43B7328D296B800CD1080 /* AVMetadataItem+THAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = BBC43B7228D296B800CD1080 /* AVMetadataItem+THAdditions.m */; };
+		BBC76D912CCD9D6A00772DD2 /* IdentificationCoverView.m in Sources */ = {isa = PBXBuildFile; fileRef = BBC76D902CCD9D6A00772DD2 /* IdentificationCoverView.m */; };
 		BBCE1DD9257C3CAB006CE886 /* TiledScrollView.m in Sources */ = {isa = PBXBuildFile; fileRef = BBCE1DD8257C3CAB006CE886 /* TiledScrollView.m */; };
 		BBCE23542B5C9C41003892F3 /* GraphicsTools.m in Sources */ = {isa = PBXBuildFile; fileRef = BBCE23532B5C9C41003892F3 /* GraphicsTools.m */; };
 		BBD24D622432948800DC2A81 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = BBD24D612432948800DC2A81 /* AppDelegate.m */; };
@@ -126,8 +126,6 @@
 		BB3926FE2C14B43E009C7B32 /* TableRowView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TableRowView.m; sourceTree = "<group>"; };
 		BB3927002C14C606009C7B32 /* TableCellView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TableCellView.h; sourceTree = "<group>"; };
 		BB3927012C14C606009C7B32 /* TableCellView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TableCellView.m; sourceTree = "<group>"; };
-		BB3927032C1783DD009C7B32 /* IdentificationCoverView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = IdentificationCoverView.h; path = "PlayEm/Window & ViewControllers/IdentificationCoverView.h"; sourceTree = SOURCE_ROOT; };
-		BB3927042C1783DD009C7B32 /* IdentificationCoverView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = IdentificationCoverView.m; path = "PlayEm/Window & ViewControllers/IdentificationCoverView.m"; sourceTree = SOURCE_ROOT; };
 		BB3927062C17A3C4009C7B32 /* TableViewExtraState.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TableViewExtraState.h; sourceTree = "<group>"; };
 		BB3927072C1BA8BD009C7B32 /* NSURL+WithoutParameters.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "NSURL+WithoutParameters.h"; path = "Window & ViewControllers/NSURL+WithoutParameters.h"; sourceTree = "<group>"; };
 		BB3927082C1BA8BD009C7B32 /* NSURL+WithoutParameters.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = "NSURL+WithoutParameters.m"; path = "Window & ViewControllers/NSURL+WithoutParameters.m"; sourceTree = "<group>"; };
@@ -191,6 +189,8 @@
 		BBC43B6F28D28CDD00CD1080 /* InfoPanel.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = InfoPanel.m; sourceTree = "<group>"; };
 		BBC43B7128D296B800CD1080 /* AVMetadataItem+THAdditions.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "AVMetadataItem+THAdditions.h"; sourceTree = "<group>"; };
 		BBC43B7228D296B800CD1080 /* AVMetadataItem+THAdditions.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "AVMetadataItem+THAdditions.m"; sourceTree = "<group>"; };
+		BBC76D8F2CCD9D6A00772DD2 /* IdentificationCoverView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IdentificationCoverView.h; sourceTree = "<group>"; };
+		BBC76D902CCD9D6A00772DD2 /* IdentificationCoverView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = IdentificationCoverView.m; sourceTree = "<group>"; };
 		BBCE1DD7257C3CAB006CE886 /* TiledScrollView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TiledScrollView.h; sourceTree = "<group>"; };
 		BBCE1DD8257C3CAB006CE886 /* TiledScrollView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TiledScrollView.m; sourceTree = "<group>"; };
 		BBCE23522B5C9C41003892F3 /* GraphicsTools.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GraphicsTools.h; sourceTree = "<group>"; };
@@ -356,8 +356,8 @@
 		BBC8B32D293C47D900F5D38E /* Views */ = {
 			isa = PBXGroup;
 			children = (
-				BB3927032C1783DD009C7B32 /* IdentificationCoverView.h */,
-				BB3927042C1783DD009C7B32 /* IdentificationCoverView.m */,
+				BBC76D8F2CCD9D6A00772DD2 /* IdentificationCoverView.h */,
+				BBC76D902CCD9D6A00772DD2 /* IdentificationCoverView.m */,
 				BBAD7D53262B96D800089ACC /* ScopeView.h */,
 				BBAD7D54262B973C00089ACC /* ScopeView.m */,
 				BB097A0A2921B1E500D33E44 /* ScrollingTextView.h */,
@@ -594,7 +594,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				BB3927052C1783DD009C7B32 /* IdentificationCoverView.m in Sources */,
 				BB8A100C290586E500FC6013 /* CAShapeLayer+Path.m in Sources */,
 				BB9401882AD0974900B7B150 /* AcceleratedBiquadFilter.m in Sources */,
 				BBC2AF7A2B8DF0960077EB5E /* NSAlert+BetterError.m in Sources */,
@@ -603,6 +602,7 @@
 				BBCE23542B5C9C41003892F3 /* GraphicsTools.m in Sources */,
 				BBC2AF7D2B8FD97C0077EB5E /* MusicAuthenticationController.m in Sources */,
 				BB7C626C2932E1540019AF25 /* ControlPanelController.m in Sources */,
+				BBC76D912CCD9D6A00772DD2 /* IdentificationCoverView.m in Sources */,
 				BBCE1DD9257C3CAB006CE886 /* TiledScrollView.m in Sources */,
 				BBDC988A250E81D0008B19D1 /* BrowserController.m in Sources */,
 				BBC43B7028D28CDD00CD1080 /* InfoPanel.m in Sources */,

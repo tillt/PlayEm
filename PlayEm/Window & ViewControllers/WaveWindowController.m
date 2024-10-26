@@ -1029,7 +1029,8 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     [self.window registerForDraggedTypes:[NSArray arrayWithObjects: NSPasteboardTypeFileURL, NSPasteboardTypeSound, nil]];
     self.window.delegate = self;
     
-    _playlist = [[PlaylistController alloc] initWithPlaylistTable:_playlistTable delegate:self];
+    _playlist = [[PlaylistController alloc] initWithPlaylistTable:_playlistTable
+                                                         delegate:self];
     
     [self.renderer loadMetalWithView:self.scopeView];
 
@@ -1440,7 +1441,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     [_browser loadITunesLibrary];
 }
 
-#pragma mark Splitter delegate
+#pragma mark - Splitter delegate
 
 - (void)splitViewWillResizeSubviews:(NSNotification *)notification
 {
@@ -1862,7 +1863,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     [[MPNowPlayingInfoCenter defaultCenter] setNowPlayingInfo:songInfo];
 }
 
-#pragma mark Drag & Drop
+#pragma mark - Drag & Drop
 
 - (NSDragOperation)draggingEntered:(id <NSDraggingInfo>)sender
 {
@@ -1901,7 +1902,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     return NO;
 }
 
-#pragma mark Keyboard events
+#pragma mark - Keyboard events
 
 - (void)keyDown:(NSEvent *)event
 {
@@ -1924,7 +1925,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     }
 }
 
-#pragma mark Mouse events
+#pragma mark - Mouse events
 
 - (void)mouseDown:(NSEvent*)event
 {
@@ -1990,7 +1991,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     }
 }
 
-#pragma mark Browser delegate
+#pragma mark - Browser delegate
 
 - (MediaMetaData*)currentSongMeta
 {
@@ -2132,7 +2133,6 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     [self unlockScreen];
 }
 
-
 - (void)audioControllerPlaybackEnded
 {
     NSLog(@"audioControllerPlaybackEnded");
@@ -2151,22 +2151,12 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     // Stop the scope rendering.
     [_renderer stop:_scopeView];
 
-    MediaMetaData* item = nil;
     if (_controlPanelController.loop.state == NSControlStateValueOn) {
         [_audioController play];
         return;
     }
     
-    item = [_playlist nextItem];
-    if (item == nil) {
-        [_audioController pause];
-        return;
-    }
-
-    [self loadDocumentFromURL:[WaveWindowController
-                               encodeQueryItemsWithUrl:item.location
-                               frame:0LL
-                               playing:YES] meta:item];
+    [self playNext:nil];
 }
 
 #pragma mark - Control Panel delegate
@@ -2177,13 +2167,17 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     MediaMetaData* meta = [_playlist nextItem];
     if (meta == nil) {
         // Then maybe we can just get the next song from the songs browser list.
-        //- (IBAction)playNext:(id)sender
         // Find the topmost selected song and use that one to play next.
-        [self stop];
+        meta = [self.browser nextSong];
+    }
+    if (meta == nil) {
+        [_audioController pause];
         return;
     }
-
-    [self loadDocumentFromURL:[WaveWindowController encodeQueryItemsWithUrl:meta.location frame:0LL playing:YES] meta:meta];
+    [self loadDocumentFromURL:[WaveWindowController
+                               encodeQueryItemsWithUrl:meta.location
+                               frame:0LL
+                               playing:YES] meta:meta];
 }
 
 - (void)playPrevious:(id)sender

@@ -213,22 +213,33 @@ const CGFloat kTableRowHeight = 50.0f;
 - (void)openSoundcloud:(id)sender
 {
     NSButton* button;
-    NSUInteger tag = button.tag;
-//    NSString* title = [_titleField.stringValue stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
-//    title = [title stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLFragmentAllowedCharacterSet]];
-//
-//    NSURL* queryURL = [NSURL URLWithString:[NSString stringWithFormat:@"https://soundcloud.com/search?q=%@", title]];
-//    NSURL* appURL = [[NSWorkspace sharedWorkspace] URLForApplicationToOpenURL:queryURL];
-//    NSWorkspaceOpenConfiguration* configuration = [NSWorkspaceOpenConfiguration new];
-//    [[NSWorkspace sharedWorkspace] openURLs:[NSArray arrayWithObject:queryURL]
-//                       withApplicationAtURL:appURL
-//                              configuration:configuration
-//                          completionHandler:^(NSRunningApplication* app, NSError* error){
-//    }];
+    unsigned long tag = button.tag;
+    NSLog(@"soundcloud button tag %ld", tag);
+    IdentifiedItem* item = _identifieds[tag];
+    NSString* artist = item.artist;
+    NSString* title = item.title;
+    NSString* search = title;
+    if (artist != nil && ![artist isEqualToString:@""]) {
+        search = [NSString stringWithFormat:@"%@ - %@", artist, title];
+    }
+    search = [search stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+    search = [search stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]];
+
+    NSURL* queryURL = [NSURL URLWithString:[NSString stringWithFormat:@"https://soundcloud.com/search?q=%@", search]];
+    NSURL* appURL = [[NSWorkspace sharedWorkspace] URLForApplicationToOpenURL:queryURL];
+    NSWorkspaceOpenConfiguration* configuration = [NSWorkspaceOpenConfiguration new];
+    [[NSWorkspace sharedWorkspace] openURLs:[NSArray arrayWithObject:queryURL]
+                       withApplicationAtURL:appURL
+                              configuration:configuration
+                          completionHandler:^(NSRunningApplication* app, NSError* error){
+    }];
 }
 
 - (void)musicURLClicked:(id)sender
 {
+    NSButton* button;
+    unsigned long tag = button.tag;
+    NSLog(@"music url tag %ld", tag);
 //    NSLog(@"opening %@", _musicURL);
     // For making sure this wont open Music.app we fetch the
     // default app for URLs.
@@ -303,6 +314,8 @@ const CGFloat kTableRowHeight = 50.0f;
         });
     }];
 }
+
+#pragma mark - Shazam session delegate
 
 - (void)session:(SHSession *)session didFindMatch:(SHMatch *)match
 {

@@ -440,10 +440,26 @@ static const NSTimeInterval kBeatEffectRampDown = 0.5f;
 
 - (NSUInteger)currentSongRow
 {
-    // Change the actual data value in the layer to the final value.
-    //_playbackFeedbackLayer.opacity = 1.0;
     NSURL* current = [_delegate.currentSongMeta.location URLWithoutParameters];
     return [self songsRowForURL:current];
+}
+
+- (MediaMetaData*)nextSong
+{
+    //NSArray<NSSortDescriptor*>* descriptors = [_songsTable sortDescriptors];
+    //assert(descriptors.count > 0);
+    //NSInteger increment = descriptors[0].ascending ? 1 : -1;
+    NSUInteger row = [self currentSongRow];
+    return [self metaAtSongRow:row + 1];
+}
+
+- (MediaMetaData*)metaAtSongRow:(NSUInteger)row
+{
+    if (row >= self.filteredItems.count) {
+        NSLog(@"end of songs listed reached");
+        return nil;
+    }
+    return self.filteredItems[row];
 }
 
 //- (void)animationDidStop:(CAAnimation *)anim

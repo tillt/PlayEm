@@ -18,7 +18,6 @@
 #import "LazySample.h"
 #import "ProfilingPointsOfInterest.h"
 
-//#define support_rubberband YES
 #define support_multi_output    YES
 //#define support_avaudioengine   YES
 //#define support_avplayer        YES
@@ -61,9 +60,6 @@ typedef struct {
     BOOL                        endOfStream;
     TapBlock                    tapBlock;
     dispatch_semaphore_t        semaphore;
-#ifdef support_rubberband
-    RubberBand::RubberBandStretcher* stretcher;
-#endif
 } AudioContext;
 
 @interface AudioController ()
@@ -943,12 +939,6 @@ void LogBufferContents(const uint8_t *buffer, size_t length)
     uint32_t primed = 0;
     res = AudioQueuePrime(_context.stream.queue, 0, &primed);
     assert((res == 0) && primed > 0);
-#endif
-
-#ifdef support_rubberband
-    _context.stretcher = new RubberBand::RubberBandStretcher(sample.rate, sample.channels);
-    _context.stretcher->setTimeRatio(1.2);
-    _context.stretcher->setPitchScale(1.02);
 #endif
     return;
 }

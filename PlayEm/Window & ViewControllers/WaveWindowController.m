@@ -1810,10 +1810,9 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
 - (void)setNowPlayingWithMeta:(MediaMetaData*)meta
 {
     NSMutableDictionary *songInfo = [[NSMutableDictionary alloc] init];
-    [songInfo setObject:meta.title forKey:MPMediaItemPropertyTitle];
-    [songInfo setObject:meta.artist forKey:MPMediaItemPropertyArtist];
-    [songInfo setObject:meta.album forKey:MPMediaItemPropertyAlbumTitle];
-
+    [songInfo setObject:meta.title == nil ? @"" : meta.title forKey:MPMediaItemPropertyTitle];
+    [songInfo setObject:meta.artist == nil ? @"" : meta.artist forKey:MPMediaItemPropertyArtist];
+    [songInfo setObject:meta.album == nil ? @"" : meta.album forKey:MPMediaItemPropertyAlbumTitle];
     if (meta.track) {
         [songInfo setObject:meta.track forKey:MPMediaItemPropertyAlbumTrackNumber];
     }
@@ -1836,6 +1835,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     
     [songInfo setObject:@(_audioController.sample.duration) forKey:MPMediaItemPropertyPlaybackDuration];
     [songInfo setObject:@(_audioController.currentTime) forKey:MPNowPlayingInfoPropertyElapsedPlaybackTime];
+    //FIXME: we should propably factor in our rubberbanding.
     [songInfo setObject:@(1.0) forKey:MPNowPlayingInfoPropertyPlaybackRate];
 
     [[MPNowPlayingInfoCenter defaultCenter] setNowPlayingInfo:songInfo];

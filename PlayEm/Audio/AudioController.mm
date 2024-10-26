@@ -763,6 +763,7 @@ void LogBufferContents(const uint8_t *buffer, size_t length)
     NSLog(@"buffer contents: %@", bufferString);
 }
 
+#ifdef support_avaudioengine
 - (BOOL)fillBuffer:(AVAudioPCMBuffer*)buffer
 {
     NSLog(@"filling buffer : %@", buffer);
@@ -776,21 +777,13 @@ void LogBufferContents(const uint8_t *buffer, size_t length)
     
     _context.nextFrame += fetched;
     
-//    LogBufferContents((const uint8_t *)buffer.floatChannelData[0], 32);
-//    LogBufferContents((const uint8_t *)buffer.floatChannelData[1], 32);
-//    LogBufferContents((const uint8_t *)buffer.floatChannelData[0]+32, 32);
-//    LogBufferContents((const uint8_t *)buffer.floatChannelData[1]+32, 32);
-//    LogBufferContents((const uint8_t *)buffer.floatChannelData[0]+64, 32);
-//    LogBufferContents((const uint8_t *)buffer.floatChannelData[1]+64, 32);
-//    LogBufferContents((const uint8_t *)buffer.floatChannelData[0]+96, 32);
-//    LogBufferContents((const uint8_t *)buffer.floatChannelData[1]+96, 32);
-
     if (fetched == 0) {
         NSLog(@"reached end of stream at %lld", _context.nextFrame);
         return NO;
     }
     return YES;
 }
+#endif
 
 #ifdef support_avplayer
 - (BOOL)setupPlayerWithSample:(LazySample*)sample error:(NSError**)error

@@ -127,10 +127,17 @@ NSString* const kMediaMetaDataMapTypeNumber = @"number";
         @"size": @{},
         @"format": @{},
         @"bitrate": @{},
+        @"volume": @{},
         @"samplerate": @{},
         @"channels": @{},
         @"locationType": @{},
-        
+
+        @"volumeAdjustment": @{
+            kMediaMetaDataMapKeyMP3: @{
+                kMediaMetaDataMapKey: @"RELATIVEVOLUMEADJUSTMENT",
+            },
+        },
+
         @"album": @{
             kMediaMetaDataMapKeyMP3: @{
                 kMediaMetaDataMapKey: @"ALBUM",
@@ -471,6 +478,32 @@ NSString* const kMediaMetaDataMapTypeNumber = @"number";
     return _bitrate;
 }
 
+- (NSString* _Nullable)volume
+{
+    if (_shadow == nil) {
+        return _volume;
+    }
+    
+    if (_volume == nil) {
+        _volume = [NSString stringWithFormat:@"%.1f dB", 16];
+    }
+    
+    return _volume;
+}
+
+- (NSString* _Nullable)volumeAdjustment
+{
+    if (_shadow == nil) {
+        return _volumeAdjustment;
+    }
+    
+    if (_volumeAdjustment == nil) {
+        _volumeAdjustment = [NSString stringWithFormat:@"%ld dB", (long)_shadow.volumeAdjustment];
+    }
+    
+    return _volumeAdjustment;
+}
+
 - (NSString* _Nullable)artist
 {
     if (_shadow == nil) {
@@ -766,6 +799,8 @@ NSString* const kMediaMetaDataMapTypeNumber = @"number";
         copy.size = [_size copyWithZone:zone];
         copy.channels = [_channels copyWithZone:zone];
         copy.bitrate = [_bitrate copyWithZone:zone];
+        copy.volume = [_volume copyWithZone:zone];
+        copy.volumeAdjustment = [_volumeAdjustment copyWithZone:zone];
         copy.samplerate = [_samplerate copyWithZone:zone];
 
         copy.shadow = _shadow;

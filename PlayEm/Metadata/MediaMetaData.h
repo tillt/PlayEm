@@ -80,6 +80,8 @@ extern NSString* const kMediaMetaDataMapTypeNumber;
 @property (copy, nonatomic, nullable) NSString* size;
 @property (copy, nonatomic, nullable) NSString* format;
 @property (copy, nonatomic, nullable) NSString* channels;
+@property (copy, nonatomic, nullable) NSString* volume;
+@property (copy, nonatomic, nullable) NSString* volumeAdjustment;
 
 @property (readonly, nonatomic, nullable) NSImage* imageFromArtwork;
 

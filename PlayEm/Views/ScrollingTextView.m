@@ -79,11 +79,6 @@ static const double kScrollSpeed = 1.0 / 24.0;
               NSFontAttributeName: _font    };
 }
 
-- (BOOL)canDrawSubviewsIntoLayer
-{
-    return NO;
-}
-
 - (BOOL)wantsUpdateLayer
 {
     return YES;

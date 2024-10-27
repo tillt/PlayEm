@@ -141,5 +141,4 @@ NSString * const kLayerMaskImageName = @"IdentificationActiveStill";
     [_maskLayer removeAllAnimations];
 }
 
-
 @end

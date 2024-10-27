@@ -18,6 +18,9 @@
 NSString* const kTitleColumnIdenfifier = @"TitleColumn";
 NSString* const kCoverColumnIdenfifier = @"CoverColumn";
 NSString* const kButtonColumnIdenfifier = @"ButtonColumn";
+
+NSString* const kSoundCloudQuery = @"https://soundcloud.com/search?q=%@";
+
 const CGFloat kTableRowHeight = 50.0f;
 
 @interface IdentifiedItem : NSObject
@@ -225,7 +228,7 @@ const CGFloat kTableRowHeight = 50.0f;
     search = [search stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
     search = [search stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]];
 
-    NSURL* queryURL = [NSURL URLWithString:[NSString stringWithFormat:@"https://soundcloud.com/search?q=%@", search]];
+    NSURL* queryURL = [NSURL URLWithString:[NSString stringWithFormat:kSoundCloudQuery, search]];
     NSURL* appURL = [[NSWorkspace sharedWorkspace] URLForApplicationToOpenURL:queryURL];
     NSWorkspaceOpenConfiguration* configuration = [NSWorkspaceOpenConfiguration new];
     [[NSWorkspace sharedWorkspace] openURLs:[NSArray arrayWithObject:queryURL]

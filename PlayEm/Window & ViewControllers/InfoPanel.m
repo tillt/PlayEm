@@ -204,7 +204,6 @@ static const CGFloat kViewLeftMargin = 10.0f;
                 @"volume": @{
                     @"order": @3,
                     @"width": @340,
-                    @"key": @"bitrate",
                     @"editable": @NO,
                 },
                 @"location": @{

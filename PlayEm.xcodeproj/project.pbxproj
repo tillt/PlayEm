@@ -173,6 +173,7 @@
 		BBA623D32620F6A200924D44 /* UIView+Visibility.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "UIView+Visibility.m"; sourceTree = "<group>"; };
 		BBAD5EF12CE0ECBD00F664AB /* CALayer+PauseAnimations.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "CALayer+PauseAnimations.h"; sourceTree = "<group>"; };
 		BBAD5EF22CE0ECBD00F664AB /* CALayer+PauseAnimations.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "CALayer+PauseAnimations.m"; sourceTree = "<group>"; };
+		BBAD5EF92D038D7100F664AB /* ci_post_clone.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = ci_post_clone.sh; sourceTree = "<group>"; };
 		BBAD7D53262B96D800089ACC /* ScopeView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ScopeView.h; sourceTree = "<group>"; };
 		BBAD7D54262B973C00089ACC /* ScopeView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ScopeView.m; sourceTree = "<group>"; };
 		BBB37D1F290F4A7E0007A6BB /* PlaylistController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PlaylistController.h; sourceTree = "<group>"; };
@@ -339,6 +340,14 @@
 			path = "Window & ViewControllers";
 			sourceTree = "<group>";
 		};
+		BBAD5EF72D038D5100F664AB /* ci_scripts */ = {
+			isa = PBXGroup;
+			children = (
+				BBAD5EF92D038D7100F664AB /* ci_post_clone.sh */,
+			);
+			path = ci_scripts;
+			sourceTree = "<group>";
+		};
 		BBC2AF4F2B8A90870077EB5E /* Metadata */ = {
 			isa = PBXGroup;
 			children = (
@@ -387,6 +396,7 @@
 		BBD24D542432948800DC2A81 = {
 			isa = PBXGroup;
 			children = (
+				BBAD5EF72D038D5100F664AB /* ci_scripts */,
 				BBDB1B3B2B640A5100A953F7 /* Scripts */,
 				BBD24D5F2432948800DC2A81 /* PlayEm */,
 				BBD24D5E2432948800DC2A81 /* Products */,

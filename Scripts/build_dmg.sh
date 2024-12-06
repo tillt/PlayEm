@@ -3,8 +3,11 @@
 name="PlayEm"
 app_name="${name}.app"
 
-version="v"$(/usr/libexec/PlistBuddy -c "Print :CFBundleShortVersionString" "${app_name}/Contents/Info.plist")
-version="${version}."$(/usr/libexec/PlistBuddy -c "Print :CFBundleVersion" "${app_name}/Contents/Info.plist")
+plist_buddy_bin="/usr/libexec/PlistBuddy"
+plist_path="${app_name}/Contents/Info.plist")
+
+version="v"$($plist_buddy_bin -c "Print :CFBundleShortVersionString" $plist_path)
+version="${version}."$($plist_buddy_bin -c "Print :CFBundleVersion" $plist_path)
 
 destination_path="${name}.${version}/"
 dmg_name="${name}.${version}.dmg"

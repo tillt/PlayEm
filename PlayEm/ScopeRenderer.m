@@ -215,7 +215,7 @@ static const double kLevelDecreaseValue = 0.042;
         _delegate = delegate;
         
         _originalSize = NSMakeSize(0.0f, 0.0f);
-        _defaultSize = NSMakeSize(640.0, 480.0f);
+        _defaultSize = NSMakeSize(960.0, 640.0f);
         
         [[NSNotificationCenter defaultCenter] addObserver:self
                                                  selector:@selector(scopeViewDidLiveResize:)

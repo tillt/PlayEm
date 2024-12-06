@@ -67,4 +67,9 @@
 {
 }
 
+- (NSMenu*)applicationDockMenu:(NSApplication *)sender
+{
+    return _waveController.dockMenu;
+}
+
 @end

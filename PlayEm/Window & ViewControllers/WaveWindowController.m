@@ -55,6 +55,8 @@ const CGFloat kMinTableHeight = 0.0f;       // Just forget about it.
 
 static const int kSplitPositionCount = 5;
 
+NSString * const kBeatTrackedSampleTempoChangeNotification = @"BeatTrackedSampleTempoChange";
+
 os_log_t pointsOfInterest;
 
 @interface WaveWindowController ()
@@ -252,28 +254,13 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     return enable;
 }
 
-- (void)routePickerViewWillBeginPresentingRoutes:(AVRoutePickerView *)routePickerView
+- (NSSet<NSToolbarItemIdentifier> *)toolbarImmovableItemIdentifiers:(NSToolbar *)toolbar
 {
-    
+    return [NSSet setWithObjects:kPlaylistToolbarIdentifier, kIdentifyToolbarIdentifier, nil];
 }
 
 - (NSToolbarItem *)toolbar:(NSToolbar *)toolbar itemForItemIdentifier:(NSToolbarItemIdentifier)itemIdentifier willBeInsertedIntoToolbar:(BOOL)flag
 {
-//    if (itemIdentifier == kRouteToolbarIdentifier) {
-//        NSToolbarItem* item = [[NSToolbarItem alloc] initWithItemIdentifier:itemIdentifier];
-//        self.routeDetector = [[AVRouteDetector alloc] init];
-//        self.pickerView = [[AVRoutePickerView alloc] initWithFrame:NSMakeRect(0,0,30,30)];
-//        //_pickerView.delegate = self;
-//        //_pickerView.op
-//        //_pickerView.player = _audioController.player;
-//        item.view = _pickerView;
-//        item.target = self;
-//        item.action = @selector(showPlaylist:);
-//        item.label = @"route";
-//        item.bordered = NO;
-//        item.image = [NSImage imageWithSystemSymbolName:@"list.bullet" accessibilityDescription:@""];
-//        return item;
-//    }
     if (itemIdentifier == kPlaylistToolbarIdentifier) {
         NSToolbarItem* item = [[NSToolbarItem alloc] initWithItemIdentifier:itemIdentifier];
         item.target = self;
@@ -441,6 +428,53 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
 //    showInFinder.enabled = numberOfSongsSelected > 1;
   
     return menu;
+}
+
+- (void)moveToOtherScreen:(id)sender
+{
+    NSMenuItem* item = sender;
+
+    NSArray<NSScreen*>* screens = [NSScreen screens];
+    assert(screens.count > item.tag);
+    NSScreen* screen = screens[item.tag];
+
+    NSPoint pos = NSMakePoint(NSMidX(screen.visibleFrame) - self.window.frame.size.width * 0.5,
+                              NSMidY(screen.visibleFrame) - self.window.frame.size.height * 0.5);
+
+    [NSAnimationContext runAnimationGroup:^(NSAnimationContext *context) {
+        [context setDuration:0.7];
+        [self.window.animator setFrame:NSMakeRect(pos.x, pos.y, self.window.frame.size.width, self.window.frame.size.height) display:YES];
+    } completionHandler:^{
+    }];
+}
+
+// Creates a menu when we got more than a single screen connected, allowing for moving the
+// application window to any other screen.
+- (NSMenu*)dockMenu
+{
+    NSArray<NSScreen*>* screens = [NSScreen screens];
+    if (screens.count < 2) {
+        return nil;
+    }
+    
+    NSMenuItem* item = nil;
+    _dockMenu = [NSMenu new];
+
+    for (int i=0; i < screens.count;i++) {
+        NSScreen* screen = screens[i];
+        if (screen == self.window.screen) {
+            NSLog(@"we can spare the screen we are already on (%@)", screen.localizedName);
+            continue;
+        }
+        item = [[NSMenuItem alloc] initWithTitle:[NSString stringWithFormat:@"􀢹 Move to %@", screen.localizedName]
+                                          action:@selector(moveToOtherScreen:)
+                                   keyEquivalent:@"m"];
+        item.tag = i;
+        [item setKeyEquivalentModifierMask:NSEventModifierFlagCommand];
+        [_dockMenu addItem:item];
+    }
+
+    return _dockMenu;
 }
 
 - (void)loadViews
@@ -1283,16 +1317,9 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     //_browser.playPause = active ? NSControlStateValueOn : NSControlStateValueOff;
 }
 
-- (void)showInfo:(BOOL)processCurrentSong
+- (void)showInfoForMetas:(NSArray*)metas
 {
-    NSArray* metas = nil;
     NSApplication* sharedApplication = [NSApplication sharedApplication];
-
-    if (processCurrentSong) {
-        metas = [NSArray arrayWithObject:_meta];
-    } else {
-        metas = [NSArray arrayWithArray:[_browser selectedSongMetas]];
-    }
 
     InfoPanelController* info = [[InfoPanelController alloc] initWithMetas:metas];
     info.delegate = self;
@@ -1313,17 +1340,26 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
 
 - (void)showInfoForCurrentSong:(id)sender
 {
-    [self showInfo:YES];
+    [self showInfoForMetas:[NSArray arrayWithObject:_meta]];
 }
 
 - (void)showInfoForSelectedSongs:(id)sender
 {
-    [self showInfo:NO];
+    [self showInfoForMetas:[_browser selectedSongMetas]];
 }
 
 - (void)showPlaylist:(id)sender
 {
     BOOL isShow = _effectBelowPlaylist.alphaValue == 0.0f;
+    
+//    NSArray<NSToolbarItem*>* items = self.window.toolbar.visibleItems;
+//    for (NSToolbarItem* item in items) {
+//        NSToolbarItemIdentifier ident = item.itemIdentifier;
+//        if ([ident isEqualToString:kPlaylistToolbarIdentifier]) {
+//        }
+//    }
+    
+//    kPlaylistToolbarIdentifier
     
     if (isShow) {
         _effectBelowPlaylist.alphaValue = 1.0f;
@@ -1397,7 +1433,14 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
 
 - (void)setBPM:(float)bpm
 {
-    _controlPanelController.bpm.stringValue = [NSString stringWithFormat:@"%3.0f BPM", floorf(bpm)];
+    static float lastBpm = 0;
+    
+    if (lastBpm != bpm) {
+        _controlPanelController.bpm.stringValue = [NSString stringWithFormat:@"%3.0f BPM", floorf(bpm)];
+        NSNumber* number = [NSNumber numberWithFloat:bpm];
+        [[NSNotificationCenter defaultCenter] postNotificationName:kBeatTrackedSampleTempoChangeNotification object:number];
+        lastBpm = bpm;
+    }
 }
 
 - (void)setCurrentFrame:(unsigned long long)frame
@@ -2309,6 +2352,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
 
 - (void)metaChangedForMeta:(MediaMetaData*)meta updatedMeta:(MediaMetaData*)updatedMeta
 {
+    NSAssert(meta != nil, @"missing original");
     if (self.meta == meta) {
         [self setMeta:updatedMeta];
     }

@@ -62,7 +62,7 @@ static const CGFloat kViewLeftMargin = 10.0f;
 @property (strong, nonatomic) NSTextField* artistTextField;
 @property (strong, nonatomic) NSTextField* albumTextField;
 
-@property (strong, nonatomic) NSButton* googleArtwork;
+@property (strong, nonatomic) NSImageView* googleArtwork;
 
 @property (strong, nonatomic) NSDictionary* viewConfiguration;
 @property (strong, nonatomic) NSDictionary* deltaKeys;
@@ -225,7 +225,6 @@ static const CGFloat kViewLeftMargin = 10.0f;
     return self;
 }
 
-//- (void)loadDetailsWithView:(NSView*)view
 - (void)loadControlsWithView:(NSView*)view pageKey:(NSString*)pageKey
 {
     //const CGFloat imageWidth = 120.0f;
@@ -410,12 +409,22 @@ static const CGFloat kViewLeftMargin = 10.0f;
 - (void)loadArtworkWithView:(NSView*)view
 {
     const CGFloat imageWidth = 400.0;
+    NSImage* image = [NSImage imageWithSystemSymbolName:@"text.page.badge.magnifyingglass"
+                               accessibilityDescription:nil];
+    NSImageSymbolConfiguration* config = [NSImageSymbolConfiguration configurationWithPointSize:100 weight:NSFontWeightBlack scale:NSImageSymbolScaleLarge];
+    NSImage* imageWithConfig = [image imageWithSymbolConfiguration:config];
 
-    _googleArtwork = [NSButton buttonWithTitle:@"google" target:self action:@selector(googleArtwork:)];
-    _googleArtwork.frame = CGRectMake(view.bounds.size.width - (40.0 + 80.0),
-                                      view.bounds.size.height - 70.0,
-                                      80.0,
-                                      23.0f);
+    _googleArtwork = [NSImageView imageViewWithImage:imageWithConfig];
+
+    _googleArtwork.frame = CGRectMake(view.bounds.size.width - 80.0,
+                                      view.bounds.size.height - 85.0,
+                                      40.0,
+                                      40.0f);
+    
+    [_googleArtwork addSymbolEffect:[NSSymbolBreatheEffect effect]
+                            options:[NSSymbolEffectOptions options]
+                           animated:YES];
+
     [view addSubview:_googleArtwork];
 
     _largeCoverView = [DragImageFileView new];
@@ -873,8 +882,11 @@ static const CGFloat kViewLeftMargin = 10.0f;
                     NSLog(@"there is no change for %@", meta.location);
                     continue;
                 }
+
                 [patchedMeta writeToFileWithError:&error];
-                [self.delegate metaChangedForMeta:meta updatedMeta:patchedMeta];
+
+                [self.delegate metaChangedForMeta:meta
+                                      updatedMeta:patchedMeta];
             }
             [self.delegate finalizeMetaUpdates];
             

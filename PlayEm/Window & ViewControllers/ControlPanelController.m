@@ -13,14 +13,21 @@
 #import "NSBezierPath+CGPath.h"
 #import "CAShapeLayer+Path.h"
 #import "LevelIndicatorCell.h"
+#import "../Views/IdentificationCoverView.h"
 #import "MediaMetaData.h"
 
 NSString * const kBPMDefault = @"--- BPM";
 
+extern NSString * const kAudioControllerChangedPlaybackStateNotification;
+extern NSString * const kPlaybackStateStarted;
+extern NSString * const kPlaybackStateEnded;
+extern NSString * const kPlaybackStatePaused;
+extern NSString * const kPlaybackStatePlaying;
+
 @interface ControlPanelController ()
 @property (strong, nonatomic) ScrollingTextView* titleView;
 @property (strong, nonatomic) ScrollingTextView* albumArtistView;
-@property (strong, nonatomic) NSButton* coverButton;
+@property (strong, nonatomic) IdentificationCoverView* coverButton;
 @property (weak, nonatomic) id<ControlPanelControllerDelegate> delegate;
 @end
 
@@ -31,8 +38,21 @@ NSString * const kBPMDefault = @"--- BPM";
     self = [super init];
     if (self) {
         _delegate = delegate;
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(audioControllerChangedPlaybackState:) name:kAudioControllerChangedPlaybackStateNotification object:nil];
     }
     return self;
+}
+
+- (void)audioControllerChangedPlaybackState:(NSNotification*)notification
+{
+    NSString* state = notification.object;
+    if ([state isEqualToString:kPlaybackStateEnded]) {
+        [_coverButton stopAnimating];
+    } else if ([state isEqualToString:kPlaybackStatePaused]) {
+        [_coverButton pauseAnimating];
+    } else if ([state isEqualToString:kPlaybackStatePlaying]) {
+        [_coverButton startAnimating];
+    }
 }
 
 - (BOOL)automaticallyAdjustsSize
@@ -56,6 +76,7 @@ NSString * const kBPMDefault = @"--- BPM";
     const CGFloat timeLabelHeight = 16.0;
 
     const CGFloat coverButtonX = 5.0;
+    const CGFloat coverButtonY = 3.0;
     
     const CGFloat bpmLabelWidth = 60.0f;
     const CGFloat bpmLabelHeight = 16.0f;
@@ -101,29 +122,31 @@ NSString * const kBPMDefault = @"--- BPM";
     [_zoomBlur setDefaults];
     [_zoomBlur setValue: [NSNumber numberWithFloat:0.5] forKey: @"inputAmount"];
    
-    _coverButton = [NSButton buttonWithImage:[NSImage imageNamed:@"UnknownSong"]
-                                      target:_delegate
-                                      action:@selector(showInfoForCurrentSong:)];
-    _coverButton.bezelStyle = NSBezelStyleTexturedSquare;
-    _coverButton.imagePosition = NSImageOnly;
-    _coverButton.imageScaling = NSImageScaleProportionallyUpOrDown;
-    [_coverButton setButtonType: NSButtonTypeMomentaryPushIn];
-    _coverButton.frame = NSMakeRect(coverButtonX,
-                                    2.0,
-                                    self.view.frame.size.height - 10.0,
-                                    self.view.frame.size.height - 10.0);
-    _coverButton.wantsLayer = YES;
+//    _coverButton = [RadarButton buttonWithImage:[NSImage imageNamed:@"UnknownSong"]
+//                                         target:_delegate
+//                                         action:@selector(showInfoForCurrentSong:)];
+    _coverButton = [[IdentificationCoverView alloc] initWithFrame:NSMakeRect(coverButtonX,
+                                                                             coverButtonY,
+                                                                             self.view.frame.size.height - 10.0,
+                                                                             self.view.frame.size.height - 10.0)];
+    NSClickGestureRecognizer* recognizer = [[NSClickGestureRecognizer alloc] initWithTarget:_delegate action:@selector(showInfoForCurrentSong:)];
+    recognizer.numberOfClicksRequired = 1;
+    [_coverButton addGestureRecognizer:recognizer];
+    
+    //    _coverButton.bezelStyle = NSBezelStyleTexturedSquare;
+//    _coverButton.imagePosition = NSImageOnly;
+    //_coverButton.imageScaling = NSImageScaleProportionallyUpOrDown;
+//    [_coverButton setButtonType: NSButtonTypeMomentaryPushIn];
     _coverButton.layer.cornerRadius = 10;
-    _coverButton.layer.masksToBounds = NO;
-    _coverButton.enabled = NO;
+    _coverButton.layer.masksToBounds = YES;
     [self.view addSubview:_coverButton];
    
-    CALayer* layer = [CALayer new];
-    layer.compositingFilter = @[ _zoomBlur, intenseBloomFilter ];
-    layer.frame = NSInsetRect(_coverButton.layer.bounds, -10.0, -10.0);
-    layer.masksToBounds = NO;
-    layer.mask = [CAShapeLayer MaskLayerFromRect:layer.frame];
-    [_coverButton.layer addSublayer:layer];
+//    CALayer* layer = [CALayer new];
+//    layer.compositingFilter = @[ _zoomBlur, intenseBloomFilter ];
+//    layer.frame = NSInsetRect(_coverButton.layer.bounds, -10.0, -10.0);
+//    layer.masksToBounds = NO;
+//    layer.mask = [CAShapeLayer MaskLayerFromRect:layer.frame];
+//    [_coverButton.layer addSublayer:layer];
     
     _titleView = [[ScrollingTextView alloc] initWithFrame:NSMakeRect(coverButtonX + (self.view.frame.size.height - 5.0),
                                                                      self.view.frame.size.height - (scrollingTextViewHeight + 5.0),
@@ -133,7 +156,7 @@ NSString * const kBPMDefault = @"--- BPM";
     _titleView.font = [NSFont systemFontOfSize:scrollingTextViewHeight - 5.0];
     [self.view addSubview:_titleView];
 
-    layer = [CALayer new];
+    CALayer* layer = [CALayer new];
     layer.backgroundFilters = @[ titleBloomFilter ];
     layer.frame = NSInsetRect(_titleView.bounds, -16, -16);
     layer.masksToBounds = NO;
@@ -412,7 +435,8 @@ NSString * const kBPMDefault = @"--- BPM";
         [NSString stringWithFormat:@"%@ — %@", meta.artist, meta.album] :
         (meta.album.length > 0 ? meta.album : (meta.artist.length > 0 ?
                                                meta.artist : @"unknown") );
-    _coverButton.enabled = YES;
+//    _coverButton.enabled = YES;
 }
 
 @end
+

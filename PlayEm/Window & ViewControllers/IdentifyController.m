@@ -95,7 +95,6 @@ const CGFloat kTableRowHeight = 50.0f;
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    // Do view setup here.
     NSLog(@"viewDidLoad");
 }
 
@@ -103,6 +102,7 @@ const CGFloat kTableRowHeight = 50.0f;
 {
     NSLog(@"IdentifyController.view becoming visible");
     [self shazam:self];
+    [_identificationCoverView startAnimating];
 }
 
 - (void)viewWillDisappear
@@ -111,20 +111,21 @@ const CGFloat kTableRowHeight = 50.0f;
     [[NSApplication sharedApplication] stopModal];
     [_audioController stopTapping];
     [self reset];
+
 }
 
 - (void)loadView
 {
     NSLog(@"loadView");
     
-    const CGFloat kPopoverWidth = 600.0f;
+    const CGFloat kPopoverWidth = 640.0f;
     const CGFloat kPopoverHeight = 280.0f;
     
-    const CGFloat kTableViewWidth = 300.0f;
+    const CGFloat kTableViewWidth = 340.0f;
     
     const CGFloat kCoverColumnWidth = kTableRowHeight;
     const CGFloat kTitleColumnWidth = 160.0;
-    const CGFloat kButtonsColumnWidth = 50.0;
+    const CGFloat kButtonsColumnWidth = 70.0;
 
     const CGFloat kBorderWidth = 20.0f;
     const CGFloat kBorderHeight = 0.0f;
@@ -196,15 +197,8 @@ const CGFloat kTableRowHeight = 50.0f;
                                                                                          y,
                                                                                          kCoverViewWidth,
                                                                                          kCoverViewHeight)];
-    _identificationCoverView.wantsLayer = YES;
-    _identificationCoverView.imageLayer.contents = [NSImage imageNamed:@"UnknownSong"];
-    _identificationCoverView.imageLayer.cornerRadius = 7;
-    _identificationCoverView.maskLayer.contents = [NSImage imageNamed:@"FadeMask"];;
-    _identificationCoverView.layer.masksToBounds = YES;
-
+    _identificationCoverView.image = [NSImage imageNamed:@"UnknownSong"];
     [self.view addSubview:_identificationCoverView];
-
-    [_identificationCoverView startAnimating];
 }
 
 - (void)copyTitle:(id)sender
@@ -213,18 +207,23 @@ const CGFloat kTableRowHeight = 50.0f;
 //    [[NSPasteboard generalPasteboard] setString:_titleField.stringValue forType:NSPasteboardTypeString];
 }
 
+- (NSString*)queryWithIdentifiedItem:(IdentifiedItem*)item
+{
+    NSString* artist = item.artist;
+    NSString* title = item.title;
+    NSString* ret = title;
+    if (artist != nil && ![artist isEqualToString:@""]) {
+        ret = [NSString stringWithFormat:@"%@ - %@", artist, title];
+    }
+    return ret;
+}
+
 - (void)openSoundcloud:(id)sender
 {
     NSButton* button;
     unsigned long tag = button.tag;
     NSLog(@"soundcloud button tag %ld", tag);
-    IdentifiedItem* item = _identifieds[tag];
-    NSString* artist = item.artist;
-    NSString* title = item.title;
-    NSString* search = title;
-    if (artist != nil && ![artist isEqualToString:@""]) {
-        search = [NSString stringWithFormat:@"%@ - %@", artist, title];
-    }
+    NSString* search = [self queryWithIdentifiedItem:_identifieds[tag]];
     search = [search stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
     search = [search stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]];
 
@@ -243,19 +242,20 @@ const CGFloat kTableRowHeight = 50.0f;
     NSButton* button;
     unsigned long tag = button.tag;
     NSLog(@"music url tag %ld", tag);
+    NSURL* musicURL = _identifieds[tag].musicURL;
 //    NSLog(@"opening %@", _musicURL);
     // For making sure this wont open Music.app we fetch the
     // default app for URLs.
     // With that we explicitly call the browser for opening the
     // URL. That way we get things displayed even in cases where
     // Music.app does not show iCloud.Music.
-//    NSURL* appURL = [[NSWorkspace sharedWorkspace] URLForApplicationToOpenURL:_musicURL];
-//    NSWorkspaceOpenConfiguration* configuration = [NSWorkspaceOpenConfiguration new];
-//    [[NSWorkspace sharedWorkspace] openURLs:[NSArray arrayWithObject:_musicURL]
-//                       withApplicationAtURL:appURL
-//                              configuration:configuration
-//                          completionHandler:^(NSRunningApplication* app, NSError* error){
-//    }];
+    NSURL* appURL = [[NSWorkspace sharedWorkspace] URLForApplicationToOpenURL:musicURL];
+    NSWorkspaceOpenConfiguration* configuration = [NSWorkspaceOpenConfiguration new];
+    [[NSWorkspace sharedWorkspace] openURLs:[NSArray arrayWithObject:musicURL]
+                       withApplicationAtURL:appURL
+                              configuration:configuration
+                          completionHandler:^(NSRunningApplication* app, NSError* error){
+    }];
 }
 
 - (void)reset
@@ -368,15 +368,16 @@ const CGFloat kTableRowHeight = 50.0f;
     NSLog(@"didNotFindMatchForSignature - error was: %@", error);
     dispatch_async(dispatch_get_main_queue(), ^{
         [self reset];
-        [NSAnimationContext runAnimationGroup:^(NSAnimationContext *context) {
-            [context setDuration:2.0f];
-            //self.genreField.animator.stringValue = messages[r];
-            self.identificationCoverView.animator.imageLayer.contents = [NSImage imageNamed:@"UnknownSong"];
-        }];
+        self.identificationCoverView.image = [NSImage imageNamed:@"UnknownSong"];
     });
 }
 
 #pragma mark - Table View delegate
+
+- (BOOL)tableView:(NSTableView *)tableView shouldSelectRow:(NSInteger)row
+{
+    return NO;
+}
 
 - (NSView*)tableView:(NSTableView*)tableView viewForTableColumn:(NSTableColumn *)tableColumn row:(NSInteger)row
 {
@@ -401,7 +402,6 @@ const CGFloat kTableRowHeight = 50.0f;
             button.font = [NSFont systemFontOfSize:13.0f];
             button.bordered = NO;
             [button setButtonType:NSButtonTypeMomentaryPushIn];
-
             button.bezelStyle = NSBezelStyleTexturedRounded;
             button.frame = NSMakeRect( (tableColumn.width - 26.0) / 2.0f,
                                         kRowHeight / 2.0,
@@ -420,6 +420,19 @@ const CGFloat kTableRowHeight = 50.0f;
                                         13.0 * 2.0f,
                                         kRowHeight / 2.0);
             [view addSubview:button];
+
+            button = [NSButton buttonWithTitle:@"􀣺" target:self action:@selector(musicURLClicked:)];
+            button.tag = _identifieds.count + 1;
+            button.font = [NSFont systemFontOfSize:13.0f];
+            button.bordered = NO;
+            [button setButtonType:NSButtonTypeMomentaryPushIn];
+            button.bezelStyle = NSBezelStyleTexturedRounded;
+            button.frame = NSMakeRect(  (tableColumn.width + 26.0) / 2.0f,
+                                        0.0,
+                                        13.0 * 2.0f,
+                                        kRowHeight / 2.0);
+            [view addSubview:button];
+
             result = view;
         } else if ([tableColumn.identifier isEqualToString:kTitleColumnIdenfifier]) {
             NSView* view = [[NSView alloc] initWithFrame:NSMakeRect(  0.0,

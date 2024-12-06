@@ -127,14 +127,13 @@ NSString* const kMediaMetaDataMapTypeNumber = @"number";
         @"size": @{},
         @"format": @{},
         @"bitrate": @{},
-        @"volume": @{},
         @"samplerate": @{},
         @"channels": @{},
         @"locationType": @{},
 
         @"volumeAdjustment": @{
             kMediaMetaDataMapKeyMP3: @{
-                kMediaMetaDataMapKey: @"RELATIVEVOLUMEADJUSTMENT",
+                kMediaMetaDataMapKey: @"RelativeVolumeFrame",
             },
         },
 
@@ -287,6 +286,17 @@ NSString* const kMediaMetaDataMapTypeNumber = @"number";
                 kMediaMetaDataMapOrder: @0,
             },
         },
+        @"volume": @{
+            kMediaMetaDataMapKeyMP3: @{
+                kMediaMetaDataMapKey: @"VOLUME",
+                kMediaMetaDataMapKeyType: kMediaMetaDataMapTypeNumber,
+            },
+            kMediaMetaDataMapKeyMP4: @{
+                kMediaMetaDataMapKey: AVMetadataID3MetadataKeyRelativeVolumeAdjustment,
+                kMediaMetaDataMapKeyType: kMediaMetaDataMapTypeNumber,
+            },
+        },
+
         @"tracks": @{
             kMediaMetaDataMapKeyMP3: @{
                 kMediaMetaDataMapKey: @"TRACKNUMBER",

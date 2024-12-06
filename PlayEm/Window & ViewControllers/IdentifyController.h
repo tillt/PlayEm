@@ -8,7 +8,6 @@
 
 #import <Cocoa/Cocoa.h>
 #import <ShazamKit/ShazamKit.h>
-
 NS_ASSUME_NONNULL_BEGIN
 
 @class AudioController;

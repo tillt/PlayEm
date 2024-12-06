@@ -272,6 +272,7 @@
     
     const TagLib_AudioProperties* properties = taglib_file_audioproperties(file);
     
+    //self.volume = taglib_volume
     self.bitrate = [NSString stringWithFormat:@"%ld kbps", (unsigned long)taglib_audioproperties_bitrate(properties)];
     self.samplerate = [NSString stringWithFormat:@"%.1f kHz", (unsigned long)taglib_audioproperties_samplerate(properties) / 1000.0f];
     self.channels = taglib_audioproperties_channels(properties) == 1 ? @"Mono" : @"Stereo";

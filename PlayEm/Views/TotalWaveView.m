@@ -38,7 +38,7 @@ const CGFloat kTotalWaveViewTileWidth = 8.0f;
     self.enclosingScrollView.wantsLayer = YES;
     self.enclosingScrollView.layer = [self makeBackingLayer];
     self.enclosingScrollView.layer.backgroundColor = [[[Defaults sharedDefaults] backColor] CGColor];
-    
+    self.layerUsesCoreImageFilters = YES;
     self.wantsLayer = YES;
     self.layer = [self makeBackingLayer];
     

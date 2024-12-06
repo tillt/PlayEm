@@ -49,6 +49,7 @@
 		BBA507DA244224E100AABCF7 /* Sample.m in Sources */ = {isa = PBXBuildFile; fileRef = BBA507D9244224E100AABCF7 /* Sample.m */; };
 		BBA507DF2443E66800AABCF7 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BBA507DE2443E66800AABCF7 /* AVFoundation.framework */; };
 		BBA623D42620F6A200924D44 /* UIView+Visibility.m in Sources */ = {isa = PBXBuildFile; fileRef = BBA623D32620F6A200924D44 /* UIView+Visibility.m */; };
+		BBAD5EF32CE0ECBD00F664AB /* CALayer+PauseAnimations.m in Sources */ = {isa = PBXBuildFile; fileRef = BBAD5EF22CE0ECBD00F664AB /* CALayer+PauseAnimations.m */; };
 		BBAD7D55262B973C00089ACC /* ScopeView.m in Sources */ = {isa = PBXBuildFile; fileRef = BBAD7D54262B973C00089ACC /* ScopeView.m */; };
 		BBB37D21290F4A7E0007A6BB /* PlaylistController.m in Sources */ = {isa = PBXBuildFile; fileRef = BBB37D20290F4A7E0007A6BB /* PlaylistController.m */; };
 		BBC2AF4B2B8974C20077EB5E /* MediaMetaData+TagLib.m in Sources */ = {isa = PBXBuildFile; fileRef = BBC2AF4A2B8974C20077EB5E /* MediaMetaData+TagLib.m */; };
@@ -170,6 +171,8 @@
 		BBA507DE2443E66800AABCF7 /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
 		BBA623D22620F67500924D44 /* UIView+Visibility.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "UIView+Visibility.h"; sourceTree = "<group>"; };
 		BBA623D32620F6A200924D44 /* UIView+Visibility.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "UIView+Visibility.m"; sourceTree = "<group>"; };
+		BBAD5EF12CE0ECBD00F664AB /* CALayer+PauseAnimations.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "CALayer+PauseAnimations.h"; sourceTree = "<group>"; };
+		BBAD5EF22CE0ECBD00F664AB /* CALayer+PauseAnimations.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "CALayer+PauseAnimations.m"; sourceTree = "<group>"; };
 		BBAD7D53262B96D800089ACC /* ScopeView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ScopeView.h; sourceTree = "<group>"; };
 		BBAD7D54262B973C00089ACC /* ScopeView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ScopeView.m; sourceTree = "<group>"; };
 		BBB37D1F290F4A7E0007A6BB /* PlaylistController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PlaylistController.h; sourceTree = "<group>"; };
@@ -437,6 +440,8 @@
 				BBD24D6B2432948B00DC2A81 /* PlayEm.entitlements */,
 				BB8570FF2972078A0004218B /* IndexedBlockOperation.h */,
 				BB8571002972078A0004218B /* IndexedBlockOperation.m */,
+				BBAD5EF12CE0ECBD00F664AB /* CALayer+PauseAnimations.h */,
+				BBAD5EF22CE0ECBD00F664AB /* CALayer+PauseAnimations.m */,
 				BB8A100A290586A200FC6013 /* CAShapeLayer+Path.h */,
 				BB8A100B290586E500FC6013 /* CAShapeLayer+Path.m */,
 				BB5A4D8F28FC5C2B003A733C /* NSBezierPath+CGPath.h */,
@@ -619,6 +624,7 @@
 				BBC2AF732B8B5B5A0077EB5E /* MediaMetaData+AVAsset.m in Sources */,
 				BBE5FEB52A892A410001B807 /* BeatLayerDelegate.m in Sources */,
 				BBE284682467612F00BE9D7F /* ScopeRenderer.m in Sources */,
+				BBAD5EF32CE0ECBD00F664AB /* CALayer+PauseAnimations.m in Sources */,
 				BBC2AF772B8DE2780077EB5E /* NSError+BetterError.m in Sources */,
 				BBA456E129395B970062D470 /* IdentifyController.m in Sources */,
 				BB5A4D9128FC5C2B003A733C /* NSBezierPath+CGPath.m in Sources */,
@@ -800,6 +806,7 @@
 				CLANG_WARN_OBJC_IMPLICIT_ATOMIC_PROPERTIES = YES;
 				CODE_SIGN_ENTITLEMENTS = PlayEm/PlayEm.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				DEAD_CODE_STRIPPING = YES;
@@ -846,6 +853,7 @@
 				CLANG_WARN_OBJC_IMPLICIT_ATOMIC_PROPERTIES = YES;
 				CODE_SIGN_ENTITLEMENTS = PlayEm/PlayEm.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				DEAD_CODE_STRIPPING = YES;

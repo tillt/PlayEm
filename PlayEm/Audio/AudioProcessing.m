@@ -292,7 +292,6 @@ float* makeFilterBank(NSRange frequencyRange, int sampleCount, int filterBankCou
     return filterBank;
 }
 
-
 /// Process a frame of raw audio data:
 ///
 /// 1. Perform a forward DFT on the time-domain values.

@@ -261,6 +261,9 @@ NSString* const kSongsColGenre = @"GenreCell";
 
 - (void)metaChangedForMeta:(MediaMetaData *)meta updatedMeta:(MediaMetaData *)updatedMeta
 {
+    NSAssert(meta != nil, @"updated MediaMetaData %p has no known original", updatedMeta);
+    NSAssert(updatedMeta != nil, @"no updated MediaMetaData given - what is happening");
+
     NSUInteger index = [self.cachedLibrary indexOfObject:meta];
     NSAssert(index != NSNotFound, @"MediaMetaData %p updated does not exist in cached library", meta);
     [self.cachedLibrary replaceObjectAtIndex:index withObject:updatedMeta];

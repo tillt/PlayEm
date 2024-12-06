@@ -352,6 +352,7 @@ const CGFloat kTableRowHeight = 50.0f;
 
 - (void)session:(SHSession *)session didNotFindMatchForSignature:(SHSignature *)signature error:(nullable NSError *)error
 {
+    /*
     NSArray<NSString*>* messages = @[   @"... so far, not known ...",
                                         @"... that reminds me of ...",
                                         @"... almost got it but then ...",
@@ -365,6 +366,8 @@ const CGFloat kTableRowHeight = 50.0f;
                                         @"... wasnt that done by that dude ...",
                                         @"... wait! what was that again..." ];
     int r = arc4random_uniform((unsigned int)messages.count);
+    */
+
     NSLog(@"didNotFindMatchForSignature - error was: %@", error);
     dispatch_async(dispatch_get_main_queue(), ^{
         [self reset];

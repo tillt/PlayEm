@@ -396,7 +396,7 @@ static const CGFloat kViewLeftMargin = 10.0f;
     }
     _viewControls[pageKey] = dict;
 
-    y += kRowSpace;
+    //y += kRowSpace;
 }
 
 -(void)googleArtwork:(id)sender

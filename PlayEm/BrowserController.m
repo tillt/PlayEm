@@ -901,7 +901,7 @@ static const NSTimeInterval kBeatEffectRampDown = 0.5f;
 - (NSArray<NSString*>*)knownGenres
 {
     if (_genres.count == 0) {
-        return nil;
+        return [NSArray array];
     }
     return [_genres subarrayWithRange:NSMakeRange(1, _genres.count - 1)];
 }

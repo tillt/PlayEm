@@ -484,7 +484,9 @@ void beatsContextReset(BeatsParserContext* context)
                 event.bpm = aubio_tempo_get_bpm(self->_aubio_tempo);
                 event.confidence = aubio_tempo_get_confidence(self->_aubio_tempo);
                 
+#ifdef VALIDATE_BEAT_DETECTION
                 expectedNextBeatFrame = event.frame + [self framesPerBeat:event.bpm];
+#endif
                 //                    NSLog(@"beat at %lld - %.2f bpm, confidence %.4f -- next beat expected at %lld",
                 //                          event.frame, event.bpm, event.confidence, expectedNextBeatFrame);
                 

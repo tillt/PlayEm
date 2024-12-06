@@ -346,7 +346,7 @@ NSString* const kMediaMetaDataMapTypeNumber = @"number";
     }
     
     if (typeKey == nil) {
-        return nil;
+        return [NSArray array];
     }
     
     for (NSString* key in [MediaMetaData mediaMetaKeys]) {

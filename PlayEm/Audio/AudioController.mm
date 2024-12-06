@@ -295,7 +295,7 @@ AVAudioFramePosition totalLatency(UInt32 deviceId, AudioObjectPropertyScope scop
     AudioObjectPropertyAddress deviceLatencyPropertyAddress = { kAudioDevicePropertyLatency, scope, kAudioObjectPropertyElementMain };
     UInt32 deviceLatency;
     UInt32 propertySize = sizeof(deviceLatency);
-    OSStatus result = result = AudioObjectGetPropertyData(deviceId, &deviceLatencyPropertyAddress, 0, NULL, &propertySize, &deviceLatency);
+    OSStatus result = AudioObjectGetPropertyData(deviceId, &deviceLatencyPropertyAddress, 0, NULL, &propertySize, &deviceLatency);
     if (result != noErr) {
         NSLog(@"Failed to get latency, err: %d", result);
         return 0;

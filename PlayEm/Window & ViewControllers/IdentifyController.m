@@ -124,7 +124,7 @@ const CGFloat kTableRowHeight = 50.0f;
     const CGFloat kTableViewWidth = 340.0f;
     
     const CGFloat kCoverColumnWidth = kTableRowHeight;
-    const CGFloat kTitleColumnWidth = 160.0;
+    const CGFloat kTitleColumnWidth = 170.0;
     const CGFloat kButtonsColumnWidth = 70.0;
 
     const CGFloat kBorderWidth = 20.0f;

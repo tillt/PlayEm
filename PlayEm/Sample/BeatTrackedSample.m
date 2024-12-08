@@ -951,7 +951,7 @@ double roundBpmWithinRange(double minBpm, double centerBpm, double maxBpm)
 
     // Still no beat data -> bail out!
     if (data == nil) {
-        return 0;
+        return ULONG_LONG_MAX;
     }
 
     const BeatEvent* events = data.bytes;

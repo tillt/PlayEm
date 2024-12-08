@@ -178,7 +178,7 @@ os_log_t pointsOfInterest;
 - (BOOL)beatEffectNext
 {
     _beatEffectAtFrame = [_beatSample frameForNextBar:&_beatEffectIteratorContext];
-    return _beatEffectAtFrame > 0;
+    return _beatEffectAtFrame != ULONG_LONG_MAX;
 }
 
 - (void)beatEffectRun
@@ -1469,8 +1469,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
             [self beatEffectRun];
             while (frame + _beatEffectRampUpFrames > _beatEffectAtFrame) {
                 if (![self beatEffectNext]) {
-                    NSLog(@"end of beats reached");
-                    [self beatEffectStart];
+                    NSLog(@"end of beats reached - wont fire again until reset");
                     return;
                 }
             };

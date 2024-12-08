@@ -352,14 +352,12 @@ void beatsContextReset(BeatsParserContext* context)
             }
         }
         if (i > rightIndex) {
-            // Verify that the first an the last beat are not correction beats in the same direction
-            // This would bend meanBeatLength unfavorably away from the optimum.
+            // Verify that the first and the last beat are not correction beats in the same direction
+            // as this would bend meanBeatLength unfavorably away from the optimum.
             double regionBorderError = 0;
             if (rightIndex > leftIndex + 2) {
-                const double firstBeatLength =
-                        coarseBeats[leftIndex + 1] - coarseBeats[leftIndex];
-                const double lastBeatLength =
-                        coarseBeats[rightIndex] - coarseBeats[rightIndex - 1];
+                const double firstBeatLength = coarseBeats[leftIndex + 1] - coarseBeats[leftIndex];
+                const double lastBeatLength = coarseBeats[rightIndex] - coarseBeats[rightIndex - 1];
                 regionBorderError = fabs(firstBeatLength + lastBeatLength - (2 * meanBeatLength));
             }
             if (regionBorderError < maxPhaseError / 2) {

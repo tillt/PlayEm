@@ -617,11 +617,16 @@ void beatsContextReset(BeatsParserContext* context)
     NSLog(@"first beat frame = %lld with %.2f", firstBeatFrame, constBPM);
 
     BeatEvent event;
-    unsigned long long nextBeatFrane = firstBeatFrame;
+    unsigned long long nextBeatFrame = firstBeatFrame;
     
-    while (nextBeatFrane < _sample.frames) {
-        event.frame = nextBeatFrane;
+    int beatIndex = 0;
+    while (nextBeatFrame < _sample.frames) {
+        event.frame = nextBeatFrame;
         event.bpm = constBPM;
+        event.style = BeatEventStyleBeat;
+        if (beatIndex == 0) {
+            event.style |= BeatEventStyleBar;
+        }
 
         size_t origin = event.frame / self->_framesPerPixel;
         NSNumber* pageKey = [NSNumber numberWithLong:origin / self->_tileWidth];
@@ -635,7 +640,8 @@ void beatsContextReset(BeatsParserContext* context)
         
         [self->_beats setObject:data forKey:pageKey];
         
-        nextBeatFrane += beatLength;
+        nextBeatFrame += beatLength;
+        beatIndex = (beatIndex + 1) % 4;
     };
 }
 

@@ -13,10 +13,15 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+typedef enum : NSUInteger {
+    BeatEventStyleBar  = 0x02,
+    BeatEventStyleBeat = 0x01,
+} BeatEventStyle;
+
 typedef struct {
-    unsigned long long frame;
-    float bpm;
-    float confidence;
+    BeatEventStyle      style;
+    unsigned long long  frame;
+    double              bpm;
 } BeatEvent;
 
 typedef struct {

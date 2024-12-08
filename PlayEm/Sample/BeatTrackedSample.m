@@ -332,17 +332,18 @@ void beatsContextReset(BeatsParserContext* context)
 
         int outliersCount = 0;
         unsigned long long ironedBeat = coarseBeats[leftIndex];
-        long phaseErrorSum = 0;
-        int i = leftIndex + 1;
+        double phaseErrorSum = 0;
+        size_t i = leftIndex + 1;
+
         for (; i <= rightIndex; ++i) {
             ironedBeat += meanBeatLength;
             const double phaseError = ironedBeat - coarseBeats[i];
             phaseErrorSum += phaseError;
+
             if (fabs(phaseError) > maxPhaseError) {
                 outliersCount++;
-                if (outliersCount > kMaxOutliersCount ||
-                        i == leftIndex + 1) { // the first beat must not be an outlier.
-                    // region is not const.
+                // the first beat must not be an outlier.
+                if (outliersCount > kMaxOutliersCount || i == leftIndex + 1) {
                     break;
                 }
             }
@@ -392,9 +393,6 @@ void beatsContextReset(BeatsParserContext* context)
 {
     NSAssert(constantRegions.length > 0, @"no constant regions found");
 
-    NSLog(@"pass two: locate constant regions");
-    
-
     // We assume here the track was recorded with an unhear-able static metronome.
     // This metronome is likely at a full BPM.
     // The track may has intros, outros and bridges without detectable beats.
@@ -417,7 +415,7 @@ void beatsContextReset(BeatsParserContext* context)
     double longestRegionBeatLength = 0;
     size_t regionsCount = constantRegions.length / sizeof(BeatConstRegion);
     
-    BeatConstRegion* regions = constantRegions.bytes;
+    const BeatConstRegion* regions = constantRegions.bytes;
     
     NSLog(@"pass three: identify longest constant region");
 
@@ -440,10 +438,8 @@ void beatsContextReset(BeatsParserContext* context)
 
     NSLog(@"longest constant region: %.2f frames, %d beats", longestRegionLength, longestRegionNumberOfBeats);
 
-    double longestRegionBeatLengthMin = longestRegionBeatLength -
-            ((kMaxSecsPhaseError * _sample.rate) / longestRegionNumberOfBeats);
-    double longestRegionBeatLengthMax = longestRegionBeatLength +
-            ((kMaxSecsPhaseError * _sample.rate) / longestRegionNumberOfBeats);
+    double longestRegionBeatLengthMin = longestRegionBeatLength - ((kMaxSecsPhaseError * _sample.rate) / longestRegionNumberOfBeats);
+    double longestRegionBeatLengthMax = longestRegionBeatLength + ((kMaxSecsPhaseError * _sample.rate) / longestRegionNumberOfBeats);
 
     int startRegionIndex = midRegionIndex;
 
@@ -463,9 +459,7 @@ void beatsContextReset(BeatsParserContext* context)
         if (longestRegionBeatLength > thisRegionBeatLengthMin &&
                 longestRegionBeatLength < thisRegionBeatLengthMax) {
             // Now check if both regions are at the same phase.
-            const double newLongestRegionLength =
-                regions[midRegionIndex + 1].firstBeatFrame -
-                regions[i].firstBeatFrame;
+            const double newLongestRegionLength = regions[midRegionIndex + 1].firstBeatFrame - regions[i].firstBeatFrame;
 
             double beatLengthMin = MAX(longestRegionBeatLengthMin, thisRegionBeatLengthMin);
             double beatLengthMax = MIN(longestRegionBeatLengthMax, thisRegionBeatLengthMax);
@@ -475,19 +469,17 @@ void beatsContextReset(BeatsParserContext* context)
 
             if (minNumberOfBeats != maxNumberOfBeats) {
                 // Ambiguous number of beats, find a closer region.
+                NSLog(@"Ambiguous number of beats, find a closer region ...");
                 continue;
             }
             const int numberOfBeats = minNumberOfBeats;
             const double newBeatLength = newLongestRegionLength / numberOfBeats;
-            if (newBeatLength > longestRegionBeatLengthMin &&
-                    newBeatLength < longestRegionBeatLengthMax) {
+            if (newBeatLength > longestRegionBeatLengthMin && newBeatLength < longestRegionBeatLengthMax) {
                 longestRegionLength = newLongestRegionLength;
                 longestRegionBeatLength = newBeatLength;
                 longestRegionNumberOfBeats = numberOfBeats;
-                longestRegionBeatLengthMin = longestRegionBeatLength -
-                        ((kMaxSecsPhaseError * _sample.rate) / longestRegionNumberOfBeats);
-                longestRegionBeatLengthMax = longestRegionBeatLength +
-                        ((kMaxSecsPhaseError * _sample.rate) / longestRegionNumberOfBeats);
+                longestRegionBeatLengthMin = longestRegionBeatLength - ((kMaxSecsPhaseError * _sample.rate) / longestRegionNumberOfBeats);
+                longestRegionBeatLengthMax = longestRegionBeatLength + ((kMaxSecsPhaseError * _sample.rate) / longestRegionNumberOfBeats);
                 startRegionIndex = i;
                 break;
             }
@@ -509,8 +501,7 @@ void beatsContextReset(BeatsParserContext* context)
                 ((kMaxSecsPhaseError * _sample.rate) / numberOfBeats);
         const double thisRegionBeatLengthMax = regions[i].beatLength +
                 ((kMaxSecsPhaseError * _sample.rate) / numberOfBeats);
-        if (longestRegionBeatLength > thisRegionBeatLengthMin &&
-                longestRegionBeatLength < thisRegionBeatLengthMax) {
+        if (longestRegionBeatLength > thisRegionBeatLengthMin && longestRegionBeatLength < thisRegionBeatLengthMax) {
             // Now check if both regions are at the same phase.
             const double newLongestRegionLength = regions[i + 1].firstBeatFrame - regions[startRegionIndex].firstBeatFrame;
 
@@ -522,12 +513,12 @@ void beatsContextReset(BeatsParserContext* context)
 
             if (minNumberOfBeats != maxNumberOfBeats) {
                 // Ambiguous number of beats, find a closer region.
+                NSLog(@"Ambiguous number of beats, find a closer region ...");
                 continue;
             }
             const int numberOfBeats = minNumberOfBeats;
             double newBeatLength = newLongestRegionLength / numberOfBeats;
-            if (newBeatLength > longestRegionBeatLengthMin &&
-                    newBeatLength < longestRegionBeatLengthMax) {
+            if (newBeatLength > longestRegionBeatLengthMin && newBeatLength < longestRegionBeatLengthMax) {
                 longestRegionLength = newLongestRegionLength;
                 longestRegionBeatLength = newBeatLength;
                 longestRegionNumberOfBeats = numberOfBeats;
@@ -535,6 +526,8 @@ void beatsContextReset(BeatsParserContext* context)
             }
         }
     }
+
+    NSLog(@"endRegionIndex: %d", startRegionIndex);
 
     longestRegionBeatLengthMin = longestRegionBeatLength -
             ((kMaxSecsPhaseError * _sample.rate) / longestRegionNumberOfBeats);
@@ -546,7 +539,8 @@ void beatsContextReset(BeatsParserContext* context)
 
     NSLog(@"pass six: create a const region from the first beat of the first region to the last beat of the last region");
 
-    // Create a const region region form the first beat of the first region to the last beat of the last region.
+    // Create a const region from the first beat of the first region to the last beat of the last region.
+
     const double minRoundBpm = (double)(60.0 * _sample.rate / longestRegionBeatLengthMax);
     const double maxRoundBpm = (double)(60.0 * _sample.rate / longestRegionBeatLengthMin);
     const double centerBpm = (double)(60.0 * _sample.rate / longestRegionBeatLength);
@@ -570,7 +564,6 @@ void beatsContextReset(BeatsParserContext* context)
  */
 - (unsigned long long)adjustPhase:(unsigned long long)firstBeat bpm:(double)bpm
 {
-    // FIXME: calling bpm.value() without checking bpm.isValid()
     const double beatLength = 60 * _sample.rate / bpm;
     const unsigned long long startOffset = (unsigned long long)(fmod(firstBeat, beatLength));
     double offsetAdjust = 0;
@@ -595,7 +588,6 @@ void beatsContextReset(BeatsParserContext* context)
 
     return firstBeat + offsetAdjust;
 }
-
 
 /*
  This is mostly a copy of code from MixxxDJ.
@@ -654,7 +646,6 @@ void beatsContextReset(BeatsParserContext* context)
 double roundBpmWithinRange(double minBpm, double centerBpm, double maxBpm)
 {
     // First try to snap to a full integer BPM
-    // FIXME: calling bpm.value() without checking bpm.isValid()
     double snapBpm = (double)round(centerBpm);
     if (snapBpm > minBpm && snapBpm < maxBpm) {
         // Success
@@ -704,7 +695,6 @@ double roundBpmWithinRange(double minBpm, double centerBpm, double maxBpm)
         data[channel] = (float*)((NSMutableData*)self->_sampleBuffers[channel]).bytes;
     }
     unsigned long long sourceWindowFrameOffset = 0LL;
-    unsigned long long expectedNextBeatFrame = 0LL;
     
     _coarseBeats = [NSMutableData data];
     
@@ -721,8 +711,6 @@ double roundBpmWithinRange(double minBpm, double centerBpm, double maxBpm)
         unsigned long long received = [self->_sample rawSampleFromFrameOffset:sourceWindowFrameOffset
                                                                        frames:sourceWindowFrameCount
                                                                       outputs:data];
-        
-        // FIXME: Consider introducing low pass filtering to get aubio to detect beats more reliably for electronic dance music which is all i am interested in.
         
         unsigned long int sourceFrameIndex = 0;
         BeatEvent event;

@@ -1465,7 +1465,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
 
     os_signpost_interval_begin(pointsOfInterest, POIBeatStuff, "BeatStuff");
     if (_beatSample.ready) {
-        if (_beatEffectAtFrame > 0 && frame + _beatEffectRampUpFrames > _beatEffectAtFrame) {
+        if (frame + _beatEffectRampUpFrames > _beatEffectAtFrame) {
             [self beatEffectRun];
             while (frame + _beatEffectRampUpFrames > _beatEffectAtFrame) {
                 if (![self beatEffectNext]) {

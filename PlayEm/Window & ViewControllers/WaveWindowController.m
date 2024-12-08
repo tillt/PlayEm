@@ -102,8 +102,6 @@ os_log_t pointsOfInterest;
 
 @property (strong, nonatomic) CADisplayLink* displayLink;
 
-- (void)stop;
-
 @end
 
 
@@ -1171,9 +1169,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     [userDefaults setObject:bookmark forKey:@"bookmark"];
     
     // Abort all the async operations that might be in flight.
-    [_audioController decodeAbortWithCallback:^{
-        [self stop];
-    }];
+    [_audioController decodeAbortWithCallback:^{}];
     //[BeatTrackedSample abort];
     // Finish playback, if anything was ongoing.
 }

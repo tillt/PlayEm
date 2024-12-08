@@ -25,6 +25,11 @@ typedef struct {
     const BeatEvent* _Nullable currentEvent;
 } BeatEventIterator;
 
+typedef struct {
+    unsigned long long firstBeatFrame;
+    double beatLength;
+} BeatConstRegion;
+
 typedef struct _BeatsParserContext BeatsParserContext;
 
 @class LazySample;
@@ -42,8 +47,6 @@ typedef struct _BeatsParserContext BeatsParserContext;
 - (NSData* _Nullable)beatsFromOrigin:(size_t)origin;
 
 - (void)trackBeatsAsyncWithCallback:(void (^)(BOOL))callback;
-
-- (float)tempo;
 
 - (unsigned long long)frameForFirstBar:(nonnull BeatEventIterator*)iterator;
 - (unsigned long long)frameForNextBar:(nonnull BeatEventIterator*)iterator;

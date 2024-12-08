@@ -370,7 +370,7 @@ void beatsContextReset(BeatsParserContext* context)
                 [constantRegions appendBytes:&region length:sizeof(BeatConstRegion)];
                 // continue with the next region.
                 leftIndex = rightIndex;
-                rightIndex = coarseBeatCount;
+                rightIndex = coarseBeatCount - 1;
                 continue;
             }
         }

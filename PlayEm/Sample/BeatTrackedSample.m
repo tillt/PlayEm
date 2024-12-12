@@ -63,18 +63,20 @@ static const int kBpmHistorySize = 200;
 
 // When ironing the grid for long sequences of const tempo we use
 // a 25 ms tolerance because this small of a difference is inaudible
-// This is > 2 * 12 ms, the step width of the QM beat detector
+// This is > 2 * 12 ms, the step width of the QM beat detector.
+// We are actually using a smaller hop-size of 256 frames for the libaubio
+// beat detector. However, the parameters seem good enough.
 static const double kMaxSecsPhaseError = 0.025;
 // This is set to avoid to use a constant region during an offset shift.
 // That happens for instance when the beat instrument changes.
 static const double kMaxSecsPhaseErrorSum = 0.1;
 static const int kMaxOutliersCount = 1;
-static const int kMinRegionBeatCount = 16;
+static const int kMinRegionBeatCount = 10;
 
 // Lowpass cutoff frequency.
 //static const float kParamFilterMinValue = 50.0f;
 //static const float kParamFilterMaxValue = 500.0f;
-static const float kParamFilterDefaultValue = 100.0f;
+static const float kParamFilterDefaultValue = 120.0f;
 
 @interface BeatTrackedSample()
 {
@@ -213,16 +215,13 @@ static const float kParamFilterDefaultValue = 100.0f;
                                    (unsigned int)_sample.rate);
     aubio_tempo_set_threshold(_aubio_tempo, 0.75f);
     assert(_aubio_tempo);
-    _filterEnabled = YES;
-    _filterFrequency = kParamFilterDefaultValue;
-    _filterConstant = _sample.rate / (2.0f * M_PI * _filterFrequency);
 #else
     tolerance = kParamToleranceDefaultValue;
     period = kParamPeriodDefaultValue;
-    filterEnabled = YES;
-    filterFrequency = kParamFilterDefaultValue;
-    filterConstant = _sample.rate / (2.0f * M_PI * filterFrequency);
 #endif
+    _filterEnabled = YES;
+    _filterFrequency = kParamFilterDefaultValue;
+    _filterConstant = _sample.rate / (2.0f * M_PI * _filterFrequency);
 }
 
 - (void)cleanupTracking
@@ -292,6 +291,10 @@ void beatsContextReset(BeatsParserContext* context)
 }
 
 /*
+ Locate and retrieve regions with a constant beat detection. Such region
+ has a phase error that remains below a threshold. With the given detection method,
+ we hardly ever get to 16 beats of stable detection - even with enabled lowpass filter.
+
  This is mostly a copy of code from MixxxDJ.
  from https://github.com/mixxxdj/mixxx/blob/8354c8e0f57a635acb7f4b3cc16b9745dc83312c/src/track/beatutils.cpp#L51
  */
@@ -299,8 +302,10 @@ void beatsContextReset(BeatsParserContext* context)
 {
     NSLog(@"pass two: locate constant regions");
 
-    // The QM Beat detector has a step size of 512 frames @ 44100 Hz. This means that
-    // Single beats have has a jitter of +- 12 ms around the actual position.
+    // Original comment doesnt apply exactly -- we are not using the QM detector but the
+    // libaubio one. Anyway, tje rest applies equally.
+    // The aubio detector has a step size of 256 frames @ 44100 Hz. This means that
+    // Single beats have has a jitter of +- 6 ms around the actual position.
     // Expressed in BPM it means we have for instance steps of these BPM value around 120 BPM
     // 117.454 - 120.185 - 123.046 - 126.048
     // A pure electronic 120.000 BPM track will have many 120,185 BPM beats and a few
@@ -312,7 +317,7 @@ void beatsContextReset(BeatsParserContext* context)
     // length from the first beat.
     // A inner loop checks for outliers using the momentary average as beat length.
     // once we have found an average with only single outliers, we store the beats using the
-    // current average to adjust them by up to +-12 ms.
+    // current average to adjust them by up to +-6 ms.
     // Than we start with the region from the found beat to the end.
 
     const size_t maxPhaseError = kMaxSecsPhaseError * _sample.rate;
@@ -365,7 +370,6 @@ void beatsContextReset(BeatsParserContext* context)
                 // We have found a constant enough region.
                 const unsigned long long firstBeat = coarseBeats[leftIndex];
                 // store the regions for the later stages
-                NSLog(@"we found a constant enough region at %lld, %.0f", firstBeat, meanBeatLength);
                 BeatConstRegion region = { firstBeat, meanBeatLength };
                 [constantRegions appendBytes:&region length:sizeof(BeatConstRegion)];
                 // continue with the next region.
@@ -417,7 +421,7 @@ void beatsContextReset(BeatsParserContext* context)
     
     const BeatConstRegion* regions = constantRegions.bytes;
     
-    NSLog(@"pass three: identify longest constant region");
+    NSLog(@"pass three: identify longest constant region from out of %ld", regionsCount);
 
     for (int i = 0; i < regionsCount - 1; ++i) {
         double length = regions[i + 1].firstBeatFrame - regions[i].firstBeatFrame;
@@ -456,8 +460,7 @@ void beatsContextReset(BeatsParserContext* context)
         const double thisRegionBeatLengthMin = regions[i].beatLength - ((kMaxSecsPhaseError * _sample.rate) / numberOfBeats);
         const double thisRegionBeatLengthMax = regions[i].beatLength + ((kMaxSecsPhaseError * _sample.rate) / numberOfBeats);
         // check if the tempo of the longest region is part of the rounding range of this region
-        if (longestRegionBeatLength > thisRegionBeatLengthMin &&
-                longestRegionBeatLength < thisRegionBeatLengthMax) {
+        if (longestRegionBeatLength > thisRegionBeatLengthMin && longestRegionBeatLength < thisRegionBeatLengthMax) {
             // Now check if both regions are at the same phase.
             const double newLongestRegionLength = regions[midRegionIndex + 1].firstBeatFrame - regions[i].firstBeatFrame;
 
@@ -497,10 +500,8 @@ void beatsContextReset(BeatsParserContext* context)
         if (numberOfBeats < kMinRegionBeatCount) {
             continue;
         }
-        const double thisRegionBeatLengthMin = regions[i].beatLength -
-                ((kMaxSecsPhaseError * _sample.rate) / numberOfBeats);
-        const double thisRegionBeatLengthMax = regions[i].beatLength +
-                ((kMaxSecsPhaseError * _sample.rate) / numberOfBeats);
+        const double thisRegionBeatLengthMin = regions[i].beatLength - ((kMaxSecsPhaseError * _sample.rate) / numberOfBeats);
+        const double thisRegionBeatLengthMax = regions[i].beatLength + ((kMaxSecsPhaseError * _sample.rate) / numberOfBeats);
         if (longestRegionBeatLength > thisRegionBeatLengthMin && longestRegionBeatLength < thisRegionBeatLengthMax) {
             // Now check if both regions are at the same phase.
             const double newLongestRegionLength = regions[i + 1].firstBeatFrame - regions[startRegionIndex].firstBeatFrame;

@@ -397,16 +397,6 @@ extern NSString * const kPlaybackStatePlaying;
     [_level.layer addSublayer:layer];
 }
 
-- (void)reset
-{
-    [self resetTempoIndicator:self];
-}
-
-- (void)resetTempoIndicator:(id)sender
-{
-    _bpm.stringValue = kBPMDefault;
-}
-
 - (void)resetTempo:(id)sender
 {
     [_delegate resetTempo:sender];

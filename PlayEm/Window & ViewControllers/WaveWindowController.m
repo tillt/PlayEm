@@ -69,6 +69,8 @@ os_log_t pointsOfInterest;
     unsigned long long _beatEffectAtFrame;
     unsigned long long _beatEffectRampUpFrames;
     
+    float _visibleBPM;
+    
     BOOL _mediakeyJustJumped;
 }
 
@@ -169,7 +171,9 @@ os_log_t pointsOfInterest;
 
 - (void)beatEffectStart
 {
+    NSLog(@"re-starting beat effect");
     _beatEffectRampUpFrames = 0;
+    _visibleBPM = 0;
     _beatEffectAtFrame = [_beatSample frameForFirstBar:&_beatEffectIteratorContext];
 }
 
@@ -181,13 +185,6 @@ os_log_t pointsOfInterest;
 
 - (void)beatEffectRun
 {
-    float songTempo = [_beatSample currentTempo:&_beatEffectIteratorContext];
-    
-    [self setBPM:songTempo * _audioController.tempoShift];
-
-    // THis might go away... beats are too unreliable for cool visuals :(
-   // [_browser beatEffect];
-    
     // Thats a weird mid-point but hey...
     CGSize mid = CGSizeMake((_controlPanelController.beatIndicator.layer.bounds.size.width - 1) / 2,
                             _controlPanelController.beatIndicator.layer.bounds.size.height - 2);
@@ -196,7 +193,7 @@ os_log_t pointsOfInterest;
         self->_controlPanelController.beatIndicator.animator.alphaValue = 1.0;
         CATransform3D tr = CATransform3DIdentity;
         tr = CATransform3DTranslate(tr, mid.width, mid.height, 0);
-        tr = CATransform3DScale(tr, 3.0, 3.0, 1);
+        tr = CATransform3DScale(tr, 3.1, 3.1, 1);
         tr = CATransform3DTranslate(tr, -mid.width, -mid.height, 0);
         self->_controlPanelController.beatIndicator.animator.layer.transform = tr;
     } completionHandler:^{
@@ -211,6 +208,11 @@ os_log_t pointsOfInterest;
             self->_controlPanelController.beatIndicator.animator.layer.transform = tr;
         }];
     }];
+
+    float songTempo = floorf([_beatSample currentTempo:&_beatEffectIteratorContext]);
+    float effectiveTempo = floorf(songTempo * _audioController.tempoShift);
+
+    [self setBPM:effectiveTempo];
 }
 
 #pragma mark Toolbar delegate
@@ -1429,14 +1431,17 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
 
 - (void)setBPM:(float)bpm
 {
-    static float lastBpm = 0;
-    
-    if (lastBpm != bpm) {
-        _controlPanelController.bpm.stringValue = [NSString stringWithFormat:@"%3.0f BPM", floorf(bpm)];
-        NSNumber* number = [NSNumber numberWithFloat:bpm];
-        [[NSNotificationCenter defaultCenter] postNotificationName:kBeatTrackedSampleTempoChangeNotification object:number];
-        lastBpm = bpm;
+    if (_visibleBPM == bpm) {
+        return;
     }
+    NSString* display = bpm == 0.0f ? @"--- BPM" : [NSString stringWithFormat:@"%3.0f BPM", floorf(bpm)];
+
+    _controlPanelController.bpm.stringValue = display;
+
+    NSNumber* number = [NSNumber numberWithFloat:bpm];
+    [[NSNotificationCenter defaultCenter] postNotificationName:kBeatTrackedSampleTempoChangeNotification object:number];
+
+    _visibleBPM = bpm;
 }
 
 - (void)setCurrentFrame:(unsigned long long)frame
@@ -1781,8 +1786,13 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
 {
     // We keep a reference around so that the `sample` setter will cause the possibly
     // ongoing decode of a previous sample to get aborted.
-    self.lazySample = lazySample;
+    _lazySample = lazySample;
+    _visualSample = nil;
+    _totalVisual = nil;
+    _beatSample = nil;
     
+    [self setBPM:0.0];
+
     [self loadTrackState:LoadStateInit value:0.0];
     [self loadTrackState:LoadStateStopped value:0.0];
 
@@ -1790,7 +1800,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
                                           pixelPerSecond:kPixelPerSecond
                                                tileWidth:kDirectWaveViewTileWidth];
 
-    [_controlPanelController reset];
+    //[_controlPanelController reset];
     
     _waveLayerDelegate.visualSample = self.visualSample;
 

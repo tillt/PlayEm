@@ -51,7 +51,10 @@ extern NSString * const kBeatTrackedSampleTempoChangeNotification;
 - (void)tempoChange:(NSNotification*)notification
 {
     NSNumber* tempo = notification.object;
-    currentTempo = [tempo floatValue];
+    float value = [tempo floatValue];
+    if (value > 0.0) {
+        currentTempo = value;
+    }
 }
 
 - (CALayer*)makeBackingLayer
@@ -146,6 +149,7 @@ extern NSString * const kBeatTrackedSampleTempoChangeNotification;
     animation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionLinear];
     animation.fillMode = kCAFillModeForwards;
     animation.removedOnCompletion = NO;
+    NSAssert(currentTempo > 0.0, @"current tempo set to zero, that should never happen");
     animation.duration = beatsPerCycle * 60.0f / self->currentTempo;
     const CGFloat angleToAdd = -M_PI_2 * beatsPerCycle;
     [_overlayLayer setValue:@(M_PI_2 * beatsPerCycle) forKeyPath:@"transform.rotation.z"];

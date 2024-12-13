@@ -536,10 +536,8 @@ void beatsContextReset(BeatsParserContext* context)
 
     NSLog(@"longestRegionNumberOfBeats: %d", longestRegionNumberOfBeats);
 
-    longestRegionBeatLengthMin = longestRegionBeatLength -
-            ((kMaxSecsPhaseError * _sample.rate) / longestRegionNumberOfBeats);
-    longestRegionBeatLengthMax = longestRegionBeatLength +
-            ((kMaxSecsPhaseError * _sample.rate) / longestRegionNumberOfBeats);
+    longestRegionBeatLengthMin = longestRegionBeatLength - ((kMaxSecsPhaseError * _sample.rate) / longestRegionNumberOfBeats);
+    longestRegionBeatLengthMax = longestRegionBeatLength + ((kMaxSecsPhaseError * _sample.rate) / longestRegionNumberOfBeats);
 
     NSLog(@"start: %d, mid: %d, count: %ld, longest: %.2f", startRegionIndex, midRegionIndex, regionsCount, longestRegionLength);
     NSLog(@"first beat: %lld, longest region length: %.2f, number of beats: %d", regions[startRegionIndex].firstBeatFrame, longestRegionLength, longestRegionNumberOfBeats);
@@ -551,8 +549,8 @@ void beatsContextReset(BeatsParserContext* context)
     const double minRoundBpm = (double)(60.0 * _sample.rate / longestRegionBeatLengthMax);
     const double maxRoundBpm = (double)(60.0 * _sample.rate / longestRegionBeatLengthMin);
     const double centerBpm = (double)(60.0 * _sample.rate / longestRegionBeatLength);
-
     const double roundBpm = roundBpmWithinRange(minRoundBpm, centerBpm, maxRoundBpm);
+
     if (pFirstBeat) {
         // Move the first beat as close to the start of the track as we can. This is
         // a constant beatgrid so "first beat" only affects the anchor point where

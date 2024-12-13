@@ -414,6 +414,7 @@ void beatsContextReset(BeatsParserContext* context)
     int midRegionIndex = 0;
     double longestRegionLength = 0;
     double longestRegionBeatLength = 0;
+    int longestRegionNumberOfBeats = 0;
     size_t regionsCount = constantRegions.length / sizeof(BeatConstRegion);
     
     const BeatConstRegion* regions = constantRegions.bytes;
@@ -422,9 +423,11 @@ void beatsContextReset(BeatsParserContext* context)
 
     for (int i = 0; i < regionsCount - 1; ++i) {
         double length = regions[i + 1].firstBeatFrame - regions[i].firstBeatFrame;
-        if (length > longestRegionLength) {
+        int beatCount = (int)((length / regions[i].beatLength) + 0.5);
+        if (beatCount > longestRegionNumberOfBeats) {
             longestRegionLength = length;
             longestRegionBeatLength = regions[i].beatLength;
+            longestRegionNumberOfBeats = beatCount;
             midRegionIndex = i;
             NSLog(@"%d: %.0f %.0f", i, length, regions[i].beatLength);
         }
@@ -435,8 +438,6 @@ void beatsContextReset(BeatsParserContext* context)
         return 0.0;
     }
     
-    int longestRegionNumberOfBeats = (int)((longestRegionLength / longestRegionBeatLength) + 0.5);
-
     NSLog(@"longest constant region: %.2f frames, %d beats", longestRegionLength, longestRegionNumberOfBeats);
 
     double longestRegionBeatLengthMin = longestRegionBeatLength - ((kMaxSecsPhaseError * _sample.rate) / longestRegionNumberOfBeats);
@@ -525,7 +526,7 @@ void beatsContextReset(BeatsParserContext* context)
         }
     }
 
-    NSLog(@"endRegionIndex: %d", startRegionIndex);
+    NSLog(@"longestRegionNumberOfBeats: %d", longestRegionNumberOfBeats);
 
     longestRegionBeatLengthMin = longestRegionBeatLength -
             ((kMaxSecsPhaseError * _sample.rate) / longestRegionNumberOfBeats);

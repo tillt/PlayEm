@@ -173,8 +173,12 @@ os_log_t pointsOfInterest;
 {
     NSLog(@"re-starting beat effect");
     _beatEffectRampUpFrames = 0;
-    _visibleBPM = 0;
     _beatEffectAtFrame = [_beatSample frameForFirstBar:&_beatEffectIteratorContext];
+    
+    float songTempo = floorf([_beatSample currentTempo:&_beatEffectIteratorContext]);
+    float effectiveTempo = floorf(songTempo * _audioController.tempoShift);
+
+    [self setBPM:effectiveTempo];
 }
 
 - (BOOL)beatEffectNext

@@ -392,6 +392,9 @@ void beatsContextReset(BeatsParserContext* context)
 /*
  This is mostly a copy of code from MixxxDJ.
  from https://github.com/mixxxdj/mixxx/blob/8354c8e0f57a635acb7f4b3cc16b9745dc83312c/src/track/beatutils.cpp#L140
+ 
+ There is however a slight change that has rather dramatic consequences in my
+ testing. Any functional modifications are highlighted by comments lead by `CHANGE:`.
  */
 - (double)makeConstBpm:(NSData*)constantRegions firstBeat:(unsigned long long*)pFirstBeat
 {
@@ -423,6 +426,11 @@ void beatsContextReset(BeatsParserContext* context)
 
     for (int i = 0; i < regionsCount - 1; ++i) {
         double length = regions[i + 1].firstBeatFrame - regions[i].firstBeatFrame;
+        // CHANGE: Calculate the number of beats right away instead of relying on the
+        // region length for comparison. The observation was that the old code did
+        // prefer long regions with long beat duration which in my opinion it should not.
+        // The updated code shows a much better resultset in that we later have a higher
+        // success rate in identifying additional constant regions that fit in phase.
         int beatCount = (int)((length / regions[i].beatLength) + 0.5);
         if (beatCount > longestRegionNumberOfBeats) {
             longestRegionLength = length;
@@ -434,7 +442,7 @@ void beatsContextReset(BeatsParserContext* context)
     }
 
     if (longestRegionLength == 0) {
-        // Could not infer a tempo
+        // Could not infer a tempo.
         return 0.0;
     }
     
@@ -447,7 +455,7 @@ void beatsContextReset(BeatsParserContext* context)
 
     NSLog(@"pass four: find a region at the beginning of the track with a similar tempo and phase");
 
-    // Find a region at the beginning of the track with a similar tempo and phase
+    // Find a region at the beginning of the track with a similar tempo and phase.
     for (int i = 0; i < midRegionIndex; ++i) {
         const double length = regions[i + 1].firstBeatFrame - regions[i].firstBeatFrame;
         const int numberOfBeats = (int)((length / regions[i].beatLength) + 0.5);
@@ -457,7 +465,7 @@ void beatsContextReset(BeatsParserContext* context)
         }
         const double thisRegionBeatLengthMin = regions[i].beatLength - ((kMaxSecsPhaseError * _sample.rate) / numberOfBeats);
         const double thisRegionBeatLengthMax = regions[i].beatLength + ((kMaxSecsPhaseError * _sample.rate) / numberOfBeats);
-        // check if the tempo of the longest region is part of the rounding range of this region
+        // Check if the tempo of the longest region is part of the rounding range of this region.
         if (longestRegionBeatLength > thisRegionBeatLengthMin && longestRegionBeatLength < thisRegionBeatLengthMax) {
             // Now check if both regions are at the same phase.
             const double newLongestRegionLength = regions[midRegionIndex + 1].firstBeatFrame - regions[i].firstBeatFrame;
@@ -491,7 +499,7 @@ void beatsContextReset(BeatsParserContext* context)
     
     NSLog(@"pass five: find a region at the end of the track with a similar tempo and phase");
     
-    // Find a region at the end of the track with similar tempo and phase
+    // Find a region at the end of the track with similar tempo and phase.
     for (size_t i = regionsCount - 2; i > midRegionIndex; --i) {
         const double length = regions[i + 1].firstBeatFrame - regions[i].firstBeatFrame;
         const int numberOfBeats = (int)((length / regions[i].beatLength) + 0.5);
@@ -635,12 +643,6 @@ void beatsContextReset(BeatsParserContext* context)
         beatIndex = (beatIndex + 1) % 4;
     };
 }
-
-//- (double)calculateBpm
-//{
-//    NSData* constantRegions = [self retrieveConstantRegions];
-//    return [self makeConstBpm:constantRegions firstBeat:nil];
-//}
 
 double roundBpmWithinRange(double minBpm, double centerBpm, double maxBpm)
 {

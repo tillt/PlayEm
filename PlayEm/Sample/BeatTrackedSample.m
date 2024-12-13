@@ -411,9 +411,6 @@ void beatsContextReset(BeatsParserContext* context)
     // Find the longest region somewhere in the middle of the track to start with.
     // At least this region will be have finally correct annotated beats.
 
-    // Note: This function is channel count independent. All sample based values in
-    // this functions are based on frames.
-
     int midRegionIndex = 0;
     double longestRegionLength = 0;
     double longestRegionBeatLength = 0;
@@ -429,8 +426,8 @@ void beatsContextReset(BeatsParserContext* context)
             longestRegionLength = length;
             longestRegionBeatLength = regions[i].beatLength;
             midRegionIndex = i;
+            NSLog(@"%d: %.0f %.0f", i, length, regions[i].beatLength);
         }
-        //qDebug() << i << length << constantRegions[i].beatLength;
     }
 
     if (longestRegionLength == 0) {
@@ -472,7 +469,7 @@ void beatsContextReset(BeatsParserContext* context)
 
             if (minNumberOfBeats != maxNumberOfBeats) {
                 // Ambiguous number of beats, find a closer region.
-                NSLog(@"Ambiguous number of beats, find a closer region ...");
+                NSLog(@"ambiguous number of beats - %d != %d - find a closer region ...", minNumberOfBeats, maxNumberOfBeats);
                 continue;
             }
             const int numberOfBeats = minNumberOfBeats;
@@ -514,7 +511,7 @@ void beatsContextReset(BeatsParserContext* context)
 
             if (minNumberOfBeats != maxNumberOfBeats) {
                 // Ambiguous number of beats, find a closer region.
-                NSLog(@"Ambiguous number of beats, find a closer region ...");
+                NSLog(@"ambiguous number of beats - %d != %d - find a closer region ...", minNumberOfBeats, maxNumberOfBeats);
                 continue;
             }
             const int numberOfBeats = minNumberOfBeats;
@@ -646,6 +643,8 @@ void beatsContextReset(BeatsParserContext* context)
 
 double roundBpmWithinRange(double minBpm, double centerBpm, double maxBpm)
 {
+    NSLog(@"rounding BPM - min: %.0f, center: %.0f, max: %.0f", minBpm, centerBpm, maxBpm);
+
     // First try to snap to a full integer BPM
     double snapBpm = (double)round(centerBpm);
     if (snapBpm > minBpm && snapBpm < maxBpm) {

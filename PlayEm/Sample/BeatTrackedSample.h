@@ -14,8 +14,9 @@
 NS_ASSUME_NONNULL_BEGIN
 
 typedef enum : NSUInteger {
-    BeatEventStyleBar  = 0x02,
-    BeatEventStyleBeat = 0x01,
+    BeatEventStyleBeat  = 0x01,
+    BeatEventStyleBar   = 0x02,
+    BeatEventStyleFound = 0x04,
 } BeatEventStyle;
 
 typedef struct {

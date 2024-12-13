@@ -420,7 +420,10 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
 
     [menu addItem:[NSMenuItem separatorItem]];
 
-    NSMenuItem* showInFinder = [menu addItemWithTitle:@"Show in Finder"
+//    NSMenuItem* showInFinder = [menu addItemWithTitle:@"Show in Finder"
+//                    action:@selector(showInFinder:)
+//             keyEquivalent:@""];
+    [menu addItemWithTitle:@"Show in Finder"
                     action:@selector(showInFinder:)
              keyEquivalent:@""];
 // TODO: allow disabling depending on the number of songs selected. Note to myself, this here is the wrong place!
@@ -1769,8 +1772,8 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
         [_audioController decodeAbortWithCallback:^{
             [self loadLazySample:lazySample];
             [self setMeta:meta];
-            _audioController.sample = lazySample;
-            [_audioController playSample:lazySample frame:frame paused:!playing];
+            self->_audioController.sample = lazySample;
+            [self->_audioController playSample:lazySample frame:frame paused:!playing];
         }];
     } else {
         [self loadLazySample:lazySample];
@@ -1831,7 +1834,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
 {
     BeatTrackedSample* beatSample = [[BeatTrackedSample alloc] initWithSample:_lazySample
                                                                framesPerPixel:self.visualSample.framesPerPixel];
-    self.beatLayerDelegate.beatSample = beatSample;
+    _beatLayerDelegate.beatSample = beatSample;
 
     if (_beatSample != nil) {
         NSLog(@"beats tracking may need decode aborting");
@@ -1845,8 +1848,8 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
 
 - (void)loadBeats:(BeatTrackedSample*)beatsSample
 {
-    self.beatSample = beatsSample;
-    [self.beatSample trackBeatsAsyncWithCallback:^(BOOL beatsFinished){
+    _beatSample = beatsSample;
+    [_beatSample trackBeatsAsyncWithCallback:^(BOOL beatsFinished){
         if (beatsFinished) {
             [self.waveView invalidateTiles];
             [self beatEffectStart];
@@ -2204,7 +2207,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
         return;
     }
     
-    [self playNext:nil];
+    [self playNext:self];
 }
 
 #pragma mark - Control Panel delegate

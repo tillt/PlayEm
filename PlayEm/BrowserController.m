@@ -270,18 +270,26 @@ NSString* const kSongsColGenre = @"GenreCell";
         // the filtered list of songs. In such cases, get the actual meta object from the
         // cached library using the URL from the "original" meta.
         NSUInteger fakeIndex = [self songsRowForURL:meta.location];
-        NSAssert(fakeIndex != NSNotFound, @"MediaMetaData for %@ does not exist in filtered library", meta.location);
+        if (fakeIndex == NSNotFound) {
+            NSLog(@"MediaMetaData for %@ does not exist in filtered library", meta.location);
+            return;
+        }
         meta = self.filteredItems[fakeIndex];
         // We need the index of that meta from the cached library for the following logic.
         index = [self.cachedLibrary indexOfObject:meta];
     }
-    NSAssert(index != NSNotFound, @"MediaMetaData %p updated does not exist in cached library", meta);
-    [self.cachedLibrary replaceObjectAtIndex:index withObject:updatedMeta];
+    if (index != NSNotFound) {
+        NSLog(@"MediaMetaData %p updated does not exist in cached library", meta);
+        [self.cachedLibrary replaceObjectAtIndex:index withObject:updatedMeta];
+    }
     //NSLog(@"replaced metadata in cachedLibrary %p with %p", meta, updatedMeta);
 
     NSMutableArray* filtered = [NSMutableArray arrayWithArray:_filteredItems];
     index = [filtered indexOfObject:meta];
-    NSAssert(index != NSNotFound, @"MediaMetaData %p updated does not exist in filtered library", meta);
+    if (index == NSNotFound) {
+        NSLog(@"MediaMetaData %p updated does not exist in filtered library", meta);
+        return;
+    }
     [filtered replaceObjectAtIndex:index withObject:updatedMeta];
     //NSLog(@"replaced metadata in filteredObject %p with %p", meta, updatedMeta);
     self.filteredItems = filtered;

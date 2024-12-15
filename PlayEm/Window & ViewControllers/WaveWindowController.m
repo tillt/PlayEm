@@ -1797,6 +1797,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     _visualSample = nil;
     _totalVisual = nil;
     _beatSample = nil;
+    _beatLayerDelegate.beatSample = nil;
     
     [self setBPM:0.0];
 

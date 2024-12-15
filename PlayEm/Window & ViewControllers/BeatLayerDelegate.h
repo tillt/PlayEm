@@ -17,7 +17,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface BeatLayerDelegate : NSObject <CALayerDelegate>
 
 @property (strong, nonatomic) WaveView* waveView;
-@property (strong, nonatomic) BeatTrackedSample* beatSample;
+@property (strong, nonatomic, nullable) BeatTrackedSample* beatSample;
 @property (assign, nonatomic) double framesPerPixel;
 
 @end

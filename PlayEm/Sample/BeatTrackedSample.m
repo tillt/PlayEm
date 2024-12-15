@@ -320,11 +320,11 @@ void beatsContextReset(BeatsParserContext* context)
     // current average to adjust them by up to +-6 ms.
     // Than we start with the region from the found beat to the end.
 
-    const size_t maxPhaseError = kMaxSecsPhaseError * _sample.rate;
-    const size_t maxPhaseErrorSum = kMaxSecsPhaseErrorSum * _sample.rate;
-    size_t leftIndex = 0;
+    const double maxPhaseError = kMaxSecsPhaseError * _sample.rate;
+    const double maxPhaseErrorSum = kMaxSecsPhaseErrorSum * _sample.rate;
     const unsigned long long *coarseBeats = _coarseBeats.bytes;
     const size_t coarseBeatCount = _coarseBeats.length / sizeof(unsigned long long);
+    size_t leftIndex = 0;
     size_t rightIndex = coarseBeatCount - 1;
 
     NSMutableData* constantRegions = [NSMutableData data];
@@ -333,7 +333,7 @@ void beatsContextReset(BeatsParserContext* context)
         NSAssert(rightIndex > leftIndex, @"somehow we ended up with an invalid right index");
         
         // Calculate the frame count between the first and the last detected beat.
-        double meanBeatLength = (coarseBeats[rightIndex] - coarseBeats[leftIndex]) / (rightIndex - leftIndex);
+        double meanBeatLength = (double)(coarseBeats[rightIndex] - coarseBeats[leftIndex]) / (double)(rightIndex - leftIndex);
 
         int outliersCount = 0;
         unsigned long long ironedBeat = coarseBeats[leftIndex];
@@ -347,7 +347,8 @@ void beatsContextReset(BeatsParserContext* context)
 
             if (fabs(phaseError) > maxPhaseError) {
                 outliersCount++;
-                // the first beat must not be an outlier.
+                // The first beat must not be an outlier just like the number of outliers
+                // overall must not be beyond
                 if (outliersCount > kMaxOutliersCount || i == leftIndex + 1) {
                     break;
                 }
@@ -358,15 +359,15 @@ void beatsContextReset(BeatsParserContext* context)
             }
         }
         if (i > rightIndex) {
+            double regionBorderError = 0;
             // Verify that the first and the last beat are not correction beats in the same direction
             // as this would bend meanBeatLength unfavorably away from the optimum.
-            double regionBorderError = 0;
             if (rightIndex > leftIndex + 2) {
                 const double firstBeatLength = coarseBeats[leftIndex + 1] - coarseBeats[leftIndex];
                 const double lastBeatLength = coarseBeats[rightIndex] - coarseBeats[rightIndex - 1];
-                regionBorderError = fabs(firstBeatLength + lastBeatLength - (2 * meanBeatLength));
+                regionBorderError = fabs(firstBeatLength + lastBeatLength - (2.0 * meanBeatLength));
             }
-            if (regionBorderError < maxPhaseError / 2) {
+            if (regionBorderError <= maxPhaseError / 2.0) {
                 // We have found a constant enough region.
                 const unsigned long long firstBeat = coarseBeats[leftIndex];
                 // store the regions for the later stages
@@ -376,9 +377,11 @@ void beatsContextReset(BeatsParserContext* context)
                 leftIndex = rightIndex;
                 rightIndex = coarseBeatCount - 1;
                 continue;
+            } else {
+                NSLog(@"mean border error got too large for beat %ld to %ld = %f", leftIndex, rightIndex, regionBorderError);
             }
         }
-        // Try a by one beat smaller region
+        // Try a by one beat smaller region.
         rightIndex--;
     }
 

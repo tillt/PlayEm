@@ -30,9 +30,18 @@
 
 @implementation KeyTrackedSample
 {
-    //atomic_int _keyTrackDone;
-    float _key;
+    KeyFinder::KeyFinder _keyFinder;
+    KeyFinder::Workspace _workspace;
+    KeyFinder::AudioData _audioData;
+
+    unsigned long long _currentFrame;
+    unsigned long long _totalFrames;
     size_t _hopSize;
+    unsigned long long _maxFramesToProcess;
+    
+    bool _keyDetectionEnabled;
+    bool _fastAnalysisEnabled;
+    bool _reanalyzeEnabled;
 }
 
 - (void)clearBpmHistory
@@ -45,10 +54,15 @@
     if (self) {
         _sample = sample;
         _windowWidth = 1024;
+//        _hopSize = 256;
         _hopSize = _windowWidth / 4;
         _sampleBuffers = [NSMutableArray array];
+        
+        _keyDetectionEnabled = YES;
+        _fastAnalysisEnabled = NO;
+        _reanalyzeEnabled = NO;
 
-        unsigned long long framesNeeded = _hopSize * 1024;
+        unsigned long long framesNeeded = _hopSize;
         for (int channel = 0; channel < sample.channels; channel++) {
             NSMutableData* buffer = [NSMutableData dataWithCapacity:framesNeeded * _sample.frameSize];
             [_sampleBuffers addObject:buffer];
@@ -83,16 +97,35 @@
     });
 }
 
+//- (void)process(const CSAMPLE* pIn, SINT iLen)
+//{
+//    if (_audioData.getSampleCount() == 0) {
+//        _audioData.addToSampleCount(iLen);
+//    }
+//
+//    const SINT numInputFrames = iLen / kAnalysisChannels;
+//    _currentFrame += numInputFrames;
+//
+//    for (SINT frame = 0; frame < numInputFrames; frame++) {
+//        for (SINT channel = 0; channel < kAnalysisChannels; channel++) {
+//            _audioData.setSampleByFrame(frame, channel, pIn[frame * kAnalysisChannels + channel]);
+//        }
+//    }
+//    _keyFinder.progressiveChromagram(_audioData, _workspace);
+//}
+
 - (BOOL)trackKey
 {
     NSLog(@"key tracking...");
-    [self setupTracking];
-    
     float* data[self->_sample.channels];
     const int channels = self->_sample.channels;
     for (int channel = 0; channel < channels; channel++) {
         data[channel] = (float*)((NSMutableData*)self->_sampleBuffers[channel]).bytes;
     }
+
+    /*
+    [self setupTracking];
+    
     unsigned long long sourceWindowFrameOffset = 0LL;
     
     _coarseBeats = [NSMutableData data];
@@ -104,12 +137,12 @@
             NSLog(@"aborted beat detection");
             return NO;
         }
-        unsigned long long sourceWindowFrameCount = MIN(self->_hopSize * 1024,
-                                                        self->_sample.frames - sourceWindowFrameOffset);
+//        unsigned long long sourceWindowFrameCount = MIN(self->_hopSize * 1024,
+//                                                        self->_sample.frames - sourceWindowFrameOffset);
         // This may block for a loooooong time!
-        unsigned long long received = [self->_sample rawSampleFromFrameOffset:sourceWindowFrameOffset
-                                                                       frames:sourceWindowFrameCount
-                                                                      outputs:data];
+//        unsigned long long received = [self->_sample rawSampleFromFrameOffset:sourceWindowFrameOffset
+//                                                                       frames:sourceWindowFrameCount
+//                                                                      outputs:data];
         
         unsigned long int sourceFrameIndex = 0;
         while(sourceFrameIndex < received) {
@@ -146,16 +179,16 @@
     [self cleanupTracking];
 
     NSLog(@"...key tracking done");
-
+*/
     return YES;
 }
 
 - (NSString *)description
 {
-    return [NSString stringWithFormat:@"key: %.0f BPM", _key];
+    return [NSString stringWithFormat:@"key: %.0f BPM", 0.0];
 }
 
-- (void)abortWithCallback:(void (^)(void))callback;
+- (void)abortWithCallback:(void (^)(void))callback
 {
     if (_queueOperation != NULL) {
         dispatch_block_cancel(_queueOperation);

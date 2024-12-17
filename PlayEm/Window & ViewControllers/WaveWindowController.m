@@ -17,6 +17,7 @@
 #import "AudioController.h"
 #import "VisualSample.h"
 #import "BeatTrackedSample.h"
+#import "KeyTrackedSample.h"
 #import "LazySample.h"
 #import "BrowserController.h"
 #import "PlaylistController.h"
@@ -1797,6 +1798,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     _visualSample = nil;
     _totalVisual = nil;
     _beatSample = nil;
+    _keySample = nil;
     _beatLayerDelegate.beatSample = nil;
     
     [self setBPM:0.0];
@@ -1856,10 +1858,38 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     _beatSample = beatsSample;
     [_beatSample trackBeatsAsyncWithCallback:^(BOOL beatsFinished){
         if (beatsFinished) {
-            [self.waveView invalidateTiles];
-            [self beatEffectStart];
+            [self beatsTracked];
         } else {
             NSLog(@"never finished the beat tracking");
+        }
+    }];
+}
+
+- (void)beatsTracked
+{
+    [self.waveView invalidateTiles];
+    [self beatEffectStart];
+
+    KeyTrackedSample* keySample = [[KeyTrackedSample alloc] initWithSample:_lazySample];
+
+    if (keySample != nil) {
+        NSLog(@"key tracking may need decode aborting");
+        [keySample abortWithCallback:^{
+            [self detectKey:keySample];
+        }];
+    } else {
+        [self detectKey:keySample];
+    }
+}
+
+- (void)detectKey:(KeyTrackedSample*)keySample
+{
+    _keySample = keySample;
+    [_keySample trackKeyAsyncWithCallback:^(BOOL keyFinished){
+        if (keyFinished) {
+            NSLog(@"key tracking finished");
+        } else {
+            NSLog(@"never finished the key tracking");
         }
     }];
 }

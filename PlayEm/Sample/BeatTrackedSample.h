@@ -57,7 +57,7 @@ typedef struct _BeatsParserContext BeatsParserContext;
 - (unsigned long long)frameForFirstBar:(nonnull BeatEventIterator*)iterator;
 - (unsigned long long)frameForNextBar:(nonnull BeatEventIterator*)iterator;
 
-- (unsigned long long)framesPerBeat:(float)tempo;
+//- (unsigned long long)framesPerBeat:(float)tempo;
 
 - (float)currentTempo:(nonnull BeatEventIterator*)iterator;
 

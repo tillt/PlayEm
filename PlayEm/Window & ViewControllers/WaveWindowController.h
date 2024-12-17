@@ -27,6 +27,7 @@ NS_ASSUME_NONNULL_BEGIN
 @class MediaMetaData;
 @class VisualSample;
 @class BeatTrackedSample;
+@class KeyTrackedSample;
 @class TotalWaveView;
 @class ScrollingTextView;
 @class InfoPanelController;
@@ -53,6 +54,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (strong, nonatomic) VisualSample* totalVisual;
 @property (strong, nonatomic) VisualSample* visualSample;
 @property (strong, nonatomic) BeatTrackedSample* beatSample;
+@property (strong, nonatomic) KeyTrackedSample* keySample;
 
 @property (strong, nonatomic) BrowserController* browser;
 @property (strong, nonatomic) ScopeView* smallScopeView;

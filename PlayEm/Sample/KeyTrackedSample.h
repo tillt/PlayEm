@@ -18,7 +18,8 @@ NS_ASSUME_NONNULL_BEGIN
 @interface KeyTrackedSample : NSObject
 
 @property (strong, nonatomic) LazySample* sample;
-@property (readonly, nonatomic) BOOL ready;
+@property (assign, readonly, nonatomic) BOOL ready;
+@property (copy, nonatomic) NSString* key;
 
 - (void)abortWithCallback:(nonnull void (^)(void))block;
 

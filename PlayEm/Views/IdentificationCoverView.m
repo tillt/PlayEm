@@ -18,6 +18,7 @@ extern NSString * const kBeatTrackedSampleTempoChangeNotification;
 
 @interface IdentificationCoverView ()
 @property (nonatomic, strong) CALayer* imageLayer;
+@property (nonatomic, strong) CALayer* imageLayer2;
 @property (nonatomic, strong) CALayer* imageCopyLayer;
 @property (nonatomic, strong) CALayer* maskLayer;
 @property (nonatomic, strong) CALayer* overlayLayer;
@@ -38,6 +39,8 @@ extern NSString * const kBeatTrackedSampleTempoChangeNotification;
         paused = NO;
         currentTempo = 120.0f;
         _overlayIntensity = 0.3f;
+        _sepiaForSecondImageLayer = YES;
+        _secondImageLayerOpacity = 0.2;
         self.wantsLayer = YES;
         self.autoresizingMask = NSViewHeightSizable | NSViewWidthSizable;
         self.clipsToBounds = YES;
@@ -74,7 +77,6 @@ extern NSString * const kBeatTrackedSampleTempoChangeNotification;
 
     _imageCopyLayer = [CALayer layer];
     _imageCopyLayer.frame = self.bounds;
-    _imageCopyLayer.opacity = 0.09;
     _imageCopyLayer.contents = [NSImage imageNamed:@"UnknownSong"];
     _imageCopyLayer.autoresizingMask = kCALayerWidthSizable | kCALayerHeightSizable;
     _imageCopyLayer.allowsEdgeAntialiasing = YES;
@@ -83,19 +85,21 @@ extern NSString * const kBeatTrackedSampleTempoChangeNotification;
     _imageCopyLayer.mask = _maskLayer;
     _imageCopyLayer.cornerRadius = 7;
 
-    CIFilter* sepia = [CIFilter filterWithName:@"CISepiaTone"];
-    [sepia setDefaults];
-    
-    CIFilter* bloomFilter = [CIFilter filterWithName:@"CIBloom"];
-    [bloomFilter setDefaults];
-    [bloomFilter setValue: [NSNumber numberWithFloat:3.0] forKey: @"inputRadius"];
-    [bloomFilter setValue: [NSNumber numberWithFloat:0.9] forKey: @"inputIntensity"];
-
     CIFilter* additionFilter = [CIFilter filterWithName:@"CIAdditionCompositing"];
     [additionFilter setDefaults];
     
-    _imageCopyLayer.filters = @[ sepia ];
+    if (_sepiaForSecondImageLayer) {
+        CIFilter* sepia = [CIFilter filterWithName:@"CISepiaTone"];
+        [sepia setDefaults];
+        _imageCopyLayer.filters = @[ sepia ];
+    }
+    _imageCopyLayer.opacity = _secondImageLayerOpacity;
     [layer addSublayer:_imageCopyLayer];
+
+    CIFilter* bloomFilter = [CIFilter filterWithName:@"CIBloom"];
+    [bloomFilter setDefaults];
+    [bloomFilter setValue: [NSNumber numberWithFloat:5.0] forKey: @"inputRadius"];
+    [bloomFilter setValue: [NSNumber numberWithFloat:1.0] forKey: @"inputIntensity"];
 
     _imageLayer = [CALayer layer];
     _imageLayer.frame = self.bounds;
@@ -128,14 +132,11 @@ extern NSString * const kBeatTrackedSampleTempoChangeNotification;
 - (void)setImage:(NSImage*)image
 {
     [NSAnimationContext runAnimationGroup:^(NSAnimationContext *context) {
-        [context setDuration:0.7f];
-        [context setTimingFunction:[CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseIn]];
-        self.animator.imageCopyLayer.contents = image;
-    }];
-    [NSAnimationContext runAnimationGroup:^(NSAnimationContext *context) {
         [context setDuration:2.1f];
         [context setTimingFunction:[CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseIn]];
+        self.animator.imageCopyLayer.contents = image;
         self.animator.imageLayer.contents = image;
+        self.animator.imageLayer2.contents = image;
     }];
 }
 

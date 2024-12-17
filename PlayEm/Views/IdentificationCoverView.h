@@ -13,6 +13,9 @@ NS_ASSUME_NONNULL_BEGIN
 @interface IdentificationCoverView : NSView
 @property (nonatomic, strong) NSImage* image;
 @property (nonatomic, assign) float overlayIntensity;
+@property (nonatomic, assign) BOOL sepiaForSecondImageLayer;
+@property (nonatomic, assign) float secondImageLayerOpacity;
+
 
 - (void)startAnimating;
 - (void)stopAnimating;

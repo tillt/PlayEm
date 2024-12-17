@@ -17,6 +17,7 @@
 #import "MediaMetaData.h"
 
 NSString * const kBPMDefault = @"--- BPM";
+NSString * const kKeyDefault = @"---";
 
 extern NSString * const kAudioControllerChangedPlaybackStateNotification;
 extern NSString * const kPlaybackStateStarted;
@@ -77,7 +78,9 @@ extern NSString * const kPlaybackStatePlaying;
 
     const CGFloat coverButtonX = 2.0;
     const CGFloat coverButtonY = 1.0;
-    
+
+    const CGFloat keyLabelWidth = 60.0f;
+
     const CGFloat bpmLabelWidth = 60.0f;
     const CGFloat bpmLabelHeight = 16.0f;
     
@@ -346,6 +349,19 @@ extern NSString * const kPlaybackStatePlaying;
     cell.minValue = 0.0;
     _level.cell = cell;
     [self.view addSubview:_level];
+    
+    _key = [NSTextField textFieldWithString:kKeyDefault];
+    _key.bordered = NO;
+    _key.editable = NO;
+    _key.selectable = NO;
+    _key.drawsBackground = NO;
+    _key.textColor = [[Defaults sharedDefaults] secondaryLabelColor];
+    _key.alignment = NSTextAlignmentRight;
+    _key.frame = NSMakeRect(_level.frame.origin.x + _level.frame.size.width,
+                            _playPause.frame.origin.y + bpmLabelHeight + 8.0,
+                            keyLabelWidth,
+                            bpmLabelHeight);
+    [self.view addSubview:_key];
     
     _beatIndicator = [NSTextField textFieldWithString:@"􀀁"];
     _beatIndicator.bordered = NO;

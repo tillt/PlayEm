@@ -1437,6 +1437,11 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     }
 }
 
+- (void)setKey:(NSString*)value
+{
+    _controlPanelController.key.stringValue = value;
+}
+
 - (void)setBPM:(float)bpm
 {
     if (_visibleBPM == bpm) {
@@ -1730,7 +1735,6 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
         _audioController = [AudioController new];
 
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(AudioControllerPlaybackStateChange:) name:kAudioControllerChangedPlaybackStateNotification object:nil];
-
     }
     
     if (url == nil) {
@@ -1775,10 +1779,14 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
 
     if (_lazySample != nil) {
         [_audioController decodeAbortWithCallback:^{
-            [self loadLazySample:lazySample];
-            [self setMeta:meta];
-            self->_audioController.sample = lazySample;
-            [self->_audioController playSample:lazySample frame:frame paused:!playing];
+            [self->_beatSample abortWithCallback:^{
+                [self->_keySample abortWithCallback:^{
+                    [self loadLazySample:lazySample];
+                    [self setMeta:meta];
+                    self->_audioController.sample = lazySample;
+                    [self->_audioController playSample:lazySample frame:frame paused:!playing];
+                }];
+            }];
         }];
     } else {
         [self loadLazySample:lazySample];
@@ -1802,6 +1810,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     _beatLayerDelegate.beatSample = nil;
     
     [self setBPM:0.0];
+    [self setKey:@"---"];
 
     [self loadTrackState:LoadStateInit value:0.0];
     [self loadTrackState:LoadStateStopped value:0.0];
@@ -1888,10 +1897,16 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     [_keySample trackKeyAsyncWithCallback:^(BOOL keyFinished){
         if (keyFinished) {
             NSLog(@"key tracking finished");
+            [self keyTracked];
         } else {
             NSLog(@"never finished the key tracking");
         }
     }];
+}
+
+- (void)keyTracked
+{
+    _controlPanelController.key.stringValue = _keySample.key;
 }
 
 - (void)setNowPlayingWithMeta:(MediaMetaData*)meta

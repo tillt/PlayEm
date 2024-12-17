@@ -1853,7 +1853,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     _beatLayerDelegate.beatSample = beatSample;
 
     if (_beatSample != nil) {
-        NSLog(@"beats tracking may need decode aborting");
+        NSLog(@"beats tracking may need aborting");
         [_beatSample abortWithCallback:^{
             [self loadBeats:beatSample];
         }];
@@ -1882,7 +1882,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     KeyTrackedSample* keySample = [[KeyTrackedSample alloc] initWithSample:_lazySample];
 
     if (keySample != nil) {
-        NSLog(@"key tracking may need decode aborting");
+        NSLog(@"key tracking may need aborting");
         [keySample abortWithCallback:^{
             [self detectKey:keySample];
         }];

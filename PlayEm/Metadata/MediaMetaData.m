@@ -1002,11 +1002,13 @@ NSString* const kMediaMetaDataMapTypeNumber = @"number";
     }
 
     if (key.length > 1) {
+        // Lets patch minor defects in place so we can map later...
         // Get a possible note specifier.
         NSString* s = [key substringWithRange:NSMakeRange(1,1)];
-        // We have seen such monster.
-        if ([s isEqualToString:@"o"]) {
+        if ([s isEqualToString:@"o"] || [s isEqualToString:@"♯"]) {
             key = [NSString stringWithFormat:@"%@#%@", [key substringToIndex:1], [key substringFromIndex:2]];
+        } else if ([s isEqualToString:@"♭"]) {
+            key = [NSString stringWithFormat:@"%@b%@", [key substringToIndex:1], [key substringFromIndex:2]];
         }
     }
 

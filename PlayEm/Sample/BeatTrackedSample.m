@@ -616,7 +616,7 @@ double roundBpmWithinRange(double minBpm, double centerBpm, double maxBpm)
 
         // Evaluate if a possible first bar appears to be a bit beyond the beginning of the sample.
         unsigned long long delta = roundedBeatLength - possibleFirstBeatOffset;
-        const double errorThreshold = roundedBeatLength / 12.0;
+        const double errorThreshold = roundedBeatLength / 4.0;
         if (delta < errorThreshold) {
             // We go negative for this initial beat.
             possibleFirstBeatOffset -= roundedBeatLength;

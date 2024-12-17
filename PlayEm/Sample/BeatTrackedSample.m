@@ -275,23 +275,63 @@ void beatsContextReset(BeatsParserContext* context)
     return [_beats objectForKey:[NSNumber numberWithLong:pageIndex]];
 }
 
+//- (unsigned long long)framesPerBeat:(float)tempo
+//{
+//    return _sample.rate * (tempo / (60.0f * 4.0f) );
+//}
 
-- (unsigned long long)framesPerBeat:(float)tempo
+/*
+ Uses the given center BPM and tries to round it within the limits of
+ the given minimum and maximum.
+ 
+ Rounding strategies here are rather interesting;
+ 1st: try to round to nearest integer
+ 2nd: try to round to nearest half integer
+ 3rd; try to round to nearest 12th of an integer
+ 
+ When all rounding strategies fail, return the center frequency as it
+ appears to be super precise - or our given extrema were total bogus.
+ */
+double roundBpmWithinRange(double minBpm, double centerBpm, double maxBpm)
 {
-    return _sample.rate * (tempo / (60.0f * 4.0f) );
-}
+    NSLog(@"rounding BPM - min: %.4f, center: %.4f, max: %.4f", minBpm, centerBpm, maxBpm);
 
-- (void)trackBeatsAsyncWithCallback:(void (^)(BOOL))callback;
-{
-    __block BOOL done = NO;
-    _queueOperation = dispatch_block_create(DISPATCH_BLOCK_NO_QOS_CLASS, ^{
-        done = [self trackBeats];
-    });
-    dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0), _queueOperation);
-    dispatch_block_notify(_queueOperation, dispatch_get_main_queue(), ^{
-        self->_ready = done;
-        callback(done);
-    });
+    // First try to snap to a full integer BPM
+    double snapBpm = (double)round(centerBpm);
+    if (snapBpm > minBpm && snapBpm < maxBpm) {
+        // Success
+        return snapBpm;
+    }
+
+    // Probe the reasonable multipliers for 0.5.
+    const double roundBpmWidth = maxBpm - minBpm;
+    if (roundBpmWidth > 0.5) {
+        // 0.5 BPM are only reasonable if the double value is not insane
+        // or the 2/3 value is not too small.
+        if (centerBpm < (double)(85.0)) {
+            // This cane be actually up to 175 BPM allow halve BPM values.
+            return (double)(round(centerBpm * 2) / 2);
+        } else if (centerBpm > (double)(127.0)) {
+            // Optimize for 2/3 going down to 85.
+            return (double)(round(centerBpm/ 3 * 2) * 3 / 2);
+        }
+    }
+
+    if (roundBpmWidth > 1.0 / 12) {
+        // This covers all sorts of 1/2 2/3 and 3/4 multiplier.
+        return (double)(round(centerBpm * 12) / 12);
+    } else {
+        // We are here if we have more than ~75 beats and ~30 s
+        // try to snap to a 1/12 BPM.
+        snapBpm = (double)(round(centerBpm * 12) / 12);
+        if (snapBpm > minBpm && snapBpm < maxBpm) {
+            // Success
+            return snapBpm;
+        }
+        // else give up and use the original BPM value.
+    }
+
+    return centerBpm;
 }
 
 /*
@@ -557,6 +597,8 @@ void beatsContextReset(BeatsParserContext* context)
     const double maxRoundBpm = (double)(60.0 * _sample.rate / longestRegionBeatLengthMin);
     const double centerBpm = (double)(60.0 * _sample.rate / longestRegionBeatLength);
     const double roundBpm = roundBpmWithinRange(minRoundBpm, centerBpm, maxRoundBpm);
+    
+    NSLog(@"rounded BPM: %.4f", roundBpm);
 
     if (pFirstBeat) {
         // Move the first beat as close to the start of the track as we can. This is
@@ -614,8 +656,10 @@ void beatsContextReset(BeatsParserContext* context)
     }
 
     unsigned long long firstBeatFrame = 0;
+
     const double constBPM = [self makeConstBpm:constantRegions firstBeat:&firstBeatFrame];
     const double beatLength = 60 * _sample.rate / constBPM;
+
     firstBeatFrame = [self adjustPhase:firstBeatFrame bpm:constBPM];
 
     NSLog(@"first beat frame = %lld with %.2f", firstBeatFrame, constBPM);
@@ -647,49 +691,6 @@ void beatsContextReset(BeatsParserContext* context)
         nextBeatFrame += beatLength;
         beatIndex = (beatIndex + 1) % 4;
     };
-}
-
-double roundBpmWithinRange(double minBpm, double centerBpm, double maxBpm)
-{
-    NSLog(@"rounding BPM - min: %.0f, center: %.0f, max: %.0f", minBpm, centerBpm, maxBpm);
-
-    // First try to snap to a full integer BPM
-    double snapBpm = (double)round(centerBpm);
-    if (snapBpm > minBpm && snapBpm < maxBpm) {
-        // Success
-        return snapBpm;
-    }
-
-    // Probe the reasonable multipliers for 0.5
-    const double roundBpmWidth = maxBpm - minBpm;
-    if (roundBpmWidth > 0.5) {
-        // 0.5 BPM are only reasonable if the double value is not insane
-        // or the 2/3 value is not too small.
-        if (centerBpm < (double)(85.0)) {
-            // this cane be actually up to 175 BPM
-            // allow halve BPM values
-            return (double)(round(centerBpm * 2) / 2);
-        } else if (centerBpm > (double)(127.0)) {
-            // optimize for 2/3 going down to 85
-            return (double)(round(centerBpm/ 3 * 2) * 3 / 2);
-        }
-    }
-
-    if (roundBpmWidth > 1.0 / 12) {
-        // this covers all sorts of 1/2 2/3 and 3/4 multiplier
-        return (double)(round(centerBpm * 12) / 12);
-    } else {
-        // We are here if we have more that ~75 beats and ~30 s
-        // try to snap to a 1/12 Bpm
-        snapBpm = (double)(round(centerBpm * 12) / 12);
-        if (snapBpm > minBpm && snapBpm < maxBpm) {
-            // Success
-            return snapBpm;
-        }
-        // else give up and use the original BPM value.
-    }
-
-    return centerBpm;
 }
 
 - (BOOL)trackBeats
@@ -909,13 +910,26 @@ double roundBpmWithinRange(double minBpm, double centerBpm, double maxBpm)
 
     return YES;
 }
+    
+- (void)trackBeatsAsyncWithCallback:(void (^)(BOOL))callback
+{
+    __block BOOL done = NO;
+    _queueOperation = dispatch_block_create(DISPATCH_BLOCK_NO_QOS_CLASS, ^{
+        done = [self trackBeats];
+    });
+    dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0), _queueOperation);
+    dispatch_block_notify(_queueOperation, dispatch_get_main_queue(), ^{
+        self->_ready = done;
+        callback(done);
+    });
+}
 
 - (NSString *)description
 {
     return [NSString stringWithFormat:@"Average tempo: %.0f BPM", _lastTempo];
 }
 
-- (void)abortWithCallback:(void (^)(void))callback;
+- (void)abortWithCallback:(void (^)(void))callback
 {
     if (_queueOperation != NULL) {
         dispatch_block_cancel(_queueOperation);

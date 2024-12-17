@@ -104,6 +104,8 @@ static const float kSilenceThreshold = 0.1;
     
     float _lastTempo;
     
+    unsigned long long _initialSilenceEndsAtFrame;
+    
     size_t _iteratePageIndex;
     size_t _iterateEventIndex;
     
@@ -705,7 +707,9 @@ double roundBpmWithinRange(double minBpm, double centerBpm, double maxBpm)
     _coarseBeats = [NSMutableData data];
     
     NSLog(@"pass one");
-    
+    BOOL initialSilenceEnded = NO;
+    _initialSilenceEndsAtFrame = 0LL;
+
     while (sourceWindowFrameOffset < self->_sample.frames) {
         if (dispatch_block_testcancel(self.queueOperation) != 0) {
             NSLog(@"aborted beat detection");
@@ -864,9 +868,16 @@ double roundBpmWithinRange(double minBpm, double centerBpm, double maxBpm)
                     s += data[channel][sourceFrameIndex];
                 }
                 s /= (float)channels;
+                
+                if (!initialSilenceEnded) {
+                    if (fabs(s) > kSilenceThreshold) {
+                        initialSilenceEnded = YES;
+                        _initialSilenceEndsAtFrame = sourceWindowFrameOffset + sourceFrameIndex;
+                    }
+                }
 
                 if(self->_filterEnabled) {
-                    // Basic lowpass filter (feedback)
+                    // Basic lowpass filter (feedback).
                     self->_filterOutput += (s - self->_filterOutput) / self->_filterConstant;
                     s = self->_filterOutput;
                 }
@@ -882,12 +893,14 @@ double roundBpmWithinRange(double minBpm, double centerBpm, double maxBpm)
                 [self->_coarseBeats appendBytes:&event.frame length:sizeof(unsigned long long)];
             }
 #endif
+            
         };
         
         sourceWindowFrameOffset += received;
     };
-
     [self cleanupTracking];
+
+    NSLog(@"silence ends at %lld", _initialSilenceEndsAtFrame);
 
     // Generate a constant grid pattern out of the detected beats.
     [self makePreferredBeats];

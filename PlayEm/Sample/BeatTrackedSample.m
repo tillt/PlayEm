@@ -443,7 +443,7 @@ double roundBpmWithinRange(double minBpm, double centerBpm, double maxBpm)
  There is however a slight change that has rather dramatic consequences in my
  testing. Any functional modifications are highlighted by comments lead by `CHANGE:`.
  */
-- (double)makeConstBpm:(NSData*)constantRegions firstBeat:(unsigned long long*)pFirstBeat
+- (double)makeConstBpm:(NSData*)constantRegions firstBeat:(signed long long*)pFirstBeat
 {
     NSAssert(constantRegions.length > 0, @"no constant regions found");
 
@@ -610,19 +610,29 @@ double roundBpmWithinRange(double minBpm, double centerBpm, double maxBpm)
 
         unsigned long long firstMeasuredGoodBeatFrame = regions[startRegionIndex].firstBeatFrame;
 
-        unsigned long long possibleFirstBeatOffset = (unsigned long long)fmod(firstMeasuredGoodBeatFrame, roundedBeatLength);
-        
+        signed long long possibleFirstBeatOffset = (signed long long)fmod(firstMeasuredGoodBeatFrame, roundedBeatLength);
+
         NSLog(@"first possible beat offset = %lld", possibleFirstBeatOffset);
+
+        // Evaluate if a possible first bar appears to be a bit beyond the beginning of the sample.
+        unsigned long long delta = roundedBeatLength - possibleFirstBeatOffset;
+        const double errorThreshold = roundedBeatLength / 12.0;
+        if (delta < errorThreshold) {
+            // We go negative for this initial beat.
+            possibleFirstBeatOffset -= roundedBeatLength;
+            NSLog(@"graciously adjusted possible beat offset = %lld", possibleFirstBeatOffset);
+        }
+        
         NSLog(@"silence ends at = %lld", _initialSilenceEndsAtFrame);
         NSLog(@"rounded beat length = %lld", (unsigned long long)roundedBeatLength);
         
         // Skip as many beats as we can fit into the initial silence.
-        unsigned long long alternativeFirstBeatOffset = possibleFirstBeatOffset + (floor(_initialSilenceEndsAtFrame / roundedBeatLength) * roundedBeatLength);
-        if (alternativeFirstBeatOffset != possibleFirstBeatOffset) {
-            possibleFirstBeatOffset = alternativeFirstBeatOffset;
-            NSLog(@"adjusted first possible beat offset = %lld", possibleFirstBeatOffset);
+        unsigned long long skipSilenceFrames = floor(_initialSilenceEndsAtFrame / roundedBeatLength) * roundedBeatLength;
+        if (skipSilenceFrames) {
+            possibleFirstBeatOffset += skipSilenceFrames;
+            NSLog(@"silently adjusted first beat offset = %lld", possibleFirstBeatOffset);
         }
-        
+
         *pFirstBeat = possibleFirstBeatOffset;
     }
     return roundBpm;
@@ -671,7 +681,7 @@ double roundBpmWithinRange(double minBpm, double centerBpm, double maxBpm)
         return;
     }
 
-    unsigned long long firstBeatFrame = 0;
+    signed long long firstBeatFrame = 0;
 
     const double constBPM = [self makeConstBpm:constantRegions firstBeat:&firstBeatFrame];
     const double beatLength = 60 * _sample.rate / constBPM;
@@ -681,8 +691,9 @@ double roundBpmWithinRange(double minBpm, double centerBpm, double maxBpm)
     NSLog(@"first beat frame = %lld with %.2f", firstBeatFrame, constBPM);
 
     BeatEvent event;
-    unsigned long long nextBeatFrame = firstBeatFrame;
-    
+    BOOL fakeFirst = firstBeatFrame < 0.0;
+    unsigned long long nextBeatFrame = fakeFirst ? 0.0 : firstBeatFrame;
+
     int beatIndex = 0;
     while (nextBeatFrame < _sample.frames) {
         event.frame = nextBeatFrame;
@@ -704,7 +715,12 @@ double roundBpmWithinRange(double minBpm, double centerBpm, double maxBpm)
         
         [self->_beats setObject:data forKey:pageKey];
         
-        nextBeatFrame += beatLength;
+        if (fakeFirst) {
+            nextBeatFrame = firstBeatFrame + beatLength;
+            fakeFirst = NO;
+        } else {
+            nextBeatFrame += beatLength;
+        }
         beatIndex = (beatIndex + 1) % 4;
     };
 }

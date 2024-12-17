@@ -75,8 +75,8 @@ extern NSString * const kPlaybackStatePlaying;
     const CGFloat timeLabelWidth = 152.0;
     const CGFloat timeLabelHeight = 16.0;
 
-    const CGFloat coverButtonX = 5.0;
-    const CGFloat coverButtonY = 3.0;
+    const CGFloat coverButtonX = 2.0;
+    const CGFloat coverButtonY = 1.0;
     
     const CGFloat bpmLabelWidth = 60.0f;
     const CGFloat bpmLabelHeight = 16.0f;
@@ -125,10 +125,12 @@ extern NSString * const kPlaybackStatePlaying;
 //    _coverButton = [RadarButton buttonWithImage:[NSImage imageNamed:@"UnknownSong"]
 //                                         target:_delegate
 //                                         action:@selector(showInfoForCurrentSong:)];
+    
+    const CGFloat coverButtonWidth = self.view.frame.size.height - 4.0;
     _coverButton = [[IdentificationCoverView alloc] initWithFrame:NSMakeRect(coverButtonX,
                                                                              coverButtonY,
-                                                                             self.view.frame.size.height - 10.0,
-                                                                             self.view.frame.size.height - 10.0)];
+                                                                             coverButtonWidth,
+                                                                             coverButtonWidth)];
     NSClickGestureRecognizer* recognizer = [[NSClickGestureRecognizer alloc] initWithTarget:_delegate action:@selector(showInfoForCurrentSong:)];
     recognizer.numberOfClicksRequired = 1;
     [_coverButton addGestureRecognizer:recognizer];
@@ -137,7 +139,7 @@ extern NSString * const kPlaybackStatePlaying;
 //    _coverButton.imagePosition = NSImageOnly;
     //_coverButton.imageScaling = NSImageScaleProportionallyUpOrDown;
 //    [_coverButton setButtonType: NSButtonTypeMomentaryPushIn];
-    _coverButton.layer.cornerRadius = 10;
+    _coverButton.layer.cornerRadius = 3;
     _coverButton.layer.masksToBounds = YES;
     [self.view addSubview:_coverButton];
    
@@ -148,7 +150,7 @@ extern NSString * const kPlaybackStatePlaying;
 //    layer.mask = [CAShapeLayer MaskLayerFromRect:layer.frame];
 //    [_coverButton.layer addSublayer:layer];
     
-    _titleView = [[ScrollingTextView alloc] initWithFrame:NSMakeRect(coverButtonX + (self.view.frame.size.height - 5.0),
+    _titleView = [[ScrollingTextView alloc] initWithFrame:NSMakeRect(coverButtonX + coverButtonWidth + 2.0,
                                                                      self.view.frame.size.height - (scrollingTextViewHeight + 5.0),
                                                                      scrollingTextViewWidth,
                                                                      scrollingTextViewHeight)];

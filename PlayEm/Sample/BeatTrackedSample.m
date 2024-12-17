@@ -612,7 +612,7 @@ double roundBpmWithinRange(double minBpm, double centerBpm, double maxBpm)
 
         signed long long possibleFirstBeatOffset = (signed long long)fmod(firstMeasuredGoodBeatFrame, roundedBeatLength);
 
-        NSLog(@"first possible beat offset = %lld", possibleFirstBeatOffset);
+        NSLog(@"first possible beat offset %lld", possibleFirstBeatOffset);
 
         // Evaluate if a possible first bar appears to be a bit beyond the beginning of the sample.
         unsigned long long delta = roundedBeatLength - possibleFirstBeatOffset;
@@ -620,13 +620,13 @@ double roundBpmWithinRange(double minBpm, double centerBpm, double maxBpm)
         if (delta < errorThreshold) {
             // We go negative for this initial beat.
             possibleFirstBeatOffset -= roundedBeatLength;
-            NSLog(@"graciously adjusted possible beat offset = %lld", possibleFirstBeatOffset);
+            NSLog(@"graciously adjusted possible beat offset towards frame %lld", possibleFirstBeatOffset);
         }
         
-        NSLog(@"silence ends at = %lld", _initialSilenceEndsAtFrame);
-        NSLog(@"rounded beat length = %lld", (unsigned long long)roundedBeatLength);
+        NSLog(@"silence ends at frame %lld", _initialSilenceEndsAtFrame);
+        NSLog(@"rounded beat length is %lld frames", (unsigned long long)roundedBeatLength);
         
-        // Skip as many beats as we can fit into the initial silence.
+        // Skip as many beat-frames as we can fit into the initial silence.
         unsigned long long skipSilenceFrames = floor(_initialSilenceEndsAtFrame / roundedBeatLength) * roundedBeatLength;
         if (skipSilenceFrames) {
             possibleFirstBeatOffset += skipSilenceFrames;

@@ -617,8 +617,6 @@ double roundBpmWithinRange(double minBpm, double centerBpm, double maxBpm)
         NSLog(@"rounded beat length = %lld", (unsigned long long)roundedBeatLength);
         
         // Skip as many beats as we can fit into the initial silence.
-        possibleFirstBeatOffset += floor(_initialSilenceEndsAtFrame / roundedBeatLength) * roundedBeatLength;
-        
         unsigned long long alternativeFirstBeatOffset = possibleFirstBeatOffset + (floor(_initialSilenceEndsAtFrame / roundedBeatLength) * roundedBeatLength);
         if (alternativeFirstBeatOffset != possibleFirstBeatOffset) {
             possibleFirstBeatOffset = alternativeFirstBeatOffset;

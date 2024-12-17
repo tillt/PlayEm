@@ -607,7 +607,25 @@ double roundBpmWithinRange(double minBpm, double centerBpm, double maxBpm)
         // This is a temporary fix, ideally the anchor point for the BPM grid should
         // be the first proper downbeat, or perhaps the CUE point.
         const double roundedBeatLength = 60.0 * _sample.rate / roundBpm;
-        *pFirstBeat = (unsigned long long)(fmod(regions[startRegionIndex].firstBeatFrame, roundedBeatLength));
+
+        unsigned long long firstMeasuredGoodBeatFrame = regions[startRegionIndex].firstBeatFrame;
+
+        unsigned long long possibleFirstBeatOffset = (unsigned long long)fmod(firstMeasuredGoodBeatFrame, roundedBeatLength);
+        
+        NSLog(@"first possible beat offset = %lld", possibleFirstBeatOffset);
+        NSLog(@"silence ends at = %lld", _initialSilenceEndsAtFrame);
+        NSLog(@"rounded beat length = %lld", (unsigned long long)roundedBeatLength);
+        
+        // Skip as many beats as we can fit into the initial silence.
+        possibleFirstBeatOffset += floor(_initialSilenceEndsAtFrame / roundedBeatLength) * roundedBeatLength;
+        
+        unsigned long long alternativeFirstBeatOffset = possibleFirstBeatOffset + (floor(_initialSilenceEndsAtFrame / roundedBeatLength) * roundedBeatLength);
+        if (alternativeFirstBeatOffset != possibleFirstBeatOffset) {
+            possibleFirstBeatOffset = alternativeFirstBeatOffset;
+            NSLog(@"adjusted first possible beat offset = %lld", possibleFirstBeatOffset);
+        }
+        
+        *pFirstBeat = possibleFirstBeatOffset;
     }
     return roundBpm;
 }

@@ -78,7 +78,7 @@ static const int kMinRegionBeatCount = 10;
 //static const float kParamFilterMaxValue = 500.0f;
 static const float kParamFilterDefaultValue = 170.0f;
 
-static const float kSilenceThreshold = 0.1;
+static const float kSilenceThreshold = 0.05;
 
 @interface BeatTrackedSample()
 {

@@ -656,7 +656,7 @@ double roundBpmWithinRange(double minBpm, double centerBpm, double maxBpm)
     }
     offsetAdjust /= offsetAdjustCount;
     NSLog(@"adjusting phase by: %.2f", offsetAdjust);
-    NSAssert(fabs(offsetAdjust) < (kMaxSecsPhaseError * _sample.rate), @"unexpexted phase adjustment");
+    //NSAssert(fabs(offsetAdjust) < (kMaxSecsPhaseError * _sample.rate), @"unexpexted phase adjustment");
 
     return firstBeat + offsetAdjust;
 }

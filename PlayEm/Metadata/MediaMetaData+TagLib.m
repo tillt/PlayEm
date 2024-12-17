@@ -280,33 +280,6 @@
     self.size = [NSString BeautifulSize:[NSNumber numberWithUnsignedLongLong:size]];
     self.format = @"MPEG audio file";
 
-
-//    /*!
-//     * Returns the length of the file in seconds.
-//     */
-//    TAGLIB_C_EXPORT int taglib_audioproperties_length(const TagLib_AudioProperties *audioProperties);
-//
-//    /*!
-//     * Returns the bitrate of the file in kb/s.
-//     */
-//    TAGLIB_C_EXPORT int taglib_audioproperties_bitrate(const TagLib_AudioProperties *audioProperties);
-//
-//    /*!
-//     * Returns the sample rate of the file in Hz.
-//     */
-//    TAGLIB_C_EXPORT int taglib_audioproperties_samplerate(const TagLib_AudioProperties *audioProperties);
-//
-//    /*!
-//     * Returns the number of channels in the audio stream.
-//     */
-//    TAGLIB_C_EXPORT int taglib_audioproperties_channels(const TagLib_AudioProperties *audioProperties);
-//    
-//    
-//    // Now get the encoding details.
-//    unsigned long long fileSize = [[[NSFileManager defaultManager] attributesOfItemAtPath:path error:nil] fileSize];
-//    //self.size = [NSString stringWithFormat:@"%lld bytes", fileSize];
-
-    
     taglib_tag_free_strings();
     taglib_file_free(file);
     

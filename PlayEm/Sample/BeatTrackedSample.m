@@ -76,9 +76,9 @@ static const int kMinRegionBeatCount = 10;
 // Lowpass cutoff frequency.
 //static const float kParamFilterMinValue = 50.0f;
 //static const float kParamFilterMaxValue = 500.0f;
-static const float kParamFilterDefaultValue = 170.0f;
+static const float kParamFilterDefaultValue = 270.0f;
 
-static const float kSilenceThreshold = 0.05;
+static const float kSilenceThreshold = 0.1;
 
 @interface BeatTrackedSample()
 {

@@ -13,6 +13,7 @@ typedef enum : NSUInteger {
     kExtraStateNormal = 0,
     kExtraStateActive = 1,
     kExtraStatePlaying = 2,
+    kExtraStateFocused = 3,
 } ExtraState;
 
 #endif /* TableViewExtraState_h */

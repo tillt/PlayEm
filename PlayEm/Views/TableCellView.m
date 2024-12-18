@@ -70,18 +70,15 @@ static const double kFontSize = 11.0f;
     } else {
         switch (self.backgroundStyle) {
             case NSBackgroundStyleNormal:
-                //color = [NSColor secondaryLabelColor];
                 color = [[Defaults sharedDefaults] secondaryLabelColor];
                 break;
             case NSBackgroundStyleEmphasized:
                 color = [[Defaults sharedDefaults] lightBeamColor];
                 break;
             case NSBackgroundStyleRaised:
-                color = [NSColor linkColor];
-                break;
             case NSBackgroundStyleLowered:
+            default:
                 color = [NSColor linkColor];
-                break;
         }
     }
     _textLayer.foregroundColor = color.CGColor;

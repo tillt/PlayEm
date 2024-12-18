@@ -29,6 +29,13 @@ typedef enum : NSUInteger {
     RoundedBottom = 0x01 << 1,
 } RoundingMask;
 
+@interface TableRowView ()
+
+@property (nonatomic, strong) CALayer* effectLayer;
+@property (nonatomic, strong) CATextLayer* symbolLayer;
+
+@end
+
 @implementation TableRowView
 {
     GlowTriggerMask glowTriggerMask;
@@ -96,6 +103,12 @@ typedef enum : NSUInteger {
     return layer;
 }
 
+/*
+ Draws the selection background in its entirety.
+ 
+ Note how this asserts that any selection block - a continuous set of rows -
+ has neatly rounded corners at its outer limits.
+ */
 - (NSBezierPath*)selectionPathWithRoundingMask:(RoundingMask)rounding
 {
     CGFloat radius = 5.0;
@@ -206,7 +219,6 @@ typedef enum : NSUInteger {
         _symbolLayer.string = @"";
         _symbolLayer.hidden = YES;
     }
-    _extraState = extraState;
 }
 
 - (void)addGlowReason:(GlowTriggerMask)triggerMask
@@ -256,6 +268,40 @@ typedef enum : NSUInteger {
 
     [path fill];
     [path stroke];
+}
+
+- (CAAnimationGroup*)selectionColorAnimation
+{
+    CAAnimationGroup* group = [CAAnimationGroup animation];
+    NSMutableArray* animations = [NSMutableArray array];
+
+    CABasicAnimation* animation = [CABasicAnimation animationWithKeyPath:@"foregroundColor"];
+    animation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionLinear];
+    animation.fromValue = (id)[[NSColor secondaryLabelColor] CGColor];
+    animation.toValue = (id)[[[Defaults sharedDefaults] lightBeamColor] CGColor];
+    animation.fillMode = kCAFillModeForwards;
+    animation.removedOnCompletion = NO;
+    [animation setValue:@"SelectionColorUp" forKey:@"name"];
+    animation.removedOnCompletion = NO;
+    animation.duration = 0.2;
+    [animations addObject:animation];
+
+    animation = [CABasicAnimation animationWithKeyPath:@"foregroundColor"];
+    animation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionLinear];
+    animation.fromValue = (id)[[[Defaults sharedDefaults] lightBeamColor] CGColor];
+    animation.toValue = (id)[[NSColor secondaryLabelColor] CGColor];
+    animation.fillMode = kCAFillModeForwards;
+    animation.removedOnCompletion = NO;
+    animation.duration = 1.8;
+    [animation setValue:@"SelectionColorDown" forKey:@"name"];
+    [animations addObject:animation];
+
+    group.removedOnCompletion = NO;
+    group.animations = animations;
+    group.repeatCount = HUGE_VALF;
+    [group setValue:@"SelectionColorActiveAnimations" forKey:@"name"];
+
+    return group;
 }
 
 - (CAAnimationGroup*)effectAnimation

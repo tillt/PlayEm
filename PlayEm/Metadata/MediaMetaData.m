@@ -942,57 +942,47 @@ NSString* const kMediaMetaDataMapTypeNumber = @"number";
     NSAssert(NO, @"should never get here");
 }
 
+// Gets a mixwheel key value from whatever the file had stored.
+//
 // The MixWheel is not entirely deterministic, we are trying
 // to catch all synonymous scales here additionally to the 24 sectors.
 - (NSString*)correctedKeyNotation:(NSString*)key
 {
     NSDictionary* mixWheel = @{
-        //        G♯ minor/A♭ minor,
-        @"Abmin": @"1A",
-        @"G#min": @"1A",
-        //        B major/C♭ major,
-        @"Cbmaj": @"1B",
-        @"Bmaj":  @"1B",
-        //        D♯ minor/E♭ minor,
-        @"Ebmin": @"2A",
-        @"D#min": @"2A",
-        //        F♯ major/G♭ major,
-        @"F#maj": @"2B",
-        @"Gbmaj": @"2B",
-        //        A♯ minor/B♭ minor.
-        @"A#min": @"3A",
-        @"Bbmin": @"3A",
-        //        C♯ major/D♭ major
-        @"C#maj": @"3B",
-        @"Dbmaj": @"3B",
+        @"Abmin": @"1A",    // G♯ minor/A♭ minor
+        @"G#min": @"1A",    // G♯ minor/A♭ minor
+        @"Cbmaj": @"1B",    // B major/C♭ major
+        @"Bmaj":  @"1B",    // B major/C♭ major
+        @"Ebmin": @"2A",    // D♯ minor/E♭ minor
+        @"D#min": @"2A",    // D♯ minor/E♭ minor
+        @"F#maj": @"2B",    // F♯ major/G♭ major
+        @"Gbmaj": @"2B",    // F♯ major/G♭ major
+        @"A#min": @"3A",    // A♯ minor/B♭ minor
+        @"Bbmin": @"3A",    // A♯ minor/B♭ minor
+        @"C#maj": @"3B",    // C♯ major/D♭ major
+        @"Dbmaj": @"3B",    // C♯ major/D♭ major
         @"Fmin":  @"4A",
-        //        G♯ major/A♭ major,
-        @"Abmaj": @"4B",
-        @"G#maj": @"4B",
+        @"Abmaj": @"4B",    // G♯ major/A♭ major
+        @"G#maj": @"4B",    // G♯ major/A♭ major
         @"Cmin":  @"5A",
-        //        D♯ major/E♭ major,
-        @"Ebmaj": @"5B",
-        @"D#maj": @"5B",
+        @"Ebmaj": @"5B",    // D♯ major/E♭ major
+        @"D#maj": @"5B",    // D♯ major/E♭ major
         @"Gmin":  @"6A",
-        //        A♯ minor/B♭ minor.
-        @"A#maj": @"6B",
-        @"Bbmaj": @"6B",
+        @"A#maj": @"6B",    // A♯ major/B♭ major
+        @"Bbmaj": @"6B",    // A♯ major/B♭ major
         @"Dmin":  @"7A",
         @"Fmaj":  @"7B",
         @"Amin":  @"8A",
         @"Cmaj":  @"8B",
         @"Emin":  @"9A",
         @"Gmaj":  @"9B",
-        //        B minor/C♭ minor,
-        @"Cbmin": @"10A",
-        @"Bmin":  @"10A",
+        @"Cbmin": @"10A",   // B minor/C♭ minor
+        @"Bmin":  @"10A",   // B minor/C♭ minor
         @"Dmaj":  @"10B",
-        //        F♯ minor/G♭ minor,
-        @"Gbmin": @"11A",
-        @"F#min": @"11A",
+        @"Gbmin": @"11A",   // F♯ minor/G♭ minor
+        @"F#min": @"11A",   // F♯ minor/G♭ minor
         @"Amaj":  @"11B",
-        //        C♯ minor/D♭ minor
-        @"C#min": @"12A",
+        @"C#min": @"12A",   // C♯ minor/D♭ minor
         @"Dbmin": @"12A",
         @"Emaj":  @"12B",
     };

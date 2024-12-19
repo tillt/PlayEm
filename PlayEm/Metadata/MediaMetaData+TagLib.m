@@ -162,7 +162,7 @@
     TagLib_Tag* tag = taglib_file_tag(file);
 
     if(tag != NULL) {
-        // Process the taglib standard stuff - a ID3 v1 data subset by its selection.
+        // Process the taglib standard stuff - an ID3 v1 data subset by its selection.
         [self updateWithKey:@"title" string:[NSString stringWithCString:taglib_tag_title(tag)
                                                                encoding:NSUTF8StringEncoding]];
         [self updateWithKey:@"artist" string:[NSString stringWithCString:taglib_tag_artist(tag)

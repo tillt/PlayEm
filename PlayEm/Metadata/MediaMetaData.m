@@ -774,8 +774,8 @@ NSString* const kMediaMetaDataMapTypeNumber = @"number";
 
 - (NSString*)description
 {
-    return [NSString stringWithFormat:@"Title: %@ -- Album: %@ -- Artist: %@ -- Location: %@ -- Address: %p -- Artwork format: %@ -- Tempo: %@ -- Key: %@ -- Duration: %@",
-            self.title, self.album, self.artist, self.location, (void*)self, self.artworkFormat, self.tempo, self.key, self.duration];
+    return [NSString stringWithFormat:@"Title: %@ -- Album: %@ -- Artist: %@ -- Location: %@ -- Address: %p -- Artwork format: %@ -- Tempo: %@ -- Key: %@ -- Duration: %@ -- Comment: %@",
+            self.title, self.album, self.artist, self.location, (void*)self, self.artworkFormat, self.tempo, self.key, self.duration, self.comment];
 }
 
 - (id)copyWithZone:(NSZone *)zone

@@ -290,12 +290,12 @@
 		BB8820C5244101C200CDB8C3 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				BB539A5E2D0F6D380095B8C7 /* libkeyfinder.2.dylib */,
 				BB19A3762C5FAE0C00E5B4D2 /* CoreWLAN.framework */,
 				BBC2AF7E2B8FDB140077EB5E /* StoreKit.framework */,
 				BB3B8D9C2B87CC12006AEFCA /* ShazamKit.framework */,
 				BB3B8D962B86C9B7006AEFCA /* tag_c.framework */,
 				BB3B8D972B86C9B7006AEFCA /* tag.framework */,
+				BB539A5E2D0F6D380095B8C7 /* libkeyfinder.2.dylib */,
 				BB1614B82AACB0C300F6C5E6 /* libaubio.5.dylib */,
 				BB539A612D0F6E8E0095B8C7 /* libfftw3.3.dylib */,
 				BB577E152AA486C500046251 /* libsamplerate.0.dylib */,

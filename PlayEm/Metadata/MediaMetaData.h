@@ -46,12 +46,8 @@ extern NSString* const kMediaMetaDataMapTypeTuple;
 extern NSString* const kMediaMetaDataMapTypeNumber;
 
 
-
 @interface MediaMetaData : NSObject<NSCopying>
-
-
 @property (strong, nonatomic) ITLibMediaItem* shadow;
-
 @property (copy, nonatomic, nullable) NSString* title;
 @property (copy, nonatomic, nullable) NSString* album;
 @property (copy, nonatomic, nullable) NSString* artist;

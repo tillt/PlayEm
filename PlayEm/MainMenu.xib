@@ -368,6 +368,19 @@
                                 </connections>
                             </menuItem>
                             <menuItem isSeparatorItem="YES" id="bI1-Lg-g9L"/>
+                            <menuItem title="Reverse 16 Beats" keyEquivalent="" id="lE2-Bu-05E">
+                                <modifierMask key="keyEquivalentModifierMask"/>
+                                <connections>
+                                    <action selector="playNext:" target="-1" id="USv-7J-5gs"/>
+                                </connections>
+                            </menuItem>
+                            <menuItem title="Skip 16 Beats" keyEquivalent="" id="0Up-ZO-ER1">
+                                <modifierMask key="keyEquivalentModifierMask"/>
+                                <connections>
+                                    <action selector="playNext:" target="-1" id="NEn-9H-SKR"/>
+                                </connections>
+                            </menuItem>
+                            <menuItem isSeparatorItem="YES" id="hSJ-f3-l5D"/>
                             <menuItem title="Increase Volume" id="jlT-04-kIm">
                                 <modifierMask key="keyEquivalentModifierMask"/>
                                 <connections>

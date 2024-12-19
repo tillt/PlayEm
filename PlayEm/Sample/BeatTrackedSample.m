@@ -5,7 +5,6 @@
 //  Created by Till Toenshoff on 06.08.23.
 //  Copyright © 2023 Till Toenshoff. All rights reserved.
 //
-#include <stdatomic.h>
 #import <Foundation/Foundation.h>
 
 #import "BeatTrackedSample.h"
@@ -95,8 +94,6 @@ static const float kSilenceThreshold = 0.1;
 
 @implementation BeatTrackedSample
 {
-    atomic_int _beatTrackDone;
-    
     size_t _pages;
     
     size_t _hopSize;
@@ -275,11 +272,6 @@ void beatsContextReset(BeatsParserContext* context)
     return [_beats objectForKey:[NSNumber numberWithLong:pageIndex]];
 }
 
-//- (unsigned long long)framesPerBeat:(float)tempo
-//{
-//    return _sample.rate * (tempo / (60.0f * 4.0f) );
-//}
-
 /*
  Uses the given center BPM and tries to round it within the limits of
  the given minimum and maximum.
@@ -347,7 +339,8 @@ double roundBpmWithinRange(double minBpm, double centerBpm, double maxBpm)
     NSLog(@"pass two: locate constant regions");
 
     // Original comment doesnt apply exactly -- we are not using the QM detector but the
-    // libaubio one. Anyway, tje rest applies equally.
+    // libaubio one. Anyway, the rest applies equally.
+    //---
     // The aubio detector has a step size of 256 frames @ 44100 Hz. This means that
     // Single beats have has a jitter of +- 6 ms around the actual position.
     // Expressed in BPM it means we have for instance steps of these BPM value around 120 BPM
@@ -356,13 +349,13 @@ double roundBpmWithinRange(double minBpm, double centerBpm, double maxBpm)
     // 117,454 BPM beats to adjust the collected offset.
     // This function irons these adjustment beats by adjusting every beat to the average of
     // a likely constant region.
-
     // Therefore we loop through the coarse beats and calculate the average beat
     // length from the first beat.
     // A inner loop checks for outliers using the momentary average as beat length.
     // once we have found an average with only single outliers, we store the beats using the
     // current average to adjust them by up to +-6 ms.
-    // Than we start with the region from the found beat to the end.
+    // Then we start with the region from the found beat to the end.
+    //---
 
     const double maxPhaseError = kMaxSecsPhaseError * _sample.rate;
     const double maxPhaseErrorSum = kMaxSecsPhaseErrorSum * _sample.rate;
@@ -606,6 +599,17 @@ double roundBpmWithinRange(double minBpm, double centerBpm, double maxBpm)
         // bpm adjustments are made.
         // This is a temporary fix, ideally the anchor point for the BPM grid should
         // be the first proper downbeat, or perhaps the CUE point.
+        
+        // CHANGE: Extended intend is to determine the first beat of every bar.
+        // We calculate the frame for the very first beat according to the longest region
+        // identified. Now this may not be optimal just yet. There may be cases with some
+        // initial silence within the first beats. To account for such cases, we skip
+        // numbering beats until the initial silence has passed.
+        // Then there may be cases where the true first beat is slightly before the
+        // beginning of the song -- weird but there are plenty of examples of such songs.
+        // For catching such cases, we check if such misplaced first beat would be less
+        // then a quarter beat before the recording.
+
         const double roundedBeatLength = 60.0 * _sample.rate / roundBpm;
 
         unsigned long long firstMeasuredGoodBeatFrame = regions[startRegionIndex].firstBeatFrame;
@@ -971,11 +975,6 @@ double roundBpmWithinRange(double minBpm, double centerBpm, double maxBpm)
     } else {
         callback();
     }
-}
-
-- (BOOL)isReady
-{
-    return _beatTrackDone;
 }
 
 - (float)currentTempo:(BeatEventIterator*)iterator

@@ -1,11 +1,10 @@
 //
-//  BeatTrackedSample.m
+//  KeyTrackedSample.mm
 //  PlayEm
 //
-//  Created by Till Toenshoff on 06.08.24.
-//  Copyright © 2023 Till Toenshoff. All rights reserved.
+//  Created by Till Toenshoff on 18.12.24.
+//  Copyright © 2024 Till Toenshoff. All rights reserved.
 //
-//#include <stdatomic.h>
 #import <Foundation/Foundation.h>
 
 #import "KeyTrackedSample.h"
@@ -20,7 +19,6 @@
 }
 
 @property (assign, nonatomic) size_t windowWidth;
-//@property (strong, nonatomic) NSMutableDictionary* operations;
 @property (strong, nonatomic) NSMutableArray<NSMutableData*>* sampleBuffers;
 @property (strong, nonatomic) NSMutableDictionary* beatEventPages;
 @property (strong, nonatomic) NSMutableData* coarseBeats;
@@ -36,16 +34,7 @@
 
     unsigned long long _currentFrame;
     unsigned long long _totalFrames;
-    size_t _hopSize;
     unsigned long long _maxFramesToProcess;
-    
-    bool _keyDetectionEnabled;
-    bool _fastAnalysisEnabled;
-    bool _reanalyzeEnabled;
-}
-
-- (void)clearBpmHistory
-{
 }
 
 - (id)initWithSample:(LazySample*)sample
@@ -54,14 +43,8 @@
     if (self) {
         _sample = sample;
         _windowWidth = 1024;
-//        _hopSize = 256;
-        _hopSize = _windowWidth / 4;
         _sampleBuffers = [NSMutableArray array];
         
-        _keyDetectionEnabled = YES;
-        _fastAnalysisEnabled = NO;
-        _reanalyzeEnabled = NO;
-
         unsigned long long framesNeeded = _windowWidth * 1024;
         for (int channel = 0; channel < sample.channels; channel++) {
             NSMutableData* buffer = [NSMutableData dataWithCapacity:framesNeeded * _sample.frameSize];
@@ -97,58 +80,6 @@
     });
 }
 
-//- (void)process(const CSAMPLE* pIn, SINT iLen)
-//{
-//    if (_audioData.getSampleCount() == 0) {
-//        _audioData.addToSampleCount(iLen);
-//    }
-//
-//    const SINT numInputFrames = iLen / kAnalysisChannels;
-//    _currentFrame += numInputFrames;
-//
-//    for (SINT frame = 0; frame < numInputFrames; frame++) {
-//        for (SINT channel = 0; channel < kAnalysisChannels; channel++) {
-//            _audioData.setSampleByFrame(frame, channel, pIn[frame * kAnalysisChannels + channel]);
-//        }
-//    }
-//    _keyFinder.progressiveChromagram(_audioData, _workspace);
-//}
-
-/*
- * KeyFinder::AudioData a;
-  * a.setFrameRate(yourAudioStream.framerate);
-  * a.setChannels(yourAudioStream.channels);
-  * a.addToSampleCount(yourAudioStream.packetLength);
-  *
-  * static KeyFinder::KeyFinder k;
-  *
-  * // the workspace holds the memory allocations for analysis of a single track
-  * KeyFinder::Workspace w;
-  *
-  * while (someType yourPacket = newAudioPacket()) {
-  *
-  *   for (int i = 0; i < yourPacket.length; i++) {
-  *     a.setSample(i, yourPacket[i]);
-  *   }
-  *   k.progressiveChromagram(a, w);
-  *
-  *   // if you want to grab progressive key estimates...
-  *   KeyFinder::key_t key = k.keyOfChromagram(w);
-  *   doSomethingWithMostRecentKeyEstimate(key);
-  * }
-  *
-  * // if you only want a single key estimate, or to squeeze
-  * // every last bit of audio from the working buffer after
-  * // progressive estimates...
-  * k.finalChromagram(w);
-  *
-  * // and finally...
-  * KeyFinder::key key = k.keyOfChromagram(w);
-  *
-  * doSomethingWithFinalKeyEstimate(key);
-  * ```
- */
-
 - (BOOL)trackKey
 {
     NSLog(@"key tracking...");
@@ -162,7 +93,7 @@
 
     _audioData.setChannels(channels);
     _audioData.setFrameRate((unsigned int)self->_sample.rate);
-    _audioData.addToSampleCount((unsigned int)self->_windowWidth * 2);
+    _audioData.addToSampleCount((unsigned int)self->_windowWidth * channels);
     
     unsigned long long sourceWindowFrameOffset = 0LL;
     
@@ -171,7 +102,7 @@
             NSLog(@"aborted key detection");
             return NO;
         }
-        unsigned long long sourceWindowFrameCount = MIN(self->_hopSize * 1024,
+        unsigned long long sourceWindowFrameCount = MIN(self->_windowWidth * 1024,
                                                         self->_sample.frames - sourceWindowFrameOffset);
         // This may block for a loooooong time!
         unsigned long long received = [self->_sample rawSampleFromFrameOffset:sourceWindowFrameOffset
@@ -180,7 +111,7 @@
         unsigned long int sourceFrameIndex = 0;
         while(sourceFrameIndex < received) {
             if (dispatch_block_testcancel(self.queueOperation) != 0) {
-                NSLog(@"aborted beat detection");
+                NSLog(@"aborted key detection");
                 return NO;
             }
             
@@ -194,15 +125,7 @@
                 }
                 sourceFrameIndex++;
             }
-            
             _keyFinder.progressiveChromagram(_audioData, _workspace);
-
-//            aubio_tempo_do(self->_aubio_tempo, self->_aubio_input_buffer, self->_aubio_output_buffer);
-//            const bool beat = fvec_get_sample(self->_aubio_output_buffer, 0) != 0.f;
-//            if (beat) {
-//                event.frame = aubio_tempo_get_last(self->_aubio_tempo);
-//                [self->_coarseBeats appendBytes:&event.frame length:sizeof(unsigned long long)];
-//            }
         };
         
         sourceWindowFrameOffset += received;
@@ -215,6 +138,7 @@
     switch(key) {
         case KeyFinder::D_FLAT_MINOR:  _key = @"12A";  break;
         case KeyFinder::E_MAJOR:       _key = @"12B";  break;
+        case KeyFinder::G_FLAT_MINOR:  _key = @"11A";  break;
         case KeyFinder::A_MAJOR:       _key = @"11B";  break;
         case KeyFinder::B_MINOR:       _key = @"10A";  break;
         case KeyFinder::D_MAJOR:       _key = @"10B";  break;
@@ -236,17 +160,10 @@
         case KeyFinder::G_FLAT_MAJOR:  _key = @"2B";   break;
         case KeyFinder::A_FLAT_MINOR:  _key = @"1A";   break;
         case KeyFinder::B_MAJOR:       _key = @"1B";   break;
-        case KeyFinder::G_FLAT_MINOR:  _key = @"8A";   break;
         case KeyFinder::SILENCE:
         default:
             _key = @"";
     }
-
-    
-    /*
-     enum key_t {
-     };
-     */
 
     NSLog(@"key %d", key);
     [self cleanupTracking];
@@ -263,6 +180,7 @@
 
 - (void)abortWithCallback:(void (^)(void))callback
 {
+    NSLog(@"abort of key detection ongoing..");
     if (_queueOperation != NULL) {
         dispatch_block_cancel(_queueOperation);
         dispatch_block_notify(_queueOperation, dispatch_get_main_queue(), ^{
@@ -271,12 +189,6 @@
     } else {
         callback();
     }
-}
-
-- (BOOL)isReady
-{
-//    return _keyTrackDone;
-    return NO;
 }
 
 @end

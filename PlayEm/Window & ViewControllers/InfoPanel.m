@@ -249,6 +249,9 @@ static const CGFloat kViewLeftMargin = 10.0f;
     
     CGFloat y = 80.0f;
     
+    NSView* lastInputView = nil;
+    NSView* firstInputView = nil;
+    
     for (NSString* key in reversed) {
         NSString* configKey = key;
         if ([_viewConfiguration[pageKey][key] objectForKey:@"key"]) {
@@ -275,6 +278,8 @@ static const CGFloat kViewLeftMargin = 10.0f;
         if (number != nil) {
             editable = [number boolValue];
         }
+        
+        NSDictionary* extra = [_viewConfiguration[pageKey][key] objectForKey:@"extra"];
         
         NSTextField* textField = [NSTextField textFieldWithString:key];
         textField.bordered = NO;
@@ -320,6 +325,9 @@ static const CGFloat kViewLeftMargin = 10.0f;
                 [view addSubview:textField];
                 
                 dict[configKey] = textField;
+                
+                textField.nextKeyView = lastInputView;
+                lastInputView = textField;
             } break;
             case InfoControlTypeCombo: {
                 NSComboBox* comboBox = [NSComboBox new];
@@ -335,6 +343,9 @@ static const CGFloat kViewLeftMargin = 10.0f;
                 [view addSubview:comboBox];
                 
                 dict[configKey] = comboBox;
+                
+                comboBox.nextKeyView = lastInputView;
+                lastInputView = comboBox;
             } break;
             case InfoControlTypeCheck: {
                 NSString* title = [_viewConfiguration[pageKey][key] objectForKey:@"description"];
@@ -350,11 +361,16 @@ static const CGFloat kViewLeftMargin = 10.0f;
                 [view addSubview:button];
                 
                 dict[configKey] = button;
+
+                button.nextKeyView = lastInputView;
+                lastInputView = button;
             } break;
         }
         
-        NSDictionary* extra = [_viewConfiguration[pageKey][key] objectForKey:@"extra"];
-
+        if (firstInputView == nil) {
+            firstInputView = lastInputView;
+        }
+        
         if (extra != nil) {
             NSTextField* textField = [NSTextField textFieldWithString:extra[@"title"]];
             textField.bordered = NO;
@@ -390,10 +406,16 @@ static const CGFloat kViewLeftMargin = 10.0f;
             [view addSubview:textField];
 
             dict[extra[@"key"]] = textField;
+            
+            textField.nextKeyView = lastInputView;
+            lastInputView = textField;
         }
 
         y += (rows * rowUnitHeight) + kRowInset + kRowSpace;
     }
+    
+    firstInputView.nextKeyView = lastInputView;
+    
     _viewControls[pageKey] = dict;
 
     //y += kRowSpace;

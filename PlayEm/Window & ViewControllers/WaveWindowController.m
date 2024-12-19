@@ -58,6 +58,22 @@ static const int kSplitPositionCount = 5;
 
 NSString * const kBeatTrackedSampleTempoChangeNotification = @"BeatTrackedSampleTempoChange";
 
+typedef enum : NSUInteger {
+    LoaderStateReady,
+
+    LoaderStateMeta,
+    LoaderStateDecoder,
+    LoaderStateBeatDetection,
+    LoaderStateKeyDetection,
+
+    LoaderStateAbortingMeta,
+    LoaderStateAbortingDecoder,
+    LoaderStateAbortingBeatDetection,
+    LoaderStateAbortingKeyDetection,
+
+    LoaderStateAborted,
+} LoaderState;
+
 os_log_t pointsOfInterest;
 
 @interface WaveWindowController ()
@@ -73,6 +89,8 @@ os_log_t pointsOfInterest;
     float _visibleBPM;
     
     BOOL _mediakeyJustJumped;
+    
+    LoaderState _loaderState;
 }
 
 @property (assign, nonatomic) CGFloat windowBarHeight;
@@ -136,6 +154,7 @@ os_log_t pointsOfInterest;
     if (self) {
         pointsOfInterest = os_log_create("com.toenshoff.playem", OS_LOG_CATEGORY_POINTS_OF_INTEREST);
         _noSleepAssertionID = 0;
+        _loaderState = LoaderStateReady;
     }
     return self;
 }
@@ -1762,6 +1781,8 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
         return NO;
     }
 
+    _loaderState = LoaderStateMeta;
+
     if (meta == nil) {
         // Not being able to get metadata is not a reason to error out.
         meta = [MediaMetaData mediaMetaDataWithURL:url error:&error];
@@ -1777,29 +1798,70 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     }
     [[NSDocumentController sharedDocumentController] noteNewRecentDocumentURL:url];
 
-    if (_lazySample != nil) {
-        [_audioController decodeAbortWithCallback:^{
-            [self->_beatSample abortWithCallback:^{
-                [self->_keySample abortWithCallback:^{
-                    [self loadLazySample:lazySample];
-                    [self setMeta:meta];
-                    self->_audioController.sample = lazySample;
-                    [self->_audioController playSample:lazySample frame:frame paused:!playing];
-                }];
-            }];
-        }];
-    } else {
+    self->_loaderState = LoaderStateAbortingKeyDetection;
+    [self abortLoader:^{
+        NSLog(@"loading new sample...");
+        self->_loaderState = LoaderStateDecoder;
         [self loadLazySample:lazySample];
         [self setMeta:meta];
-        _audioController.sample = lazySample;
-        [_audioController playSample:lazySample frame:frame paused:!playing];
-    }
+        self->_audioController.sample = lazySample;
+        [self->_audioController playSample:lazySample frame:frame paused:!playing];
+    }];
 
     return YES;
 }
 
+- (void)abortLoader:(void (^)(void))callback
+{
+    switch(_loaderState) {
+        case LoaderStateAbortingKeyDetection:
+            if (_keySample != nil) {
+                NSLog(@"attempting to abort key detection...");
+                [self->_keySample abortWithCallback:^{
+                    self->_loaderState = LoaderStateAbortingBeatDetection;
+                    [self abortLoader:callback];
+                }];
+            } else {
+                _loaderState = LoaderStateAbortingBeatDetection;
+                [self abortLoader:callback];
+            }
+            break;
+        case LoaderStateAbortingBeatDetection:
+            if (_beatSample != nil) {
+                NSLog(@"attempting to abort beat detection...");
+                [self->_beatSample abortWithCallback:^{
+                    self->_loaderState = LoaderStateAbortingDecoder;
+                    [self abortLoader:callback];
+                }];
+            } else {
+                _loaderState = LoaderStateAbortingDecoder;
+                [self abortLoader:callback];
+            }
+            break;
+        case LoaderStateAbortingDecoder:
+            if (_lazySample != nil) {
+                NSLog(@"attempting to abort decoder...");
+                [self->_audioController decodeAbortWithCallback:^{
+                    self->_loaderState = LoaderStateAborted;
+                    callback();
+                }];
+            } else {
+                _loaderState = LoaderStateAborted;
+                callback();
+            }
+            break;
+        default:
+            _loaderState = LoaderStateAbortingKeyDetection;
+            [self abortLoader:callback];
+    }
+}
+
 - (void)loadLazySample:(LazySample*)lazySample
 {
+    if (_loaderState == LoaderStateAborted) {
+        return;
+    }
+
     // We keep a reference around so that the `sample` setter will cause the possibly
     // ongoing decode of a previous sample to get aborted.
     _lazySample = lazySample;
@@ -1829,6 +1891,8 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
 
     _totalWaveLayerDelegate.visualSample = _totalVisual;
 
+    _loaderState = LoaderStateDecoder;
+    
     [_audioController decodeAsyncWithSample:lazySample callback:^(BOOL decodeFinished){
         if (decodeFinished) {
             [self lazySampleDecoded];
@@ -1864,7 +1928,14 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
 
 - (void)loadBeats:(BeatTrackedSample*)beatsSample
 {
+    if (_loaderState == LoaderStateAborted) {
+        return;
+    }
+
+    _loaderState = LoaderStateBeatDetection;
+
     _beatSample = beatsSample;
+
     [_beatSample trackBeatsAsyncWithCallback:^(BOOL beatsFinished){
         if (beatsFinished) {
             [self beatsTracked];
@@ -1893,6 +1964,12 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
 
 - (void)detectKey:(KeyTrackedSample*)keySample
 {
+    if (_loaderState == LoaderStateAborted) {
+        return;
+    }
+
+    _loaderState = LoaderStateKeyDetection;
+
     _keySample = keySample;
     [_keySample trackKeyAsyncWithCallback:^(BOOL keyFinished){
         if (keyFinished) {

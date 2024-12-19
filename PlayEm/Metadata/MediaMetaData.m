@@ -1089,7 +1089,7 @@ NSString* const kMediaMetaDataMapTypeNumber = @"number";
         return [self writeToMP4FileWithError:error] == 0;
     }
     
-    NSString* description = [NSString stringWithFormat:@"Unsupport filetype for modifying metadata"];
+    NSString* description = [NSString stringWithFormat:@"Unsupported filetype for modifying metadata"];
     if (error) {
         NSDictionary* userInfo = @{
             NSLocalizedDescriptionKey:description,

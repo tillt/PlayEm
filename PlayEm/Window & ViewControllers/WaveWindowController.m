@@ -1952,9 +1952,9 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
 
     KeyTrackedSample* keySample = [[KeyTrackedSample alloc] initWithSample:_lazySample];
 
-    if (keySample != nil) {
+    if (_keySample != nil) {
         NSLog(@"key tracking may need aborting");
-        [keySample abortWithCallback:^{
+        [_keySample abortWithCallback:^{
             [self detectKey:keySample];
         }];
     } else {

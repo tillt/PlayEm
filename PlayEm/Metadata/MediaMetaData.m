@@ -942,12 +942,10 @@ NSString* const kMediaMetaDataMapTypeNumber = @"number";
     NSAssert(NO, @"should never get here");
 }
 
-// Gets a mixwheel key value from whatever the file had stored.
-//
-// The MixWheel is not entirely deterministic, we are trying
-// to catch all synonymous scales here additionally to the 24 sectors.
-- (NSString*)correctedKeyNotation:(NSString*)key
++ (NSString*)correctedKeyNotation:(NSString*)key
 {
+    // We are trying to catch all synonymous scales here additionally
+    // to the 24 sectors of the MixWheel.
     NSDictionary* mixWheel = @{
         @"Abmin": @"1A",    // G♯ minor/A♭ minor
         @"G#min": @"1A",    // G♯ minor/A♭ minor
@@ -1059,7 +1057,7 @@ NSString* const kMediaMetaDataMapTypeNumber = @"number";
         ret = [self readFromMP3FileWithError:error];
     }
     if (ret == YES) {
-        _key = [self correctedKeyNotation:_key];
+        _key = [MediaMetaData correctedKeyNotation:_key];
     }
     return ret;
 }

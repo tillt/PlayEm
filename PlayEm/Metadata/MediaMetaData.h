@@ -106,7 +106,8 @@ extern NSString* const kMediaMetaDataMapTypeNumber;
 - (BOOL)readFromFileWithError:(NSError**)error;
 - (BOOL)writeToFileWithError:(NSError**)error;
 
-- (NSString*)correctedKeyNotation:(NSString*)key;
+/// Converts whatever comes in into a MixWheel key value.
++ (NSString*)correctedKeyNotation:(NSString*)key;
 @end
 
 NS_ASSUME_NONNULL_END

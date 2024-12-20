@@ -978,6 +978,7 @@ void LogBufferContents(const uint8_t *buffer, size_t length)
     dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0), _decodeOperation);
     // Dispatch a callback on the main thread once decoding is done.
     dispatch_block_notify(_decodeOperation, dispatch_get_main_queue(), ^{
+        NSLog(@"decoder is done - we are back on the main thread - run the callback block with %d", done);
         callback(done);
     });
 #endif
@@ -1079,11 +1080,9 @@ void LogBufferContents(const uint8_t *buffer, size_t length)
     [engine stop];
     engine = nil;
     player = nil;
-    NSLog(@"old engine freed");
-    
+    NSLog(@"old engine freed - exiting decoder");
     // Debug output to `/tmp/dumpedLazySample.raw`
     // [sample dumpToFile];
-
     return ret;
 }
 

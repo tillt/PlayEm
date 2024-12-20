@@ -14,7 +14,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic, assign) size_t index;
 @property (nonatomic, strong) NSMutableData* data;
-@property (nonatomic, copy) dispatch_block_t dispatchBlock;
+@property (nonatomic, copy, nullable) dispatch_block_t dispatchBlock;
 @property (nonatomic, assign) BOOL isFinished;
 @property (nonatomic, assign) BOOL isCancelled;
 

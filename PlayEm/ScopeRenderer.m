@@ -787,10 +787,10 @@ static const double kLevelDecreaseValue = 0.042;
     _frequencyLineWidth = (frequencyLineWidth - spaceWidth) / size.width;
     
     float sigma = ScaleWithOriginalFrame(0.7f, _defaultSize.width, size.width);
-    CGSize erodeSize = NSMakeSize((((ceil(ScaleWithOriginalFrame(erodePoints, _defaultSize.height, _defaultSize.height + (size.height/30) ))) / 2) * 2) + 1,
-                                  (((ceil(ScaleWithOriginalFrame(erodePoints, _defaultSize.height, _defaultSize.height + (size.height/30) ))) / 2) * 2) + 1);
-    CGSize bloomSize = NSMakeSize(((((int)ceil(ScaleWithOriginalFrame(bloomPoints, _defaultSize.height, _defaultSize.height + (size.height/30) ))) / 2) * 2) + 1,
-                                  ((((int)ceil(ScaleWithOriginalFrame(bloomPoints, _defaultSize.height, _defaultSize.height + (size.height/30) ))) / 2) * 2) + 1);
+    CGSize erodeSize = NSMakeSize((((ceil(ScaleWithOriginalFrame(erodePoints, _defaultSize.height, _defaultSize.height + (size.height / 30) ))) / 2) * 2) + 1,
+                                  (((ceil(ScaleWithOriginalFrame(erodePoints, _defaultSize.height, _defaultSize.height + (size.height / 30) ))) / 2) * 2) + 1);
+    CGSize bloomSize = NSMakeSize(((((int)ceil(ScaleWithOriginalFrame(bloomPoints, _defaultSize.height, _defaultSize.height + (size.height / 30) ))) / 2) * 2) + 1,
+                                  ((((int)ceil(ScaleWithOriginalFrame(bloomPoints, _defaultSize.height, _defaultSize.height + (size.height / 30) ))) / 2) * 2) + 1);
 //    dispatch_sync(_renderQueue, ^{
         _blur = [[MPSImageGaussianBlur alloc] initWithDevice:view.device sigma:sigma];
         _blur.edgeMode = MPSImageEdgeModeClamp;

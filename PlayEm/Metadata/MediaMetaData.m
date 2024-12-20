@@ -495,7 +495,7 @@ NSString* const kMediaMetaDataMapTypeNumber = @"number";
     }
     
     if (_volume == nil) {
-        _volume = [NSString stringWithFormat:@"%.1f dB", 16];   // FIXME: what gives?
+        _volume = [NSString stringWithFormat:@"%.1f dB", 16.0];   // FIXME: what gives?
     }
     
     return _volume;

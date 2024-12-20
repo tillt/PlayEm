@@ -415,9 +415,6 @@ NSString* const kSongsColGenre = @"GenreCell";
     });
 }
 
-static const NSTimeInterval kBeatEffectRampUp = 0.05f;
-static const NSTimeInterval kBeatEffectRampDown = 0.5f;
-
 - (void)setPlaying:(BOOL)playing
 {
     NSUInteger lastIndex = [_filteredItems indexOfObjectPassingTest:^BOOL(MediaMetaData* meta, NSUInteger idx, BOOL *stop) {

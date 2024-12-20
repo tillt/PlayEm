@@ -563,31 +563,33 @@ static const double kLevelDecreaseValue = 0.042;
     if (_visual == nil) {
         return;
     }
-
-    /// Determine scope trigger offset
     
-    size_t offset=0;
-
-    size_t bestZeroCrossingOffset = 0;
-    size_t bestPositiveStreakLength = 0;
-
-    size_t zeroCrossingOffset;
-    size_t positiveStreakLength;
-
-    float data;
-    float last;
-
-    const size_t sampleFrames = _visual.sample.frames;
-    const size_t channels = _visual.sample.channels;
-    
-    // Fetches sample pointers from `_sourceChannelData`
-    float* sourceChannels[channels];
-    for (int channelIndex=0; channelIndex < channels; channelIndex++) {
-        NSData* data = _sourceChannelData[channelIndex];
-        sourceChannels[channelIndex] = (float*)data.bytes;
-    }
+    __block double maxValue = 0.0;
 
     dispatch_async(_renderQueue, ^{
+        /// Determine scope trigger offset
+        
+        size_t offset=0;
+
+        size_t bestZeroCrossingOffset = 0;
+        size_t bestPositiveStreakLength = 0;
+
+        size_t zeroCrossingOffset;
+        size_t positiveStreakLength;
+
+        float data;
+        float last;
+
+        const size_t sampleFrames = _visual.sample.frames;
+        const size_t channels = _visual.sample.channels;
+        
+        // Fetches sample pointers from `_sourceChannelData`
+        float* sourceChannels[channels];
+        for (int channelIndex=0; channelIndex < channels; channelIndex++) {
+            NSData* data = _sourceChannelData[channelIndex];
+            sourceChannels[channelIndex] = (float*)data.bytes;
+        }
+
         const size_t frame = self.currentFrame;
         
         if (frame < 0) {
@@ -603,7 +605,6 @@ static const double kLevelDecreaseValue = 0.042;
         // forward thing to do.
         unsigned long long f = frame > (kWindowSamples / 2) ? frame - (kWindowSamples / 2) : 0;
         
-        float* sourceChannels[channels];
         for (int channelIndex=0; channelIndex < channels; channelIndex++) {
             NSMutableData* data = self.blockSourceChannelData[channelIndex];
             sourceChannels[channelIndex] = data.mutableBytes;
@@ -635,129 +636,128 @@ static const double kLevelDecreaseValue = 0.042;
         logscaleFFT(self->_logMap, frequencyBufferAddress);
         
 //            performMel(_dctSetup, window, kWindowSamples, frequencyBufferAddress);
-    });
 
-    size_t previousAttemptAt = -1;
-    while (bestPositiveStreakLength == 0) {
-        previousAttemptAt = offset;
-        offset = self.currentFrame;
+        size_t previousAttemptAt = -1;
+        while (bestPositiveStreakLength == 0) {
+            previousAttemptAt = offset;
+            offset = self.currentFrame;
 
-        if (offset < 0) {
-            break;
-        }
+            if (offset < 0) {
+                break;
+            }
+            
+            if (offset == previousAttemptAt) {
+                break;
+            }
+            
+            if (offset > sampleFrames) {
+                break;
+            }
+
+            _minTriggerOffset = offset;
+
+            unsigned long long f = offset;
+
+            bestPositiveStreakLength = 0;
+            bestZeroCrossingOffset = f;
+
+            positiveStreakLength = 0;
+            zeroCrossingOffset = f;
+            
+            last = 1.0f;
+            
+            BOOL triggered = NO;
+            
+            // This may block for a loooooong time!
+            unsigned long long framesReceived = [_visual.sample rawSampleFromFrameOffset:f
+                                                                                  frames:_sampleCount
+                                                                                 outputs:sourceChannels];
+
+            size_t framesToGo = framesReceived;
+           
+            // Collect zero crossings and weight them by positive streak length.
+            for (size_t i = 0; i < framesToGo; i++) {
+                data = 0;
+                for (size_t channelIndex = 0; channelIndex < channels; channelIndex++) {
+                    data += sourceChannels[channelIndex][i];
+                }
+                
+                data /= channels;
+                
+                if (!triggered) {
+                    // Try to detect an upwards zero crossing.
+                    if (f >= _minTriggerOffset &&      // Prevent triggering before a minimum offset.
+                        (data > 0.0f && last <= 0.0f)) {
+                        zeroCrossingOffset = f;
+                        positiveStreakLength = 0;
+                        triggered = YES;
+                    }
+                }
+
+                last = data;
+
+                if (triggered) {
+                    if (data >= 0.0f) {
+                        ++positiveStreakLength;
+                        if (positiveStreakLength > bestPositiveStreakLength) {
+                            bestPositiveStreakLength = positiveStreakLength;
+                            bestZeroCrossingOffset = zeroCrossingOffset;
+                        }
+                    } else {
+                        triggered = NO;
+                    }
+                }
+                
+                ++f;
+                
+                // Did we run over the end of the total sample already?
+                if (f >= sampleFrames) {
+                    f = _minTriggerOffset;
+                }
+            }
+        };
         
-        if (offset == previousAttemptAt) {
-            break;
-        }
+        /// Copy scope lines.
         
-        if (offset > sampleFrames) {
-            break;
-        }
-
-        _minTriggerOffset = offset;
-
-        unsigned long long f = offset;
-
-        bestPositiveStreakLength = 0;
-        bestZeroCrossingOffset = f;
-
-        positiveStreakLength = 0;
-        zeroCrossingOffset = f;
-        
-        last = 1.0f;
-        
-        BOOL triggered = NO;
-        
-        // This may block for a loooooong time!
+        f = bestZeroCrossingOffset;
+        _minTriggerOffset = bestZeroCrossingOffset + 1;
         unsigned long long framesReceived = [_visual.sample rawSampleFromFrameOffset:f
                                                                               frames:_sampleCount
                                                                              outputs:sourceChannels];
 
-        size_t framesToGo = framesReceived;
-       
-        // Collect zero crossings and weight them by positive streak length.
-        for (size_t i = 0; i < framesToGo; i++) {
-            data = 0;
+        samplesToGo = framesReceived;
+        size_t i = 0;
+        
+        // We are exploiting the traversal over the displayed samples by adding the level
+        // meter feeding.
+        double meterValue = 0.0;
+
+        PolyNode* node = _linesBufferAddress;
+        for (; i < samplesToGo; i++) {
+            data = 0.0f;
             for (size_t channelIndex = 0; channelIndex < channels; channelIndex++) {
                 data += sourceChannels[channelIndex][i];
             }
-            
             data /= channels;
-            
-            if (!triggered) {
-                // Try to detect an upwards zero crossing.
-                if (f >= _minTriggerOffset &&      // Prevent triggering before a minimum offset.
-                    (data > 0.0f && last <= 0.0f)) {
-                    zeroCrossingOffset = f;
-                    positiveStreakLength = 0;
-                    triggered = YES;
-                }
+            meterValue = data * data;
+
+            if (meterValue > maxValue) {
+                maxValue = meterValue;
             }
 
-            last = data;
+            // Initialize the line node Y value with the sample.
+            node[i].position[1] = data;
 
-            if (triggered) {
-                if (data >= 0.0f) {
-                    ++positiveStreakLength;
-                    if (positiveStreakLength > bestPositiveStreakLength) {
-                        bestPositiveStreakLength = positiveStreakLength;
-                        bestZeroCrossingOffset = zeroCrossingOffset;
-                    }
-                } else {
-                    triggered = NO;
-                }
-            }
-            
             ++f;
-            
-            // Did we run over the end of the total sample already?
-            if (f >= sampleFrames) {
+            if (f >= _audio.sample.frames) {
                 f = _minTriggerOffset;
             }
         }
-    };
-    
-    /// Copy scope lines.
-    
-    unsigned long long f = bestZeroCrossingOffset;
-    _minTriggerOffset = bestZeroCrossingOffset + 1;
-    unsigned long long framesReceived = [_visual.sample rawSampleFromFrameOffset:f
-                                                                          frames:_sampleCount
-                                                                         outputs:sourceChannels];
-
-    size_t samplesToGo = framesReceived;
-    size_t i = 0;
-    
-    // We are exploiting the traversal over the displayed samples by adding the level
-    // meter feeding.
-    double meterValue = 0.0;
-    double maxValue = 0.0;
-
-    PolyNode* node = _linesBufferAddress;
-    for (; i < samplesToGo; i++) {
-        data = 0.0f;
-        for (size_t channelIndex = 0; channelIndex < channels; channelIndex++) {
-            data += sourceChannels[channelIndex][i];
+        // Make sure any remaining node is reset to silence level.
+        for (;i < _sampleCount;i++) {
+            node[i].position[1] = 0.0;
         }
-        data /= channels;
-        meterValue = data * data;
-
-        if (meterValue > maxValue) {
-            maxValue = meterValue;
-        }
-
-        // Initialize the line node Y value with the sample.
-        node[i].position[1] = data;
-
-        ++f;
-        if (f >= _audio.sample.frames) {
-            f = _minTriggerOffset;
-        }
-    }
-    // Make sure any remaining node is reset to silence level.
-    for (;i < _sampleCount;i++) {
-        node[i].position[1] = 0.0;
-    }
+    });
 
     [self updateVolumeLevelDisplay:maxValue * _audio.outputVolume];
 }
@@ -791,7 +791,7 @@ static const double kLevelDecreaseValue = 0.042;
                                   (((ceil(ScaleWithOriginalFrame(erodePoints, _defaultSize.height, _defaultSize.height + (size.height/30) ))) / 2) * 2) + 1);
     CGSize bloomSize = NSMakeSize(((((int)ceil(ScaleWithOriginalFrame(bloomPoints, _defaultSize.height, _defaultSize.height + (size.height/30) ))) / 2) * 2) + 1,
                                   ((((int)ceil(ScaleWithOriginalFrame(bloomPoints, _defaultSize.height, _defaultSize.height + (size.height/30) ))) / 2) * 2) + 1);
-    dispatch_sync(_renderQueue, ^{
+//    dispatch_sync(_renderQueue, ^{
         _blur = [[MPSImageGaussianBlur alloc] initWithDevice:view.device sigma:sigma];
         _blur.edgeMode = MPSImageEdgeModeClamp;
         _erode = [[MPSImageAreaMin alloc] initWithDevice:view.device
@@ -800,7 +800,7 @@ static const double kLevelDecreaseValue = 0.042;
         _bloom = [[MPSImageBox alloc] initWithDevice:view.device
                                          kernelWidth:bloomSize.width
                                         kernelHeight:bloomSize.height];
-    });
+//    });
     
     _projectionMatrix = matrix_orthographic(-size.width, size.width, size.height, -size.height, 0, 0);
     _projectionMatrix = matrix_multiply(matrix4x4_scale(1.0f, _lineAspectRatio, 0.0), _projectionMatrix);
@@ -856,11 +856,11 @@ static const double kLevelDecreaseValue = 0.042;
         [renderEncoder endEncoding];
     }
     
-    dispatch_sync(_renderQueue, ^{
+//    dispatch_sync(_renderQueue, ^{
         [_bloom encodeToCommandBuffer:commandBuffer
                         sourceTexture:_scopeTargetTexture
                    destinationTexture:_bufferTexture];
-    });
+//    });
     
     {
         /// Third pass rendering code: Drawing the frequency pattern
@@ -918,7 +918,7 @@ static const double kLevelDecreaseValue = 0.042;
         [renderEncoder endEncoding];
     }
 
-    dispatch_sync(_renderQueue, ^{
+//    dispatch_sync(_renderQueue, ^{
         /// Fifth pass rendering code: Scope with last scope bloom again
         [_bloom encodeToCommandBuffer:commandBuffer
                         sourceTexture:_composeTargetTexture
@@ -928,7 +928,7 @@ static const double kLevelDecreaseValue = 0.042;
         [_erode encodeToCommandBuffer:commandBuffer
                         sourceTexture:_bufferTexture
                    destinationTexture:_lastTexture];
-    });
+//    });
     
     {
         /// Sevenths pass rendering code: Frequency and last frequencies composing
@@ -957,12 +957,12 @@ static const double kLevelDecreaseValue = 0.042;
         [renderEncoder endEncoding];
     }
     
-    dispatch_sync(_renderQueue, ^{
+//    dispatch_sync(_renderQueue, ^{
         /// Eigths pass rendering code: Frequency and last frequencies blur.
         [_blur encodeToCommandBuffer:commandBuffer
                        sourceTexture:_frequenciesComposeTargetTexture
                   destinationTexture:_lastFrequenciesTexture];
-    });
+//    });
     
     {
         /// Nineth pass rendering code: Compose scope and frequencies
@@ -995,7 +995,7 @@ static const double kLevelDecreaseValue = 0.042;
 /// Delay getting the currentRenderPassDescriptor until we absolutely need it to avoid
 ///   holding onto the drawable and blocking the display pipeline any longer than necessar
 ///
-    dispatch_sync(_renderQueue, ^{
+//    dispatch_sync(_renderQueue, ^{
         MTLRenderPassDescriptor* renderPassDescriptor = view.currentRenderPassDescriptor;
         if(renderPassDescriptor != nil) {
             /// Final pass rendering code: Display on screen.
@@ -1021,7 +1021,7 @@ static const double kLevelDecreaseValue = 0.042;
         }
         
         [commandBuffer commit];
-    });
+//    });
 }
 
 @end

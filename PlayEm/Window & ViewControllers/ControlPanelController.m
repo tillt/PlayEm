@@ -376,10 +376,10 @@ extern NSString * const kPlaybackStatePlaying;
     _beatIndicator.selectable = NO;
     _beatIndicator.alignment = NSTextAlignmentCenter;
     _beatIndicator.font = [NSFont systemFontOfSize:3.0f];
-    _beatIndicator.frame = NSMakeRect(_level.frame.origin.x + _level.frame.size.width + 100.0f,
-                            _playPause.frame.origin.y + bpmLabelHeight + 1.0,
-                            beatIndicatorWidth,
-                            beatIndicatorHeight);
+    _beatIndicator.frame = NSMakeRect(  _level.frame.origin.x + _level.frame.size.width + 100.0f,
+                                        _playPause.frame.origin.y + bpmLabelHeight + 1.0,
+                                        beatIndicatorWidth,
+                                        beatIndicatorHeight);
     _beatIndicator.alphaValue = 0.0;
     _beatIndicator.wantsLayer = YES;
     [self.view addSubview:_beatIndicator];

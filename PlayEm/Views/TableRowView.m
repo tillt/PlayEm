@@ -39,7 +39,7 @@ typedef enum : NSUInteger {
 
 @implementation TableRowView
 {
-    GlowTriggerMask glowTriggerMask;
+    GlowTriggerMask _glowTriggerMask;
 }
 
 + (CIFilter*)sharedBloomFilter
@@ -64,7 +64,7 @@ typedef enum : NSUInteger {
         self.wantsLayer = YES;
         self.clipsToBounds = YES;
         self.layerContentsRedrawPolicy = NSViewLayerContentsRedrawOnSetNeedsDisplay;
-        glowTriggerMask = GlowTriggerNone;
+        _glowTriggerMask = GlowTriggerNone;
     }
     return self;
 }
@@ -87,7 +87,7 @@ typedef enum : NSUInteger {
     _symbolLayer.allowsEdgeAntialiasing = YES;
     _symbolLayer.contentsScale = [[NSScreen mainScreen] backingScaleFactor];
     _symbolLayer.foregroundColor = [[Defaults sharedDefaults] lightBeamColor].CGColor;
-    _symbolLayer.frame = NSInsetRect(symbolRect, 5.0, 5.0);
+    _symbolLayer.frame = NSOffsetRect(NSInsetRect(symbolRect, 0.0, 5.0), 8.0, 0.0);
     [layer addSublayer:_symbolLayer];
     
     _effectLayer = [CALayer layer];
@@ -222,25 +222,27 @@ typedef enum : NSUInteger {
         [self removeGlowReason:GlowTriggerActive];
         _symbolLayer.string = @"";
         _symbolLayer.hidden = YES;
+        [_symbolLayer removeAllAnimations];
+        [[NSNotificationCenter defaultCenter] removeObserver:self name:kBeatTrackedSampleBeatNotification object:nil];
     }
 }
 
 - (void)addGlowReason:(GlowTriggerMask)triggerMask
 {
-    glowTriggerMask |= triggerMask;
+    _glowTriggerMask |= triggerMask;
     [self updatedGlow];
 }
 
 - (void)removeGlowReason:(GlowTriggerMask)triggerMask
 {
-    glowTriggerMask &= triggerMask ^ 0xFFFF;
+    _glowTriggerMask &= triggerMask ^ 0xFFFF;
     [self updatedGlow];
 }
 
 - (void)updatedGlow
 {
-    BOOL showGlow = ((glowTriggerMask & (GlowTriggerSelected | GlowTriggerEmphasized)) == (GlowTriggerSelected | GlowTriggerEmphasized))
-                    | ((glowTriggerMask & GlowTriggerActive) == GlowTriggerActive);
+    BOOL showGlow = ((_glowTriggerMask & (GlowTriggerSelected | GlowTriggerEmphasized)) == (GlowTriggerSelected | GlowTriggerEmphasized))
+                    | ((_glowTriggerMask & GlowTriggerActive) == GlowTriggerActive);
     _effectLayer.hidden = !showGlow;
 }
 

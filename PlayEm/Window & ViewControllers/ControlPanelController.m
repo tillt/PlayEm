@@ -15,9 +15,13 @@
 #import "LevelIndicatorCell.h"
 #import "../Views/IdentificationCoverView.h"
 #import "MediaMetaData.h"
+#import "BeatEvent.h"
 
 NSString * const kBPMDefault = @"--- BPM";
 NSString * const kKeyDefault = @"---";
+
+static const NSTimeInterval kBeatEffectRampUp = 0.05f;
+static const NSTimeInterval kBeatEffectRampDown = 0.5f;
 
 extern NSString * const kAudioControllerChangedPlaybackStateNotification;
 extern NSString * const kPlaybackStateStarted;
@@ -40,6 +44,7 @@ extern NSString * const kPlaybackStatePlaying;
     if (self) {
         _delegate = delegate;
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(audioControllerChangedPlaybackState:) name:kAudioControllerChangedPlaybackStateNotification object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(beatEffect:) name:kBeatTrackedSampleBeatNotification object:nil];
     }
     return self;
 }
@@ -444,6 +449,33 @@ extern NSString * const kPlaybackStatePlaying;
         (meta.album.length > 0 ? meta.album : (meta.artist.length > 0 ?
                                                meta.artist : @"unknown") );
 //    _coverButton.enabled = YES;
+}
+
+- (void)beatEffect:(NSNotification*)notification
+{
+    // Thats a weird mid-point but hey...
+    CGSize mid = CGSizeMake((self.beatIndicator.layer.bounds.size.width - 1) / 2,
+                            self.beatIndicator.layer.bounds.size.height - 2);
+    [NSAnimationContext runAnimationGroup:^(NSAnimationContext *context) {
+        [context setDuration:kBeatEffectRampUp];
+        self.beatIndicator.animator.alphaValue = 1.0;
+        CATransform3D tr = CATransform3DIdentity;
+        tr = CATransform3DTranslate(tr, mid.width, mid.height, 0);
+        tr = CATransform3DScale(tr, 3.1, 3.1, 1);
+        tr = CATransform3DTranslate(tr, -mid.width, -mid.height, 0);
+        self.beatIndicator.animator.layer.transform = tr;
+    } completionHandler:^{
+        [NSAnimationContext runAnimationGroup:^(NSAnimationContext *context) {
+            [context setDuration:kBeatEffectRampDown];
+            [context setTimingFunction:[CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseOut]];
+            self.beatIndicator.animator.alphaValue = 0.0;
+            CATransform3D tr = CATransform3DIdentity;
+            tr = CATransform3DTranslate(tr, mid.width, mid.height, 0);
+            tr = CATransform3DScale(tr, 1.0, 1.0, 1);
+            tr = CATransform3DTranslate(tr, -mid.width, -mid.height, 0);
+            self.beatIndicator.animator.layer.transform = tr;
+        }];
+    }];
 }
 
 @end

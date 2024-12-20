@@ -79,6 +79,14 @@ static const float kParamFilterDefaultValue = 270.0f;
 
 static const float kSilenceThreshold = 0.1;
 
+NSString * const kBeatTrackedSampleTempoChangeNotification = @"BeatTrackedSampleTempoChange";
+NSString * const kBeatTrackedSampleBeatNotification = @"BeatTrackedSampleBeat";
+
+NSString * const kBeatNotificationKeyFrame = @"frame";
+NSString * const kBeatNotificationKeyTempo = @"tempo";
+NSString * const kBeatNotificationKeyStyle = @"style";
+
+
 @interface BeatTrackedSample()
 {
 }

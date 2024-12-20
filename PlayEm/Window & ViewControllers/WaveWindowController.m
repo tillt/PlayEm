@@ -42,8 +42,6 @@
 
 static const float kShowHidePanelAnimationDuration = 0.3f;
 static const float kPixelPerSecond = 120.0f;
-static const NSTimeInterval kBeatEffectRampUp = 0.05f;
-static const NSTimeInterval kBeatEffectRampDown = 0.5f;
 
 const CGFloat kDefaultWindowWidth = 1180.0f;
 const CGFloat kDefaultWindowHeight = 1050.0f;
@@ -56,7 +54,6 @@ const CGFloat kMinTableHeight = 0.0f;       // Just forget about it.
 
 static const int kSplitPositionCount = 5;
 
-NSString * const kBeatTrackedSampleTempoChangeNotification = @"BeatTrackedSampleTempoChange";
 
 typedef enum : NSUInteger {
     LoaderStateReady,
@@ -209,34 +206,19 @@ os_log_t pointsOfInterest;
 
 - (void)beatEffectRun
 {
-    // Thats a weird mid-point but hey...
-    CGSize mid = CGSizeMake((_controlPanelController.beatIndicator.layer.bounds.size.width - 1) / 2,
-                            _controlPanelController.beatIndicator.layer.bounds.size.height - 2);
-    [NSAnimationContext runAnimationGroup:^(NSAnimationContext *context) {
-        [context setDuration:kBeatEffectRampUp];
-        self->_controlPanelController.beatIndicator.animator.alphaValue = 1.0;
-        CATransform3D tr = CATransform3DIdentity;
-        tr = CATransform3DTranslate(tr, mid.width, mid.height, 0);
-        tr = CATransform3DScale(tr, 3.1, 3.1, 1);
-        tr = CATransform3DTranslate(tr, -mid.width, -mid.height, 0);
-        self->_controlPanelController.beatIndicator.animator.layer.transform = tr;
-    } completionHandler:^{
-        [NSAnimationContext runAnimationGroup:^(NSAnimationContext *context) {
-            [context setDuration:kBeatEffectRampDown];
-            [context setTimingFunction:[CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseOut]];
-            self->_controlPanelController.beatIndicator.animator.alphaValue = 0.0;
-            CATransform3D tr = CATransform3DIdentity;
-            tr = CATransform3DTranslate(tr, mid.width, mid.height, 0);
-            tr = CATransform3DScale(tr, 1.0, 1.0, 1);
-            tr = CATransform3DTranslate(tr, -mid.width, -mid.height, 0);
-            self->_controlPanelController.beatIndicator.animator.layer.transform = tr;
-        }];
-    }];
-
     float songTempo = floorf([_beatSample currentTempo:&_beatEffectIteratorContext]);
     float effectiveTempo = floorf(songTempo * _audioController.tempoShift);
 
+    // FIXME: Consider moving this into a notification handler for the beat effect.
     [self setBPM:effectiveTempo];
+    
+    const BeatEvent* event = _beatEffectIteratorContext.currentEvent;
+    NSDictionary* dict = @{
+        kBeatNotificationKeyStyle: @(event->style),
+        kBeatNotificationKeyTempo: @(effectiveTempo),
+        kBeatNotificationKeyFrame: @(event->frame),
+    };
+    [[NSNotificationCenter defaultCenter] postNotificationName:kBeatTrackedSampleBeatNotification object:dict];
 }
 
 #pragma mark Toolbar delegate

@@ -8,22 +8,12 @@
 
 #import <Foundation/Foundation.h>
 
+#import "BeatEvent.h"
+
 #ifndef BeatTrackedSample_h
 #define BeatTrackedSample_h
 
 NS_ASSUME_NONNULL_BEGIN
-
-typedef enum : NSUInteger {
-    BeatEventStyleBeat  = 0x01,
-    BeatEventStyleBar   = 0x02,
-    BeatEventStyleFound = 0x04,
-} BeatEventStyle;
-
-typedef struct {
-    BeatEventStyle      style;
-    unsigned long long  frame;
-    double              bpm;
-} BeatEvent;
 
 typedef struct {
     size_t pageIndex;

@@ -13,6 +13,7 @@
 #import "TableCellView.h"
 #import "CAShapeLayer+Path.h"
 #import "Defaults.h"
+#import "BeatEvent.h"
 
 static const double kFontSize = 11.0f;
 
@@ -209,8 +210,11 @@ typedef enum : NSUInteger {
     if ((extraState == kExtraStatePlaying) | (extraState == kExtraStateActive)) {
         if (extraState == kExtraStatePlaying) {
             _symbolLayer.string = @"􀊥";
+            [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(beatEffect:) name:kBeatTrackedSampleBeatNotification object:nil];
         } else {
             _symbolLayer.string = @"􀊄";
+            [_symbolLayer removeAllAnimations];
+            [[NSNotificationCenter defaultCenter] removeObserver:self name:kBeatTrackedSampleBeatNotification object:nil];
         }
         [self addGlowReason:GlowTriggerActive];
         _symbolLayer.hidden = NO;
@@ -270,89 +274,26 @@ typedef enum : NSUInteger {
     [path stroke];
 }
 
-- (CAAnimationGroup*)selectionColorAnimation
+- (void)beatEffect:(NSNotification*)notification
 {
-    CAAnimationGroup* group = [CAAnimationGroup animation];
-    NSMutableArray* animations = [NSMutableArray array];
+    const NSDictionary* dict = notification.object;
+    const unsigned int style = [dict[kBeatNotificationKeyStyle] intValue];
+    const float tempo = [dict[kBeatNotificationKeyTempo] floatValue];
 
-    CABasicAnimation* animation = [CABasicAnimation animationWithKeyPath:@"foregroundColor"];
-    animation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionLinear];
-    animation.fromValue = (id)[[NSColor secondaryLabelColor] CGColor];
-    animation.toValue = (id)[[[Defaults sharedDefaults] lightBeamColor] CGColor];
-    animation.fillMode = kCAFillModeForwards;
-    animation.removedOnCompletion = NO;
-    [animation setValue:@"SelectionColorUp" forKey:@"name"];
-    animation.removedOnCompletion = NO;
-    animation.duration = 0.2;
-    [animations addObject:animation];
-
-    animation = [CABasicAnimation animationWithKeyPath:@"foregroundColor"];
-    animation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionLinear];
-    animation.fromValue = (id)[[[Defaults sharedDefaults] lightBeamColor] CGColor];
-    animation.toValue = (id)[[NSColor secondaryLabelColor] CGColor];
-    animation.fillMode = kCAFillModeForwards;
-    animation.removedOnCompletion = NO;
-    animation.duration = 1.8;
-    [animation setValue:@"SelectionColorDown" forKey:@"name"];
-    [animations addObject:animation];
-
-    group.removedOnCompletion = NO;
-    group.animations = animations;
-    group.repeatCount = HUGE_VALF;
-    [group setValue:@"SelectionColorActiveAnimations" forKey:@"name"];
-
-    return group;
+    if ((style & BeatEventStyleBar) == BeatEventStyleBar) {
+        // For creating a discrete effect accross the timeline, a keyframe animation is the
+        // right thing as it even allows us to animate strings.
+        CAKeyframeAnimation* animation = [CAKeyframeAnimation animationWithKeyPath:@"string"];
+        animation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionLinear];
+        animation.values = @[ @"􀊧", @"􀊥" ];
+        animation.fillMode = kCAFillModeBoth;
+        [animation setValue:@"barSynced" forKey:@"name"];
+        animation.removedOnCompletion = NO;
+        animation.repeatCount = 1;
+        // We animate throughout an entire bar.
+        animation.duration = 4.0f * 60.0f / tempo;
+        [_symbolLayer addAnimation:animation forKey:@"barSynced"];
+    }
 }
-
-- (CAAnimationGroup*)effectAnimation
-{
-    CAAnimationGroup* upGroup = [CAAnimationGroup animation];
-    NSMutableArray* animations = [NSMutableArray array];
-
-    CABasicAnimation* animation = [CABasicAnimation animationWithKeyPath:@"backgroundFilters.CIBloom.inputRadius"];
-    animation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionLinear];
-    animation.fromValue = [NSNumber numberWithFloat:3.5];
-    animation.toValue = [NSNumber numberWithFloat:1.0];
-    animation.fillMode = kCAFillModeBoth;
-    animation.removedOnCompletion = NO;
-    [animation setValue:@"ActiveAnimationUp" forKey:@"name"];
-
-    [animations addObject:animation];
-
-    upGroup.removedOnCompletion = NO;
-    upGroup.duration = 0.2;
-    upGroup.animations = animations;
-
-    CAAnimationGroup* downGroup = [CAAnimationGroup animation];
-    animations = [NSMutableArray array];
-
-    animation = [CABasicAnimation animationWithKeyPath:@"backgroundFilters.CIBloom.inputRadius"];
-    animation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionLinear];
-    animation.fromValue = [NSNumber numberWithFloat:1.0];
-    animation.toValue = [NSNumber numberWithFloat:3.5];
-    animation.fillMode = kCAFillModeBoth;
-    animation.removedOnCompletion = NO;
-
-    [animations addObject:animation];
-
-    downGroup.removedOnCompletion = NO;
-    downGroup.duration = 1.8;
-    downGroup.animations = animations;
-    [downGroup setValue:@"ActiveAnimationDown" forKey:@"name"];
-
-    CAAnimationGroup* group = [CAAnimationGroup animation];
-    animations = [NSMutableArray array];
-
-    [animations addObject:upGroup];
-    [animations addObject:downGroup];
-
-    group.removedOnCompletion = NO;
-    group.animations = animations;
-    group.repeatCount = HUGE_VALF;
-    [group setValue:@"EffectActiveAnimations" forKey:@"name"];
-
-    return group;
-}
-
 
 @end

@@ -326,15 +326,15 @@ const CGFloat kTableRowHeight = 50.0f;
             dispatch_async(dispatch_queue_create("AsyncImageQueue", NULL), ^{
                 NSImage *image = [[NSImage alloc] initWithContentsOfURL:match.mediaItems[0].artworkURL];
                 dispatch_async(dispatch_get_main_queue(), ^{
-                    _identificationCoverView.image = image;
+                    self->_identificationCoverView.image = image;
                     item.artwork = image;
                     
-                    [_identifieds insertObject:item atIndex:0];
+                    [self->_identifieds insertObject:item atIndex:0];
 
-                    [_tableView beginUpdates];
-                    [_tableView insertRowsAtIndexes:[NSIndexSet indexSetWithIndex:0]
+                    [self->_tableView beginUpdates];
+                    [self->_tableView insertRowsAtIndexes:[NSIndexSet indexSetWithIndex:0]
                                       withAnimation:NSTableViewAnimationSlideRight];
-                    [_tableView endUpdates];
+                    [self->_tableView endUpdates];
                 });
             });
         }

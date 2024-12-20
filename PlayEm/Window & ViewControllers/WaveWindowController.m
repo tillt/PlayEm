@@ -361,6 +361,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     self.window.titleVisibility = NO;
     self.window.movableByWindowBackground = YES;
     self.window.appearance = [NSAppearance appearanceNamed:NSAppearanceNameDarkAqua];
+    self.window.autorecalculatesKeyViewLoop = YES;
 
     self.window.contentView.wantsLayer = YES;
     self.window.contentView.layer.backgroundColor = [[[Defaults sharedDefaults] backColor] CGColor];

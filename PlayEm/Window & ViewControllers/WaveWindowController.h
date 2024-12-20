@@ -82,7 +82,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (strong, nonatomic) IBOutlet NSSplitView* splitSelectors;
 @property (strong, nonatomic) IBOutlet NSTableView* playlistTable;
 @property (strong, nonatomic) IdentifyController* iffy;
-@property (strong, nonatomic) NSMenu* dockMenu;
+@property (strong, nonatomic, nullable) NSMenu* dockMenu;
 
 
 @property (strong, nonatomic) NSSplitViewController* splitViewController;

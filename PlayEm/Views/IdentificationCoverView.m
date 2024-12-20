@@ -159,7 +159,7 @@ extern NSString * const kBeatTrackedSampleTempoChangeNotification;
     animation.byValue = @(angleToAdd); // start from - this value (it's toValue - byValue (see above))
     animation.repeatCount = 1.0f;
     [CATransaction setCompletionBlock:^{
-        if (!animating) {
+        if (!self->animating) {
             return;
         }
         [self animate];

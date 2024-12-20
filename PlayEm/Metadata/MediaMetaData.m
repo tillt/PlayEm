@@ -910,11 +910,10 @@ NSString* const kMediaMetaDataMapTypeNumber = @"number";
     // Rather involved way to retrieve the Class from a member (that may be set to nil).
     objc_property_t property = class_getProperty(self.class, 
                                                  [key cStringUsingEncoding:NSUTF8StringEncoding]);
-    const char * const attrString = property_getAttributes(property);
-    const char *typeString = attrString + 1;
-    const char *next = NSGetSizeAndAlignment(typeString, NULL, NULL);
-    const char *className = typeString + 2;
-    next = strchr(className, '"');
+    const char* const attrString = property_getAttributes(property);
+    const char* typeString = attrString + 1;
+    const char* className = typeString + 2;
+    const char* next = strchr(className, '"');
     size_t classNameLength = next - className;
     char trimmedName[classNameLength + 1];
     strncpy(trimmedName, className, classNameLength);
@@ -985,8 +984,8 @@ NSString* const kMediaMetaDataMapTypeNumber = @"number";
         @"Emaj":  @"12B",
     };
     
-    if (key == nil || key.length == 0) {
-        return nil;
+    if (key.length == 0) {
+        return key;
     }
 
     // Shortcut when the given key a proper one already.

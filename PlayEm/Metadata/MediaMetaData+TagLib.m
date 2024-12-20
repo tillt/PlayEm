@@ -183,7 +183,6 @@
     char** propertiesMap = taglib_property_keys(file);
     if (propertiesMap != NULL) {
         char** keyPtr = propertiesMap;
-        keyPtr = propertiesMap;
         
         while (*keyPtr) {
             char** propertyValues = taglib_property_get(file, *keyPtr);

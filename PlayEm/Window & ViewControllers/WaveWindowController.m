@@ -1975,16 +1975,16 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     [songInfo setObject:meta.title == nil ? @"" : meta.title forKey:MPMediaItemPropertyTitle];
     [songInfo setObject:meta.artist == nil ? @"" : meta.artist forKey:MPMediaItemPropertyArtist];
     [songInfo setObject:meta.album == nil ? @"" : meta.album forKey:MPMediaItemPropertyAlbumTitle];
-    if (meta.track) {
+    if (meta.track != nil) {
         [songInfo setObject:meta.track forKey:MPMediaItemPropertyAlbumTrackNumber];
     }
-    if (meta.tracks) {
+    if (meta.tracks != nil) {
         [songInfo setObject:meta.tracks forKey:MPMediaItemPropertyAlbumTrackCount];
     }
-    if (meta.genre) {
+    if (meta.genre != nil) {
         [songInfo setObject:meta.genre forKey:MPMediaItemPropertyGenre];
     }
-    if (meta.year) {
+    if (meta.year != nil) {
         [songInfo setObject:meta.year forKey:MPMediaItemPropertyReleaseDate];
     }
     if (meta.artwork) {

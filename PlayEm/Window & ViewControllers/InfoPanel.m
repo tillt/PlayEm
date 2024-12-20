@@ -889,7 +889,7 @@ static const CGFloat kViewLeftMargin = 10.0f;
                     ITLibArtworkFormat format = [MediaMetaData artworkFormatForData:dataValue];
                     patchedMeta.artworkFormat = [NSNumber numberWithInteger:format];
                     patchedMetas[meta.location] = patchedMeta;
-                } else {
+                } else if (stringValue != nil) {
                     [patchedMeta updateWithKey:key string:stringValue];
                     patchedMetas[meta.location] = patchedMeta;
                 }

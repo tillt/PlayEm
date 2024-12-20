@@ -580,13 +580,13 @@ static const double kLevelDecreaseValue = 0.042;
         float data;
         float last;
 
-        const size_t sampleFrames = _visual.sample.frames;
-        const size_t channels = _visual.sample.channels;
+        const size_t sampleFrames = self->_visual.sample.frames;
+        const size_t channels = self->_visual.sample.channels;
         
         // Fetches sample pointers from `_sourceChannelData`
         float* sourceChannels[channels];
         for (int channelIndex=0; channelIndex < channels; channelIndex++) {
-            NSData* data = _sourceChannelData[channelIndex];
+            NSData* data = self->_sourceChannelData[channelIndex];
             sourceChannels[channelIndex] = (float*)data.bytes;
         }
 
@@ -654,7 +654,7 @@ static const double kLevelDecreaseValue = 0.042;
                 break;
             }
 
-            _minTriggerOffset = offset;
+            self->_minTriggerOffset = offset;
 
             unsigned long long f = offset;
 
@@ -669,8 +669,8 @@ static const double kLevelDecreaseValue = 0.042;
             BOOL triggered = NO;
             
             // This may block for a loooooong time!
-            unsigned long long framesReceived = [_visual.sample rawSampleFromFrameOffset:f
-                                                                                  frames:_sampleCount
+            unsigned long long framesReceived = [self->_visual.sample rawSampleFromFrameOffset:f
+                                                                                  frames:self->_sampleCount
                                                                                  outputs:sourceChannels];
 
             size_t framesToGo = framesReceived;
@@ -686,7 +686,7 @@ static const double kLevelDecreaseValue = 0.042;
                 
                 if (!triggered) {
                     // Try to detect an upwards zero crossing.
-                    if (f >= _minTriggerOffset &&      // Prevent triggering before a minimum offset.
+                    if (f >= self->_minTriggerOffset &&      // Prevent triggering before a minimum offset.
                         (data > 0.0f && last <= 0.0f)) {
                         zeroCrossingOffset = f;
                         positiveStreakLength = 0;
@@ -712,7 +712,7 @@ static const double kLevelDecreaseValue = 0.042;
                 
                 // Did we run over the end of the total sample already?
                 if (f >= sampleFrames) {
-                    f = _minTriggerOffset;
+                    f = self->_minTriggerOffset;
                 }
             }
         };
@@ -720,9 +720,9 @@ static const double kLevelDecreaseValue = 0.042;
         /// Copy scope lines.
         
         f = bestZeroCrossingOffset;
-        _minTriggerOffset = bestZeroCrossingOffset + 1;
-        unsigned long long framesReceived = [_visual.sample rawSampleFromFrameOffset:f
-                                                                              frames:_sampleCount
+        self->_minTriggerOffset = bestZeroCrossingOffset + 1;
+        unsigned long long framesReceived = [self->_visual.sample rawSampleFromFrameOffset:f
+                                                                              frames:self->_sampleCount
                                                                              outputs:sourceChannels];
 
         samplesToGo = framesReceived;
@@ -732,7 +732,7 @@ static const double kLevelDecreaseValue = 0.042;
         // meter feeding.
         double meterValue = 0.0;
 
-        PolyNode* node = _linesBufferAddress;
+        PolyNode* node = self->_linesBufferAddress;
         for (; i < samplesToGo; i++) {
             data = 0.0f;
             for (size_t channelIndex = 0; channelIndex < channels; channelIndex++) {
@@ -749,12 +749,12 @@ static const double kLevelDecreaseValue = 0.042;
             node[i].position[1] = data;
 
             ++f;
-            if (f >= _audio.sample.frames) {
-                f = _minTriggerOffset;
+            if (f >= self->_audio.sample.frames) {
+                f = self->_minTriggerOffset;
             }
         }
         // Make sure any remaining node is reset to silence level.
-        for (;i < _sampleCount;i++) {
+        for (;i < self->_sampleCount;i++) {
             node[i].position[1] = 0.0;
         }
     });

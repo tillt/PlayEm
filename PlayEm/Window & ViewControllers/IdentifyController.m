@@ -129,17 +129,8 @@ const CGFloat kTableRowHeight = 50.0f;
 
     const CGFloat kBorderWidth = 20.0f;
     const CGFloat kBorderHeight = 0.0f;
-    const CGFloat kRowSpace = 4.0f;
     
-    const CGFloat kTitleFontSize = 19.0f;
-    const CGFloat kGenreFontSize = 13.0f;
-    const CGFloat kCopyButtonFontSize = kGenreFontSize;
-    
-    const CGFloat kIndicatorWidth = kTitleFontSize;
-    const CGFloat kIndicatorHeight = kIndicatorWidth;
-    
-    const CGFloat kTextFieldWidth = kPopoverWidth - (2.0f * kBorderWidth);
-    const CGFloat kTextFieldHeight = kTitleFontSize + 8.0f;
+    //const CGFloat kTitleFontSize = 19.0f;
     
     const CGFloat kCoverViewWidth = 260.0;
     const CGFloat kCoverViewHeight = kCoverViewWidth;

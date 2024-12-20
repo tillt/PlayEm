@@ -757,9 +757,9 @@ static const double kLevelDecreaseValue = 0.042;
         for (;i < self->_sampleCount;i++) {
             node[i].position[1] = 0.0;
         }
+        [self updateVolumeLevelDisplay:maxValue * self->_audio.outputVolume];
     });
 
-    [self updateVolumeLevelDisplay:maxValue * _audio.outputVolume];
 }
 
 #pragma mark - MTKViewDelegate

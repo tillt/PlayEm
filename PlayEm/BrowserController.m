@@ -102,22 +102,27 @@ NSString* const kSongsColGenre = @"GenreCell";
         _genresTable = genresTable;
         _genresTable.dataSource = self;
         _genresTable.delegate = self;
+        _genresTable.nextKeyView = artistsTable;
 
         _artistsTable = artistsTable;
         _artistsTable.dataSource = self;
         _artistsTable.delegate = self;
+        _artistsTable.nextKeyView = albumsTable;
 
         _albumsTable = albumsTable;
         _albumsTable.dataSource = self;
         _albumsTable.delegate = self;
+        _albumsTable.nextKeyView = temposTable;
 
         _temposTable = temposTable;
         _temposTable.dataSource = self;
         _temposTable.delegate = self;
+        _temposTable.nextKeyView = keysTable;
 
         _keysTable = keysTable;
         _keysTable.dataSource = self;
         _keysTable.delegate = self;
+        _keysTable.nextKeyView = songsTable;
 
         _songsTable = songsTable;
         _songsTable.dataSource = self;
@@ -1101,6 +1106,7 @@ typeSelectStringForTableColumn:(NSTableColumn*)tableColumn
                                                                  tableView.rowHeight)];
         rowView.identifier = kRowIdentifier;
     }
+    rowView.nextKeyView = tableView.nextKeyView;
     return rowView;
 }
   
@@ -1129,6 +1135,7 @@ typeSelectStringForTableColumn:(NSTableColumn*)tableColumn
     }
 
     result.textLayer.string = [self stringValueForRow:row tableColumn:tableColumn tableView:tableView];
+    result.nextKeyView = tableView.nextKeyView;
 
     return result;
 }

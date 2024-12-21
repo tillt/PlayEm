@@ -144,33 +144,43 @@ void performFFT(FFTSetup fft, float* data, size_t numberOfFrames, float* frequen
 {
     const windowingFunction windowing = kBlackmanBlock;
 
-    const float fftNormFactor = 1.0f / kFrequencyDataLength;
-
-    // 2^(round(log2(numberOfFrames)).
     const size_t framesOver2 = numberOfFrames / 2;
-    //const size_t framesOver2 = numberOfFrames;
     const int bufferLog2 = round(log2(numberOfFrames));
 
+    // Apply windowing function.
     windowing((int)numberOfFrames, data);
   
     static COMPLEX_SPLIT* output = NULL;
     static COMPLEX_SPLIT* computeBuffer = NULL;
+    static float* scaleVector = NULL;
+
     if (output == NULL) {
         // Altivec's functions rely on 16-byte aligned memory locations. We use `malloc` here to make
         // sure the buffers fit that limit.
+        // FIXME: Turns out a regular NSData allocation would do the same.
         output = allocComplexSplit(framesOver2);
         computeBuffer = allocComplexSplit(framesOver2);
+        scaleVector = malloc(framesOver2 * sizeof(float));
+        
+        for (int i=0; i < framesOver2;i++) {
+            const float factor = 1.0 + (((float)i / (float)framesOver2) * 30);
+            scaleVector[i] = factor;
+        }
     }
 
     // Put all of the even numbered elements into out.real and odd numbered into out.imag.
     vDSP_ctoz((COMPLEX*)data, 2, output, 1, framesOver2);
     // For best possible speed, we are using the buffered variant of that FFT calculation.
     vDSP_fft_zript(fft, output, 1, computeBuffer, bufferLog2, kFFTDirection_Forward);
-    // Scale the FFT data.
-    vDSP_vsmul(output->realp, 1, &fftNormFactor, output->realp, 1, kFrequencyDataLength);
-    vDSP_vsmul(output->imagp, 1, &fftNormFactor, output->imagp, 1, kFrequencyDataLength);
-    // Take the absolute value of the output to get in range of 0 to 1.
+    // Take the absolute value of the output.
     vDSP_zvabs(output, 1, frequencyData, 1, kFrequencyDataLength);
+    // Scale the FFT data.
+    float scale = framesOver2 / 2;
+    vDSP_vsdiv(frequencyData, 1, &scale, frequencyData, 1, kFrequencyDataLength);
+    // Get the power of the values by sqrt(A[n]**2 + A[n]**2).
+    vDSP_vdist(frequencyData, 1, frequencyData, 1, frequencyData, 1, kFrequencyDataLength);
+    
+    vDSP_vmul(frequencyData, 1, scaleVector, 1, frequencyData, 1, kFrequencyDataLength);
 }
 
 // Scales the linear frequency domain over into a logarithmic one. Or at least something

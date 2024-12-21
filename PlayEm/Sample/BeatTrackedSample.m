@@ -387,7 +387,7 @@ double roundBpmWithinRange(double minBpm, double centerBpm, double maxBpm)
 
         for (; i <= rightIndex; ++i) {
             ironedBeat += meanBeatLength;
-            const double phaseError = ironedBeat - coarseBeats[i];
+            const double phaseError = (double)ironedBeat - coarseBeats[i];
             phaseErrorSum += phaseError;
 
             if (fabs(phaseError) > maxPhaseError) {

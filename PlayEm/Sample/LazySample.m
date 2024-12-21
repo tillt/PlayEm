@@ -87,7 +87,12 @@ const size_t kMaxFramesPerBuffer = 16384;
 {
     unsigned long long orderedFrames = frames;
     unsigned long long oldOffset = offset;
+    
+    if (_source.length <= offset) {
+        return 0;
+    }
 
+    NSAssert(_source.length > offset, @"sample aint long enough");
     // Cap frames requested, preventing overrun.
     frames = MIN(_source.length - offset, frames);
     

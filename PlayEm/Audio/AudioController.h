@@ -26,7 +26,7 @@ typedef void (^TapBlock) (unsigned long long, float*, unsigned int);
 
 @interface AudioController : NSObject
 
-@property (nonatomic, strong) LazySample* sample;
+@property (nonatomic, strong, nullable) LazySample* sample;
 @property (nonatomic, assign) AVAudioFramePosition currentFrame;
 
 @property (nonatomic, assign) double outputVolume;
@@ -44,7 +44,7 @@ typedef void (^TapBlock) (unsigned long long, float*, unsigned int);
 - (void)play;
 - (void)pause;
 - (void)playSample:(LazySample*)sample frame:(unsigned long long)frame paused:(BOOL)paused;
-- (void)startTapping:(TapBlock)tap;
+- (void)startTapping:(TapBlock _Nullable)tap;
 - (void)stopTapping;
 - (NSTimeInterval)currentTime;
 - (void)setCurrentTime:(NSTimeInterval)time;

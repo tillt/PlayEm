@@ -941,7 +941,7 @@ NSString* const kMediaMetaDataMapTypeNumber = @"number";
     NSAssert(NO, @"should never get here");
 }
 
-+ (NSString*)correctedKeyNotation:(NSString*)key
++ (NSString* _Nullable)correctedKeyNotation:(NSString* _Nullable)key
 {
     // We are trying to catch all synonymous scales here additionally
     // to the 24 sectors of the MixWheel.
@@ -984,7 +984,7 @@ NSString* const kMediaMetaDataMapTypeNumber = @"number";
         @"Emaj":  @"12B",
     };
     
-    if (key.length == 0) {
+    if (key == nil || key.length == 0) {
         return key;
     }
 

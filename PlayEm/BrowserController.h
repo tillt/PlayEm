@@ -66,7 +66,7 @@ extern NSString* const kSongsColGenre;
 - (IBAction)playLaterInPlaylist:(id)sender;
 - (IBAction)showInFinder:(id)sender;
 - (NSUInteger)currentSongRow;
-- (MediaMetaData*)nextSong;
+- (MediaMetaData* _Nullable)nextSong;
 - (NSArray<MediaMetaData*>*)selectedSongMetas;
 
 @end

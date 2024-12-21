@@ -183,7 +183,7 @@
     [_operations setObject:blockOperation forKey:[NSNumber numberWithLong:pageIndex]];
     
     [blockOperation run:^(void){
-        if (weakOperation.isCancelled) {
+        if (weakOperation.isCancelled || weakSelf.sample.channels == 0) {
             return;
         }
         assert(!weakOperation.isFinished);
@@ -207,7 +207,9 @@
         const int channels = weakSelf.sample.channels;
         
         unsigned long long displaySampleFrameIndexOffset = origin * weakSelf.framesPerPixel;
-        assert(displaySampleFrameIndexOffset < weakSelf.sample.frames);
+        if (displaySampleFrameIndexOffset >= weakSelf.sample.frames) {
+            return;
+        }
         unsigned long long displayFrameCount = MIN(framesNeeded, weakSelf.sample.frames - displaySampleFrameIndexOffset);
 
         // This may block for a loooooong time!

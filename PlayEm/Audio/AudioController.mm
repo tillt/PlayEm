@@ -126,6 +126,9 @@ AudioObjectID defaultOutputDevice(void)
 #ifdef support_audioqueueplayback
 AVAudioFramePosition currentFrame(AudioQueueRef queue, AudioContext* context)
 {
+    if (queue == NULL) {
+        return 0;
+    }
     // Now that we have a timeline included, are we going to see time adjusted
     // towards the playback delay introduced by the interface? That is something
     // we should be able to do. Needs a slow bluetooth device for testing.
@@ -450,7 +453,7 @@ AVAudioFramePosition totalLatency(UInt32 deviceId, AudioObjectPropertyScope scop
 #endif
 }
 
-- (void)startTapping:(TapBlock)tap
+- (void)startTapping:(TapBlock _Nullable)tap
 {
     _context.tapBlock = tap;
 }
@@ -630,6 +633,7 @@ AVAudioFramePosition totalLatency(UInt32 deviceId, AudioObjectPropertyScope scop
 - (AVAudioFramePosition)currentFrame
 {
 #ifdef support_audioqueueplayback
+    NSAssert(_context.stream.queue != nil, @"queue shouldnt be empty");
     return currentFrame(_context.stream.queue, &_context);
 #endif
     
@@ -935,7 +939,7 @@ void LogBufferContents(const uint8_t *buffer, size_t length)
 
     uint32_t primed = 0;
     res = AudioQueuePrime(_context.stream.queue, 0, &primed);
-    assert((res == 0) && primed > 0);
+//    assert((res == 0) && primed > 0);
 #endif
     return;
 }

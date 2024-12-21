@@ -464,13 +464,13 @@ NSString* const kSongsColGenre = @"GenreCell";
     return [self songsRowForURL:current];
 }
 
-- (MediaMetaData*)nextSong
+- (MediaMetaData* _Nullable)nextSong
 {
     NSUInteger row = [self currentSongRow];
     return [self metaAtSongRow:row + 1];
 }
 
-- (MediaMetaData*)metaAtSongRow:(NSUInteger)row
+- (MediaMetaData* _Nullable)metaAtSongRow:(NSUInteger)row
 {
     if (row >= self.filteredItems.count) {
         NSLog(@"end of songs listed reached");

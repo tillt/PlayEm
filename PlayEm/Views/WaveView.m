@@ -100,7 +100,7 @@
         layer.anchorPoint = CGPointMake(1.0, 0.0);
         layer.frame = CGRectMake(0.0, 0.0, floor(_headImageSize.width / (2 * trailingBloomLayerCount)), height);
         layer.masksToBounds = YES;
-        layer.zPosition = 1.99 + (i - trailingBloomLayerCount);
+        layer.zPosition = 3.99 + ((float)i - trailingBloomLayerCount);
         layer.name = [NSString stringWithFormat:@"TrailBloomFxLayer%d", i+1];
         layer.mask = [CAShapeLayer MaskLayerFromRect:layer.frame];
         [layers addObject:layer];

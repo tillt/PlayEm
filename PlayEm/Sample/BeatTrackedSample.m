@@ -755,6 +755,7 @@ double roundBpmWithinRange(double minBpm, double centerBpm, double maxBpm)
     NSLog(@"pass one");
     BOOL initialSilenceEnded = NO;
     _initialSilenceEndsAtFrame = 0LL;
+    _trailingSilenceStartsAtFrame = self->_sample.frames;
 
     while (sourceWindowFrameOffset < self->_sample.frames) {
         if (dispatch_block_testcancel(self.queueOperation) != 0) {
@@ -906,9 +907,9 @@ double roundBpmWithinRange(double minBpm, double centerBpm, double maxBpm)
 #else
             assert(((struct debug_aubio_tempo_t*)self->_aubio_tempo)->total_frames ==
                    sourceWindowFrameOffset + sourceFrameIndex);
-            for (unsigned long int inputFrameIndex = 0;
-                 inputFrameIndex < self->_hopSize;
-                 inputFrameIndex++) {
+            
+            const unsigned long int inputWindowFrameCount = MIN(self->_hopSize, self->_sample.frames - (sourceWindowFrameOffset + sourceFrameIndex));
+            for (unsigned long int inputFrameIndex = 0; inputFrameIndex < inputWindowFrameCount; inputFrameIndex++) {
                 double s = 0.0;
                 for (int channel = 0; channel < channels; channel++) {
                     s += data[channel][sourceFrameIndex];
@@ -920,6 +921,14 @@ double roundBpmWithinRange(double minBpm, double centerBpm, double maxBpm)
                         initialSilenceEnded = YES;
                         _initialSilenceEndsAtFrame = sourceWindowFrameOffset + sourceFrameIndex;
                     }
+                }
+                
+                if (fabs(s) < kSilenceThreshold) {
+                    if (_trailingSilenceStartsAtFrame == self->_sample.frames) {
+                        _trailingSilenceStartsAtFrame = sourceWindowFrameOffset + sourceFrameIndex;
+                    }
+                } else {
+                    _trailingSilenceStartsAtFrame = self->_sample.frames;
                 }
 
                 if(self->_filterEnabled) {
@@ -946,7 +955,8 @@ double roundBpmWithinRange(double minBpm, double centerBpm, double maxBpm)
     };
     [self cleanupTracking];
 
-    NSLog(@"silence ends at %lld", _initialSilenceEndsAtFrame);
+    NSLog(@"initial silence ends at %lld frames after start of sample", _initialSilenceEndsAtFrame);
+    NSLog(@"trailing silence starts %lld frames before end of sample", _sample.frames - _trailingSilenceStartsAtFrame);
 
     // Generate a constant grid pattern out of the detected beats.
     [self makePreferredBeats];

@@ -163,7 +163,7 @@ void performFFT(FFTSetup fft, float* data, size_t numberOfFrames, float* frequen
         scaleVector = malloc(framesOver2 * sizeof(float));
         
         for (int i=0; i < framesOver2;i++) {
-            const float factor = 1.0 + (((float)i / (float)framesOver2) * 30);
+            const float factor = 1.0 + (((float)i / (float)framesOver2) * 10);
             scaleVector[i] = factor;
         }
     }
@@ -189,8 +189,10 @@ void logscaleFFT(float* map, float* frequencyData)
 {
     float counters[kScaledFrequencyDataLength+1] = { 0.0f };
     float buffer[kScaledFrequencyDataLength+1] = { 0.0f };
-    
+ 
+ 
     // FIXME: This doesnt seem to result in a homogenous distribution!
+    // One point here may be that the scaling of more than 2
     //
     // Distribute velocity in two neighbouring buckets. The right gets the
     // fragment beyond the left position. The one on the left gets 1 - right

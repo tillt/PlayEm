@@ -115,8 +115,10 @@
                 return NO;
             }
             
+            const unsigned long int inputWindowFrameCount = MIN(self->_windowWidth, self->_sample.frames - (sourceWindowFrameOffset + sourceFrameIndex));
+
             for (unsigned long int inputFrameIndex = 0;
-                 inputFrameIndex < self->_windowWidth;
+                 inputFrameIndex < inputWindowFrameCount;
                  inputFrameIndex++) {
                 for (int channel = 0; channel < channels; channel++) {
                     _audioData.setSampleByFrame((unsigned int)inputFrameIndex,

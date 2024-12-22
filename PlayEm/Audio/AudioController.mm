@@ -18,7 +18,6 @@
 #import "LazySample.h"
 #import "ProfilingPointsOfInterest.h"
 
-#define support_multi_output    YES
 //#define support_avaudioengine   YES
 //#define support_avplayer        YES
 #define support_audioqueueplayback  YES
@@ -35,8 +34,6 @@ NSString * const kPlaybackStatePaused = @"paused";
 NSString * const kPlaybackStatePlaying = @"playing";
 NSString * const kPlaybackStateEnded = @"ended";
 
-#ifdef support_multi_output
-
 typedef struct {
 #ifdef support_audioqueueplayback
     AudioQueueRef               queue;
@@ -46,13 +43,11 @@ typedef struct {
     unsigned long long          nextFrame;
     signed long long            latencyFrames;
 } AudioOutputStream;
-#endif
 
 typedef struct {
     LazySample*                 sample;
     AudioOutputStream           stream;
     unsigned long long          nextFrame;
-    //id<AudioControllerDelegate> delegate;
     signed long long            seekFrame;
     BOOL                        endOfStream;
     TapBlock                    tapBlock;
@@ -245,26 +240,6 @@ void bufferCallback(void* user_data, AudioQueueRef queue, AudioQueueBufferRef bu
     float* p = (float*)buffer->mAudioData;
     buffer->mUserData = user_data;
     unsigned int frames = buffer->mAudioDataByteSize / context->sample.frameSize;
-
-//    // your time-processing object checks how many samples it can get from Rubber Band already (available),
-//    // as there may be some in its internal buffers;
-//    if (context->stretcher->available() > 0) {
-//        context->stretcher->retrieve(p, frames);
-//        /*
-//        size_t RubberBand::RubberBandStretcher::retrieve    (    float *const *     output,
-//        size_t     samples
-//        )        const
-//         */
-//    }
-//    // if that is not enough:
-//    // it queries how many the Rubber Band stretcher needs at input before it can produce more at output (getSamplesRequired);
-//    // it calls back into its audio source to obtain that number of samples;
-//    unsigned long long fetched = [context->sample rawSampleFromFrameOffset:context->nextFrame
-//                                                                   frames:frames
-//                                                                     data:p];
-//
-//    // it runs the stretcher (process), receives the available output (retrieve), and repeats if necessary
-//    unsigned long long fetched = ;
     unsigned long long fetched = [context->sample rawSampleFromFrameOffset:context->nextFrame
                                                                    frames:frames
                                                                      data:p];
@@ -566,6 +541,8 @@ AVAudioFramePosition totalLatency(UInt32 deviceId, AudioObjectPropertyScope scop
         NSLog(@"no queue");
         return;
     }
+
+    // FIXME: This appears utterly magic - should happen explicitly somewhere else.
     if (_context.endOfStream) {
         _context.endOfStream = NO;
         self.currentFrame = 0;
@@ -709,17 +686,6 @@ AVAudioFramePosition totalLatency(UInt32 deviceId, AudioObjectPropertyScope scop
         AudioQueueDispose(_context.stream.queue, true);
         _context.stream.queue = NULL;
     }
-#endif
-    
-#ifdef support_avaudioengine
-//    [_player stop];
-//    [_engine stop];
-////
-//    NSLog(@"releasing player...");
-//    _player = nil;
-//
-//    NSLog(@"releasing engine...");
-//    _engine = nil;
 #endif
 
     UInt32 deviceId = defaultOutputDevice();

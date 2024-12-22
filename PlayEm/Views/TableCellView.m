@@ -10,10 +10,13 @@
 #import <Quartz/Quartz.h>
 #import "CAShapeLayer+Path.h"
 #import "Defaults.h"
+#import "BeatEvent.h"
 
 static const double kFontSize = 11.0f;
 
 @implementation TableCellView
+{
+}
 
 + (NSFont*)sharedFont
 {
@@ -42,6 +45,8 @@ static const double kFontSize = 11.0f;
     layer.masksToBounds = YES;
     layer.drawsAsynchronously = YES;
     layer.autoresizingMask = kCALayerNotSizable;
+    //layer.backgroundColor = [NSColor textBackgroundColor].CGColor;
+    layer.opaque = NO;
     layer.frame = self.bounds;
 
     _textLayer = [CATextLayer layer];
@@ -49,10 +54,12 @@ static const double kFontSize = 11.0f;
     _textLayer.fontSize = kFontSize;
     _textLayer.font =  (__bridge  CFTypeRef)[TableCellView sharedFont];
     _textLayer.wrapped = NO;
+    //_textLayer.backgroundColor = [NSColor textBackgroundColor].CGColor;
     _textLayer.autoresizingMask = kCALayerWidthSizable;
     _textLayer.truncationMode = kCATruncationEnd;
     _textLayer.allowsEdgeAntialiasing = YES;
     _textLayer.masksToBounds = YES;
+    _textLayer.opaque = NO;
     _textLayer.contentsScale = [[NSScreen mainScreen] backingScaleFactor];
     _textLayer.foregroundColor = [[Defaults sharedDefaults] secondaryLabelColor].CGColor;
     _textLayer.frame = NSInsetRect(self.bounds, 0.0, 5.0);
@@ -90,44 +97,40 @@ static const double kFontSize = 11.0f;
     [self updatedStyle];
 }
 
+// FIXME: These are far too expensive -- no idea why that is.
+- (void)beatEffect:(NSNotification*)notification
+{
+    const NSDictionary* dict = notification.object;
+    const unsigned int style = [dict[kBeatNotificationKeyStyle] intValue];
+    const float tempo = [dict[kBeatNotificationKeyTempo] floatValue];
+    const float barDuration = 4.0f * 60.0f / tempo;
+    
+    if ((style & BeatEventStyleBar) == BeatEventStyleBar) {
+        // For creating a discrete effect accross the timeline, a keyframe animation is the
+        // right thing as it even allows us to animate strings.
+        {
+            CAKeyframeAnimation* animation = [CAKeyframeAnimation animationWithKeyPath:@"foregroundColor"];
+            animation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionLinear];
+            
+            //    animation.fromValue = (id)[[[Defaults sharedDefaults] lightBeamColor] CGColor];
+            //animation.toValue = (id)[[NSColor secondaryLabelColor] CGColor];
+            animation.values = @[ (id)[[[Defaults sharedDefaults] lightBeamColor] CGColor],
+                                  (id)[[NSColor secondaryLabelColor] CGColor] ];
+            animation.fillMode = kCAFillModeBoth;
+            [animation setValue:@"barSyncedColor" forKey:@"name"];
+            animation.removedOnCompletion = NO;
+            animation.repeatCount = 1;
+            // We animate throughout an entire bar.
+            animation.duration = barDuration;
+            [_textLayer addAnimation:animation forKey:@"barSynced"];
+        }
+    }
+}
+
 - (void)setBackgroundStyle:(NSBackgroundStyle)backgroundStyle
 {
     [super setBackgroundStyle:backgroundStyle];
     [self updatedStyle];
 }
-
-//- (CAAnimationGroup*)textColorAnimation
-//{
-//    CAAnimationGroup* group = [CAAnimationGroup animation];
-//    NSMutableArray* animations = [NSMutableArray array];
-//
-//    CABasicAnimation* animation = [CABasicAnimation animationWithKeyPath:@"foregroundColor"];
-//    animation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionLinear];
-//    animation.fromValue = (id)[[NSColor secondaryLabelColor] CGColor];
-//    animation.toValue = (id)[[[Defaults sharedDefaults] lightBeamColor] CGColor];
-//    animation.fillMode = kCAFillModeForwards;
-//    animation.removedOnCompletion = NO;
-//    [animation setValue:@"TextColorUp" forKey:@"name"];
-//    animation.removedOnCompletion = NO;
-//    animation.duration = 0.2;
-//    [animations addObject:animation];
-//
-//    animation = [CABasicAnimation animationWithKeyPath:@"foregroundColor"];
-//    animation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionLinear];
-//    animation.fromValue = (id)[[[Defaults sharedDefaults] lightBeamColor] CGColor];
-//    animation.toValue = (id)[[NSColor secondaryLabelColor] CGColor];
-//    animation.fillMode = kCAFillModeForwards;
-//    animation.removedOnCompletion = NO;
-//    animation.duration = 1.8;
-//    [animation setValue:@"TextColorDown" forKey:@"name"];
-//    [animations addObject:animation];
-//
-//    group.removedOnCompletion = NO;
-//    group.animations = animations;
-//    group.repeatCount = HUGE_VALF;
-//    [group setValue:@"TextColorActiveAnimations" forKey:@"name"];
-//
-//    return group;
-//}
 
 @end

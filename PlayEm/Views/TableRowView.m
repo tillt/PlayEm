@@ -49,10 +49,22 @@ typedef enum : NSUInteger {
     dispatch_once(&once, ^{
         sharedInstance = [CIFilter filterWithName:@"CIBloom"];
         [sharedInstance setDefaults];
-        [sharedInstance setValue:[NSNumber numberWithFloat:1.5]
-                          forKey: @"inputRadius"];
-        [sharedInstance setValue:[NSNumber numberWithFloat:0.8]
-                          forKey: @"inputIntensity"];
+        [sharedInstance setValue:[NSNumber numberWithFloat:3.0] forKey: @"inputRadius"];
+        [sharedInstance setValue:[NSNumber numberWithFloat:0.8] forKey: @"inputIntensity"];
+    });
+    return sharedInstance;
+}
+
++ (CIFilter*)sharedColorizeFilter
+{
+    static dispatch_once_t once;
+    static CIFilter* sharedInstance;
+    dispatch_once(&once, ^{
+        sharedInstance = [CIFilter filterWithName:@"CIColorControls"];
+        [sharedInstance setDefaults];
+        [sharedInstance setValue:[NSNumber numberWithFloat:1.5] forKey:@"inputSaturation"];
+        [sharedInstance setValue:[NSNumber numberWithFloat:1.0] forKey:@"inputContrast"];
+        [sharedInstance setValue:[NSNumber numberWithFloat:0.1] forKey:@"inputBrightness"];
     });
     return sharedInstance;
 }
@@ -91,7 +103,7 @@ typedef enum : NSUInteger {
     [layer addSublayer:_symbolLayer];
     
     _effectLayer = [CALayer layer];
-    _effectLayer.backgroundFilters = @[ [TableRowView sharedBloomFilter] ];
+    _effectLayer.backgroundFilters = @[ [TableRowView sharedBloomFilter], [TableRowView sharedColorizeFilter] ];
     _effectLayer.anchorPoint = CGPointMake(0.5, 0.5);
     _effectLayer.masksToBounds = NO;
     _effectLayer.autoresizingMask = kCALayerWidthSizable;
@@ -179,28 +191,6 @@ typedef enum : NSUInteger {
     return path;
 }
 
-- (void)setSelected:(BOOL)selected
-{
-    [super setSelected:selected];
-
-    if (selected) {
-        [self addGlowReason:GlowTriggerSelected];
-    } else {
-        [self removeGlowReason:GlowTriggerSelected];
-    }
-}
-
-- (void)setEmphasized:(BOOL)emphasized
-{
-    [super setEmphasized:emphasized];
-
-    if (emphasized) {
-        [self addGlowReason:GlowTriggerEmphasized];
-    } else {
-        [self removeGlowReason:GlowTriggerEmphasized];
-    }
-}
-
 - (void)setExtraState:(ExtraState)extraState
 {
     for (int i = 0; i < [self numberOfColumns]; i++) {
@@ -214,36 +204,18 @@ typedef enum : NSUInteger {
         } else {
             _symbolLayer.string = @"􀊄";
             [_symbolLayer removeAllAnimations];
+            [_effectLayer removeAllAnimations];
             [[NSNotificationCenter defaultCenter] removeObserver:self name:kBeatTrackedSampleBeatNotification object:nil];
         }
-        [self addGlowReason:GlowTriggerActive];
         _symbolLayer.hidden = NO;
     } else {
-        [self removeGlowReason:GlowTriggerActive];
         _symbolLayer.string = @"";
         _symbolLayer.hidden = YES;
+        _symbolLayer.hidden = YES;
         [_symbolLayer removeAllAnimations];
+        [_effectLayer removeAllAnimations];
         [[NSNotificationCenter defaultCenter] removeObserver:self name:kBeatTrackedSampleBeatNotification object:nil];
     }
-}
-
-- (void)addGlowReason:(GlowTriggerMask)triggerMask
-{
-    _glowTriggerMask |= triggerMask;
-    [self updatedGlow];
-}
-
-- (void)removeGlowReason:(GlowTriggerMask)triggerMask
-{
-    _glowTriggerMask &= triggerMask ^ 0xFFFF;
-    [self updatedGlow];
-}
-
-- (void)updatedGlow
-{
-    BOOL showGlow = ((_glowTriggerMask & (GlowTriggerSelected | GlowTriggerEmphasized)) == (GlowTriggerSelected | GlowTriggerEmphasized))
-                    | ((_glowTriggerMask & GlowTriggerActive) == GlowTriggerActive);
-    _effectLayer.hidden = !showGlow;
 }
 
 - (void)drawSelectionInRect:(NSRect)dirtyRect
@@ -281,20 +253,37 @@ typedef enum : NSUInteger {
     const NSDictionary* dict = notification.object;
     const unsigned int style = [dict[kBeatNotificationKeyStyle] intValue];
     const float tempo = [dict[kBeatNotificationKeyTempo] floatValue];
-
+    const float barDuration = 4.0f * 60.0f / tempo;
+    
     if ((style & BeatEventStyleBar) == BeatEventStyleBar) {
         // For creating a discrete effect accross the timeline, a keyframe animation is the
         // right thing as it even allows us to animate strings.
-        CAKeyframeAnimation* animation = [CAKeyframeAnimation animationWithKeyPath:@"string"];
+        {
+            CAKeyframeAnimation* animation = [CAKeyframeAnimation animationWithKeyPath:@"string"];
+            animation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionLinear];
+            animation.values = @[ @"􀊧", @"􀊥" ];
+            animation.fillMode = kCAFillModeBoth;
+            [animation setValue:@"barSyncedSymbol" forKey:@"name"];
+            animation.removedOnCompletion = NO;
+            // We animate throughout an entire bar.
+            animation.repeatCount = 2;
+            animation.duration = barDuration / 2.0;
+            [_symbolLayer addAnimation:animation forKey:@"barSynced"];
+        }
+    }
+
+    const BeatEventStyle mask = BeatEventStyleBar | BeatEventStyleAlarm;
+    if ((style & mask) == mask) {
+        CAKeyframeAnimation* animation = [CAKeyframeAnimation animationWithKeyPath:@"hidden"];
         animation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionLinear];
-        animation.values = @[ @"􀊧", @"􀊥" ];
+        animation.values = @[ @(NO), @(YES)];
         animation.fillMode = kCAFillModeBoth;
-        [animation setValue:@"barSynced" forKey:@"name"];
+        [animation setValue:@"barSyncedEffect" forKey:@"name"];
         animation.removedOnCompletion = NO;
-        animation.repeatCount = 1;
         // We animate throughout an entire bar.
-        animation.duration = 4.0f * 60.0f / tempo;
-        [_symbolLayer addAnimation:animation forKey:@"barSynced"];
+        animation.repeatCount = 1;
+        animation.duration = barDuration;
+        [_effectLayer addAnimation:animation forKey:@"barSynced"];
     }
 }
 

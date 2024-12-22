@@ -110,7 +110,8 @@ NSString * const kBeatNotificationKeyStyle = @"style";
     float _lastTempo;
     
     unsigned long long _initialSilenceEndsAtFrame;
-    
+    unsigned long long _trailingSilenceStartsAtFrame;
+
     size_t _iteratePageIndex;
     size_t _iterateEventIndex;
     

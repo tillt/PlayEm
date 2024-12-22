@@ -16,6 +16,7 @@ typedef enum : NSUInteger {
     BeatEventStyleBeat  = 0x01,
     BeatEventStyleBar   = 0x02,
     BeatEventStyleFound = 0x04,
+    BeatEventStyleAlarm = 0x08,
 } BeatEventStyle;
 
 typedef struct {

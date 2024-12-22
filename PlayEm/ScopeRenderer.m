@@ -567,8 +567,7 @@ static const double kLevelDecreaseValue = 0.042;
     __block double maxValue = 0.0;
 
     dispatch_async(_renderQueue, ^{
-        /// Determine scope trigger offset
-        
+        // Determine scope trigger offset
         size_t offset=0;
 
         size_t bestZeroCrossingOffset = 0;
@@ -759,7 +758,6 @@ static const double kLevelDecreaseValue = 0.042;
         }
         [self updateVolumeLevelDisplay:maxValue * self->_audio.outputVolume];
     });
-
 }
 
 #pragma mark - MTKViewDelegate

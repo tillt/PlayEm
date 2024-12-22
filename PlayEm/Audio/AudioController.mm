@@ -218,7 +218,6 @@ void propertyCallbackIsRunning (void* user_data, AudioQueueRef queue, AudioQueue
                                                                 object:kPlaybackStatePlaying];
         } else {
             if (context->endOfStream) {
-                context->endOfStream = NO;
                 [[NSNotificationCenter defaultCenter] postNotificationName:kAudioControllerChangedPlaybackStateNotification
                                                                     object:kPlaybackStateEnded];
             } else {
@@ -249,7 +248,7 @@ void bufferCallback(void* user_data, AudioQueueRef queue, AudioQueueBufferRef bu
     }
     if (fetched == 0) {
         NSLog(@"reached end of stream at %lld", context->nextFrame);
-        context->endOfStream = TRUE;
+        context->endOfStream = YES;
         // Flush data, to make sure we play to the end.
         OSStatus res = AudioQueueFlush(queue);
         assert(res == 0);

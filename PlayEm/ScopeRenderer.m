@@ -778,11 +778,11 @@ static const double kLevelDecreaseValue = 0.042;
 
     _lineWidth = linePoints / size.height;
     
-    const float frequencyLineWidth = size.width / kScaledFrequencyDataLength;
+    const float totalLineWidth = 2.0 / kScaledFrequencyDataLength;
     
-    const float spaceWidth = frequencyLineWidth / 5.0;
-    _frequencySpaceWidth = spaceWidth / size.width;
-    _frequencyLineWidth = (frequencyLineWidth - spaceWidth) / size.width;
+    const float spaceWidth = 9 * totalLineWidth / 10.0;
+    _frequencySpaceWidth = spaceWidth;
+    _frequencyLineWidth = (totalLineWidth - spaceWidth);
     
     float sigma = ScaleWithOriginalFrame(0.7f, _defaultSize.width, size.width);
     CGSize erodeSize = NSMakeSize((((ceil(ScaleWithOriginalFrame(erodePoints, _defaultSize.height, _defaultSize.height + (size.height / 30) ))) / 2) * 2) + 1,
@@ -798,7 +798,7 @@ static const double kLevelDecreaseValue = 0.042;
         _bloom = [[MPSImageBox alloc] initWithDevice:view.device
                                          kernelWidth:bloomSize.width
                                         kernelHeight:bloomSize.height];
-//    });
+ //   });
     
     _projectionMatrix = matrix_orthographic(-size.width, size.width, size.height, -size.height, 0, 0);
     _projectionMatrix = matrix_multiply(matrix4x4_scale(1.0f, _lineAspectRatio, 0.0), _projectionMatrix);
@@ -930,7 +930,6 @@ static const double kLevelDecreaseValue = 0.042;
     
     {
         /// Sevenths pass rendering code: Frequency and last frequencies composing
-        
         id<MTLRenderCommandEncoder> renderEncoder = [commandBuffer renderCommandEncoderWithDescriptor:_frequenciesComposePass];
         
         renderEncoder.label = @"Frequency Compose Texture Render Pass";
@@ -957,10 +956,16 @@ static const double kLevelDecreaseValue = 0.042;
     
 //    dispatch_sync(_renderQueue, ^{
         /// Eigths pass rendering code: Frequency and last frequencies blur.
+    
+
         [_blur encodeToCommandBuffer:commandBuffer
                        sourceTexture:_frequenciesComposeTargetTexture
                   destinationTexture:_lastFrequenciesTexture];
-//    });
+        /// Sixths pass rendering code: Scope with last scope erode to reduce artefact creep
+//        [_erode encodeToCommandBuffer:commandBuffer
+//                        sourceTexture:_bufferTexture
+//                   destinationTexture:_lastFrequenciesTexture];
+//   });
     
     {
         /// Nineth pass rendering code: Compose scope and frequencies

@@ -187,23 +187,20 @@ vertex ColorInOut frequenciesVertexShader(constant ScopeUniforms& uniforms      
 
     const unsigned int instance = vid / 4;
     
-    const float width = (2.0f / uniforms.frequenciesCount);
+    const float width = uniforms.frequencySpaceWidth + uniforms.frequencyLineWidth;
     
-    const float x = -1.0f + (instance * width);
-    const float space = width / 2.0f;
-    const float halfwidth = width - space / 2.0f;
-
-    //float x = -1.0f + (instance * (uniforms.frequencySpaceWidth + uniforms.frequencyLineWidth));
+    float x = -1.0f + (instance * width);
+    const float halfwidth = uniforms.frequencyLineWidth;
+    // Top
     float4 startPosition = matrix * float4(x+halfwidth, -1.0f, 0.0f, 1.0f);
+    // Bottom
     float4 endPosition = matrix * float4(x+halfwidth, 1.0f, 0.0f, 1.0f);
 
     float4 v = endPosition - startPosition;
     float2 p0 = float2(startPosition.x, startPosition.y);
     float2 v0 = float2(v.x, v.y);
     float2 v1 = halfwidth * normalize(v0) * float2x2(0.0f, -1.0f, 1.0f, 0.0f);
-    v1.x *= uniforms.lineAspectRatio;
     float2 v2 = halfwidth * normalize(v1) * float2x2(0.0f, -1.0f, 1.0f, 0.0f);
-    v2.x *= uniforms.lineAspectRatio;
  
     float2 pa = p0 + v1 + v2;
     float2 pb = p0 - v1 + v2;
@@ -218,12 +215,20 @@ vertex ColorInOut frequenciesVertexShader(constant ScopeUniforms& uniforms      
     };
 
     const float amplitude = frequenciesBuffer[instance % uniforms.frequenciesCount];
-    
+    float4 color = uniforms.fftColor;
+
+    color.a = color.a * amplitude;
+//    if (amplitude < 0.01) {
+//        color.r = color.r * amplitude;
+//        color.g = color.g * amplitude;
+//        color.b = color.b * amplitude;
+//    }
+
     const float2 p = position[vid & 0x03];
 
     return ColorInOut{
         { p.x, p.y, 0.0f, 1.0f },
-        { uniforms.fftColor.r, uniforms.fftColor.g, uniforms.fftColor.b, uniforms.fftColor.a * amplitude }
+        { color.r, color.g, color.b, color.a }
     };
 }
 

@@ -157,6 +157,9 @@
     [self updateHeadPositionTransaction];
 }
 
+/**
+ Set the playheads' horizontal positition on screen.
+ */
 - (void)setHead:(CGFloat)position
 {
     _head = position;
@@ -174,6 +177,9 @@
     [_headDelegate updatedHeadPosition];
 }
 
+/**
+ Compute the playhead's horizontal position using the audio sample size and playback progress.
+ */
 - (CGFloat)calcHead
 {
     if (_frames == 0.0) {
@@ -182,11 +188,17 @@
     return floor(( _currentFrame * self.bounds.size.width) / _frames);
 }
 
+/**
+ Asserts that the playhead is properly positioned horizontally using a core animation
+ transaction.
+ 
+ Use with great care and avoid nested animation transactions - those are very expensive.
+ */
 - (void)updateHeadPositionTransaction
 {
     [CATransaction begin];
     [CATransaction setDisableActions:YES];
-    self.head = [self calcHead];
+    _head = [self calcHead];
     [CATransaction commit];
 }
 

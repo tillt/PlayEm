@@ -440,6 +440,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     return menu;
 }
 
+/// Moves window to screen indexed by the sender's tag.
 - (void)moveToOtherScreen:(id)sender
 {
     NSMenuItem* item = sender;
@@ -458,8 +459,8 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     }];
 }
 
-// Creates a menu when we got more than a single screen connected, allowing for moving the
-// application window to any other screen.
+/// Creates a menu when we got more than a single screen connected, allowing for moving the
+/// application window to any other screen.
 - (NSMenu*)dockMenu
 {
     NSArray<NSScreen*>* screens = [NSScreen screens];
@@ -1100,7 +1101,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
                        forMode:NSRunLoopCommonModes];
 }
 
-/*
+/**
  This method is used in the process of finding a target for an action method. If this
  NSResponder instance does not itself respondsToSelector:action, then
  supplementalTargetForAction:sender: is called. This method should return an object which
@@ -1109,7 +1110,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
  supplementalTargetForAction:sender:.
  
  NSResponder's implementation returns nil.
-*/
+**/
 - (id)supplementalTargetForAction:(SEL)action sender:(id)sender
 {
     NSLog(@"action: %@", NSStringFromSelector(action));
@@ -1667,11 +1668,13 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     return MPRemoteCommandHandlerStatusCommandFailed;
 }
 
+
+/// Adds this controller as a target for remote commands as issued by
+/// the media menu and keys.
 - (void)subscribeToRemoteCommands
 {
-    MPRemoteCommandCenter *commandCenter = [MPRemoteCommandCenter sharedCommandCenter];
+    MPRemoteCommandCenter* commandCenter = [MPRemoteCommandCenter sharedCommandCenter];
     
-    //Enable when you want to support these
     commandCenter.ratingCommand.enabled = NO;
     commandCenter.likeCommand.enabled = NO;
     commandCenter.dislikeCommand.enabled = NO;
@@ -1680,10 +1683,9 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     commandCenter.disableLanguageOptionCommand.enabled = NO;
     commandCenter.seekForwardCommand.enabled = NO;
     commandCenter.seekBackwardCommand.enabled = NO;
-
     commandCenter.skipForwardCommand.preferredIntervals = @[@(10.0)];
     commandCenter.skipBackwardCommand.preferredIntervals = @[@(10.0)];
-    for (MPRemoteCommand *command in [self remoteCommands]) {
+    for (MPRemoteCommand* command in [self remoteCommands]) {
         [command addTarget:self action:@selector(remoteCommandEvent:)];
     }
 }
@@ -1692,7 +1694,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
 {
     [MPNowPlayingInfoCenter defaultCenter].nowPlayingInfo = nil;
 
-    for (MPRemoteCommand *command in [self remoteCommands]) {
+    for (MPRemoteCommand* command in [self remoteCommands]) {
         [command removeTarget:self];
     }
 }

@@ -161,6 +161,9 @@ const CGFloat kDirectWaveViewTileWidth = 256.0f;
     [self updateTiles];
 }
 
+/**
+ Should get called whenever the visible tiles could possibly be outdated.
+ */
 - (void)updateTiles
 {
     NSSize tileSize = { kDirectWaveViewTileWidth, self.bounds.size.height };

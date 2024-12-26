@@ -27,6 +27,8 @@
 
 #import "VisualSample.h"
 
+//#define  DEBUG_METAL_RESOURCE_LABELS 1
+
 static const NSUInteger kMaxBuffersInFlight = 3;
 static const size_t kAlignedUniformsSize = (sizeof(ScopeUniforms) & ~0xFF) + 0x100;
 
@@ -813,8 +815,9 @@ static const double kLevelDecreaseValue = 0.042;
     dispatch_semaphore_wait(_inFlightSemaphore, DISPATCH_TIME_FOREVER);
     
     id<MTLCommandBuffer> commandBuffer = [_commandQueue commandBuffer];
+#ifdef DEBUG_METAL_RESOURCE_LABELS
     commandBuffer.label = @"Scope Command Buffer";
-    
+#endif
     __block dispatch_semaphore_t block_sema = _inFlightSemaphore;
     [commandBuffer addCompletedHandler:^(id<MTLCommandBuffer> buffer) {
         dispatch_semaphore_signal(block_sema);
@@ -827,9 +830,9 @@ static const double kLevelDecreaseValue = 0.042;
         /// First pass rendering code: Drawing the scope line.
         
         id<MTLRenderCommandEncoder> renderEncoder = [commandBuffer renderCommandEncoderWithDescriptor:_scopePass];
-        
+#ifdef DEBUG_METAL_RESOURCE_LABELS
         renderEncoder.label = @"Scope Texture Render Pass";
-        
+#endif
         [renderEncoder setFrontFacingWinding:MTLWindingCounterClockwise];
         [renderEncoder setCullMode:MTLCullModeFront];
         [renderEncoder setRenderPipelineState:_scopeState];
@@ -864,9 +867,9 @@ static const double kLevelDecreaseValue = 0.042;
         /// Third pass rendering code: Drawing the frequency pattern
         
         id<MTLRenderCommandEncoder> renderEncoder = [commandBuffer renderCommandEncoderWithDescriptor:_frequenciesPass];
-        
+#ifdef DEBUG_METAL_RESOURCE_LABELS
         renderEncoder.label = @"Frequency Texture Render Pass";
-        
+#endif
         [renderEncoder setFrontFacingWinding:MTLWindingCounterClockwise];
         [renderEncoder setCullMode:MTLCullModeBack];
         [renderEncoder setRenderPipelineState:_frequenciesState];
@@ -893,9 +896,9 @@ static const double kLevelDecreaseValue = 0.042;
         /// Fourth pass rendering code:  Scope compose with last scope
         
         id<MTLRenderCommandEncoder> renderEncoder = [commandBuffer renderCommandEncoderWithDescriptor:_composePass];
-        
+#ifdef DEBUG_METAL_RESOURCE_LABELS
         renderEncoder.label = @"Scope Compose Texture Render Pass";
-        
+#endif
         [renderEncoder setRenderPipelineState:_composeState];
         
         // Set the offscreen texture with the bloomed scope as the source texture.
@@ -931,9 +934,9 @@ static const double kLevelDecreaseValue = 0.042;
     {
         /// Sevenths pass rendering code: Frequency and last frequencies composing
         id<MTLRenderCommandEncoder> renderEncoder = [commandBuffer renderCommandEncoderWithDescriptor:_frequenciesComposePass];
-        
+#ifdef DEBUG_METAL_RESOURCE_LABELS
         renderEncoder.label = @"Frequency Compose Texture Render Pass";
-        
+#endif
         [renderEncoder setRenderPipelineState:_frequenciesComposeState];
         
         // Set the offscreen texture as the source texture.
@@ -971,9 +974,9 @@ static const double kLevelDecreaseValue = 0.042;
         /// Nineth pass rendering code: Compose scope and frequencies
         
         id<MTLRenderCommandEncoder> renderEncoder = [commandBuffer renderCommandEncoderWithDescriptor:_postComposePass];
-        
+#ifdef DEBUG_METAL_RESOURCE_LABELS
         renderEncoder.label = @"Scope and Frequencies Compose Texture Render Pass";
-        
+#endif
         [renderEncoder setRenderPipelineState:_postComposeState];
         
         // Source is the last frequencies texture with feedback.
@@ -1003,9 +1006,10 @@ static const double kLevelDecreaseValue = 0.042;
         if(renderPassDescriptor != nil) {
             /// Final pass rendering code: Display on screen.
             id<MTLRenderCommandEncoder> renderEncoder =
-            [commandBuffer renderCommandEncoderWithDescriptor:renderPassDescriptor];
+                [commandBuffer renderCommandEncoderWithDescriptor:renderPassDescriptor];
+#ifdef DEBUG_METAL_RESOURCE_LABELS
             renderEncoder.label = @"Drawable Render Pass";
-            
+#endif
             [renderEncoder setRenderPipelineState:_drawState];
             
             // Use the "dry signal" to mix on top of our fading.

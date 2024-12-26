@@ -168,32 +168,30 @@ extern NSString * const kBeatTrackedSampleTempoChangeNotification;
     [_overlayLayer addAnimation:animation forKey:@"rotation"];
     [_maskLayer addAnimation:animation forKey:@"rotation"];
     [CATransaction commit];
-    
-    [NSSymbolBreatheEffect effect];
 }
 
 - (void)startAnimating
 {
+    NSLog(@"start animating coverview with tempo %f", currentTempo);
     if (paused) {
+        NSLog(@"coverview was paused, resume");
         [self resumeAnimating];
         return;
     }
 
     if (animating) {
+        NSLog(@"coverview got this already");
         return;
     }
 
     [self animate];
 
+    NSLog(@"we should be animating coverview");
     animating = YES;
 }
 
 - (void)stopAnimating
 {
-    [_overlayLayer removeAllAnimations];
-    [_maskLayer removeAllAnimations];
-
-    animating = NO;
     paused = NO;
 }
 

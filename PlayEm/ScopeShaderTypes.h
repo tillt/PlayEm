@@ -28,15 +28,15 @@ typedef NS_ENUM(NSInteger, BufferIndex)
     BufferIndexScopeLines  = 0,
     BufferIndexUniforms    = 1,
     BufferIndexFrequencies = 2,
-    BufferIndexFeedback    = 3
+    BufferIndexFeedback    = 3,
 };
 
 typedef NS_ENUM(NSInteger, TextureIndex)
 {
-    TextureIndexScope = 0,
+    TextureIndexScope       = 0,
     TextureIndexFrequencies = 1,
-    TextureIndexLast = 2,
-    TextureIndexCompose = 3
+    TextureIndexLast        = 2,
+    TextureIndexCompose     = 3,
 };
 
 typedef struct

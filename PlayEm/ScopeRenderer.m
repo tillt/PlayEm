@@ -444,6 +444,7 @@ static const double kLevelDecreaseValue = 0.042;
     _linesUniformBuffer.label = @"LinesBuffer";
     
     _linesBufferAddress = (uint8_t *)_linesUniformBuffer.contents;
+    [self _updateMeshWithLevel:1.000f];
 
     /*
     _alignedUSamplesSize = ((_sampleCount * sizeof(float)) & ~0xFF) + 0x100;
@@ -458,10 +459,9 @@ static const double kLevelDecreaseValue = 0.042;
     _frequencyUniformBuffer = [_device newBufferWithLength:frequencyBufferSize
                                                    options:MTLResourceStorageModeShared];
     _frequencyUniformBuffer.label = @"FrequenciesBuffer";
-    
-    [self _updateMeshWithLevel:1.000f];
 }
 
+/// Update our scope mesh with sample values.
 - (void)_updateMeshWithLevel:(float)level
 {
     assert(_linesUniformBuffer != nil);

@@ -119,8 +119,6 @@ vertex ColorInOut polySegmentInstanceShader(constant Node*              nodes   
     float length_a = min(thickness / dot( miter_a, n1), thickness * 4);
     float length_b = min(thickness / dot( miter_b, n1), thickness * 4);
 
-    float2 pa,pb,pc,pd,pe;
-
     // Premultiply a bunch of things so we dont have to repeat ourselves later on.
     float2 n1_thick_ar = n1 * thickness;
     n1_thick_ar.x *= uniforms.lineAspectRatio;

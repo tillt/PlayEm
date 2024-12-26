@@ -772,9 +772,11 @@ static const double kLevelDecreaseValue = 0.042;
 
     _lineWidth = linePoints / size.height;
     
-    const float totalLineWidth = 2.0 / kScaledFrequencyDataLength;
+    // An FFT line including the gap/s is the total width of the screen devided by
+    // the number of FFT spectrum buckets.
+    const float totalLineWidth = 2.0f / (float)kScaledFrequencyDataLength;
     
-    const float spaceWidth = 9 * totalLineWidth / 10.0;
+    const float spaceWidth = (1.0f * totalLineWidth) / 3.0f;
     _frequencySpaceWidth = spaceWidth;
     _frequencyLineWidth = (totalLineWidth - spaceWidth);
     

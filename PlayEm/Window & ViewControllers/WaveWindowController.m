@@ -2252,6 +2252,9 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
 
 - (void)startVisuals
 {
+    // Start beats.
+    [self beatEffectStart];
+
     // Start the scope renderer.
     [_renderer play:_audioController visual:_visualSample scope:_scopeView];
 

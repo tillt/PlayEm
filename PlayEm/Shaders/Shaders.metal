@@ -24,9 +24,7 @@ typedef struct {
     Point end;
 } Line;
 
-typedef struct {
-    float2 position;
-} Node;
+typedef Point Node;
 
 typedef struct {
     float3 position [[ attribute(VertexAttributePosition) ]];

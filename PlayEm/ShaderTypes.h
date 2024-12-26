@@ -29,12 +29,6 @@ typedef NS_ENUM(NSInteger, VertexAttribute)
 
 typedef struct
 {
-    vector_float2 begin;
-    vector_float2 end;
-} ShaderLine;
-
-typedef struct
-{
     vector_float2 position;
 } PolyNode;
 

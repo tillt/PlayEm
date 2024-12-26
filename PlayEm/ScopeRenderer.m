@@ -166,8 +166,6 @@ static const double kLevelDecreaseValue = 0.042;
     vector_float4 _feedbackColorFactor;
     
     float _rotation;
-    //PolyNode* _scopeNodes;
-    //ShaderLine* _frequencyLines;
     float _lineAspectRatio;
     
     // WORKLOAD DATA

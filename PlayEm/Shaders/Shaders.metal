@@ -183,25 +183,35 @@ vertex ColorInOut frequenciesVertexShader(constant ScopeUniforms& uniforms      
     
     const float width = uniforms.frequencySpaceWidth + uniforms.frequencyLineWidth;
     
-    float x = -1.0f + (instance * width);
-    const float halfwidth = uniforms.frequencyLineWidth;
+    const float x = -1.0f + (instance * width);
+    const float halfFFTBarWidth = uniforms.frequencyLineWidth / 2.0;
+
     // Top
-    float4 startPosition = matrix * float4(x+halfwidth, -1.0f, 0.0f, 1.0f);
+    const float4 startPosition = matrix * float4(x + halfFFTBarWidth,
+                                                 -1.0f,
+                                                 0.0f,
+                                                 1.0f);
     // Bottom
-    float4 endPosition = matrix * float4(x+halfwidth, 1.0f, 0.0f, 1.0f);
+    const float4 endPosition = matrix * float4(x + halfFFTBarWidth,
+                                               1.0f,
+                                               0.0f,
+                                               1.0f);
 
-    float4 v = endPosition - startPosition;
-    float2 p0 = float2(startPosition.x, startPosition.y);
-    float2 v0 = float2(v.x, v.y);
-    float2 v1 = halfwidth * normalize(v0) * float2x2(0.0f, -1.0f, 1.0f, 0.0f);
-    float2 v2 = halfwidth * normalize(v1) * float2x2(0.0f, -1.0f, 1.0f, 0.0f);
- 
-    float2 pa = p0 + v1 + v2;
-    float2 pb = p0 - v1 + v2;
-    float2 pc = p0 + v1 + v0 - v2;
-    float2 pd = p0 - v1 + v0 - v2;
+    const float4 v = endPosition - startPosition;
+    const float2 p0 = float2(startPosition.x, startPosition.y);
+    // Top center node.
+    const float2 v0 = float2(v.x, v.y);
+    // Top left node.
+    const float2 v1 = halfFFTBarWidth * normalize(v0) * float2x2(0.0f, -1.0f, 1.0f, 0.0f);
+    // Top right node.
+    const float2 v2 = halfFFTBarWidth * normalize(v1) * float2x2(0.0f, -1.0f, 1.0f, 0.0f);
 
-    float2 position[] = {
+    const float2 pa = p0 + v1 + v2;
+    const float2 pb = p0 - v1 + v2;
+    const float2 pc = p0 + v1 + v0 - v2;
+    const float2 pd = p0 - v1 + v0 - v2;
+
+    const float2 position[4] = {
         float2(pa.x, pa.y),
         float2(pb.x, pb.y),
         float2(pc.x, pc.y),
@@ -209,20 +219,25 @@ vertex ColorInOut frequenciesVertexShader(constant ScopeUniforms& uniforms      
     };
 
     const float amplitude = frequenciesBuffer[instance % uniforms.frequenciesCount];
-    float4 color = uniforms.fftColor;
+    const float4 color = uniforms.fftColor;
 
-    color.a = color.a * amplitude;
-//    if (amplitude < 0.01) {
-//        color.r = color.r * amplitude;
-//        color.g = color.g * amplitude;
-//        color.b = color.b * amplitude;
-//    }
+    const float4 colorLoookup[] = {
+        float4(color.r,
+               color.g,
+               color.b,
+               color.a * amplitude),
+        float4(color.r, color.g, color.b, color.a * amplitude),
+    };
 
+    //const int amplitudeIndex = ((int)floor(amplitude / 0.01f)) % 2;
+    const int amplitudeIndex = 0;
+    
+    const float4 c = colorLoookup[amplitudeIndex];
     const float2 p = position[vid & 0x03];
 
     return ColorInOut{
         { p.x, p.y, 0.0f, 1.0f },
-        { color.r, color.g, color.b, color.a }
+        { c.r, c.g, c.b, c.a }
     };
 }
 

@@ -61,10 +61,8 @@ vertex TexturePipelineRasterizerData projectTexture(unsigned int vertex_id [[ ve
     return outVertex;
 }
 
-///
 /// Instance vertex shader rendering lines.
 /// FIXME: This is strictly monochrome at the moment. Completely lacks use of transparency or textures to its advantage.
-///
 vertex ColorInOut polySegmentInstanceShader(constant Node*              nodes        [[ buffer(BufferIndexScopeLines) ]],
                                             constant ScopeUniforms&     uniforms     [[ buffer(BufferIndexUniforms) ]],
                                             unsigned int                vid          [[ vertex_id ]],
@@ -235,7 +233,7 @@ fragment float4 frequenciesFragmentShader(ColorInOut in [[stage_in]])
     return in.color;
 }
 
-// Fragment shader that samples a texture and outputs the sampled color.
+/// Fragment shader that samples a texture and outputs the sampled color.
 fragment float4 drawableTextureFragmentShader(TexturePipelineRasterizerData    in      [[ stage_in ]],
                                               texture2d<float, access::sample> textureScope   [[ texture(TextureIndexScope) ]],
                                               texture2d<float, access::sample> textureCompose [[ texture(TextureIndexCompose) ]])
@@ -244,7 +242,7 @@ fragment float4 drawableTextureFragmentShader(TexturePipelineRasterizerData    i
     return textureCompose.sample(simpleSampler, in.texcoord) + (textureScope.sample(simpleSampler, in.texcoord) / 5.0f);
 }
 
-// Fragment shader that samples textures and outputs the sampled color.
+/// Fragment shader that samples textures and outputs the sampled color.
 fragment float4 composeFragmentShader(TexturePipelineRasterizerData    in           [[ stage_in ]],
                                       texture2d<float, access::sample> textureScope [[ texture(TextureIndexScope) ]],
                                       texture2d<float, access::sample> textureLast  [[ texture(TextureIndexLast) ]],

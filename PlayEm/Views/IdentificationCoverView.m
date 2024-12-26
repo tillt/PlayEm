@@ -160,6 +160,7 @@ extern NSString * const kBeatTrackedSampleTempoChangeNotification;
     animation.repeatCount = 1.0f;
     [CATransaction setCompletionBlock:^{
         if (!self->animating) {
+            NSLog(@"we are not animating anymore!!!!");
             return;
         }
         [self animate];

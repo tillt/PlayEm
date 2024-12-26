@@ -476,12 +476,9 @@ static const double kLevelDecreaseValue = 0.042;
     }
 }
 
+/// Update the state of our uniform buffers before rendering
 - (void)_updateDynamicBufferState
 {
-    ///
-    /// Update the state of our uniform buffers before rendering
-    ///
-
     _uniformBufferIndex = (_uniformBufferIndex + 1) % kMaxBuffersInFlight;
 
     _uniformBufferOffset = kAlignedUniformsSize * _uniformBufferIndex;
@@ -531,10 +528,9 @@ static const double kLevelDecreaseValue = 0.042;
     });
 }
 
+/// Update any engine state before encoding rendering commands to our drawable
 - (void)_updateEngine
 {
-    /// Update any engine state before encoding rendering commands to our drawable
-    ///
     //static float _rotation = 0.0;
    
     ScopeUniforms* uniforms = (ScopeUniforms*)_uniformBufferAddress;
@@ -762,11 +758,9 @@ static const double kLevelDecreaseValue = 0.042;
 
 #pragma mark - MTKViewDelegate
 
+/// Respond to drawable size or orientation changes here
 - (void)mtkView:(nonnull MTKView *)view drawableSizeWillChange:(CGSize)size
 {
-    /// Respond to drawable size or orientation changes here
-    ///
-    ///
     const float widthFactor = size.width / _originalSize.width;
     const float heightFactor = size.height / _originalSize.height;
     
@@ -805,11 +799,9 @@ static const double kLevelDecreaseValue = 0.042;
     _projectionMatrix = matrix_multiply(matrix4x4_scale(widthFactor, heightFactor, 0.0), _projectionMatrix);
 }
 
+/// Per frame updates.
 - (void)drawInMTKView:(nonnull MTKView *)view
 {
-    ///
-    /// Per frame updates here
-    ///
     dispatch_semaphore_wait(_inFlightSemaphore, DISPATCH_TIME_FOREVER);
     
     id<MTLCommandBuffer> commandBuffer = [_commandQueue commandBuffer];

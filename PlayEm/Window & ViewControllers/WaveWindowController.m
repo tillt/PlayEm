@@ -1605,7 +1605,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     ];
 }
 
-- (MPRemoteCommandHandlerStatus )remoteCommandEvent:(MPRemoteCommandEvent *)event
+- (MPRemoteCommandHandlerStatus )remoteCommandEvent:(MPRemoteCommandEvent*)event
 {
     MPRemoteCommandCenter *cc = [MPRemoteCommandCenter sharedCommandCenter];
     if (event.command == cc.playCommand) {
@@ -1621,7 +1621,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
         return MPRemoteCommandHandlerStatusSuccess;
     }
     if (event.command == cc.changePlaybackPositionCommand) {
-        MPChangePlaybackPositionCommandEvent *positionEvent = (MPChangePlaybackPositionCommandEvent *)event;
+        MPChangePlaybackPositionCommandEvent *positionEvent = (MPChangePlaybackPositionCommandEvent*)event;
         [self seekToTime:positionEvent.positionTime + 1];
         return MPRemoteCommandHandlerStatusSuccess;
     }
@@ -1664,10 +1664,12 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
 //        return MPRemoteCommandHandlerStatusSuccess;
 //    }
 
-    NSLog(@"%s Wasn't able to handle remote control event: %s",__PRETTY_FUNCTION__,[event.description UTF8String]);
+    NSLog(@"%s was not able to handle remote control event '%s'",
+          __PRETTY_FUNCTION__,
+          [event.description UTF8String]);
+
     return MPRemoteCommandHandlerStatusCommandFailed;
 }
-
 
 /// Adds this controller as a target for remote commands as issued by
 /// the media menu and keys.

@@ -130,33 +130,82 @@ vertex ColorInOut polySegmentInstanceShader(constant Node*              nodes   
     float2 miter_b_length_ar = miter_b * length_b;
     miter_b_length_ar.x *= uniforms.lineAspectRatio;
 
-    if(dot(v0, n1) > 0) {
-        // Start at negative miter.
-        pa = pd1 - miter_a_length_ar;
-        // Proceed to positive normal.
-        pb = pd1 + n1_thick_ar;
-    } else {
-        // Start at negative normal.
-        pa = pd1 - n1_thick_ar;
-        // Proceed to positive miter.
-        pb = pd1 + miter_a_length_ar;
-    }
+    
+    const float2 positionLookupAB[2][2] = {
+        {
+            // Start at negative normal.
+            pd1 - n1_thick_ar,
+            // Proceed to positive miter.
+            pd1 + miter_a_length_ar,
+        },
+        {
+            // Start at negative miter.
+            pd1 - miter_a_length_ar,
+            // Proceed to positive normal.
+            pd1 + n1_thick_ar,
+        },
+    };
 
-    if( dot( v2, n1 ) < 0 ) {
-        // Proceed to negative miter.
-        pc = pd2 - miter_b_length_ar;
-        // Proceed to positive normal.
-        pd = pd2 + n1_thick_ar;
-        // End at positive normal.
-        pe = pd2 + n2_thick_ar;
-    } else {
-        // Proceed to negative normal.
-        pc = pd2 - n1_thick_ar;
-        // Proceed to positive miter.
-        pd = pd2 + miter_b_length_ar;
-        // End at negative normal.
-        pe = pd2 - n2_thick_ar;
-    }
+    const int positionIndexAB = (((int)copysign(1.0, dot(v0, n1))) + 1) / 2;
+
+    const float2 pa = positionLookupAB[positionIndexAB][0];
+    const float2 pb = positionLookupAB[positionIndexAB][1];
+
+//    float2 pa, pb;
+//    if(dot(v0, n1) > 0) {
+//        // Start at negative miter.
+//        pa = pd1 - miter_a_length_ar;
+//        // Proceed to positive normal.
+//        pb = pd1 + n1_thick_ar;
+//    } else {
+//        // Start at negative normal.
+//        pa = pd1 - n1_thick_ar;
+//        // Proceed to positive miter.
+//        pb = pd1 + miter_a_length_ar;
+//    }
+
+    
+    const float2 positionLookupCDE[2][3] = {
+        {
+            // Proceed to negative miter.
+            pd2 - miter_b_length_ar,
+            // Proceed to positive normal.
+            pd2 + n1_thick_ar,
+            // End at positive normal.
+            pd2 + n2_thick_ar,
+        },
+        {
+            // Proceed to negative normal.
+            pd2 - n1_thick_ar,
+            // Proceed to positive miter.
+            pd2 + miter_b_length_ar,
+            // End at negative normal.
+            pd2 - n2_thick_ar,
+        },
+    };
+
+    const int positionIndexCDE = (((int)copysign(1.0, dot(v2, n1))) + 1 ) / 2;
+
+    const float2 pc = positionLookupCDE[positionIndexCDE][0];
+    const float2 pd = positionLookupCDE[positionIndexCDE][1];
+    const float2 pe = positionLookupCDE[positionIndexCDE][2];
+
+//    float2 pc, pd, pe;
+//    if( dot( v2, n1 ) < 0 ) {
+//        // Proceed to negative miter.
+//        pc = pd2 - miter_b_length_ar;
+//        // Proceed to positive normal.
+//        pd = pd2 + n1_thick_ar;
+//        // End at positive normal.
+//        pe = pd2 + n2_thick_ar;
+//    } else {
+//        // Proceed to negative normal.
+//        pc = pd2 - n1_thick_ar;
+//        // Proceed to positive miter.
+//        pd = pd2 + miter_b_length_ar;
+//        // End at negative normal.
+//        pe = pd2 - n2_thick_ar;
+//    }
     
     const float2 position[] = {
         pa, pb, pc, pd, pe,
@@ -222,9 +271,9 @@ vertex ColorInOut frequenciesVertexShader(constant ScopeUniforms& uniforms      
     const float4 color = uniforms.fftColor;
 
     const float4 colorLoookup[] = {
-        float4(color.r,
-               color.g,
-               color.b,
+        float4(color.r * amplitude,
+               color.g * amplitude,
+               color.b * amplitude,
                color.a * amplitude),
         float4(color.r, color.g, color.b, color.a * amplitude),
     };

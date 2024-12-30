@@ -360,11 +360,14 @@ static const double kLevelDecreaseValue = 0.042;
 
     // Set up pipeline for rendering to the offscreen texture.
     {
-        pipelineStateDescriptor.label = @"Offscreen Compose Render Pipeline";
+        pipelineStateDescriptor.label = @"Offscreen Scope Compose Render Pipeline";
         pipelineStateDescriptor.rasterSampleCount = 1;
         pipelineStateDescriptor.vertexFunction = [defaultLibrary newFunctionWithName:@"projectTexture"];
         pipelineStateDescriptor.fragmentFunction = [defaultLibrary newFunctionWithName:@"composeFragmentShader"];
         pipelineStateDescriptor.colorAttachments[0].pixelFormat = _composeTargetTexture.pixelFormat;
+        pipelineStateDescriptor.colorAttachments[0].blendingEnabled = YES;
+        pipelineStateDescriptor.colorAttachments[0].rgbBlendOperation = MTLBlendOperationAdd;
+        pipelineStateDescriptor.colorAttachments[0].alphaBlendOperation = MTLBlendOperationAdd;
         pipelineStateDescriptor.colorAttachments[0].sourceRGBBlendFactor = MTLBlendFactorOne;
         pipelineStateDescriptor.colorAttachments[0].sourceAlphaBlendFactor = MTLBlendFactorSourceAlpha;
         pipelineStateDescriptor.colorAttachments[0].destinationRGBBlendFactor = MTLBlendFactorOne;
@@ -389,6 +392,8 @@ static const double kLevelDecreaseValue = 0.042;
         pipelineStateDescriptor.fragmentFunction = [defaultLibrary newFunctionWithName:@"composeFragmentShader"];
         pipelineStateDescriptor.colorAttachments[0].pixelFormat = _frequenciesComposeTargetTexture.pixelFormat;
         pipelineStateDescriptor.colorAttachments[0].blendingEnabled = YES;
+        pipelineStateDescriptor.colorAttachments[0].rgbBlendOperation = MTLBlendOperationAdd;
+        pipelineStateDescriptor.colorAttachments[0].alphaBlendOperation = MTLBlendOperationAdd;
         pipelineStateDescriptor.colorAttachments[0].sourceRGBBlendFactor = MTLBlendFactorOne;
         pipelineStateDescriptor.colorAttachments[0].sourceAlphaBlendFactor = MTLBlendFactorSourceAlpha;
         pipelineStateDescriptor.colorAttachments[0].destinationRGBBlendFactor = MTLBlendFactorOne;
@@ -562,8 +567,8 @@ static const double kLevelDecreaseValue = 0.042;
     
     __block double maxValue = 0.0;
 
-    dispatch_async(_renderQueue, ^{
-        // Determine scope trigger offset
+//    dispatch_async(_renderQueue, ^{
+        // Determine scope trigger offset.
         size_t offset=0;
 
         size_t bestZeroCrossingOffset = 0;
@@ -572,6 +577,7 @@ static const double kLevelDecreaseValue = 0.042;
         size_t zeroCrossingOffset;
         size_t positiveStreakLength;
 
+        // FIXME: Gosh - those variable names are not so cool.
         float data;
         float last;
 
@@ -591,7 +597,7 @@ static const double kLevelDecreaseValue = 0.042;
             return;
         }
  
-        /// Copy FFT data.
+        // Copy FFT data.
         float* window = self.fftWindow.mutableBytes;
         
         // We try to offset around the current head -- meaning the FFT window shall
@@ -712,7 +718,7 @@ static const double kLevelDecreaseValue = 0.042;
             }
         };
         
-        /// Copy scope lines.
+        // Copy scope lines.
         
         f = bestZeroCrossingOffset;
         self->_minTriggerOffset = bestZeroCrossingOffset + 1;
@@ -761,44 +767,46 @@ static const double kLevelDecreaseValue = 0.042;
 /// Respond to drawable size or orientation changes here
 - (void)mtkView:(nonnull MTKView *)view drawableSizeWillChange:(CGSize)size
 {
-    const float widthFactor = size.width / _originalSize.width;
-    const float heightFactor = size.height / _originalSize.height;
+    // Lets do our stuff in the render queue so we dont need to worry about concurrent
+    // access.
+    dispatch_async(_renderQueue, ^{
+        const float widthFactor = size.width / self->_originalSize.width;
+        const float heightFactor = size.height / self->_originalSize.height;
+        
+        self->_lineAspectRatio = size.height / size.width;
+        
+        const float linePoints = 3.0f;
+        const float erodePoints = 3.0f;
+        const float bloomPoints = 17.0f;
+        
+        self->_lineWidth = linePoints / size.height;
+        
+        // An FFT line including the gap/s is the total width of the screen devided by
+        // the number of FFT spectrum buckets.
+        const float totalLineWidth = 2.0f / (float)kScaledFrequencyDataLength;
+        
+        const float spaceWidth = (1.0f * totalLineWidth) / 3.0f;
+        self->_frequencySpaceWidth = spaceWidth;
+        self->_frequencyLineWidth = (totalLineWidth - spaceWidth);
+        
+        float sigma = ScaleWithOriginalFrame(0.7f, self->_defaultSize.width, size.width);
+        CGSize erodeSize = NSMakeSize((((ceil(ScaleWithOriginalFrame(erodePoints, self->_defaultSize.height, self->_defaultSize.height + (size.height / 30) ))) / 2) * 2) + 1,
+                                      (((ceil(ScaleWithOriginalFrame(erodePoints, self->_defaultSize.height, self->_defaultSize.height + (size.height / 30) ))) / 2) * 2) + 1);
+        CGSize bloomSize = NSMakeSize(((((int)ceil(ScaleWithOriginalFrame(bloomPoints, self->_defaultSize.height, self->_defaultSize.height + (size.height / 30) ))) / 2) * 2) + 1,
+                                      ((((int)ceil(ScaleWithOriginalFrame(bloomPoints, self->_defaultSize.height, self->_defaultSize.height + (size.height / 30) ))) / 2) * 2) + 1);
+        self->_blur = [[MPSImageGaussianBlur alloc] initWithDevice:view.device sigma:sigma];
+        self->_blur.edgeMode = MPSImageEdgeModeClamp;
+        self->_erode = [[MPSImageAreaMin alloc] initWithDevice:view.device
+                                                   kernelWidth:erodeSize.width
+                                                  kernelHeight:erodeSize.height];
+        self->_bloom = [[MPSImageBox alloc] initWithDevice:view.device
+                                               kernelWidth:bloomSize.width
+                                              kernelHeight:bloomSize.height];
     
-    _lineAspectRatio = size.height / size.width;
-    
-    const float linePoints = 3.0f;
-    const float erodePoints = 3.0f;
-    const float bloomPoints = 17.0f;
-
-    _lineWidth = linePoints / size.height;
-    
-    // An FFT line including the gap/s is the total width of the screen devided by
-    // the number of FFT spectrum buckets.
-    const float totalLineWidth = 2.0f / (float)kScaledFrequencyDataLength;
-    
-    const float spaceWidth = (1.0f * totalLineWidth) / 3.0f;
-    _frequencySpaceWidth = spaceWidth;
-    _frequencyLineWidth = (totalLineWidth - spaceWidth);
-    
-    float sigma = ScaleWithOriginalFrame(0.7f, _defaultSize.width, size.width);
-    CGSize erodeSize = NSMakeSize((((ceil(ScaleWithOriginalFrame(erodePoints, _defaultSize.height, _defaultSize.height + (size.height / 30) ))) / 2) * 2) + 1,
-                                  (((ceil(ScaleWithOriginalFrame(erodePoints, _defaultSize.height, _defaultSize.height + (size.height / 30) ))) / 2) * 2) + 1);
-    CGSize bloomSize = NSMakeSize(((((int)ceil(ScaleWithOriginalFrame(bloomPoints, _defaultSize.height, _defaultSize.height + (size.height / 30) ))) / 2) * 2) + 1,
-                                  ((((int)ceil(ScaleWithOriginalFrame(bloomPoints, _defaultSize.height, _defaultSize.height + (size.height / 30) ))) / 2) * 2) + 1);
-//    dispatch_sync(_renderQueue, ^{
-        _blur = [[MPSImageGaussianBlur alloc] initWithDevice:view.device sigma:sigma];
-        _blur.edgeMode = MPSImageEdgeModeClamp;
-        _erode = [[MPSImageAreaMin alloc] initWithDevice:view.device
-                                             kernelWidth:erodeSize.width
-                                            kernelHeight:erodeSize.height];
-        _bloom = [[MPSImageBox alloc] initWithDevice:view.device
-                                         kernelWidth:bloomSize.width
-                                        kernelHeight:bloomSize.height];
- //   });
-    
-    _projectionMatrix = matrix_orthographic(-size.width, size.width, size.height, -size.height, 0, 0);
-    _projectionMatrix = matrix_multiply(matrix4x4_scale(1.0f, _lineAspectRatio, 0.0), _projectionMatrix);
-    _projectionMatrix = matrix_multiply(matrix4x4_scale(widthFactor, heightFactor, 0.0), _projectionMatrix);
+        self->_projectionMatrix = matrix_orthographic(-size.width, size.width, size.height, -size.height, 0, 0);
+        self->_projectionMatrix = matrix_multiply(matrix4x4_scale(1.0f, self->_lineAspectRatio, 0.0), self->_projectionMatrix);
+        self->_projectionMatrix = matrix_multiply(matrix4x4_scale(widthFactor, heightFactor, 0.0), self->_projectionMatrix);
+    });
 }
 
 /// Per frame updates.
@@ -818,8 +826,9 @@ static const double kLevelDecreaseValue = 0.042;
     [self _updateDynamicBufferState];
     [self _updateEngine];
     
+    dispatch_sync(_renderQueue, ^{
     {
-        /// First pass rendering code: Drawing the scope line.
+        // First pass rendering code: Drawing the scope line.
         
         id<MTLRenderCommandEncoder> renderEncoder = [commandBuffer renderCommandEncoderWithDescriptor:_scopePass];
 #ifdef DEBUG_METAL_RESOURCE_LABELS
@@ -849,7 +858,6 @@ static const double kLevelDecreaseValue = 0.042;
         [renderEncoder endEncoding];
     }
     
-//    dispatch_sync(_renderQueue, ^{
         [_bloom encodeToCommandBuffer:commandBuffer
                         sourceTexture:_scopeTargetTexture
                    destinationTexture:_bufferTexture];
@@ -952,16 +960,42 @@ static const double kLevelDecreaseValue = 0.042;
 //    dispatch_sync(_renderQueue, ^{
         /// Eigths pass rendering code: Frequency and last frequencies blur.
     
-
-        [_blur encodeToCommandBuffer:commandBuffer
-                       sourceTexture:_frequenciesComposeTargetTexture
-                  destinationTexture:_lastFrequenciesTexture];
         /// Sixths pass rendering code: Scope with last scope erode to reduce artefact creep
-//        [_erode encodeToCommandBuffer:commandBuffer
-//                        sourceTexture:_bufferTexture
-//                   destinationTexture:_lastFrequenciesTexture];
+    [_blur encodeToCommandBuffer:commandBuffer
+                   sourceTexture:_frequenciesComposeTargetTexture
+              destinationTexture:_lastFrequenciesTexture];
+
+    [_erode encodeToCommandBuffer:commandBuffer
+                        sourceTexture:_lastFrequenciesTexture
+               destinationTexture:_bufferTexture];
+
 //   });
-    
+    {
+        /// Sevenths pass rendering code: Frequency and last frequencies composing
+        id<MTLRenderCommandEncoder> renderEncoder = [commandBuffer renderCommandEncoderWithDescriptor:_frequenciesComposePass];
+#ifdef DEBUG_METAL_RESOURCE_LABELS
+        renderEncoder.label = @"Frequency Compose Texture Render Pass";
+#endif
+        [renderEncoder setRenderPipelineState:_frequenciesComposeState];
+        
+        // Set the offscreen texture as the source texture.
+        [renderEncoder setFragmentTexture:_bufferTexture atIndex:TextureIndexScope];
+        
+        // Set the offscreen texture as the source texture.
+        [renderEncoder setFragmentTexture:_frequenciesComposeTargetTexture atIndex:TextureIndexLast];
+        
+        [renderEncoder setFragmentBuffer:_dynamicUniformBuffer
+                                  offset:_uniformBufferOffset
+                                 atIndex:BufferIndexUniforms];
+        
+        // Draw quad with rendered texture.
+        [renderEncoder drawPrimitives:MTLPrimitiveTypeTriangleStrip
+                          vertexStart:0
+                          vertexCount:4];
+        
+        [renderEncoder endEncoding];
+    }
+
     {
         /// Nineth pass rendering code: Compose scope and frequencies
         
@@ -1020,7 +1054,7 @@ static const double kLevelDecreaseValue = 0.042;
         }
         
         [commandBuffer commit];
-//    });
+    });
 }
 
 @end

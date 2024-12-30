@@ -163,7 +163,7 @@ void performFFT(FFTSetup fft, float* data, size_t numberOfFrames, float* frequen
         scaleVector = malloc(framesOver2 * sizeof(float));
         
         for (int i=0; i < framesOver2;i++) {
-            const float factor = 1.0 + (((float)i / (float)framesOver2) * 10);
+            const float factor = 1.0 + (((float)i / (float)framesOver2) * 100.0f);
             scaleVector[i] = factor;
         }
     }
@@ -175,11 +175,11 @@ void performFFT(FFTSetup fft, float* data, size_t numberOfFrames, float* frequen
     // Take the absolute value of the output.
     vDSP_zvabs(output, 1, frequencyData, 1, kFrequencyDataLength);
     // Scale the FFT data.
-    float scale = framesOver2 / 2;
+    float scale = framesOver2 / 2.0f;
     vDSP_vsdiv(frequencyData, 1, &scale, frequencyData, 1, kFrequencyDataLength);
     // Get the power of the values by sqrt(A[n]**2 + A[n]**2).
     vDSP_vdist(frequencyData, 1, frequencyData, 1, frequencyData, 1, kFrequencyDataLength);
-    
+    // Multiply the whole thing by our visual scaling vector.
     vDSP_vmul(frequencyData, 1, scaleVector, 1, frequencyData, 1, kFrequencyDataLength);
 }
 
@@ -218,6 +218,7 @@ void logscaleFFT(float* map, float* frequencyData)
     }
     buffer[kScaledFrequencyDataLength-1] += buffer[kScaledFrequencyDataLength];
     counters[kScaledFrequencyDataLength-1] += counters[kScaledFrequencyDataLength];
+    
     // Normalize values.
     for (int i=0; i < kScaledFrequencyDataLength;i++) {
         if (counters[i] > 0.0f) {

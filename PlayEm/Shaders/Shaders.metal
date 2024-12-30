@@ -184,6 +184,8 @@ vertex ColorInOut polySegmentInstanceShader(constant Node*              nodes   
         },
     };
 
+    // We get the dot-product of v2 and n1. If that was negative, we end up at position
+    // index 0, 1 otherwise.
     const int positionIndexCDE = (((int)copysign(1.0, dot(v2, n1))) + 1 ) / 2;
 
     const float2 pc = positionLookupCDE[positionIndexCDE][0];

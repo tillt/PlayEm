@@ -17,6 +17,7 @@
 		BB19A3772C5FAE0C00E5B4D2 /* CoreWLAN.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BB19A3762C5FAE0C00E5B4D2 /* CoreWLAN.framework */; };
 		BB25CF59255857BC005BFC32 /* MediaMetaData.m in Sources */ = {isa = PBXBuildFile; fileRef = BB25CF58255857BC005BFC32 /* MediaMetaData.m */; };
 		BB26B51129442E9A006EBAA7 /* AudioProcessing.m in Sources */ = {isa = PBXBuildFile; fileRef = BB26B51029442E9A006EBAA7 /* AudioProcessing.m */; };
+		BB2A34A12D2372CC006BF132 /* ConstantBeatRefiner.m in Sources */ = {isa = PBXBuildFile; fileRef = BB2A34A02D2372CC006BF132 /* ConstantBeatRefiner.m */; };
 		BB2CB5652481A92600D47258 /* WaveWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = BB2CB5642481A92600D47258 /* WaveWindowController.m */; };
 		BB2CB58724827A0900D47258 /* AudioController.mm in Sources */ = {isa = PBXBuildFile; fileRef = BB2CB58624827A0900D47258 /* AudioController.mm */; };
 		BB2CF8AD259EB66900D6BA03 /* LazySample.m in Sources */ = {isa = PBXBuildFile; fileRef = BB2CF8AC259EB66900D6BA03 /* LazySample.m */; };
@@ -125,6 +126,8 @@
 		BB25CF58255857BC005BFC32 /* MediaMetaData.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MediaMetaData.m; sourceTree = "<group>"; };
 		BB26B51029442E9A006EBAA7 /* AudioProcessing.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AudioProcessing.m; sourceTree = "<group>"; };
 		BB26B51229442ECF006EBAA7 /* AudioProcessing.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AudioProcessing.h; sourceTree = "<group>"; };
+		BB2A34A02D2372CC006BF132 /* ConstantBeatRefiner.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ConstantBeatRefiner.m; sourceTree = "<group>"; };
+		BB2A34A22D23735F006BF132 /* ConstantBeatRefiner.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ConstantBeatRefiner.h; sourceTree = "<group>"; };
 		BB2CB5632481A92600D47258 /* WaveWindowController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WaveWindowController.h; sourceTree = "<group>"; };
 		BB2CB5642481A92600D47258 /* WaveWindowController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WaveWindowController.m; sourceTree = "<group>"; };
 		BB2CB58524827A0900D47258 /* AudioController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AudioController.h; sourceTree = "<group>"; };
@@ -333,6 +336,8 @@
 				BB539A642D15C7260095B8C7 /* BeatEvent.h */,
 				BBDA2FFC2A7FCCB70084E2B6 /* BeatTrackedSample.h */,
 				BBDA2FFD2A7FCEEC0084E2B6 /* BeatTrackedSample.m */,
+				BB2A34A22D23735F006BF132 /* ConstantBeatRefiner.h */,
+				BB2A34A02D2372CC006BF132 /* ConstantBeatRefiner.m */,
 				BB9401862AD0974900B7B150 /* AcceleratedBiquadFilter.h */,
 				BB9401872AD0974900B7B150 /* AcceleratedBiquadFilter.m */,
 			);
@@ -662,6 +667,7 @@
 				BB5A4D9128FC5C2B003A733C /* NSBezierPath+CGPath.m in Sources */,
 				BBC43B7328D296B800CD1080 /* AVMetadataItem+THAdditions.m in Sources */,
 				BB097A092921967700D33E44 /* LevelIndicatorCell.m in Sources */,
+				BB2A34A12D2372CC006BF132 /* ConstantBeatRefiner.m in Sources */,
 				BB26B51129442E9A006EBAA7 /* AudioProcessing.m in Sources */,
 				BBDBBA7B2BA4B013003A80C1 /* WaveShaders.metal in Sources */,
 				BB2CB58724827A0900D47258 /* AudioController.mm in Sources */,

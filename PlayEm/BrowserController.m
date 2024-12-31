@@ -1065,7 +1065,7 @@ typeSelectStringForTableColumn:(NSTableColumn*)tableColumn
         default:
             return YES;
     }
-    return NO;
+    return YES;
 }
 
 - (void)tableView:(NSTableView*)tableView sortDescriptorsDidChange:(NSArray<NSSortDescriptor*>*)oldDescriptors
@@ -1108,7 +1108,7 @@ typeSelectStringForTableColumn:(NSTableColumn*)tableColumn
 }
   
 - (NSView*)tableView:(NSTableView*)tableView 
-  viewForTableColumn:(NSTableColumn *)tableColumn
+  viewForTableColumn:(NSTableColumn*)tableColumn
                  row:(NSInteger)row
 {
     TableCellView* result = [tableView makeViewWithIdentifier:tableColumn.identifier owner:self];

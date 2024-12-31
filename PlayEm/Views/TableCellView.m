@@ -64,7 +64,7 @@ static const double kFontSize = 11.0f;
     _textLayer.foregroundColor = [[Defaults sharedDefaults] secondaryLabelColor].CGColor;
     _textLayer.frame = NSInsetRect(self.bounds, 0.0, 5.0);
     [layer addSublayer:_textLayer];
-   
+
     return layer;
 }
 

@@ -32,9 +32,6 @@
 static const NSUInteger kMaxBuffersInFlight = 3;
 static const size_t kAlignedUniformsSize = (sizeof(ScopeUniforms) & ~0xFF) + 0x100;
 
-//65536
-//static const size_t kFrequencyDataScaleFactor = kFrequencyDataLength / kScaledFrequencyDataLength;
-
 static const double kLevelDecreaseValue = 0.042;
 
 @interface ScopeRenderer ()
@@ -222,7 +219,7 @@ static const double kLevelDecreaseValue = 0.042;
                                                      name:kScopeViewDidLiveResizeNotification
                                                    object:nil];
     
-        dispatch_queue_attr_t attr = dispatch_queue_attr_make_with_qos_class(DISPATCH_QUEUE_SERIAL,
+        dispatch_queue_attr_t attr = dispatch_queue_attr_make_with_qos_class(DISPATCH_QUEUE_CONCURRENT,
                                                                              QOS_CLASS_USER_INTERACTIVE,
                                                                              0);
         _renderQueue = dispatch_queue_create("PlayEm.RenderingQueue", attr);
@@ -565,201 +562,198 @@ static const double kLevelDecreaseValue = 0.042;
         return;
     }
     
-    __block double maxValue = 0.0;
+    double maxValue = 0.0;
 
-//    dispatch_async(_renderQueue, ^{
-        // Determine scope trigger offset.
-        size_t offset=0;
+    size_t offset=0;
 
-        size_t bestZeroCrossingOffset = 0;
-        size_t bestPositiveStreakLength = 0;
+    size_t bestZeroCrossingOffset = 0;
+    size_t bestPositiveStreakLength = 0;
 
-        size_t zeroCrossingOffset;
-        size_t positiveStreakLength;
+    size_t zeroCrossingOffset;
+    size_t positiveStreakLength;
 
-        // FIXME: Gosh - those variable names are not so cool.
-        float data;
-        float last;
+    // FIXME: Gosh - those variable names are not so cool.
+    float data;
+    float last;
 
-        const size_t sampleFrames = self->_visual.sample.frames;
-        const size_t channels = self->_visual.sample.channels;
-        
-        // Fetches sample pointers from `_sourceChannelData`
-        float* sourceChannels[channels];
-        for (int channelIndex=0; channelIndex < channels; channelIndex++) {
-            NSData* data = self->_sourceChannelData[channelIndex];
-            sourceChannels[channelIndex] = (float*)data.bytes;
+    const size_t sampleFrames = self->_visual.sample.frames;
+    const size_t channels = self->_visual.sample.channels;
+    
+    // Fetches sample pointers from `_sourceChannelData`
+    float* sourceChannels[channels];
+    for (int channelIndex=0; channelIndex < channels; channelIndex++) {
+        NSData* data = self->_sourceChannelData[channelIndex];
+        sourceChannels[channelIndex] = (float*)data.bytes;
+    }
+
+    const size_t frame = self.currentFrame;
+    
+    if (frame < 0) {
+        return;
+    }
+
+    // Copy FFT data.
+    float* window = self.fftWindow.mutableBytes;
+    
+    // We try to offset around the current head -- meaning the FFT window shall
+    // start half its size before the head and end with half its size ahead.
+    // This may not be a great strategy from a scientific angle - it is a straight-
+    // forward thing to do.
+    unsigned long long f = frame > (kWindowSamples / 2) ? frame - (kWindowSamples / 2) : 0;
+    
+    for (int channelIndex=0; channelIndex < channels; channelIndex++) {
+        NSMutableData* data = self.blockSourceChannelData[channelIndex];
+        sourceChannels[channelIndex] = data.mutableBytes;
+    }
+    
+    // Gather up to one window full of mono sound data.
+    size_t samplesToGo = [self.visual.sample rawSampleFromFrameOffset:f
+                                                               frames:kWindowSamples
+                                                              outputs:sourceChannels];
+    
+    for (size_t i = 0; i < samplesToGo; i++) {
+        float data = 0;
+        for (size_t channelIndex = 0; channelIndex < channels; channelIndex++) {
+            data += sourceChannels[channelIndex][i];
         }
+        data /= channels;
+        ++f;
+        window[i] = data;
+        if (f > sampleFrames) {
+            break;
+        }
+    }
+    
+    uint8_t bufferIndex = (self->_uniformBufferIndex + 1) % kMaxBuffersInFlight;
+    uint32_t frequencyBufferOffset = (uint32_t)self->_alignedUFrequenciesSize * bufferIndex;
+    void* frequencyBufferAddress = ((uint8_t *)self->_frequencyUniformBuffer.contents) + frequencyBufferOffset;
 
-        const size_t frame = self.currentFrame;
-        
-        if (frame < 0) {
-            return;
-        }
- 
-        // Copy FFT data.
-        float* window = self.fftWindow.mutableBytes;
-        
-        // We try to offset around the current head -- meaning the FFT window shall
-        // start half its size before the head and end with half its size ahead.
-        // This may not be a great strategy from a scientific angle - it is a straight-
-        // forward thing to do.
-        unsigned long long f = frame > (kWindowSamples / 2) ? frame - (kWindowSamples / 2) : 0;
-        
-        for (int channelIndex=0; channelIndex < channels; channelIndex++) {
-            NSMutableData* data = self.blockSourceChannelData[channelIndex];
-            sourceChannels[channelIndex] = data.mutableBytes;
-        }
-        
-        // Gather up to one window full of mono sound data.
-        size_t samplesToGo = [self.visual.sample rawSampleFromFrameOffset:f
-                                                                   frames:kWindowSamples
-                                                                  outputs:sourceChannels];
-        
-        for (size_t i = 0; i < samplesToGo; i++) {
-            float data = 0;
-            for (size_t channelIndex = 0; channelIndex < channels; channelIndex++) {
-                data += sourceChannels[channelIndex][i];
-            }
-            data /= channels;
-            ++f;
-            window[i] = data;
-            if (f > sampleFrames) {
-                break;
-            }
-        }
-        
-        uint8_t bufferIndex = (self->_uniformBufferIndex + 1) % kMaxBuffersInFlight;
-        uint32_t frequencyBufferOffset = (uint32_t)self->_alignedUFrequenciesSize * bufferIndex;
-        void* frequencyBufferAddress = ((uint8_t *)self->_frequencyUniformBuffer.contents) + frequencyBufferOffset;
-
-        performFFT(self->_fftSetup, window, kWindowSamples, frequencyBufferAddress);
-        logscaleFFT(self->_logMap, frequencyBufferAddress);
-        
+    performFFT(self->_fftSetup, window, kWindowSamples, frequencyBufferAddress);
+    logscaleFFT(self->_logMap, frequencyBufferAddress);
+    
 //            performMel(_dctSetup, window, kWindowSamples, frequencyBufferAddress);
 
-        size_t previousAttemptAt = -1;
-        while (bestPositiveStreakLength == 0) {
-            previousAttemptAt = offset;
-            offset = self.currentFrame;
+    size_t previousAttemptAt = -1;
+    while (bestPositiveStreakLength == 0) {
+        previousAttemptAt = offset;
+        offset = self.currentFrame;
 
-            if (offset < 0) {
-                break;
-            }
-            
-            if (offset == previousAttemptAt) {
-                break;
-            }
-            
-            if (offset > sampleFrames) {
-                break;
-            }
-
-            self->_minTriggerOffset = offset;
-
-            unsigned long long f = offset;
-
-            bestPositiveStreakLength = 0;
-            bestZeroCrossingOffset = f;
-
-            positiveStreakLength = 0;
-            zeroCrossingOffset = f;
-            
-            last = 1.0f;
-            
-            BOOL triggered = NO;
-            
-            // This may block for a loooooong time!
-            unsigned long long framesReceived = [self->_visual.sample rawSampleFromFrameOffset:f
-                                                                                  frames:self->_sampleCount
-                                                                                 outputs:sourceChannels];
-
-            size_t framesToGo = framesReceived;
-           
-            // Collect zero crossings and weight them by positive streak length.
-            for (size_t i = 0; i < framesToGo; i++) {
-                data = 0;
-                for (size_t channelIndex = 0; channelIndex < channels; channelIndex++) {
-                    data += sourceChannels[channelIndex][i];
-                }
-                
-                data /= channels;
-                
-                if (!triggered) {
-                    // Try to detect an upwards zero crossing.
-                    if (f >= self->_minTriggerOffset &&      // Prevent triggering before a minimum offset.
-                        (data > 0.0f && last <= 0.0f)) {
-                        zeroCrossingOffset = f;
-                        positiveStreakLength = 0;
-                        triggered = YES;
-                    }
-                }
-
-                last = data;
-
-                if (triggered) {
-                    if (data >= 0.0f) {
-                        ++positiveStreakLength;
-                        if (positiveStreakLength > bestPositiveStreakLength) {
-                            bestPositiveStreakLength = positiveStreakLength;
-                            bestZeroCrossingOffset = zeroCrossingOffset;
-                        }
-                    } else {
-                        triggered = NO;
-                    }
-                }
-                
-                ++f;
-                
-                // Did we run over the end of the total sample already?
-                if (f >= sampleFrames) {
-                    f = self->_minTriggerOffset;
-                }
-            }
-        };
+        if (offset < 0) {
+            break;
+        }
         
-        // Copy scope lines.
+        if (offset == previousAttemptAt) {
+            break;
+        }
         
-        f = bestZeroCrossingOffset;
-        self->_minTriggerOffset = bestZeroCrossingOffset + 1;
+        if (offset > sampleFrames) {
+            break;
+        }
+
+        self->_minTriggerOffset = offset;
+
+        unsigned long long f = offset;
+
+        bestPositiveStreakLength = 0;
+        bestZeroCrossingOffset = f;
+
+        positiveStreakLength = 0;
+        zeroCrossingOffset = f;
+        
+        last = 1.0f;
+        
+        BOOL triggered = NO;
+        
+        // This may block for a loooooong time!
         unsigned long long framesReceived = [self->_visual.sample rawSampleFromFrameOffset:f
                                                                               frames:self->_sampleCount
                                                                              outputs:sourceChannels];
 
-        samplesToGo = framesReceived;
-        size_t i = 0;
-        
-        // We are exploiting the traversal over the displayed samples by adding the level
-        // meter feeding.
-        double meterValue = 0.0;
-
-        PolyNode* node = self->_linesBufferAddress;
-        for (; i < samplesToGo; i++) {
-            data = 0.0f;
+        size_t framesToGo = framesReceived;
+       
+        // Collect zero crossings and weight them by positive streak length.
+        for (size_t i = 0; i < framesToGo; i++) {
+            data = 0;
             for (size_t channelIndex = 0; channelIndex < channels; channelIndex++) {
                 data += sourceChannels[channelIndex][i];
             }
+            
             data /= channels;
-            meterValue = data * data;
-
-            if (meterValue > maxValue) {
-                maxValue = meterValue;
+            
+            if (!triggered) {
+                // Try to detect an upwards zero crossing.
+                if (f >= self->_minTriggerOffset &&      // Prevent triggering before a minimum offset.
+                    (data > 0.0f && last <= 0.0f)) {
+                    zeroCrossingOffset = f;
+                    positiveStreakLength = 0;
+                    triggered = YES;
+                }
             }
 
-            // Initialize the line node Y value with the sample.
-            node[i].position[1] = data;
+            last = data;
 
+            if (triggered) {
+                if (data >= 0.0f) {
+                    ++positiveStreakLength;
+                    if (positiveStreakLength > bestPositiveStreakLength) {
+                        bestPositiveStreakLength = positiveStreakLength;
+                        bestZeroCrossingOffset = zeroCrossingOffset;
+                    }
+                } else {
+                    triggered = NO;
+                }
+            }
+            
             ++f;
-            if (f >= self->_audio.sample.frames) {
+            
+            // Did we run over the end of the total sample already?
+            if (f >= sampleFrames) {
                 f = self->_minTriggerOffset;
             }
         }
-        // Make sure any remaining node is reset to silence level.
-        for (;i < self->_sampleCount;i++) {
-            node[i].position[1] = 0.0;
+    };
+    
+    // Copy scope lines.
+    
+    f = bestZeroCrossingOffset;
+    self->_minTriggerOffset = bestZeroCrossingOffset + 1;
+    unsigned long long framesReceived = [self->_visual.sample rawSampleFromFrameOffset:f
+                                                                          frames:self->_sampleCount
+                                                                         outputs:sourceChannels];
+
+    samplesToGo = framesReceived;
+    size_t i = 0;
+    
+    // We are exploiting the traversal over the displayed samples by adding the level
+    // meter feeding.
+    double meterValue = 0.0;
+
+    PolyNode* node = self->_linesBufferAddress;
+    for (; i < samplesToGo; i++) {
+        data = 0.0f;
+        for (size_t channelIndex = 0; channelIndex < channels; channelIndex++) {
+            data += sourceChannels[channelIndex][i];
         }
-        [self updateVolumeLevelDisplay:maxValue * self->_audio.outputVolume];
-//    });
+        data /= channels;
+        meterValue = data * data;
+
+        if (meterValue > maxValue) {
+            maxValue = meterValue;
+        }
+
+        // Initialize the line node Y value with the sample.
+        node[i].position[1] = data;
+
+        ++f;
+        if (f >= self->_audio.sample.frames) {
+            f = self->_minTriggerOffset;
+        }
+    }
+    // Make sure any remaining node is reset to silence level.
+    for (;i < self->_sampleCount;i++) {
+        node[i].position[1] = 0.0;
+    }
+    [self updateVolumeLevelDisplay:maxValue * self->_audio.outputVolume];
 }
 
 #pragma mark - MTKViewDelegate
@@ -812,8 +806,7 @@ static const double kLevelDecreaseValue = 0.042;
 /// Per frame updates.
 - (void)drawInMTKView:(nonnull MTKView *)view
 {
-    
-    dispatch_sync(_renderQueue, ^{
+    dispatch_barrier_sync(_renderQueue, ^{
         dispatch_semaphore_wait(_inFlightSemaphore, DISPATCH_TIME_FOREVER);
         
         id<MTLCommandBuffer> commandBuffer = [_commandQueue commandBuffer];
@@ -859,12 +852,9 @@ static const double kLevelDecreaseValue = 0.042;
         [_bloom encodeToCommandBuffer:commandBuffer
                         sourceTexture:_scopeTargetTexture
                    destinationTexture:_bufferTexture];
-//    });
-    
-    {
-        /// Third pass rendering code: Drawing the frequency pattern
+        // Third pass rendering code: Drawing the frequency pattern
         
-        id<MTLRenderCommandEncoder> renderEncoder = [commandBuffer renderCommandEncoderWithDescriptor:_frequenciesPass];
+        renderEncoder = [commandBuffer renderCommandEncoderWithDescriptor:_frequenciesPass];
 #ifdef DEBUG_METAL_RESOURCE_LABELS
         renderEncoder.label = @"Frequency Texture Render Pass";
 #endif
@@ -888,12 +878,10 @@ static const double kLevelDecreaseValue = 0.042;
                           vertexStart:0
                           vertexCount:4 * (kScaledFrequencyDataLength + (_frequencyStepping - 1))/ _frequencyStepping];
         [renderEncoder endEncoding];
-    }
-    
-    {
-        /// Fourth pass rendering code:  Scope compose with last scope
+
+        // Fourth pass rendering code:  Scope compose with last scope
         
-        id<MTLRenderCommandEncoder> renderEncoder = [commandBuffer renderCommandEncoderWithDescriptor:_composePass];
+        renderEncoder = [commandBuffer renderCommandEncoderWithDescriptor:_composePass];
 #ifdef DEBUG_METAL_RESOURCE_LABELS
         renderEncoder.label = @"Scope Compose Texture Render Pass";
 #endif
@@ -915,9 +903,7 @@ static const double kLevelDecreaseValue = 0.042;
                           vertexCount:4];
         
         [renderEncoder endEncoding];
-    }
 
-//    dispatch_sync(_renderQueue, ^{
         /// Fifth pass rendering code: Scope with last scope bloom again
         [_bloom encodeToCommandBuffer:commandBuffer
                         sourceTexture:_composeTargetTexture
@@ -927,14 +913,12 @@ static const double kLevelDecreaseValue = 0.042;
         [_erode encodeToCommandBuffer:commandBuffer
                         sourceTexture:_bufferTexture
                    destinationTexture:_lastTexture];
-//    });
-    
-    {
-        /// Sevenths pass rendering code: Frequency and last frequencies composing
-        id<MTLRenderCommandEncoder> renderEncoder = [commandBuffer renderCommandEncoderWithDescriptor:_frequenciesComposePass];
-#ifdef DEBUG_METAL_RESOURCE_LABELS
+        
+        // Sevenths pass rendering code: Frequency and last frequencies composing
+        renderEncoder = [commandBuffer renderCommandEncoderWithDescriptor:_frequenciesComposePass];
+    #ifdef DEBUG_METAL_RESOURCE_LABELS
         renderEncoder.label = @"Frequency Compose Texture Render Pass";
-#endif
+    #endif
         [renderEncoder setRenderPipelineState:_frequenciesComposeState];
         
         // Set the offscreen texture as the source texture.
@@ -953,27 +937,19 @@ static const double kLevelDecreaseValue = 0.042;
                           vertexCount:4];
         
         [renderEncoder endEncoding];
-    }
-    
-//    dispatch_sync(_renderQueue, ^{
-        /// Eigths pass rendering code: Frequency and last frequencies blur.
-    
-        /// Sixths pass rendering code: Scope with last scope erode to reduce artefact creep
-    [_blur encodeToCommandBuffer:commandBuffer
-                   sourceTexture:_frequenciesComposeTargetTexture
-              destinationTexture:_lastFrequenciesTexture];
+        [_blur encodeToCommandBuffer:commandBuffer
+                       sourceTexture:_frequenciesComposeTargetTexture
+                  destinationTexture:_lastFrequenciesTexture];
 
-    [_erode encodeToCommandBuffer:commandBuffer
-                        sourceTexture:_lastFrequenciesTexture
-               destinationTexture:_bufferTexture];
+        [_erode encodeToCommandBuffer:commandBuffer
+                            sourceTexture:_lastFrequenciesTexture
+                   destinationTexture:_bufferTexture];
 
-//   });
-    {
-        /// Sevenths pass rendering code: Frequency and last frequencies composing
-        id<MTLRenderCommandEncoder> renderEncoder = [commandBuffer renderCommandEncoderWithDescriptor:_frequenciesComposePass];
-#ifdef DEBUG_METAL_RESOURCE_LABELS
+        // Sevenths pass rendering code: Frequency and last frequencies composing
+        renderEncoder = [commandBuffer renderCommandEncoderWithDescriptor:_frequenciesComposePass];
+    #ifdef DEBUG_METAL_RESOURCE_LABELS
         renderEncoder.label = @"Frequency Compose Texture Render Pass";
-#endif
+    #endif
         [renderEncoder setRenderPipelineState:_frequenciesComposeState];
         
         // Set the offscreen texture as the source texture.
@@ -992,15 +968,12 @@ static const double kLevelDecreaseValue = 0.042;
                           vertexCount:4];
         
         [renderEncoder endEncoding];
-    }
-
-    {
-        /// Nineth pass rendering code: Compose scope and frequencies
+        // Nineth pass rendering code: Compose scope and frequencies
         
-        id<MTLRenderCommandEncoder> renderEncoder = [commandBuffer renderCommandEncoderWithDescriptor:_postComposePass];
-#ifdef DEBUG_METAL_RESOURCE_LABELS
+        renderEncoder = [commandBuffer renderCommandEncoderWithDescriptor:_postComposePass];
+    #ifdef DEBUG_METAL_RESOURCE_LABELS
         renderEncoder.label = @"Scope and Frequencies Compose Texture Render Pass";
-#endif
+    #endif
         [renderEncoder setRenderPipelineState:_postComposeState];
         
         // Source is the last frequencies texture with feedback.
@@ -1019,21 +992,18 @@ static const double kLevelDecreaseValue = 0.042;
                           vertexCount:4];
         
         [renderEncoder endEncoding];
-    }
     
-    
-/// Delay getting the currentRenderPassDescriptor until we absolutely need it to avoid
-///   holding onto the drawable and blocking the display pipeline any longer than necessar
-///
-//    dispatch_sync(_renderQueue, ^{
+        // Delay getting the currentRenderPassDescriptor until we absolutely need it to avoid
+        //   holding onto the drawable and blocking the display pipeline any longer than necessar
+        //
         MTLRenderPassDescriptor* renderPassDescriptor = view.currentRenderPassDescriptor;
         if(renderPassDescriptor != nil) {
-            /// Final pass rendering code: Display on screen.
+            // Final pass rendering code: Display on screen.
             id<MTLRenderCommandEncoder> renderEncoder =
                 [commandBuffer renderCommandEncoderWithDescriptor:renderPassDescriptor];
-#ifdef DEBUG_METAL_RESOURCE_LABELS
+    #ifdef DEBUG_METAL_RESOURCE_LABELS
             renderEncoder.label = @"Drawable Render Pass";
-#endif
+    #endif
             [renderEncoder setRenderPipelineState:_drawState];
             
             // Use the "dry signal" to mix on top of our fading.

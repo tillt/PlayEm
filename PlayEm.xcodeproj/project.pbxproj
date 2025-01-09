@@ -49,6 +49,7 @@
 		BB8A100728FF49E400FC6013 /* Scroller.m in Sources */ = {isa = PBXBuildFile; fileRef = BB8A100628FF49E400FC6013 /* Scroller.m */; };
 		BB8A100C290586E500FC6013 /* CAShapeLayer+Path.m in Sources */ = {isa = PBXBuildFile; fileRef = BB8A100B290586E500FC6013 /* CAShapeLayer+Path.m */; };
 		BB9401882AD0974900B7B150 /* AcceleratedBiquadFilter.m in Sources */ = {isa = PBXBuildFile; fileRef = BB9401872AD0974900B7B150 /* AcceleratedBiquadFilter.m */; };
+		BB96D1E12D30748400AD48A5 /* AudioDevice.m in Sources */ = {isa = PBXBuildFile; fileRef = BB96D1E02D30748400AD48A5 /* AudioDevice.m */; };
 		BB9C77E52A8D5F7C00A138BE /* WaveView.m in Sources */ = {isa = PBXBuildFile; fileRef = BB9C77E42A8D5F7C00A138BE /* WaveView.m */; };
 		BB9C77E72A8D618700A138BE /* CoreImage.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BB9C77E62A8D618700A138BE /* CoreImage.framework */; };
 		BB9CE9B128D388F3008DFF91 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = BB9CE9B028D388F3008DFF91 /* MainMenu.xib */; };
@@ -176,6 +177,8 @@
 		BB8A100B290586E500FC6013 /* CAShapeLayer+Path.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "CAShapeLayer+Path.m"; sourceTree = "<group>"; };
 		BB9401862AD0974900B7B150 /* AcceleratedBiquadFilter.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AcceleratedBiquadFilter.h; sourceTree = "<group>"; };
 		BB9401872AD0974900B7B150 /* AcceleratedBiquadFilter.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AcceleratedBiquadFilter.m; sourceTree = "<group>"; };
+		BB96D1DF2D30748400AD48A5 /* AudioDevice.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AudioDevice.h; sourceTree = "<group>"; };
+		BB96D1E02D30748400AD48A5 /* AudioDevice.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AudioDevice.m; sourceTree = "<group>"; };
 		BB9C77E32A8D5F3400A138BE /* WaveView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WaveView.h; sourceTree = "<group>"; };
 		BB9C77E42A8D5F7C00A138BE /* WaveView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WaveView.m; sourceTree = "<group>"; };
 		BB9C77E62A8D618700A138BE /* CoreImage.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreImage.framework; path = System/Library/Frameworks/CoreImage.framework; sourceTree = SDKROOT; };
@@ -279,6 +282,8 @@
 				BB26B51029442E9A006EBAA7 /* AudioProcessing.m */,
 				BB2CB58524827A0900D47258 /* AudioController.h */,
 				BB2CB58624827A0900D47258 /* AudioController.mm */,
+				BB96D1DF2D30748400AD48A5 /* AudioDevice.h */,
+				BB96D1E02D30748400AD48A5 /* AudioDevice.m */,
 			);
 			path = Audio;
 			sourceTree = "<group>";
@@ -671,6 +676,7 @@
 				BB26B51129442E9A006EBAA7 /* AudioProcessing.m in Sources */,
 				BBDBBA7B2BA4B013003A80C1 /* WaveShaders.metal in Sources */,
 				BB2CB58724827A0900D47258 /* AudioController.mm in Sources */,
+				BB96D1E12D30748400AD48A5 /* AudioDevice.m in Sources */,
 				BB2CB5652481A92600D47258 /* WaveWindowController.m in Sources */,
 				BB8A100728FF49E400FC6013 /* Scroller.m in Sources */,
 				BBDBBA792BA3AF9F003A80C1 /* DragImageFileView.m in Sources */,

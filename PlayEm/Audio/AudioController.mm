@@ -17,6 +17,7 @@
 #import "AudioController.h"
 #import "LazySample.h"
 #import "ProfilingPointsOfInterest.h"
+#import "AudioDevice.h"
 
 //#define support_avaudioengine   YES
 //#define support_avplayer        YES
@@ -77,47 +78,6 @@ typedef struct {
 
 @implementation AudioController
 
-NSString* deviceName(UInt32 deviceId)
-{
-    AudioObjectPropertyAddress namePropertyAddress = { kAudioDevicePropertyDeviceNameCFString, kAudioObjectPropertyScopeGlobal, kAudioObjectPropertyElementMain };
-
-    CFStringRef nameRef;
-    UInt32 propertySize = sizeof(nameRef);
-    OSStatus result = AudioObjectGetPropertyData(deviceId,
-                                                 &namePropertyAddress,
-                                                 0,
-                                                 NULL,
-                                                 &propertySize,
-                                                 &nameRef);
-    if (result != noErr) {
-        NSLog(@"Failed to get device's name, err: %d", result);
-        return nil;
-    }
-    NSString* name = (__bridge NSString*)nameRef;
-    CFRelease(nameRef);
-    return name;
-}
-
-AudioObjectID defaultOutputDevice(void)
-{
-    UInt32 deviceId;
-    UInt32 propertySize = sizeof(deviceId);
-    AudioObjectPropertyAddress theAddress = { kAudioHardwarePropertyDefaultOutputDevice, kAudioObjectPropertyScopeGlobal, kAudioObjectPropertyElementMain };
-
-    OSStatus result = AudioObjectGetPropertyData(kAudioObjectSystemObject,
-                                                 &theAddress,
-                                                 0,
-                                                 NULL,
-                                                 &propertySize,
-                                                 &deviceId);
-    if (result != noErr) {
-        NSLog(@"Failed to get device's name, err: %d", result);
-        return 0;
-    }
-    
-    return deviceId;
-}
-
 #ifdef support_audioqueueplayback
 AVAudioFramePosition currentFrame(AudioQueueRef queue, AudioContext* context)
 {
@@ -171,7 +131,11 @@ NSTimeInterval currentTime(AudioQueueRef queue, AudioContext* context)
 }
 #endif
 
-OSStatus propertyCallbackDefaultDevice (AudioObjectID inObjectID, UInt32 inNumberAddresses, const AudioObjectPropertyAddress inAddresses[], void *inClientData)
+/// Callback for changes on the default output device setup.
+OSStatus propertyCallbackDefaultDevice (AudioObjectID inObjectID,
+                                        UInt32 inNumberAddresses,
+                                        const AudioObjectPropertyAddress inAddresses[],
+                                        void* inClientData)
 {
     // We are only interested in the property kAudioQueueProperty_IsRunning
     if (inAddresses->mSelector != kAudioHardwarePropertyDefaultOutputDevice) {
@@ -183,20 +147,24 @@ OSStatus propertyCallbackDefaultDevice (AudioObjectID inObjectID, UInt32 inNumbe
 
     NSLog(@"new default output");
 
-    UInt32 deviceId = defaultOutputDevice();
+    UInt32 deviceId = [AudioDevice defaultOutputDevice];
     if (deviceId == 0) {
         return 0;
     }
     dispatch_async(dispatch_get_main_queue(), ^{
-        NSString* name = deviceName(deviceId);
+        NSString* name = [AudioDevice nameForDevice:deviceId];
         NSLog(@"audio output now using device %@", name);
-        context->stream.latencyFrames = totalLatency(deviceId, kAudioDevicePropertyScopeOutput);
+        context->stream.latencyFrames = [AudioDevice latencyForDevice:deviceId
+                                                                scope:kAudioDevicePropertyScopeOutput];
         NSLog(@"audio output latency %lld frames", context->stream.latencyFrames);
     });
     return 0;
 }
 
-void propertyCallbackIsRunning (void* user_data, AudioQueueRef queue, AudioQueuePropertyID property_id)
+/// Callback for changes on AudioQueue properties - used for monitoring the playback state.
+void propertyCallbackIsRunning (void* user_data,
+                                AudioQueueRef queue,
+                                AudioQueuePropertyID property_id)
 {
     // We are only interested in the property kAudioQueueProperty_IsRunning
     if (property_id != kAudioQueueProperty_IsRunning) {
@@ -266,68 +234,7 @@ void bufferCallback(void* user_data, AudioQueueRef queue, AudioQueueBufferRef bu
 }
 #endif
 
-AVAudioFramePosition totalLatency(UInt32 deviceId, AudioObjectPropertyScope scope)
-{
-    // Get the device latency.
-    AudioObjectPropertyAddress deviceLatencyPropertyAddress = { kAudioDevicePropertyLatency, scope, kAudioObjectPropertyElementMain };
-    UInt32 deviceLatency;
-    UInt32 propertySize = sizeof(deviceLatency);
-    OSStatus result = AudioObjectGetPropertyData(deviceId, &deviceLatencyPropertyAddress, 0, NULL, &propertySize, &deviceLatency);
-    if (result != noErr) {
-        NSLog(@"Failed to get latency, err: %d", result);
-        return 0;
-    }
 
-    // Get the safety offset.
-    AudioObjectPropertyAddress safetyOffsetPropertyAddress = { kAudioDevicePropertySafetyOffset, scope, kAudioObjectPropertyElementMain };
-    UInt32 safetyOffset;
-    propertySize = sizeof(safetyOffset);
-    result = AudioObjectGetPropertyData(deviceId, &safetyOffsetPropertyAddress, 0, NULL, &propertySize, &safetyOffset);
-    if (result != noErr) {
-        NSLog(@"Failed to get safety offset, err: %d", result);
-        return 0;
-    }
-
-    // Get the buffer size.
-    AudioObjectPropertyAddress bufferSizePropertyAddress = { kAudioDevicePropertyBufferFrameSize, scope, kAudioObjectPropertyElementMain };
-    UInt32 bufferSize;
-    propertySize = sizeof(bufferSize);
-    result = AudioObjectGetPropertyData(deviceId, &bufferSizePropertyAddress, 0, NULL, &propertySize, &bufferSize);
-    if (result != noErr) {
-        NSLog(@"Failed to get latency, err: %d", result);
-        return 0;
-    }
-
-    AudioObjectPropertyAddress streamsPropertyAddress = { kAudioDevicePropertyStreams, scope, kAudioObjectPropertyElementMain };
-
-    UInt32 streamLatency = 0;
-    UInt32 streamsSize = 0;
-    AudioObjectGetPropertyDataSize (deviceId, &streamsPropertyAddress, 0, NULL, &streamsSize);
-    if (streamsSize >= sizeof(AudioStreamID)) {
-        // Get the latency of the first stream.
-        NSMutableData* streamIDs = [NSMutableData dataWithCapacity:streamsSize];
-        AudioStreamID* ids = (AudioStreamID*)streamIDs.mutableBytes;
-        result = AudioObjectGetPropertyData(deviceId, &streamsPropertyAddress, 0, nullptr, &streamsSize, ids);
-        if (result != noErr) {
-            NSLog(@"Failed to get streams, err: %d", result);
-            return 0;
-        }
-
-        AudioObjectPropertyAddress streamLatencyPropertyAddress = { kAudioStreamPropertyLatency, scope, kAudioObjectPropertyElementMain };
-        propertySize = sizeof(streamLatency);
-        result = AudioObjectGetPropertyData(ids[0], &streamLatencyPropertyAddress, 0, NULL, &propertySize, &streamLatency);
-        if (result != noErr) {
-            NSLog(@"Failed to get stream latency, err: %d", result);
-            return 0;
-        }
-    }
-    
-    AVAudioFramePosition totalLatency = deviceLatency + streamLatency + safetyOffset + bufferSize;
-
-    NSLog(@"%d frames device latency,  %d frames output stream latency, %d safety offset, %d buffer size resulting in an estimated total latency of %lld frames", deviceLatency, streamLatency, safetyOffset, bufferSize, totalLatency);
-
-    return totalLatency;
-}
 
 - (id)init
 {
@@ -687,13 +594,13 @@ AVAudioFramePosition totalLatency(UInt32 deviceId, AudioObjectPropertyScope scop
     }
 #endif
 
-    UInt32 deviceId = defaultOutputDevice();
+    UInt32 deviceId = [AudioDevice defaultOutputDevice];
     if (deviceId == 0) {
         NSLog(@"couldnt get output device -- that is unexpected");
         return;
     }
-    NSString* name = deviceName(deviceId);
-    _context.stream.latencyFrames = totalLatency(deviceId, kAudioDevicePropertyScopeOutput);
+    NSString* name = [AudioDevice nameForDevice:deviceId];
+    _context.stream.latencyFrames = [AudioDevice latencyForDevice:deviceId scope:kAudioDevicePropertyScopeOutput];
     NSLog(@"playback will happen on device %@ with a latency of %lld frames", name, _context.stream.latencyFrames);
 }
 

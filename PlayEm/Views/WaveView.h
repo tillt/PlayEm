@@ -21,13 +21,12 @@
 
 @property (assign, nonatomic) CGSize headImageSize;
 @property (strong, nonatomic) CALayer* headLayer;
-//@property (strong, nonatomic) CALayer* hudLayer;
 @property (assign, nonatomic) unsigned long long frames;
 @property (assign, nonatomic) unsigned long long currentFrame;
+@property (assign, nonatomic) CGFloat head;
 @property (strong, nonatomic) NSColor* color;
 @property (strong, nonatomic) CIFilter* headFx;
 @property (strong, nonatomic) CALayer* headBloomFxLayer;
-@property (assign, nonatomic) CGFloat head;
 
 @property (weak, nonatomic) id<CALayerDelegate> waveLayerDelegate;
 @property (weak, nonatomic) id<CALayerDelegate> beatLayerDelegate;

@@ -54,9 +54,6 @@
     CGAffineTransform transform = CGAffineTransformScale(CGAffineTransformMakeTranslation(0.0, self.enclosingScrollView.bounds.size.height * -(scaleFactor - 1.0) / 2.0), 1.0, scaleFactor);
     [clampFilter setValue:[NSValue valueWithBytes:&transform objCType:@encode(CGAffineTransform)] forKey:@"inputTransform"];
 
-    CIFilter* clampFilter2 = [CIFilter filterWithName:@"CIAffineClamp"];
-    [clampFilter2 setDefaults];
-
     CIFilter* bloomFilter = [CIFilter filterWithName:@"CIBloom"];
     [bloomFilter setDefaults];
     [bloomFilter setValue: [NSNumber numberWithFloat:9.0] forKey: @"inputRadius"];
@@ -107,7 +104,8 @@
 
         [self.layer addSublayer:layer];
     }
-    _trailBloomFxLayers = [layers copy];
+    //_trailBloomFxLayers = [layers copy];
+    _trailBloomFxLayers = layers;
 
     _followTime = YES;
     _userMomentum = NO;}
@@ -217,8 +215,6 @@
 
 - (void)updateScrollingState
 {
-    //CGFloat head = floor((_currentFrame * self.enclosingScrollView.bounds.size.width) / _frames);
-   
     extern os_log_t pointsOfInterest;
     
     os_signpost_interval_begin(pointsOfInterest, POIUpdateScrollingState, "UpdateScrollingState");

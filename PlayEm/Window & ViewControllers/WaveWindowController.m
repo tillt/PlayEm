@@ -129,7 +129,7 @@ os_log_t pointsOfInterest;
     dispatch_queue_t _displayLinkQueue;
 }
 
-- (void)renderCallback:(CADisplayLink *)sender
+- (void)renderCallback:(CADisplayLink*)sender
 {
     //os_signpost_interval_begin(pointsOfInterest, POICADisplayLink, "CADisplayLink");
     // Substract the latency introduced by the output device setup to compensate and get
@@ -2067,29 +2067,6 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     return NO;
 }
 
-#pragma mark - Keyboard events
-
-- (void)keyDown:(NSEvent *)event
-{
-    NSString *characters;
-    unichar firstCharacter;
-
-    // We would like to use -interpretKeyEvents:, but then *all* key events would get interpreted into selectors,
-    // and NSTableView does not implement the proper selectors (like moveUp: for up arrow). Instead it apparently
-    // checks key codes manually in -keyDown. So, we do the same.
-    // Key codes are taken from /System/Library/Frameworks/AppKit.framework/Resources/StandardKeyBinding.dict.
-
-    characters = [event characters];
-    firstCharacter = [characters characterAtIndex:0];
-
-    if (firstCharacter == 0x20) {
-        // Play / Pause
-        NSLog(@"play / pause");
-    } else {
-        [super keyDown:event];
-    }
-}
-
 #pragma mark - Mouse events
 
 - (void)mouseDown:(NSEvent*)event
@@ -2361,46 +2338,6 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
 //    }
 //
 //    [self loadDocumentFromURL:[WaveWindowController encodeQueryItemsWithUrl:meta.location frame:0LL playing:YES] meta:meta];
-}
-//- (void)mediaKeyTap:(SPMediaKeyTap*)keyTap receivedMediaKeyEvent:(NSEvent*)event
-//{
-//    assert([event type] == NSEventTypeSystemDefined && [event subtype] == SPSystemDefinedEventMediaKeys);
-//
-//    int keyCode = (([event data1] & 0xFFFF0000) >> 16);
-//    int keyFlags = ([event data1] & 0x0000FFFF);
-//    int keyState = (((keyFlags & 0xFF00) >> 8)) == 0xA;
-//    int keyRepeat = (keyFlags & 0x1);
-//
-//    if (keyCode == NX_KEYTYPE_PLAY && keyState == 0) {
-//        [self playPause:self];
-//    }
-//
-//    if ((keyCode == NX_KEYTYPE_FAST || keyCode == NX_KEYTYPE_NEXT) && !_mediakeyJustJumped) {
-//        if (keyState == 0 && keyRepeat == 0) {
-//            [self playNext:self];
-//        } else if (keyRepeat == 1) {
-//            _mediakeyJustJumped = YES;
-//            [self performSelector:@selector(resetMediaKeyJump)
-//                           withObject: NULL
-//                           afterDelay:0.25];
-//        }
-//    }
-//
-//    if ((keyCode == NX_KEYTYPE_REWIND || keyCode == NX_KEYTYPE_PREVIOUS) && !_mediakeyJustJumped) {
-//        if (keyState == 0 && keyRepeat == 0) {
-//            [self playPrevious:self];
-//        } else if (keyRepeat == 1) {
-//            _mediakeyJustJumped = YES;
-//            [self performSelector:@selector(resetMediaKeyJump)
-//                       withObject: NULL
-//                       afterDelay:0.25];
-//        }
-//    }
-//}
-
-- (void)resetMediaKeyJump
-{
-    _mediakeyJustJumped = NO;
 }
 
 - (void)volumeChange:(id)sender

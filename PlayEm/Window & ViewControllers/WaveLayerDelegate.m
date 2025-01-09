@@ -31,8 +31,8 @@
     CGContextSetShouldAntialias(context, YES);
 
     CGContextSetLineCap(context, kCGLineCapRound);
-    unsigned long int start = layer.frame.origin.x;
-    unsigned long int samplePairCount = layer.bounds.size.width + 1;
+    const unsigned long int start = layer.frame.origin.x;
+    const unsigned long int samplePairCount = layer.bounds.size.width + 1;
 
     NSData* buffer = [_visualSample visualsFromOrigin:start];
 
@@ -76,6 +76,7 @@
             return;
         }
         
+        // We didnt find any visual data - lets make sure we get some in the near future...
         [_visualSample prepareVisualsFromOrigin:start
                                           width:samplePairCount
                                          window:_offsetBlock()

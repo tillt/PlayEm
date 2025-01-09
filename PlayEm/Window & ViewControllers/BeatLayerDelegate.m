@@ -26,11 +26,6 @@
     }
     const double framesPerPixel = _beatSample.framesPerPixel;
 
-    /*
-      We try to fetch visual data first;
-       - when that fails, we draw a box and trigger a task preparing visual data
-       - when that works, we draw it
-     */
     CGContextSetAllowsAntialiasing(context, YES);
     CGContextSetShouldAntialias(context, YES);
 

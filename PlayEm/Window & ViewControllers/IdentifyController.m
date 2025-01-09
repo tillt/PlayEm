@@ -89,6 +89,10 @@ const CGFloat kTableRowHeight = 50.0f;
         dispatch_queue_attr_t attr = dispatch_queue_attr_make_with_qos_class(DISPATCH_QUEUE_SERIAL, QOS_CLASS_USER_INITIATED, 0);
         _identifyQueue = dispatch_queue_create("PlayEm.IdentifyQueue", attr);
         _identifieds = [NSMutableArray array];
+        [[NSNotificationCenter defaultCenter] addObserver:self
+                                                 selector:@selector(AudioControllerPlaybackStateChange:)
+                                                     name:kAudioControllerChangedPlaybackStateNotification
+                                                   object:nil];
     }
     return self;
 }
@@ -96,6 +100,17 @@ const CGFloat kTableRowHeight = 50.0f;
 - (void)viewDidLoad {
     [super viewDidLoad];
     NSLog(@"viewDidLoad");
+}
+
+- (void)AudioControllerPlaybackStateChange:(NSNotification*)notification
+{
+    NSString* state = notification.object;
+    if ([state isEqualToString:kPlaybackStatePaused] ||
+        [state isEqualToString:kPlaybackStateEnded]) {
+        // By closing the window as soon as the playback ends or gets paused we avoid
+        // having to re-init the shazam stream. We assume its ok for the user.
+        [self.view.window close];
+    }
 }
 
 - (void)viewWillAppear
@@ -259,9 +274,6 @@ const CGFloat kTableRowHeight = 50.0f;
     _scButton.animator.alphaValue = 0.0;
 }
 
-// FIXME: This isnt safe as we may pull the sample away below the running session.
-// We need to stop the session when the sample changes.
-// We need to stop the session when the sample playback is done.
 - (void)shazam:(id)sender
 {
     NSLog(@"shazam!");

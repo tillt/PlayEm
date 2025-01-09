@@ -127,6 +127,9 @@ const CGFloat kTableRowHeight = 50.0f;
     [_audioController stopTapping];
     [self reset];
 
+    [[NSNotificationCenter defaultCenter] removeObserver:self
+                                                    name:kAudioControllerChangedPlaybackStateNotification
+                                                  object:nil];
 }
 
 - (void)loadView

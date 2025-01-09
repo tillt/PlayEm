@@ -89,10 +89,6 @@ const CGFloat kTableRowHeight = 50.0f;
         dispatch_queue_attr_t attr = dispatch_queue_attr_make_with_qos_class(DISPATCH_QUEUE_SERIAL, QOS_CLASS_USER_INITIATED, 0);
         _identifyQueue = dispatch_queue_create("PlayEm.IdentifyQueue", attr);
         _identifieds = [NSMutableArray array];
-        [[NSNotificationCenter defaultCenter] addObserver:self
-                                                 selector:@selector(AudioControllerPlaybackStateChange:)
-                                                     name:kAudioControllerChangedPlaybackStateNotification
-                                                   object:nil];
     }
     return self;
 }
@@ -118,6 +114,10 @@ const CGFloat kTableRowHeight = 50.0f;
     NSLog(@"IdentifyController.view becoming visible");
     [self shazam:self];
     [_identificationCoverView startAnimating];
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(AudioControllerPlaybackStateChange:)
+                                                 name:kAudioControllerChangedPlaybackStateNotification
+                                               object:nil];
 }
 
 - (void)viewWillDisappear
@@ -210,12 +210,6 @@ const CGFloat kTableRowHeight = 50.0f;
     [self.view addSubview:_identificationCoverView];
 }
 
-- (void)copyTitle:(id)sender
-{
-//    [[NSPasteboard generalPasteboard] clearContents];
-//    [[NSPasteboard generalPasteboard] setString:_titleField.stringValue forType:NSPasteboardTypeString];
-}
-
 - (NSString*)queryWithIdentifiedItem:(IdentifiedItem*)item
 {
     NSString* artist = item.artist;
@@ -227,14 +221,28 @@ const CGFloat kTableRowHeight = 50.0f;
     return ret;
 }
 
+- (void)copyQueryToPasteboard:(id)sender
+{
+    NSButton* button;
+    unsigned long tag = button.tag;
+    [[NSPasteboard generalPasteboard] clearContents];
+    [[NSPasteboard generalPasteboard] setString:[self queryWithIdentifiedItem:_identifieds[tag]]
+                                        forType:NSPasteboardTypeString];
+}
+
 - (void)openSoundcloud:(id)sender
 {
     NSButton* button;
     unsigned long tag = button.tag;
     NSLog(@"soundcloud button tag %ld", tag);
+    
+    // FIXME: this may very well be wrong -- however, the amperesand gets correctly replaced,
+    // FIXME: when needed -- all the predefined sets dont do that for some reason.
+    NSCharacterSet *URLFullCharacterSet = [[NSCharacterSet characterSetWithCharactersInString:@" \"#%/:<>?@[\\]^`{|}&"] invertedSet];
+    
     NSString* search = [self queryWithIdentifiedItem:_identifieds[tag]];
     search = [search stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
-    search = [search stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]];
+    search = [search stringByAddingPercentEncodingWithAllowedCharacters:URLFullCharacterSet];
 
     NSURL* queryURL = [NSURL URLWithString:[NSString stringWithFormat:kSoundCloudQuery, search]];
     NSURL* appURL = [[NSWorkspace sharedWorkspace] URLForApplicationToOpenURL:queryURL];
@@ -406,7 +414,9 @@ const CGFloat kTableRowHeight = 50.0f;
                                                                       tableColumn.width,
                                                                       kRowHeight)];
 
-            NSButton* button = [NSButton buttonWithTitle:@"􀫵" target:self action:@selector(copyTitle:)];
+            NSButton* button = [NSButton buttonWithTitle:@"􀫵"
+                                                  target:self
+                                                  action:@selector(copyQueryToPasteboard:)];
             button.tag = _identifieds.count + 1;
             button.font = [NSFont systemFontOfSize:13.0f];
             button.bordered = NO;
@@ -418,7 +428,9 @@ const CGFloat kTableRowHeight = 50.0f;
                                         kRowHeight / 2.0);
             [view addSubview:button];
 
-            button = [NSButton buttonWithTitle:@"􀙀" target:self action:@selector(openSoundcloud:)];
+            button = [NSButton buttonWithTitle:@"􀙀"
+                                        target:self
+                                        action:@selector(openSoundcloud:)];
             button.tag = _identifieds.count + 1;
             button.font = [NSFont systemFontOfSize:13.0f];
             button.bordered = NO;
@@ -430,7 +442,9 @@ const CGFloat kTableRowHeight = 50.0f;
                                         kRowHeight / 2.0);
             [view addSubview:button];
 
-            button = [NSButton buttonWithTitle:@"􀣺" target:self action:@selector(musicURLClicked:)];
+            button = [NSButton buttonWithTitle:@"􀣺"
+                                        target:self
+                                        action:@selector(musicURLClicked:)];
             button.tag = _identifieds.count + 1;
             button.font = [NSFont systemFontOfSize:13.0f];
             button.bordered = NO;

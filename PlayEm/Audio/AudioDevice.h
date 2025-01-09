@@ -13,6 +13,7 @@
 @interface AudioDevice : NSObject
 
 +(AudioObjectID)defaultOutputDevice;
+/// Get total audio path latency for a device in a specific scope (IN/OUT).
 +(AVAudioFramePosition)latencyForDevice:(AudioObjectID)deviceId scope:(AudioObjectPropertyScope)scope;
 +(NSString*)nameForDevice:(AudioObjectID)deviceId;
 

@@ -22,7 +22,7 @@ extern NSString * const kPlaybackStateEnded;
 
 @class LazySample;
 
-typedef void (^TapBlock) (unsigned long long, float*, unsigned int);
+typedef void (^TapBlock) (unsigned long long framePosition, float* frameData, unsigned int frameCount);
 
 @interface AudioController : NSObject
 

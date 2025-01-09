@@ -21,14 +21,15 @@ cp LICENSE "${destination_path}"
 
 create-dmg \
   --volname "${name}" \
+  --background "${name}_DMG_Background.png" \
   --window-pos 200 120 \
-  --window-size 504 300 \
+  --window-size 704 604 \
   --icon-size 100 \
   --text-size 15 \
   --hide-extension "${app_name}" \
-  --app-drop-link 300 20 \
-  --icon "${app_name}" 90 20 \
-  --icon LICENSE 300 170 \
+  --app-drop-link 500 320 \
+  --icon "${app_name}" 190 320 \
+  --icon LICENSE 370 470 \
   "${dmg_name}" \
   "${destination_path}"
 

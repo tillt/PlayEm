@@ -29,16 +29,11 @@ double F[kKernelSize];
     float updateRate;
 }
 
-@property (assign, nonatomic) size_t tileWidth;
-@property (assign, nonatomic) double framesPerPixel;
-@property (strong, nonatomic) NSMutableDictionary* operations;
-@property (strong, nonatomic) NSMutableArray<NSMutableData*>* sampleBuffers;
-
 @end
 
 @implementation AcceleratedBiquadFilter
 
-- (id)initWithSample:(LazySample*)sample framesPerPixel:(double)framesPerPixel
+- (id)initWithSample:(LazySample*)sample
 {
     self = [super init];
     if (self) {
@@ -51,12 +46,6 @@ double F[kKernelSize];
 
         threshold = 0.05;
         updateRate = 0.4;
-        
-        //_sample = sample;
-        //assert(framesPerPixel);
-        //_sampleBuffers = [NSMutableArray array];
-
-        //_beats = [NSMutableDictionary dictionary];
 
         lastFrequency = 123;
     }

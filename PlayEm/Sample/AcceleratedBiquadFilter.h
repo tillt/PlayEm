@@ -16,6 +16,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (strong, nonatomic) LazySample* sample;
 
+- (id)initWithSample:(LazySample*)sample;
+- (void)calculateParamsWithCutoff:(float)frequency resonance:(float)resonance nyquistPeriod:(float)nyquistPeriod;
+- (void)applyToInput:(const float*)input output:(float*)output frames:(size_t)frameCount;
+
 @end
 
 NS_ASSUME_NONNULL_END

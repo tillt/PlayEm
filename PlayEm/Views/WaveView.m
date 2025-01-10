@@ -155,7 +155,8 @@
 - (void)layout
 {
     [super layout];
-    [self updateHeadPositionTransaction];
+//    [self updateHeadPositionTransaction];
+    [self updateScrollingState];
 }
 
 /**

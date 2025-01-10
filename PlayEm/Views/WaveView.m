@@ -180,7 +180,7 @@
 }
 
 /**
- Compute the playhead's horizontal position using the audio sample size and playback progress.
+ Compute the playhead's horizontal position using the audio sample size, playback progress and total displayed size.
  */
 - (CGFloat)calcHead
 {

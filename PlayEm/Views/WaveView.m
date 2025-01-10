@@ -14,14 +14,17 @@
 #import "ProfilingPointsOfInterest.h"
 
 @interface WaveView ()
-- (void)updateHeadPositionTransaction;
-@end
 
-@interface WaveView () // Private
-
-@property (strong, nonatomic) NSArray* trailBloomFxLayers;
 @property (nonatomic, assign) BOOL followTime;
 @property (nonatomic, assign) BOOL userMomentum;
+
+@property (assign, nonatomic) CGSize headImageSize;
+
+@property (strong, nonatomic) CALayer* headLayer;
+@property (strong, nonatomic) CALayer* headBloomFxLayer;
+@property (strong, nonatomic) NSArray* trailBloomFxLayers;
+
+@property (strong, nonatomic) CIFilter* headFx;
 
 @end
 

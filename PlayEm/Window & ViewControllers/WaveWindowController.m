@@ -429,12 +429,10 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
 
     [menu addItem:[NSMenuItem separatorItem]];
 
-//    NSMenuItem* showInFinder = [menu addItemWithTitle:@"Show in Finder"
-//                    action:@selector(showInFinder:)
-//             keyEquivalent:@""];
     [menu addItemWithTitle:@"Show in Finder"
                     action:@selector(showInFinder:)
              keyEquivalent:@""];
+
 // TODO: allow disabling depending on the number of songs selected. Note to myself, this here is the wrong place!
 //    size_t numberOfSongsSelected = ;
 //    showInFinder.enabled = numberOfSongsSelected > 1;
@@ -1351,12 +1349,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
 
 - (void)showInfoForCurrentSong:(id)sender
 {
-    [self showInfoForMetas:[NSArray arrayWithObject:_meta]];
-}
-
-- (void)showInfoForSelectedSongs:(id)sender
-{
-    [self showInfoForMetas:[_browser selectedSongMetas]];
+    [_browser showInfoForCurrentSong:sender];
 }
 
 - (void)showPlaylist:(id)sender

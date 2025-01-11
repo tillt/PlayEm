@@ -43,6 +43,7 @@ extern NSString* const kSongsColGenre;
 - (void)addToPlaylistNext:(MediaMetaData*)meta;
 - (void)addToPlaylistLater:(MediaMetaData*)meta;
 - (void)updateSongsCount:(size_t)songs;
+- (void)showInfoForMetas:(NSArray<MediaMetaData*>*)metas;
 @end
 
 @interface BrowserController : NSResponder <NSTableViewDelegate, NSTableViewDataSource, CAAnimationDelegate>
@@ -65,6 +66,7 @@ extern NSString* const kSongsColGenre;
 - (IBAction)playNextInPlaylist:(id)sender;
 - (IBAction)playLaterInPlaylist:(id)sender;
 - (IBAction)showInFinder:(id)sender;
+- (IBAction)showInfoForCurrentSong:(id)sender;
 - (NSUInteger)currentSongRow;
 - (MediaMetaData* _Nullable)nextSong;
 - (NSArray<MediaMetaData*>*)selectedSongMetas;

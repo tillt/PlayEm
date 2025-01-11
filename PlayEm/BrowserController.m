@@ -499,6 +499,29 @@ NSString* const kSongsColGenre = @"GenreCell";
     }];
 }
 
+- (void)showInfoForCurrentSong:(id)sender
+{
+    [self.delegate showInfoForMetas:[NSArray arrayWithObject:self.delegate.currentSongMeta]];
+}
+
+- (void)showInfoForSelectedSongs:(id)sender
+{
+//    if (self.songsTable.clickedRow >= 0) {
+//        [metas addObject:self.]
+//        meta = self.filteredItems[self.songsTable.clickedRow];
+//        NSLog(@"item: %@", self.filteredItems[self.songsTable.clickedRow]);
+//
+    NSMutableArray* metas = [NSMutableArray array];
+    if (self.songsTable.clickedRow >= 0) {
+        assert(self.songsTable.clickedRow < self.filteredItems.count);
+        [metas addObject:self.filteredItems[self.songsTable.clickedRow]];
+        NSLog(@"item: %@", self.filteredItems[self.songsTable.clickedRow]);
+    } else {
+        [metas addObjectsFromArray:[self selectedSongMetas]];
+    }
+    [self.delegate showInfoForMetas:metas];
+}
+
 - (IBAction)showInFinder:(id)sender
 {
     MediaMetaData* meta = nil;
@@ -965,7 +988,6 @@ NSString* const kSongsColGenre = @"GenreCell";
             break;
         case VIEWTAG_SONGS:
             assert(row < _filteredItems.count);
-            
             if ([tableColumn.identifier isEqualToString:@"TrackCell"]) {
                 if ([_filteredItems[row].track intValue] > 0) {
                     string = [_filteredItems[row].track stringValue];
@@ -1046,9 +1068,11 @@ typeSelectStringForTableColumn:(NSTableColumn*)tableColumn
 
 - (BOOL)tableView:(NSTableView*)tableView shouldSelectRow:(NSInteger)row
 {
+    // Cant select an invalid row.
     if (row == -1) {
         return NO;
     }
+
     switch(tableView.tag) {
         case VIEWTAG_GENRE:
             return YES;
@@ -1065,6 +1089,7 @@ typeSelectStringForTableColumn:(NSTableColumn*)tableColumn
         default:
             return YES;
     }
+
     return YES;
 }
 

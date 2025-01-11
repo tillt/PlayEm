@@ -1636,28 +1636,6 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
         [self seekToTime:_audioController.currentTime - 10.0];
         return MPRemoteCommandHandlerStatusSuccess;
     }
-//    if (event.command == cc.changeRepeatModeCommand) {
-//        MPChangeRepeatModeCommandEvent *repeatEvent = (MPChangeRepeatModeCommandEvent *)event;
-//        MPRepeatType repeatType = repeatEvent.repeatType;
-//        switch (repeatType) {
-//            case MPRepeatTypeAll:
-//                [playlistController setPlaybackRepeat:VLC_PLAYLIST_PLAYBACK_REPEAT_ALL];
-//                 break;
-//
-//            case MPRepeatTypeOne:
-//                [playlistController setPlaybackRepeat:VLC_PLAYLIST_PLAYBACK_REPEAT_CURRENT];
-//                break;
-//
-//            default:
-//                [playlistController setPlaybackRepeat:VLC_PLAYLIST_PLAYBACK_REPEAT_NONE];;
-//                break;
-//        }
-//        return MPRemoteCommandHandlerStatusSuccess;
-//    }
-//    if (event.command == cc.changeShuffleModeCommand) {
-//        [playlistController setPlaybackOrder:[playlistController playbackOrder] == VLC_PLAYLIST_PLAYBACK_ORDER_NORMAL ? VLC_PLAYLIST_PLAYBACK_ORDER_RANDOM : VLC_PLAYLIST_PLAYBACK_ORDER_NORMAL];
-//        return MPRemoteCommandHandlerStatusSuccess;
-//    }
 
     NSLog(@"%s was not able to handle remote control event '%s'",
           __PRETTY_FUNCTION__,

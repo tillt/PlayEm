@@ -14,6 +14,9 @@
 #include <keyfinder/keyfinder.h>
 #include <keyfinder/audiodata.h>
 
+// Anything beyond 30mins playtime is not of interest for chroma tracking, I declare hereby.
+const double kSampleDurationThreshold = 30.0 * 60.0;
+
 @interface KeyTrackedSample()
 {
 }
@@ -83,6 +86,12 @@
 - (BOOL)trackKey
 {
     NSLog(@"key tracking...");
+    
+    if (_sample.duration > kSampleDurationThreshold) {
+        NSLog(@"skipping key tracking - sample is too long to get any value out.");
+        _key = @"";
+        return YES;
+    }
 
     const int channels = self->_sample.channels;
 

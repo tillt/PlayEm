@@ -43,8 +43,14 @@ extern NSString * const kPlaybackStatePlaying;
     self = [super init];
     if (self) {
         _delegate = delegate;
-        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(audioControllerChangedPlaybackState:) name:kAudioControllerChangedPlaybackStateNotification object:nil];
-        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(beatEffect:) name:kBeatTrackedSampleBeatNotification object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self
+                                                 selector:@selector(audioControllerChangedPlaybackState:)
+                                                     name:kAudioControllerChangedPlaybackStateNotification
+                                                   object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self
+                                                 selector:@selector(beatEffect:)
+                                                     name:kBeatTrackedSampleBeatNotification
+                                                   object:nil];
     }
     return self;
 }
@@ -68,7 +74,7 @@ extern NSString * const kPlaybackStatePlaying;
 
 - (void)loadView
 {
-    NSLog(@"loadView");
+    NSLog(@"%s", __PRETTY_FUNCTION__);
     
     const CGFloat playPauseButtonY = 5.0;
     const CGFloat playPauseButtonWidth = 35.0;

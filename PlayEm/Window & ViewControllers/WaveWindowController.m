@@ -123,6 +123,8 @@ os_log_t pointsOfInterest;
 @end
 
 
+// FIXME: Refactor the shit out of this -- it is far too big.
+
 @implementation WaveWindowController
 {
     IOPMAssertionID _noSleepAssertionID;

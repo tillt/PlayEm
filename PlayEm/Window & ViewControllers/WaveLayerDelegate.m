@@ -30,53 +30,19 @@
     CGContextSetAllowsAntialiasing(context, YES);
     CGContextSetShouldAntialias(context, YES);
 
-    CGContextSetLineCap(context, kCGLineCapRound);
     const unsigned long int start = layer.frame.origin.x;
     const unsigned long int samplePairCount = layer.bounds.size.width + 1;
 
     NSData* buffer = [_visualSample visualsFromOrigin:start];
-
-    if (buffer != nil) {
-        CGContextSetFillColorWithColor(context, [[NSColor clearColor] CGColor]);
-        CGContextFillRect(context, layer.bounds);
-
-        VisualPair* data = (VisualPair*)buffer.bytes;
-        assert(samplePairCount == buffer.length / sizeof(VisualPair));
-
-        CGContextSetLineWidth(context, 7.0f);
-        CGContextSetStrokeColorWithColor(context, [[self.color colorWithAlphaComponent:0.40f] CGColor]);
-        
-        CGFloat mid = floor(layer.bounds.size.height / 2.0);
-
-        for (unsigned int sampleIndex = 0; sampleIndex < samplePairCount; sampleIndex++) {
-            CGFloat top = (mid + ((data[sampleIndex].negativeAverage * layer.bounds.size.height) / 2.0)) - 2.0;
-            CGFloat bottom = (mid + ((data[sampleIndex].positiveAverage * layer.bounds.size.height) / 2.0)) + 2.0;
-
-            CGContextMoveToPoint(context, sampleIndex, top);
-            CGContextAddLineToPoint(context, sampleIndex, bottom);
-            CGContextStrokePath(context);
-        }
-
-        CGContextSetLineWidth(context, 1.5);
-        CGContextSetStrokeColorWithColor(context, self.color.CGColor);
-        
-        for (unsigned int sampleIndex = 0; sampleIndex < samplePairCount; sampleIndex++) {
-            CGFloat top = (mid + ((data[sampleIndex].negativeAverage * layer.bounds.size.height) / 2.0)) - 1.0;
-            CGFloat bottom = (mid + ((data[sampleIndex].positiveAverage * layer.bounds.size.height) / 2.0)) + 1.0;
-
-            CGContextMoveToPoint(context, sampleIndex, top);
-            CGContextAddLineToPoint(context, sampleIndex, bottom);
-            CGContextStrokePath(context);
-        }
-    } else {
+    if (buffer == nil) {
+        // We didnt find any visual data - lets make sure we get some in the near future...
         CGContextSetFillColorWithColor(context, self.color.CGColor);
         CGContextFillRect(context, layer.bounds);
-
+        
         if (start >= _visualSample.width) {
             return;
         }
         
-        // We didnt find any visual data - lets make sure we get some in the near future...
         [_visualSample prepareVisualsFromOrigin:start
                                           width:samplePairCount
                                          window:_offsetBlock()
@@ -86,7 +52,51 @@
                 [layer setNeedsDisplay];
             });
         }];
+        return;
     }
+
+    CGContextSetLineCap(context, kCGLineCapRound);
+    CGContextSetLineJoin(context, kCGLineJoinRound);
+
+    CGContextSetLineWidth(context, 7.0f);
+    CGContextSetStrokeColorWithColor(context, [[self.color colorWithAlphaComponent:0.40f] CGColor]);
+
+    VisualPair* data = (VisualPair*)buffer.bytes;
+    assert(samplePairCount == buffer.length / sizeof(VisualPair));
+
+    CGFloat mid = floor(layer.bounds.size.height / 2.0);
+    for (unsigned int sampleIndex = 0; sampleIndex < samplePairCount; sampleIndex++) {
+        CGFloat top = (mid + ((data[sampleIndex].negativeAverage * layer.bounds.size.height) / 2.0)) - 2.0;
+        CGFloat bottom = (mid + ((data[sampleIndex].positiveAverage * layer.bounds.size.height) / 2.0)) + 2.0;
+
+        CGContextMoveToPoint(context, sampleIndex, top);
+        CGContextAddLineToPoint(context, sampleIndex, bottom);
+    }
+    CGContextStrokePath(context);
+
+    CGContextSetLineWidth(context, 2.0f);
+    CGContextSetStrokeColorWithColor(context, [NSColor orangeColor].CGColor);
+
+    for (unsigned int sampleIndex = 0; sampleIndex < samplePairCount; sampleIndex++) {
+        CGFloat top = (mid + ((data[sampleIndex].negativeAverage * layer.bounds.size.height) / 2.0)) - 2.0;
+        CGFloat bottom = (mid + ((data[sampleIndex].positiveAverage * layer.bounds.size.height) / 2.0)) + 2.0;
+
+        CGContextMoveToPoint(context, sampleIndex, top);
+        CGContextAddLineToPoint(context, sampleIndex, bottom);
+    }
+    CGContextStrokePath(context);
+
+    CGContextSetLineWidth(context, 1.5);
+    CGContextSetStrokeColorWithColor(context, self.color.CGColor);
+    
+    for (unsigned int sampleIndex = 0; sampleIndex < samplePairCount; sampleIndex++) {
+        CGFloat top = (mid + ((data[sampleIndex].negativeAverage * layer.bounds.size.height) / 2.0)) - 1.0;
+        CGFloat bottom = (mid + ((data[sampleIndex].positiveAverage * layer.bounds.size.height) / 2.0)) + 1.0;
+
+        CGContextMoveToPoint(context, sampleIndex, top);
+        CGContextAddLineToPoint(context, sampleIndex, bottom);
+    }
+    CGContextStrokePath(context);
 }
 
 @end

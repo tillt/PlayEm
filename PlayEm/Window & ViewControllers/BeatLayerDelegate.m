@@ -19,7 +19,7 @@
 
 #pragma mark Layer delegate
 
-- (void)drawLayer:(CALayer *)layer inContext:(CGContextRef)context
+- (void)drawLayer:(CALayer*)layer inContext:(CGContextRef)context
 {
     if (_waveView == nil || _beatSample == nil || layer.frame.origin.x < 0) {
         return;
@@ -29,7 +29,6 @@
     CGContextSetAllowsAntialiasing(context, YES);
     CGContextSetShouldAntialias(context, YES);
 
-    CGContextSetLineCap(context, kCGLineCapRound);
     CGFloat start = layer.superlayer.frame.origin.x > 0 ? layer.superlayer.frame.origin.x : 0.0f;
 
     NSData* buffer = [_beatSample beatsFromOrigin:start];
@@ -38,25 +37,25 @@
         return;
     }
     
-    CGContextSetFillColorWithColor(context, [[NSColor clearColor] CGColor]);
-    CGContextFillRect(context, layer.bounds);
-
     BeatEvent* events = (BeatEvent*)buffer.bytes;
     const float maxBeatCount = buffer.length / sizeof(BeatEvent);
+    
+    CGColorRef barColor = [[[Defaults sharedDefaults] barColor] CGColor];
+    CGColorRef beatColor = [[[Defaults sharedDefaults] beatColor] CGColor];
 
     CGContextSetLineWidth(context, 3.0);
     
     for (unsigned int beatIndex = 0; beatIndex < maxBeatCount; beatIndex++) {
         const CGFloat x = floor((events[beatIndex].frame / framesPerPixel) - start);
         assert(x <= 256.0);
-        CGContextMoveToPoint(context, x, 0.0f);
-        
-        if ((events[beatIndex].style & BeatEventStyleBar) == BeatEventStyleBar) {
-            CGContextSetStrokeColorWithColor(context, [[[Defaults sharedDefaults] barColor] CGColor]);
-        } else {
-            CGContextSetStrokeColorWithColor(context, [[[Defaults sharedDefaults] beatColor] CGColor]);
-        }
-        
+
+        CGColorRef color = (events[beatIndex].style & BeatEventStyleBar) == BeatEventStyleBar ?
+                            barColor : beatColor;
+
+        CGContextMoveToPoint(context,
+                             x,
+                             0.0f);
+        CGContextSetStrokeColorWithColor(context, color);
         CGContextAddLineToPoint(context, x, layer.frame.size.height);
         CGContextStrokePath(context);
     }

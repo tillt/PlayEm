@@ -62,9 +62,6 @@
     [bloomFilter setValue: [NSNumber numberWithFloat:9.0] forKey: @"inputRadius"];
     [bloomFilter setValue: [NSNumber numberWithFloat:1.5] forKey: @"inputIntensity"];
 
-    CIFilter* headFilter = [CIFilter filterWithName:@"CISourceAtopCompositing"];
-    [headFilter setDefaults];
-
     CGFloat height = floor(self.enclosingScrollView.bounds.size.height);
     
     _headLayer.contents = image;

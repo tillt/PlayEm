@@ -178,6 +178,7 @@ const CGFloat kTableRowHeight = 50.0f;
     _tableView.backgroundColor = [NSColor clearColor];
     _tableView.autoresizingMask = kViewFullySizeable;
     _tableView.headerView = nil;
+    _tableView.columnAutoresizingStyle = NSTableViewNoColumnAutoresizing;
     _tableView.rowHeight = kTableRowHeight;
 
     NSTableColumn* col = [[NSTableColumn alloc] init];
@@ -396,16 +397,25 @@ const CGFloat kTableRowHeight = 50.0f;
     return NO;
 }
 
-- (NSView*)tableView:(NSTableView*)tableView viewForTableColumn:(NSTableColumn *)tableColumn row:(NSInteger)row
+- (NSView*)tableView:(NSTableView*)tableView viewForTableColumn:(NSTableColumn*)tableColumn row:(NSInteger)row
 {
-    NSLog(@"tableView: viewForTableColumn:%@ row:%ld", [tableColumn description], row);
+    NSLog(@"%s -- column:%@ row:%ld", __PRETTY_FUNCTION__, [tableColumn description], row);
     NSView* result = [tableView makeViewWithIdentifier:tableColumn.identifier owner:self];
     
     const CGFloat kArtworkSize = kTableRowHeight;
     const CGFloat kRowHeight = kTableRowHeight;
+    
+    const CGFloat kSmallFontSize = 11.0;
+    const CGFloat kRegularFontSize = 13.0;
+    const CGFloat kLargeFontSize = 15.0;
+
     if (result == nil) {
+        const NSInteger tag = _identifieds.count + 1;
         if ([tableColumn.identifier isEqualToString:kCoverColumnIdenfifier]) {
-            NSImageView* view = [[NSImageView alloc] initWithFrame:NSMakeRect(0.0, 0.0, kArtworkSize, kRowHeight)];
+            NSImageView* view = [[NSImageView alloc] initWithFrame:NSMakeRect(0.0,
+                                                                              0.0,
+                                                                              kArtworkSize,
+                                                                              kRowHeight)];
             view.image = _identifieds[row].artwork;
             result = view;
         } else if ([tableColumn.identifier isEqualToString:kButtonColumnIdenfifier]) {
@@ -413,46 +423,45 @@ const CGFloat kTableRowHeight = 50.0f;
                                                                       0.0,
                                                                       tableColumn.width,
                                                                       kRowHeight)];
-
             NSButton* button = [NSButton buttonWithTitle:@"􀫵"
                                                   target:self
                                                   action:@selector(copyQueryToPasteboard:)];
-            button.tag = _identifieds.count + 1;
-            button.font = [NSFont systemFontOfSize:13.0f];
+            button.tag = tag;
+            button.font = [NSFont systemFontOfSize:kRegularFontSize];
             button.bordered = NO;
             [button setButtonType:NSButtonTypeMomentaryPushIn];
             button.bezelStyle = NSBezelStyleTexturedRounded;
             button.frame = NSMakeRect( (tableColumn.width - 26.0) / 2.0f,
                                         kRowHeight / 2.0,
-                                        13.0 * 2.0f,
+                                        kRegularFontSize * 2.0f,
                                         kRowHeight / 2.0);
             [view addSubview:button];
 
             button = [NSButton buttonWithTitle:@"􀙀"
                                         target:self
                                         action:@selector(openSoundcloud:)];
-            button.tag = _identifieds.count + 1;
-            button.font = [NSFont systemFontOfSize:13.0f];
+            button.tag = tag;
+            button.font = [NSFont systemFontOfSize:kRegularFontSize];
             button.bordered = NO;
             [button setButtonType:NSButtonTypeMomentaryPushIn];
             button.bezelStyle = NSBezelStyleTexturedRounded;
             button.frame = NSMakeRect(  (tableColumn.width - 26.0) / 2.0f,
                                         0.0,
-                                        13.0 * 2.0f,
+                                        kRegularFontSize * 2.0f,
                                         kRowHeight / 2.0);
             [view addSubview:button];
 
             button = [NSButton buttonWithTitle:@"􀣺"
                                         target:self
                                         action:@selector(musicURLClicked:)];
-            button.tag = _identifieds.count + 1;
-            button.font = [NSFont systemFontOfSize:13.0f];
+            button.tag = tag;
+            button.font = [NSFont systemFontOfSize:kRegularFontSize];
             button.bordered = NO;
             [button setButtonType:NSButtonTypeMomentaryPushIn];
             button.bezelStyle = NSBezelStyleTexturedRounded;
             button.frame = NSMakeRect(  (tableColumn.width + 26.0) / 2.0f,
                                         0.0,
-                                        13.0 * 2.0f,
+                                        kRegularFontSize * 2.0f,
                                         kRowHeight / 2.0);
             [view addSubview:button];
 
@@ -466,23 +475,26 @@ const CGFloat kTableRowHeight = 50.0f;
             NSTextField* tf = [[NSTextField alloc] initWithFrame:NSMakeRect(0.0,
                                                                             33.0,
                                                                             tableColumn.width,
-                                                                            18.0)];
+                                                                            kLargeFontSize + 3.0)];
             tf.editable = NO;
-            tf.font = [NSFont boldSystemFontOfSize:15.0];
+            tf.font = [NSFont boldSystemFontOfSize:kLargeFontSize];
             tf.drawsBackground = NO;
             tf.bordered = NO;
+            tf.usesSingleLineMode = YES;
             tf.alignment = NSTextAlignmentLeft;
+            //tf.backgroundColor = [NSColor blackColor];
             tf.textColor = [[Defaults sharedDefaults] lightBeamColor];
             [tf setStringValue:_identifieds[row].title];
             [view addSubview:tf];
             
             tf = [[NSTextField alloc] initWithFrame:NSMakeRect(0.0,
-                                                               15.0,
+                                                               kLargeFontSize,
                                                                tableColumn.width,
-                                                               17.0)];
+                                                               kLargeFontSize + 2.0)];
             tf.editable = NO;
-            tf.font = [NSFont systemFontOfSize:11.0];
+            tf.font = [NSFont systemFontOfSize:kSmallFontSize];
             tf.drawsBackground = NO;
+            tf.usesSingleLineMode = YES;
             tf.bordered = NO;
             tf.alignment = NSTextAlignmentLeft;
             tf.textColor = [[Defaults sharedDefaults] secondaryLabelColor];
@@ -492,11 +504,12 @@ const CGFloat kTableRowHeight = 50.0f;
             tf = [[NSTextField alloc] initWithFrame:NSMakeRect(0.0,
                                                                2.0,
                                                                tableColumn.width,
-                                                               13.0)];
+                                                               kSmallFontSize + 2.0)];
             tf.editable = NO;
-            tf.font = [NSFont systemFontOfSize:11.0];
+            tf.font = [NSFont systemFontOfSize:kSmallFontSize];
             tf.drawsBackground = NO;
             tf.bordered = NO;
+            tf.usesSingleLineMode = YES;
             tf.alignment = NSTextAlignmentLeft;
             tf.textColor = [[Defaults sharedDefaults] secondaryLabelColor];
             [tf setStringValue:_identifieds[row].genre];

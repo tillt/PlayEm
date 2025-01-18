@@ -116,7 +116,7 @@ extern NSString * const kPlaybackStatePlaying;
     fxView.material = NSVisualEffectMaterialSheet;
     self.view = fxView;
     self.view.autoresizingMask = NSViewWidthSizable | NSViewHeightSizable;
-
+    
     CIFilter* lowBloomFilter = [CIFilter filterWithName:@"CIBloom"];
     [lowBloomFilter setDefaults];
     [lowBloomFilter setValue: [NSNumber numberWithFloat:3.0] forKey: @"inputRadius"];

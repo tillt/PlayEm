@@ -235,7 +235,6 @@
 
         os_signpost_interval_begin(pointsOfInterest, POIScrollPoint, "ScrollPoint");
         [self scrollPoint:pointVisible];
-
         os_signpost_interval_end(pointsOfInterest, POIScrollPoint, "ScrollPoint");
     } else {
         // If the user has just requested some scrolling, do not interfere but wait

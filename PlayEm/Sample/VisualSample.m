@@ -173,7 +173,6 @@
         NSLog(@"asking for the same operation again on page %ld", pageIndex);
         return blockOperation;
     }
-
     blockOperation = [[IndexedBlockOperation alloc] initWithIndex:pageIndex];
     //NSLog(@"adding %ld", pageIndex);
     IndexedBlockOperation* __weak weakOperation = blockOperation;

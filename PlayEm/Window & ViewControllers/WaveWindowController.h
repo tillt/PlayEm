@@ -18,7 +18,6 @@
 #import "ScopeView.h"
 #import "ControlPanelController.h"
 #import "InfoPanel.h"
-//#import "SPMediaKeyTap.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

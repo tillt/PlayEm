@@ -61,7 +61,7 @@
     return self;
 }
 
-- (void)dealloc
+- (void)allAbort
 {
     NSArray* keys = [_operations allKeys];
     for (id key in keys) {
@@ -70,12 +70,18 @@
     }
 }
 
+- (void)dealloc
+{
+    [self allAbort];
+}
+
 - (void)setPixelPerSecond:(double)pixelPerSecond
 {
     if (_pixelPerSecond == pixelPerSecond) {
         return;
     }
 
+    NSLog(@"aborting all operations...");
     NSArray* keys = [_operations allKeys];
     for (id key in keys) {
         IndexedBlockOperation* operation = [_operations objectForKey:key];
@@ -88,9 +94,11 @@
     _framesPerPixel = (double)_sample.rate / pixelPerSecond;
     assert(_framesPerPixel >= 1.0);
     
+    NSLog(@"removing all operations...");
+
     [_operations removeAllObjects];
     
-    NSLog(@"removed all operations - clear start...");
+    NSLog(@"removed all operations - clear start!");
 }
 
 - (size_t)width

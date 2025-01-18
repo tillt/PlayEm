@@ -88,9 +88,11 @@
     for (int i = 0; i < trailingBloomLayerCount; i++) {
         CIFilter* bloom = [CIFilter filterWithName:@"CIBloom"];
         [bloom setDefaults];
-        [bloom setValue: [NSNumber numberWithFloat:(float)(2.5 + trailingBloomLayerCount - i) * 1.0] forKey: @"inputRadius"];
+        [bloom setValue: [NSNumber numberWithFloat:(float)(2.5 + trailingBloomLayerCount - i) * 1.0]
+                 forKey: @"inputRadius"];
         //[bloom setValue: [NSNumber numberWithFloat:1.0 + ((trailingBloomLayerCount - i) * 0.1)] forKey: @"inputIntensity"];
-        [bloom setValue: [NSNumber numberWithFloat:1.0] forKey: @"inputIntensity"];
+        [bloom setValue: [NSNumber numberWithFloat:1.0]
+                 forKey: @"inputIntensity"];
 
         CALayer* layer = [CALayer layer];
         layer.backgroundFilters = @[ bloom ];

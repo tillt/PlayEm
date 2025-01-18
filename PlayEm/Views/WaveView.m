@@ -154,8 +154,7 @@
 - (void)layout
 {
     [super layout];
-//    [self updateHeadPositionTransaction];
-    [self updateScrollingState];
+    [self updateHeadPositionTransaction];
 }
 
 /**
@@ -199,7 +198,7 @@
 {
     [CATransaction begin];
     [CATransaction setDisableActions:YES];
-    _head = [self calcHead];
+    self.head = [self calcHead];
     [CATransaction commit];
 }
 

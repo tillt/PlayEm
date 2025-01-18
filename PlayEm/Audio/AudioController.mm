@@ -84,28 +84,25 @@ AVAudioFramePosition currentFrame(AudioQueueRef queue, AudioContext* context)
     if (queue == NULL) {
         return 0;
     }
-    // Now that we have a timeline included, are we going to see time adjusted
-    // towards the playback delay introduced by the interface? That is something
-    // we should be able to do. Needs a slow bluetooth device for testing.
     
     os_signpost_interval_begin(pointsOfInterest, POIGetCurrentFrame, "GetCurrentFrame");
 
-    AudioQueueTimelineRef timeLine;
-    OSStatus res = AudioQueueCreateTimeline(queue, &timeLine);
+ //   AudioQueueTimelineRef timeLine;
+    //OSStatus res = AudioQueueCreateTimeline(queue, &timeLine);
     
-    if (res != noErr) {
-        return 0;
-    }
+//    if (res != noErr) {
+//        return 0;
+//    }
     
     AudioTimeStamp timeStamp;
-    Boolean discontinued;
+    //Boolean discontinued;
     
-    res = AudioQueueGetCurrentTime(queue,
-                                   timeLine,
-                                   &timeStamp,
-                                   &discontinued);
+    OSStatus res = AudioQueueGetCurrentTime(queue,
+                                           NULL,
+                                           &timeStamp,
+                                           NULL);
 
-    AudioQueueDisposeTimeline(queue, timeLine);
+    //AudioQueueDisposeTimeline(queue, timeLine);
 
     if (res) {
         os_signpost_interval_end(pointsOfInterest, POIGetCurrentFrame, "GetCurrentFrame", "failed");
@@ -115,11 +112,12 @@ AVAudioFramePosition currentFrame(AudioQueueRef queue, AudioContext* context)
         os_signpost_interval_end(pointsOfInterest, POIGetCurrentFrame, "GetCurrentFrame", "negative");
         return 0;
     }
-    if (discontinued) {
-        NSLog(@"discontinued queue -- needs reinitializing");
-        os_signpost_interval_end(pointsOfInterest, POIGetCurrentFrame, "GetCurrentFrame", "discontinued");
-        return context->nextFrame - context->stream.latencyFrames;
-    }
+//    assert(!discontinued);
+//    if (discontinued) {
+//        NSLog(@"discontinued queue -- needs reinitializing");
+//        os_signpost_interval_end(pointsOfInterest, POIGetCurrentFrame, "GetCurrentFrame", "discontinued");
+//        return context->nextFrame - context->stream.latencyFrames;
+//    }
     os_signpost_interval_end(pointsOfInterest, POIGetCurrentFrame, "GetCurrentFrame", "done");
 
     return MIN(context->seekFrame + timeStamp.mSampleTime, context->sample.frames - 1);
@@ -556,7 +554,7 @@ void bufferCallback(void* user_data, AudioQueueRef queue, AudioQueueBufferRef bu
     [self stopTapping];
 
     assert(newFrame < _context.sample.frames);
-    AVAudioFramePosition oldFrame = self.currentFrame;
+     AVAudioFramePosition oldFrame = self.currentFrame;
     _context.seekFrame += newFrame - oldFrame;
     _context.nextFrame = newFrame;
     

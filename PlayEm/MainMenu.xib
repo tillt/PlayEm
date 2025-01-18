@@ -368,18 +368,43 @@
                                 </connections>
                             </menuItem>
                             <menuItem isSeparatorItem="YES" id="bI1-Lg-g9L"/>
-                            <menuItem title="Reverse 16 Beats" keyEquivalent="" id="lE2-Bu-05E">
+                            <menuItem title="Repeat 1 Beat" keyEquivalent="" id="hic-7f-4ke">
                                 <modifierMask key="keyEquivalentModifierMask"/>
                                 <connections>
-                                    <action selector="playNext:" target="-1" id="USv-7J-5gs"/>
+                                    <action selector="repeat1Beat:" target="-1" id="Bkj-Lk-rfb"/>
                                 </connections>
                             </menuItem>
-                            <menuItem title="Skip 16 Beats" keyEquivalent="" id="0Up-ZO-ER1">
+                            <menuItem title="Skip 1 Beat" keyEquivalent="" id="ZgZ-Xg-gpZ">
                                 <modifierMask key="keyEquivalentModifierMask"/>
                                 <connections>
-                                    <action selector="playNext:" target="-1" id="NEn-9H-SKR"/>
+                                    <action selector="skip1Beat:" target="-1" id="AZW-GO-2eD"/>
                                 </connections>
                             </menuItem>
+                            <menuItem title="Repeat 1 Bar" keyEquivalent="" id="lE2-Bu-05E">
+                                <modifierMask key="keyEquivalentModifierMask" shift="YES"/>
+                                <connections>
+                                    <action selector="repeat1Bar:" target="-1" id="CpT-u4-DSN"/>
+                                </connections>
+                            </menuItem>
+                            <menuItem title="Skip 1 Bar" keyEquivalent="" id="4c7-6n-8re">
+                                <modifierMask key="keyEquivalentModifierMask" shift="YES"/>
+                                <connections>
+                                    <action selector="skip1Bar:" target="-1" id="QMY-ZN-bxb"/>
+                                </connections>
+                            </menuItem>
+                            <menuItem title="Repeat 4 Bars" keyEquivalent="" id="gRn-nc-k7w">
+                                <modifierMask key="keyEquivalentModifierMask" control="YES"/>
+                                <connections>
+                                    <action selector="repeat4Bars:" target="-1" id="tDT-G4-KAM"/>
+                                </connections>
+                            </menuItem>
+                            <menuItem title="Skip 4 Bars" keyEquivalent="" id="0Up-ZO-ER1">
+                                <modifierMask key="keyEquivalentModifierMask" control="YES"/>
+                                <connections>
+                                    <action selector="skip4Bars:" target="-1" id="MQ0-gF-hj8"/>
+                                </connections>
+                            </menuItem>
+                            <menuItem isSeparatorItem="YES" id="uML-US-w3M"/>
                             <menuItem isSeparatorItem="YES" id="hSJ-f3-l5D"/>
                             <menuItem title="Increase Volume" id="jlT-04-kIm">
                                 <modifierMask key="keyEquivalentModifierMask"/>

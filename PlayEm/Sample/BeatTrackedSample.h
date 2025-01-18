@@ -44,10 +44,17 @@ typedef struct _BeatsParserContext BeatsParserContext;
 
 - (void)trackBeatsAsyncWithCallback:(void (^)(BOOL))callback;
 
-- (unsigned long long)frameForFirstBar:(nonnull BeatEventIterator*)iterator;
-- (unsigned long long)frameForNextBar:(nonnull BeatEventIterator*)iterator;
+- (unsigned long long)seekToFirstBeat:(nonnull BeatEventIterator*)iterator;
+- (unsigned long long)seekToNextBeat:(nonnull BeatEventIterator*)iterator;
+- (unsigned long long)seekToPreviousBeat:(nonnull BeatEventIterator*)iterator;
+
+- (unsigned long long)frameForPreviousBeat:(nonnull BeatEventIterator*)iterator;
 
 - (float)currentTempo:(nonnull BeatEventIterator*)iterator;
+- (unsigned long long)currentEventFrame:(BeatEventIterator*)iterator;
+
++ (void)copyIteratorFromSource:(nonnull BeatEventIterator*)source destination:(nonnull BeatEventIterator*)destination;
+
 
 @end
 

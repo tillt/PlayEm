@@ -524,6 +524,14 @@ void beatsContextReset(BeatsParserContext* context)
     }
 }
 
+// FIXME: I am almost certain, this isnt the coolest most idiomatic way to solve this problem. I would try to get close to a struct copy constructor implementations as done in C++.
++ (void)copyIteratorFromSource:(nonnull BeatEventIterator*)source destination:(nonnull BeatEventIterator*)destination
+{
+    destination->pageIndex = source->pageIndex;
+    destination->eventIndex = source->eventIndex;
+    destination->currentEvent = source->currentEvent;
+}
+
 - (float)currentTempo:(BeatEventIterator*)iterator
 {
     if (iterator == nil || iterator->currentEvent == nil) {
@@ -532,16 +540,24 @@ void beatsContextReset(BeatsParserContext* context)
     return iterator->currentEvent->bpm;
 }
 
-- (unsigned long long)frameForFirstBar:(nonnull BeatEventIterator*)iterator
+- (unsigned long long)currentEventFrame:(BeatEventIterator*)iterator
+{
+    if (iterator == nil || iterator->currentEvent == nil) {
+        return 0.0;
+    }
+    return iterator->currentEvent->frame;
+}
+
+- (unsigned long long)seekToFirstBeat:(nonnull BeatEventIterator*)iterator
 {
     iterator->pageIndex = 0;
     iterator->eventIndex = 0;
     iterator->currentEvent = nil;
     _pages = [_beats count];
-    return [self frameForNextBar:iterator];
+    return [self seekToNextBeat:iterator];
 }
 
-- (unsigned long long)frameForNextBar:(nonnull BeatEventIterator*)iterator
+- (unsigned long long)seekToNextBeat:(nonnull BeatEventIterator*)iterator
 {
     NSData* data = nil;
 
@@ -575,6 +591,55 @@ void beatsContextReset(BeatsParserContext* context)
         iterator->eventIndex = 0;
         iterator->pageIndex++;
     }
+
+    return frame;
+}
+
+- (unsigned long long)seekToPreviousBeat:(nonnull BeatEventIterator*)iterator
+{
+    NSData* data = nil;
+    // Skip pages as long as we dont get any beat data.
+    while (iterator->pageIndex >= 0) {
+        data = [_beats objectForKey:[NSNumber numberWithLong:iterator->pageIndex]];
+        if (data != nil) {
+            break;
+        }
+        iterator->pageIndex--;
+    };
+
+    const BeatEvent* events = data.bytes;
+    size_t eventCount = data.length / sizeof(BeatEvent);
+
+    if (iterator->eventIndex == 0) {
+        iterator->pageIndex--;
+
+        data = nil;
+        // Skip pages as long as we dont get any beat data.
+        while (iterator->pageIndex >= 0) {
+            data = [_beats objectForKey:[NSNumber numberWithLong:iterator->pageIndex]];
+            if (data != nil) {
+                break;
+            }
+            iterator->pageIndex--;
+        };
+
+        // Still no beat data -> bail out!
+        if (data == nil) {
+            NSLog(@"we somehow went past the first beat");
+            return ULONG_LONG_MAX;
+        }
+
+        events = data.bytes;
+        eventCount = data.length / sizeof(BeatEvent);
+
+        NSAssert(eventCount > 0, @"we should really have at least some data");
+        iterator->eventIndex = eventCount - 1;
+    } else {
+        iterator->eventIndex--;
+    }
+
+    iterator->currentEvent = &events[iterator->eventIndex];
+    unsigned long long frame = events[iterator->eventIndex].frame;
 
     return frame;
 }

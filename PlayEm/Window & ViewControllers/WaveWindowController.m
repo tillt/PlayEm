@@ -1324,6 +1324,8 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
 
 - (void)setPlaybackActive:(BOOL)active
 {
+    [self loadProgress:_controlPanelController.autoplayProgress state:LoadStateStopped value:0.0];
+    
     _controlPanelController.playPause.state = active ? NSControlStateValueOn : NSControlStateValueOff;
     //_browser.playPause = active ? NSControlStateValueOn : NSControlStateValueOff;
 }
@@ -1723,7 +1725,9 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     }
     
     BOOL playing = NO;
-    unsigned long long frame = 0LL;
+    long long frame = 0LL;
+    
+    NSLog(@"loadDocumentFromURL url: %@ - known meta: %@", url, meta);
 
     NSURLComponents* components = [NSURLComponents componentsWithURL:url
                                              resolvingAgainstBaseURL:YES];
@@ -1731,6 +1735,11 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     NSPredicate* predicate = [NSPredicate predicateWithFormat:@"name=%@", @"CurrentFrame"];
     NSURLQueryItem* item = [[components.queryItems filteredArrayUsingPredicate:predicate] firstObject];
     frame = [[item value] longLongValue];
+    
+    if (frame < 0) {
+        NSLog(@"not fixing a bug here due to lazyness -- hope it happens rarely");
+        frame = 0;
+    }
 
     predicate = [NSPredicate predicateWithFormat:@"name=%@", @"Playing"];
     item = [[components.queryItems filteredArrayUsingPredicate:predicate] firstObject];
@@ -1744,6 +1753,9 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     }
 
     _loaderState = LoaderStateMeta;
+    if (playing) {
+        [self loadProgress:_controlPanelController.autoplayProgress state:LoadStateInit value:0.0];
+    }
 
     if (meta == nil) {
         // Not being able to get metadata is not a reason to error out.
@@ -1893,6 +1905,8 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     if (_loaderState == LoaderStateAborted) {
         return;
     }
+    
+    [self loadProgress:_controlPanelController.beatProgress state:LoadStateInit value:0.0];
 
     _loaderState = LoaderStateBeatDetection;
 
@@ -1904,6 +1918,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
         } else {
             NSLog(@"never finished the beat tracking");
         }
+        [self loadProgress:self.controlPanelController.beatProgress state:LoadStateStopped value:0.0];
     }];
 }
 
@@ -1930,6 +1945,8 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
         return;
     }
 
+    [self loadProgress:_controlPanelController.keyProgress state:LoadStateInit value:0.0];
+
     _loaderState = LoaderStateKeyDetection;
 
     _keySample = keySample;
@@ -1940,6 +1957,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
         } else {
             NSLog(@"never finished the key tracking");
         }
+        [self loadProgress:self.controlPanelController.keyProgress state:LoadStateStopped value:0.0];
     }];
 }
 
@@ -2366,6 +2384,68 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     _audioController.currentFrame = frame;
     [self beatEffectStart];
     [self updateRemotePosition];
+}
+
+- (IBAction)skip1Beat:(id)sender
+{
+    const unsigned long long nextBeatFrame = [self.beatSample currentEventFrame:&_beatEffectIteratorContext];
+    NSLog(@"next beat will be at %lld", nextBeatFrame);
+    _audioController.currentFrame = nextBeatFrame;
+    [self updateRemotePosition];
+}
+
+- (IBAction)repeat1Beat:(id)sender
+{
+    BeatEventIterator iter;
+ 
+    const unsigned long long nextBeatFrame = [self.beatSample currentEventFrame:&_beatEffectIteratorContext];
+ 
+    [BeatTrackedSample copyIteratorFromSource:&_beatEffectIteratorContext destination:&iter];
+    [self.beatSample seekToPreviousBeat:&iter];
+    const unsigned long long previousBeatFrame = [self.beatSample seekToPreviousBeat:&iter];
+    NSLog(@"previous beat was at %lld - next beat is at %lld", previousBeatFrame, nextBeatFrame);
+    _audioController.currentFrame = previousBeatFrame;
+    [self updateRemotePosition];
+}
+
+- (IBAction)skip1Bar:(id)sender
+{
+    BeatEventIterator iter;
+ 
+    [BeatTrackedSample copyIteratorFromSource:&_beatEffectIteratorContext destination:&iter];
+    
+    unsigned long long frame = 0;
+    while ((iter.currentEvent->style & BeatEventStyleBar) != BeatEventStyleBar) {
+        frame = [self.beatSample seekToNextBeat:&iter];
+    };
+    NSLog(@"next bar is at %lld", frame);
+    _audioController.currentFrame = frame;
+    [self updateRemotePosition];
+}
+
+- (IBAction)repeat1Bar:(id)sender
+{
+    BeatEventIterator iter;
+ 
+    [BeatTrackedSample copyIteratorFromSource:&_beatEffectIteratorContext destination:&iter];
+    
+    unsigned long long frame = 0;
+    while ((iter.currentEvent->style & BeatEventStyleBar) != BeatEventStyleBar) {
+        frame = [self.beatSample seekToPreviousBeat:&iter];
+    };
+    NSLog(@"previous bar is at %lld", frame);
+    _audioController.currentFrame = frame;
+    [self updateRemotePosition];
+}
+
+- (IBAction)skip4Bars:(id)sender
+{
+    
+}
+
+- (IBAction)repeat4Bars:(id)sender
+{
+    
 }
 
 #pragma mark - Full Screen Support: Persisting and Restoring Window's Non-FullScreen Frame

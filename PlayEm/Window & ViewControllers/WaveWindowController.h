@@ -91,8 +91,6 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)setCurrentFrame:(unsigned long long)frame;
 - (BOOL)loadDocumentFromURL:(NSURL*)url meta:(nullable MediaMetaData*)meta;
 - (IBAction)loadITunesLibrary:(id)sender;
-- (IBAction)showInfoForCurrentSong:(id)sender;
-- (IBAction)showInfoForSelectedSongs:(id)sender;
 - (IBAction)showPlaylist:(id)sender;
 - (IBAction)playNext:(id)sender;
 - (IBAction)playPrevious:(id)sender;

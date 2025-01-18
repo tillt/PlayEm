@@ -85,7 +85,8 @@ typedef enum : NSUInteger {
 {
     CALayer* layer = [CALayer layer];
     layer.masksToBounds = NO;
-    layer.autoresizingMask = kCALayerWidthSizable;
+    layer.autoresizingMask = kCALayerNotSizable;
+    layer.drawsAsynchronously = NO;
     layer.frame = self.bounds;
     
     CGRect symbolRect = CGRectMake(0.0, 0.0, self.bounds.size.height, self.bounds.size.height);
@@ -94,7 +95,7 @@ typedef enum : NSUInteger {
     _symbolLayer.fontSize = kFontSize;
     _symbolLayer.font =  (__bridge  CFTypeRef)[NSFont systemFontOfSize:kFontSize weight:NSFontWeightMedium];
     _symbolLayer.wrapped = NO;
-    _symbolLayer.autoresizingMask = kCALayerWidthSizable;
+    _symbolLayer.autoresizingMask = kCALayerNotSizable;
     _symbolLayer.truncationMode = kCATruncationEnd;
     _symbolLayer.allowsEdgeAntialiasing = YES;
     _symbolLayer.contentsScale = [[NSScreen mainScreen] backingScaleFactor];
@@ -106,7 +107,7 @@ typedef enum : NSUInteger {
     _effectLayer.backgroundFilters = @[ [TableRowView sharedBloomFilter], [TableRowView sharedColorizeFilter] ];
     _effectLayer.anchorPoint = CGPointMake(0.5, 0.5);
     _effectLayer.masksToBounds = NO;
-    _effectLayer.autoresizingMask = kCALayerWidthSizable;
+    _effectLayer.autoresizingMask = kCALayerNotSizable;
     _effectLayer.zPosition = 1.9;
     _effectLayer.mask = [CAShapeLayer MaskLayerFromRect:self.bounds];
     _effectLayer.frame = self.bounds;

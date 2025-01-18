@@ -34,6 +34,7 @@ extern NSString * const kPlaybackStatePlaying;
 @property (strong, nonatomic) ScrollingTextView* albumArtistView;
 @property (strong, nonatomic) IdentificationCoverView* coverButton;
 @property (weak, nonatomic) id<ControlPanelControllerDelegate> delegate;
+
 @end
 
 @implementation ControlPanelController
@@ -206,6 +207,15 @@ extern NSString * const kPlaybackStatePlaying;
     _playPause.font = [NSFont systemFontOfSize:largeSymbolFontSize];
     [self.view addSubview:_playPause];
 
+    _autoplayProgress = [[NSProgressIndicator alloc] initWithFrame:NSMakeRect(_titleView.frame.origin.x + scrollingTextViewWidth + 54.0f,
+                                                                              _playPause.frame.origin.y + bpmLabelHeight - 14.0,
+                                                                              20.0,
+                                                                              20.0)];
+    _autoplayProgress.style = NSProgressIndicatorStyleSpinning;
+    _autoplayProgress.displayedWhenStopped = NO;
+    _autoplayProgress.autoresizingMask =  NSViewNotSizable | NSViewMinXMargin | NSViewMaxXMargin| NSViewMinYMargin | NSViewMaxYMargin;
+    [self.view addSubview:_autoplayProgress];
+
     _loop = [NSButton buttonWithTitle:@"􀊞" target:nil action:nil];
     _loop.frame = NSMakeRect(_playPause.frame.origin.x + _playPause.frame.size.width,
                              loopButtonY,
@@ -373,7 +383,16 @@ extern NSString * const kPlaybackStatePlaying;
                             keyLabelWidth,
                             bpmLabelHeight);
     [self.view addSubview:_key];
-    
+
+    _keyProgress = [[NSProgressIndicator alloc] initWithFrame:NSMakeRect(_key.frame.origin.x + 22.0,
+                                                                         _key.frame.origin.y + 4.0,
+                                                                          14.0,
+                                                                          14.0)];
+    _keyProgress.style = NSProgressIndicatorStyleSpinning;
+    _keyProgress.displayedWhenStopped = NO;
+    _keyProgress.autoresizingMask =  NSViewNotSizable | NSViewMinXMargin | NSViewMaxXMargin| NSViewMinYMargin | NSViewMaxYMargin;
+    [self.view addSubview:_keyProgress];
+
     _beatIndicator = [NSTextField textFieldWithString:@"􀀁"];
     _beatIndicator.bordered = NO;
     _beatIndicator.textColor = [[Defaults sharedDefaults] lightFakeBeamColor];;
@@ -396,6 +415,15 @@ extern NSString * const kPlaybackStatePlaying;
     layer.masksToBounds = NO;
     layer.mask = [CAShapeLayer MaskLayerFromRect:layer.bounds];
     [_beatIndicator.layer addSublayer:layer];
+    
+    _beatProgress = [[NSProgressIndicator alloc] initWithFrame:NSMakeRect(_beatIndicator.frame.origin.x + 2.0,
+                                                                          _playPause.frame.origin.y + bpmLabelHeight + 13.0,
+                                                                          14.0,
+                                                                          14.0)];
+    _beatProgress.style = NSProgressIndicatorStyleSpinning;
+    _beatProgress.displayedWhenStopped = NO;
+    _beatProgress.autoresizingMask =  NSViewNotSizable | NSViewMinXMargin | NSViewMaxXMargin| NSViewMinYMargin | NSViewMaxYMargin;
+    [self.view addSubview:_beatProgress];
 
     _bpm = [NSTextField textFieldWithString:kBPMDefault];
     _bpm.bordered = NO;

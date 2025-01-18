@@ -101,6 +101,13 @@ NS_ASSUME_NONNULL_BEGIN
 - (IBAction)volumeDecrease:(id)sender;
 - (IBAction)seekToFrame:(unsigned long long)frame;
 
-@end
+- (IBAction)skip1Beat:(id)sender;
+- (IBAction)repeat1Beat:(id)sender;
+- (IBAction)skip1Bar:(id)sender;
+- (IBAction)repeat1Bar:(id)sender;
+- (IBAction)skip4Bars:(id)sender;
+- (IBAction)repeat4Bars:(id)sender;
+
+ @end
 
 NS_ASSUME_NONNULL_END

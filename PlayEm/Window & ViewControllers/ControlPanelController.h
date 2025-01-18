@@ -39,6 +39,10 @@ NS_ASSUME_NONNULL_BEGIN
 @property (strong, nonatomic) CIFilter* zoomBlur;
 @property (strong, nonatomic) MediaMetaData* meta;
 
+@property (strong, nonatomic) NSProgressIndicator* beatProgress;
+@property (strong, nonatomic) NSProgressIndicator* keyProgress;
+@property (strong, nonatomic) NSProgressIndicator* autoplayProgress;
+
 - (id)initWithDelegate:(id<ControlPanelControllerDelegate>)delegate;
 - (void)loadView;
 

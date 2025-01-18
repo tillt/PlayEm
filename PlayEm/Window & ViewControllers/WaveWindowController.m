@@ -192,7 +192,7 @@ os_log_t pointsOfInterest;
 {
     NSLog(@"re-starting beat effect");
     _beatEffectRampUpFrames = 0;
-    _beatEffectAtFrame = [_beatSample frameForFirstBar:&_beatEffectIteratorContext];
+    _beatEffectAtFrame = [_beatSample seekToFirstBeat:&_beatEffectIteratorContext];
     
     float songTempo = floorf([_beatSample currentTempo:&_beatEffectIteratorContext]);
     float effectiveTempo = floorf(songTempo * _audioController.tempoShift);
@@ -202,7 +202,7 @@ os_log_t pointsOfInterest;
 
 - (BOOL)beatEffectNext
 {
-    _beatEffectAtFrame = [_beatSample frameForNextBar:&_beatEffectIteratorContext];
+    _beatEffectAtFrame = [_beatSample seekToNextBeat:&_beatEffectIteratorContext];
     return _beatEffectAtFrame != ULONG_LONG_MAX;
 }
 
@@ -423,15 +423,17 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
 
     [menu addItem:[NSMenuItem separatorItem]];
 
-    [menu addItemWithTitle:@"Show Info"
-                    action:@selector(showInfoForSelectedSongs:)
-             keyEquivalent:@""];
+    item = [menu addItemWithTitle:@"Show Info"
+                           action:@selector(showInfoForSelectedSongs:)
+                    keyEquivalent:@""];
+    item.target = _browser;
 
     [menu addItem:[NSMenuItem separatorItem]];
 
-    [menu addItemWithTitle:@"Show in Finder"
+    item = [menu addItemWithTitle:@"Show in Finder"
                     action:@selector(showInFinder:)
              keyEquivalent:@""];
+    item.target = _browser;
 
 // TODO: allow disabling depending on the number of songs selected. Note to myself, this here is the wrong place!
 //    size_t numberOfSongsSelected = ;

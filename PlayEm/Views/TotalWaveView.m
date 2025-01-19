@@ -222,9 +222,15 @@ const CGFloat kTotalWaveViewTileWidth = 8.0f;
                                               0.0f,
                                               self.bounds.size.width,
                                               self.bounds.size.height);
+    _tailBloomFxLayer.bounds = CGRectMake(0.0f,
+                                              0.0f,
+                                              self.bounds.size.width,
+                                              self.bounds.size.height);
     // FIXME: We are redoing the mask layer cause all ways of resizing it
     // ended up with rather weird effects.
     _aheadVibranceFxLayer.mask = [CAShapeLayer MaskLayerFromRect:_aheadVibranceFxLayer.bounds];
+    
+    _tailBloomFxLayer.mask = [CAShapeLayer MaskLayerFromRect:_tailBloomFxLayer.bounds];
     
     [self updateHeadPosition];
 

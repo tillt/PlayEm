@@ -10,12 +10,16 @@
 
 #import <Foundation/Foundation.h>
 #import <Quartz/Quartz.h>
+#import <QuartzCore/QuartzCore.h>
+
 #import "TableCellView.h"
 #import "CAShapeLayer+Path.h"
 #import "Defaults.h"
 #import "BeatEvent.h"
 
 static const double kFontSize = 11.0f;
+
+//#define TABLE_ROW_GLOW  1
 
 typedef enum : NSUInteger {
     GlowTriggerNone = 0x00,
@@ -32,7 +36,9 @@ typedef enum : NSUInteger {
 
 @interface TableRowView ()
 
+#ifdef TABLE_ROW_GLOW
 @property (nonatomic, strong) CALayer* effectLayer;
+#endif
 @property (nonatomic, strong) CATextLayer* symbolLayer;
 
 @end
@@ -86,7 +92,7 @@ typedef enum : NSUInteger {
     CALayer* layer = [CALayer layer];
     layer.masksToBounds = NO;
     layer.autoresizingMask = kCALayerNotSizable;
-    layer.drawsAsynchronously = NO;
+    layer.drawsAsynchronously = YES;
     layer.frame = self.bounds;
     
     CGRect symbolRect = CGRectMake(0.0, 0.0, self.bounds.size.height, self.bounds.size.height);
@@ -101,8 +107,10 @@ typedef enum : NSUInteger {
     _symbolLayer.contentsScale = [[NSScreen mainScreen] backingScaleFactor];
     _symbolLayer.foregroundColor = [[Defaults sharedDefaults] lightBeamColor].CGColor;
     _symbolLayer.frame = NSOffsetRect(NSInsetRect(symbolRect, 0.0, 5.0), 8.0, 0.0);
+    _symbolLayer.drawsAsynchronously = YES;
     [layer addSublayer:_symbolLayer];
-    
+
+#ifdef TABLE_ROW_GLOW
     _effectLayer = [CALayer layer];
     _effectLayer.backgroundFilters = @[ [TableRowView sharedBloomFilter], [TableRowView sharedColorizeFilter] ];
     _effectLayer.anchorPoint = CGPointMake(0.5, 0.5);
@@ -112,8 +120,9 @@ typedef enum : NSUInteger {
     _effectLayer.mask = [CAShapeLayer MaskLayerFromRect:self.bounds];
     _effectLayer.frame = self.bounds;
     _effectLayer.hidden = YES;
+    _effectLayer.drawsAsynchronously = YES;
     [layer addSublayer:_effectLayer];
-    
+#endif
     return layer;
 }
 
@@ -205,7 +214,9 @@ typedef enum : NSUInteger {
         } else {
             _symbolLayer.string = @"􀊄";
             [_symbolLayer removeAllAnimations];
+#ifdef TABLE_ROW_GLOW
             [_effectLayer removeAllAnimations];
+#endif
             [[NSNotificationCenter defaultCenter] removeObserver:self name:kBeatTrackedSampleBeatNotification object:nil];
         }
         _symbolLayer.hidden = NO;
@@ -214,7 +225,9 @@ typedef enum : NSUInteger {
         _symbolLayer.hidden = YES;
         _symbolLayer.hidden = YES;
         [_symbolLayer removeAllAnimations];
+#ifdef TABLE_ROW_GLOW
         [_effectLayer removeAllAnimations];
+#endif
         [[NSNotificationCenter defaultCenter] removeObserver:self name:kBeatTrackedSampleBeatNotification object:nil];
     }
 }
@@ -273,6 +286,7 @@ typedef enum : NSUInteger {
         }
     }
 
+#ifdef TABLE_ROW_GLOW
     const BeatEventStyle mask = BeatEventStyleBar | BeatEventStyleAlarm;
     if ((style & mask) == mask) {
         CAKeyframeAnimation* animation = [CAKeyframeAnimation animationWithKeyPath:@"hidden"];
@@ -286,6 +300,7 @@ typedef enum : NSUInteger {
         animation.duration = barDuration;
         [_effectLayer addAnimation:animation forKey:@"barSynced"];
     }
+#endif
 }
 
 @end

@@ -24,7 +24,7 @@ NS_ASSUME_NONNULL_BEGIN
 /// When setting extra state, we assign it to every single
 /// column in that row to make sure it can redraw itself properly.
 ///
-/// Additionally, we show or hide an layer on top of the row
+/// Additionally, we show or hide a layer on top of the row
 /// that allows us to show an extra symbol on the very left side.
 /// Note that we need to assert that the first item in the row does
 /// allow for some space for this.

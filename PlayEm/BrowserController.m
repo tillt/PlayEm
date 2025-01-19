@@ -1120,6 +1120,9 @@ typeSelectStringForTableColumn:(NSTableColumn*)tableColumn
 {
     static NSString* const kRowIdentifier = @"PlayEmTableRow";
 
+    [CATransaction begin];
+    [CATransaction setDisableActions:YES];
+
     TableRowView* rowView = [tableView makeViewWithIdentifier:kRowIdentifier owner:self];
     if (rowView == nil) {
         rowView = [[TableRowView alloc] initWithFrame:NSMakeRect(0.0, 
@@ -1129,6 +1132,7 @@ typeSelectStringForTableColumn:(NSTableColumn*)tableColumn
         rowView.identifier = kRowIdentifier;
     }
     rowView.nextKeyView = tableView.nextKeyView;
+    [CATransaction commit];
     return rowView;
 }
   
@@ -1136,6 +1140,9 @@ typeSelectStringForTableColumn:(NSTableColumn*)tableColumn
   viewForTableColumn:(NSTableColumn*)tableColumn
                  row:(NSInteger)row
 {
+    [CATransaction begin];
+    [CATransaction setDisableActions:YES];
+    
     TableCellView* result = [tableView makeViewWithIdentifier:tableColumn.identifier owner:self];
     
     if (result == nil) {
@@ -1158,6 +1165,8 @@ typeSelectStringForTableColumn:(NSTableColumn*)tableColumn
 
     result.textLayer.string = [self stringValueForRow:row tableColumn:tableColumn tableView:tableView];
     result.nextKeyView = tableView.nextKeyView;
+
+    [CATransaction commit];
 
     return result;
 }

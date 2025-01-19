@@ -36,6 +36,7 @@
     if (self) {
         self.layer = [self makeBackingLayer];
         self.layer.masksToBounds = NO;
+        self.layer.drawsAsynchronously = YES;
         self.layerUsesCoreImageFilters = YES;
     }
     return self;

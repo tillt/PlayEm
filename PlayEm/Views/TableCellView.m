@@ -7,7 +7,11 @@
 //
 
 #import "TableCellView.h"
+
 #import <Quartz/Quartz.h>
+#import <QuartzCore/QuartzCore.h>
+#import <CoreGraphics/CoreGraphics.h>
+
 #import "CAShapeLayer+Path.h"
 #import "Defaults.h"
 #import "BeatEvent.h"
@@ -39,8 +43,16 @@ static const double kFontSize = 11.0f;
     return self;
 }
 
+- (BOOL)wantsUpdateLayer
+{
+    return NO;
+}
+
 - (CALayer*)makeBackingLayer
 {
+    [CATransaction begin];
+    [CATransaction setDisableActions:YES];
+
     CALayer* layer = [CALayer layer];
     layer.masksToBounds = YES;
     layer.drawsAsynchronously = YES;
@@ -64,6 +76,7 @@ static const double kFontSize = 11.0f;
     _textLayer.foregroundColor = [[Defaults sharedDefaults] secondaryLabelColor].CGColor;
     _textLayer.frame = NSInsetRect(self.bounds, 0.0, 5.0);
     [layer addSublayer:_textLayer];
+    [CATransaction commit];
 
     return layer;
 }
@@ -88,7 +101,10 @@ static const double kFontSize = 11.0f;
                 color = [NSColor linkColor];
         }
     }
+    [CATransaction begin];
+    [CATransaction setDisableActions:YES];
     _textLayer.foregroundColor = color.CGColor;
+    [CATransaction commit];
 }
 
 - (void)setExtraState:(ExtraState)extraState
@@ -108,22 +124,20 @@ static const double kFontSize = 11.0f;
     if ((style & BeatEventStyleBar) == BeatEventStyleBar) {
         // For creating a discrete effect accross the timeline, a keyframe animation is the
         // right thing as it even allows us to animate strings.
-        {
-            CAKeyframeAnimation* animation = [CAKeyframeAnimation animationWithKeyPath:@"foregroundColor"];
-            animation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionLinear];
-            
-            //    animation.fromValue = (id)[[[Defaults sharedDefaults] lightBeamColor] CGColor];
-            //animation.toValue = (id)[[NSColor secondaryLabelColor] CGColor];
-            animation.values = @[ (id)[[[Defaults sharedDefaults] lightBeamColor] CGColor],
-                                  (id)[[NSColor secondaryLabelColor] CGColor] ];
-            animation.fillMode = kCAFillModeBoth;
-            [animation setValue:@"barSyncedColor" forKey:@"name"];
-            animation.removedOnCompletion = NO;
-            animation.repeatCount = 1;
-            // We animate throughout an entire bar.
-            animation.duration = barDuration;
-            [_textLayer addAnimation:animation forKey:@"barSynced"];
-        }
+        CAKeyframeAnimation* animation = [CAKeyframeAnimation animationWithKeyPath:@"foregroundColor"];
+        animation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionLinear];
+        
+        //animation.fromValue = (id)[[[Defaults sharedDefaults] lightBeamColor] CGColor];
+        //animation.toValue = (id)[[NSColor secondaryLabelColor] CGColor];
+        animation.values = @[ (id)[[[Defaults sharedDefaults] lightBeamColor] CGColor],
+                              (id)[[NSColor secondaryLabelColor] CGColor] ];
+        animation.fillMode = kCAFillModeBoth;
+        [animation setValue:@"barSyncedColor" forKey:@"name"];
+        animation.removedOnCompletion = NO;
+        animation.repeatCount = 1;
+        // We animate throughout an entire bar.
+        animation.duration = barDuration;
+        [_textLayer addAnimation:animation forKey:@"barSynced"];
     }
 }
 

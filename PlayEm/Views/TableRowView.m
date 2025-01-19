@@ -23,13 +23,6 @@ static const CGFloat kSelectionCornerRadius = 5.0;
 //#define TABLE_ROW_GLOW  1
 
 typedef enum : NSUInteger {
-    GlowTriggerNone = 0x00,
-    GlowTriggerEmphasized = 0x01 << 0,
-    GlowTriggerActive = 0x01 << 1,
-    GlowTriggerSelected = 0x01 << 2,
-} GlowTriggerMask;
-
-typedef enum : NSUInteger {
     RoundedNone = 0,
     RoundedTop = 0x01 << 0,
     RoundedBottom = 0x01 << 1,
@@ -46,9 +39,10 @@ typedef enum : NSUInteger {
 
 @implementation TableRowView
 {
-    GlowTriggerMask _glowTriggerMask;
+    BOOL _subscribedToBeatTicks;
 }
 
+#ifdef TABLE_ROW_GLOW
 + (CIFilter*)sharedBloomFilter
 {
     static dispatch_once_t once;
@@ -75,15 +69,16 @@ typedef enum : NSUInteger {
     });
     return sharedInstance;
 }
+#endif
 
 - (id)initWithFrame:(NSRect)frameRect
 {
     self = [super initWithFrame:frameRect];
     if (self) {
+        _subscribedToBeatTicks = NO;
         self.wantsLayer = YES;
         self.clipsToBounds = YES;
         self.layerContentsRedrawPolicy = NSViewLayerContentsRedrawOnSetNeedsDisplay;
-        _glowTriggerMask = GlowTriggerNone;
     }
     return self;
 }
@@ -206,28 +201,44 @@ typedef enum : NSUInteger {
         TableCellView* view = [self viewAtColumn:i];
         view.extraState = extraState;
     }
+
+    BOOL needsBeatTicks = NO;
+
     if ((extraState == kExtraStatePlaying) | (extraState == kExtraStateActive)) {
         if (extraState == kExtraStatePlaying) {
             _symbolLayer.string = @"􀊥";
-            [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(beatEffect:) name:kBeatTrackedSampleBeatNotification object:nil];
+            needsBeatTicks = YES;
         } else {
             _symbolLayer.string = @"􀊄";
             [_symbolLayer removeAllAnimations];
 #ifdef TABLE_ROW_GLOW
             [_effectLayer removeAllAnimations];
 #endif
-            [[NSNotificationCenter defaultCenter] removeObserver:self name:kBeatTrackedSampleBeatNotification object:nil];
         }
         _symbolLayer.hidden = NO;
     } else {
         _symbolLayer.string = @"";
         _symbolLayer.hidden = YES;
-        _symbolLayer.hidden = YES;
         [_symbolLayer removeAllAnimations];
 #ifdef TABLE_ROW_GLOW
         [_effectLayer removeAllAnimations];
 #endif
-        [[NSNotificationCenter defaultCenter] removeObserver:self name:kBeatTrackedSampleBeatNotification object:nil];
+    }
+
+    if (needsBeatTicks && !_subscribedToBeatTicks) {
+        // We out to react to beat ticks, subscribe to the notification.
+        [[NSNotificationCenter defaultCenter] addObserver:self
+                                                 selector:@selector(beatEffect:)
+                                                     name:kBeatTrackedSampleBeatNotification
+                                                   object:nil];
+        _subscribedToBeatTicks = YES;
+    }
+    
+    if (!needsBeatTicks && _subscribedToBeatTicks) {
+        [[NSNotificationCenter defaultCenter] removeObserver:self
+                                                        name:kBeatTrackedSampleBeatNotification
+                                                      object:nil];
+        _subscribedToBeatTicks = NO;
     }
 }
 

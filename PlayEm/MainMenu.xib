@@ -393,13 +393,11 @@
                                 </connections>
                             </menuItem>
                             <menuItem title="Repeat 4 Bars" keyEquivalent="" id="gRn-nc-k7w">
-                                <modifierMask key="keyEquivalentModifierMask" control="YES"/>
                                 <connections>
                                     <action selector="repeat4Bars:" target="-1" id="tDT-G4-KAM"/>
                                 </connections>
                             </menuItem>
                             <menuItem title="Skip 4 Bars" keyEquivalent="" id="0Up-ZO-ER1">
-                                <modifierMask key="keyEquivalentModifierMask" control="YES"/>
                                 <connections>
                                     <action selector="skip4Bars:" target="-1" id="MQ0-gF-hj8"/>
                                 </connections>

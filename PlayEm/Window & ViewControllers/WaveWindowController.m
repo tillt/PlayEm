@@ -2440,12 +2440,47 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
 
 - (IBAction)skip4Bars:(id)sender
 {
+    BeatEventIterator iter;
+ 
+    [BeatTrackedSample copyIteratorFromSource:&_beatEffectIteratorContext destination:&iter];
     
+    unsigned int barCount = 4;
+    unsigned long long frame = iter.currentEvent->frame;
+    while (barCount-- > 0) {
+        while ((iter.currentEvent->style & BeatEventStyleBar) != BeatEventStyleBar) {
+            frame = [self.beatSample seekToNextBeat:&iter];
+        };
+        if (barCount > 1 && (iter.currentEvent->style & BeatEventStyleBar) == BeatEventStyleBar) {
+            frame = [self.beatSample seekToNextBeat:&iter];
+        }
+    };
+    NSLog(@"next bar is at %lld", frame);
+    _audioController.currentFrame = frame;
+    [self updateRemotePosition];
+
 }
 
 - (IBAction)repeat4Bars:(id)sender
 {
-    
+    BeatEventIterator iter;
+ 
+    [BeatTrackedSample copyIteratorFromSource:&_beatEffectIteratorContext destination:&iter];
+
+    unsigned int barCount = 4;
+    unsigned long long frame = iter.currentEvent->frame;
+
+    while (barCount-- > 0) {
+        while ((iter.currentEvent->style & BeatEventStyleBar) != BeatEventStyleBar) {
+            frame = [self.beatSample seekToPreviousBeat:&iter];
+            NSLog(@"repeating beat at %lld", frame);
+        };
+        if (barCount > 1 && (iter.currentEvent->style & BeatEventStyleBar) == BeatEventStyleBar) {
+            frame = [self.beatSample seekToPreviousBeat:&iter];
+        }
+    };
+    NSLog(@"repeating 4 bars at %lld", frame);
+    _audioController.currentFrame = frame;
+    [self updateRemotePosition];
 }
 
 #pragma mark - Full Screen Support: Persisting and Restoring Window's Non-FullScreen Frame

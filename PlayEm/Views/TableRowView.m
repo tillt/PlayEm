@@ -18,6 +18,7 @@
 #import "BeatEvent.h"
 
 static const double kFontSize = 11.0f;
+static const CGFloat kSelectionCornerRadius = 5.0;
 
 //#define TABLE_ROW_GLOW  1
 
@@ -134,17 +135,15 @@ typedef enum : NSUInteger {
  */
 - (NSBezierPath*)selectionPathWithRoundingMask:(RoundingMask)rounding
 {
-    CGFloat radius = 5.0;
-    BOOL roundAtTop = (rounding & RoundedTop) == RoundedTop;
-    BOOL roundAtBottom = (rounding & RoundedBottom) == RoundedBottom;
+    const BOOL roundAtTop = (rounding & RoundedTop) == RoundedTop;
+    const BOOL roundAtBottom = (rounding & RoundedBottom) == RoundedBottom;
 
-    CGFloat tr = roundAtTop ? radius : 0.0;
-    CGFloat tl = roundAtTop ? radius : 0.0;
-    CGFloat br = roundAtBottom ? radius : 0.0;
-    CGFloat bl = roundAtBottom ? radius : 0.0;
+    const CGFloat tr = roundAtTop ? kSelectionCornerRadius : 0.0;
+    const CGFloat tl = roundAtTop ? kSelectionCornerRadius : 0.0;
+    const CGFloat br = roundAtBottom ? kSelectionCornerRadius : 0.0;
+    const CGFloat bl = roundAtBottom ? kSelectionCornerRadius : 0.0;
 
-    NSRect selectionRect = self.bounds;
-    selectionRect = NSMakeRect(selectionRect.origin.x + 4.0, selectionRect.origin.y, selectionRect.size.width - 8.0, selectionRect.size.height);
+    NSRect selectionRect = NSInsetRect(self.bounds, 4.0, 0.0);
 
     if (roundAtTop) {
         selectionRect = NSMakeRect(selectionRect.origin.x, selectionRect.origin.y + 2.0, selectionRect.size.width, selectionRect.size.height - 2.0);

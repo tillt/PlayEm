@@ -2414,7 +2414,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
  
     [BeatTrackedSample copyIteratorFromSource:&_beatEffectIteratorContext destination:&iter];
     
-    unsigned long long frame = 0;
+    unsigned long long frame = iter.currentEvent->frame;
     while ((iter.currentEvent->style & BeatEventStyleBar) != BeatEventStyleBar) {
         frame = [self.beatSample seekToNextBeat:&iter];
     };
@@ -2429,9 +2429,10 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
  
     [BeatTrackedSample copyIteratorFromSource:&_beatEffectIteratorContext destination:&iter];
     
-    unsigned long long frame = 0;
+    unsigned long long frame = iter.currentEvent->frame;
     while ((iter.currentEvent->style & BeatEventStyleBar) != BeatEventStyleBar) {
         frame = [self.beatSample seekToPreviousBeat:&iter];
+        NSLog(@"repeating beat at %lld", frame);
     };
     NSLog(@"previous bar is at %lld", frame);
     _audioController.currentFrame = frame;

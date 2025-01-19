@@ -276,15 +276,18 @@ void beatsContextReset(BeatsParserContext* context)
     for (int channel = 0; channel < channels; channel++) {
         data[channel] = (float*)((NSMutableData*)self->_sampleBuffers[channel]).bytes;
     }
-    unsigned long long sourceWindowFrameOffset = 0LL;
-    
+   
     _coarseBeats = [NSMutableData data];
     
-    NSLog(@"pass one");
+    NSLog(@"beat detect pass one: libaubio");
+
+    // We need to track heading amd trailing silence to correct the beat-grid.
     BOOL initialSilenceEnded = NO;
     _initialSilenceEndsAtFrame = 0LL;
     _trailingSilenceStartsAtFrame = self->_sample.frames;
 
+    // Here we go, all the way through our entire sample.
+    unsigned long long sourceWindowFrameOffset = 0LL;
     while (sourceWindowFrameOffset < self->_sample.frames) {
         if (dispatch_block_testcancel(self.queueOperation) != 0) {
             NSLog(@"aborted beat detection");
@@ -444,6 +447,7 @@ void beatsContextReset(BeatsParserContext* context)
                 }
                 s /= (float)channels;
                 
+                // We need to track heading and trailing silence to correct the beat-grid.
                 if (!initialSilenceEnded) {
                     if (fabs(s) > kSilenceThreshold) {
                         initialSilenceEnded = YES;
@@ -460,7 +464,8 @@ void beatsContextReset(BeatsParserContext* context)
                 }
 
                 if(self->_filterEnabled) {
-                    // Basic lowpass filter (feedback).
+                    // For improving results on beat-detection for modern electronic music,
+                    // we apply a basic lowpass filter (feedback).
                     self->_filterOutput += (s - self->_filterOutput) / self->_filterConstant;
                     s = self->_filterOutput;
                 }

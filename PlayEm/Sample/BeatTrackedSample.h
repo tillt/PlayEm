@@ -25,7 +25,15 @@ typedef struct _BeatsParserContext BeatsParserContext;
 
 @class LazySample;
 
+///
+/// Tracks beats and tempo for a given sample.
+///
+/// Beat events can be enumerated using  a `BeatEventIterator`.
+///
 @interface BeatTrackedSample : NSObject
+
+// FIXME: Allows for retrieval of beat events based on a screen origin - this is all too weird - feels like we should have something
+// FIXME: inbetween there. Screen stuff shouldnt be of any concern here.
 
 @property (assign, nonatomic) double framesPerPixel;
 @property (strong, nonatomic) LazySample* sample;

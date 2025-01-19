@@ -159,6 +159,7 @@ const CGFloat kTableRowHeight = 50.0f;
                                                          0.0,
                                                          kPopoverWidth,
                                                          kPopoverHeight)];
+
     CGFloat y = kPopoverHeight - (kCoverViewHeight + kBorderHeight);
 
     NSScrollView* sv = [[NSScrollView alloc] initWithFrame:NSMakeRect(kBorderWidth + kCoverViewWidth,
@@ -167,6 +168,7 @@ const CGFloat kTableRowHeight = 50.0f;
                                                                       kCoverViewHeight)];
     sv.hasVerticalScroller = YES;
     sv.autoresizingMask = kViewFullySizeable;
+    sv.automaticallyAdjustsContentInsets = YES;
     sv.drawsBackground = NO;
 
     self.tableView = [[NSTableView alloc] initWithFrame:NSMakeRect(0.0,
@@ -176,10 +178,12 @@ const CGFloat kTableRowHeight = 50.0f;
     _tableView.delegate = self;
     _tableView.dataSource = self;
     _tableView.backgroundColor = [NSColor clearColor];
+    //_tableView.backgroundColor = [NSColor blueColor];
     _tableView.autoresizingMask = kViewFullySizeable;
     _tableView.headerView = nil;
     _tableView.columnAutoresizingStyle = NSTableViewNoColumnAutoresizing;
     _tableView.rowHeight = kTableRowHeight;
+    _tableView.intercellSpacing = NSMakeSize(0.0, 0.0);
 
     NSTableColumn* col = [[NSTableColumn alloc] init];
     col.title = @"";
@@ -224,7 +228,7 @@ const CGFloat kTableRowHeight = 50.0f;
 
 - (void)copyQueryToPasteboard:(id)sender
 {
-    NSButton* button;
+    NSButton* button = sender;
     unsigned long tag = button.tag;
     [[NSPasteboard generalPasteboard] clearContents];
     [[NSPasteboard generalPasteboard] setString:[self queryWithIdentifiedItem:_identifieds[tag]]
@@ -233,7 +237,7 @@ const CGFloat kTableRowHeight = 50.0f;
 
 - (void)openSoundcloud:(id)sender
 {
-    NSButton* button;
+    NSButton* button = sender;
     unsigned long tag = button.tag;
     NSLog(@"soundcloud button tag %ld", tag);
     
@@ -257,7 +261,7 @@ const CGFloat kTableRowHeight = 50.0f;
 
 - (void)musicURLClicked:(id)sender
 {
-    NSButton* button;
+    NSButton* button = sender;
     unsigned long tag = button.tag;
     NSLog(@"music url tag %ld", tag);
     NSURL* musicURL = _identifieds[tag].musicURL;
@@ -410,7 +414,8 @@ const CGFloat kTableRowHeight = 50.0f;
     const CGFloat kLargeFontSize = 15.0;
 
     if (result == nil) {
-        const NSInteger tag = _identifieds.count + 1;
+        assert(_identifieds.count > 0);
+        const NSInteger tag = _identifieds.count - 1;
         if ([tableColumn.identifier isEqualToString:kCoverColumnIdenfifier]) {
             NSImageView* view = [[NSImageView alloc] initWithFrame:NSMakeRect(0.0,
                                                                               0.0,

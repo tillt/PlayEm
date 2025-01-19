@@ -733,17 +733,17 @@ static const CGFloat kViewLeftMargin = 10.0f;
     if ([_metas count] > 1) {
         _titleTextField.stringValue = [NSString stringWithFormat:@"%ld artists selected", [[occurances[@"artist"] allKeys] count] ];
     } else {
-        _titleTextField.stringValue = _commonMeta.title;
+        _titleTextField.stringValue = _commonMeta.title == nil ? @"" : _commonMeta.title;
     }
     
     if ([_metas count] > 1) {
         _artistTextField.stringValue = [NSString stringWithFormat:@"%ld albums selected", [[occurances[@"album"] allKeys] count]];
     } else {
-        _artistTextField.stringValue = _commonMeta.artist;
+        _artistTextField.stringValue =_commonMeta.artist == nil ? @"" : _commonMeta.artist;
     }
     
     if ([_metas count] == 1) {
-        _albumTextField.stringValue = _commonMeta.album;
+        _albumTextField.stringValue = _commonMeta.album == nil ? @"" : _commonMeta.album;
     } else {
         _albumTextField.stringValue = [NSString stringWithFormat:@"%ld songs selected", [_metas count]];
     }

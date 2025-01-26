@@ -17,8 +17,8 @@
 #import "MediaMetaData.h"
 #import "BeatEvent.h"
 
-NSString * const kBPMDefault = @"--- BPM";
-NSString * const kKeyDefault = @"---";
+NSString * const kBPMDefault = @"";
+NSString * const kKeyDefault = @"";
 
 static const NSTimeInterval kBeatEffectRampUp = 0.05f;
 static const NSTimeInterval kBeatEffectRampDown = 0.5f;
@@ -384,7 +384,7 @@ extern NSString * const kPlaybackStatePlaying;
                             bpmLabelHeight);
     [self.view addSubview:_key];
 
-    _keyProgress = [[NSProgressIndicator alloc] initWithFrame:NSMakeRect(_key.frame.origin.x + 22.0,
+    _keyProgress = [[NSProgressIndicator alloc] initWithFrame:NSMakeRect(_key.frame.origin.x + 20.0,
                                                                          _key.frame.origin.y + 4.0,
                                                                           14.0,
                                                                           14.0)];
@@ -416,7 +416,7 @@ extern NSString * const kPlaybackStatePlaying;
     layer.mask = [CAShapeLayer MaskLayerFromRect:layer.bounds];
     [_beatIndicator.layer addSublayer:layer];
     
-    _beatProgress = [[NSProgressIndicator alloc] initWithFrame:NSMakeRect(_beatIndicator.frame.origin.x + 2.0,
+    _beatProgress = [[NSProgressIndicator alloc] initWithFrame:NSMakeRect(_beatIndicator.frame.origin.x + 58.0,
                                                                           _playPause.frame.origin.y + bpmLabelHeight + 13.0,
                                                                           14.0,
                                                                           14.0)];

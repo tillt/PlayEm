@@ -13,6 +13,8 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+extern const double kBeatSampleDurationThreshold;
+
 @class LazySample;
 
 @interface KeyTrackedSample : NSObject

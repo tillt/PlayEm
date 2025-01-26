@@ -117,6 +117,7 @@ static const double kLevelDecreaseValue = 0.042;
     id<MTLRenderPipelineState> _drawState;
     
     float _lineWidth;
+    float _miterLimit;
     float _frequencyLineWidth;
     float _frequencySpaceWidth;
     
@@ -394,6 +395,7 @@ static const double kLevelDecreaseValue = 0.042;
         pipelineStateDescriptor.colorAttachments[0].sourceRGBBlendFactor = MTLBlendFactorOne;
         pipelineStateDescriptor.colorAttachments[0].sourceAlphaBlendFactor = MTLBlendFactorSourceAlpha;
         pipelineStateDescriptor.colorAttachments[0].destinationRGBBlendFactor = MTLBlendFactorOne;
+        pipelineStateDescriptor.colorAttachments[0].destinationAlphaBlendFactor = MTLBlendFactorOneMinusSourceAlpha;
         _frequenciesComposeState = [_device newRenderPipelineStateWithDescriptor:pipelineStateDescriptor error:&error];
         NSAssert(_composeState, @"Failed to create pipeline state to compose to a texture: %@", error);
     }
@@ -543,6 +545,7 @@ static const double kLevelDecreaseValue = 0.042;
     //matrix_float4x4 feedbackMatrix = matrix4x4_rotation(M_PI_2 + _rotation, rotationAxis);
 
     uniforms->lineWidth = _lineWidth;
+    uniforms->miterLimit = _miterLimit;
     uniforms->projectionMatrix = _projectionMatrix;
     uniforms->sampleCount = (uint32_t)_sampleCount;
     uniforms->lineAspectRatio = _lineAspectRatio;
@@ -769,11 +772,12 @@ static const double kLevelDecreaseValue = 0.042;
         
         self->_lineAspectRatio = size.height / size.width;
         
-        const float linePoints = 3.0f;
-        const float erodePoints = 3.0f;
+        const float linePoints = 5.0f;
+        const float erodePoints = 1.0f;
         const float bloomPoints = 17.0f;
         
         self->_lineWidth = linePoints / size.height;
+        self->_miterLimit = 3.0 / size.height;
         
         // An FFT line including the gap/s is the total width of the screen devided by
         // the number of FFT spectrum buckets.
@@ -888,7 +892,7 @@ static const double kLevelDecreaseValue = 0.042;
         [renderEncoder setRenderPipelineState:_composeState];
         
         // Set the offscreen texture with the bloomed scope as the source texture.
-        [renderEncoder setFragmentTexture:_bufferTexture atIndex:TextureIndexScope];
+        [renderEncoder setFragmentTexture:_bufferTexture atIndex:TextureIndexFirst];
         
         // Set the offscreen texture from the last scope round as the source texture.
         [renderEncoder setFragmentTexture:_lastTexture atIndex:TextureIndexLast];
@@ -922,7 +926,7 @@ static const double kLevelDecreaseValue = 0.042;
         [renderEncoder setRenderPipelineState:_frequenciesComposeState];
         
         // Set the offscreen texture as the source texture.
-        [renderEncoder setFragmentTexture:_frequenciesTargetTexture atIndex:TextureIndexScope];
+        [renderEncoder setFragmentTexture:_frequenciesTargetTexture atIndex:TextureIndexFirst];
         
         // Set the offscreen texture as the source texture.
         [renderEncoder setFragmentTexture:_lastFrequenciesTexture atIndex:TextureIndexLast];
@@ -937,13 +941,19 @@ static const double kLevelDecreaseValue = 0.042;
                           vertexCount:4];
         
         [renderEncoder endEncoding];
-        [_blur encodeToCommandBuffer:commandBuffer
-                       sourceTexture:_frequenciesComposeTargetTexture
-                  destinationTexture:_lastFrequenciesTexture];
+
+        /// Fifth pass rendering code: Scope with last scope bloom again
+        [_bloom encodeToCommandBuffer:commandBuffer
+                        sourceTexture:_frequenciesComposeTargetTexture
+                   destinationTexture:_composeTargetTexture];
+
+//        [_blur encodeToCommandBuffer:commandBuffer
+//                       sourceTexture:_composeTargetTexture
+//                  destinationTexture:_bufferTexture];
 
         [_erode encodeToCommandBuffer:commandBuffer
-                            sourceTexture:_lastFrequenciesTexture
-                   destinationTexture:_bufferTexture];
+                            sourceTexture:_composeTargetTexture
+                   destinationTexture:_lastFrequenciesTexture];
 
         // Sevenths pass rendering code: Frequency and last frequencies composing
         renderEncoder = [commandBuffer renderCommandEncoderWithDescriptor:_frequenciesComposePass];
@@ -953,10 +963,10 @@ static const double kLevelDecreaseValue = 0.042;
         [renderEncoder setRenderPipelineState:_frequenciesComposeState];
         
         // Set the offscreen texture as the source texture.
-        [renderEncoder setFragmentTexture:_bufferTexture atIndex:TextureIndexScope];
+        [renderEncoder setFragmentTexture:_frequenciesComposeTargetTexture atIndex:TextureIndexFirst];
         
         // Set the offscreen texture as the source texture.
-        [renderEncoder setFragmentTexture:_frequenciesComposeTargetTexture atIndex:TextureIndexLast];
+        [renderEncoder setFragmentTexture:_lastFrequenciesTexture atIndex:TextureIndexLast];
         
         [renderEncoder setFragmentBuffer:_dynamicUniformBuffer
                                   offset:_uniformBufferOffset
@@ -977,7 +987,7 @@ static const double kLevelDecreaseValue = 0.042;
         [renderEncoder setRenderPipelineState:_postComposeState];
         
         // Source is the last frequencies texture with feedback.
-        [renderEncoder setFragmentTexture:_lastFrequenciesTexture atIndex:TextureIndexScope];
+        [renderEncoder setFragmentTexture:_lastFrequenciesTexture atIndex:TextureIndexFirst];
         
         // Source is the last scope texture with feedback.
         [renderEncoder setFragmentTexture:_lastTexture atIndex:TextureIndexLast];
@@ -1007,7 +1017,7 @@ static const double kLevelDecreaseValue = 0.042;
             [renderEncoder setRenderPipelineState:_drawState];
             
             // Use the "dry signal" to mix on top of our fading.
-            [renderEncoder setFragmentTexture:_scopeTargetTexture atIndex:TextureIndexScope];
+            [renderEncoder setFragmentTexture:_scopeTargetTexture atIndex:TextureIndexFirst];
             
             // offscreen texture
             [renderEncoder setFragmentTexture:_postComposeTargetTexture atIndex:TextureIndexCompose];

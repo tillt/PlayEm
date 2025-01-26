@@ -69,6 +69,7 @@
     _headImageSize = image.size;
     _headLayer.anchorPoint = CGPointMake(0.5, 0.0);
     _headLayer.frame = CGRectMake(0.0, 0.0, floor(_headImageSize.width), height);
+    _headLayer.drawsAsynchronously = YES;
     _headLayer.compositingFilter = [CIFilter filterWithName:@"CISourceAtopCompositing"];
     _headLayer.zPosition = 1.1;
     _headLayer.name = @"HeadLayer";
@@ -78,6 +79,7 @@
     _headBloomFxLayer.anchorPoint = CGPointMake(0.5, 0.0);
     _headBloomFxLayer.frame = CGRectMake(0.0, 0.0, 5.0, height);
     _headBloomFxLayer.masksToBounds = NO;
+    _headBloomFxLayer.drawsAsynchronously = YES;
     _headBloomFxLayer.zPosition = 1.9;
     _headBloomFxLayer.name = @"HeadBloomFxLayer";
     _headBloomFxLayer.mask = [CAShapeLayer MaskLayerFromRect:_headBloomFxLayer.frame];
@@ -97,6 +99,7 @@
 
         CALayer* layer = [CALayer layer];
         layer.backgroundFilters = @[ bloom ];
+        layer.drawsAsynchronously = YES;
         layer.anchorPoint = CGPointMake(1.0, 0.0);
         layer.frame = CGRectMake(0.0, 0.0, floor(_headImageSize.width / (2 * trailingBloomLayerCount)), height);
         layer.masksToBounds = YES;
@@ -124,6 +127,11 @@
 }
 
 - (BOOL)wantsLayer
+{
+    return YES;
+}
+
+- (BOOL)wantsUpdateLayer
 {
     return YES;
 }
@@ -183,7 +191,7 @@
  */
 - (CGFloat)calcHead
 {
-    if (_frames == 0.0) {
+    if (_frames == 0LL) {
         return 0.0;
     }
     return floor(( _currentFrame * self.bounds.size.width) / _frames);
@@ -208,7 +216,7 @@
     if (_currentFrame == frame) {
         return;
     }
-    if (_frames == 0.0) {
+    if (_frames == 0LL) {
         return;
     }
     _currentFrame = frame;
@@ -226,8 +234,6 @@
     [CATransaction setDisableActions:YES];
 
     CGFloat head = [self calcHead];
-    os_signpost_interval_begin(pointsOfInterest, POIUpdateHeadPosition, "UpdateHeadPosition");
-    os_signpost_interval_end(pointsOfInterest, POIUpdateHeadPosition, "UpdateHeadPosition");
 
     if (_followTime) {
         CGPoint pointVisible = CGPointMake(self.enclosingScrollView.bounds.origin.x + floor(head - (self.enclosingScrollView.bounds.size.width / 2.0)),
@@ -250,7 +256,9 @@
         }
     }
 
+    os_signpost_interval_begin(pointsOfInterest, POIUpdateHeadPosition, "UpdateHeadPosition");
     self.head = head;
+    os_signpost_interval_end(pointsOfInterest, POIUpdateHeadPosition, "UpdateHeadPosition");
     [CATransaction commit];
 
     os_signpost_interval_end(pointsOfInterest, POIUpdateScrollingState, "UpdateScrollingState");

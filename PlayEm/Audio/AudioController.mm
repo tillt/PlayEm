@@ -41,16 +41,15 @@ typedef struct {
     AudioQueueBufferRef         buffers[kPlaybackBufferCount];
 #endif
     int                         bufferIndex;
-    unsigned long long          nextFrame;
     signed long long            latencyFrames;
+    BOOL                        endOfStream;
+    unsigned long long          nextFrame;
+    signed long long            seekFrame;
 } AudioOutputStream;
 
 typedef struct {
     LazySample*                 sample;
     AudioOutputStream           stream;
-    unsigned long long          nextFrame;
-    signed long long            seekFrame;
-    BOOL                        endOfStream;
     TapBlock                    tapBlock;
     dispatch_semaphore_t        semaphore;
 } AudioContext;
@@ -120,7 +119,7 @@ AVAudioFramePosition currentFrame(AudioContext* context)
 //    }
     os_signpost_interval_end(pointsOfInterest, POIGetCurrentFrame, "GetCurrentFrame", "done");
 
-    return MIN(context->seekFrame + timeStamp.mSampleTime, context->sample.frames - 1);
+    return MIN(context->stream.seekFrame + timeStamp.mSampleTime, context->sample.frames - 1);
 }
 
 NSTimeInterval currentTime(AudioContext* context)
@@ -183,7 +182,7 @@ void propertyCallbackIsRunning (void* user_data,
             [[NSNotificationCenter defaultCenter] postNotificationName:kAudioControllerChangedPlaybackStateNotification
                                                                 object:kPlaybackStatePlaying];
         } else {
-            if (context->endOfStream) {
+            if (context->stream.endOfStream) {
                 [[NSNotificationCenter defaultCenter] postNotificationName:kAudioControllerChangedPlaybackStateNotification
                                                                     object:kPlaybackStateEnded];
             } else {
@@ -205,7 +204,7 @@ void bufferCallback(void* user_data, AudioQueueRef queue, AudioQueueBufferRef bu
     float* p = (float*)buffer->mAudioData;
     buffer->mUserData = user_data;
     unsigned int frames = buffer->mAudioDataByteSize / context->sample.frameSize;
-    unsigned long long fetched = [context->sample rawSampleFromFrameOffset:context->nextFrame
+    unsigned long long fetched = [context->sample rawSampleFromFrameOffset:context->stream.nextFrame
                                                                    frames:frames
                                                                      data:p];
     // Pad last frame with silence, if needed.
@@ -213,8 +212,8 @@ void bufferCallback(void* user_data, AudioQueueRef queue, AudioQueueBufferRef bu
         memset(p + fetched * context->sample.channels, 0, (frames - fetched) * context->sample.frameSize);
     }
     if (fetched == 0) {
-        NSLog(@"reached end of stream at %lld", context->nextFrame);
-        context->endOfStream = YES;
+        NSLog(@"reached end of stream at %lld", context->stream.nextFrame);
+        context->stream.endOfStream = YES;
         // Flush data, to make sure we play to the end.
         OSStatus res = AudioQueueFlush(queue);
         assert(res == 0);
@@ -222,17 +221,15 @@ void bufferCallback(void* user_data, AudioQueueRef queue, AudioQueueBufferRef bu
     } else {
         // Is someone listening in?
         if (context->tapBlock) {
-            context->tapBlock(context->nextFrame, p, frames);
+            context->tapBlock(context->stream.nextFrame, p, frames);
         }
-        context->nextFrame += fetched;
+        context->stream.nextFrame += fetched;
         // Play this buffer again...
         AudioQueueEnqueueBuffer(queue, buffer, 0, NULL);
     }
     os_signpost_interval_end(pointsOfInterest, POIAudioBufferCallback, "AudioBufferCallback");
 }
 #endif
-
-
 
 - (id)init
 {
@@ -447,10 +444,10 @@ void bufferCallback(void* user_data, AudioQueueRef queue, AudioQueueBufferRef bu
     }
 
     // FIXME: This appears utterly magic - should happen explicitly somewhere else.
-    if (_context.endOfStream) {
-        _context.endOfStream = NO;
+    if (_context.stream.endOfStream) {
+        _context.stream.endOfStream = NO;
         self.currentFrame = 0;
-        _context.seekFrame = 0;
+        _context.stream.seekFrame = 0;
         NSLog(@"resetting playback position to start of sample");
         for (int i = 0; i < kPlaybackBufferCount; i++) {
             bufferCallback(&_context,
@@ -515,6 +512,9 @@ void bufferCallback(void* user_data, AudioQueueRef queue, AudioQueueBufferRef bu
 {
 #ifdef support_audioqueueplayback
     NSAssert(_context.stream.queue != nil, @"queue shouldnt be empty");
+    if (_isPaused) {
+        return _context.stream.nextFrame;
+    }
     return currentFrame(&_context);
 #endif
     
@@ -555,8 +555,8 @@ void bufferCallback(void* user_data, AudioQueueRef queue, AudioQueueBufferRef bu
 
     assert(newFrame < _context.sample.frames);
      AVAudioFramePosition oldFrame = self.currentFrame;
-    _context.seekFrame += newFrame - oldFrame;
-    _context.nextFrame = newFrame;
+    _context.stream.seekFrame += newFrame - oldFrame;
+    _context.stream.nextFrame = newFrame;
     
     // Restore tapping state.
     [self startTapping:tap];
@@ -760,8 +760,8 @@ void LogBufferContents(const uint8_t *buffer, size_t length)
     [self reset];
 
     _context.sample = sample;
-    _context.nextFrame = 0;
-    _context.seekFrame = 0;
+    _context.stream.nextFrame = 0;
+    _context.stream.seekFrame = 0;
 
 #ifdef support_avaudioengine
     NSError* error = nil;
@@ -916,7 +916,7 @@ void LogBufferContents(const uint8_t *buffer, size_t length)
         //_engine.manualRenderingMaximumFrameCount
 
         if ((unsigned long long)buffer.frameCapacity > frameLeftCount) {
-            NSLog(@"last tile rendereing: %lld", pageIndex);
+            NSLog(@"last tile rendering: %lld", pageIndex);
         }
         AVAudioFrameCount framesToRender = (AVAudioFrameCount)MIN(frameLeftCount, (long long)buffer.frameCapacity);
         AVAudioEngineManualRenderingStatus status = [engine renderOffline:framesToRender

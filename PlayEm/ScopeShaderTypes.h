@@ -33,7 +33,7 @@ typedef NS_ENUM(NSInteger, BufferIndex)
 
 typedef NS_ENUM(NSInteger, TextureIndex)
 {
-    TextureIndexScope       = 0,
+    TextureIndexFirst       = 0,
     TextureIndexFrequencies = 1,
     TextureIndexLast        = 2,
     TextureIndexCompose     = 3,
@@ -46,6 +46,7 @@ typedef struct
     matrix_float4x4 modelViewMatrix;
     float           lineAspectRatio;
     float           lineWidth;
+    float           miterLimit;
     float           frequencyLineWidth;
     float           frequencySpaceWidth;
     uint32_t        sampleCount;

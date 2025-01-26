@@ -1358,7 +1358,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
 
 - (void)showPlaylist:(id)sender
 {
-    BOOL isShow = _effectBelowPlaylist.alphaValue == 0.0f;
+    BOOL isShow = _effectBelowPlaylist.alphaValue > 0.05f;
     
 //    NSArray<NSToolbarItem*>* items = self.window.toolbar.visibleItems;
 //    for (NSToolbarItem* item in items) {
@@ -1449,7 +1449,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     if (_visibleBPM == bpm) {
         return;
     }
-    NSString* display = bpm == 0.0f ? @"--- BPM" : [NSString stringWithFormat:@"%3.0f BPM", floorf(bpm)];
+    NSString* display = bpm < 0.5f ? @"" : [NSString stringWithFormat:@"%3.0f BPM", floorf(bpm)];
 
     _controlPanelController.bpm.stringValue = display;
 
@@ -1882,6 +1882,9 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
                                  self.visualSample.width,
                                  self.waveView.bounds.size.height);
     [_totalView refresh];
+    
+    NSTimeInterval duration = [self.visualSample.sample timeForFrame:lazySample.frames];
+    _controlPanelController.key.hidden = duration > kBeatSampleDurationThreshold;
 }
 
 - (void)lazySampleDecoded

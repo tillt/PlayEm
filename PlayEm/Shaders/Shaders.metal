@@ -116,8 +116,8 @@ vertex ColorInOut polySegmentInstanceShader(constant Node*              nodes   
 
     // Determine the length of the miter by projecting it onto normal and then inverse it.
     // NOTE: This miter can be extremely long and thus causes weird spikes - limitting it.
-    float length_a = min(thickness / dot( miter_a, n1), thickness * 4);
-    float length_b = min(thickness / dot( miter_b, n1), thickness * 4);
+    float length_a = min(thickness / dot( miter_a, n1), uniforms.miterLimit);
+    float length_b = min(thickness / dot( miter_b, n1), uniforms.miterLimit);
 
     // Premultiply a bunch of things so we dont have to repeat ourselves later on.
     float2 n1_thick_ar = n1 * thickness;
@@ -299,30 +299,30 @@ fragment float4 frequenciesFragmentShader(ColorInOut in [[stage_in]])
 
 /// Fragment shader that samples a texture and outputs the sampled color.
 fragment float4 drawableTextureFragmentShader(TexturePipelineRasterizerData    in      [[ stage_in ]],
-                                              texture2d<float, access::sample> textureScope   [[ texture(TextureIndexScope) ]],
+                                              texture2d<float, access::sample> textureScope   [[ texture(TextureIndexFirst) ]],
                                               texture2d<float, access::sample> textureCompose [[ texture(TextureIndexCompose) ]])
 {
     sampler simpleSampler;
     return textureCompose.sample(simpleSampler, in.texcoord) + (textureScope.sample(simpleSampler, in.texcoord) / 5.0f);
 }
 
-/// Fragment shader that samples textures and outputs the sampled color.
+/// Fragment shader that samples the first texture and adds an amplified color sample of the second texture to it.
 fragment float4 composeFragmentShader(TexturePipelineRasterizerData    in           [[ stage_in ]],
-                                      texture2d<float, access::sample> textureScope [[ texture(TextureIndexScope) ]],
+                                      texture2d<float, access::sample> textureFirst [[ texture(TextureIndexFirst) ]],
                                       texture2d<float, access::sample> textureLast  [[ texture(TextureIndexLast) ]],
                                       constant ScopeUniforms&          uniforms     [[ buffer(BufferIndexUniforms) ]])
 {
-    constexpr sampler quadSampler;
+    constexpr sampler simpleSampler;
 
-    float4 textureColorScope = textureScope.sample(quadSampler, in.texcoord);
+    const float4 textureColorFirst = textureFirst.sample(simpleSampler, in.texcoord);
  
-    float4 transformed = float4(in.texcoord.x - 0.5, in.texcoord.y - 0.5, 0.0, 0.0) * uniforms.feedback.matrix;
+    const float4 transformed = float4(in.texcoord.x - 0.5, in.texcoord.y - 0.5, 0.0, 0.0) * uniforms.feedback.matrix;
 
-    float4 textureColorLast = textureLast.sample(quadSampler, float2(transformed.x + 0.5, transformed.y + 0.5));
+    const float4 textureColorLast = textureLast.sample(simpleSampler, float2(transformed.x + 0.5, transformed.y + 0.5));
 
-    float4 lastResult = textureColorLast * uniforms.feedback.colorFactor;
+    const float4 lastResult = textureColorLast * uniforms.feedback.colorFactor;
 
-    return fmin(textureColorScope + lastResult, 1.0f);
+    return fmin(textureColorFirst + lastResult, 1.0f);
 }
 
 

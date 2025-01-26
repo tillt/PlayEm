@@ -553,6 +553,58 @@ void beatsContextReset(BeatsParserContext* context)
     return iterator->currentEvent->frame;
 }
 
+- (unsigned long long)seekToBeatAfterFrameAt:(unsigned long long)frame iterator:(nonnull BeatEventIterator*)iterator
+{
+    [self seekToFirstBeat:iterator];
+
+    while (frame > iterator->currentEvent->frame) {
+        if ([self seekToNextBeat:iterator] == ULONG_LONG_MAX) {
+            break;
+        }
+        if (iterator->pageIndex >= _pages) {
+            break;
+        }
+    };
+
+    if (iterator->pageIndex >= _pages) {
+        NSLog(@"reached end of pages !!");
+        return ULONG_LONG_MAX;
+    }
+
+    if (iterator->currentEvent == nil) {
+        NSLog(@"no current event !!");
+        return ULONG_LONG_MAX;
+    }
+
+    return iterator->currentEvent->frame;
+}
+
+- (unsigned long long)seekToBeatBeforeFrameAt:(unsigned long long)frame iterator:(nonnull BeatEventIterator*)iterator
+{
+    [self seekToFirstBeat:iterator];
+    
+    while (frame > iterator->currentEvent->frame) {
+        if ([self seekToNextBeat:iterator] == ULONG_LONG_MAX) {
+            break;
+        }
+        if (iterator->pageIndex >= _pages) {
+            break;
+        }
+    };
+
+    if (iterator->pageIndex >= _pages) {
+        NSLog(@"reached end of pages !!");
+        return ULONG_LONG_MAX;
+    }
+
+    if (iterator->currentEvent == nil) {
+        NSLog(@"no current event !!");
+        return ULONG_LONG_MAX;
+    }
+
+    return iterator->currentEvent->frame;
+}
+
 - (unsigned long long)seekToFirstBeat:(nonnull BeatEventIterator*)iterator
 {
     iterator->pageIndex = 0;

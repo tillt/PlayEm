@@ -141,7 +141,7 @@ const CGFloat kTotalWaveViewTileWidth = 8.0f;
 
 - (void)updateHeadPosition
 {
-    if (_frames == 0.0) {
+    if (_frames == 0LL) {
         return;
     }
     

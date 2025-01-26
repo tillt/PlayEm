@@ -79,9 +79,9 @@ typedef struct {
 @implementation AudioController
 
 #ifdef support_audioqueueplayback
-AVAudioFramePosition currentFrame(AudioQueueRef queue, AudioContext* context)
+AVAudioFramePosition currentFrame(AudioContext* context)
 {
-    if (queue == NULL) {
+    if (context->stream.queue == NULL) {
         return 0;
     }
     
@@ -97,7 +97,7 @@ AVAudioFramePosition currentFrame(AudioQueueRef queue, AudioContext* context)
     AudioTimeStamp timeStamp;
     //Boolean discontinued;
     
-    OSStatus res = AudioQueueGetCurrentTime(queue,
+    OSStatus res = AudioQueueGetCurrentTime(context->stream.queue,
                                            NULL,
                                            &timeStamp,
                                            NULL);
@@ -123,9 +123,9 @@ AVAudioFramePosition currentFrame(AudioQueueRef queue, AudioContext* context)
     return MIN(context->seekFrame + timeStamp.mSampleTime, context->sample.frames - 1);
 }
 
-NSTimeInterval currentTime(AudioQueueRef queue, AudioContext* context)
+NSTimeInterval currentTime(AudioContext* context)
 {
-    return ((NSTimeInterval)currentFrame(queue, context) / context->sample.rate);
+    return ((NSTimeInterval)currentFrame(context) / context->sample.rate);
 }
 #endif
 
@@ -496,7 +496,7 @@ void bufferCallback(void* user_data, AudioQueueRef queue, AudioQueueBufferRef bu
 - (NSTimeInterval)currentTime
 {
 #ifdef support_audioqueueplayback
-    return currentTime(_context.stream.queue, &_context);
+    return currentTime(&_context);
 #endif
 #ifdef support_avaudioengine
     return [self currentFrame] / _context.sample.rate;
@@ -515,7 +515,7 @@ void bufferCallback(void* user_data, AudioQueueRef queue, AudioQueueBufferRef bu
 {
 #ifdef support_audioqueueplayback
     NSAssert(_context.stream.queue != nil, @"queue shouldnt be empty");
-    return currentFrame(_context.stream.queue, &_context);
+    return currentFrame(&_context);
 #endif
     
 #ifdef support_avaudioengine

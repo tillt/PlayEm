@@ -63,6 +63,7 @@ const CGFloat kDirectWaveViewTileWidth = 256.0f;
         _rastaLayer.backgroundColor = [[NSColor colorWithPatternImage:[NSImage imageNamed:@"LargeRastaPattern"]] CGColor];
         _rastaLayer.contentsScale = NSViewLayerContentsPlacementScaleProportionallyToFill;
         _rastaLayer.anchorPoint = CGPointMake(1.0, 0.0);
+        _rastaLayer.autoresizingMask = kCALayerWidthSizable;
         _rastaLayer.frame = NSMakeRect(self.bounds.origin.x,
                                        self.bounds.origin.y,
                                        self.bounds.size.width,

@@ -108,6 +108,7 @@ const CGFloat kTotalWaveViewTileWidth = 8.0f;
     
     _rastaLayer = [CALayer layer];
     _rastaLayer.backgroundColor = [[NSColor colorWithPatternImage:[NSImage imageNamed:@"RastaPattern"]] CGColor];
+    _rastaLayer.autoresizingMask = kCALayerNotSizable;
     _rastaLayer.contentsScale = NSViewLayerContentsPlacementScaleProportionallyToFill;
     _rastaLayer.anchorPoint = CGPointMake(1.0, 0.0);
     _rastaLayer.opacity = 0.8f;

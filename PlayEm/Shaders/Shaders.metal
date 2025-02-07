@@ -298,7 +298,7 @@ fragment float4 frequenciesFragmentShader(ColorInOut in [[stage_in]])
 }
 
 /// Fragment shader that samples a texture and outputs the sampled color.
-fragment float4 drawableTextureFragmentShader(TexturePipelineRasterizerData    in      [[ stage_in ]],
+fragment float4 drawableTextureFragmentShader(TexturePipelineRasterizerData    in             [[ stage_in ]],
                                               texture2d<float, access::sample> textureScope   [[ texture(TextureIndexFirst) ]],
                                               texture2d<float, access::sample> textureCompose [[ texture(TextureIndexCompose) ]])
 {
@@ -325,9 +325,28 @@ fragment float4 composeFragmentShader(TexturePipelineRasterizerData    in       
     return fmin(textureColorFirst + lastResult, 1.0f);
 }
 
-
-typedef struct
+fragment float4 overlayFragmentShader(          TexturePipelineRasterizerData    in                 [[ stage_in ]],
+                                                texture2d<float, access::sample> textureFirst       [[ texture(TextureIndexFirst) ]],
+                                                texture2d<float, access::sample> textureOverlay     [[ texture(TextureIndexOverlay) ]],
+                                                constant ScopeUniforms&          uniforms           [[ buffer(BufferIndexUniforms) ]])
 {
+    constexpr sampler simpleSampler;
+    const float4 textureColorFirst = textureFirst.sample(simpleSampler, in.texcoord);
+
+    const float2 overlayCoord = float2(in.texcoord.x * uniforms.overlaySize.x,
+                                       in.texcoord.y * uniforms.overlaySize.y);
+    constexpr sampler repeatingSampler(coord::normalized, address::repeat, filter::linear, address::repeat);
+    const float4 textureColorOverlay = textureOverlay.sample(repeatingSampler, overlayCoord);
+
+    const float overlayFactor = uniforms.overlayAlpha;
+    const float underlayFactor = 1.0 - (textureColorOverlay[3] * overlayFactor);
+    const float4 underlayColor = textureColorFirst * underlayFactor;
+    const float4 multipliedColor = (textureColorOverlay * overlayFactor) * (textureColorFirst * underlayFactor);
+
+    return fmin(underlayColor + multipliedColor, 1.0f);
+}
+
+typedef struct {
     float mixturePercent;
 } DissolveBlendUniform;
 

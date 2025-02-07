@@ -37,11 +37,11 @@ typedef NS_ENUM(NSInteger, TextureIndex)
     TextureIndexFrequencies = 1,
     TextureIndexLast        = 2,
     TextureIndexCompose     = 3,
+    TextureIndexOverlay     = 4,
 };
 
 typedef struct
 {
-    vector_float2   screenSize;
     matrix_float4x4 projectionMatrix;
     matrix_float4x4 modelViewMatrix;
     float           lineAspectRatio;
@@ -55,6 +55,9 @@ typedef struct
     vector_float4   fftColor;
     uint32_t        sampleStepping;
     uint32_t        frequencyStepping;
+    vector_float2   overlaySize;
+    float           overlayAlpha;
+    float           beatUp;
     //matrix_float4x4 feedbackMatrix;
     //vector_float4   feedbackColorFactor;
     Feedback        feedback;

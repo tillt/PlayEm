@@ -28,7 +28,6 @@
 #import "WaveView.h"
 #import "UIView+Visibility.h"
 #import "InfoPanel.h"
-#import "ScrollingTextView.h"
 #import "TableHeaderCell.h"
 #import "ControlPanelController.h"
 #import "IdentifyController.h"

@@ -28,7 +28,6 @@ NS_ASSUME_NONNULL_BEGIN
 @class BeatTrackedSample;
 @class KeyTrackedSample;
 @class TotalWaveView;
-@class ScrollingTextView;
 @class InfoPanelController;
 @class IdentifyController;
 @class WaveView;

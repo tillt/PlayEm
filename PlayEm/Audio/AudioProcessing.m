@@ -14,22 +14,22 @@ const size_t kScaledFrequencyDataLength = 256;
 const size_t kFrequencyDataLength = kScaledFrequencyDataLength * 4;
 
 /// The number of mel filter banks. UNUSED ATM!
-const int kFilterBankCount = 40;
+static const int kFilterBankCount = 40;
+
+static const float kFFTHighestFrequencyScaleFactor = 50.0f;
 
 // This is wrong but beautiful. It should be times 4. As a result, we only see
 // half the frequency band - that is, only the lower 11khz.
-const size_t kWindowSamples = kFrequencyDataLength * 8;
+const size_t kWindowSamples = kFrequencyDataLength * 4;
 
 double logVolume(const double input)
 {
     // Use a logarithmic scale as that is much closer to what we perceive. Neatly fake
     // ourselves into the slope.
-    
     double absoluteValue = fabs(input);
     double sign = input / absoluteValue;
     
     return sign * (log10(10.0 + (absoluteValue * 100.0f)) - 1.0f);
-
 }
 
 vDSP_DFT_Setup initDCT(void)
@@ -163,7 +163,9 @@ void performFFT(FFTSetup fft, float* data, size_t numberOfFrames, float* frequen
         scaleVector = malloc(framesOver2 * sizeof(float));
         
         for (int i=0; i < framesOver2;i++) {
-            const float factor = 1.0 + (((float)i / (float)framesOver2) * 100.0f);
+            // Linear sweep over 1 to higest frequency scale factor - we might actually
+            // want to use a different curve -- not sure.
+            const float factor = 1.0 + (((float)i / (float)framesOver2) * (kFFTHighestFrequencyScaleFactor - 1.0f));
             scaleVector[i] = factor;
         }
     }

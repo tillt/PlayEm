@@ -39,8 +39,6 @@ typedef NS_ENUM(NSInteger, WaveTextureIndex)
 
 typedef struct
 {
-    vector_float2   screenSize;
-
     matrix_float4x4 projectionMatrix;
     matrix_float4x4 modelViewMatrix;
 

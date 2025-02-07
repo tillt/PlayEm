@@ -34,7 +34,6 @@ extern NSString * const kPlaybackStatePlaying;
 @property (strong, nonatomic) ScrollingTextView* albumArtistView;
 @property (strong, nonatomic) IdentificationCoverView* coverButton;
 @property (weak, nonatomic) id<ControlPanelControllerDelegate> delegate;
-
 @end
 
 @implementation ControlPanelController
@@ -132,7 +131,7 @@ extern NSString * const kPlaybackStatePlaying;
     [intenseBloomFilter setDefaults];
     [intenseBloomFilter setValue: [NSNumber numberWithFloat:7.0] forKey: @"inputRadius"];
     [intenseBloomFilter setValue: [NSNumber numberWithFloat:1.5] forKey: @"inputIntensity"];
-
+    
     _zoomBlur = [CIFilter filterWithName:@"CIZoomBlur"];
     [_zoomBlur setDefaults];
     [_zoomBlur setValue: [NSNumber numberWithFloat:0.5] forKey: @"inputAmount"];
@@ -179,7 +178,15 @@ extern NSString * const kPlaybackStatePlaying;
     layer.masksToBounds = NO;
     layer.mask = [CAShapeLayer MaskLayerFromRect:layer.bounds];
     [_titleView.layer addSublayer:layer];
-    
+
+//    layer = [CALayer layer];
+//    layer.backgroundColor = [[NSColor colorWithPatternImage:[NSImage imageNamed:@"LargeRastaPattern"]] CGColor];
+//    layer.contentsScale = NSViewLayerContentsPlacementScaleProportionallyToFill;
+//    layer.frame = CGRectMake(0.0, 0.0, _titleView.frame.size.width, _titleView.frame.size.height);
+//    layer.compositingFilter = [CIFilter filterWithName:@"CISourceAtopCompositing"];
+//    layer.opacity = 0.4;
+//    [_titleView.layer addSublayer:layer];
+
     _albumArtistView = [[ScrollingTextView alloc] initWithFrame:NSMakeRect(_titleView.frame.origin.x,
                                                                            _titleView.frame.origin.y - (scrollingTextViewHeight - 14.0),
                                                                            scrollingTextViewWidth,
@@ -194,6 +201,14 @@ extern NSString * const kPlaybackStatePlaying;
     layer.masksToBounds = NO;
     layer.mask = [CAShapeLayer MaskLayerFromRect:layer.bounds];
     [_albumArtistView.layer addSublayer:layer];
+
+//    layer = [CALayer layer];
+//    layer.backgroundColor = [[NSColor colorWithPatternImage:[NSImage imageNamed:@"LargeRastaPattern"]] CGColor];
+//    layer.contentsScale = NSViewLayerContentsPlacementScaleProportionallyToFill;
+//    layer.frame = CGRectMake(0.0, 0.0, _albumArtistView.frame.size.width, _albumArtistView.frame.size.height);
+//    layer.compositingFilter = [CIFilter filterWithName:@"CISourceAtopCompositing"];
+//    layer.opacity = 0.4;
+//    [_albumArtistView.layer addSublayer:layer];
     
     _playPause = [NSButton buttonWithTitle:@"􀊄" target:_delegate action:@selector(togglePause:)];
     _playPause.frame = NSMakeRect(_titleView.frame.origin.x + scrollingTextViewWidth + 70.0f,

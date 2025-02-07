@@ -1,10 +1,11 @@
 {
   "images" : [
     {
-      "filename" : "small_cursor.png",
+      "filename" : "LargeRastaPattern_40x10.png",
       "idiom" : "universal"
     },
     {
+      "filename" : "LargeRastaPattern_40x10_metal2.png",
       "graphics-feature-set" : "apple1",
       "idiom" : "universal"
     }

@@ -85,6 +85,7 @@
 		BBE2846D246765BD00BE9D7F /* Shaders.metal in Sources */ = {isa = PBXBuildFile; fileRef = BBE2846C246765A700BE9D7F /* Shaders.metal */; };
 		BBE2846F2467669500BE9D7F /* MetalKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BBE2846E2467669500BE9D7F /* MetalKit.framework */; };
 		BBE5FEB52A892A410001B807 /* BeatLayerDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = BBE5FEB42A892A410001B807 /* BeatLayerDelegate.m */; };
+		BBECB0252D4FF33E00C6A6F3 /* LargeRastaPattern.png in Resources */ = {isa = PBXBuildFile; fileRef = BBECB0242D4FF33E00C6A6F3 /* LargeRastaPattern.png */; };
 		BBF7982D2ADC4BAA00893533 /* NSString+BeautifulPast.m in Sources */ = {isa = PBXBuildFile; fileRef = BBF7982C2ADC4BAA00893533 /* NSString+BeautifulPast.m */; };
 		BBF81D932CBB025C0086AECB /* NSColor+Metal.m in Sources */ = {isa = PBXBuildFile; fileRef = BBF81D922CBB025C0086AECB /* NSColor+Metal.m */; };
 /* End PBXBuildFile section */
@@ -246,6 +247,7 @@
 		BBE2846E2467669500BE9D7F /* MetalKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MetalKit.framework; path = System/Library/Frameworks/MetalKit.framework; sourceTree = SDKROOT; };
 		BBE5FEB32A892A410001B807 /* BeatLayerDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BeatLayerDelegate.h; sourceTree = "<group>"; };
 		BBE5FEB42A892A410001B807 /* BeatLayerDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = BeatLayerDelegate.m; sourceTree = "<group>"; };
+		BBECB0242D4FF33E00C6A6F3 /* LargeRastaPattern.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = LargeRastaPattern.png; sourceTree = "<group>"; };
 		BBF7982B2ADC4BAA00893533 /* NSString+BeautifulPast.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSString+BeautifulPast.h"; sourceTree = "<group>"; };
 		BBF7982C2ADC4BAA00893533 /* NSString+BeautifulPast.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSString+BeautifulPast.m"; sourceTree = "<group>"; };
 		BBF81D912CBB025C0086AECB /* NSColor+Metal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSColor+Metal.h"; sourceTree = "<group>"; };
@@ -475,6 +477,7 @@
 				BBD24D602432948800DC2A81 /* AppDelegate.h */,
 				BBD24D612432948800DC2A81 /* AppDelegate.m */,
 				BBD24D632432948B00DC2A81 /* Assets.xcassets */,
+				BBECB0242D4FF33E00C6A6F3 /* LargeRastaPattern.png */,
 				BBD24D682432948B00DC2A81 /* Info.plist */,
 				BBD24D692432948B00DC2A81 /* main.m */,
 				BBD24D6B2432948B00DC2A81 /* PlayEm.entitlements */,
@@ -586,6 +589,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				BBECB0252D4FF33E00C6A6F3 /* LargeRastaPattern.png in Resources */,
 				BBDB1B3D2B640AA700A953F7 /* build_dmg.sh in Resources */,
 				BB8571032972152B0004218B /* README.md in Resources */,
 				BBD24D642432948B00DC2A81 /* Assets.xcassets in Resources */,

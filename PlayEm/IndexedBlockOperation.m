@@ -31,13 +31,18 @@
     self.dispatchBlock = dispatch_block_create(DISPATCH_BLOCK_NO_QOS_CLASS, block);
 }
 
-- (void)cancelAndWait
+- (void)cancel
 {
     if (_dispatchBlock != nil) {
         dispatch_block_cancel(_dispatchBlock);
+    }
+}
+
+- (void)wait
+{
+    if (_dispatchBlock != nil) {
         dispatch_block_wait(_dispatchBlock, DISPATCH_TIME_FOREVER);
     }
-//    _dispatchBlock = nil;
 }
 
 - (void)dealloc

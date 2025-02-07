@@ -66,7 +66,8 @@
     NSArray* keys = [_operations allKeys];
     for (id key in keys) {
         IndexedBlockOperation* operation = [_operations objectForKey:key];
-        [operation cancelAndWait];
+        [operation cancel];
+        [operation wait];
     }
 }
 
@@ -85,7 +86,11 @@
     NSArray* keys = [_operations allKeys];
     for (id key in keys) {
         IndexedBlockOperation* operation = [_operations objectForKey:key];
-        [operation cancelAndWait];
+        [operation cancel];
+    }
+    for (id key in keys) {
+        IndexedBlockOperation* operation = [_operations objectForKey:key];
+        [operation wait];
     }
 
     _pixelPerSecond = pixelPerSecond;
@@ -152,7 +157,7 @@
     for (NSNumber* pageNumber in keys) {
         if (pageNumber.integerValue < left || pageNumber.integerValue > right) {
             IndexedBlockOperation* operation = [_operations objectForKey:pageNumber];
-            [operation cancelAndWait];
+            [operation cancel];
             [_operations removeObjectForKey:pageNumber];
             NSLog(@"garbage collecting tile %@", pageNumber);
         }

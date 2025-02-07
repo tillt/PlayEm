@@ -73,7 +73,6 @@
 			<key>LSTypeIsPackage</key>
 			<integer>0</integer>
 		</dict>
-		<dict/>
 	</array>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
@@ -90,7 +89,7 @@
 	<key>CFBundleShortVersionString</key>
 	<string>1.10</string>
 	<key>CFBundleVersion</key>
-	<string>10358</string>
+	<string>10363</string>
 	<key>LSApplicationCategoryType</key>
 	<string>public.app-category.music</string>
 	<key>LSMinimumSystemVersion</key>

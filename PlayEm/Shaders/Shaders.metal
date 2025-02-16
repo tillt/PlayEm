@@ -43,7 +43,9 @@ typedef struct {
 } TexturePipelineRasterizerData;
 
 /// Projects provided vertices to corners of drawable texture.
-vertex TexturePipelineRasterizerData projectTexture(unsigned int vertex_id [[ vertex_id ]]) {
+vertex TexturePipelineRasterizerData projectTexture(constant ScopeUniforms&     uniforms    [[ buffer(BufferIndexUniforms) ]],
+                                                    unsigned int                vertex_id   [[ vertex_id ]])
+{
     float4x4 renderedCoordinates = float4x4(float4(-1.0, -1.0, 0.0, 1.0),
                                             float4( 1.0, -1.0, 0.0, 1.0),
                                             float4(-1.0,  1.0, 0.0, 1.0),
@@ -270,20 +272,10 @@ vertex ColorInOut frequenciesVertexShader(constant ScopeUniforms& uniforms      
     };
 
     const float amplitude = frequenciesBuffer[instance % uniforms.frequenciesCount];
-    const float4 color = uniforms.fftColor;
-
-    const float4 colorLoookup[] = {
-        float4(color.r * amplitude,
-               color.g * amplitude,
-               color.b * amplitude,
-               color.a * amplitude),
-        float4(color.r, color.g, color.b, color.a * amplitude),
-    };
-
-    //const int amplitudeIndex = ((int)floor(amplitude / 0.01f)) % 2;
-    const int amplitudeIndex = 0;
-    
-    const float4 c = colorLoookup[amplitudeIndex];
+    const float4 c = float4(uniforms.fftColor.r * amplitude,
+                            uniforms.fftColor.g * amplitude,
+                            uniforms.fftColor.b * amplitude,
+                            uniforms.fftColor.a * amplitude);
     const float2 p = position[vid & 0x03];
 
     return ColorInOut{

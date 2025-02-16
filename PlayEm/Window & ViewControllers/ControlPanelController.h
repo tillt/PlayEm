@@ -29,7 +29,6 @@ NS_ASSUME_NONNULL_BEGIN
 @property (strong, nonatomic) NSTextField* duration;
 @property (strong, nonatomic) NSTextField* time;
 @property (strong, nonatomic) NSTextField* bpm;
-@property (strong, nonatomic) NSTextField* key;
 @property (strong, nonatomic) NSTextField* beatIndicator;
 @property (strong, nonatomic) NSButton* loop;
 @property (strong, nonatomic) NSButton* shuffle;
@@ -45,6 +44,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (id)initWithDelegate:(id<ControlPanelControllerDelegate>)delegate;
 - (void)loadView;
+
+- (void)setKey:(NSString*)key hint:(NSString*)hint;
+- (void)setKeyHidden:(BOOL)hidden;
 
 @end
 

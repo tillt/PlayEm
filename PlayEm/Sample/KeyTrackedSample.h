@@ -22,6 +22,7 @@ extern const double kBeatSampleDurationThreshold;
 @property (strong, nonatomic) LazySample* sample;
 @property (assign, readonly, nonatomic) BOOL ready;
 @property (copy, nonatomic) NSString* key;
+@property (copy, nonatomic) NSString* hint;
 
 - (void)abortWithCallback:(nonnull void (^)(void))block;
 

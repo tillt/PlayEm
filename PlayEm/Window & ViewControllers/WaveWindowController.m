@@ -1438,11 +1438,6 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     }
 }
 
-- (void)setKey:(NSString*)value
-{
-    _controlPanelController.key.stringValue = value;
-}
-
 - (void)setBPM:(float)bpm
 {
     if (_visibleBPM == bpm) {
@@ -1845,7 +1840,6 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     _beatLayerDelegate.beatSample = nil;
     
     [self setBPM:0.0];
-    [self setKey:@"---"];
 
     [self loadTrackState:LoadStateInit value:0.0];
     [self loadTrackState:LoadStateStopped value:0.0];
@@ -1883,7 +1877,8 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     [_totalView refresh];
     
     NSTimeInterval duration = [self.visualSample.sample timeForFrame:lazySample.frames];
-    _controlPanelController.key.hidden = duration > kBeatSampleDurationThreshold;
+    [_controlPanelController setKeyHidden:duration > kBeatSampleDurationThreshold];
+    [_controlPanelController setKey:@"" hint:@""];
 }
 
 - (void)lazySampleDecoded
@@ -1955,17 +1950,12 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     [_keySample trackKeyAsyncWithCallback:^(BOOL keyFinished){
         if (keyFinished) {
             NSLog(@"key tracking finished");
-            [self keyTracked];
+            [self->_controlPanelController setKey:self->_keySample.key hint:self->_keySample.hint];
         } else {
             NSLog(@"never finished the key tracking");
         }
         [self loadProgress:self.controlPanelController.keyProgress state:LoadStateStopped value:0.0];
     }];
-}
-
-- (void)keyTracked
-{
-    _controlPanelController.key.stringValue = _keySample.key;
 }
 
 - (void)setNowPlayingWithMeta:(MediaMetaData*)meta

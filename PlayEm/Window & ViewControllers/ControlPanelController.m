@@ -30,9 +30,13 @@ extern NSString * const kPlaybackStatePaused;
 extern NSString * const kPlaybackStatePlaying;
 
 @interface ControlPanelController ()
+@property (strong, nonatomic) NSTextField* keyField;
+
 @property (strong, nonatomic) ScrollingTextView* titleView;
 @property (strong, nonatomic) ScrollingTextView* albumArtistView;
+
 @property (strong, nonatomic) IdentificationCoverView* coverButton;
+
 @property (weak, nonatomic) id<ControlPanelControllerDelegate> delegate;
 @end
 
@@ -386,21 +390,21 @@ extern NSString * const kPlaybackStatePlaying;
     _level.cell = cell;
     [self.view addSubview:_level];
     
-    _key = [NSTextField textFieldWithString:kKeyDefault];
-    _key.bordered = NO;
-    _key.editable = NO;
-    _key.selectable = NO;
-    _key.drawsBackground = NO;
-    _key.textColor = [[Defaults sharedDefaults] secondaryLabelColor];
-    _key.alignment = NSTextAlignmentRight;
-    _key.frame = NSMakeRect(_level.frame.origin.x + _level.frame.size.width,
+    _keyField = [NSTextField textFieldWithString:kKeyDefault];
+    _keyField.bordered = NO;
+    _keyField.editable = NO;
+    _keyField.selectable = NO;
+    _keyField.drawsBackground = NO;
+    _keyField.textColor = [[Defaults sharedDefaults] secondaryLabelColor];
+    _keyField.alignment = NSTextAlignmentRight;
+    _keyField.frame = NSMakeRect(_level.frame.origin.x + _level.frame.size.width,
                             _playPause.frame.origin.y + bpmLabelHeight + 8.0,
                             keyLabelWidth,
                             bpmLabelHeight);
-    [self.view addSubview:_key];
+    [self.view addSubview:_keyField];
 
-    _keyProgress = [[NSProgressIndicator alloc] initWithFrame:NSMakeRect(_key.frame.origin.x + 20.0,
-                                                                         _key.frame.origin.y + 4.0,
+    _keyProgress = [[NSProgressIndicator alloc] initWithFrame:NSMakeRect(_keyField.frame.origin.x + 42.0,
+                                                                         _keyField.frame.origin.y + 4.0,
                                                                           14.0,
                                                                           14.0)];
     _keyProgress.style = NSProgressIndicatorStyleSpinning;
@@ -467,6 +471,17 @@ extern NSString * const kPlaybackStatePlaying;
     layer.compositingFilter = [CIFilter filterWithName:@"CISourceAtopCompositing"];
     layer.opacity = 0.5;
     [_level.layer addSublayer:layer];
+}
+
+- (void)setKey:(NSString*)key hint:(NSString*)hint
+{
+    _keyField.stringValue = key;
+    _keyField.toolTip = hint;
+}
+
+- (void)setKeyHidden:(BOOL)hidden
+{
+    _keyField.hidden = hidden;
 }
 
 - (void)resetTempo:(id)sender

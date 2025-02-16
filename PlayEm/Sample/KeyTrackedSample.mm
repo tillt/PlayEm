@@ -147,33 +147,33 @@ const double kBeatSampleDurationThreshold = 30.0 * 60.0;
     KeyFinder::key_t key = _keyFinder.keyOfChromagram(_workspace);
     
     switch(key) {
-        case KeyFinder::D_FLAT_MINOR:  _key = @"12A";  break;
-        case KeyFinder::E_MAJOR:       _key = @"12B";  break;
-        case KeyFinder::G_FLAT_MINOR:  _key = @"11A";  break;
-        case KeyFinder::A_MAJOR:       _key = @"11B";  break;
-        case KeyFinder::B_MINOR:       _key = @"10A";  break;
-        case KeyFinder::D_MAJOR:       _key = @"10B";  break;
-        case KeyFinder::E_MINOR:       _key = @"9A";   break;
-        case KeyFinder::G_MAJOR:       _key = @"9B";   break;
-        case KeyFinder::A_MINOR:       _key = @"8A";   break;
-        case KeyFinder::C_MAJOR:       _key = @"8B";   break;
-        case KeyFinder::D_MINOR:       _key = @"7A";   break;
-        case KeyFinder::F_MAJOR:       _key = @"7B";   break;
-        case KeyFinder::G_MINOR:       _key = @"6A";   break;
-        case KeyFinder::B_FLAT_MAJOR:  _key = @"6B";   break;
-        case KeyFinder::C_MINOR:       _key = @"5A";   break;
-        case KeyFinder::E_FLAT_MAJOR:  _key = @"5B";   break;
-        case KeyFinder::F_MINOR:       _key = @"4A";   break;
-        case KeyFinder::A_FLAT_MAJOR:  _key = @"4B";   break;
-        case KeyFinder::B_FLAT_MINOR:  _key = @"3A";   break;
-        case KeyFinder::D_FLAT_MAJOR:  _key = @"3B";   break;
-        case KeyFinder::E_FLAT_MINOR:  _key = @"2A";   break;
-        case KeyFinder::G_FLAT_MAJOR:  _key = @"2B";   break;
-        case KeyFinder::A_FLAT_MINOR:  _key = @"1A";   break;
-        case KeyFinder::B_MAJOR:       _key = @"1B";   break;
+        case KeyFinder::D_FLAT_MINOR:  _key = @"12A";  _hint = @"D flat minor"; break;
+        case KeyFinder::E_MAJOR:       _key = @"12B";  _hint = @"E major"; break;
+        case KeyFinder::G_FLAT_MINOR:  _key = @"11A";  _hint = @"G flat minor"; break;
+        case KeyFinder::A_MAJOR:       _key = @"11B";  _hint = @"A major"; break;
+        case KeyFinder::B_MINOR:       _key = @"10A";  _hint = @"B minor"; break;
+        case KeyFinder::D_MAJOR:       _key = @"10B";  _hint = @"D major"; break;
+        case KeyFinder::E_MINOR:       _key = @"9A";   _hint = @"E minor"; break;
+        case KeyFinder::G_MAJOR:       _key = @"9B";   _hint = @"G major"; break;
+        case KeyFinder::A_MINOR:       _key = @"8A";   _hint = @"A minor"; break;
+        case KeyFinder::C_MAJOR:       _key = @"8B";   _hint = @"C major"; break;
+        case KeyFinder::D_MINOR:       _key = @"7A";   _hint = @"D minor"; break;
+        case KeyFinder::F_MAJOR:       _key = @"7B";   _hint = @"F major"; break;
+        case KeyFinder::G_MINOR:       _key = @"6A";   _hint = @"G minor"; break;
+        case KeyFinder::B_FLAT_MAJOR:  _key = @"6B";   _hint = @"B flat major"; break;
+        case KeyFinder::C_MINOR:       _key = @"5A";   _hint = @"C minor"; break;
+        case KeyFinder::E_FLAT_MAJOR:  _key = @"5B";   _hint = @"E flat major"; break;
+        case KeyFinder::F_MINOR:       _key = @"4A";   _hint = @"F minor"; break;
+        case KeyFinder::A_FLAT_MAJOR:  _key = @"4B";   _hint = @"A flat major"; break;
+        case KeyFinder::B_FLAT_MINOR:  _key = @"3A";   _hint = @"B flat minor"; break;
+        case KeyFinder::D_FLAT_MAJOR:  _key = @"3B";   _hint = @"D flat major"; break;
+        case KeyFinder::E_FLAT_MINOR:  _key = @"2A";   _hint = @"E flat minor"; break;
+        case KeyFinder::G_FLAT_MAJOR:  _key = @"2B";   _hint = @"G flat major"; break;
+        case KeyFinder::A_FLAT_MINOR:  _key = @"1A";   _hint = @"A flat minor"; break;
+        case KeyFinder::B_MAJOR:       _key = @"1B";   _hint = @"B major"; break;
         case KeyFinder::SILENCE:
         default:
-            _key = @"";
+            _key = @""; _hint = @"";
     }
 
     NSLog(@"key %d", key);

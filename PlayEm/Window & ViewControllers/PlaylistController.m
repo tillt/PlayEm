@@ -115,6 +115,14 @@
 
 - (NSView*)tableView:(NSTableView*)tableView viewForTableColumn:(NSTableColumn *)tableColumn row:(NSInteger)row
 {
+    const int kTitleViewTag = 1;
+    const int kArtistViewTag = 2;
+    
+    const CGFloat kRowHeight = tableView.rowHeight;
+    const CGFloat kHalfRowHeight = round(tableView.rowHeight / 2.0);
+    const CGFloat kTitleFontSize = kHalfRowHeight - 4.0;
+    const CGFloat kArtistFontSize = kTitleFontSize - 4.0;
+
     NSLog(@"tableView: viewForTableColumn:%@ row:%ld", [tableColumn description], row);
     NSView* result = [tableView makeViewWithIdentifier:tableColumn.identifier owner:self];
     
@@ -122,21 +130,42 @@
         if ([tableColumn.identifier isEqualToString:@"CoverColumn"]) {
             NSImageView* iv = [[NSImageView alloc] initWithFrame:NSMakeRect(0.0,
                                                                             0.0,
-                                                                            24.0,
-                                                                            24.0)];
+                                                                            kRowHeight,
+                                                                            kRowHeight)];
             result = iv;
         } else {
+            NSView* view = [[NSView alloc] initWithFrame:NSMakeRect(0.0,
+                                                                    0.0,
+                                                                    tableColumn.width,
+                                                                    kRowHeight)];
+
             NSTextField* tf = [[NSTextField alloc] initWithFrame:NSMakeRect(0.0,
-                                                                            0.0,
+                                                                            kHalfRowHeight,
                                                                             tableColumn.width,
-                                                                            24.0)];
+                                                                            kHalfRowHeight)];
             tf.editable = NO;
-            tf.font = [NSFont systemFontOfSize:11.0];
+            tf.font = [NSFont systemFontOfSize:kTitleFontSize];
             tf.drawsBackground = NO;
             tf.bordered = NO;
             tf.alignment = NSTextAlignmentLeft;
             tf.textColor = [[Defaults sharedDefaults] secondaryLabelColor];
-            result = tf;
+            tf.tag = kTitleViewTag;
+            [view addSubview:tf];
+
+            tf = [[NSTextField alloc] initWithFrame:NSMakeRect(0.0,
+                                                               0.0,
+                                                               tableColumn.width,
+                                                               kHalfRowHeight - 2.0)];
+            tf.editable = NO;
+            tf.font = [NSFont systemFontOfSize:kArtistFontSize];
+            tf.drawsBackground = NO;
+            tf.bordered = NO;
+            tf.alignment = NSTextAlignmentLeft;
+            tf.textColor = [[Defaults sharedDefaults] secondaryLabelColor];
+            tf.tag = kArtistViewTag;
+            [view addSubview:tf];
+
+            result = view;
         }
         result.identifier = tableColumn.identifier;
     }
@@ -154,15 +183,21 @@
             iv.image = [_history[row] imageFromArtwork];
         }
     } else {
-        NSTextField* tf = (NSTextField*)result;
-        NSString* string = nil;
+        NSString* title = nil;
+        NSString* artist = nil;
+        
+        NSTextField* tf = [result viewWithTag:kTitleViewTag];
+        NSTextField* af = [result viewWithTag:kArtistViewTag];
+
         if (row >= historyLength) {
             assert(_list.count > row-historyLength);
-            string = _list[row-historyLength].title;
+            title = _list[row-historyLength].title;
+            artist = _list[row-historyLength].artist;
             tf.textColor = [[Defaults sharedDefaults] secondaryLabelColor];
         } else {
             assert(_history.count > row);
-            string = _history[row].title;
+            title = _history[row].title;
+            artist = _history[row].artist;
             NSColor* color = nil;
             if (row == historyLength-1) {
                 if (_playing) {
@@ -175,11 +210,14 @@
             }
             tf.textColor = color;
         }
-        if (string == nil) {
-            NSLog(@"done this for row %ld", row);
-            string = @"";
+        if (title == nil) {
+            title = @"";
         }
-        [tf setStringValue:string];
+        if (artist == nil) {
+            artist = @"";
+        }
+        [tf setStringValue:title];
+        [af setStringValue:artist];
     }
     return result;
 }

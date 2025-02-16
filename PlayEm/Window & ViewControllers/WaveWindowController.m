@@ -619,17 +619,19 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     _playlistTable.backgroundColor = [NSColor clearColor];
     _playlistTable.autoresizingMask = kViewFullySizeable;
     _playlistTable.headerView = nil;
+    _playlistTable.rowHeight = 36.0;
+    _playlistTable.intercellSpacing = NSMakeSize(0.0, 0.0);
 
     NSTableColumn* col = [[NSTableColumn alloc] init];
     col.title = @"";
     col.identifier = @"CoverColumn";
-    col.width = 26.0;
+    col.width = _playlistTable.rowHeight;
     [_playlistTable addTableColumn:col];
 
     col = [[NSTableColumn alloc] init];
     col.title = @"";
     col.identifier = @"TitleColumn";
-    col.width = _effectBelowPlaylist.bounds.size.width - 26.0;
+    col.width = _effectBelowPlaylist.bounds.size.width - _playlistTable.rowHeight;
     [_playlistTable addTableColumn:col];
 
     sv.documentView = _playlistTable;
@@ -1357,7 +1359,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
 
 - (void)showPlaylist:(id)sender
 {
-    BOOL isShow = _effectBelowPlaylist.alphaValue > 0.05f;
+    BOOL isShow = _effectBelowPlaylist.alphaValue <= 0.05f;
     
 //    NSArray<NSToolbarItem*>* items = self.window.toolbar.visibleItems;
 //    for (NSToolbarItem* item in items) {

@@ -8,6 +8,7 @@
 
 #import "IdentificationCoverView.h"
 #import <Quartz/Quartz.h>
+#import "../Sample/BeatEvent.h"
 #import "CAShapeLayer+Path.h"
 #import "CALayer+PauseAnimations.h"
 
@@ -47,6 +48,7 @@ extern NSString * const kBeatTrackedSampleTempoChangeNotification;
         self.layerUsesCoreImageFilters = YES;
         self.layerContentsRedrawPolicy = NSViewLayerContentsRedrawOnSetNeedsDisplay;
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(tempoChange:) name:kBeatTrackedSampleTempoChangeNotification object:nil];
+        //[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(beatEffect:) name:kBeatTrackedSampleBeatNotification object:nil];
     }
     return self;
 }
@@ -59,6 +61,41 @@ extern NSString * const kBeatTrackedSampleTempoChangeNotification;
         currentTempo = value;
     }
 }
+
+//- (void)beatEffect:(NSNotification*)notification
+//{
+//    [CATransaction begin];
+//    [CATransaction setDisableActions:YES];
+//    CAAnimationGroup* group = [CAAnimationGroup new];
+//    NSMutableArray* list = [NSMutableArray array];
+//    
+//    CABasicAnimation* animation = [CABasicAnimation animationWithKeyPath:@"opacity"];
+//    animation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseOut];
+//    animation.fillMode = kCAFillModeForwards;
+//    animation.removedOnCompletion = NO;
+//    NSAssert(currentTempo > 0.0, @"current tempo set to zero, that should never happen");
+//    double phaseLength = 60.0f / self->currentTempo;
+//    animation.duration = 0.0005;
+//    animation.fromValue = @(0.0);
+//    animation.toValue = @(1.0);
+//    animation.repeatCount = 1.0f;
+//    //[list addObject:animation];
+//    
+//    animation = [CABasicAnimation animationWithKeyPath:@"opacity"];
+//    animation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseOut];
+//    animation.fillMode = kCAFillModeForwards;
+//    animation.removedOnCompletion = NO;
+//    NSAssert(currentTempo > 0.0, @"current tempo set to zero, that should never happen");
+//    animation.duration = 0.4;
+//    animation.fromValue = @(1.0);
+//    animation.toValue = @(0.0);
+//    animation.repeatCount = 1.0f;
+//    [list addObject:animation];
+//    group.animations = list;
+//    //[_imageLayer addAnimation:group forKey:@"transparency"];
+//    [_imageLayer addAnimation:animation forKey:@"transparency"];
+//    [CATransaction commit];
+//}
 
 - (CALayer*)makeBackingLayer
 {
@@ -146,27 +183,27 @@ extern NSString * const kBeatTrackedSampleTempoChangeNotification;
 
     [CATransaction begin];
     [CATransaction setDisableActions:YES];
-    CABasicAnimation* animation = [CABasicAnimation animationWithKeyPath:@"transform.rotation.z"];
-    animation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionLinear];
-    animation.fillMode = kCAFillModeForwards;
-    animation.removedOnCompletion = NO;
-    NSAssert(currentTempo > 0.0, @"current tempo set to zero, that should never happen");
-    animation.duration = beatsPerCycle * 60.0f / self->currentTempo;
-    const CGFloat angleToAdd = -M_PI_2 * beatsPerCycle;
-    [_overlayLayer setValue:@(M_PI_2 * beatsPerCycle) forKeyPath:@"transform.rotation.z"];
-    [_maskLayer setValue:@(M_PI_2 * beatsPerCycle) forKeyPath:@"transform.rotation.z"];
-    animation.toValue = @(0.0);        // model value was already changed. End at that value
-    animation.byValue = @(angleToAdd); // start from - this value (it's toValue - byValue (see above))
-    animation.repeatCount = 1.0f;
-    [CATransaction setCompletionBlock:^{
-        if (!self->animating) {
-            NSLog(@"we are not animating anymore!!!!");
-            return;
-        }
-        [self animate];
-    }];
-    [_overlayLayer addAnimation:animation forKey:@"rotation"];
-    [_maskLayer addAnimation:animation forKey:@"rotation"];
+        CABasicAnimation* animation = [CABasicAnimation animationWithKeyPath:@"transform.rotation.z"];
+        animation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionLinear];
+        animation.fillMode = kCAFillModeForwards;
+        animation.removedOnCompletion = NO;
+        NSAssert(currentTempo > 0.0, @"current tempo set to zero, that should never happen");
+        animation.duration = beatsPerCycle * 60.0f / self->currentTempo;
+        const CGFloat angleToAdd = -M_PI_2 * beatsPerCycle;
+        [_overlayLayer setValue:@(M_PI_2 * beatsPerCycle) forKeyPath:@"transform.rotation.z"];
+        [_maskLayer setValue:@(M_PI_2 * beatsPerCycle) forKeyPath:@"transform.rotation.z"];
+        animation.toValue = @(0.0);        // model value was already changed. End at that value
+        animation.byValue = @(angleToAdd); // start from - this value (it's toValue - byValue (see above))
+        animation.repeatCount = 1.0f;
+        [CATransaction setCompletionBlock:^{
+            if (!self->animating) {
+                NSLog(@"we are not animating anymore!!!!");
+                return;
+            }
+            [self animate];
+        }];
+        [_overlayLayer addAnimation:animation forKey:@"rotation"];
+        [_maskLayer addAnimation:animation forKey:@"rotation"];
     [CATransaction commit];
 }
 

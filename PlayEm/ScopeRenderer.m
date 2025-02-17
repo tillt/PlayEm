@@ -43,8 +43,6 @@ static const double kLevelDecreaseValue = 0.042;
 @property (weak, nonatomic) AudioController* audio;
 @property (weak, nonatomic) VisualSample* visual;
 
-@property (strong, nonatomic) NSColor* color;
-@property (strong, nonatomic) NSColor* fftColor;
 @property (strong, nonatomic) NSColor* background;
 
 @property (strong, nonatomic) NSMutableData* fftWindow;
@@ -142,7 +140,10 @@ static const double kLevelDecreaseValue = 0.042;
     void *_sampleBufferAddress;
     void *_frequencyBufferAddress;
     void *_linesBufferAddress;
-    
+
+    vector_float4 _fftColor;
+    vector_float4 _color;
+
     matrix_float4x4 _projectionMatrix;
     matrix_float4x4 _feedbackProjectionMatrix;
     vector_float4 _feedbackColorFactor;
@@ -177,8 +178,8 @@ static const double kLevelDecreaseValue = 0.042;
         _sampleStepping = 1;
         _overlayAlpha = 0.4;
         _frequencyStepping = 1;
-        _color = color;
-        _fftColor = fftColor;
+        _color = [NSColor ShaderColorFromColor:color];
+        _fftColor = [NSColor ShaderColorFromColor:fftColor];
         _msaaCount = 1;
         _background = background;
         _lineWidth = 0.0f;
@@ -579,7 +580,6 @@ static const double kLevelDecreaseValue = 0.042;
 - (void)_updateEngine
 {
     //static float _rotation = 0.0;
-   
     ScopeUniforms* uniforms = (ScopeUniforms*)_uniformBufferAddress;
 
     //float* buffer = (float*)_sampleBufferAddress;
@@ -598,8 +598,8 @@ static const double kLevelDecreaseValue = 0.042;
     uniforms->frequenciesCount = (uint32_t)kScaledFrequencyDataLength;
     uniforms->feedback.matrix = _feedbackProjectionMatrix;
     uniforms->feedback.colorFactor = _feedbackColorFactor;
-    uniforms->color = [NSColor ShaderColorFromColor:_color];
-    uniforms->fftColor = [NSColor ShaderColorFromColor:_fftColor];
+    uniforms->color = _color;
+    uniforms->fftColor = _fftColor;
     uniforms->frequencyLineWidth = _frequencyLineWidth;
     uniforms->frequencySpaceWidth = _frequencySpaceWidth;
     uniforms->overlaySize = vector2((float)self->_overlaySize.width, (float)self->_overlaySize.height);

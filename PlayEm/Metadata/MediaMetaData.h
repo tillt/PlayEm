@@ -60,6 +60,8 @@ extern NSString* const kMediaMetaDataMapTypeNumber;
 @property (copy, nonatomic, nullable) NSNumber* tempo;
 @property (copy, nonatomic, nullable) NSString* key;
 @property (copy, nonatomic, nullable) NSString* lyrics;
+@property (copy, nonatomic, nullable) NSNumber* rating;
+@property (copy, nonatomic, nullable) NSString* tags;
 @property (copy, nonatomic, nullable) NSNumber* track;
 @property (copy, nonatomic, nullable) NSNumber* tracks;
 @property (copy, nonatomic, nullable) NSNumber* disk;

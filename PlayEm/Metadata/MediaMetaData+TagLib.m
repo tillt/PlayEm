@@ -200,6 +200,7 @@
                     if ([type isEqualToString:kMediaMetaDataMapTypeNumber]) {
                         [self updateWithKey:map[kMediaMetaDataMapKeys][0] string:values];
                     } else if ([type isEqualToString:kMediaMetaDataMapTypeString]) {
+                        NSLog(@"key: %@, string: %@", key, values);
                         [self updateWithKey:map[kMediaMetaDataMapKeys][0] string:values];
                     } else if ([type isEqualToString:kMediaMetaDataMapTypeTuple]) {
                         NSArray<NSString*>* components = [values componentsSeparatedByString:@"/"];

@@ -19,6 +19,8 @@ NS_ASSUME_NONNULL_BEGIN
 #define VIEWTAG_ALBUMS   44
 #define VIEWTAG_TEMPO    45
 #define VIEWTAG_KEY      46
+#define VIEWTAG_RATING   47
+#define VIEWTAG_TAGS     48
 #define VIEWTAG_SONGS    50
 
 extern NSString* const kSongsColTrackNumber;
@@ -28,6 +30,8 @@ extern NSString* const kSongsColAlbum;
 extern NSString* const kSongsColTime;
 extern NSString* const kSongsColTempo;
 extern NSString* const kSongsColKey;
+extern NSString* const kSongsColRating;
+extern NSString* const kSongsColTags;
 extern NSString* const kSongsColAdded;
 extern NSString* const kSongsColGenre;
 
@@ -56,6 +60,8 @@ extern NSString* const kSongsColGenre;
               temposTable:(NSTableView*)temposTable
                songsTable:(NSTableView*)songsTable
                 keysTable:(NSTableView*)keysTable
+             ratingsTable:(NSTableView*)ratingsTable
+              tagsTable:(NSTableView*)tagsTable
                  delegate:(id <BrowserControllerDelegate>)delegate;
 - (void)loadITunesLibrary;
 - (void)reloadData;

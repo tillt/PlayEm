@@ -256,6 +256,26 @@ NSString* const kMediaMetaDataMapTypeNumber = @"number";
                 kMediaMetaDataMapKey: @"INITIALKEY",
             },
         },
+        @"rating": @{
+            kMediaMetaDataMapKeyMP3: @{
+                kMediaMetaDataMapKey: @"RATING",
+                kMediaMetaDataMapKeyType: kMediaMetaDataMapTypeNumber,
+            },
+            kMediaMetaDataMapKeyMP4: @{
+                kMediaMetaDataMapKey: AVMetadataiTunesMetadataKeyContentRating,
+                kMediaMetaDataMapKeyType: kMediaMetaDataMapTypeNumber,
+            },
+        },
+        @"tags": @{
+            kMediaMetaDataMapKeyMP3: @{
+                kMediaMetaDataMapKey: @"GROUPING",
+                kMediaMetaDataMapKeyType: kMediaMetaDataMapTypeString,
+            },
+            kMediaMetaDataMapKeyMP4: @{
+                kMediaMetaDataMapKey: AVMetadataiTunesMetadataKeyGrouping,
+                kMediaMetaDataMapKeyType: kMediaMetaDataMapTypeString,
+            },
+        },
         @"tempo": @{
             kMediaMetaDataMapKeyMP3: @{
                 kMediaMetaDataMapKey: @"BPM",
@@ -605,6 +625,32 @@ NSString* const kMediaMetaDataMapTypeNumber = @"number";
     return _tempo;
 }
 
+- (NSNumber* _Nullable)rating
+{
+    if (_shadow == nil) {
+        return _rating;
+    }
+    
+    if (_rating == nil) {
+        _rating = [NSNumber numberWithUnsignedInteger:_shadow.rating];
+    }
+    
+    return _rating;
+}
+
+- (NSString* _Nullable)tags
+{
+    if (_shadow == nil) {
+        return _tags;
+    }
+    
+    if (_tags == nil) {
+        _tags = _shadow.grouping;
+    }
+    
+    return _tags;
+}
+
 - (NSNumber* _Nullable)year
 {
     if (_shadow == nil) {
@@ -774,8 +820,8 @@ NSString* const kMediaMetaDataMapTypeNumber = @"number";
 
 - (NSString*)description
 {
-    return [NSString stringWithFormat:@"Title: %@ -- Album: %@ -- Artist: %@ -- Location: %@ -- Address: %p -- Artwork format: %@ -- Tempo: %@ -- Key: %@ -- Duration: %@ -- Comment: %@",
-            self.title, self.album, self.artist, self.location, (void*)self, self.artworkFormat, self.tempo, self.key, self.duration, self.comment];
+    return [NSString stringWithFormat:@"Title: %@ -- Album: %@ -- Artist: %@ -- Location: %@ -- Address: %p -- Artwork format: %@ -- Tempo: %@ -- Key: %@ -- Duration: %@ -- Rating: %@ -- Comment: %@",
+            self.title, self.album, self.artist, self.location, (void*)self, self.artworkFormat, self.tempo, self.key, self.duration, self.rating, self.comment];
 }
 
 - (id)copyWithZone:(NSZone *)zone
@@ -807,6 +853,8 @@ NSString* const kMediaMetaDataMapTypeNumber = @"number";
         copy.added = [_added copyWithZone:zone];
         copy.duration = [_duration copyWithZone:zone];
         copy.size = [_size copyWithZone:zone];
+        copy.rating = [_rating copyWithZone:zone];
+        copy.tags = [_tags copyWithZone:zone];
         copy.channels = [_channels copyWithZone:zone];
         copy.bitrate = [_bitrate copyWithZone:zone];
         copy.volume = [_volume copyWithZone:zone];

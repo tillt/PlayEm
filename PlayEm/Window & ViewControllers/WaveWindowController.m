@@ -51,7 +51,7 @@ const CGFloat kMinWindowHeight = 100.0f;    // Constraints on the subviews make 
 const CGFloat kMinScopeHeight = 64.0f;      // Smaller would still be ok...
 const CGFloat kMinTableHeight = 0.0f;       // Just forget about it.
 
-static const int kSplitPositionCount = 5;
+static const int kSplitPositionCount = 6;
 
 
 typedef enum : NSUInteger {
@@ -698,9 +698,6 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     sv.drawsBackground = NO;
     _genreTable = [[NSTableView alloc] initWithFrame:NSZeroRect];
     _genreTable.tag = VIEWTAG_GENRE;
-    _genreTable.autosaveTableColumns = YES;
-    _genreTable.backgroundColor = [NSColor clearColor];
-    _genreTable.style = NSTableViewStylePlain;
     
     col = [[NSTableColumn alloc] init];
     col.title = @"Genre";
@@ -735,9 +732,6 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     sv.autoresizingMask = kViewFullySizeable;
     _artistsTable = [[NSTableView alloc] initWithFrame:NSZeroRect];
     _artistsTable.tag = VIEWTAG_ARTISTS;
-    _artistsTable.autosaveTableColumns = YES;
-    _artistsTable.backgroundColor = [NSColor clearColor];
-    _artistsTable.style = NSTableViewStylePlain;
 
     col = [[NSTableColumn alloc] init];
     col.title = @"Artist";
@@ -763,9 +757,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     sv.drawsBackground = NO;
     _albumsTable = [[NSTableView alloc] initWithFrame:sv.bounds];
     _albumsTable.tag = VIEWTAG_ALBUMS;
-    _albumsTable.autosaveTableColumns = YES;
-    _albumsTable.backgroundColor = [NSColor clearColor];
-    _albumsTable.style = NSTableViewStylePlain;
+
     col = [[NSTableColumn alloc] init];
     col.title = @"Album";
     col.width = selectorTableViewWidth - selectorColumnInset;
@@ -790,10 +782,6 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     sv.drawsBackground = NO;
     _temposTable = [[NSTableView alloc] initWithFrame:sv.bounds];
     _temposTable.tag = VIEWTAG_TEMPO;
-    _temposTable.backgroundColor = [NSColor clearColor];
-    _temposTable.style = NSTableViewStylePlain;
-    _temposTable.autosaveTableColumns = YES;
-
     col = [[NSTableColumn alloc] init];
     col.title = @"BPM";
     col.width = selectorTableViewHalfWidth - selectorColumnInset;
@@ -818,15 +806,60 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     sv.drawsBackground = NO;
     _keysTable = [[NSTableView alloc] initWithFrame:NSZeroRect];
     _keysTable.tag = VIEWTAG_KEY;
-    _keysTable.backgroundColor = [NSColor clearColor];
-    _keysTable.style = NSTableViewStylePlain;
-    _keysTable.autosaveTableColumns = YES;
     col = [[NSTableColumn alloc] init];
     col.title = @"Key";
     col.width = selectorTableViewHalfWidth - selectorColumnInset;
     col.minWidth = selectorTableViewMinWidth;
     [_keysTable addTableColumn:col];
     sv.documentView = _keysTable;
+    [_splitSelectors addArrangedSubview:sv];
+    [_splitSelectors addConstraint:[NSLayoutConstraint constraintWithItem:sv
+                                                                attribute:NSLayoutAttributeWidth
+                                                                relatedBy:NSLayoutRelationGreaterThanOrEqual
+                                                                   toItem:nil
+                                                                attribute:NSLayoutAttributeNotAnAttribute
+                                                               multiplier:1.0
+                                                                 constant:selectorTableViewMinWidth]];
+
+    sv = [[NSScrollView alloc] initWithFrame:NSMakeRect(0.0,
+                                                        0.0,
+                                                        selectorTableViewHalfWidth,
+                                                        selectorTableViewHeight)];
+    sv.hasVerticalScroller = YES;
+    sv.autoresizingMask = kViewFullySizeable;
+    sv.drawsBackground = NO;
+    _ratingsTable = [[NSTableView alloc] initWithFrame:NSZeroRect];
+    _ratingsTable.tag = VIEWTAG_RATING;
+    col = [[NSTableColumn alloc] init];
+    col.title = @"Rating";
+    col.width = selectorTableViewHalfWidth - selectorColumnInset;
+    col.minWidth = selectorTableViewMinWidth;
+    [_ratingsTable addTableColumn:col];
+    sv.documentView = _ratingsTable;
+    [_splitSelectors addArrangedSubview:sv];
+    [_splitSelectors addConstraint:[NSLayoutConstraint constraintWithItem:sv
+                                                                attribute:NSLayoutAttributeWidth
+                                                                relatedBy:NSLayoutRelationGreaterThanOrEqual
+                                                                   toItem:nil
+                                                                attribute:NSLayoutAttributeNotAnAttribute
+                                                               multiplier:1.0
+                                                                 constant:selectorTableViewMinWidth]];
+
+    sv = [[NSScrollView alloc] initWithFrame:NSMakeRect(0.0,
+                                                        0.0,
+                                                        selectorTableViewHalfWidth,
+                                                        selectorTableViewHeight)];
+    sv.hasVerticalScroller = YES;
+    sv.autoresizingMask = kViewFullySizeable;
+    sv.drawsBackground = NO;
+    _tagsTable = [[NSTableView alloc] initWithFrame:NSZeroRect];
+    _tagsTable.tag = VIEWTAG_TAGS;
+    col = [[NSTableColumn alloc] init];
+    col.title = @"Tags";
+    col.width = selectorTableViewHalfWidth - selectorColumnInset;
+    col.minWidth = selectorTableViewMinWidth;
+    [_tagsTable addTableColumn:col];
+    sv.documentView = _tagsTable;
     [_splitSelectors addArrangedSubview:sv];
     [_splitSelectors addConstraint:[NSLayoutConstraint constraintWithItem:sv
                                                                 attribute:NSLayoutAttributeWidth
@@ -849,14 +882,11 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     sv.drawsBackground = NO;
     sv.autoresizingMask = kViewFullySizeable;
     _songsTable = [[NSTableView alloc] initWithFrame:NSZeroRect];
-    _songsTable.backgroundColor = [NSColor clearColor];
     _songsTable.tag = VIEWTAG_SONGS;
     _songsTable.menu = [self songMenu];
     _songsTable.autoresizingMask = NSViewNotSizable;
     _songsTable.columnAutoresizingStyle = NSTableViewNoColumnAutoresizing;
-    _songsTable.autosaveTableColumns = YES;
     _songsTable.allowsMultipleSelection = YES;
-    _songsTable.style = NSTableViewStylePlain;
     [_songsTable selectionHighlightStyle];
 
     col = [[NSTableColumn alloc] initWithIdentifier:kSongsColTrackNumber];
@@ -931,6 +961,22 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     col.sortDescriptorPrototype = [[NSSortDescriptor alloc] initWithKey:@"key" ascending:YES selector:@selector(compare:)];
     [_songsTable addTableColumn:col];
 
+    col = [[NSTableColumn alloc] initWithIdentifier:kSongsColRating];
+    col.title = @"Rating";
+    col.width = keyColumnWidth - selectorColumnInset;
+    col.minWidth = (keyColumnWidth - selectorColumnInset) / 2.0;
+    col.resizingMask = NSTableColumnUserResizingMask;
+    col.sortDescriptorPrototype = [[NSSortDescriptor alloc] initWithKey:@"rating" ascending:YES selector:@selector(compare:)];
+    [_songsTable addTableColumn:col];
+
+    col = [[NSTableColumn alloc] initWithIdentifier:kSongsColTags];
+    col.title = @"Tags";
+    col.width = keyColumnWidth - selectorColumnInset;
+    col.minWidth = (keyColumnWidth - selectorColumnInset) / 2.0;
+    col.resizingMask = NSTableColumnUserResizingMask;
+    col.sortDescriptorPrototype = [[NSSortDescriptor alloc] initWithKey:@"tags" ascending:YES selector:@selector(compare:)];
+    [_songsTable addTableColumn:col];
+
     sv.documentView = _songsTable;
     [_split addArrangedSubview:sv];
 
@@ -991,6 +1037,8 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     _albumsTable.autosaveName = @"AlbumsTable";
     _temposTable.autosaveName = @"TemposTable";
     _keysTable.autosaveName = @"KeysTable";
+    _ratingsTable.autosaveName = @"RatingsTable";
+    _tagsTable.autosaveName = @"TagsTable";
     _songsTable.autosaveName = @"SongsTable";
     
     _browser = [[BrowserController alloc] initWithGenresTable:_genreTable
@@ -999,6 +1047,8 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
                                                   temposTable:_temposTable
                                                    songsTable:_songsTable
                                                     keysTable:_keysTable
+                                                  ratingsTable:_ratingsTable
+                                                    tagsTable:_tagsTable
                                                      delegate:self];
     
     // Replace the header cell in all of the main tables on this view.
@@ -1007,12 +1057,17 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
                                             _artistsTable,
                                             _albumsTable,
                                             _temposTable,
-                                            _keysTable ];
+                                            _keysTable,
+                                            _ratingsTable,
+                                            _tagsTable];
     for (NSTableView *table in fixupTables) {
         for (NSTableColumn *column in [table tableColumns]) {
             TableHeaderCell* cell = [[TableHeaderCell alloc] initTextCell:[[column headerCell] stringValue]];
             [column setHeaderCell:cell];
         }
+        table.backgroundColor = [NSColor clearColor];
+        table.style = NSTableViewStylePlain;
+        table.autosaveTableColumns = YES;
         table.delegate = _browser;
         table.dataSource = _browser;
         table.headerView.wantsLayer = YES;
@@ -1294,6 +1349,8 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     _artistsTable.enclosingScrollView.animator.hidden = toFullscreen ? YES : NO;
     _temposTable.enclosingScrollView.animator.hidden = toFullscreen ? YES : NO;
     _keysTable.enclosingScrollView.animator.hidden = toFullscreen ? YES : NO;
+    _ratingsTable.enclosingScrollView.animator.hidden = toFullscreen ? YES : NO;
+    _tagsTable.enclosingScrollView.animator.hidden = toFullscreen ? YES : NO;
 
     if (toFullscreen) {
         memcpy(splitPositionMemory, splitPosition, sizeof(CGFloat) * kSplitPositionCount);
@@ -1303,6 +1360,8 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
         [_splitSelectors setPosition:splitSelectorPositionMemory[2] ofDividerAtIndex:2];
         [_splitSelectors setPosition:splitSelectorPositionMemory[3] ofDividerAtIndex:3];
         [_splitSelectors setPosition:splitSelectorPositionMemory[4] ofDividerAtIndex:4];
+        [_splitSelectors setPosition:splitSelectorPositionMemory[5] ofDividerAtIndex:5];
+        [_splitSelectors setPosition:splitSelectorPositionMemory[6] ofDividerAtIndex:6];
     }
 
     [_splitSelectors adjustSubviews];
@@ -1566,6 +1625,15 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
                 break;
             case 3:
                 splitSelectorPositionMemory[3] = _temposTable.enclosingScrollView.bounds.size.width;
+                break;
+            case 4:
+                splitSelectorPositionMemory[4] = _keysTable.enclosingScrollView.bounds.size.width;
+                break;
+            case 5:
+                splitSelectorPositionMemory[5] = _ratingsTable.enclosingScrollView.bounds.size.width;
+                break;
+            case 6:
+                splitSelectorPositionMemory[6] = _tagsTable.enclosingScrollView.bounds.size.width;
                 break;
         }
     } else if (sv == _split) {

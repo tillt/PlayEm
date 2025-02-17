@@ -118,19 +118,24 @@ static const CGFloat kViewLeftMargin = 10.0f;
                     @"key": @"albumArtist",
                     @"placeholder": kInfoTextMultipleValues,
                 },
-                @"genre": @{
+                @"tags": @{
                     @"order": @5,
+                    @"width": @340,
+                    @"placeholder": kInfoTextMultipleValues,
+                },
+                @"genre": @{
+                    @"order": @6,
                     @"width": @180,
                     @"type": @(InfoControlTypeCombo),
                     @"placeholder": kInfoTextMultipleValues,
                 },
                 @"year": @{
-                    @"order": @6,
+                    @"order": @7,
                     @"width": @60,
                     @"placeholder": kInfoNumberMultipleValues,
                 },
                 @"track": @{
-                    @"order": @7,
+                    @"order": @8,
                     @"width": @40,
                     @"placeholder": kInfoNumberMultipleValues,
                     @"extra": @{
@@ -139,7 +144,7 @@ static const CGFloat kViewLeftMargin = 10.0f;
                     }
                 },
                 @"disk": @{
-                    @"order": @8,
+                    @"order": @9,
                     @"width": @40,
                     @"placeholder": kInfoNumberMultipleValues,
                     @"extra": @{
@@ -148,13 +153,18 @@ static const CGFloat kViewLeftMargin = 10.0f;
                     }
                 },
                 @"compilation": @{
-                    @"order": @9,
+                    @"order": @10,
                     @"width": @340,
                     @"description": @"Album is a compilation of songs by various artists",
                     @"type": @(InfoControlTypeCheck),
                 },
+                @"rating": @{
+                    @"order": @11,
+                    @"width": @340,
+                    @"type": @(InfoControlTypeCombo),
+                },
                 @"tempo": @{
-                    @"order": @10,
+                    @"order": @12,
                     @"width": @40,
                     @"placeholder": kInfoNumberMultipleValues,
                     @"extra": @{
@@ -163,7 +173,7 @@ static const CGFloat kViewLeftMargin = 10.0f;
                     }
                 },
                 @"comment": @{
-                    @"order": @11,
+                    @"order": @13,
                     @"width": @340,
                     @"placeholder": kInfoTextMultipleValues,
                 },
@@ -247,7 +257,7 @@ static const CGFloat kViewLeftMargin = 10.0f;
     
     NSEnumerator* reversed = [orderedKeys reverseObjectEnumerator];
     
-    CGFloat y = 80.0f;
+    CGFloat y = 40.0f;
     
     NSView* lastInputView = nil;
     NSView* firstInputView = nil;

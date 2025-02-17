@@ -37,6 +37,8 @@ NSString* const kSongsColAlbum = @"AlbumCell";
 NSString* const kSongsColTime = @"TimeCell";
 NSString* const kSongsColTempo = @"TempoCell";
 NSString* const kSongsColKey = @"KeyCell";
+NSString* const kSongsColRating = @"RatingCell";
+NSString* const kSongsColTags = @"TagsCell";
 NSString* const kSongsColAdded = @"AddedCell";
 NSString* const kSongsColGenre = @"GenreCell";
 
@@ -50,6 +52,8 @@ NSString* const kSongsColGenre = @"GenreCell";
 @property (nonatomic, weak) NSTableView* temposTable;
 @property (nonatomic, weak) NSTableView* keysTable;
 @property (nonatomic, weak) NSTableView* songsTable;
+@property (nonatomic, weak) NSTableView* ratingsTable;
+@property (nonatomic, weak) NSTableView* tagsTable;
 
 @property (nonatomic, strong) NSURL* lastLocation;
 
@@ -58,6 +62,8 @@ NSString* const kSongsColGenre = @"GenreCell";
 @property (nonatomic, strong) NSMutableArray<NSString*>* albums;
 @property (nonatomic, strong) NSMutableArray<NSString*>* tempos;
 @property (nonatomic, strong) NSMutableArray<NSString*>* keys;
+@property (nonatomic, strong) NSMutableArray<NSString*>* ratings;
+@property (nonatomic, strong) NSMutableArray<NSString*>* tags;
 @property (nonatomic, strong) NSArray<MediaMetaData*>* filteredItems;
 
 @property (strong, nonatomic) dispatch_queue_t filterQueue;
@@ -71,6 +77,8 @@ NSString* const kSongsColGenre = @"GenreCell";
     bool _updatingAlbums;
     bool _updatingTempos;
     bool _updatingKeys;
+    bool _updatingRatings;
+    bool _updatingTags;
 }
 
 - (id)initWithGenresTable:(NSTableView*)genresTable
@@ -79,6 +87,8 @@ NSString* const kSongsColGenre = @"GenreCell";
               temposTable:(NSTableView*)temposTable
                songsTable:(NSTableView*)songsTable
                 keysTable:(NSTableView*)keysTable
+               ratingsTable:(NSTableView*)ratingsTable
+                tagsTable:(NSTableView*)tagsTable
                  delegate:(id<BrowserControllerDelegate>)delegate
 {
     self = [super init];
@@ -92,12 +102,16 @@ NSString* const kSongsColGenre = @"GenreCell";
         _updatingAlbums = NO;
         _updatingTempos = NO;
         _updatingKeys = NO;
+        _updatingRatings = NO;
+        _updatingTags = NO;
 
         _genres = [NSMutableArray array];
         _artists = [NSMutableArray array];
         _albums = [NSMutableArray array];
         _tempos = [NSMutableArray array];
         _keys = [NSMutableArray array];
+        _ratings = [NSMutableArray array];
+        _tags = [NSMutableArray array];
 
         _genresTable = genresTable;
         _genresTable.dataSource = self;
@@ -123,6 +137,16 @@ NSString* const kSongsColGenre = @"GenreCell";
         _keysTable.dataSource = self;
         _keysTable.delegate = self;
         _keysTable.nextKeyView = songsTable;
+
+        _ratingsTable = ratingsTable;
+        _ratingsTable.dataSource = self;
+        _ratingsTable.delegate = self;
+        _ratingsTable.nextKeyView = ratingsTable;
+
+        _tagsTable = tagsTable;
+        _tagsTable.dataSource = self;
+        _tagsTable.delegate = self;
+        _tagsTable.nextKeyView = tagsTable;
 
         _songsTable = songsTable;
         _songsTable.dataSource = self;
@@ -156,7 +180,9 @@ NSString* const kSongsColGenre = @"GenreCell";
     NSString* album = _albumsTable.selectedRow > 0 ? _albums[_albumsTable.selectedRow] : nil;
     NSString* tempo = _temposTable.selectedRow > 0 ? _tempos[_temposTable.selectedRow] : nil;
     NSString* key = _keysTable.selectedRow > 0 ? _keys[_keysTable.selectedRow] : nil;
-    
+    NSString* rating = _temposTable.selectedRow > 0 ? _ratings[_ratingsTable.selectedRow] : nil;
+    NSString* tag = _keysTable.selectedRow > 0 ? _tags[_tagsTable.selectedRow] : nil;
+
     dispatch_async(_filterQueue, ^{
         // Apply filtering and sorting.
         filteredItems = [[weakSelf filterMediaItems:cachedLibrary
@@ -164,7 +190,9 @@ NSString* const kSongsColGenre = @"GenreCell";
                                              artist:artist
                                               album:album
                                               tempo:tempo
-                                                key:key] sortedArrayUsingDescriptors:descriptors];
+                                                key:key
+                                             rating:rating
+                                                tag:tag] sortedArrayUsingDescriptors:descriptors];
 
         // This weird construct shall assure that we only reload those columns that are
         // undetermined by a selection with a priority built in. 
@@ -177,16 +205,24 @@ NSString* const kSongsColGenre = @"GenreCell";
         NSMutableArray* destAlbums = nil;
         NSMutableArray* destTempos = nil;
         NSMutableArray* destKeys = nil;
-        if (key == nil) {
-            destKeys = weakSelf.keys;
-            if (tempo == nil) {
-                destTempos = weakSelf.tempos;
-                if (album == nil) {
-                    destAlbums = weakSelf.albums;
-                    if (artist == nil) {
-                        destArtists = weakSelf.artists;
-                        if (genre == nil) {
-                            destGenres = weakSelf.genres;
+        NSMutableArray* destRatings = nil;
+        NSMutableArray* destTags = nil;
+        if (tag == nil) {
+            destTags = weakSelf.tags;
+            if (rating == nil) {
+                destRatings = weakSelf.ratings;
+                if (key == nil) {
+                    destKeys = weakSelf.keys;
+                    if (tempo == nil) {
+                        destTempos = weakSelf.tempos;
+                        if (album == nil) {
+                            destAlbums = weakSelf.albums;
+                            if (artist == nil) {
+                                destArtists = weakSelf.artists;
+                                if (genre == nil) {
+                                    destGenres = weakSelf.genres;
+                                }
+                            }
                         }
                     }
                 }
@@ -197,7 +233,9 @@ NSString* const kSongsColGenre = @"GenreCell";
                                 artists:destArtists
                                  albums:destAlbums
                                  tempos:destTempos
-                                   keys:destKeys];
+                                   keys:destKeys
+                                ratings:destRatings
+                                   tags:destTags];
 
         dispatch_sync(dispatch_get_main_queue(), ^{
             weakSelf.filteredItems = filteredItems;
@@ -207,6 +245,8 @@ NSString* const kSongsColGenre = @"GenreCell";
             NSIndexSet* albumSelections = [self->_albumsTable selectedRowIndexes];
             NSIndexSet* tempoSelections = [self->_temposTable selectedRowIndexes];
             NSIndexSet* keySelections = [self->_keysTable selectedRowIndexes];
+            NSIndexSet* ratingSelections = [self->_ratingsTable selectedRowIndexes];
+            NSIndexSet* tagSelections = [self->_tagsTable selectedRowIndexes];
             NSIndexSet* songSelections = [self->_songsTable selectedRowIndexes];
 
             [weakSelf.genresTable beginUpdates];
@@ -229,6 +269,14 @@ NSString* const kSongsColGenre = @"GenreCell";
             [weakSelf.keysTable reloadData];
             [weakSelf.keysTable endUpdates];
 
+            [weakSelf.ratingsTable beginUpdates];
+            [weakSelf.ratingsTable reloadData];
+            [weakSelf.ratingsTable endUpdates];
+
+            [weakSelf.tagsTable beginUpdates];
+            [weakSelf.tagsTable reloadData];
+            [weakSelf.tagsTable endUpdates];
+
             [weakSelf.songsTable beginUpdates];
             [weakSelf.songsTable reloadData];
             [weakSelf.songsTable endUpdates];
@@ -238,6 +286,8 @@ NSString* const kSongsColGenre = @"GenreCell";
             self->_updatingAlbums = YES;
             self->_updatingTempos = YES;
             self->_updatingKeys = YES;
+            self->_updatingRatings = YES;
+            self->_updatingTags = YES;
 
             [weakSelf.genresTable selectRowIndexes:genreSelections
                               byExtendingSelection:NO];
@@ -249,6 +299,10 @@ NSString* const kSongsColGenre = @"GenreCell";
                               byExtendingSelection:NO];
             [weakSelf.keysTable selectRowIndexes:keySelections
                               byExtendingSelection:NO];
+            [weakSelf.ratingsTable selectRowIndexes:ratingSelections
+                              byExtendingSelection:NO];
+            [weakSelf.tagsTable selectRowIndexes:tagSelections
+                              byExtendingSelection:NO];
             [weakSelf.songsTable selectRowIndexes:songSelections
                               byExtendingSelection:NO];
             NSLog(@"selecting songs %@", songSelections);
@@ -258,7 +312,9 @@ NSString* const kSongsColGenre = @"GenreCell";
             self->_updatingAlbums = NO;
             self->_updatingTempos = NO;
             self->_updatingKeys = NO;
-            
+            self->_updatingRatings = NO;
+            self->_updatingTags = NO;
+
             [weakSelf.delegate updateSongsCount:weakSelf.filteredItems.count];
         });
     });
@@ -365,12 +421,16 @@ NSString* const kSongsColGenre = @"GenreCell";
     _albums = [NSMutableArray array];
     _keys = [NSMutableArray array];
     _tempos = [NSMutableArray array];
-    
+    _ratings = [NSMutableArray array];
+    _tags = [NSMutableArray array];
+
     [self resetTableView:_genresTable];
     [self resetTableView:_artistsTable];
     [self resetTableView:_albumsTable];
     [self resetTableView:_temposTable];
     [self resetTableView:_keysTable];
+    [self resetTableView:_ratingsTable];
+    [self resetTableView:_tagsTable];
     [self resetTableView:_songsTable];
     
     BrowserController* __weak weakSelf = self;
@@ -391,7 +451,9 @@ NSString* const kSongsColGenre = @"GenreCell";
                                 artists:weakSelf.artists
                                  albums:weakSelf.albums
                                  tempos:weakSelf.tempos
-                                   keys:weakSelf.keys];
+                                   keys:weakSelf.keys
+                                ratings:weakSelf.ratings
+                                   tags:weakSelf.tags];
         
         dispatch_sync(dispatch_get_main_queue(), ^{
             [weakSelf reloadTableView:weakSelf.genresTable];
@@ -403,6 +465,8 @@ NSString* const kSongsColGenre = @"GenreCell";
             self->_updatingAlbums = NO;
             self->_updatingTempos = NO;
             self->_updatingKeys = NO;
+            self->_updatingRatings = NO;
+            self->_updatingTags = NO;
             [weakSelf.genresTable selectRowIndexes:[NSIndexSet indexSetWithIndex:0]
                               byExtendingSelection:NO];
             
@@ -410,6 +474,8 @@ NSString* const kSongsColGenre = @"GenreCell";
             [weakSelf reloadTableView:weakSelf.artistsTable];
             [weakSelf reloadTableView:weakSelf.temposTable];
             [weakSelf reloadTableView:weakSelf.keysTable];
+            [weakSelf reloadTableView:weakSelf.ratingsTable];
+            [weakSelf reloadTableView:weakSelf.tagsTable];
             [weakSelf reloadTableView:weakSelf.songsTable];
         });
     });
@@ -545,15 +611,25 @@ NSString* const kSongsColGenre = @"GenreCell";
                        album:(NSString*)album
                        tempo:(NSString*)tempo
                          key:(NSString*)key
+                       rating:(NSString*)rating
+                         tag:(NSString*)tag
 {
-    NSLog(@"filtered based on genre:%@ artist:%@ album:%@ tempo:%@ key:%@", genre, artist, album, tempo, key);
+    NSLog(@"filtered based on genre:%@ artist:%@ album:%@ tempo:%@ key:%@, rating:%@, tag:%@", genre, artist, album, tempo, key, rating, tag);
     NSMutableArray* filtered = [NSMutableArray array];
 
     for (MediaMetaData *d in items) {
+        NSArray* tags = nil;
+        if (d.tags && d.tags.length) {
+            if ([[d.tags substringToIndex:1] isEqualToString:@"#"]) {
+                tags = [[d.tags substringFromIndex:1] componentsSeparatedByString:@"#"];
+            }
+        }
         if ((genre == nil || (d.genre && d.genre.length && [d.genre isEqualTo:genre])) &&
             (artist == nil || (d.artist && d.artist.length && [d.artist isEqualTo:artist])) &&
             (album == nil || (d.album && d.album.length && [d.album isEqualTo:album])) &&
             (key == nil || (d.key && d.key.length && [d.key isEqualTo:key])) &&
+            (rating == nil || (d.rating && [[d.rating stringValue] isEqualTo:rating])) &&
+            (tag == nil || [tags containsObject:tag]) &&
             (tempo == nil || (d.tempo && [[d.tempo stringValue] isEqualTo:tempo]))) {
             [filtered addObject:d];
         }
@@ -576,12 +652,16 @@ NSString* const kSongsColGenre = @"GenreCell";
                        albums:(NSMutableArray*)albums
                        tempos:(NSMutableArray*)tempos
                        keys:(NSMutableArray*)keys
+                         ratings:(NSMutableArray*)ratings
+                         tags:(NSMutableArray*)tags
 {
     NSMutableDictionary* filteredGenres = [NSMutableDictionary dictionary];
     NSMutableDictionary* filteredArtists = [NSMutableDictionary dictionary];
     NSMutableDictionary* filteredAlbums = [NSMutableDictionary dictionary];
     NSMutableDictionary* filteredTempos = [NSMutableDictionary dictionary];
     NSMutableDictionary* filteredKeys = [NSMutableDictionary dictionary];
+    NSMutableDictionary* filteredRatings = [NSMutableDictionary dictionary];
+    NSMutableDictionary* filteredTags = [NSMutableDictionary dictionary];
 
     dispatch_async(dispatch_get_main_queue(), ^{
         [self.delegate loadLibraryState:LoadStateStarted];
@@ -605,6 +685,19 @@ NSString* const kSongsColGenre = @"GenreCell";
         }
         if (d.key && d.key.length > 0) {
             filteredKeys[d.key] = d.key;
+        }
+        if (d.rating && [d.rating intValue] > 0) {
+            NSString* r = [d.rating stringValue];
+            filteredRatings[r] = r;
+        }
+        if (d.tags && d.tags.length > 0) {
+            if ([[d.tags substringToIndex:1] isEqualToString:@"#"]) {
+                NSString* r = [d.tags substringFromIndex:1];
+                NSArray<NSString*>* components = [r componentsSeparatedByString:@"#"];
+                for (NSString* tag in components) {
+                    filteredTags[tag] = tag;
+                }
+            }
         }
         dispatch_async(dispatch_get_main_queue(), ^{
             [self.delegate loadLibraryState:LoadStateLoading 
@@ -643,6 +736,18 @@ NSString* const kSongsColGenre = @"GenreCell";
         [keys setArray:[[filteredKeys allKeys] sortedArrayUsingSelector:@selector(localizedCaseInsensitiveCompare:)]];
         [keys insertObject:label atIndex:0];
     }
+    if (ratings != nil) {
+        NSArray* array = [filteredRatings allKeys];
+        NSString* label = [NSString stringWithFormat:array.count > 1 ? @"All (%ld Ratings)" : @"All (%ld Rating)", array.count];
+        [ratings setArray:[[filteredRatings allKeys] sortedArrayUsingSelector:@selector(localizedCaseInsensitiveCompare:)]];
+        [ratings insertObject:label atIndex:0];
+    }
+    if (tags != nil) {
+        NSArray* array = [filteredTags allKeys];
+        NSString* label = [NSString stringWithFormat:array.count > 1 ? @"All (%ld Tags)" : @"All (%ld Tag)", array.count];
+        [tags setArray:[[filteredTags allKeys] sortedArrayUsingSelector:@selector(localizedCaseInsensitiveCompare:)]];
+        [tags insertObject:label atIndex:0];
+    }
     dispatch_async(dispatch_get_main_queue(), ^{
         [self.delegate loadLibraryState:LoadStateStopped];
     });
@@ -659,7 +764,9 @@ NSString* const kSongsColGenre = @"GenreCell";
     NSString* album = nil;
     NSString* tempo = nil;
     NSString* key = nil;
-    
+    NSString* rating = nil;
+    NSString* tag = nil;
+
     BrowserController* __weak weakSelf = self;
 
     NSArray<NSSortDescriptor*>* descriptors = [_songsTable sortDescriptors];
@@ -670,14 +777,18 @@ NSString* const kSongsColGenre = @"GenreCell";
                                                  artist:artist
                                                   album:album
                                                   tempo:tempo
-                                                    key:key] sortedArrayUsingDescriptors:descriptors];
+                                                    key:key
+                                                  rating:rating
+                                                     tag:tag] sortedArrayUsingDescriptors:descriptors];
         
         [weakSelf columnsFromMediaItems:weakSelf.filteredItems
                                  genres:nil
                                 artists:weakSelf.artists
                                  albums:weakSelf.albums
                                  tempos:weakSelf.tempos
-                                   keys:weakSelf.keys];
+                                   keys:weakSelf.keys
+                                 ratings:weakSelf.ratings
+                                   tags:weakSelf.tags];
 
         dispatch_sync(dispatch_get_main_queue(), ^{
             [weakSelf.artistsTable beginUpdates];
@@ -696,6 +807,14 @@ NSString* const kSongsColGenre = @"GenreCell";
             [weakSelf.keysTable reloadData];
             [weakSelf.keysTable endUpdates];
 
+            [weakSelf.ratingsTable beginUpdates];
+            [weakSelf.ratingsTable reloadData];
+            [weakSelf.ratingsTable endUpdates];
+
+            [weakSelf.tagsTable beginUpdates];
+            [weakSelf.tagsTable reloadData];
+            [weakSelf.tagsTable endUpdates];
+
             [weakSelf.songsTable beginUpdates];
             [weakSelf.songsTable reloadData];
             [weakSelf.songsTable endUpdates];
@@ -705,14 +824,20 @@ NSString* const kSongsColGenre = @"GenreCell";
             self->_updatingAlbums = YES;
             self->_updatingTempos = YES;
             self->_updatingKeys = YES;
+            self->_updatingRatings = YES;
+            self->_updatingTags = YES;
             [weakSelf.artistsTable selectRowIndexes:zeroSet byExtendingSelection:NO];
             [weakSelf.albumsTable selectRowIndexes:zeroSet byExtendingSelection:NO];
             [weakSelf.temposTable selectRowIndexes:zeroSet byExtendingSelection:NO];
             [weakSelf.keysTable selectRowIndexes:zeroSet byExtendingSelection:NO];
+            [weakSelf.ratingsTable selectRowIndexes:zeroSet byExtendingSelection:NO];
+            [weakSelf.tagsTable selectRowIndexes:zeroSet byExtendingSelection:NO];
             self->_updatingArtists = NO;
             self->_updatingAlbums = NO;
             self->_updatingTempos = NO;
             self->_updatingKeys = NO;
+            self->_updatingRatings = NO;
+            self->_updatingTags = NO;
         });
     });
 }
@@ -730,6 +855,8 @@ NSString* const kSongsColGenre = @"GenreCell";
     NSString* album = nil;
     NSString* tempo = nil;
     NSString* key = nil;
+    NSString* rating = nil;
+    NSString* tag = nil;
 
     NSArray<NSSortDescriptor*>* descriptors = [_songsTable sortDescriptors];
 
@@ -739,14 +866,18 @@ NSString* const kSongsColGenre = @"GenreCell";
                                                      artist:artist
                                                       album:album
                                                       tempo:tempo
-                                                        key:key] sortedArrayUsingDescriptors:descriptors];
+                                                        key:key
+                                                      rating:rating
+                                                         tag:tag] sortedArrayUsingDescriptors:descriptors];
     
         [weakSelf columnsFromMediaItems:weakSelf.filteredItems
                                  genres:nil
                                 artists:nil
                                  albums:weakSelf.albums
                                  tempos:weakSelf.tempos
-                                   keys:weakSelf.keys];
+                                   keys:weakSelf.keys
+                                ratings:weakSelf.ratings
+                                   tags:weakSelf.tags];
 
         dispatch_sync(dispatch_get_main_queue(), ^{
             [weakSelf.albumsTable beginUpdates];
@@ -761,6 +892,14 @@ NSString* const kSongsColGenre = @"GenreCell";
             [weakSelf.keysTable reloadData];
             [weakSelf.keysTable endUpdates];
 
+            [weakSelf.ratingsTable beginUpdates];
+            [weakSelf.ratingsTable reloadData];
+            [weakSelf.ratingsTable endUpdates];
+
+            [weakSelf.tagsTable beginUpdates];
+            [weakSelf.tagsTable reloadData];
+            [weakSelf.tagsTable endUpdates];
+
             [weakSelf.songsTable beginUpdates];
             [weakSelf.songsTable reloadData];
             [weakSelf.songsTable endUpdates];
@@ -769,12 +908,18 @@ NSString* const kSongsColGenre = @"GenreCell";
             self->_updatingAlbums = YES;
             self->_updatingTempos = YES;
             self->_updatingKeys = YES;
+            self->_updatingRatings = YES;
+            self->_updatingTags = YES;
             [weakSelf.albumsTable selectRowIndexes:zeroSet byExtendingSelection:NO];
             [weakSelf.temposTable selectRowIndexes:zeroSet byExtendingSelection:NO];
             [weakSelf.keysTable selectRowIndexes:zeroSet byExtendingSelection:NO];
+            [weakSelf.ratingsTable selectRowIndexes:zeroSet byExtendingSelection:NO];
+            [weakSelf.tagsTable selectRowIndexes:zeroSet byExtendingSelection:NO];
             self->_updatingAlbums = NO;
             self->_updatingTempos = NO;
             self->_updatingKeys = NO;
+            self->_updatingRatings = NO;
+            self->_updatingTags = NO;
         });
     });
 }
@@ -789,6 +934,8 @@ NSString* const kSongsColGenre = @"GenreCell";
     NSString* album = row > 0 ? _albums[row] : nil;
     NSString* tempo = nil;
     NSString* key = nil;
+    NSString* rating = nil;
+    NSString* tag = nil;
 
     BrowserController* __weak weakSelf = self;
 
@@ -800,14 +947,18 @@ NSString* const kSongsColGenre = @"GenreCell";
                                                       artist:artist
                                                        album:album
                                                        tempo:tempo
-                                                         key:key] sortedArrayUsingDescriptors:descriptors];
+                                                         key:key
+                                                      rating:rating
+                                                         tag:tag] sortedArrayUsingDescriptors:descriptors];
 
         [weakSelf columnsFromMediaItems:weakSelf.filteredItems
                                  genres:nil
                                 artists:nil
                                  albums:nil
                                  tempos:weakSelf.tempos
-                                   keys:weakSelf.keys];
+                                   keys:weakSelf.keys
+                                ratings:weakSelf.ratings
+                                   tags:weakSelf.tags];
 
         dispatch_sync(dispatch_get_main_queue(), ^{
             [weakSelf.temposTable beginUpdates];
@@ -818,6 +969,14 @@ NSString* const kSongsColGenre = @"GenreCell";
             [weakSelf.keysTable reloadData];
             [weakSelf.keysTable endUpdates];
 
+            [weakSelf.ratingsTable beginUpdates];
+            [weakSelf.ratingsTable reloadData];
+            [weakSelf.ratingsTable endUpdates];
+
+            [weakSelf.tagsTable beginUpdates];
+            [weakSelf.tagsTable reloadData];
+            [weakSelf.tagsTable endUpdates];
+
             [weakSelf.songsTable beginUpdates];
             [weakSelf.songsTable reloadData];
             [weakSelf.songsTable endUpdates];
@@ -825,10 +984,16 @@ NSString* const kSongsColGenre = @"GenreCell";
             NSIndexSet* zeroSet = [NSIndexSet indexSetWithIndex:0];
             self->_updatingTempos = YES;
             self->_updatingKeys = YES;
+            self->_updatingRatings = YES;
+            self->_updatingTags = YES;
             [weakSelf.temposTable selectRowIndexes:zeroSet byExtendingSelection:NO];
             [weakSelf.keysTable selectRowIndexes:zeroSet byExtendingSelection:NO];
+            [weakSelf.ratingsTable selectRowIndexes:zeroSet byExtendingSelection:NO];
+            [weakSelf.tagsTable selectRowIndexes:zeroSet byExtendingSelection:NO];
             self->_updatingTempos = NO;
             self->_updatingKeys = NO;
+            self->_updatingRatings = NO;
+            self->_updatingTags = NO;
         });
     });
 }
@@ -843,6 +1008,8 @@ NSString* const kSongsColGenre = @"GenreCell";
     NSString* album = _albumsTable.selectedRow > 0 ? _albums[_albumsTable.selectedRow] : nil;
     NSString* tempo = row > 0 ? _tempos[row] : nil;
     NSString* key = nil;
+    NSString* rating = nil;
+    NSString* tag = nil;
 
     BrowserController* __weak weakSelf = self;
     NSArray<NSSortDescriptor*>* descriptors = [_songsTable sortDescriptors];
@@ -853,19 +1020,31 @@ NSString* const kSongsColGenre = @"GenreCell";
                                                       artist:artist
                                                        album:album
                                                        tempo:tempo
-                                                         key:key] sortedArrayUsingDescriptors:descriptors];
+                                                         key:key
+                                                      rating:rating
+                                                         tag:tag] sortedArrayUsingDescriptors:descriptors];
 
         [weakSelf columnsFromMediaItems:weakSelf.filteredItems
                                  genres:nil
                                 artists:nil
                                  albums:nil
                                  tempos:nil
-                                   keys:weakSelf.keys];
+                                   keys:weakSelf.keys
+                                ratings:weakSelf.ratings
+                                   tags:weakSelf.tags];
 
         dispatch_sync(dispatch_get_main_queue(), ^{
             [weakSelf.keysTable beginUpdates];
             [weakSelf.keysTable reloadData];
             [weakSelf.keysTable endUpdates];
+
+            [weakSelf.ratingsTable beginUpdates];
+            [weakSelf.ratingsTable reloadData];
+            [weakSelf.ratingsTable endUpdates];
+
+            [weakSelf.tagsTable beginUpdates];
+            [weakSelf.tagsTable reloadData];
+            [weakSelf.tagsTable endUpdates];
 
             [weakSelf.songsTable beginUpdates];
             [weakSelf.songsTable reloadData];
@@ -874,8 +1053,14 @@ NSString* const kSongsColGenre = @"GenreCell";
             NSIndexSet* zeroSet = [NSIndexSet indexSetWithIndex:0];
             
             self->_updatingKeys = YES;
+            self->_updatingRatings = YES;
+            self->_updatingTags = YES;
             [weakSelf.keysTable selectRowIndexes:zeroSet byExtendingSelection:NO];
+            [weakSelf.ratingsTable selectRowIndexes:zeroSet byExtendingSelection:NO];
+            [weakSelf.tagsTable selectRowIndexes:zeroSet byExtendingSelection:NO];
             self->_updatingKeys = NO;
+            self->_updatingRatings = NO;
+            self->_updatingTags = NO;
         });
     });
     return;
@@ -891,6 +1076,8 @@ NSString* const kSongsColGenre = @"GenreCell";
     NSString* album = _albumsTable.selectedRow > 0 ? _albums[_albumsTable.selectedRow] : nil;
     NSString* tempo = _temposTable.selectedRow > 0 ? _tempos[_temposTable.selectedRow] : nil;
     NSString* key = row > 0 ? _keys[row] : nil;
+    NSString* rating = nil;
+    NSString* tag = nil;
 
     BrowserController* __weak weakSelf = self;
     NSArray<NSSortDescriptor*>* descriptors = [_songsTable sortDescriptors];
@@ -901,7 +1088,104 @@ NSString* const kSongsColGenre = @"GenreCell";
                                                       artist:artist
                                                        album:album
                                                        tempo:tempo
-                                                         key:key] sortedArrayUsingDescriptors:descriptors];
+                                                         key:key
+                                                      rating:rating
+                                                         tag:tag] sortedArrayUsingDescriptors:descriptors];
+
+        dispatch_sync(dispatch_get_main_queue(), ^{
+            [weakSelf.ratingsTable beginUpdates];
+            [weakSelf.ratingsTable reloadData];
+            [weakSelf.ratingsTable endUpdates];
+
+            [weakSelf.tagsTable beginUpdates];
+            [weakSelf.tagsTable reloadData];
+            [weakSelf.tagsTable endUpdates];
+
+            [weakSelf.songsTable beginUpdates];
+            [weakSelf.songsTable reloadData];
+            [weakSelf.songsTable endUpdates];
+
+            NSIndexSet* zeroSet = [NSIndexSet indexSetWithIndex:0];
+            
+            self->_updatingRatings = YES;
+            self->_updatingTags = YES;
+            [weakSelf.ratingsTable selectRowIndexes:zeroSet byExtendingSelection:NO];
+            [weakSelf.tagsTable selectRowIndexes:zeroSet byExtendingSelection:NO];
+            self->_updatingRatings = NO;
+            self->_updatingTags = NO;
+        });
+    });
+}
+
+-(void)ratingsTableSelectionDidChange:(NSInteger)row
+{
+    if (_updatingRatings) {
+        return;
+    }
+    NSString* genre = _genresTable.selectedRow > 0 ? _genres[_genresTable.selectedRow] : nil;
+    NSString* artist = _artistsTable.selectedRow > 0 ? _artists[_artistsTable.selectedRow] : nil;
+    NSString* album = _albumsTable.selectedRow > 0 ? _albums[_albumsTable.selectedRow] : nil;
+    NSString* tempo = _temposTable.selectedRow > 0 ? _tempos[_temposTable.selectedRow] : nil;
+    NSString* key = _keysTable.selectedRow > 0 ? _keys[_keysTable.selectedRow] : nil;
+    NSString* rating = row > 0 ? _ratings[row] : nil;
+    NSString* tag = nil;
+
+    BrowserController* __weak weakSelf = self;
+    NSArray<NSSortDescriptor*>* descriptors = [_songsTable sortDescriptors];
+
+    dispatch_async(_filterQueue, ^{
+        weakSelf.filteredItems = [[weakSelf filterMediaItems:weakSelf.cachedLibrary
+                                                       genre:genre
+                                                      artist:artist
+                                                       album:album
+                                                       tempo:tempo
+                                                         key:key
+                                                      rating:rating
+                                                         tag:tag] sortedArrayUsingDescriptors:descriptors];
+
+        dispatch_sync(dispatch_get_main_queue(), ^{
+            [weakSelf.tagsTable beginUpdates];
+            [weakSelf.tagsTable reloadData];
+            [weakSelf.tagsTable endUpdates];
+
+            [weakSelf.songsTable beginUpdates];
+            [weakSelf.songsTable reloadData];
+            [weakSelf.songsTable endUpdates];
+
+            NSIndexSet* zeroSet = [NSIndexSet indexSetWithIndex:0];
+            
+            self->_updatingTags = YES;
+            [weakSelf.tagsTable selectRowIndexes:zeroSet byExtendingSelection:NO];
+            self->_updatingTags = NO;
+        });
+    });
+}
+
+-(void)tagsTableSelectionDidChange:(NSInteger)row
+{
+    if (_updatingTags) {
+        return;
+    }
+    NSString* genre = _genresTable.selectedRow > 0 ? _genres[_genresTable.selectedRow] : nil;
+    NSString* artist = _artistsTable.selectedRow > 0 ? _artists[_artistsTable.selectedRow] : nil;
+    NSString* album = _albumsTable.selectedRow > 0 ? _albums[_albumsTable.selectedRow] : nil;
+    NSString* tempo = _temposTable.selectedRow > 0 ? _tempos[_temposTable.selectedRow] : nil;
+    NSString* key = _keysTable.selectedRow > 0 ? _keys[_keysTable.selectedRow] : nil;
+    NSString* rating = _ratingsTable.selectedRow > 0 ? _ratings[_ratingsTable.selectedRow] : nil;
+    NSString* tag = row > 0 ? _tags[row] : nil;
+
+    BrowserController* __weak weakSelf = self;
+    NSArray<NSSortDescriptor*>* descriptors = [_songsTable sortDescriptors];
+
+    dispatch_async(_filterQueue, ^{
+        weakSelf.filteredItems = [[weakSelf filterMediaItems:weakSelf.cachedLibrary
+                                                       genre:genre
+                                                      artist:artist
+                                                       album:album
+                                                       tempo:tempo
+                                                         key:key
+                                                      rating:rating
+                                                         tag:tag] sortedArrayUsingDescriptors:descriptors];
 
         dispatch_sync(dispatch_get_main_queue(), ^{
             [weakSelf.songsTable beginUpdates];
@@ -986,6 +1270,14 @@ NSString* const kSongsColGenre = @"GenreCell";
             assert(row < _keys.count);
             string = _keys[row];
             break;
+        case VIEWTAG_RATING:
+            assert(row < _ratings.count);
+            string = _ratings[row];
+            break;
+        case VIEWTAG_TAGS:
+            assert(row < _tags.count);
+            string = _tags[row];
+            break;
         case VIEWTAG_SONGS:
             assert(row < _filteredItems.count);
             if ([tableColumn.identifier isEqualToString:@"TrackCell"]) {
@@ -1008,6 +1300,14 @@ NSString* const kSongsColGenre = @"GenreCell";
                 }
             } else if ([tableColumn.identifier isEqualToString:@"KeyCell"]) {
                 string = _filteredItems[row].key;
+            } else if ([tableColumn.identifier isEqualToString:@"RatingCell"]) {
+                if ([_filteredItems[row].rating intValue] > 0) {
+                    string = [_filteredItems[row].rating stringValue];
+                } else {
+                    string = @"";
+                }
+            } else if ([tableColumn.identifier isEqualToString:@"TagsCell"]) {
+                string = _filteredItems[row].tags;
             } else if ([tableColumn.identifier isEqualToString:@"AddedCell"]) {
                 string = [NSString BeautifulPast:_filteredItems[row].added];
             } else if ([tableColumn.identifier isEqualToString:@"GenreCell"]) {
@@ -1061,6 +1361,12 @@ typeSelectStringForTableColumn:(NSTableColumn*)tableColumn
         case VIEWTAG_KEY:
             [self keysTableSelectionDidChange:row];
         break;
+        case VIEWTAG_RATING:
+            [self ratingsTableSelectionDidChange:row];
+        break;
+        case VIEWTAG_TAGS:
+            [self tagsTableSelectionDidChange:row];
+        break;
         case VIEWTAG_SONGS:
             break;
     }
@@ -1085,6 +1391,10 @@ typeSelectStringForTableColumn:(NSTableColumn*)tableColumn
         case VIEWTAG_KEY:
             return YES;
         case VIEWTAG_SONGS:
+            return YES;
+        case VIEWTAG_RATING:
+            return YES;
+        case VIEWTAG_TAGS:
             return YES;
         default:
             return YES;
@@ -1140,6 +1450,21 @@ typeSelectStringForTableColumn:(NSTableColumn*)tableColumn
   viewForTableColumn:(NSTableColumn*)tableColumn
                  row:(NSInteger)row
 {
+    switch(tableView.tag) {
+        case VIEWTAG_GENRE:
+        case VIEWTAG_ARTISTS:
+        case VIEWTAG_ALBUMS:
+        case VIEWTAG_TEMPO:
+        case VIEWTAG_KEY:
+        case VIEWTAG_RATING:
+        case VIEWTAG_TAGS:
+        case VIEWTAG_SONGS:
+            break;
+        default:
+            assert(NO);
+    }
+
+    
     [CATransaction begin];
     [CATransaction setDisableActions:YES];
     
@@ -1186,6 +1511,10 @@ typeSelectStringForTableColumn:(NSTableColumn*)tableColumn
             return _tempos.count;
         case VIEWTAG_KEY:
             return _keys.count;
+        case VIEWTAG_RATING:
+            return _ratings.count;
+        case VIEWTAG_TAGS:
+            return _tags.count;
         case VIEWTAG_SONGS:
             return _filteredItems.count;
         default:

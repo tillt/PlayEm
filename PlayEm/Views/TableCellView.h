@@ -12,12 +12,12 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class CATextLayer;
-@class CALayer;
+//@class CATextLayer;
+//@class CALayer;
 
 @interface TableCellView : NSTableCellView
 
-@property (nonatomic, strong) CATextLayer* textLayer;
+//@property (nonatomic, strong) CATextLayer* textLayer;
 @property (nonatomic, assign) ExtraState extraState;
 
 @end

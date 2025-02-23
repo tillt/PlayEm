@@ -18,8 +18,14 @@
 
 static const double kFontSize = 11.0f;
 
+
+@interface TableCellView ()
+@property (nonatomic, strong) NSTextField* tf;
+@end
+
 @implementation TableCellView
 {
+
 }
 
 + (NSFont*)sharedFont
@@ -36,11 +42,26 @@ static const double kFontSize = 11.0f;
 {
     self = [super initWithFrame:frameRect];
     if (self) {
-        self.wantsLayer = YES;
-        self.needsLayout = YES;
-        self.layerContentsRedrawPolicy = NSViewLayerContentsRedrawOnSetNeedsDisplay;
+        //self.wantsLayer = YES;
+        //self.needsLayout = YES;
+        _tf = [[NSTextField alloc] initWithFrame:NSInsetRect(frameRect, 0.0, 5.0)];
+        _tf.drawsBackground = NO;
+        _tf.backgroundColor = [NSColor clearColor];
+        _tf.editable = NO;
+        _tf.font = [TableCellView sharedFont];
+        _tf.bordered = NO;
+        _tf.alignment = NSTextAlignmentLeft;
+        _tf.textColor = [[Defaults sharedDefaults] secondaryLabelColor];
+
+        self.textField = _tf;
+        [self addSubview:_tf];
+        //self.layerContentsRedrawPolicy = NSViewLayerContentsRedrawOnSetNeedsDisplay;
     }
     return self;
+}
+
+- (void)setupWithFrame:(NSRect)frameRect
+{
 }
 
 - (BOOL)wantsUpdateLayer
@@ -48,38 +69,38 @@ static const double kFontSize = 11.0f;
     return YES;
 }
 
-- (CALayer*)makeBackingLayer
-{
-    [CATransaction begin];
-    [CATransaction setDisableActions:YES];
-
-    CALayer* layer = [CALayer layer];
-    layer.masksToBounds = YES;
-    layer.drawsAsynchronously = YES;
-    layer.autoresizingMask = kCALayerNotSizable;
-    //layer.backgroundColor = [NSColor textBackgroundColor].CGColor;
-    layer.opaque = NO;
-    layer.frame = self.bounds;
-
-    _textLayer = [CATextLayer layer];
-    _textLayer.drawsAsynchronously = YES;
-    _textLayer.fontSize = kFontSize;
-    _textLayer.font =  (__bridge  CFTypeRef)[TableCellView sharedFont];
-    _textLayer.wrapped = NO;
-    //_textLayer.backgroundColor = [NSColor textBackgroundColor].CGColor;
-    _textLayer.autoresizingMask = kCALayerWidthSizable;
-    _textLayer.truncationMode = kCATruncationEnd;
-    _textLayer.allowsEdgeAntialiasing = YES;
-    _textLayer.masksToBounds = YES;
-    _textLayer.opaque = NO;
-    _textLayer.contentsScale = [[NSScreen mainScreen] backingScaleFactor];
-    _textLayer.foregroundColor = [[Defaults sharedDefaults] secondaryLabelColor].CGColor;
-    _textLayer.frame = NSInsetRect(self.bounds, 0.0, 5.0);
-    [layer addSublayer:_textLayer];
-    [CATransaction commit];
-
-    return layer;
-}
+//- (CALayer*)makeBackingLayer
+//{
+//    [CATransaction begin];
+//    [CATransaction setDisableActions:YES];
+//
+//    CALayer* layer = [CALayer layer];
+//    layer.masksToBounds = YES;
+//    //layer.drawsAsynchronously = YES;
+//    layer.autoresizingMask = kCALayerNotSizable;
+//    //layer.backgroundColor = [NSColor textBackgroundColor].CGColor;
+//    layer.opaque = NO;
+//    layer.frame = self.bounds;
+//
+//    _textLayer = [CATextLayer layer];
+//    //_textLayer.drawsAsynchronously = YES;
+//    _textLayer.fontSize = kFontSize;
+//    _textLayer.font =  (__bridge  CFTypeRef)[TableCellView sharedFont];
+//    _textLayer.wrapped = NO;
+//    //_textLayer.backgroundColor = [NSColor textBackgroundColor].CGColor;
+//    _textLayer.autoresizingMask = kCALayerWidthSizable;
+//    _textLayer.truncationMode = kCATruncationEnd;
+//    _textLayer.allowsEdgeAntialiasing = YES;
+//    _textLayer.masksToBounds = YES;
+//    _textLayer.opaque = NO;
+//    _textLayer.contentsScale = [[NSScreen mainScreen] backingScaleFactor];
+//    _textLayer.foregroundColor = [[Defaults sharedDefaults] secondaryLabelColor].CGColor;
+//    _textLayer.frame = NSInsetRect(self.bounds, 0.0, 5.0);
+//    [layer addSublayer:_textLayer];
+//    [CATransaction commit];
+//
+//    return layer;
+//}
 
 - (void)updatedStyle
 {
@@ -101,10 +122,8 @@ static const double kFontSize = 11.0f;
                 color = [NSColor linkColor];
         }
     }
-    [CATransaction begin];
-    [CATransaction setDisableActions:YES];
-    _textLayer.foregroundColor = color.CGColor;
-    [CATransaction commit];
+    //_textLayer.foregroundColor = color.CGColor;
+    self.textField.textColor = color;
 }
 
 - (void)setExtraState:(ExtraState)extraState
@@ -137,7 +156,7 @@ static const double kFontSize = 11.0f;
         animation.repeatCount = 1;
         // We animate throughout an entire bar.
         animation.duration = barDuration;
-        [_textLayer addAnimation:animation forKey:@"barSynced"];
+        //[_textLayer addAnimation:animation forKey:@"barSynced"];
     }
 }
 

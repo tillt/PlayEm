@@ -88,7 +88,7 @@ typedef enum : NSUInteger {
     CALayer* layer = [CALayer layer];
     layer.masksToBounds = NO;
     layer.autoresizingMask = kCALayerNotSizable;
-    layer.drawsAsynchronously = YES;
+//    layer.drawsAsynchronously = YES;
     layer.frame = self.bounds;
     
     CGRect symbolRect = CGRectMake(0.0, 0.0, self.bounds.size.height, self.bounds.size.height);

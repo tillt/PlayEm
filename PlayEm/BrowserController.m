@@ -1464,10 +1464,6 @@ typeSelectStringForTableColumn:(NSTableColumn*)tableColumn
             assert(NO);
     }
 
-    
-    [CATransaction begin];
-    [CATransaction setDisableActions:YES];
-    
     TableCellView* result = [tableView makeViewWithIdentifier:tableColumn.identifier owner:self];
     
     if (result == nil) {
@@ -1478,20 +1474,26 @@ typeSelectStringForTableColumn:(NSTableColumn*)tableColumn
         result.identifier = tableColumn.identifier;
         if (tableView.tag == VIEWTAG_SONGS) {
             if ([tableColumn.identifier isEqualToString:@"TrackCell"]) {
-                [result.textLayer setAlignmentMode:kCAAlignmentRight];
+                //[result.textLayer setAlignmentMode:kCAAlignmentRight];
+                [result.textField setAlignment:NSTextAlignmentRight];
             } else if ([tableColumn.identifier isEqualToString:@"TimeCell"]) {
-                [result.textLayer setAlignmentMode:kCAAlignmentRight];
+                //[result.textLayer setAlignmentMode:kCAAlignmentRight];
+                [result.textField setAlignment:NSTextAlignmentRight];
             } else if ([tableColumn.identifier isEqualToString:@"TempoCell"]) {
-                [result.textLayer setAlignmentMode:kCAAlignmentRight];
+                //[result.textLayer setAlignmentMode:kCAAlignmentRight];
+                [result.textField setAlignment:NSTextAlignmentRight];
             }
             //[result addConstraint: [NSLayoutConstraint constraintWithItem:result attribute:NSLayoutAttributeLeft relatedBy:NSLayoutRelationEqual toItem:tableView.enclosingScrollView attribute:NSLayoutAttributeLeft multiplier:1.0 constant:0.0]];
         }
     }
 
-    result.textLayer.string = [self stringValueForRow:row tableColumn:tableColumn tableView:tableView];
+    //result.textLayer.string = [self stringValueForRow:row tableColumn:tableColumn tableView:tableView];
+    NSString* s = [self stringValueForRow:row tableColumn:tableColumn tableView:tableView];
+    if (s == nil) {
+        s = @"";
+    }
+    result.textField.stringValue = s;
     result.nextKeyView = tableView.nextKeyView;
-
-    [CATransaction commit];
 
     return result;
 }

@@ -42,8 +42,6 @@ static const double kFontSize = 11.0f;
 {
     self = [super initWithFrame:frameRect];
     if (self) {
-        //self.wantsLayer = YES;
-        //self.needsLayout = YES;
         _tf = [[NSTextField alloc] initWithFrame:NSInsetRect(frameRect, 0.0, 5.0)];
         _tf.drawsBackground = NO;
         _tf.backgroundColor = [NSColor clearColor];
@@ -52,7 +50,9 @@ static const double kFontSize = 11.0f;
         _tf.bordered = NO;
         _tf.alignment = NSTextAlignmentLeft;
         _tf.textColor = [[Defaults sharedDefaults] secondaryLabelColor];
-
+        _tf.autoresizingMask = NSViewWidthSizable;
+        _tf.cell.truncatesLastVisibleLine = YES;
+        _tf.cell.lineBreakMode = NSLineBreakByTruncatingTail;
         self.textField = _tf;
         [self addSubview:_tf];
         //self.layerContentsRedrawPolicy = NSViewLayerContentsRedrawOnSetNeedsDisplay;

@@ -180,8 +180,8 @@ NSString* const kSongsColGenre = @"GenreCell";
     NSString* album = _albumsTable.selectedRow > 0 ? _albums[_albumsTable.selectedRow] : nil;
     NSString* tempo = _temposTable.selectedRow > 0 ? _tempos[_temposTable.selectedRow] : nil;
     NSString* key = _keysTable.selectedRow > 0 ? _keys[_keysTable.selectedRow] : nil;
-    NSString* rating = _temposTable.selectedRow > 0 ? _ratings[_ratingsTable.selectedRow] : nil;
-    NSString* tag = _keysTable.selectedRow > 0 ? _tags[_tagsTable.selectedRow] : nil;
+    NSString* rating = _ratingsTable.selectedRow > 0 ? _ratings[_ratingsTable.selectedRow] : nil;
+    NSString* tag = _tagsTable.selectedRow > 0 ? _tags[_tagsTable.selectedRow] : nil;
 
     dispatch_async(_filterQueue, ^{
         // Apply filtering and sorting.

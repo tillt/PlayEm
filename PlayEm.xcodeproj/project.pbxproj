@@ -35,7 +35,6 @@
 		BB539A602D0F6D390095B8C7 /* libkeyfinder.2.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = BB539A5E2D0F6D380095B8C7 /* libkeyfinder.2.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		BB539A622D0F6E8E0095B8C7 /* libfftw3.3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = BB539A612D0F6E8E0095B8C7 /* libfftw3.3.dylib */; };
 		BB539A632D0F6E980095B8C7 /* libfftw3.3.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = BB539A612D0F6E8E0095B8C7 /* libfftw3.3.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
-		BB539A652D15C7270095B8C7 /* BeatEvent.h in Sources */ = {isa = PBXBuildFile; fileRef = BB539A642D15C7260095B8C7 /* BeatEvent.h */; };
 		BB577E092AA482D400046251 /* librubberband.2.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = BB577E072AA482D400046251 /* librubberband.2.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		BB577E162AA486C500046251 /* libsamplerate.0.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = BB577E152AA486C500046251 /* libsamplerate.0.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		BB5A2C232B925CD300040209 /* TextViewWithPlaceholder.m in Sources */ = {isa = PBXBuildFile; fileRef = BB5A2C222B925CD300040209 /* TextViewWithPlaceholder.m */; };
@@ -663,7 +662,6 @@
 				BBF81D932CBB025C0086AECB /* NSColor+Metal.m in Sources */,
 				BB896FF32928874500B41809 /* TableHeaderCell.m in Sources */,
 				BB7C6269293144890019AF25 /* Defaults.m in Sources */,
-				BB539A652D15C7270095B8C7 /* BeatEvent.h in Sources */,
 				BBD24D6A2432948B00DC2A81 /* main.m in Sources */,
 				BBA507DA244224E100AABCF7 /* Sample.m in Sources */,
 				BBA623D42620F6A200924D44 /* UIView+Visibility.m in Sources */,

@@ -197,9 +197,9 @@ NSString* const kSongsColGenre = @"GenreCell";
         // This weird construct shall assure that we only reload those columns that are
         // undetermined by a selection with a priority built in. 
         // That means that if the user selected an `album` but nothing else, `reloadData`
-        // will re-populate the `tempos` and the `keys` columns. If the user had selected a
-        // `genre` but nothing else, all but the `genres` column get reloaded. If the user
-        // selected a `key` but nothing else, nothing gets reloaded.
+        // will re-populate all the table to the right - that is `tempos`, `keys` and so on columns.
+        // If the user had selected a `genre` but nothing else, all but the `genres` column
+        // get reloaded. If the user selected a `key` but nothing else, nothing gets reloaded.
         NSMutableArray* destGenres = nil;
         NSMutableArray* destArtists = nil;
         NSMutableArray* destAlbums = nil;

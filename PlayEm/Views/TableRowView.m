@@ -103,7 +103,7 @@ typedef enum : NSUInteger {
     _symbolLayer.contentsScale = [[NSScreen mainScreen] backingScaleFactor];
     _symbolLayer.foregroundColor = [[Defaults sharedDefaults] lightBeamColor].CGColor;
     _symbolLayer.frame = NSOffsetRect(NSInsetRect(symbolRect, 0.0, 5.0), 8.0, 0.0);
-    _symbolLayer.drawsAsynchronously = YES;
+//    _symbolLayer.drawsAsynchronously = YES;
     [layer addSublayer:_symbolLayer];
 
 #ifdef TABLE_ROW_GLOW

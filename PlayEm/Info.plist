@@ -89,7 +89,7 @@
 	<key>CFBundleShortVersionString</key>
 	<string>1.10</string>
 	<key>CFBundleVersion</key>
-	<string>10511</string>
+	<string>10560</string>
 	<key>LSApplicationCategoryType</key>
 	<string>public.app-category.music</string>
 	<key>LSMinimumSystemVersion</key>

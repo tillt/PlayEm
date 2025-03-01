@@ -246,12 +246,6 @@ static const double kLevelDecreaseValue = 0.042;
 {
     MTKTextureLoader* textureLoader = [[MTKTextureLoader alloc] initWithDevice:_device];
     NSDictionary* options = @{MTKTextureLoaderOptionSRGB : @(NO)}; // Optional: Specify options (e.g., SRGB, etc.)
-//    id<MTLTexture> texture = [textureLoader newTextureWithName:textureName
-//                                                   scaleFactor:1.0
-//                                                        bundle:nil
-//                                                       options:options
-//                                                         error:error];
-    
     NSURL* url = [[NSBundle mainBundle]URLForResource:textureName withExtension:@"png"];
     id<MTLTexture> texture = [textureLoader newTextureWithContentsOfURL:url
                                                                 options:options

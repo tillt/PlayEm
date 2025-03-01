@@ -64,10 +64,10 @@ static const double kFontSize = 11.0f;
 {
 }
 
-- (BOOL)wantsUpdateLayer
-{
-    return YES;
-}
+//- (BOOL)wantsUpdateLayer
+//{
+//    return YES;
+//}
 
 //- (CALayer*)makeBackingLayer
 //{

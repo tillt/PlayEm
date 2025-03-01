@@ -42,8 +42,8 @@
 static const float kShowHidePanelAnimationDuration = 0.3f;
 static const float kPixelPerSecond = 120.0f;
 
-const CGFloat kDefaultWindowWidth = 1180.0f;
-const CGFloat kDefaultWindowHeight = 1050.0f;
+const CGFloat kDefaultWindowWidth = 1280.0f;
+const CGFloat kDefaultWindowHeight = 920.0f;
 
 const CGFloat kMinWindowWidth = 465.0f;
 const CGFloat kMinWindowHeight = 100.0f;    // Constraints on the subviews make this a minimum
@@ -334,10 +334,13 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
 
     self.shouldCascadeWindows = NO;
 
-    self.window = [[NSWindow alloc] initWithContentRect:NSMakeRect(0, 0, kDefaultWindowWidth, kDefaultWindowHeight)
+    NSScreen* screen = [NSScreen mainScreen];
+    self.window = [[NSWindow alloc] initWithContentRect:NSMakeRect((screen.frame.size.width - kDefaultWindowWidth) / 2.0,
+                                                                   (screen.frame.size.height - kDefaultWindowHeight) / 2.0,
+                                                                   kDefaultWindowWidth,
+                                                                   kDefaultWindowHeight)
                                               styleMask:style
                                                 backing:NSBackingStoreBuffered defer:YES];
-
     self.window.minSize = NSMakeSize(kMinWindowWidth, kMinWindowHeight);
     self.window.titlebarSeparatorStyle = NSTitlebarSeparatorStyleLine;
     self.window.titlebarAppearsTransparent = YES;
@@ -517,7 +520,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     const CGFloat tempoColumnWidth = 80.0f;
     const CGFloat keyColumnWidth = 60.0f;
     const CGFloat ratingColumnWidth = 60.0f;
-    const CGFloat tagsColumnWidth = 60.0f;
+    const CGFloat tagsColumnWidth = 160.0f;
 
     const CGFloat progressIndicatorWidth = 32.0f;
     const CGFloat progressIndicatorHeight = 32.0f;
@@ -858,7 +861,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     _tagsTable.tag = VIEWTAG_TAGS;
     col = [[NSTableColumn alloc] init];
     col.title = @"Tags";
-    col.width = selectorTableViewHalfWidth - selectorColumnInset;
+    col.width = selectorTableViewWidth - selectorColumnInset;
     col.minWidth = selectorTableViewMinWidth;
     [_tagsTable addTableColumn:col];
     sv.documentView = _tagsTable;
@@ -887,7 +890,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     _songsTable.tag = VIEWTAG_SONGS;
     _songsTable.menu = [self songMenu];
     _songsTable.autoresizingMask = NSViewNotSizable;
-    _songsTable.columnAutoresizingStyle = NSTableViewNoColumnAutoresizing;
+    _songsTable.columnAutoresizingStyle = NSTableViewLastColumnOnlyAutoresizingStyle;
     _songsTable.allowsMultipleSelection = YES;
     [_songsTable selectionHighlightStyle];
 
@@ -906,7 +909,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     col.resizingMask = NSTableColumnUserResizingMask;
     col.sortDescriptorPrototype = [[NSSortDescriptor alloc] initWithKey:@"title" ascending:YES selector:@selector(compare:)];
     [_songsTable addTableColumn:col];
-    
+
     col = [[NSTableColumn alloc] initWithIdentifier:kSongsColTime];
     col.title = @"Time";
     col.width = timeColumnWidth - selectorColumnInset;
@@ -914,7 +917,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     col.resizingMask = NSTableColumnUserResizingMask;
     col.sortDescriptorPrototype = [[NSSortDescriptor alloc] initWithKey:@"duration" ascending:YES selector:@selector(compare:)];
     [_songsTable addTableColumn:col];
-    
+
     col = [[NSTableColumn alloc] initWithIdentifier:kSongsColArtist];
     col.title = @"Artist";
     col.width = artistColumnWidth - selectorColumnInset;
@@ -922,7 +925,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     col.resizingMask = NSTableColumnUserResizingMask;
     col.sortDescriptorPrototype = [[NSSortDescriptor alloc] initWithKey:@"artist" ascending:YES selector:@selector(compare:)];
     [_songsTable addTableColumn:col];
-    
+
     col = [[NSTableColumn alloc] initWithIdentifier:kSongsColAlbum];
     col.title = @"Album";
     col.width = albumColumnWidth - selectorColumnInset;
@@ -930,7 +933,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     col.resizingMask = NSTableColumnUserResizingMask;
     col.sortDescriptorPrototype = [[NSSortDescriptor alloc] initWithKey:@"album" ascending:YES selector:@selector(compare:)];
     [_songsTable addTableColumn:col];
-    
+
     col = [[NSTableColumn alloc] initWithIdentifier:kSongsColGenre];
     col.title = @"Genre";
     col.width = genreColumnWidth - selectorColumnInset;
@@ -938,7 +941,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     col.resizingMask = NSTableColumnAutoresizingMask | NSTableColumnUserResizingMask;
     col.sortDescriptorPrototype = [[NSSortDescriptor alloc] initWithKey:@"genre" ascending:YES selector:@selector(compare:)];
     [_songsTable addTableColumn:col];
-    
+
     col = [[NSTableColumn alloc] initWithIdentifier:kSongsColAdded];
     col.title = @"Added";
     col.width = addedColumnWidth - selectorColumnInset;
@@ -966,16 +969,15 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     col = [[NSTableColumn alloc] initWithIdentifier:kSongsColRating];
     col.title = @"Rating";
     col.width = ratingColumnWidth - selectorColumnInset;
-    col.minWidth = (keyColumnWidth - selectorColumnInset) / 2.0;
+    col.minWidth = (ratingColumnWidth - selectorColumnInset) / 2.0;
     col.resizingMask = NSTableColumnUserResizingMask;
     col.sortDescriptorPrototype = [[NSSortDescriptor alloc] initWithKey:@"rating" ascending:YES selector:@selector(compare:)];
     [_songsTable addTableColumn:col];
 
     col = [[NSTableColumn alloc] initWithIdentifier:kSongsColTags];
     col.title = @"Tags";
-    col.width = tagsColumnWidth - selectorColumnInset;
-    col.minWidth = (keyColumnWidth - selectorColumnInset) / 2.0;
-    col.resizingMask = NSTableColumnUserResizingMask;
+    col.minWidth = (tagsColumnWidth - selectorColumnInset) / 2.0;
+    col.resizingMask = NSTableColumnAutoresizingMask;
     col.sortDescriptorPrototype = [[NSSortDescriptor alloc] initWithKey:@"tags" ascending:YES selector:@selector(compare:)];
     [_songsTable addTableColumn:col];
 

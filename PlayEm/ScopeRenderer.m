@@ -305,6 +305,7 @@ static const double kLevelDecreaseValue = 0.042;
     // Set up a render pass descriptor for the render pass to render into _scopeTargetTexture.
 
     texDescriptor.sampleCount = 1;
+    texDescriptor.storageMode = MTLStorageModePrivate;
     texDescriptor.textureType = MTLTextureType2D;
     texDescriptor.usage = MTLTextureUsageShaderWrite | MTLTextureUsageShaderRead;
     

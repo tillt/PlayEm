@@ -708,43 +708,43 @@ NSString* const kSongsColGenre = @"GenreCell";
     
     if (genres != nil) {
         NSArray* array = [filteredGenres allKeys];
-        NSString* label = [NSString stringWithFormat:array.count > 1 ? @"All (%ld Genres)" : @"All (%ld Genre)", array.count];
+        NSString* label = [NSString stringWithFormat:array.count != 1 ? @"All (%ld Genres)" : @"All (%ld Genre)", array.count];
         [genres setArray:[array sortedArrayUsingSelector:@selector(localizedCaseInsensitiveCompare:)]];
         [genres insertObject:label atIndex:0];
     }
     if (artists != nil) {
         NSArray* array = [filteredArtists allKeys];
-        NSString* label = [NSString stringWithFormat:array.count > 1 ? @"All (%ld Artists)" : @"All (%ld Artist)", array.count];
+        NSString* label = [NSString stringWithFormat:array.count != 1 ? @"All (%ld Artists)" : @"All (%ld Artist)", array.count];
         [artists setArray:[[filteredArtists allKeys] sortedArrayUsingSelector:@selector(localizedCaseInsensitiveCompare:)]];
         [artists insertObject:label atIndex:0];
     }
     if (albums != nil) {
         NSArray* array = [filteredAlbums allKeys];
-        NSString* label = [NSString stringWithFormat:array.count > 1 ? @"All (%ld Albums)" : @"All (%ld Album)", array.count];
+        NSString* label = [NSString stringWithFormat:array.count != 1 ? @"All (%ld Albums)" : @"All (%ld Album)", array.count];
         [albums setArray:[[filteredAlbums allKeys] sortedArrayUsingSelector:@selector(localizedCaseInsensitiveCompare:)]];
         [albums insertObject:label atIndex:0];
     }
     if (tempos != nil) {
         NSArray* array = [filteredTempos allKeys];
-        NSString* label = [NSString stringWithFormat:array.count > 1 ? @"All (%ld Tempos)" : @"All (%ld Tempo)", array.count];
+        NSString* label = [NSString stringWithFormat:array.count != 1 ? @"All (%ld Tempos)" : @"All (%ld Tempo)", array.count];
         [tempos setArray:[[filteredTempos allKeys] sortedArrayUsingSelector:@selector(localizedCaseInsensitiveCompare:)]];
         [tempos insertObject:label atIndex:0];
     }
     if (keys != nil) {
         NSArray* array = [filteredKeys allKeys];
-        NSString* label = [NSString stringWithFormat:array.count > 1 ? @"All (%ld Keys)" : @"All (%ld Key)", array.count];
+        NSString* label = [NSString stringWithFormat:array.count != 1 ? @"All (%ld Keys)" : @"All (%ld Key)", array.count];
         [keys setArray:[[filteredKeys allKeys] sortedArrayUsingSelector:@selector(localizedCaseInsensitiveCompare:)]];
         [keys insertObject:label atIndex:0];
     }
     if (ratings != nil) {
         NSArray* array = [filteredRatings allKeys];
-        NSString* label = [NSString stringWithFormat:array.count > 1 ? @"All (%ld Ratings)" : @"All (%ld Rating)", array.count];
+        NSString* label = [NSString stringWithFormat:array.count != 1 ? @"All (%ld Ratings)" : @"All (%ld Rating)", array.count];
         [ratings setArray:[[filteredRatings allKeys] sortedArrayUsingSelector:@selector(localizedCaseInsensitiveCompare:)]];
         [ratings insertObject:label atIndex:0];
     }
     if (tags != nil) {
         NSArray* array = [filteredTags allKeys];
-        NSString* label = [NSString stringWithFormat:array.count > 1 ? @"All (%ld Tags)" : @"All (%ld Tag)", array.count];
+        NSString* label = [NSString stringWithFormat:array.count != 1 ? @"All (%ld Tags)" : @"All (%ld Tag)", array.count];
         [tags setArray:[[filteredTags allKeys] sortedArrayUsingSelector:@selector(localizedCaseInsensitiveCompare:)]];
         [tags insertObject:label atIndex:0];
     }
@@ -1474,20 +1474,16 @@ typeSelectStringForTableColumn:(NSTableColumn*)tableColumn
         result.identifier = tableColumn.identifier;
         if (tableView.tag == VIEWTAG_SONGS) {
             if ([tableColumn.identifier isEqualToString:@"TrackCell"]) {
-                //[result.textLayer setAlignmentMode:kCAAlignmentRight];
                 [result.textField setAlignment:NSTextAlignmentRight];
             } else if ([tableColumn.identifier isEqualToString:@"TimeCell"]) {
-                //[result.textLayer setAlignmentMode:kCAAlignmentRight];
                 [result.textField setAlignment:NSTextAlignmentRight];
             } else if ([tableColumn.identifier isEqualToString:@"TempoCell"]) {
-                //[result.textLayer setAlignmentMode:kCAAlignmentRight];
                 [result.textField setAlignment:NSTextAlignmentRight];
             }
             //[result addConstraint: [NSLayoutConstraint constraintWithItem:result attribute:NSLayoutAttributeLeft relatedBy:NSLayoutRelationEqual toItem:tableView.enclosingScrollView attribute:NSLayoutAttributeLeft multiplier:1.0 constant:0.0]];
         }
     }
 
-    //result.textLayer.string = [self stringValueForRow:row tableColumn:tableColumn tableView:tableView];
     NSString* s = [self stringValueForRow:row tableColumn:tableColumn tableView:tableView];
     if (s == nil) {
         s = @"";

@@ -197,6 +197,7 @@
 		BBAD7D54262B973C00089ACC /* ScopeView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ScopeView.m; sourceTree = "<group>"; };
 		BBB37D1F290F4A7E0007A6BB /* PlaylistController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PlaylistController.h; sourceTree = "<group>"; };
 		BBB37D20290F4A7E0007A6BB /* PlaylistController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = PlaylistController.m; sourceTree = "<group>"; };
+		BBC257B22D7466C300236395 /* VisualPairContext.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VisualPairContext.h; sourceTree = "<group>"; };
 		BBC2AF4A2B8974C20077EB5E /* MediaMetaData+TagLib.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "MediaMetaData+TagLib.m"; sourceTree = "<group>"; };
 		BBC2AF4E2B8976DA0077EB5E /* MediaMetaData+TagLib.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "MediaMetaData+TagLib.h"; sourceTree = "<group>"; };
 		BBC2AF712B8B5ACA0077EB5E /* MediaMetaData+AVAsset.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "MediaMetaData+AVAsset.h"; sourceTree = "<group>"; };
@@ -317,7 +318,8 @@
 				BBA507DE2443E66800AABCF7 /* AVFoundation.framework */,
 			);
 			name = Frameworks;
-			sourceTree = "<group>";
+			path = ThirdParty;
+			sourceTree = SOURCE_ROOT;
 		};
 		BB8A1008290353E300FC6013 /* OptimizationProfiles */ = {
 			isa = PBXGroup;
@@ -335,6 +337,7 @@
 				BB2CF8AB259EB66900D6BA03 /* LazySample.h */,
 				BB2CF8AC259EB66900D6BA03 /* LazySample.m */,
 				BBDB1B422B65CC0500A953F7 /* VisualPair.h */,
+				BBC257B22D7466C300236395 /* VisualPairContext.h */,
 				BB0D527F244CEE22007C909F /* VisualSample.h */,
 				BB0D5280244CEE22007C909F /* VisualSample.m */,
 				BB539A552D0F39550095B8C7 /* KeyTrackedSample.h */,
@@ -862,6 +865,7 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)",
+					"$(PROJECT_DIR)/ThirdParty",
 				);
 				HEADER_SEARCH_PATHS = (
 					/usr/local/include,
@@ -876,8 +880,8 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)",
-					/opt/homebrew/Cellar/taglib/1.13.1/lib,
 					/usr/local/lib,
+					"$(PROJECT_DIR)/ThirdParty",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 14.6;
 				PRODUCT_BUNDLE_IDENTIFIER = com.toenshoff.playem;
@@ -887,6 +891,7 @@
 					"$(inherited)",
 					"$(SDKROOT)$(SYSTEM_LIBRARY_DIR)/PrivateFrameworks",
 				);
+				USER_HEADER_SEARCH_PATHS = ThirdParty;
 			};
 			name = Debug;
 		};
@@ -910,6 +915,7 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)",
+					"$(PROJECT_DIR)/ThirdParty",
 				);
 				HEADER_SEARCH_PATHS = (
 					/usr/local/include,
@@ -924,8 +930,8 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)",
-					/opt/homebrew/Cellar/taglib/1.13.1/lib,
 					/usr/local/lib,
+					"$(PROJECT_DIR)/ThirdParty",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 14.6;
 				ONLY_ACTIVE_ARCH = NO;
@@ -936,6 +942,7 @@
 					"$(inherited)",
 					"$(SDKROOT)$(SYSTEM_LIBRARY_DIR)/PrivateFrameworks",
 				);
+				USER_HEADER_SEARCH_PATHS = ThirdParty;
 			};
 			name = Release;
 		};

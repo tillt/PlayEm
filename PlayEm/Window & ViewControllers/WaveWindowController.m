@@ -51,8 +51,7 @@ const CGFloat kMinWindowHeight = 100.0f;    // Constraints on the subviews make 
 const CGFloat kMinScopeHeight = 64.0f;      // Smaller would still be ok...
 const CGFloat kMinTableHeight = 0.0f;       // Just forget about it.
 
-static const int kSplitPositionCount = 6;
-
+static const int kSplitPositionCount = 7;
 
 typedef enum : NSUInteger {
     LoaderStateReady,
@@ -1928,7 +1927,8 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
 
     _totalVisual = [[VisualSample alloc] initWithSample:lazySample
                                          pixelPerSecond:_totalView.bounds.size.width / lazySample.duration
-                                              tileWidth:kTotalWaveViewTileWidth];
+                                              tileWidth:kTotalWaveViewTileWidth
+                                           reducedWidth:kReducedVisualSampleWidth];
 
     _totalWaveLayerDelegate.visualSample = _totalVisual;
 

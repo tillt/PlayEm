@@ -19,6 +19,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (assign, nonatomic) double pixelPerSecond;
 
 - (id)initWithSample:(LazySample*)sample pixelPerSecond:(double)pixelPerSecond tileWidth:(size_t)tileWidth;
+- (id)initWithSample:(LazySample*)sample pixelPerSecond:(double)pixelPerSecond tileWidth:(size_t)tileWidth reducedWidth:(size_t)reducedWidth;
 
 /// Get a visual data blob starting at a specific origin, if available.
 - (NSData* _Nullable)visualsFromOrigin:(size_t)origin;

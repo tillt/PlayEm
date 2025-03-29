@@ -328,20 +328,26 @@
              ITLibArtworkFormatTIFF = 7,
              ITLibArtworkFormatPICT = 8
              */
-            unsigned int imageFormat = [self.artworkFormat intValue];
-            NSString* mimeType = [MediaMetaData mimeTypeForArtworkFormat:imageFormat];
-            NSAssert(mimeType != nil, @"no mime type known for this picture format %d", imageFormat);
-            const char* m = [mimeType cStringUsingEncoding:NSUTF8StringEncoding];
-            TAGLIB_COMPLEX_PROPERTY_PICTURE(props,
-                                            self.artwork.bytes,
-                                            (unsigned int)self.artwork.length,
-                                            "",
-                                            m,
-                                            "Front Cover");
-            NSLog(@"setting complex tag: \"%@\" = %p", key, self.artwork);
-            taglib_complex_property_set(file,
-                                        [key cStringUsingEncoding:NSUTF8StringEncoding],
-                                        props);
+            if (self.artwork != nil) {
+                unsigned int imageFormat = [self.artworkFormat intValue];
+                NSString* mimeType = [MediaMetaData mimeTypeForArtworkFormat:imageFormat];
+                NSAssert(mimeType != nil, @"no mime type known for this picture format %d", imageFormat);
+                const char* m = [mimeType cStringUsingEncoding:NSUTF8StringEncoding];
+                TAGLIB_COMPLEX_PROPERTY_PICTURE(props,
+                                                self.artwork.bytes,
+                                                (unsigned int)self.artwork.length,
+                                                "",
+                                                m,
+                                                "Front Cover");
+                NSLog(@"setting complex tag: \"%@\" = %p", key, self.artwork);
+                taglib_complex_property_set(file,
+                                            [key cStringUsingEncoding:NSUTF8StringEncoding],
+                                            props);
+            } else {
+                taglib_complex_property_set(file,
+                                            [key cStringUsingEncoding:NSUTF8StringEncoding],
+                                            NULL);
+            }
         } else {
             NSString* value = [self stringForKey:mediaKey];
             

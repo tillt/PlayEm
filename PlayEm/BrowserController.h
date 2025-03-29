@@ -66,6 +66,7 @@ extern NSString* const kSongsColGenre;
 - (void)loadITunesLibrary;
 - (void)reloadData;
 - (void)setPlaying:(BOOL)playing;
+- (void)setNowPlayingWithMeta:(MediaMetaData*)meta;
 - (void)setCurrentMeta:(MediaMetaData*)meta;
 - (void)metaChangedForMeta:(MediaMetaData *)meta updatedMeta:(MediaMetaData *)updatedMeta;
 - (NSArray<NSString*>*)knownGenres;
@@ -73,7 +74,6 @@ extern NSString* const kSongsColGenre;
 - (IBAction)playLaterInPlaylist:(id)sender;
 - (IBAction)showInFinder:(id)sender;
 - (IBAction)showInfoForCurrentSong:(id)sender;
-- (NSUInteger)currentSongRow;
 - (MediaMetaData* _Nullable)nextSong;
 - (NSArray<MediaMetaData*>*)selectedSongMetas;
 

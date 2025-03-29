@@ -23,6 +23,7 @@
 
 #import "NSURL+WithoutParameters.h"
 #import "NSString+BeautifulPast.h"
+#import "NSString+OccurenceCount.h"
 
 ///
 /// MediaMetaData is lazily holding metadata for library entries to allow for extending iTunes provided data.
@@ -30,6 +31,7 @@
 /// is asynchronously requested through ITLibMediaItem on demand.
 ///
 
+//NSString* const kStarSymbol = @"􀋃";
 NSString* const kMediaMetaDataMapKeyMP3 = @"mp3";
 NSString* const kMediaMetaDataMapKeyMP4 = @"mp4";
 NSString* const kMediaMetaDataMapKeyType = @"type";
@@ -45,7 +47,28 @@ NSString* const kMediaMetaDataMapTypeTuple48 = @"tuple48";
 NSString* const kMediaMetaDataMapTypeTuple64 = @"tuple64";
 NSString* const kMediaMetaDataMapTypeNumber = @"number";
 
+@interface MediaMetaData ()
+@property (readonly, nonatomic, nullable) NSDictionary* starsQuantums;
+@end
+
 @implementation MediaMetaData
+
++ (NSDictionary*)starsQuantums
+{
+    static NSDictionary* quantums = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        quantums = @{
+            @(0): @"",
+            @(1): @"􀋃",
+            @(2): @"􀋃􀋃",
+            @(3): @"􀋃􀋃􀋃",
+            @(4): @"􀋃􀋃􀋃􀋃",
+            @(5): @"􀋃􀋃􀋃􀋃􀋃"
+          };
+    });
+    return quantums;
+}
 
 + (MediaMetaDataFileFormatType)fileTypeWithURL:(NSURL*)url error:(NSError**)error
 {
@@ -625,6 +648,39 @@ NSString* const kMediaMetaDataMapTypeNumber = @"number";
     return _tempo;
 }
 
+- (void)setStars:(NSString*)stars
+{
+    NSDictionary* starsQuantums = [MediaMetaData starsQuantums];
+    NSString* star = starsQuantums[@(1)];
+    NSUInteger rating = [stars occurrenceCountOfString:star];
+    self.rating = [NSNumber numberWithUnsignedLong:rating * 20];
+}
+
++ (NSArray<NSString*>*)starRatings
+{
+    return [[MediaMetaData starsQuantums] allValues];
+}
+
++ (NSString*)starsWithRating:(NSNumber*)rating
+{
+    NSString* string = @"";
+    int r = [rating intValue];
+    if (r > 0) {
+        NSDictionary* quantums = [MediaMetaData starsQuantums];
+        int index = (r + 19) / 20;
+        assert(index < 6);
+        NSNumber* number = [NSNumber numberWithInt:index];
+        assert([quantums objectForKey:number] != nil);
+        string = quantums[[NSNumber numberWithInt:index]];
+    }
+    return string;
+}
+
+- (NSString*)stars
+{
+    return [MediaMetaData starsWithRating:self.rating];
+}
+
 - (NSNumber* _Nullable)rating
 {
     if (_shadow == nil) {
@@ -775,7 +831,7 @@ NSString* const kMediaMetaDataMapTypeNumber = @"number";
     }
 
     if (_artwork == nil) {
-        if (_shadow.hasArtworkAvailable) {
+        if (_shadow.hasArtworkAvailable && _shadow.artwork) {
             _artwork = _shadow.artwork.imageData;
         }
     }

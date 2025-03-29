@@ -40,7 +40,9 @@
 #import "MusicAuthenticationController.h"
 
 static const float kShowHidePanelAnimationDuration = 0.3f;
+
 static const float kPixelPerSecond = 120.0f;
+static const size_t kReducedVisualSampleWidth = 8000;
 
 const CGFloat kDefaultWindowWidth = 1280.0f;
 const CGFloat kDefaultWindowHeight = 920.0f;
@@ -395,9 +397,13 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     [self loadViews];
 
     _beatLayerDelegate.waveView = _waveView;
-    self.totalWaveLayerDelegate.color = _waveView.color;
-    self.waveLayerDelegate.color = _waveView.color;
-    
+
+    self.totalWaveLayerDelegate.fillColor = _waveView.color;
+    self.totalWaveLayerDelegate.outlineColor = _waveView.color;
+
+    self.waveLayerDelegate.fillColor = _waveView.color;
+    self.waveLayerDelegate.outlineColor = [_waveView.color colorWithAlphaComponent:0.2];
+
     [self subscribeToRemoteCommands];
     
 //    self.authenticator = [MusicAuthenticationController new];
@@ -1906,6 +1912,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     // We keep a reference around so that the `sample` setter will cause the possibly
     // ongoing decode of a previous sample to get aborted.
     _lazySample = lazySample;
+    _waveLayerDelegate.visualSample = nil;
     _visualSample = nil;
     _totalVisual = nil;
     _beatSample = nil;
@@ -1977,7 +1984,9 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
         return;
     }
     
-    [self loadProgress:_controlPanelController.beatProgress state:LoadStateInit value:0.0];
+    [self loadProgress:_controlPanelController.beatProgress
+                 state:LoadStateInit
+                 value:0.0];
 
     _loaderState = LoaderStateBeatDetection;
 
@@ -1989,7 +1998,9 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
         } else {
             NSLog(@"never finished the beat tracking");
         }
-        [self loadProgress:self.controlPanelController.beatProgress state:LoadStateStopped value:0.0];
+        [self loadProgress:self.controlPanelController.beatProgress
+                     state:LoadStateStopped
+                     value:0.0];
     }];
 }
 
@@ -2032,6 +2043,12 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     }];
 }
 
+- (void)setPlaybackState:(MPNowPlayingPlaybackState)state
+{
+    MPNowPlayingInfoCenter* center = [MPNowPlayingInfoCenter defaultCenter];
+    center.playbackState = state;
+}
+
 - (void)setNowPlayingWithMeta:(MediaMetaData*)meta
 {
     NSMutableDictionary *songInfo = [[NSMutableDictionary alloc] init];
@@ -2060,10 +2077,10 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     
     [songInfo setObject:@(_audioController.sample.duration) forKey:MPMediaItemPropertyPlaybackDuration];
     [songInfo setObject:@(_audioController.currentTime) forKey:MPNowPlayingInfoPropertyElapsedPlaybackTime];
-    //FIXME: we should propably factor in our rubberbanding.
-    [songInfo setObject:@(1.0) forKey:MPNowPlayingInfoPropertyPlaybackRate];
-
-    [[MPNowPlayingInfoCenter defaultCenter] setNowPlayingInfo:songInfo];
+    [songInfo setObject:@(_audioController.tempoShift) forKey:MPNowPlayingInfoPropertyPlaybackRate];
+    
+    MPNowPlayingInfoCenter* center = [MPNowPlayingInfoCenter defaultCenter];
+    center.nowPlayingInfo = songInfo;
 }
 
 - (void)setMeta:(MediaMetaData*)meta
@@ -2311,11 +2328,14 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     [self setPlaybackActive:YES];
 
     [_playlist setPlaying:YES];
-    [_browser setPlaying:YES];
 
+    // Mark the current song in the browser for we are playing.
+    [_browser setNowPlayingWithMeta:_meta];
+
+    // Tell the control bar item for media playback about our song.
     [self setNowPlayingWithMeta:_meta];
-    MPNowPlayingInfoCenter* center = [MPNowPlayingInfoCenter defaultCenter];
-    center.playbackState = MPNowPlayingPlaybackStatePlaying;
+    [self setPlaybackState:MPNowPlayingPlaybackStatePlaying];
+
     [self updateRemotePosition];
 
     [self lockScreen];
@@ -2330,8 +2350,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     [_browser setPlaying:NO];
 
     [self setNowPlayingWithMeta:_meta];
-    MPNowPlayingInfoCenter* center = [MPNowPlayingInfoCenter defaultCenter];
-    center.playbackState = MPNowPlayingPlaybackStatePaused;
+    [self setPlaybackState:MPNowPlayingPlaybackStatePaused];
     [self updateRemotePosition];
 
     [self unlockScreen];
@@ -2346,8 +2365,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     [_browser setPlaying:NO];
 
     [self setNowPlayingWithMeta:_meta];
-    MPNowPlayingInfoCenter* center = [MPNowPlayingInfoCenter defaultCenter];
-    center.playbackState = MPNowPlayingPlaybackStateStopped;
+    [self setPlaybackState:MPNowPlayingPlaybackStateStopped];
     [self updateRemotePosition];
 
     [self unlockScreen];

@@ -19,8 +19,9 @@ typedef CGFloat (^TotalWidthBlock) (void);
 
 @interface WaveLayerDelegate : NSObject <CALayerDelegate>
 
-@property (strong, nonatomic) VisualSample* visualSample;
-@property (strong, nonatomic) NSColor* color;
+@property (weak, nonatomic) VisualSample* visualSample;
+@property (strong, nonatomic) NSColor* fillColor;
+@property (strong, nonatomic) NSColor* outlineColor;
 @property (strong, nonatomic) OffsetBlock offsetBlock;
 @property (strong, nonatomic) TotalWidthBlock widthBlock;
 

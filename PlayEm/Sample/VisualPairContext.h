@@ -9,5 +9,11 @@
 #ifndef VisualPairContext_h
 #define VisualPairContext_h
 
+typedef struct {
+    double negativeSum;
+    double positiveSum;
+    unsigned int positiveCount;
+    unsigned int negativeCount;
+} VisualPairContext;
 
 #endif /* VisualPairContext_h */

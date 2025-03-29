@@ -8,6 +8,7 @@
 
 #import "PlaylistController.h"
 #import "../Defaults.h"
+#import "../NSImage+Resize.h"
 
 @interface PlaylistController()
 @property (nonatomic, strong) NSMutableArray<MediaMetaData*>* list;
@@ -176,11 +177,13 @@
         if (row >= historyLength) {
             assert(_list.count > row-historyLength);
             NSImageView* iv = (NSImageView*)result;
-            iv.image = [_list[row-historyLength] imageFromArtwork];
+            iv.image = [NSImage resizedImage:[_list[row-historyLength] imageFromArtwork]
+                                        size:iv.frame.size];
         } else {
             assert(_history.count > row);
             NSImageView* iv = (NSImageView*)result;
-            iv.image = [_history[row] imageFromArtwork];
+            iv.image = [NSImage resizedImage:[_history[row] imageFromArtwork]
+                                        size:iv.frame.size];
         }
     } else {
         NSString* title = nil;

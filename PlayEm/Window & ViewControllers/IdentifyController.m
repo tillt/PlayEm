@@ -14,12 +14,14 @@
 #import "../Defaults.h"
 #import "LazySample.h"
 #import "IdentificationCoverView.h"
+#import "../NSImage+Resize.h"
 
 NSString* const kTitleColumnIdenfifier = @"TitleColumn";
 NSString* const kCoverColumnIdenfifier = @"CoverColumn";
 NSString* const kButtonColumnIdenfifier = @"ButtonColumn";
 
 NSString* const kSoundCloudQuery = @"https://soundcloud.com/search?q=%@";
+NSString* const kBeatportQuery = @"https://beatport.com/search?q=%@";
 
 const CGFloat kTableRowHeight = 50.0f;
 
@@ -37,6 +39,9 @@ const CGFloat kTableRowHeight = 50.0f;
               genre:(NSString*)genre
            musicURL:(NSURL*)musicURL
            imageURL:(NSURL*)imageURL;
+
+- (id)initWithMatchedMediaItem:(SHMatchedMediaItem*)item;
+
 @end
 
 
@@ -74,6 +79,25 @@ const CGFloat kTableRowHeight = 50.0f;
         _musicURL = musicURL;
     }
     return self;
+}
+
+- (id)initWithMatchedMediaItem:(SHMatchedMediaItem*)item
+{
+    self = [super init];
+    if (self) {
+        _title = item.title;
+        _artist = item.artist;
+        _genre = item.genres.count ? item.genres[0] : @"";
+        _imageURL = item.artworkURL;
+        _musicURL = item.appleMusicURL;
+    }
+    return self;
+}
+
+- (NSString*)description
+{
+    return [NSString stringWithFormat:@"title:%@ artist:%@ genre:%@ imageURL:%@ musicURL:%@",
+            _title, _artist, _genre, _imageURL, _musicURL];
 }
 
 @end
@@ -229,23 +253,25 @@ const CGFloat kTableRowHeight = 50.0f;
 - (void)copyQueryToPasteboard:(id)sender
 {
     NSButton* button = sender;
-    unsigned long tag = button.tag;
+    unsigned long row = (_identifieds.count - button.tag) - 1;
+    NSLog(@"requested query from row: %ld", row);
+    NSLog(@"identified: %@", _identifieds[row]);
     [[NSPasteboard generalPasteboard] clearContents];
-    [[NSPasteboard generalPasteboard] setString:[self queryWithIdentifiedItem:_identifieds[tag]]
+    [[NSPasteboard generalPasteboard] setString:[self queryWithIdentifiedItem:_identifieds[row]]
                                         forType:NSPasteboardTypeString];
 }
 
 - (void)openSoundcloud:(id)sender
 {
     NSButton* button = sender;
-    unsigned long tag = button.tag;
-    NSLog(@"soundcloud button tag %ld", tag);
+    unsigned long row = (_identifieds.count - button.tag) - 1;
+    NSLog(@"soundcloud button row: %ld", row);
     
     // FIXME: this may very well be wrong -- however, the amperesand gets correctly replaced,
     // FIXME: when needed -- all the predefined sets dont do that for some reason.
     NSCharacterSet *URLFullCharacterSet = [[NSCharacterSet characterSetWithCharactersInString:@" \"#%/:<>?@[\\]^`{|}&"] invertedSet];
     
-    NSString* search = [self queryWithIdentifiedItem:_identifieds[tag]];
+    NSString* search = [self queryWithIdentifiedItem:_identifieds[row]];
     search = [search stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
     search = [search stringByAddingPercentEncodingWithAllowedCharacters:URLFullCharacterSet];
 
@@ -259,12 +285,36 @@ const CGFloat kTableRowHeight = 50.0f;
     }];
 }
 
+- (void)openBeatport:(id)sender
+{
+    NSButton* button = sender;
+    unsigned long row = (_identifieds.count - button.tag) - 1;
+    NSLog(@"beatport button row %ld", row);
+    
+    // FIXME: this may very well be wrong -- however, the amperesand gets correctly replaced,
+    // FIXME: when needed -- all the predefined sets dont do that for some reason.
+    NSCharacterSet *URLFullCharacterSet = [[NSCharacterSet characterSetWithCharactersInString:@" \"#%/:<>?@[\\]^`{|}&"] invertedSet];
+    
+    NSString* search = [self queryWithIdentifiedItem:_identifieds[row]];
+    search = [search stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+    search = [search stringByAddingPercentEncodingWithAllowedCharacters:URLFullCharacterSet];
+
+    NSURL* queryURL = [NSURL URLWithString:[NSString stringWithFormat:kBeatportQuery, search]];
+    NSURL* appURL = [[NSWorkspace sharedWorkspace] URLForApplicationToOpenURL:queryURL];
+    NSWorkspaceOpenConfiguration* configuration = [NSWorkspaceOpenConfiguration new];
+    [[NSWorkspace sharedWorkspace] openURLs:[NSArray arrayWithObject:queryURL]
+                       withApplicationAtURL:appURL
+                              configuration:configuration
+                          completionHandler:^(NSRunningApplication* app, NSError* error){
+    }];
+}
+
 - (void)musicURLClicked:(id)sender
 {
     NSButton* button = sender;
-    unsigned long tag = button.tag;
-    NSLog(@"music url tag %ld", tag);
-    NSURL* musicURL = _identifieds[tag].musicURL;
+    unsigned long row = (_identifieds.count - button.tag) - 1;
+    NSLog(@"music url row %ld", row);
+    NSURL* musicURL = _identifieds[row].musicURL;
 //    NSLog(@"opening %@", _musicURL);
     // For making sure this wont open Music.app we fetch the
     // default app for URLs.
@@ -342,19 +392,16 @@ const CGFloat kTableRowHeight = 50.0f;
 - (void)session:(SHSession *)session didFindMatch:(SHMatch *)match
 {
     dispatch_async(dispatch_get_main_queue(), ^{
-        
         if (match.mediaItems[0].artworkURL != nil && ![match.mediaItems[0].artworkURL.absoluteString isEqualToString:self.imageURL.absoluteString]) {
             NSLog(@"need to re/load the image as the displayed URL %@ wouldnt match the requested URL %@", self.imageURL.absoluteString, match.mediaItems[0].artworkURL.absoluteString);
-            IdentifiedItem* item = [[IdentifiedItem alloc] initWithTitle:match.mediaItems[0].title
-                                                                  artist:match.mediaItems[0].artist
-                                                                   genre:match.mediaItems[0].genres.count ? match.mediaItems[0].genres[0] : @""
-                                                                musicURL:match.mediaItems[0].appleMusicURL
-                                                                imageURL:match.mediaItems[0].artworkURL];
+
+            IdentifiedItem* item = [[IdentifiedItem alloc] initWithMatchedMediaItem:match.mediaItems[0]];
             self.imageURL = match.mediaItems[0].artworkURL;
+
             dispatch_async(dispatch_queue_create("AsyncImageQueue", NULL), ^{
                 NSImage *image = [[NSImage alloc] initWithContentsOfURL:match.mediaItems[0].artworkURL];
                 dispatch_async(dispatch_get_main_queue(), ^{
-                    self->_identificationCoverView.image = image;
+                    self->_identificationCoverView.image = [NSImage resizedImage:image size:self->_identificationCoverView.frame.size];
                     item.artwork = image;
                     
                     [self->_identifieds insertObject:item atIndex:0];
@@ -413,117 +460,153 @@ const CGFloat kTableRowHeight = 50.0f;
     const CGFloat kRegularFontSize = 13.0;
     const CGFloat kLargeFontSize = 15.0;
 
-    if (result == nil) {
-        assert(_identifieds.count > 0);
-        const NSInteger tag = _identifieds.count - 1;
-        if ([tableColumn.identifier isEqualToString:kCoverColumnIdenfifier]) {
-            NSImageView* view = [[NSImageView alloc] initWithFrame:NSMakeRect(0.0,
-                                                                              0.0,
-                                                                              kArtworkSize,
-                                                                              kRowHeight)];
-            view.image = _identifieds[row].artwork;
-            result = view;
-        } else if ([tableColumn.identifier isEqualToString:kButtonColumnIdenfifier]) {
-            NSView* view = [[NSView alloc] initWithFrame:NSMakeRect(  0.0,
+    assert(_identifieds.count > 0);
+    const NSInteger tag = _identifieds.count - 1;
+    if ([tableColumn.identifier isEqualToString:kCoverColumnIdenfifier]) {
+        NSImageView* imageView = nil;
+        if (result == nil) {
+            imageView = [[NSImageView alloc] initWithFrame:NSMakeRect(0.0,
                                                                       0.0,
-                                                                      tableColumn.width,
+                                                                      kArtworkSize,
                                                                       kRowHeight)];
-            NSButton* button = [NSButton buttonWithTitle:@"􀫵"
+            result = imageView;
+        } else {
+            imageView = (NSImageView*)result;
+        }
+        imageView.image = [NSImage resizedImage:_identifieds[row].artwork
+                                           size:NSMakeSize(kArtworkSize, kArtworkSize)];;
+    } else if ([tableColumn.identifier isEqualToString:kButtonColumnIdenfifier]) {
+        NSButton* paste = nil;
+        NSButton* soundcloud = nil;
+        NSButton* apple = nil;
+        NSButton* beatport = nil;
+        if (result == nil) {
+            NSView* view = [[NSView alloc] initWithFrame:NSMakeRect(0.0,
+                                                                    0.0,
+                                                                    tableColumn.width,
+                                                                    kRowHeight)];
+            paste = [NSButton buttonWithTitle:@"􀫵"
                                                   target:self
                                                   action:@selector(copyQueryToPasteboard:)];
-            button.tag = tag;
-            button.font = [NSFont systemFontOfSize:kRegularFontSize];
-            button.bordered = NO;
-            [button setButtonType:NSButtonTypeMomentaryPushIn];
-            button.bezelStyle = NSBezelStyleTexturedRounded;
-            button.frame = NSMakeRect( (tableColumn.width - 26.0) / 2.0f,
+            paste.font = [NSFont systemFontOfSize:kRegularFontSize];
+            paste.bordered = NO;
+            [paste setButtonType:NSButtonTypeMomentaryPushIn];
+            paste.bezelStyle = NSBezelStyleTexturedRounded;
+            paste.frame = NSMakeRect(  0.0,
                                         kRowHeight / 2.0,
                                         kRegularFontSize * 2.0f,
                                         kRowHeight / 2.0);
-            [view addSubview:button];
-
-            button = [NSButton buttonWithTitle:@"􀙀"
-                                        target:self
-                                        action:@selector(openSoundcloud:)];
-            button.tag = tag;
-            button.font = [NSFont systemFontOfSize:kRegularFontSize];
-            button.bordered = NO;
-            [button setButtonType:NSButtonTypeMomentaryPushIn];
-            button.bezelStyle = NSBezelStyleTexturedRounded;
-            button.frame = NSMakeRect(  (tableColumn.width - 26.0) / 2.0f,
-                                        0.0,
-                                        kRegularFontSize * 2.0f,
-                                        kRowHeight / 2.0);
-            [view addSubview:button];
-
-            button = [NSButton buttonWithTitle:@"􀣺"
+            [view addSubview:paste];
+            soundcloud = [NSButton buttonWithTitle:@"􀙀"
+                                            target:self
+                                            action:@selector(openSoundcloud:)];
+            soundcloud.font = [NSFont systemFontOfSize:kRegularFontSize];
+            soundcloud.bordered = NO;
+            [soundcloud setButtonType:NSButtonTypeMomentaryPushIn];
+            soundcloud.bezelStyle = NSBezelStyleTexturedRounded;
+            soundcloud.frame = NSMakeRect(  0.0,
+                                          0.0,
+                                          kRegularFontSize * 2.0f,
+                                          kRowHeight / 2.0);
+            [view addSubview:soundcloud];
+            apple = [NSButton buttonWithTitle:@"􀣺"
                                         target:self
                                         action:@selector(musicURLClicked:)];
-            button.tag = tag;
-            button.font = [NSFont systemFontOfSize:kRegularFontSize];
-            button.bordered = NO;
-            [button setButtonType:NSButtonTypeMomentaryPushIn];
-            button.bezelStyle = NSBezelStyleTexturedRounded;
-            button.frame = NSMakeRect(  (tableColumn.width + 26.0) / 2.0f,
+            apple.font = [NSFont systemFontOfSize:kRegularFontSize];
+            apple.bordered = NO;
+            [apple setButtonType:NSButtonTypeMomentaryPushIn];
+            apple.bezelStyle = NSBezelStyleTexturedRounded;
+            apple.frame = NSMakeRect(  26.0,
                                         0.0,
                                         kRegularFontSize * 2.0f,
                                         kRowHeight / 2.0);
-            [view addSubview:button];
-
+            [view addSubview:apple];
+            beatport = [NSButton buttonWithTitle:@"B"
+                                        target:self
+                                        action:@selector(openBeatport:)];
+            beatport.font = [NSFont systemFontOfSize:kRegularFontSize];
+            beatport.bordered = NO;
+            [beatport setButtonType:NSButtonTypeMomentaryPushIn];
+            beatport.bezelStyle = NSBezelStyleTexturedRounded;
+            beatport.frame = NSMakeRect(  52.0,
+                                        0.0,
+                                        kRegularFontSize * 2.0f,
+                                        kRowHeight / 2.0);
+            [view addSubview:beatport];
             result = view;
-        } else if ([tableColumn.identifier isEqualToString:kTitleColumnIdenfifier]) {
+        } else {
+            NSArray<NSButton*>* subviews = [result subviews];
+            paste = subviews[0];
+            soundcloud = subviews[1];
+            apple = subviews[2];
+            beatport = subviews[3];
+        }
+        paste.tag = tag;
+        soundcloud.tag = tag;
+        apple.tag = tag;
+        beatport.tag = tag;
+    } else if ([tableColumn.identifier isEqualToString:kTitleColumnIdenfifier]) {
+        NSTextField* title = nil;
+        NSTextField* artist = nil;
+        NSTextField* genre = nil;
+        if (result == nil) {
             NSView* view = [[NSView alloc] initWithFrame:NSMakeRect(  0.0,
                                                                       0.0,
                                                                       tableColumn.width,
                                                                       kRowHeight)];
 
-            NSTextField* tf = [[NSTextField alloc] initWithFrame:NSMakeRect(0.0,
+            title = [[NSTextField alloc] initWithFrame:NSMakeRect(0.0,
                                                                             33.0,
                                                                             tableColumn.width,
                                                                             kLargeFontSize + 3.0)];
-            tf.editable = NO;
-            tf.font = [NSFont boldSystemFontOfSize:kLargeFontSize];
-            tf.drawsBackground = NO;
-            tf.bordered = NO;
-            tf.usesSingleLineMode = YES;
-            tf.alignment = NSTextAlignmentLeft;
+            title.editable = NO;
+            title.font = [NSFont boldSystemFontOfSize:kLargeFontSize];
+            title.drawsBackground = NO;
+            title.bordered = NO;
+            title.usesSingleLineMode = YES;
+            title.alignment = NSTextAlignmentLeft;
             //tf.backgroundColor = [NSColor blackColor];
-            tf.textColor = [[Defaults sharedDefaults] lightBeamColor];
-            [tf setStringValue:_identifieds[row].title];
-            [view addSubview:tf];
+            title.textColor = [[Defaults sharedDefaults] lightBeamColor];
+            [view addSubview:title];
             
-            tf = [[NSTextField alloc] initWithFrame:NSMakeRect(0.0,
+            artist = [[NSTextField alloc] initWithFrame:NSMakeRect(0.0,
                                                                kLargeFontSize,
                                                                tableColumn.width,
                                                                kLargeFontSize + 2.0)];
-            tf.editable = NO;
-            tf.font = [NSFont systemFontOfSize:kSmallFontSize];
-            tf.drawsBackground = NO;
-            tf.usesSingleLineMode = YES;
-            tf.bordered = NO;
-            tf.alignment = NSTextAlignmentLeft;
-            tf.textColor = [[Defaults sharedDefaults] secondaryLabelColor];
-            [tf setStringValue:_identifieds[row].artist];
-            [view addSubview:tf];
+            artist.editable = NO;
+            artist.font = [NSFont systemFontOfSize:kSmallFontSize];
+            artist.drawsBackground = NO;
+            artist.usesSingleLineMode = YES;
+            artist.bordered = NO;
+            artist.alignment = NSTextAlignmentLeft;
+            artist.textColor = [[Defaults sharedDefaults] secondaryLabelColor];
+            [view addSubview:artist];
 
-            tf = [[NSTextField alloc] initWithFrame:NSMakeRect(0.0,
+            genre = [[NSTextField alloc] initWithFrame:NSMakeRect(0.0,
                                                                2.0,
                                                                tableColumn.width,
                                                                kSmallFontSize + 2.0)];
-            tf.editable = NO;
-            tf.font = [NSFont systemFontOfSize:kSmallFontSize];
-            tf.drawsBackground = NO;
-            tf.bordered = NO;
-            tf.usesSingleLineMode = YES;
-            tf.alignment = NSTextAlignmentLeft;
-            tf.textColor = [[Defaults sharedDefaults] secondaryLabelColor];
-            [tf setStringValue:_identifieds[row].genre];
-            [view addSubview:tf];
+            genre.editable = NO;
+            genre.font = [NSFont systemFontOfSize:kSmallFontSize];
+            genre.drawsBackground = NO;
+            genre.bordered = NO;
+            genre.usesSingleLineMode = YES;
+            genre.alignment = NSTextAlignmentLeft;
+            genre.textColor = [[Defaults sharedDefaults] secondaryLabelColor];
+            [view addSubview:genre];
 
             result = view;
+        } else {
+            NSArray<NSTextField*>* subviews = result.subviews;
+            title = subviews[0];
+            artist = subviews[1];
+            genre = subviews[2];
         }
-        result.identifier = tableColumn.identifier;
+        [title setStringValue:_identifieds[row].title];
+        [artist setStringValue:_identifieds[row].artist];
+        [genre setStringValue:_identifieds[row].genre];
     }
+    result.identifier = tableColumn.identifier;
 
     return result;
 }

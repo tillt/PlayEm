@@ -33,10 +33,12 @@
     const unsigned long int start = layer.frame.origin.x;
     const unsigned long int samplePairCount = layer.bounds.size.width + 1;
 
+    // Try to get visual sample data for this layer tile.
     NSData* buffer = [_visualSample visualsFromOrigin:start];
+
     if (buffer == nil) {
         // We didnt find any visual data - lets make sure we get some in the near future...
-        CGContextSetFillColorWithColor(context, self.color.CGColor);
+        CGContextSetFillColorWithColor(context, self.fillColor.CGColor);
         CGContextFillRect(context, layer.bounds);
         
         if (start >= _visualSample.width) {
@@ -55,46 +57,53 @@
         return;
     }
 
-    CGContextSetLineCap(context, kCGLineCapRound);
-    CGContextSetLineJoin(context, kCGLineJoinRound);
-
-    CGContextSetLineWidth(context, 7.0f);
-    CGContextSetStrokeColorWithColor(context, [[self.color colorWithAlphaComponent:0.40f] CGColor]);
-
     VisualPair* data = (VisualPair*)buffer.bytes;
     assert(samplePairCount == buffer.length / sizeof(VisualPair));
 
     CGFloat mid = floor(layer.bounds.size.height / 2.0);
-    for (unsigned int sampleIndex = 0; sampleIndex < samplePairCount; sampleIndex++) {
-        CGFloat top = (mid + ((data[sampleIndex].negativeAverage * layer.bounds.size.height) / 2.0)) - 2.0;
-        CGFloat bottom = (mid + ((data[sampleIndex].positiveAverage * layer.bounds.size.height) / 2.0)) + 2.0;
 
-        CGContextMoveToPoint(context, sampleIndex, top);
-        CGContextAddLineToPoint(context, sampleIndex, bottom);
-    }
-    CGContextStrokePath(context);
-
-    CGContextSetLineWidth(context, 2.0f);
-    CGContextSetStrokeColorWithColor(context, [NSColor orangeColor].CGColor);
-
-    for (unsigned int sampleIndex = 0; sampleIndex < samplePairCount; sampleIndex++) {
-        CGFloat top = (mid + ((data[sampleIndex].negativeAverage * layer.bounds.size.height) / 2.0)) - 2.0;
-        CGFloat bottom = (mid + ((data[sampleIndex].positiveAverage * layer.bounds.size.height) / 2.0)) + 2.0;
-
-        CGContextMoveToPoint(context, sampleIndex, top);
-        CGContextAddLineToPoint(context, sampleIndex, bottom);
-    }
-    CGContextStrokePath(context);
-
-    CGContextSetLineWidth(context, 1.5);
-    CGContextSetStrokeColorWithColor(context, self.color.CGColor);
+    CGFloat tops[samplePairCount];
+    CGFloat bottoms[samplePairCount];
     
     for (unsigned int sampleIndex = 0; sampleIndex < samplePairCount; sampleIndex++) {
-        CGFloat top = (mid + ((data[sampleIndex].negativeAverage * layer.bounds.size.height) / 2.0)) - 1.0;
-        CGFloat bottom = (mid + ((data[sampleIndex].positiveAverage * layer.bounds.size.height) / 2.0)) + 1.0;
+        CGFloat top = (mid + ((data[sampleIndex].negativeAverage * layer.bounds.size.height) / 2.0)) - 2.0;
+        CGFloat bottom = (mid + ((data[sampleIndex].positiveAverage * layer.bounds.size.height) / 2.0)) + 2.0;
+        
+        tops[sampleIndex] = top;
+        bottoms[sampleIndex] = bottom;
+    }
 
-        CGContextMoveToPoint(context, sampleIndex, top);
-        CGContextAddLineToPoint(context, sampleIndex, bottom);
+    CGContextSetLineCap(context, kCGLineCapRound);
+    CGContextSetLineJoin(context, kCGLineJoinRound);
+
+    CGFloat lineWidth = 4.0;
+    CGFloat aliasingWidth = 2.0;
+    CGFloat outlineWidth = 4.0;
+
+    // Draw aliasing curve.
+    CGContextSetLineWidth(context, lineWidth + outlineWidth + aliasingWidth);
+    CGContextSetStrokeColorWithColor(context, [[self.fillColor colorWithAlphaComponent:0.45f] CGColor]);
+    for (unsigned int sampleIndex = 0; sampleIndex < samplePairCount; sampleIndex++) {
+        CGContextMoveToPoint(context, sampleIndex, tops[sampleIndex]);
+        CGContextAddLineToPoint(context, sampleIndex, bottoms[sampleIndex]);
+    }
+    CGContextStrokePath(context);
+    
+    // Draw outline curve.
+    CGContextSetLineWidth(context, lineWidth + outlineWidth);
+    CGContextSetStrokeColorWithColor(context, self.outlineColor.CGColor);
+    for (unsigned int sampleIndex = 0; sampleIndex < samplePairCount; sampleIndex++) {
+        CGContextMoveToPoint(context, sampleIndex, tops[sampleIndex]);
+        CGContextAddLineToPoint(context, sampleIndex, bottoms[sampleIndex]);
+    }
+    CGContextStrokePath(context);
+
+    // Draw fill curve.
+    CGContextSetLineWidth(context, lineWidth);
+    CGContextSetStrokeColorWithColor(context, self.fillColor.CGColor);
+    for (unsigned int sampleIndex = 0; sampleIndex < samplePairCount; sampleIndex++) {
+        CGContextMoveToPoint(context, sampleIndex, tops[sampleIndex]);
+        CGContextAddLineToPoint(context, sampleIndex, bottoms[sampleIndex]);
     }
     CGContextStrokePath(context);
 }

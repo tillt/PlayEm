@@ -14,11 +14,14 @@
 #import "DragImageFileView.h"
 #import "CAShapeLayer+Path.h"
 #import "../Defaults.h"
+#import "../NSString+OccurenceCount.h"
+#import "../NSImage+Resize.h"
 
 typedef enum : NSUInteger {
     InfoControlTypeText,
     InfoControlTypeCombo,
     InfoControlTypeCheck,
+    InfoControlTypePopup,
 } InfoControlType;
 
 NSString* const kInfoPageKeyDetails = @"Details";
@@ -94,7 +97,7 @@ static const CGFloat kViewLeftMargin = 10.0f;
     self = [super init];
     if (self) {
         _metas = metas;
-
+        
         _viewConfiguration = @{
             kInfoPageKeyDetails: @{
                 @"title": @{
@@ -160,8 +163,11 @@ static const CGFloat kViewLeftMargin = 10.0f;
                 },
                 @"rating": @{
                     @"order": @11,
-                    @"width": @340,
-                    @"type": @(InfoControlTypeCombo),
+                    @"width": @124,
+                    @"key": @"stars",
+                    @"type": @(InfoControlTypePopup),
+                    @"values": [[[MediaMetaData starsQuantums] allValues] sortedArrayUsingSelector:
+                                @selector(localizedCaseInsensitiveCompare:)],
                 },
                 @"tempo": @{
                     @"order": @12,
@@ -257,7 +263,7 @@ static const CGFloat kViewLeftMargin = 10.0f;
     
     NSEnumerator* reversed = [orderedKeys reverseObjectEnumerator];
     
-    CGFloat y = 40.0f;
+    CGFloat y = 30.0f;
     
     NSView* lastInputView = nil;
     NSView* firstInputView = nil;
@@ -357,6 +363,25 @@ static const CGFloat kViewLeftMargin = 10.0f;
                 comboBox.nextKeyView = lastInputView;
                 lastInputView = comboBox;
             } break;
+            case InfoControlTypePopup: {
+                NSPopUpButton* popup = [NSPopUpButton new];
+                popup.frame = NSMakeRect(x,
+                                         y,
+                                         width - kBorderWidth,
+                                         rowUnitHeight + kRowInset);
+                popup.allowsMixedState = NO;
+                popup.action = @selector(didSelectPopupItem:);
+
+                NSArray<NSString*>* list = [_viewConfiguration[pageKey][key] objectForKey:@"values"];
+                [popup addItemsWithTitles:list];
+
+                [view addSubview:popup];
+                
+                dict[configKey] = popup;
+                
+                popup.nextKeyView = lastInputView;
+                lastInputView = popup;
+            } break;
             case InfoControlTypeCheck: {
                 NSString* title = [_viewConfiguration[pageKey][key] objectForKey:@"description"];
                 SEL selector = NSSelectorFromString([NSString stringWithFormat:@"%@Action:", configKey]);
@@ -441,30 +466,29 @@ static const CGFloat kViewLeftMargin = 10.0f;
 - (void)loadArtworkWithView:(NSView*)view
 {
     const CGFloat imageWidth = 400.0;
-    NSImage* image = [NSImage imageWithSystemSymbolName:@"text.page.badge.magnifyingglass"
-                               accessibilityDescription:nil];
-    NSImageSymbolConfiguration* config = [NSImageSymbolConfiguration configurationWithPointSize:100 weight:NSFontWeightBlack scale:NSImageSymbolScaleLarge];
-    NSImage* imageWithConfig = [image imageWithSymbolConfiguration:config];
-
-    _googleArtwork = [NSImageView imageViewWithImage:imageWithConfig];
-
-    _googleArtwork.frame = CGRectMake(view.bounds.size.width - 80.0,
-                                      view.bounds.size.height - 85.0,
-                                      40.0,
-                                      40.0f);
-    
-    [_googleArtwork addSymbolEffect:[NSSymbolBreatheEffect effect]
-                            options:[NSSymbolEffectOptions options]
-                           animated:YES];
-
-    [view addSubview:_googleArtwork];
+//    NSImage* image = [NSImage imageWithSystemSymbolName:@"text.page.badge.magnifyingglass"
+//                               accessibilityDescription:nil];
+//    NSImageSymbolConfiguration* config = [NSImageSymbolConfiguration configurationWithPointSize:100 weight:NSFontWeightBlack scale:NSImageSymbolScaleLarge];
+//    NSImage* imageWithConfig = [image imageWithSymbolConfiguration:config];
+//    _googleArtwork = [NSImageView imageViewWithImage:imageWithConfig];
+//
+//    _googleArtwork.frame = CGRectMake(view.bounds.size.width - 80.0,
+//                                      view.bounds.size.height - 85.0,
+//                                      40.0,
+//                                      40.0f);
+//    
+//    [_googleArtwork addSymbolEffect:[NSSymbolBreatheEffect effect]
+//                            options:[NSSymbolEffectOptions options]
+//                           animated:YES];
+//
+//    [view addSubview:_googleArtwork];
 
     _largeCoverView = [DragImageFileView new];
-    _largeCoverView.image = [NSImage imageNamed:@"UnknownSong"];
+    _largeCoverView.image = [NSImage resizedImage:[NSImage imageNamed:@"UnknownSong"] size:NSMakeSize(imageWidth, imageWidth)];
     _largeCoverView.alignment = NSViewHeightSizable | NSViewWidthSizable | NSViewMinYMargin | NSViewMaxYMargin;
     _largeCoverView.imageScaling = NSImageScaleProportionallyUpOrDown;
     _largeCoverView.frame = CGRectMake((self.view.bounds.size.width - (imageWidth + (2 * kViewLeftMargin))) / 2.0f,
-                                       kViewTopMargin,
+                                       10+kViewTopMargin,
                                        imageWidth,
                                        imageWidth);
     _largeCoverView.wantsLayer = YES;
@@ -496,9 +520,9 @@ static const CGFloat kViewLeftMargin = 10.0f;
     NSScrollView* scrollView = [TextViewWithPlaceholder scrollableTextView];
     self.lyricsTextView = scrollView.documentView;
     scrollView.frame = CGRectMake(  kViewLeftMargin * 2,
-                                    kViewTopMargin,
+                                    kViewTopMargin + 10.0,
                                     self.view.bounds.size.width - 60.0f,
-                                    self.view.bounds.size.height - 240.0f);
+                                    self.view.bounds.size.height - 230.0f);
 
     _lyricsTextView.textColor = [[Defaults sharedDefaults] lightBeamColor];
     scrollView.drawsBackground = NO;
@@ -542,7 +566,9 @@ static const CGFloat kViewLeftMargin = 10.0f;
 
     [view addSubview:_progress];
 
-    _smallCoverView = [NSImageView imageViewWithImage:[NSImage imageNamed:@"UnknownSong"]];
+    
+    _smallCoverView = [NSImageView imageViewWithImage:[NSImage resizedImage:[NSImage imageNamed:@"UnknownSong"]
+                                                                       size:NSMakeSize(imageWidth, imageWidth)]];
     _smallCoverView.alignment = NSViewHeightSizable | NSViewWidthSizable | NSViewMinYMargin | NSViewMaxYMargin;
     _smallCoverView.imageScaling = NSImageScaleProportionallyUpOrDown;
     _smallCoverView.frame = CGRectMake( kViewTopMargin,
@@ -551,7 +577,7 @@ static const CGFloat kViewLeftMargin = 10.0f;
                                         imageWidth);
     [view addSubview:_smallCoverView];
 
-    CGFloat x = imageWidth + 40.0;
+    CGFloat x = imageWidth + 30.0;
     CGFloat fieldWidth = view.frame.size.width - (imageWidth + 40.0);
     CGFloat y = view.frame.size.height - 30.0;
 
@@ -729,15 +755,15 @@ static const CGFloat kViewLeftMargin = 10.0f;
     [[NSApplication sharedApplication] stopModal];
 }
 
-- (void)updateViewHeader:(NSMutableDictionary<NSString *,NSNumber *> *)deltaKeys 
-              occurances:(NSMutableDictionary<NSString *,NSMutableDictionary *> *)occurances
+- (void)updateViewHeader:(NSMutableDictionary<NSString*,NSNumber*>*)deltaKeys
+              occurances:(NSMutableDictionary<NSString*,NSMutableDictionary*>*)occurances
 {
     if (![deltaKeys[@"artwork"] boolValue] && _commonMeta.artwork != nil) {
-        _largeCoverView.image = [_commonMeta imageFromArtwork];
-        _smallCoverView.image = [_commonMeta imageFromArtwork];
+        _largeCoverView.image = [NSImage resizedImage:[_commonMeta imageFromArtwork] size:_largeCoverView.frame.size];
+        _smallCoverView.image = [NSImage resizedImage:[_commonMeta imageFromArtwork] size:_smallCoverView.frame.size];
     } else {
-        _largeCoverView.image = [NSImage imageNamed:@"UnknownSong"];
-        _smallCoverView.image = [NSImage imageNamed:@"UnknownSong"];
+        _largeCoverView.image = [NSImage resizedImage:[NSImage imageNamed:@"UnknownSong"] size:_largeCoverView.frame.size];
+        _smallCoverView.image = [NSImage resizedImage:[NSImage imageNamed:@"UnknownSong"] size:_smallCoverView.frame.size];
     }
     
     if ([_metas count] > 1) {
@@ -759,15 +785,20 @@ static const CGFloat kViewLeftMargin = 10.0f;
     }
 }
 
-- (void)updateControls
+- (void)updateControlsFromMetas
 {
     if (_metas == nil || [_metas count] == 0) {
         return;
     }
 
-    // Identify any meta that is common / not common in the given list.
+    // Identify any meta attribute that is common / not common in the given list of metas.
+    // A common meta attribute is one that is universally equally set for all metas in our
+    // list.
+
+    // `deltaKeys` is a map of keys to booleans, indicating a meta attribute diverting from
+    // other metas in the list.
     NSMutableDictionary<NSString*,NSNumber*>* deltaKeys = [NSMutableDictionary dictionary];
-    //NSMutableDictionary<NSString*,NSNumber*>* commonKeys = [NSMutableDictionary dictionary];
+    // `occurances` is a map of keys to dictionaries
     NSMutableDictionary<NSString*,NSMutableDictionary*>* occurances = [NSMutableDictionary dictionary];
     _commonMeta = _metas[0];
     for (size_t index = 0; index < [_metas count]; index++) {
@@ -791,6 +822,7 @@ static const CGFloat kViewLeftMargin = 10.0f;
     // Now that we know all commons and deltas among the metas, we can show it in the header.
     [self updateViewHeader:deltaKeys occurances:occurances];
 
+    //
     if (![deltaKeys[@"lyrics"] boolValue] && _commonMeta.lyrics != nil) {
         [_lyricsTextView setString:_commonMeta.lyrics];
     } else {
@@ -817,20 +849,24 @@ static const CGFloat kViewLeftMargin = 10.0f;
             }
             
             if (![pageKey isEqualToString:kInfoPageKeyDetails] || [deltaKeys objectForKey:key] == nil) {
-                // The meta data in question is common.
+                // The meta data in question is common - it did not change while editing.
                 NSString* value = @"";
                 value = [_commonMeta stringForKey:key];
                 if (value == nil) {
                     value = @"";
                 }
-                if ([control respondsToSelector:@selector(setState:)]) {
+                if ([control respondsToSelector:@selector(selectItemWithTitle:)]) {     // NSPopupButton
+                    [control selectItemWithTitle:value];
+                } else if ([control respondsToSelector:@selector(setState:)]) {         // NSButton, ...
                     [control setState:[value isEqualToString:@"1"] ? NSControlStateValueOn : NSControlStateValueOff];
-                } else if ([control respondsToSelector:@selector(setStringValue:)]) {
+                } else if ([control respondsToSelector:@selector(setStringValue:)]) {   // NSTextField, NSComboBox, ...
                     [control setStringValue:value];
                 }
             } else {
                 // The meta data in question is having mixed states.
-                if ([control respondsToSelector:@selector(setState:)]) {
+                if ([control respondsToSelector:@selector(selectItemWithTitle:)]) {
+                    [control selectItemWithTitle:@""];
+                } else if ([control respondsToSelector:@selector(setState:)]) {
                     [control setAllowsMixedState:YES];
                     [control setState:NSControlStateValueMixed];
                 } else if ([control respondsToSelector:@selector(setStringValue:)]) {
@@ -865,7 +901,7 @@ static const CGFloat kViewLeftMargin = 10.0f;
         return;
     }
     //
-    [self updateControls];
+    [self updateControlsFromMetas];
 
     // Fresh metas did not get mutated just yet.
     self.mutatedKeys = [NSMutableDictionary dictionary];
@@ -954,6 +990,14 @@ static const CGFloat kViewLeftMargin = 10.0f;
     [self patchMetasAtKey:@"compilation" string:stringValue];
 }
 
+- (void)didSelectPopupItem:(id)sender
+{
+    NSPopUpButton* button = sender;
+    NSString* stringValue = [[button selectedItem] title];
+    
+    [self patchMetasAtKey:@"stars" string:stringValue];
+}
+
 #pragma mark - NSTextField delegate
 
 - (void)controlTextDidEndEditing:(NSNotification *)notification
@@ -1020,7 +1064,13 @@ static const CGFloat kViewLeftMargin = 10.0f;
         return;
     }
     stringValue = [self comboBox:comboBox objectValueForItemAtIndex:index];
-    [self patchMetasAtKey:@"genre" string:stringValue];
+    
+    if (comboBox == _viewControls[kInfoPageKeyDetails][@"genre"]) {
+        [self patchMetasAtKey:@"genre" string:stringValue];
+    }
+    if (comboBox == _viewControls[kInfoPageKeyDetails][@"stars"]) {
+        [self patchMetasAtKey:@"stars" string:stringValue];
+    }
 }
 
 #pragma mark - NSTabView delegate
@@ -1034,14 +1084,28 @@ static const CGFloat kViewLeftMargin = 10.0f;
 
 #pragma mark - NSComboBoxDataSource
 
-- (NSInteger)numberOfItemsInComboBox:(NSComboBox *)comboBox
+- (NSInteger)numberOfItemsInComboBox:(NSComboBox*)comboBox
 {
-    return [[_delegate knownGenres] count];
+    if (comboBox == _viewControls[kInfoPageKeyDetails][@"stars"]) {
+        return [[MediaMetaData starRatings] count];
+    }
+    if (comboBox == _viewControls[kInfoPageKeyDetails][@"genre"]) {
+        return [[_delegate knownGenres] count];
+    }
+//    assert(NO);
+    return 0;
 }
 
-- (nullable id)comboBox:(NSComboBox *)comboBox objectValueForItemAtIndex:(NSInteger)index
+- (nullable id)comboBox:(NSComboBox*)comboBox objectValueForItemAtIndex:(NSInteger)index
 {
-    return [_delegate knownGenres][index];
+    if (comboBox == _viewControls[kInfoPageKeyDetails][@"stars"]) {
+        return [MediaMetaData starRatings][index];
+    }
+    if (comboBox == _viewControls[kInfoPageKeyDetails][@"genre"]) {
+        return [_delegate knownGenres][index];
+    }
+    //    assert(NO);
+    return 0;
 }
 
 #pragma mark - DragImageFileViewDelegate

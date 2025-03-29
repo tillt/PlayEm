@@ -45,6 +45,7 @@ extern NSString* const kMediaMetaDataMapTypeImage;
 extern NSString* const kMediaMetaDataMapTypeTuple;
 extern NSString* const kMediaMetaDataMapTypeNumber;
 
+//extern NSString* const kStarSymbol;
 
 @interface MediaMetaData : NSObject<NSCopying>
 @property (strong, nonatomic) ITLibMediaItem* shadow;
@@ -80,8 +81,10 @@ extern NSString* const kMediaMetaDataMapTypeNumber;
 @property (copy, nonatomic, nullable) NSString* channels;
 @property (copy, nonatomic, nullable) NSString* volume;
 @property (copy, nonatomic, nullable) NSString* volumeAdjustment;
+@property (copy, nonatomic, nullable) NSString* stars;
 
 @property (readonly, nonatomic, nullable) NSImage* imageFromArtwork;
+
 
 + (MediaMetaData*)mediaMetaDataWithURL:(NSURL*)url error:(NSError**)error;
 + (MediaMetaData*)mediaMetaDataWithITLibMediaItem:(ITLibMediaItem*)item error:(NSError**)error;
@@ -106,6 +109,11 @@ extern NSString* const kMediaMetaDataMapTypeNumber;
 
 /// Converts whatever comes in into a MixWheel key value.
 + (NSString* _Nullable)correctedKeyNotation:(NSString* _Nullable)key;
+
++ (NSString*)starsWithRating:(NSNumber*)rating;
++ (NSArray<NSString*>*)starRatings;
++ (NSDictionary*)starsQuantums;
+
 @end
 
 NS_ASSUME_NONNULL_END

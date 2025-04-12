@@ -10,16 +10,26 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface IdentificationCoverView : NSView
+typedef enum : NSUInteger {
+    CoverViewStylePumpingToTheBeat = 1 << 1,
+    CoverViewStyleSepiaForSecondImageLayer = 1 << 2,
+    CoverViewStyleRotatingLaser = 1 << 3,
+    CoverViewStyleGlowBehindCoverAtLaser = 1 << 4,
+} CoverViewStyleMask;
+
+@interface IdentificationCoverView : NSView <CALayerDelegate>
 @property (nonatomic, strong) NSImage* image;
 @property (nonatomic, assign) float overlayIntensity;
-@property (nonatomic, assign) BOOL sepiaForSecondImageLayer;
 @property (nonatomic, assign) float secondImageLayerOpacity;
-
+@property (nonatomic, assign) CoverViewStyleMask style;
+@property (nonatomic, strong) CALayer* backingLayer;
 
 - (void)startAnimating;
 - (void)stopAnimating;
 - (void)pauseAnimating;
+- (void)setImage:(NSImage*)image animated:(BOOL)animated;
+
+- (id)initWithFrame:(NSRect)frameRect style:(CoverViewStyleMask)style;
 
 @end
 

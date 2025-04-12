@@ -1475,7 +1475,8 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     if (_iffy == nil) {
         self.iffy = [[IdentifyController alloc] initWithAudioController:_audioController];
         [_iffy view];
-        window = [NSPanel windowWithContentViewController:_iffy];
+        NSPanel* panel = [NSPanel windowWithContentViewController:_iffy];
+        window = panel;
         window.styleMask &= ~NSWindowStyleMaskResizable | NSWindowStyleMaskTitled;
         window.styleMask |= NSWindowStyleMaskUtilityWindow;
         window.titleVisibility = NSWindowTitleHidden;
@@ -1847,7 +1848,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
 
     self->_loaderState = LoaderStateAbortingKeyDetection;
     [self abortLoader:^{
-        NSLog(@"loading new sample...");
+        NSLog(@"loading new sample from URL:%@ ...", url);
         self->_loaderState = LoaderStateDecoder;
         [self loadLazySample:lazySample];
         [self setMeta:meta];

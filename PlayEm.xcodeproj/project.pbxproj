@@ -32,6 +32,7 @@
 		BB3B8D9D2B87CC12006AEFCA /* ShazamKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BB3B8D9C2B87CC12006AEFCA /* ShazamKit.framework */; };
 		BB46D4AC2D8DCD150090CD56 /* NSString+OccurenceCount.m in Sources */ = {isa = PBXBuildFile; fileRef = BB46D4AB2D8DCD150090CD56 /* NSString+OccurenceCount.m */; };
 		BB46D4AF2D98715B0090CD56 /* NSImage+Resize.m in Sources */ = {isa = PBXBuildFile; fileRef = BB46D4AE2D98715B0090CD56 /* NSImage+Resize.m */; };
+		BB46D4B22D99AD5E0090CD56 /* NSImage+Average.m in Sources */ = {isa = PBXBuildFile; fileRef = BB46D4B12D99AD5E0090CD56 /* NSImage+Average.m */; };
 		BB539A592D0F51AF0095B8C7 /* KeyTrackedSample.mm in Sources */ = {isa = PBXBuildFile; fileRef = BB539A582D0F51AF0095B8C7 /* KeyTrackedSample.mm */; };
 		BB539A5F2D0F6D390095B8C7 /* libkeyfinder.2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = BB539A5E2D0F6D380095B8C7 /* libkeyfinder.2.dylib */; };
 		BB539A602D0F6D390095B8C7 /* libkeyfinder.2.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = BB539A5E2D0F6D380095B8C7 /* libkeyfinder.2.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
@@ -154,6 +155,8 @@
 		BB46D4AB2D8DCD150090CD56 /* NSString+OccurenceCount.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSString+OccurenceCount.m"; sourceTree = "<group>"; };
 		BB46D4AD2D98715B0090CD56 /* NSImage+Resize.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSImage+Resize.h"; sourceTree = "<group>"; };
 		BB46D4AE2D98715B0090CD56 /* NSImage+Resize.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSImage+Resize.m"; sourceTree = "<group>"; };
+		BB46D4B02D99AD5E0090CD56 /* NSImage+Average.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSImage+Average.h"; sourceTree = "<group>"; };
+		BB46D4B12D99AD5E0090CD56 /* NSImage+Average.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSImage+Average.m"; sourceTree = "<group>"; };
 		BB539A552D0F39550095B8C7 /* KeyTrackedSample.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = KeyTrackedSample.h; sourceTree = "<group>"; };
 		BB539A582D0F51AF0095B8C7 /* KeyTrackedSample.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = KeyTrackedSample.mm; sourceTree = "<group>"; };
 		BB539A5E2D0F6D380095B8C7 /* libkeyfinder.2.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libkeyfinder.2.dylib; sourceTree = "<group>"; };
@@ -515,6 +518,8 @@
 				BB3927082C1BA8BD009C7B32 /* NSURL+WithoutParameters.m */,
 				BB46D4AD2D98715B0090CD56 /* NSImage+Resize.h */,
 				BB46D4AE2D98715B0090CD56 /* NSImage+Resize.m */,
+				BB46D4B02D99AD5E0090CD56 /* NSImage+Average.h */,
+				BB46D4B12D99AD5E0090CD56 /* NSImage+Average.m */,
 			);
 			path = PlayEm;
 			sourceTree = "<group>";
@@ -666,6 +671,7 @@
 				BB7C626C2932E1540019AF25 /* ControlPanelController.m in Sources */,
 				BB46D4AC2D8DCD150090CD56 /* NSString+OccurenceCount.m in Sources */,
 				BBC76D912CCD9D6A00772DD2 /* IdentificationCoverView.m in Sources */,
+				BB46D4B22D99AD5E0090CD56 /* NSImage+Average.m in Sources */,
 				BBCE1DD9257C3CAB006CE886 /* TiledScrollView.m in Sources */,
 				BBDC988A250E81D0008B19D1 /* BrowserController.m in Sources */,
 				BBC43B7028D28CDD00CD1080 /* InfoPanel.m in Sources */,

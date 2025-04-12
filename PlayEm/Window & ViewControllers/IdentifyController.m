@@ -15,6 +15,7 @@
 #import "LazySample.h"
 #import "IdentificationCoverView.h"
 #import "../NSImage+Resize.h"
+#import "../NSImage+Average.h"
 
 NSString* const kTitleColumnIdenfifier = @"TitleColumn";
 NSString* const kCoverColumnIdenfifier = @"CoverColumn";
@@ -23,7 +24,7 @@ NSString* const kButtonColumnIdenfifier = @"ButtonColumn";
 NSString* const kSoundCloudQuery = @"https://soundcloud.com/search?q=%@";
 NSString* const kBeatportQuery = @"https://beatport.com/search?q=%@";
 
-const CGFloat kTableRowHeight = 50.0f;
+const CGFloat kTableRowHeight = 52.0f;
 
 @interface IdentifiedItem : NSObject
 
@@ -62,6 +63,10 @@ const CGFloat kTableRowHeight = 50.0f;
 
 @property (strong, nonatomic) NSTableView* tableView;
 @property (strong, nonatomic, nullable) NSURL* imageURL;
+
+@property (strong, nonatomic) NSVisualEffectView* effectBelowList;
+//@property (strong, nonatomic) NSVisualEffectView* effectBelowImage;
+@property (strong, nonatomic) NSView* coverColorBackView;
 
 @end
 
@@ -136,12 +141,17 @@ const CGFloat kTableRowHeight = 50.0f;
 - (void)viewWillAppear
 {
     NSLog(@"IdentifyController.view becoming visible");
+    [self updateCover:nil animated:NO];
     [self shazam:self];
     [_identificationCoverView startAnimating];
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(AudioControllerPlaybackStateChange:)
                                                  name:kAudioControllerChangedPlaybackStateNotification
                                                object:nil];
+}
+
+- (void)viewDidDisappear
+{
 }
 
 - (void)viewWillDisappear
@@ -163,12 +173,12 @@ const CGFloat kTableRowHeight = 50.0f;
     const CGFloat kPopoverWidth = 640.0f;
     const CGFloat kPopoverHeight = 280.0f;
     
-    const CGFloat kTableViewWidth = 340.0f;
+    const CGFloat kTableViewWidth = 350.0f;
     
     const CGFloat kCoverColumnWidth = kTableRowHeight;
-    const CGFloat kTitleColumnWidth = 170.0;
-    const CGFloat kButtonsColumnWidth = 70.0;
-
+    const CGFloat kTitleColumnWidth = 200.0;
+    const CGFloat kButtonsColumnWidth = 60.0;
+    
     const CGFloat kBorderWidth = 20.0f;
     const CGFloat kBorderHeight = 0.0f;
     
@@ -179,14 +189,37 @@ const CGFloat kTableRowHeight = 50.0f;
     
     const NSAutoresizingMaskOptions kViewFullySizeable = NSViewHeightSizable | NSViewWidthSizable;
     
-    self.view = [[NSView alloc] initWithFrame:NSMakeRect(0.0, 
+    self.view = [[NSView alloc] initWithFrame:NSMakeRect(0.0,
                                                          0.0,
                                                          kPopoverWidth,
                                                          kPopoverHeight)];
-
+    //self.view = _effectBelow;
+    
+    _effectBelowList = [[NSVisualEffectView alloc] initWithFrame:NSMakeRect(kCoverViewWidth + kBorderWidth + kBorderWidth,
+                                                                            0,
+                                                                            kTableViewWidth + kBorderWidth + kBorderWidth,
+                                                                            kPopoverHeight+30.0)];
+    _effectBelowList.material = NSVisualEffectMaterialMenu;
+    _effectBelowList.autoresizingMask = kViewFullySizeable;
+    _effectBelowList.blendingMode = NSVisualEffectBlendingModeBehindWindow;
+    
+    _coverColorBackView = [[NSView alloc] initWithFrame:NSMakeRect(0,
+                                                                 0,
+                                                                 kCoverViewWidth + kBorderWidth + kBorderWidth,
+                                                                 kPopoverHeight+30.0)];
+    _coverColorBackView.autoresizingMask = kViewFullySizeable;
+    _coverColorBackView.wantsLayer = YES;
+    _coverColorBackView.layerUsesCoreImageFilters = YES;
+    _coverColorBackView.layer.backgroundColor = [NSColor windowBackgroundColor].CGColor;
+    
+    //    NSView* back = [[NSView alloc] initWithFrame:NSMakeRect(kCoverViewWidth,
+    //                                                            0,
+    //                                                            kTableViewWidth + kBorderWidth,
+    //                                                            self.view.frame.size.height)];
+    //
     CGFloat y = kPopoverHeight - (kCoverViewHeight + kBorderHeight);
-
-    NSScrollView* sv = [[NSScrollView alloc] initWithFrame:NSMakeRect(kBorderWidth + kCoverViewWidth,
+    
+    NSScrollView* sv = [[NSScrollView alloc] initWithFrame:NSMakeRect(0,
                                                                       y,
                                                                       kTableViewWidth,
                                                                       kCoverViewHeight)];
@@ -194,7 +227,7 @@ const CGFloat kTableRowHeight = 50.0f;
     sv.autoresizingMask = kViewFullySizeable;
     sv.automaticallyAdjustsContentInsets = YES;
     sv.drawsBackground = NO;
-
+    
     self.tableView = [[NSTableView alloc] initWithFrame:NSMakeRect(0.0,
                                                                    0.0,
                                                                    kTableViewWidth,
@@ -208,19 +241,19 @@ const CGFloat kTableRowHeight = 50.0f;
     _tableView.columnAutoresizingStyle = NSTableViewNoColumnAutoresizing;
     _tableView.rowHeight = kTableRowHeight;
     _tableView.intercellSpacing = NSMakeSize(0.0, 0.0);
-
+    
     NSTableColumn* col = [[NSTableColumn alloc] init];
     col.title = @"";
     col.identifier = kCoverColumnIdenfifier;
     col.width = kCoverColumnWidth;
     [_tableView addTableColumn:col];
-
+    
     col = [[NSTableColumn alloc] init];
     col.title = @"";
     col.identifier = kTitleColumnIdenfifier;
     col.width = kTitleColumnWidth;
     [_tableView addTableColumn:col];
-
+    
     col = [[NSTableColumn alloc] init];
     col.title = @"";
     col.identifier = kButtonColumnIdenfifier;
@@ -228,15 +261,21 @@ const CGFloat kTableRowHeight = 50.0f;
     [_tableView addTableColumn:col];
     
     sv.documentView = _tableView;
-
-    [self.view addSubview:sv];
-
+    
+    [_effectBelowList addSubview:sv];
+    
     _identificationCoverView = [[IdentificationCoverView alloc] initWithFrame:NSMakeRect(kBorderWidth,
                                                                                          y,
                                                                                          kCoverViewWidth,
-                                                                                         kCoverViewHeight)];
-    _identificationCoverView.image = [NSImage imageNamed:@"UnknownSong"];
-    [self.view addSubview:_identificationCoverView];
+                                                                                         kCoverViewHeight)
+                                                                        style:CoverViewStyleGlowBehindCoverAtLaser
+                                                                            | CoverViewStyleSepiaForSecondImageLayer
+                                                                            | CoverViewStylePumpingToTheBeat
+                                                                            | CoverViewStyleRotatingLaser];
+    [_coverColorBackView addSubview:_identificationCoverView];
+    [self.view addSubview:_coverColorBackView];
+    
+    [self.view addSubview:_effectBelowList];
 }
 
 - (NSString*)queryWithIdentifiedItem:(IdentifiedItem*)item
@@ -264,6 +303,7 @@ const CGFloat kTableRowHeight = 50.0f;
 - (void)openSoundcloud:(id)sender
 {
     NSButton* button = sender;
+    NSLog(@"soundcloud button tag: %ld", button.tag);
     unsigned long row = (_identifieds.count - button.tag) - 1;
     NSLog(@"soundcloud button row: %ld", row);
     
@@ -389,6 +429,40 @@ const CGFloat kTableRowHeight = 50.0f;
 
 #pragma mark - Shazam session delegate
 
+// Fade from current background color to the given one.
+- (void)animateLayer:(CALayer*)layer toBackgroundColor:(NSColor*)color
+{
+    CABasicAnimation* animation = [CABasicAnimation animationWithKeyPath:@"backgroundColor"];
+    animation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionLinear];
+    animation.fillMode = kCAFillModeForwards;
+    animation.removedOnCompletion = NO;
+    animation.fromValue = (id)layer.presentationLayer.backgroundColor;
+    animation.toValue = (id)color.CGColor;
+    animation.repeatCount = 1.0f;
+    animation.autoreverses = NO;
+    animation.duration = 4.0f;
+    [layer addAnimation:animation forKey:@"BackgroundColorTransition"];
+}
+
+- (void)updateCover:(NSImage*)image animated:(BOOL)animated
+{
+    NSColor* averageColor = nil;
+    if (image == nil) {
+        image = [NSImage imageNamed:@"UnknownSong"];
+        averageColor = [NSColor windowBackgroundColor];
+    } else {
+        averageColor = [image averageColor];
+    }
+    [self->_identificationCoverView setImage:[NSImage resizedImage:image size:self->_identificationCoverView.frame.size]
+                                    animated:animated];
+    if (animated) {
+        [self animateLayer:self->_coverColorBackView.layer toBackgroundColor:averageColor];
+    } else {
+        [self->_coverColorBackView.layer removeAllAnimations];
+    }
+    self->_coverColorBackView.layer.backgroundColor = averageColor.CGColor;
+}
+
 - (void)session:(SHSession *)session didFindMatch:(SHMatch *)match
 {
     dispatch_async(dispatch_get_main_queue(), ^{
@@ -399,11 +473,10 @@ const CGFloat kTableRowHeight = 50.0f;
             self.imageURL = match.mediaItems[0].artworkURL;
 
             dispatch_async(dispatch_queue_create("AsyncImageQueue", NULL), ^{
-                NSImage *image = [[NSImage alloc] initWithContentsOfURL:match.mediaItems[0].artworkURL];
+                NSImage* image = [[NSImage alloc] initWithContentsOfURL:match.mediaItems[0].artworkURL];
                 dispatch_async(dispatch_get_main_queue(), ^{
-                    self->_identificationCoverView.image = [NSImage resizedImage:image size:self->_identificationCoverView.frame.size];
                     item.artwork = image;
-                    
+                    [self updateCover:image animated:YES];
                     [self->_identifieds insertObject:item atIndex:0];
 
                     [self->_tableView beginUpdates];
@@ -437,8 +510,8 @@ const CGFloat kTableRowHeight = 50.0f;
     NSLog(@"didNotFindMatchForSignature - error was: %@", error);
     dispatch_async(dispatch_get_main_queue(), ^{
         [self reset];
-        self.identificationCoverView.image = [NSImage imageNamed:@"UnknownSong"];
-    });
+        [self updateCover:nil animated:YES];
+   });
 }
 
 #pragma mark - Table View delegate
@@ -461,7 +534,8 @@ const CGFloat kTableRowHeight = 50.0f;
     const CGFloat kLargeFontSize = 15.0;
 
     assert(_identifieds.count > 0);
-    const NSInteger tag = _identifieds.count - 1;
+    
+    const NSInteger tag = (_identifieds.count - 1) - row;
     if ([tableColumn.identifier isEqualToString:kCoverColumnIdenfifier]) {
         NSImageView* imageView = nil;
         if (result == nil) {
@@ -516,7 +590,7 @@ const CGFloat kTableRowHeight = 50.0f;
             apple.bordered = NO;
             [apple setButtonType:NSButtonTypeMomentaryPushIn];
             apple.bezelStyle = NSBezelStyleTexturedRounded;
-            apple.frame = NSMakeRect(  26.0,
+            apple.frame = NSMakeRect(  18.0,
                                         0.0,
                                         kRegularFontSize * 2.0f,
                                         kRowHeight / 2.0);
@@ -528,7 +602,7 @@ const CGFloat kTableRowHeight = 50.0f;
             beatport.bordered = NO;
             [beatport setButtonType:NSButtonTypeMomentaryPushIn];
             beatport.bezelStyle = NSBezelStyleTexturedRounded;
-            beatport.frame = NSMakeRect(  52.0,
+            beatport.frame = NSMakeRect(36.0,
                                         0.0,
                                         kRegularFontSize * 2.0f,
                                         kRowHeight / 2.0);

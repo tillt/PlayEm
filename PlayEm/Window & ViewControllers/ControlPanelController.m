@@ -144,11 +144,13 @@ extern NSString * const kPlaybackStatePlaying;
 //                                         target:_delegate
 //                                         action:@selector(showInfoForCurrentSong:)];
     
-    const CGFloat coverButtonWidth = self.view.frame.size.height - 4.0;
+    const CGFloat coverButtonWidth = self.view.frame.size.height - 2.0;
     _coverButton = [[IdentificationCoverView alloc] initWithFrame:NSMakeRect(coverButtonX,
                                                                              coverButtonY,
                                                                              coverButtonWidth,
-                                                                             coverButtonWidth)];
+                                                                             coverButtonWidth)
+                                                            style:CoverViewStyleSepiaForSecondImageLayer | CoverViewStyleRotatingLaser];
+
     NSClickGestureRecognizer* recognizer = [[NSClickGestureRecognizer alloc] initWithTarget:_delegate action:@selector(showInfoForCurrentSong:)];
     recognizer.numberOfClicksRequired = 1;
     [_coverButton addGestureRecognizer:recognizer];

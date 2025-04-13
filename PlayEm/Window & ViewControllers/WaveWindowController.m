@@ -1853,6 +1853,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
         [self loadLazySample:lazySample];
         [self setMeta:meta];
         self->_audioController.sample = lazySample;
+        NSLog(@"playback starting...");
         [self->_audioController playSample:lazySample frame:frame paused:!playing];
     }];
 

@@ -898,7 +898,6 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)",
-					/usr/local/lib,
 					"$(PROJECT_DIR)/ThirdParty",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 14.6;
@@ -948,7 +947,6 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)",
-					/usr/local/lib,
 					"$(PROJECT_DIR)/ThirdParty",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 14.6;

@@ -92,7 +92,7 @@ extern NSString * const kPlaybackStatePlaying;
     const CGFloat timeLabelHeight = 16.0;
 
     const CGFloat coverButtonX = 2.0;
-    const CGFloat coverButtonY = 1.0;
+    const CGFloat coverButtonY = 0.0;
 
     const CGFloat keyLabelWidth = 60.0f;
 

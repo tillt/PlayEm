@@ -219,6 +219,11 @@ extern NSString * const kBeatTrackedSampleTempoChangeNotification;
     _imageCopyLayer.frame = self.bounds;
     _imageCopyLayer.mask = _maskLayer;
     _imageCopyLayer.masksToBounds = YES;
+    if ((_style & CoverViewStyleGlowBehindCoverAtLaser) == CoverViewStyleGlowBehindCoverAtLaser) {
+        _imageCopyLayer.borderWidth = 1.0;
+        //_imageLayer.borderColor = [NSColor windowFrameColor].CGColor;
+        _imageCopyLayer.borderColor = [[Defaults sharedDefaults] regularBeamColor].CGColor;
+    }
 
     if ((_style & CoverViewStyleSepiaForSecondImageLayer) == CoverViewStyleSepiaForSecondImageLayer) {
         CIFilter* sepia = [CIFilter filterWithName:@"CISepiaTone"];
@@ -242,6 +247,11 @@ extern NSString * const kBeatTrackedSampleTempoChangeNotification;
     _imageLayer.cornerRadius = 7.0f;
     _imageLayer.frame = self.bounds;
     _imageLayer.masksToBounds = YES;
+    if ((_style & CoverViewStyleGlowBehindCoverAtLaser) == CoverViewStyleGlowBehindCoverAtLaser) {
+        _imageLayer.borderWidth = 1.0;
+        //_imageLayer.borderColor = [NSColor windowFrameColor].CGColor;
+        _imageLayer.borderColor = [[Defaults sharedDefaults] lightBeamColor].CGColor;
+    }
     if ((_style & CoverViewStyleRotatingLaser) == CoverViewStyleRotatingLaser) {
         _imageLayer.mask = _maskLayer;
     }

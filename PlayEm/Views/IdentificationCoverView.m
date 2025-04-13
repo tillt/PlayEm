@@ -74,24 +74,20 @@ extern NSString * const kBeatTrackedSampleTempoChangeNotification;
     }
 }
 
-- (void)beatEffect:(NSNotification*)notification
+- (void)beatPumpingLayer:(CALayer*)layer
 {
-    [CATransaction begin];
-    [CATransaction setDisableActions:YES];
-   
+    CGSize halfSize = CGSizeMake(layer.bounds.size.width / 2.0, layer.bounds.size.height / 2.0);
+
+    // We want to have an enlarged image the moment the beat hits, thus we start large as
+    // that is when we are beeing called within the phase of the rhythm.
     CATransform3D tr = CATransform3DIdentity;
-    
     CGFloat scaleByPixel = 3.0;
-    CGFloat scaleByFactor = 1.0 / (self.bounds.size.width / scaleByPixel);
-    
-    CGSize halfSize = CGSizeMake(self.bounds.size.width / 2.0, self.bounds.size.height / 2.0);
+    CGFloat scaleByFactor = 1.0 / (layer.bounds.size.width / scaleByPixel);
     tr = CATransform3DTranslate(tr, halfSize.width, halfSize.height, 0.0);
     tr = CATransform3DScale(tr, 1.0 + scaleByFactor, 1.0 + scaleByFactor, 1.0);
     tr = CATransform3DTranslate(tr, -halfSize.width, -halfSize.height, 0.0);
     
-    // We want to have an enlarged image the moment the beat hits, thus we start large as
-    // that is when we are beeing called within the phase of the rhythm.
-    self.layer.transform = tr;
+    layer.transform = tr;
 
     CABasicAnimation* animation = [CABasicAnimation animationWithKeyPath:@"transform"];
     animation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseOut];
@@ -103,22 +99,65 @@ extern NSString * const kBeatTrackedSampleTempoChangeNotification;
     animation.repeatCount = 2.0f;
     animation.autoreverses = YES;
     animation.duration = phaseLength;
-    [self.layer addAnimation:animation forKey:@"stuff1"];
 
-//    animation = [CABasicAnimation animationWithKeyPath:@"shadowColor"];
-//    animation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseOut];
-//    animation.fillMode = kCAFillModeBoth;
-//    animation.removedOnCompletion = NO;
-//    
-//    NSColor* light = [[Defaults sharedDefaults] lightBeamColor];
-//    NSColor* regular = [[Defaults sharedDefaults] regularBeamColor];
-//
-//    animation.fromValue = (id)light.CGColor;
-//    animation.toValue = (id)regular.CGColor;
-//    animation.repeatCount = 2.0f;
-//    animation.autoreverses = YES;
-//    animation.duration = phaseLength;
-//    [self.layer addAnimation:animation forKey:@"stuff2"];
+    [layer addAnimation:animation forKey:@"beatPumping"];
+}
+
+- (void)beatShakingLayer:(CALayer*)layer style:(BeatEventStyle)style
+{
+    static BOOL forward = YES;
+    static int index = -1;
+    
+    if ((style & BeatEventStyleBar) != BeatEventStyleBar) {
+        return;
+    }
+
+    
+    if (index == -1 && (style & BeatEventStyleBar) == BeatEventStyleBar) {
+        index = 0;
+    }
+    if (index == -1) {
+        return;
+    }
+    if ((style & BeatEventStyleBar) == BeatEventStyleBar) {
+        index = 0;
+    }
+        
+    const CGFloat phaseLength = 30.0f / self->currentTempo;
+    
+    CGFloat angleToAdd = M_PI_2 / 90.0;
+    //if (index % 4 == 0) {
+        forward = !forward;
+    //}
+
+    if (!forward)  {
+        angleToAdd = angleToAdd * -1.0;
+    }
+    
+    CABasicAnimation* animation = [CABasicAnimation animationWithKeyPath:@"transform.rotation.z"];
+    animation.toValue = @(angleToAdd);
+    animation.fromValue = @(0.0);
+    animation.repeatCount = 1.0f;
+    animation.autoreverses = YES;
+    animation.duration = phaseLength * 4.0;
+    animation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseOut];
+    animation.fillMode = kCAFillModeBoth;
+    animation.removedOnCompletion = NO;
+
+    [layer addAnimation:animation forKey:@"beatShaking"];
+    index = (index + 1) % 4;
+}
+
+- (void)beatEffect:(NSNotification*)notification
+{
+    const NSDictionary* dict = notification.object;
+    const unsigned int style = [dict[kBeatNotificationKeyStyle] intValue];
+
+    [CATransaction begin];
+    [CATransaction setDisableActions:YES];
+   
+    [self beatPumpingLayer:self.layer];
+    [self beatShakingLayer:_backingLayer style:style];
 
     [CATransaction commit];
 }
@@ -142,6 +181,7 @@ extern NSString * const kBeatTrackedSampleTempoChangeNotification;
     layer.autoresizingMask = kCALayerWidthSizable | kCALayerHeightSizable;
     layer.frame = self.bounds;
     layer.masksToBounds = NO;
+    layer.anchorPoint = CGPointMake(0.5, 0.5);
     
     CIFilter* bloomFilter = [CIFilter filterWithName:@"CIBloom"];
     [bloomFilter setDefaults];
@@ -184,6 +224,7 @@ extern NSString * const kBeatTrackedSampleTempoChangeNotification;
     _backingLayer.shouldRasterize = YES;
     _backingLayer.masksToBounds = NO;
     _backingLayer.cornerRadius = 7.0f;
+    _backingLayer.anchorPoint = CGPointMake(0.5, 0.5);
     _backingLayer.allowsEdgeAntialiasing = YES;
     _backingLayer.magnificationFilter = kCAFilterLinear;
     _backingLayer.minificationFilter = kCAFilterLinear;
@@ -250,7 +291,7 @@ extern NSString * const kBeatTrackedSampleTempoChangeNotification;
     if ((_style & CoverViewStyleGlowBehindCoverAtLaser) == CoverViewStyleGlowBehindCoverAtLaser) {
         _imageLayer.borderWidth = 1.0;
         //_imageLayer.borderColor = [NSColor windowFrameColor].CGColor;
-        _imageLayer.borderColor = [[Defaults sharedDefaults] lightBeamColor].CGColor;
+        _imageLayer.borderColor = [[[Defaults sharedDefaults] lightBeamColor] colorWithAlphaComponent:0.7].CGColor;
     }
     if ((_style & CoverViewStyleRotatingLaser) == CoverViewStyleRotatingLaser) {
         _imageLayer.mask = _maskLayer;
@@ -327,8 +368,8 @@ extern NSString * const kBeatTrackedSampleTempoChangeNotification;
         if ((_style & CoverViewStyleGlowBehindCoverAtLaser) == CoverViewStyleGlowBehindCoverAtLaser) {
             [_glowLayer setValue:@(M_PI_2 * beatsPerCycle) forKeyPath:@"transform.rotation.z"];
         }
-        animation.toValue = @(0.0);        // model value was already changed. End at that value
-        animation.byValue = @(angleToAdd); // start from - this value (it's toValue - byValue (see above))
+        animation.toValue = @(0.0);
+        animation.byValue = @(angleToAdd);
         animation.repeatCount = 1.0f;
         [CATransaction setCompletionBlock:^{
             if (!self->animating) {

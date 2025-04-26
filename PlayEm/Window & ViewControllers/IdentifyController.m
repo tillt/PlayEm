@@ -200,7 +200,7 @@ const CGFloat kTableRowHeight = 52.0f;
                                                                             kTableViewWidth + kBorderWidth + kBorderWidth,
                                                                             kPopoverHeight+30.0)];
     _effectBelowList.material = NSVisualEffectMaterialMenu;
-    _effectBelowList.autoresizingMask = kViewFullySizeable;
+    _effectBelowList.autoresizingMask = NSViewHeightSizable | NSViewMinXMargin;
     _effectBelowList.blendingMode = NSVisualEffectBlendingModeBehindWindow;
     
     _coverColorBackView = [[NSView alloc] initWithFrame:NSMakeRect(0,

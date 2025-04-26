@@ -13,7 +13,7 @@
 #import "VisualPairContext.h"
 #import "ConcurrentAccessDictionary.h"
 #import "ProfilingPointsOfInterest.h"
-
+#import "EnergyDetector.h"
 // TODO: Implement DynamicReducedVisualSample
 // Implementation does two things at the same time - it immediately produces the requested
 // tiles while additionally reducing the total amount of source samples towards something
@@ -34,6 +34,7 @@
 
 @property (strong, nonatomic) NSMutableData* reducedSample;
 @property (strong, nonatomic) NSMutableArray<NSMutableData*>* sampleBuffers;
+@property (strong, nonatomic) EnergyDetector* energy;
 
 @end
 
@@ -52,6 +53,7 @@
         _operations = [ConcurrentAccessDictionary new];
         _framesPerPixel = (double)sample.rate / pixelPerSecond;
         _tileWidth = tileWidth;
+        _energy = [EnergyDetector new];
         assert(_framesPerPixel >= 1.0);
         _sampleBuffers = [NSMutableArray array];
 
@@ -92,11 +94,15 @@
     NSArray* keys = [_operations allKeys];
     for (id key in keys) {
         IndexedBlockOperation* operation = [_operations objectForKey:key];
-        [operation cancel];
+        if (!operation.isFinished) {
+            [operation cancel];
+        }
     }
     for (id key in keys) {
         IndexedBlockOperation* operation = [_operations objectForKey:key];
-        [operation wait];
+        if (!operation.isFinished) {
+            [operation wait];
+        }
     }
 }
 

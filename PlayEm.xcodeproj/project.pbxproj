@@ -24,7 +24,6 @@
 		BB3926FF2C14B43E009C7B32 /* TableRowView.m in Sources */ = {isa = PBXBuildFile; fileRef = BB3926FE2C14B43E009C7B32 /* TableRowView.m */; };
 		BB3927022C14C606009C7B32 /* TableCellView.m in Sources */ = {isa = PBXBuildFile; fileRef = BB3927012C14C606009C7B32 /* TableCellView.m */; };
 		BB3927092C1BA8BD009C7B32 /* NSURL+WithoutParameters.m in Sources */ = {isa = PBXBuildFile; fileRef = BB3927082C1BA8BD009C7B32 /* NSURL+WithoutParameters.m */; };
-		BB39270C2C1CD1E3009C7B32 /* MediaMetaData+StateAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = BB39270B2C1CD1E3009C7B32 /* MediaMetaData+StateAdditions.m */; };
 		BB3B8D982B86C9B7006AEFCA /* tag_c.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BB3B8D962B86C9B7006AEFCA /* tag_c.framework */; };
 		BB3B8D992B86C9B7006AEFCA /* tag_c.framework in Embed Libraries */ = {isa = PBXBuildFile; fileRef = BB3B8D962B86C9B7006AEFCA /* tag_c.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		BB3B8D9A2B86C9B7006AEFCA /* tag.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BB3B8D972B86C9B7006AEFCA /* tag.framework */; };
@@ -59,6 +58,7 @@
 		BBA507DA244224E100AABCF7 /* Sample.m in Sources */ = {isa = PBXBuildFile; fileRef = BBA507D9244224E100AABCF7 /* Sample.m */; };
 		BBA507DF2443E66800AABCF7 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BBA507DE2443E66800AABCF7 /* AVFoundation.framework */; };
 		BBA623D42620F6A200924D44 /* UIView+Visibility.m in Sources */ = {isa = PBXBuildFile; fileRef = BBA623D32620F6A200924D44 /* UIView+Visibility.m */; };
+		BBAC78972DBC47B800640C19 /* EnergyDetector.m in Sources */ = {isa = PBXBuildFile; fileRef = BBAC78962DBC47B800640C19 /* EnergyDetector.m */; };
 		BBAD5EF32CE0ECBD00F664AB /* CALayer+PauseAnimations.m in Sources */ = {isa = PBXBuildFile; fileRef = BBAD5EF22CE0ECBD00F664AB /* CALayer+PauseAnimations.m */; };
 		BBAD7D55262B973C00089ACC /* ScopeView.m in Sources */ = {isa = PBXBuildFile; fileRef = BBAD7D54262B973C00089ACC /* ScopeView.m */; };
 		BBB37D21290F4A7E0007A6BB /* PlaylistController.m in Sources */ = {isa = PBXBuildFile; fileRef = BBB37D20290F4A7E0007A6BB /* PlaylistController.m */; };
@@ -145,8 +145,6 @@
 		BB3927062C17A3C4009C7B32 /* TableViewExtraState.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TableViewExtraState.h; sourceTree = "<group>"; };
 		BB3927072C1BA8BD009C7B32 /* NSURL+WithoutParameters.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "NSURL+WithoutParameters.h"; path = "Window & ViewControllers/NSURL+WithoutParameters.h"; sourceTree = "<group>"; };
 		BB3927082C1BA8BD009C7B32 /* NSURL+WithoutParameters.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = "NSURL+WithoutParameters.m"; path = "Window & ViewControllers/NSURL+WithoutParameters.m"; sourceTree = "<group>"; };
-		BB39270A2C1CD1E3009C7B32 /* MediaMetaData+StateAdditions.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "MediaMetaData+StateAdditions.h"; sourceTree = "<group>"; };
-		BB39270B2C1CD1E3009C7B32 /* MediaMetaData+StateAdditions.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "MediaMetaData+StateAdditions.m"; sourceTree = "<group>"; };
 		BB3B8D8C2B85285E006AEFCA /* ProfilingPointsOfInterest.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ProfilingPointsOfInterest.h; sourceTree = "<group>"; };
 		BB3B8D962B86C9B7006AEFCA /* tag_c.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = tag_c.framework; sourceTree = "<group>"; };
 		BB3B8D972B86C9B7006AEFCA /* tag.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = tag.framework; sourceTree = "<group>"; };
@@ -199,6 +197,8 @@
 		BBA507DE2443E66800AABCF7 /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
 		BBA623D22620F67500924D44 /* UIView+Visibility.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "UIView+Visibility.h"; sourceTree = "<group>"; };
 		BBA623D32620F6A200924D44 /* UIView+Visibility.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "UIView+Visibility.m"; sourceTree = "<group>"; };
+		BBAC78952DBC479E00640C19 /* EnergyDetector.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = EnergyDetector.h; sourceTree = "<group>"; };
+		BBAC78962DBC47B800640C19 /* EnergyDetector.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = EnergyDetector.m; sourceTree = "<group>"; };
 		BBAD5EF12CE0ECBD00F664AB /* CALayer+PauseAnimations.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "CALayer+PauseAnimations.h"; sourceTree = "<group>"; };
 		BBAD5EF22CE0ECBD00F664AB /* CALayer+PauseAnimations.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "CALayer+PauseAnimations.m"; sourceTree = "<group>"; };
 		BBAD5EF92D038D7100F664AB /* ci_post_clone.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = ci_post_clone.sh; sourceTree = "<group>"; };
@@ -354,6 +354,8 @@
 				BB539A642D15C7260095B8C7 /* BeatEvent.h */,
 				BBDA2FFC2A7FCCB70084E2B6 /* BeatTrackedSample.h */,
 				BBDA2FFD2A7FCEEC0084E2B6 /* BeatTrackedSample.m */,
+				BBAC78952DBC479E00640C19 /* EnergyDetector.h */,
+				BBAC78962DBC47B800640C19 /* EnergyDetector.m */,
 				BB2A34A22D23735F006BF132 /* ConstantBeatRefiner.h */,
 				BB2A34A02D2372CC006BF132 /* ConstantBeatRefiner.m */,
 				BB9401862AD0974900B7B150 /* AcceleratedBiquadFilter.h */,
@@ -402,8 +404,6 @@
 				BBC43B7228D296B800CD1080 /* AVMetadataItem+THAdditions.m */,
 				BBC2AF712B8B5ACA0077EB5E /* MediaMetaData+AVAsset.h */,
 				BBC2AF722B8B5B5A0077EB5E /* MediaMetaData+AVAsset.m */,
-				BB39270A2C1CD1E3009C7B32 /* MediaMetaData+StateAdditions.h */,
-				BB39270B2C1CD1E3009C7B32 /* MediaMetaData+StateAdditions.m */,
 			);
 			path = Metadata;
 			sourceTree = "<group>";
@@ -700,6 +700,7 @@
 				BB2CB58724827A0900D47258 /* AudioController.mm in Sources */,
 				BB96D1E12D30748400AD48A5 /* AudioDevice.m in Sources */,
 				BB2CB5652481A92600D47258 /* WaveWindowController.m in Sources */,
+				BBAC78972DBC47B800640C19 /* EnergyDetector.m in Sources */,
 				BB8A100728FF49E400FC6013 /* Scroller.m in Sources */,
 				BBDBBA792BA3AF9F003A80C1 /* DragImageFileView.m in Sources */,
 				BBE2846D246765BD00BE9D7F /* Shaders.metal in Sources */,
@@ -718,7 +719,6 @@
 				BB2CF8AD259EB66900D6BA03 /* LazySample.m in Sources */,
 				BB3927022C14C606009C7B32 /* TableCellView.m in Sources */,
 				BB0C5D9327768D2400856978 /* MatrixUtilities.m in Sources */,
-				BB39270C2C1CD1E3009C7B32 /* MediaMetaData+StateAdditions.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

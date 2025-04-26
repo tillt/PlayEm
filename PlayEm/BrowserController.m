@@ -21,7 +21,6 @@
 #import "ProfilingPointsOfInterest.h"
 
 #import "MediaMetaData.h"
-#import "MediaMetaData+StateAdditions.h"
 
 #import "TableHeaderCell.h"
 #import "TableRowView.h"
@@ -55,7 +54,7 @@ NSString* const kSongsColGenre = @"GenreCell";
 @property (nonatomic, weak) NSTableView* ratingsTable;
 @property (nonatomic, weak) NSTableView* tagsTable;
 
-@property (nonatomic, strong) NSURL* lastLocation;
+@property (nonatomic, strong) NSURL* currentLocation;
 
 @property (nonatomic, strong) NSMutableArray<NSString*>* genres;
 @property (nonatomic, strong) NSMutableArray<NSString*>* artists;
@@ -95,7 +94,7 @@ NSString* const kSongsColGenre = @"GenreCell";
     if (self) {
         _delegate = delegate;
         
-        _lastLocation = nil;
+        _currentLocation = nil;
 
         _updatingGenres = NO;
         _updatingArtists = NO;
@@ -491,7 +490,7 @@ NSString* const kSongsColGenre = @"GenreCell";
 - (void)setPlaying:(BOOL)playing
 {
     NSUInteger lastIndex = [_filteredItems indexOfObjectPassingTest:^BOOL(MediaMetaData* meta, NSUInteger idx, BOOL* stop) {
-        return [meta.location.absoluteString isEqualToString:_lastLocation.absoluteString];
+        return [meta.location.absoluteString isEqualToString:_currentLocation.absoluteString];
     }];
     if (lastIndex != NSNotFound && lastIndex < [_songsTable numberOfRows]) {
         TableRowView* rowView = [_songsTable rowViewAtRow:lastIndex makeIfNecessary:YES];
@@ -513,10 +512,14 @@ NSString* const kSongsColGenre = @"GenreCell";
     NSURL* currentLocation = [meta.location URLWithoutParameters];
     // FIXME; This is a horrendous hack using a static variable for storing the location
     // of the currently active meta.
-    [MediaMetaData setActiveLocation:currentLocation];
+    //[MediaMetaData setActiveLocation:currentLocation];
+
+    if (currentLocation == _currentLocation) {
+        return;
+    }
     
     NSUInteger lastIndex = [_filteredItems indexOfObjectPassingTest:^BOOL(MediaMetaData* meta, NSUInteger idx, BOOL* stop) {
-        return [meta.location.absoluteString isEqualToString:_lastLocation.absoluteString];
+        return [meta.location.absoluteString isEqualToString:_currentLocation.absoluteString];
     }];
     if (lastIndex != NSNotFound && lastIndex < [_songsTable numberOfRows]) {
         TableRowView* rowView = [_songsTable rowViewAtRow:lastIndex makeIfNecessary:YES];
@@ -531,7 +534,7 @@ NSString* const kSongsColGenre = @"GenreCell";
         [rowView setExtraState:kExtraStateActive];
     }
     
-    _lastLocation = currentLocation;
+    _currentLocation = currentLocation;
 }
 
 - (void)showSongRowForMeta:(MediaMetaData*)meta
@@ -1425,7 +1428,7 @@ typeSelectStringForTableColumn:(NSTableColumn*)tableColumn
 {
     TableRowView* view = (TableRowView*)rowView;
     if (tableView.tag == VIEWTAG_SONGS) {
-        if (_filteredItems[row].active) {
+        if ([_filteredItems[row].location.absoluteString isEqualToString:_currentLocation.absoluteString]) {
             if (_delegate.playing) {
                 [view setExtraState:kExtraStatePlaying];
             } else {

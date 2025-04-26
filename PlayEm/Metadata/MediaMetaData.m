@@ -19,7 +19,6 @@
 
 #import "MediaMetaData+TagLib.h"
 #import "MediaMetaData+AVAsset.h"
-#import "MediaMetaData+StateAdditions.h"
 
 #import "NSURL+WithoutParameters.h"
 #import "NSString+BeautifulPast.h"

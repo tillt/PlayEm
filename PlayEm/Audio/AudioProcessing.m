@@ -32,6 +32,13 @@ double logVolume(const double input)
     return sign * (log10(10.0 + (absoluteValue * 100.0f)) - 1.0f);
 }
 
+double dB(double amplitude)
+{
+    if (amplitude == 0.0)
+        amplitude += 0.0000000001;
+    return 20. * log10(amplitude);
+}
+
 vDSP_DFT_Setup initDCT(void)
 {
     //vDSP_Length(

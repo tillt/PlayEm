@@ -18,11 +18,12 @@ NS_ASSUME_NONNULL_BEGIN
 typedef struct {
     size_t pageIndex;
     size_t eventIndex;
-    const BeatEvent* _Nullable currentEvent;
+    BeatEvent* _Nullable currentEvent;
 } BeatEventIterator;
 
 typedef struct _BeatsParserContext BeatsParserContext;
 
+@class EnergyDetector;
 @class LazySample;
 
 ///
@@ -37,12 +38,16 @@ typedef struct _BeatsParserContext BeatsParserContext;
 
 @property (assign, nonatomic) double framesPerPixel;
 @property (strong, nonatomic) LazySample* sample;
+// Beats as refined through the Mixx algorithm.
 @property (strong, nonatomic) NSMutableDictionary* beats;
+@property (strong, nonatomic) NSMutableDictionary* beatsPerPage;
+// Beats as gathered from Aubio.
 @property (strong, nonatomic) NSMutableData* coarseBeats;
 @property (readonly, nonatomic) BOOL ready;
 @property (readonly, nonatomic) size_t tileWidth;
 @property (readonly, nonatomic) unsigned long long initialSilenceEndsAtFrame;
 @property (readonly, nonatomic) unsigned long long trailingSilenceStartsAtFrame;
+@property (strong, nonatomic) EnergyDetector* energy;
 
 
 - (void)abortWithCallback:(nonnull void (^)(void))block;

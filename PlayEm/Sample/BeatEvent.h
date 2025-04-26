@@ -23,14 +23,23 @@ typedef struct {
     BeatEventStyle      style;
     unsigned long long  frame;
     double              bpm;
+    size_t              index;
+    double              energy;
+    double              peak;
 } BeatEvent;
 
 extern NSString * const kBeatTrackedSampleTempoChangeNotification;
 extern NSString * const kBeatTrackedSampleBeatNotification;
 
+extern NSString * const kBeatNotificationKeyBar;
+extern NSString * const kBeatNotificationKeyBeat;
 extern NSString * const kBeatNotificationKeyFrame;
 extern NSString * const kBeatNotificationKeyTempo;
 extern NSString * const kBeatNotificationKeyStyle;
+extern NSString * const kBeatNotificationKeyLocalEnergy;
+extern NSString * const kBeatNotificationKeyLocalPeak;
+extern NSString * const kBeatNotificationKeyTotalEnergy;
+extern NSString * const kBeatNotificationKeyTotalPeak;
 
 NS_ASSUME_NONNULL_END
 #endif /* BeatEvent_h */

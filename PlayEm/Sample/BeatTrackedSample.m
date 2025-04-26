@@ -11,12 +11,15 @@
 #import "LazySample.h"
 #import "IndexedBlockOperation.h"
 #import "ConstantBeatRefiner.h"
+#import "../Audio/AudioProcessing.h"
+#import "EnergyDetector.h"
 
 #define BEATS_BY_AUBIO
 
 #ifdef BEATS_BY_AUBIO
 #define AUBIO_UNSTABLE 1
 #include "aubio/aubio.h"
+
 
 /* structure to store object state */
 struct debug_aubio_tempo_t {
@@ -71,17 +74,22 @@ static const float kSilenceThreshold = 0.1;
 NSString * const kBeatTrackedSampleTempoChangeNotification = @"BeatTrackedSampleTempoChange";
 NSString * const kBeatTrackedSampleBeatNotification = @"BeatTrackedSampleBeat";
 
+NSString * const kBeatNotificationKeyBar =   @"bar";
+NSString * const kBeatNotificationKeyBeat =  @"beat";
 NSString * const kBeatNotificationKeyFrame = @"frame";
-NSString * const kBeatNotificationKeyTempo = @"tempo";
 NSString * const kBeatNotificationKeyStyle = @"style";
-
+NSString * const kBeatNotificationKeyTempo = @"tempo";
+NSString * const kBeatNotificationKeyEnergy = @"energy";
+NSString * const kBeatNotificationKeyLocalEnergy = @"localEnergy";
+NSString * const kBeatNotificationKeyTotalEnergy = @"totalEnergy";
+NSString * const kBeatNotificationKeyLocalPeak = @"localPeak";
+NSString * const kBeatNotificationKeyTotalPeak = @"totalPeak";
 
 @interface BeatTrackedSample()
 {
 }
 
 @property (assign, nonatomic) size_t windowWidth;
-//@property (strong, nonatomic) NSMutableDictionary* operations;
 @property (strong, nonatomic) NSMutableArray<NSMutableData*>* sampleBuffers;
 @property (strong, nonatomic) NSMutableDictionary* beatEventPages;
 @property (strong, nonatomic) dispatch_block_t queueOperation;
@@ -174,6 +182,7 @@ NSString * const kBeatNotificationKeyStyle = @"style";
         assert(framesPerPixel);
         _framesPerPixel = framesPerPixel;
         _tileWidth = 256;
+        _energy = [EnergyDetector new];
         _windowWidth = 1024;
         _hopSize = _windowWidth / 4;
         _sampleBuffers = [NSMutableArray array];
@@ -447,6 +456,8 @@ void beatsContextReset(BeatsParserContext* context)
                 }
                 s /= (float)channels;
                 
+                [_energy addFrame:s];
+                
                 // We need to track heading and trailing silence to correct the beat-grid.
                 if (!initialSilenceEnded) {
                     if (fabs(s) > kSilenceThreshold) {
@@ -466,6 +477,8 @@ void beatsContextReset(BeatsParserContext* context)
                 if(self->_filterEnabled) {
                     // For improving results on beat-detection for modern electronic music,
                     // we apply a basic lowpass filter (feedback).
+                    // FIXME(tillt): We should really use the HW accellerated lowpass we
+                    // already have.
                     self->_filterOutput += (s - self->_filterOutput) / self->_filterConstant;
                     s = self->_filterOutput;
                 }
@@ -492,13 +505,73 @@ void beatsContextReset(BeatsParserContext* context)
     NSLog(@"trailing silence starts %lld frames before end of sample", _sample.frames - _trailingSilenceStartsAtFrame);
 
     // Generate a constant grid pattern out of the detected beats.
-    [self makeConstantBeats];  
+    [self makeConstantBeats];
+    
+    [self measureEnergyAtBeats];
 
     NSLog(@"...beats tracking done");
 
     return YES;
 }
-    
+
+- (void)measureEnergyAtBeats
+{
+    const unsigned long long windowSize = 4096;
+    BeatEventIterator iterator;
+    unsigned long long frame;
+
+    unsigned long long framesNeeded = windowSize;
+    float* data[self->_sample.channels];
+    for (int channel = 0; channel < self->_sample.channels; channel++) {
+        NSMutableData* buffer = [NSMutableData dataWithCapacity:framesNeeded * _sample.frameSize];
+        data[channel] = (float*)buffer.bytes;
+    }
+
+    EnergyDetector* nrg = [EnergyDetector new];
+    frame = [self seekToFirstBeat:&iterator];
+
+    while (frame < ULONG_LONG_MAX) {
+        unsigned long long sourceWindowFrameOffset = frame;
+        if (dispatch_block_testcancel(self.queueOperation) != 0) {
+            NSLog(@"aborted beat detection during peak calculations");
+            return;
+        }
+        unsigned long long sourceWindowFrameCount = MIN(windowSize,
+                                                        self->_sample.frames - sourceWindowFrameOffset);
+        // This may block for a loooooong time!
+        unsigned long long received = [self->_sample rawSampleFromFrameOffset:sourceWindowFrameOffset
+                                                                       frames:sourceWindowFrameCount
+                                                                      outputs:data];
+        
+        unsigned long int sourceFrameIndex = 0;
+        while(sourceFrameIndex < received) {
+            if (dispatch_block_testcancel(self.queueOperation) != 0) {
+                NSLog(@"aborted beat detection during peak calculations");
+                return;
+            }
+            
+            const unsigned long int inputWindowFrameCount = MIN(windowSize, self->_sample.frames - (sourceWindowFrameOffset + sourceFrameIndex));
+            for (unsigned long int inputFrameIndex = 0; inputFrameIndex < inputWindowFrameCount; inputFrameIndex++) {
+                double s = 0.0;
+                for (int channel = 0; channel < self->_sample.channels; channel++) {
+                    s += data[channel][sourceFrameIndex];
+                }
+                s /= (float)self->_sample.channels;
+                //self->_aubio_input_buffer->data[inputFrameIndex] = s;
+                [nrg addFrame:s];
+                
+                sourceFrameIndex++;
+            }
+            iterator.currentEvent->energy = nrg.rms;
+            iterator.currentEvent->peak = nrg.peak;
+            NSLog(@"frame %lld, energy level %0.5f / %0.5f / %0.5f / %0.5f", iterator.currentEvent->frame, _energy.rms, _energy.peak, iterator.currentEvent->energy, iterator.currentEvent->peak);
+        };
+        
+        frame = [self seekToNextBeat:&iterator];
+        [nrg reset];
+    };
+}
+
 - (void)trackBeatsAsyncWithCallback:(void (^)(BOOL))callback
 {
     __block BOOL done = NO;

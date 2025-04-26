@@ -36,8 +36,8 @@
 #import "WaveLayerDelegate.h"
 #import "ProfilingPointsOfInterest.h"
 #import "NSAlert+BetterError.h"
-
 #import "MusicAuthenticationController.h"
+#import "EnergyDetector.h"
 
 static const float kShowHidePanelAnimationDuration = 0.3f;
 
@@ -216,9 +216,14 @@ os_log_t pointsOfInterest;
     
     const BeatEvent* event = _beatEffectIteratorContext.currentEvent;
     NSDictionary* dict = @{
+        kBeatNotificationKeyBeat:  @(event->index + 1),
         kBeatNotificationKeyStyle: @(event->style),
         kBeatNotificationKeyTempo: @(effectiveTempo),
         kBeatNotificationKeyFrame: @(event->frame),
+        kBeatNotificationKeyLocalEnergy: @(event->energy),
+        kBeatNotificationKeyTotalEnergy: @(_beatSample.energy.rms),
+        kBeatNotificationKeyLocalPeak: @(event->peak),
+        kBeatNotificationKeyTotalPeak: @(_beatSample.energy.peak),
     };
     [[NSNotificationCenter defaultCenter] postNotificationName:kBeatTrackedSampleBeatNotification object:dict];
 }
@@ -1477,14 +1482,14 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
         [_iffy view];
         NSPanel* panel = [NSPanel windowWithContentViewController:_iffy];
         window = panel;
-        window.styleMask &= ~NSWindowStyleMaskResizable | NSWindowStyleMaskTitled;
-        window.styleMask |= NSWindowStyleMaskUtilityWindow;
+        window.styleMask &= (~NSWindowStyleMaskResizable) | NSWindowStyleMaskTitled;
+        window.styleMask |= NSWindowStyleMaskUtilityWindow | NSWindowStyleMaskResizable;
         window.titleVisibility = NSWindowTitleHidden;
         window.movableByWindowBackground = YES;
         window.titlebarAppearsTransparent = YES;
         window.level = NSFloatingWindowLevel;
         window.appearance = sharedApplication.mainWindow.appearance;
-        [window standardWindowButton:NSWindowZoomButton].hidden = YES;
+        [window standardWindowButton:NSWindowZoomButton].hidden = NO;
         [window standardWindowButton:NSWindowCloseButton].hidden = NO;
         [window standardWindowButton:NSWindowMiniaturizeButton].hidden = YES;
         _identifyWindowController.window = window;

@@ -17,6 +17,7 @@
 #import "../Defaults.h"
 #import "../NSBezierPath+CGPath.h"
 #import "../NSImage+Resize.h"
+#import "../Audio/AudioProcessing.h"
 
 static NSString * const kLayerImageName = @"IdentificationActiveStill";
 static NSString * const kLayerMaskImageName = @"IdentificationActiveStill";
@@ -29,6 +30,7 @@ extern NSString * const kBeatTrackedSampleTempoChangeNotification;
 @property (nonatomic, strong) CALayer* overlayLayer;
 @property (nonatomic, strong) CALayer* glowLayer;
 @property (nonatomic, strong) CALayer* glowMaskLayer;
+@property (nonatomic, strong) CALayer* finalFxLayer;
 @end
 
 @implementation IdentificationCoverView
@@ -46,7 +48,7 @@ extern NSString * const kBeatTrackedSampleTempoChangeNotification;
         paused = NO;
         currentTempo = 120.0f;
         _overlayIntensity = 0.3f;
-        _secondImageLayerOpacity = 0.2;
+        _secondImageLayerOpacity = 0.05;
         _style = style;
 
         self.wantsLayer = YES;
@@ -74,21 +76,41 @@ extern NSString * const kBeatTrackedSampleTempoChangeNotification;
     }
 }
 
-- (void)beatPumpingLayer:(CALayer*)layer
+//- (void)beatPumpingLayer:(CALayer*)layer localEnergy:(double)localEnergy totalEnergy:(double)totalEnergy
+- (void)beatPumpingLayer:(CALayer*)layer localEnergy:(double)localEnergy totalEnergy:(double)totalEnergy
 {
+    if (localEnergy == 0.0) {
+        localEnergy = 0.000000001;
+    }
+    const double normalizedEnergy = MIN(localEnergy / totalEnergy, 1.0);
+    static double lastEnergy = 0.0;
     CGSize halfSize = CGSizeMake(layer.bounds.size.width / 2.0, layer.bounds.size.height / 2.0);
+    
+    const double normalFactorUp = 0.9;
+    const double normalFactorDown = 0.1;
+    
+    double normalFactor = normalizedEnergy > lastEnergy ? normalFactorUp : normalFactorDown;
+
+    double lerpEnergy = (normalizedEnergy * normalFactor) + lastEnergy *  (1.0 - normalFactor);
+    
+    //double delta = lerpEnergy - (lastEnergy * factor);
+    double slopedEnergy = lerpEnergy;
+    
+    lastEnergy = slopedEnergy;
+
+    CGFloat scaleByPixel = slopedEnergy * 4.0f;
+    double peakZoomBlurAmount = (scaleByPixel / 2.0) * (scaleByPixel / 2.0);
 
     // We want to have an enlarged image the moment the beat hits, thus we start large as
     // that is when we are beeing called within the phase of the rhythm.
     CATransform3D tr = CATransform3DIdentity;
-    CGFloat scaleByPixel = 3.0;
     CGFloat scaleByFactor = 1.0 / (layer.bounds.size.width / scaleByPixel);
     tr = CATransform3DTranslate(tr, halfSize.width, halfSize.height, 0.0);
     tr = CATransform3DScale(tr, 1.0 + scaleByFactor, 1.0 + scaleByFactor, 1.0);
     tr = CATransform3DTranslate(tr, -halfSize.width, -halfSize.height, 0.0);
     
     layer.transform = tr;
-
+    
     CABasicAnimation* animation = [CABasicAnimation animationWithKeyPath:@"transform"];
     animation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseOut];
     animation.fillMode = kCAFillModeBoth;
@@ -99,37 +121,35 @@ extern NSString * const kBeatTrackedSampleTempoChangeNotification;
     animation.repeatCount = 2.0f;
     animation.autoreverses = YES;
     animation.duration = phaseLength;
-
+    
     [layer addAnimation:animation forKey:@"beatPumping"];
+
+    animation = [CABasicAnimation animationWithKeyPath:@"backgroundFilters.CIZoomBlur.inputAmount"];
+    animation.fromValue = @(peakZoomBlurAmount);
+    animation.toValue = @(0.0);
+    animation.repeatCount = 2.0f;
+    animation.autoreverses = YES;
+    animation.duration = phaseLength;
+    animation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseOut];
+    animation.fillMode = kCAFillModeBoth;
+    animation.removedOnCompletion = NO;
+    [_finalFxLayer addAnimation:animation forKey:@"beatWarping"];
 }
 
-- (void)beatShakingLayer:(CALayer*)layer style:(BeatEventStyle)style
+- (void)beatShakingLayer:(CALayer*)layer beatIndex:(int)index
 {
     static BOOL forward = YES;
-    static int index = -1;
+    const int moveBeats = 4;
     
-    if ((style & BeatEventStyleBar) != BeatEventStyleBar) {
+    if (index != 1) {
         return;
     }
-
     
-    if (index == -1 && (style & BeatEventStyleBar) == BeatEventStyleBar) {
-        index = 0;
-    }
-    if (index == -1) {
-        return;
-    }
-    if ((style & BeatEventStyleBar) == BeatEventStyleBar) {
-        index = 0;
-    }
-        
-    const CGFloat phaseLength = 30.0f / self->currentTempo;
-    
+    const CGFloat phaseLength = (60.0 * (moveBeats / 2.0)) / self->currentTempo;
     CGFloat angleToAdd = M_PI_2 / 90.0;
-    //if (index % 4 == 0) {
-        forward = !forward;
-    //}
-
+    
+    forward = !forward;
+    
     if (!forward)  {
         angleToAdd = angleToAdd * -1.0;
     }
@@ -139,26 +159,29 @@ extern NSString * const kBeatTrackedSampleTempoChangeNotification;
     animation.fromValue = @(0.0);
     animation.repeatCount = 1.0f;
     animation.autoreverses = YES;
-    animation.duration = phaseLength * 4.0;
+    animation.duration = phaseLength;
     animation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseOut];
     animation.fillMode = kCAFillModeBoth;
     animation.removedOnCompletion = NO;
-
+    
     [layer addAnimation:animation forKey:@"beatShaking"];
-    index = (index + 1) % 4;
 }
 
 - (void)beatEffect:(NSNotification*)notification
 {
     const NSDictionary* dict = notification.object;
-    const unsigned int style = [dict[kBeatNotificationKeyStyle] intValue];
 
     [CATransaction begin];
     [CATransaction setDisableActions:YES];
    
-    [self beatPumpingLayer:self.layer];
-    [self beatShakingLayer:_backingLayer style:style];
+    [self beatPumpingLayer:self.layer
+               localEnergy:[dict[kBeatNotificationKeyLocalEnergy] doubleValue]
+               totalEnergy:[dict[kBeatNotificationKeyTotalEnergy] doubleValue]];
 
+    [self beatShakingLayer:_backingLayer beatIndex:[dict[kBeatNotificationKeyBeat] intValue]];
+
+    
+    
     [CATransaction commit];
 }
 
@@ -185,12 +208,9 @@ extern NSString * const kBeatTrackedSampleTempoChangeNotification;
     
     CIFilter* bloomFilter = [CIFilter filterWithName:@"CIBloom"];
     [bloomFilter setDefaults];
-    [bloomFilter setValue: [NSNumber numberWithFloat:5.0] forKey: @"inputRadius"];
+    [bloomFilter setValue: [NSNumber numberWithFloat:2.0] forKey: @"inputRadius"];
     [bloomFilter setValue: [NSNumber numberWithFloat:1.0] forKey: @"inputIntensity"];
 
-    CIFilter* darkFilter = [CIFilter filterWithName:@"CILightTunnel"];
-    [darkFilter setDefaults];
-    [darkFilter setValue: [NSNumber numberWithFloat:0.0] forKey: @"inputRadius"];
 
     CIFilter* additionFilter = [CIFilter filterWithName:@"CIAdditionCompositing"];
     [additionFilter setDefaults];
@@ -208,6 +228,7 @@ extern NSString * const kBeatTrackedSampleTempoChangeNotification;
     //    _glowLayer.frame = CGRectOffset(_glowLayer.frame, -50.0, -50.0);
         _glowLayer.allowsEdgeAntialiasing = YES;
         _glowLayer.shouldRasterize = YES;
+        _glowLayer.autoresizingMask = kCALayerWidthSizable | kCALayerHeightSizable;
         _glowLayer.rasterizationScale = layer.contentsScale;
         _glowLayer.contentsScale = [[NSScreen mainScreen] backingScaleFactor];
         _glowLayer.masksToBounds = YES;
@@ -280,7 +301,7 @@ extern NSString * const kBeatTrackedSampleTempoChangeNotification;
     _imageLayer.frame = self.bounds;
     _imageLayer.contents = [NSImage resizedImage:[NSImage imageNamed:@"UnknownSong"]
                                             size:self.bounds.size];
-    //_imageLayer.autoresizingMask = kCALayerWidthSizable | kCALayerHeightSizable;
+    _imageLayer.autoresizingMask = kCALayerWidthSizable | kCALayerHeightSizable;
     _imageLayer.allowsEdgeAntialiasing = YES;
     _imageLayer.shouldRasterize = YES;
     _imageLayer.rasterizationScale = layer.contentsScale;
@@ -296,8 +317,16 @@ extern NSString * const kBeatTrackedSampleTempoChangeNotification;
     if ((_style & CoverViewStyleRotatingLaser) == CoverViewStyleRotatingLaser) {
         _imageLayer.mask = _maskLayer;
     }
+
+    CIFilter* fxFilter = [CIFilter filterWithName:@"CIZoomBlur"];
+    [fxFilter setDefaults];
+    CGPoint center = CGPointMake(self.bounds.size.width / 2.0f, self.bounds.size.height / 2.0f);
+    [fxFilter setValue: [NSNumber numberWithFloat:0.1] forKey: @"inputAmount"];
+    //[fxFilter setValue: [NSValue valueWithPoint:center] forKey: @"inputCenter"];
+    //[fxFilter setValue: [NSNumber numberWithFloat:0.1] forKey: @"inputScale"];
+
     if ((_style & CoverViewStyleRotatingLaser) == CoverViewStyleRotatingLaser) {
-        _imageLayer.filters = @[ bloomFilter     ];
+        _imageLayer.filters = @[ bloomFilter ];
     }
     [_backingLayer addSublayer:_imageLayer];
 
@@ -317,9 +346,33 @@ extern NSString * const kBeatTrackedSampleTempoChangeNotification;
         _overlayLayer.frame = _maskLayer.frame;
         _overlayLayer.compositingFilter = additionFilter;
         [_imageLayer addSublayer:_overlayLayer];
-    }
 
+//        _overlayLayer.backgroundFilters = @[ fxFilter ];
+    }
+    
     [layer addSublayer:_backingLayer];
+
+    _finalFxLayer = [CALayer layer];
+    _finalFxLayer.frame = self.bounds;
+    _finalFxLayer.backgroundFilters = @[ fxFilter];
+    
+    [_backingLayer addSublayer:_finalFxLayer];
+    
+
+//    NSImage* image = [NSImage resizedImage:[NSImage imageNamed:@"UnknownSong"] size:self.bounds.size];
+//    CIImage* ciImage = [CIImage imageWithCGImage:[image CGImageForProposedRect:nil context:nil hints:nil]];
+//    [fxFilter setValue:ciImage forKey: @"inputImage"];
+
+//        _finalFxLayer = [CALayer layer];
+//        //_glowLayer.contents = [self lightTunnelFilterImage:[input CG] withInputCenter:CGPointMake(self.bounds.size.width / 2.0, self.bounds.size.height / 2.0) inputRotation:0.0 inputRadius:0.0];
+//        _finalFxLayer.frame = CGRectInset(self.bounds, -100.0, -100.0);
+//    //    _glowLayer.frame = CGRectOffset(_glowLayer.frame, -50.0, -50.0);
+//        _finalFxLayer.autoresizingMask = kCALayerWidthSizable | kCALayerHeightSizable;
+//        _finalFxLayer.masksToBounds = YES;
+//        [_overlayLayer addSublayer:_finalFxLayer];
+//    //}
+//    
+    //    //if ((_style & CoverViewStyleGlowBehindCoverAtLaser) == CoverViewStyleGlowBehindCoverAtLaser) {
 
     return layer;
 }

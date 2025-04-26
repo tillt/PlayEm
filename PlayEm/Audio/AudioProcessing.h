@@ -17,6 +17,7 @@ extern const size_t kWindowSamples;
 
 vDSP_DFT_Setup initDCT(void);
 double logVolume(const double input);
+double dB(double amplitude);
 
 FFTSetup initFFT(void);
 void destroyFFT(FFTSetup setup);

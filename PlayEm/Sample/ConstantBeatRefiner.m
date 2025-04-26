@@ -454,6 +454,7 @@ static const int kMinRegionBeatCount = 10;
         event.frame = nextBeatFrame;
         event.bpm = constBPM;
         event.style = BeatEventStyleBeat;
+        event.index = beatIndex;
         if (beatIndex == 0) {
             event.style |= BeatEventStyleBar;
         }

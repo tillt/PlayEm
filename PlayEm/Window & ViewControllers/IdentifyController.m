@@ -66,7 +66,7 @@ const CGFloat kTableRowHeight = 52.0f;
 
 @property (strong, nonatomic) NSVisualEffectView* effectBelowList;
 //@property (strong, nonatomic) NSVisualEffectView* effectBelowImage;
-@property (strong, nonatomic) NSView* coverColorBackView;
+//@property (strong, nonatomic) NSView* coverColorBackView;
 
 @end
 
@@ -203,14 +203,14 @@ const CGFloat kTableRowHeight = 52.0f;
     _effectBelowList.autoresizingMask = NSViewHeightSizable | NSViewMinXMargin;
     _effectBelowList.blendingMode = NSVisualEffectBlendingModeBehindWindow;
     
-    _coverColorBackView = [[NSView alloc] initWithFrame:NSMakeRect(0,
-                                                                 0,
-                                                                 kCoverViewWidth + kBorderWidth + kBorderWidth,
-                                                                 kPopoverHeight+30.0)];
-    _coverColorBackView.autoresizingMask = kViewFullySizeable;
-    _coverColorBackView.wantsLayer = YES;
-    _coverColorBackView.layerUsesCoreImageFilters = YES;
-    _coverColorBackView.layer.backgroundColor = [NSColor windowBackgroundColor].CGColor;
+//    _coverColorBackView = [[NSView alloc] initWithFrame:NSMakeRect(0,
+//                                                                 0,
+//                                                                 kCoverViewWidth + kBorderWidth + kBorderWidth,
+//                                                                 kPopoverHeight+30.0)];
+//    _coverColorBackView.autoresizingMask = kViewFullySizeable;
+//    _coverColorBackView.wantsLayer = YES;
+//    _coverColorBackView.layerUsesCoreImageFilters = YES;
+//    _coverColorBackView.layer.backgroundColor = [NSColor windowBackgroundColor].CGColor;
     
     //    NSView* back = [[NSView alloc] initWithFrame:NSMakeRect(kCoverViewWidth,
     //                                                            0,
@@ -263,18 +263,35 @@ const CGFloat kTableRowHeight = 52.0f;
     sv.documentView = _tableView;
     
     [_effectBelowList addSubview:sv];
-    
-    _identificationCoverView = [[IdentificationCoverView alloc] initWithFrame:NSMakeRect(kBorderWidth,
-                                                                                         y,
-                                                                                         kCoverViewWidth,
-                                                                                         kCoverViewHeight)
+
+    //    _coverColorBackView = [[NSView alloc] initWithFrame:NSMakeRect(0,
+    //                                                                 0,
+    //                                                                 kCoverViewWidth + kBorderWidth + kBorderWidth,
+    //                                                                 kPopoverHeight+30.0)];
+//    _identificationCoverView = [[IdentificationCoverView alloc] initWithFrame:NSMakeRect(kBorderWidth,
+//                                                                                         y,
+//                                                                                         kCoverViewWidth,
+//                                                                                         kCoverViewHeight)
+//                                                                        style:CoverViewStyleGlowBehindCoverAtLaser
+//                                                                            | CoverViewStyleSepiaForSecondImageLayer
+//                                                                            | CoverViewStylePumpingToTheBeat
+//                                                                            | CoverViewStyleRotatingLaser];
+
+    _identificationCoverView = [[IdentificationCoverView alloc] initWithFrame:NSMakeRect(0,
+                                                                                         0,
+                                                                                         kCoverViewWidth + kBorderWidth + kBorderWidth,
+                                                                                         kPopoverHeight+30.0)
+                                                               contentsInsets:NSEdgeInsetsMake(kBorderWidth,kBorderWidth, 30.0,kBorderWidth)
                                                                         style:CoverViewStyleGlowBehindCoverAtLaser
                                                                             | CoverViewStyleSepiaForSecondImageLayer
                                                                             | CoverViewStylePumpingToTheBeat
                                                                             | CoverViewStyleRotatingLaser];
-    [_coverColorBackView addSubview:_identificationCoverView];
-    [self.view addSubview:_coverColorBackView];
-    
+    //_identificationCoverView.alignmentRectInsets
+//    [_coverColorBackView addSubview:_identificationCoverView];
+//    [self.view addSubview:_coverColorBackView];
+//    [_coverColorBackView addSubview:_identificationCoverView];
+    [self.view addSubview:_identificationCoverView];
+
     [self.view addSubview:_effectBelowList];
 }
 
@@ -429,38 +446,10 @@ const CGFloat kTableRowHeight = 52.0f;
 
 #pragma mark - Shazam session delegate
 
-// Fade from current background color to the given one.
-- (void)animateLayer:(CALayer*)layer toBackgroundColor:(NSColor*)color
-{
-    CABasicAnimation* animation = [CABasicAnimation animationWithKeyPath:@"backgroundColor"];
-    animation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionLinear];
-    animation.fillMode = kCAFillModeForwards;
-    animation.removedOnCompletion = NO;
-    animation.fromValue = (id)layer.presentationLayer.backgroundColor;
-    animation.toValue = (id)color.CGColor;
-    animation.repeatCount = 1.0f;
-    animation.autoreverses = NO;
-    animation.duration = 4.0f;
-    [layer addAnimation:animation forKey:@"BackgroundColorTransition"];
-}
-
 - (void)updateCover:(NSImage*)image animated:(BOOL)animated
 {
-    NSColor* averageColor = nil;
-    if (image == nil) {
-        image = [NSImage imageNamed:@"UnknownSong"];
-        averageColor = [NSColor windowBackgroundColor];
-    } else {
-        averageColor = [image averageColor];
-    }
     [self->_identificationCoverView setImage:[NSImage resizedImage:image size:self->_identificationCoverView.frame.size]
                                     animated:animated];
-    if (animated) {
-        [self animateLayer:self->_coverColorBackView.layer toBackgroundColor:averageColor];
-    } else {
-        [self->_coverColorBackView.layer removeAllAnimations];
-    }
-    self->_coverColorBackView.layer.backgroundColor = averageColor.CGColor;
 }
 
 - (void)session:(SHSession *)session didFindMatch:(SHMatch *)match

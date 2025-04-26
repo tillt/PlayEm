@@ -18,6 +18,9 @@
 #import "../NSBezierPath+CGPath.h"
 #import "../NSImage+Resize.h"
 #import "../Audio/AudioProcessing.h"
+#import "../NSImage+Average.h"
+
+//#define HIDE_COVER_DEBBUG 1
 
 static NSString * const kLayerImageName = @"IdentificationActiveStill";
 static NSString * const kLayerMaskImageName = @"IdentificationActiveStill";
@@ -29,7 +32,8 @@ extern NSString * const kBeatTrackedSampleTempoChangeNotification;
 @property (nonatomic, strong) CALayer* maskLayer;
 @property (nonatomic, strong) CALayer* overlayLayer;
 @property (nonatomic, strong) CALayer* glowLayer;
-@property (nonatomic, strong) CALayer* glowMaskLayer;
+@property (nonatomic, strong) CALayer* heloLayer;
+//@property (nonatomic, strong) CALayer* glowMaskLayer;
 @property (nonatomic, strong) CALayer* finalFxLayer;
 @end
 
@@ -38,19 +42,21 @@ extern NSString * const kBeatTrackedSampleTempoChangeNotification;
     float currentTempo;
     BOOL animating;
     BOOL paused;
+    BOOL unknown;
 }
 
-- (id)initWithFrame:(NSRect)frameRect style:(CoverViewStyleMask)style
+- (id)initWithFrame:(NSRect)frameRect contentsInsets:(NSEdgeInsets)insets style:(CoverViewStyleMask)style
 {
     self = [super initWithFrame:frameRect];
     if (self) {
         animating = NO;
         paused = NO;
+        unknown = YES;
         currentTempo = 120.0f;
         _overlayIntensity = 0.3f;
         _secondImageLayerOpacity = 0.2;
         _style = style;
-
+        self.additionalSafeAreaInsets = insets;
         self.wantsLayer = YES;
         self.autoresizingMask = NSViewHeightSizable | NSViewWidthSizable;
         self.clipsToBounds = NO;
@@ -82,8 +88,8 @@ extern NSString * const kBeatTrackedSampleTempoChangeNotification;
     if (localEnergy == 0.0) {
         localEnergy = 0.000000001;
     }
-    double depth = (self->currentTempo * self->currentTempo) / (50.0 * 50.0);
-
+//    double depth = (self->currentTempo * self->currentTempo) / (70.0 * 70.0);
+    double depth = 3.0f;
     const double normalizedEnergy = MIN(localEnergy / totalEnergy, 1.0);
     static double lastEnergy = 0.0;
     CGSize halfSize = CGSizeMake(layer.bounds.size.width / 2.0, layer.bounds.size.height / 2.0);
@@ -95,11 +101,10 @@ extern NSString * const kBeatTrackedSampleTempoChangeNotification;
     double lerpEnergy = (normalizedEnergy * normalFactor) + lastEnergy *  (1.0 - normalFactor);
     double slopedEnergy = lerpEnergy;
     lastEnergy = slopedEnergy;
-
     
     CGFloat scaleByPixel = slopedEnergy * depth;
-    double peakZoomBlurAmount = (scaleByPixel / 2.0) * (scaleByPixel / 2.0);
-
+    double peakZoomBlurAmount = (scaleByPixel  * scaleByPixel) / 2.0;
+    
     // We want to have an enlarged image the moment the beat hits, thus we start large as
     // that is when we are beeing called within the phase of the rhythm.
     CATransform3D tr = CATransform3DIdentity;
@@ -111,28 +116,51 @@ extern NSString * const kBeatTrackedSampleTempoChangeNotification;
     layer.transform = tr;
     
     CABasicAnimation* animation = [CABasicAnimation animationWithKeyPath:@"transform"];
+    //    CASpringAnimation* animation = [CASpringAnimation animationWithKeyPath:@"transform"];
+    //    animation.stiffness = 60.0;
+    //    animation.damping = 5;
     animation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseOut];
     animation.fillMode = kCAFillModeBoth;
     animation.removedOnCompletion = NO;
     double phaseLength = 30.0f / self->currentTempo;
     animation.fromValue = [NSValue valueWithCATransform3D:tr];
     animation.toValue = [NSValue valueWithCATransform3D:CATransform3DIdentity];
-    animation.repeatCount = 2.0f;
+    animation.repeatCount = 1.0f;
     animation.autoreverses = YES;
     animation.duration = phaseLength;
     
     [layer addAnimation:animation forKey:@"beatPumping"];
-
+    
     animation = [CABasicAnimation animationWithKeyPath:@"backgroundFilters.CIZoomBlur.inputAmount"];
+    //animation = [CASpringAnimation animationWithKeyPath:@"backgroundFilters.CIZoomBlur.inputAmount"];
+    //    animation.stiffness = 60.0;
+    //    animation.damping = 5;
     animation.fromValue = @(peakZoomBlurAmount);
     animation.toValue = @(0.0);
-    animation.repeatCount = 2.0f;
+    animation.repeatCount = 1.0f;
+    animation.autoreverses = YES;
+    animation.duration = phaseLength;
+    animation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut];
+    animation.fillMode = kCAFillModeBoth;
+    animation.removedOnCompletion = NO;
+    [_finalFxLayer addAnimation:animation forKey:@"beatWarping"];
+    
+    animation = [CABasicAnimation animationWithKeyPath:@"opacity"];
+    const float shrinkFactor = 10.0;
+    const float glowQuantum = slopedEnergy / shrinkFactor;
+    const float minGlowOpacity = 0;
+    const float maxGlowOpacity = unknown ? 0.0 : minGlowOpacity + (glowQuantum * (shrinkFactor / 2.0));
+    
+    animation.fromValue = @(maxGlowOpacity);
+    animation.toValue = @(minGlowOpacity);
+    animation.repeatCount = 1.0f;
     animation.autoreverses = YES;
     animation.duration = phaseLength;
     animation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseOut];
     animation.fillMode = kCAFillModeBoth;
     animation.removedOnCompletion = NO;
-    [_finalFxLayer addAnimation:animation forKey:@"beatWarping"];
+
+    [_heloLayer addAnimation:animation forKey:@"cornerFlashing"];
 }
 
 - (void)beatShakingLayer:(CALayer*)layer beatIndex:(int)index
@@ -205,11 +233,14 @@ extern NSString * const kBeatTrackedSampleTempoChangeNotification;
     layer.masksToBounds = NO;
     layer.anchorPoint = CGPointMake(0.5, 0.5);
     
+    CGRect contentsBounds = CGRectMake(0.0, 0.0, self.bounds.size.width - (self.additionalSafeAreaInsets.left + self.additionalSafeAreaInsets.right), self.bounds.size.height - (self.additionalSafeAreaInsets.top + self.additionalSafeAreaInsets.bottom));
+    CGRect contentsFrame = CGRectMake(self.additionalSafeAreaInsets.left, self.additionalSafeAreaInsets.top, self.bounds.size.width - (self.additionalSafeAreaInsets.left + self.additionalSafeAreaInsets.right), self.bounds.size.height - (self.additionalSafeAreaInsets.top + self.additionalSafeAreaInsets.bottom));
+    //CGRect contentsFrame = CGRectInset(self.bounds, self.additionalSafeAreaInsets.left, self.additionalSafeAreaInsets.top);
+
     CIFilter* bloomFilter = [CIFilter filterWithName:@"CIBloom"];
     [bloomFilter setDefaults];
-    [bloomFilter setValue: [NSNumber numberWithFloat:2.0] forKey: @"inputRadius"];
+    [bloomFilter setValue: [NSNumber numberWithFloat:7.0] forKey: @"inputRadius"];
     [bloomFilter setValue: [NSNumber numberWithFloat:1.0] forKey: @"inputIntensity"];
-
 
     CIFilter* additionFilter = [CIFilter filterWithName:@"CIAdditionCompositing"];
     [additionFilter setDefaults];
@@ -219,28 +250,50 @@ extern NSString * const kBeatTrackedSampleTempoChangeNotification;
         _glowLayer.magnificationFilter = kCAFilterLinear;
         _glowLayer.minificationFilter = kCAFilterLinear;
         NSImage* input = [NSImage resizedImage:[NSImage imageNamed:@"FadeGlow"]
-                                            size:self.bounds.size];
+                                            size:contentsBounds.size];
         _glowLayer.contents = input;
         
         //_glowLayer.contents = [self lightTunnelFilterImage:[input CG] withInputCenter:CGPointMake(self.bounds.size.width / 2.0, self.bounds.size.height / 2.0) inputRotation:0.0 inputRadius:0.0];
-        _glowLayer.frame = CGRectInset(self.bounds, -100.0, -100.0);
+        _glowLayer.frame = CGRectInset(contentsFrame, -100.0, -100.0);
     //    _glowLayer.frame = CGRectOffset(_glowLayer.frame, -50.0, -50.0);
         _glowLayer.allowsEdgeAntialiasing = YES;
         _glowLayer.shouldRasterize = YES;
+        _glowLayer.opacity = 0.4f;
         _glowLayer.autoresizingMask = kCALayerWidthSizable | kCALayerHeightSizable;
         _glowLayer.rasterizationScale = layer.contentsScale;
         _glowLayer.contentsScale = [[NSScreen mainScreen] backingScaleFactor];
         _glowLayer.masksToBounds = YES;
 //        _glowLayer.backgroundFilters = @[ bloomFilter ];
-        //_glowLayer.compositingFilter = additionFilter;
+        _glowLayer.compositingFilter = additionFilter;
         [layer addSublayer:_glowLayer];
+
+        _heloLayer = [CALayer layer];
+        _heloLayer.magnificationFilter = kCAFilterLinear;
+        _heloLayer.minificationFilter = kCAFilterLinear;
+        input = [NSImage resizedImage:[NSImage imageNamed:@"HeloGlow"]
+                                 size:contentsBounds.size];
+        _heloLayer.contents = input;
+        
+        //_glowLayer.contents = [self lightTunnelFilterImage:[input CG] withInputCenter:CGPointMake(self.bounds.size.width / 2.0, self.bounds.size.height / 2.0) inputRotation:0.0 inputRadius:0.0];
+        _heloLayer.frame = CGRectInset(contentsFrame, -55.0, -55.0);
+    //    _glowLayer.frame = CGRectOffset(_glowLayer.frame, -50.0, -50.0);
+        _heloLayer.allowsEdgeAntialiasing = YES;
+        _heloLayer.shouldRasterize = YES;
+        _heloLayer.opacity = 0.6f;
+        _heloLayer.autoresizingMask = kCALayerWidthSizable | kCALayerHeightSizable;
+        _heloLayer.rasterizationScale = layer.contentsScale;
+        _heloLayer.contentsScale = [[NSScreen mainScreen] backingScaleFactor];
+        _heloLayer.masksToBounds = YES;
+//        _glowLayer.backgroundFilters = @[ bloomFilter ];
+        _heloLayer.compositingFilter = additionFilter;
+        [layer addSublayer:_heloLayer];
     }
 
     // A layer meant to assert that our cover pops out and has maximal contrast. We need
     // this because <FIXME: Why?>
     _backingLayer = [CALayer layer];
     _backingLayer.autoresizingMask = kCALayerWidthSizable | kCALayerHeightSizable;
-    _backingLayer.frame = self.bounds;
+    _backingLayer.frame = contentsFrame;
     _backingLayer.shouldRasterize = YES;
     _backingLayer.masksToBounds = NO;
     _backingLayer.cornerRadius = 7.0f;
@@ -256,28 +309,29 @@ extern NSString * const kBeatTrackedSampleTempoChangeNotification;
 //        _backingLayer.filt = @[ darkFilter     ];
 //    }
 
-    _backingLayer.backgroundColor = [NSColor blackColor].CGColor;
+    //_backingLayer.backgroundColor = [NSColor blackColor].CGColor;
+    _backingLayer.backgroundColor = [NSColor controlBackgroundColor].CGColor;
     //_backingLayer.backgroundColor = [NSColor blackColor].CGColor;
 
     _maskLayer = [CALayer layer];
     _maskLayer.contents = [NSImage imageNamed:@"FadeMask"];
-    _maskLayer.frame = CGRectMake(-self.bounds.size.width / 2, -self.bounds.size.height / 2, self.bounds.size.width * 2, self.bounds.size.height * 2);
+    _maskLayer.frame = CGRectMake(-contentsBounds.size.width / 2, -contentsBounds.size.height / 2, contentsBounds.size.width * 2, contentsBounds.size.height * 2);
     _maskLayer.autoresizingMask = kCALayerWidthSizable | kCALayerHeightSizable;
     _maskLayer.contentsScale = [[NSScreen mainScreen] backingScaleFactor];
     _maskLayer.allowsEdgeAntialiasing = YES;
-    _maskLayer.position = CGPointMake(self.bounds.size.width / 2, self.bounds.size.height / 2);
+    _maskLayer.position = CGPointMake(contentsBounds.size.width / 2, contentsBounds.size.height / 2);
     
     _imageCopyLayer = [CALayer layer];
     _imageCopyLayer.magnificationFilter = kCAFilterLinear;
     _imageCopyLayer.minificationFilter = kCAFilterLinear;
-    _imageCopyLayer.frame = self.bounds;
+    _imageCopyLayer.frame = contentsBounds;
     _imageCopyLayer.contents = [NSImage resizedImage:[NSImage imageNamed:@"UnknownSong"]
-                                                size:self.bounds.size];
+                                                size:contentsBounds.size];
     _imageCopyLayer.autoresizingMask = kCALayerWidthSizable | kCALayerHeightSizable;
     _imageCopyLayer.cornerRadius = 7.0f;
     _imageCopyLayer.allowsEdgeAntialiasing = YES;
     _imageCopyLayer.contentsScale = [[NSScreen mainScreen] backingScaleFactor];
-    _imageCopyLayer.frame = self.bounds;
+    _imageCopyLayer.frame = contentsBounds;
     _imageCopyLayer.mask = _maskLayer;
     _imageCopyLayer.masksToBounds = YES;
     if ((_style & CoverViewStyleGlowBehindCoverAtLaser) == CoverViewStyleGlowBehindCoverAtLaser) {
@@ -297,16 +351,16 @@ extern NSString * const kBeatTrackedSampleTempoChangeNotification;
     _imageLayer = [CALayer layer];
     _imageLayer.magnificationFilter = kCAFilterLinear;
     _imageLayer.minificationFilter = kCAFilterLinear;
-    _imageLayer.frame = self.bounds;
+    _imageLayer.frame = contentsBounds;
     _imageLayer.contents = [NSImage resizedImage:[NSImage imageNamed:@"UnknownSong"]
-                                            size:self.bounds.size];
+                                            size:contentsBounds.size];
     _imageLayer.autoresizingMask = kCALayerWidthSizable | kCALayerHeightSizable;
     _imageLayer.allowsEdgeAntialiasing = YES;
     _imageLayer.shouldRasterize = YES;
     _imageLayer.rasterizationScale = layer.contentsScale;
     _imageLayer.contentsScale = [[NSScreen mainScreen] backingScaleFactor];
     _imageLayer.cornerRadius = 7.0f;
-    _imageLayer.frame = self.bounds;
+    _imageLayer.frame = contentsBounds;
     _imageLayer.masksToBounds = YES;
     if ((_style & CoverViewStyleGlowBehindCoverAtLaser) == CoverViewStyleGlowBehindCoverAtLaser) {
         _imageLayer.borderWidth = 1.0;
@@ -319,7 +373,7 @@ extern NSString * const kBeatTrackedSampleTempoChangeNotification;
 
     CIFilter* fxFilter = [CIFilter filterWithName:@"CIZoomBlur"];
     [fxFilter setDefaults];
-    CGPoint center = CGPointMake(self.bounds.size.width / 2.0f, self.bounds.size.height / 2.0f);
+    //CGPoint center = CGPointMake(contentsBounds.size.width / 2.0f, contentsBounds.size.height / 2.0f);
     [fxFilter setValue: [NSNumber numberWithFloat:0.1] forKey: @"inputAmount"];
     //[fxFilter setValue: [NSValue valueWithPoint:center] forKey: @"inputCenter"];
     //[fxFilter setValue: [NSNumber numberWithFloat:0.1] forKey: @"inputScale"];
@@ -348,11 +402,13 @@ extern NSString * const kBeatTrackedSampleTempoChangeNotification;
 
 //        _overlayLayer.backgroundFilters = @[ fxFilter ];
     }
-    
-    [layer addSublayer:_backingLayer];
 
+    
+#ifndef HIDE_COVER_DEBBUG
+    [layer addSublayer:_backingLayer];
+#endif
     _finalFxLayer = [CALayer layer];
-    _finalFxLayer.frame = self.bounds;
+    _finalFxLayer.frame = contentsBounds;
     _finalFxLayer.backgroundFilters = @[ fxFilter];
     
     [_backingLayer addSublayer:_finalFxLayer];
@@ -381,9 +437,36 @@ extern NSString * const kBeatTrackedSampleTempoChangeNotification;
     [self setImage:image animated:YES];
 }
 
+// Fade from current background color to the given one.
+- (void)animateLayer:(CALayer*)layer toBackgroundColor:(NSColor*)color
+{
+    CABasicAnimation* animation = [CABasicAnimation animationWithKeyPath:@"backgroundColor"];
+    animation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionLinear];
+    animation.fillMode = kCAFillModeForwards;
+    animation.removedOnCompletion = NO;
+    animation.fromValue = (id)layer.presentationLayer.backgroundColor;
+    animation.toValue = (id)color.CGColor;
+    animation.repeatCount = 1.0f;
+    animation.autoreverses = NO;
+    animation.duration = 4.0f;
+    [layer addAnimation:animation forKey:@"BackgroundColorTransition"];
+}
+
 - (void)setImage:(NSImage*)image animated:(BOOL)animated
 {
+    NSColor* averageColor = nil;
+    if (image == nil) {
+        unknown = YES;
+        image = [NSImage imageNamed:@"UnknownSong"];
+        averageColor = [NSColor windowBackgroundColor];
+    } else {
+        unknown = NO;
+        averageColor = [image averageColor];
+    }
+
     if (animated) {
+        [self animateLayer:self.layer toBackgroundColor:averageColor];
+
         [NSAnimationContext runAnimationGroup:^(NSAnimationContext *context) {
             [context setDuration:2.1f];
             [context setTimingFunction:[CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseIn]];
@@ -391,9 +474,13 @@ extern NSString * const kBeatTrackedSampleTempoChangeNotification;
             self.animator.imageLayer.contents = image;
         }];
     } else {
+        [self.layer removeAllAnimations];
+
         self.imageCopyLayer.contents = image;
         self.imageLayer.contents = image;
     }
+
+    self.layer.backgroundColor = averageColor.CGColor;
 }
 
 - (void)animate

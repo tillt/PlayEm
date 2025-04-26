@@ -149,6 +149,7 @@ extern NSString * const kPlaybackStatePlaying;
                                                                              coverButtonY,
                                                                              coverButtonWidth,
                                                                              coverButtonWidth)
+                                                   contentsInsets:NSEdgeInsetsZero
                                                             style:CoverViewStyleSepiaForSecondImageLayer | CoverViewStyleRotatingLaser];
 
     NSClickGestureRecognizer* recognizer = [[NSClickGestureRecognizer alloc] initWithTarget:_delegate action:@selector(showInfoForCurrentSong:)];

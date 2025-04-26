@@ -48,7 +48,7 @@ extern NSString * const kBeatTrackedSampleTempoChangeNotification;
         paused = NO;
         currentTempo = 120.0f;
         _overlayIntensity = 0.3f;
-        _secondImageLayerOpacity = 0.05;
+        _secondImageLayerOpacity = 0.2;
         _style = style;
 
         self.wantsLayer = YES;
@@ -82,23 +82,22 @@ extern NSString * const kBeatTrackedSampleTempoChangeNotification;
     if (localEnergy == 0.0) {
         localEnergy = 0.000000001;
     }
+    double depth = (self->currentTempo * self->currentTempo) / (50.0 * 50.0);
+
     const double normalizedEnergy = MIN(localEnergy / totalEnergy, 1.0);
     static double lastEnergy = 0.0;
     CGSize halfSize = CGSizeMake(layer.bounds.size.width / 2.0, layer.bounds.size.height / 2.0);
     
-    const double normalFactorUp = 0.9;
-    const double normalFactorDown = 0.1;
+    const double normalFactorUp = 0.8;
+    const double normalFactorDown = 0.08;
     
     double normalFactor = normalizedEnergy > lastEnergy ? normalFactorUp : normalFactorDown;
-
     double lerpEnergy = (normalizedEnergy * normalFactor) + lastEnergy *  (1.0 - normalFactor);
-    
-    //double delta = lerpEnergy - (lastEnergy * factor);
     double slopedEnergy = lerpEnergy;
-    
     lastEnergy = slopedEnergy;
 
-    CGFloat scaleByPixel = slopedEnergy * 4.0f;
+    
+    CGFloat scaleByPixel = slopedEnergy * depth;
     double peakZoomBlurAmount = (scaleByPixel / 2.0) * (scaleByPixel / 2.0);
 
     // We want to have an enlarged image the moment the beat hits, thus we start large as
@@ -257,7 +256,7 @@ extern NSString * const kBeatTrackedSampleTempoChangeNotification;
 //        _backingLayer.filt = @[ darkFilter     ];
 //    }
 
-    _backingLayer.backgroundColor = [NSColor windowBackgroundColor].CGColor;
+    _backingLayer.backgroundColor = [NSColor blackColor].CGColor;
     //_backingLayer.backgroundColor = [NSColor blackColor].CGColor;
 
     _maskLayer = [CALayer layer];

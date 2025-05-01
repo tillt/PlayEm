@@ -54,8 +54,6 @@ const CGFloat kTableRowHeight = 52.0f;
 @property (strong, nonatomic) AVAudioPCMBuffer* stream;
 
 @property (strong, nonatomic) IdentificationCoverView* identificationCoverView;
-@property (strong, nonatomic) NSButton* clipButton;
-@property (strong, nonatomic) NSButton* scButton;
 
 @property (strong, nonatomic) dispatch_queue_t identifyQueue;
 
@@ -159,7 +157,6 @@ const CGFloat kTableRowHeight = 52.0f;
     NSLog(@"IdentifyController.view becoming invisible");
     [[NSApplication sharedApplication] stopModal];
     [_audioController stopTapping];
-    [self reset];
 
     [[NSNotificationCenter defaultCenter] removeObserver:self
                                                     name:kAudioControllerChangedPlaybackStateNotification
@@ -173,11 +170,11 @@ const CGFloat kTableRowHeight = 52.0f;
     const CGFloat kPopoverWidth = 640.0f;
     const CGFloat kPopoverHeight = 280.0f;
     
-    const CGFloat kTableViewWidth = 350.0f;
+    const CGFloat kTableViewWidth = 340.0f;
     
     const CGFloat kCoverColumnWidth = kTableRowHeight;
     const CGFloat kTitleColumnWidth = 200.0;
-    const CGFloat kButtonsColumnWidth = 60.0;
+    const CGFloat kButtonsColumnWidth = 50.0;
     
     const CGFloat kBorderWidth = 20.0f;
     const CGFloat kBorderHeight = 0.0f;
@@ -185,7 +182,7 @@ const CGFloat kTableRowHeight = 52.0f;
     //const CGFloat kTitleFontSize = 19.0f;
     
     const CGFloat kCoverViewWidth = 260.0;
-    const CGFloat kCoverViewHeight = kCoverViewWidth;
+    const CGFloat kCoverViewHeight = kCoverViewWidth + 30.0;
     
     const NSAutoresizingMaskOptions kViewFullySizeable = NSViewHeightSizable | NSViewWidthSizable;
     
@@ -217,7 +214,7 @@ const CGFloat kTableRowHeight = 52.0f;
     //                                                            kTableViewWidth + kBorderWidth,
     //                                                            self.view.frame.size.height)];
     //
-    CGFloat y = kPopoverHeight - (kCoverViewHeight + kBorderHeight);
+    CGFloat y = (kPopoverHeight + 12.0) - (kCoverViewHeight + kBorderHeight);
     
     NSScrollView* sv = [[NSScrollView alloc] initWithFrame:NSMakeRect(0,
                                                                       y,
@@ -235,11 +232,12 @@ const CGFloat kTableRowHeight = 52.0f;
     _tableView.delegate = self;
     _tableView.dataSource = self;
     _tableView.backgroundColor = [NSColor clearColor];
+    _tableView.allowsEmptySelection = NO;
     //_tableView.backgroundColor = [NSColor blueColor];
     _tableView.autoresizingMask = kViewFullySizeable;
     _tableView.headerView = nil;
     _tableView.columnAutoresizingStyle = NSTableViewNoColumnAutoresizing;
-    _tableView.rowHeight = kTableRowHeight;
+    _tableView.rowHeight = kTableRowHeight + 2.0;
     _tableView.intercellSpacing = NSMakeSize(0.0, 0.0);
     
     NSTableColumn* col = [[NSTableColumn alloc] init];
@@ -387,20 +385,9 @@ const CGFloat kTableRowHeight = 52.0f;
     }];
 }
 
-- (void)reset
-{
-    //_svgView.animator.hidden = NO;
-    //_coverView.hidden = YES;
-    //_coverView.animator.image = [NSImage imageNamed:@"UnknownSong"];
-    _identificationCoverView.hidden = NO;
-    _clipButton.animator.alphaValue = 0.0;
-    _scButton.animator.alphaValue = 0.0;
-}
-
 - (void)shazam:(id)sender
 {
     NSLog(@"shazam!");
-    [self reset];
 
     _session = [[SHSession alloc] init];
     _session.delegate = self;
@@ -467,10 +454,11 @@ const CGFloat kTableRowHeight = 52.0f;
                     item.artwork = image;
                     [self updateCover:image animated:YES];
                     [self->_identifieds insertObject:item atIndex:0];
-
                     [self->_tableView beginUpdates];
-                    [self->_tableView insertRowsAtIndexes:[NSIndexSet indexSetWithIndex:0]
+                    NSIndexSet* indexSet = [NSIndexSet indexSetWithIndex:0];
+                    [self->_tableView insertRowsAtIndexes:indexSet
                                       withAnimation:NSTableViewAnimationSlideRight];
+                    [self->_tableView selectRowIndexes:indexSet byExtendingSelection:NO];
                     [self->_tableView endUpdates];
                 });
             });
@@ -498,7 +486,7 @@ const CGFloat kTableRowHeight = 52.0f;
 
     NSLog(@"didNotFindMatchForSignature - error was: %@", error);
     dispatch_async(dispatch_get_main_queue(), ^{
-        [self reset];
+        [self->_tableView selectRowIndexes:[NSIndexSet indexSet] byExtendingSelection:NO];
         [self updateCover:nil animated:YES];
    });
 }
@@ -510,17 +498,32 @@ const CGFloat kTableRowHeight = 52.0f;
     return NO;
 }
 
++ (NSTextField*)textFieldWithFrame:(NSRect)frame size:(float)size color:(NSColor*)color
+{
+    NSTextField* title = [[NSTextField alloc] initWithFrame:frame];
+    title.editable = NO;
+    title.font = [NSFont systemFontOfSize:size];
+    title.drawsBackground = NO;
+    title.bordered = NO;
+    title.usesSingleLineMode = YES;
+    title.cell.truncatesLastVisibleLine = YES;
+    title.cell.lineBreakMode = NSLineBreakByTruncatingTail;
+    title.alignment = NSTextAlignmentLeft;
+    title.textColor = color;
+    return title;
+}
+
 - (NSView*)tableView:(NSTableView*)tableView viewForTableColumn:(NSTableColumn*)tableColumn row:(NSInteger)row
 {
     NSLog(@"%s -- column:%@ row:%ld", __PRETTY_FUNCTION__, [tableColumn description], row);
     NSView* result = [tableView makeViewWithIdentifier:tableColumn.identifier owner:self];
     
-    const CGFloat kArtworkSize = kTableRowHeight;
-    const CGFloat kRowHeight = kTableRowHeight;
+    const CGFloat kArtworkSize = kTableRowHeight - 2.0;
+    //const CGFloat kRowHeight = kTableRowHeight;
     
     const CGFloat kSmallFontSize = 11.0;
     const CGFloat kRegularFontSize = 13.0;
-    const CGFloat kLargeFontSize = 15.0;
+    const CGFloat kLargeFontSize = 17.0;
 
     assert(_identifieds.count > 0);
     
@@ -531,7 +534,7 @@ const CGFloat kTableRowHeight = 52.0f;
             imageView = [[NSImageView alloc] initWithFrame:NSMakeRect(0.0,
                                                                       0.0,
                                                                       kArtworkSize,
-                                                                      kRowHeight)];
+                                                                      kArtworkSize)];
             result = imageView;
         } else {
             imageView = (NSImageView*)result;
@@ -547,7 +550,7 @@ const CGFloat kTableRowHeight = 52.0f;
             NSView* view = [[NSView alloc] initWithFrame:NSMakeRect(0.0,
                                                                     0.0,
                                                                     tableColumn.width,
-                                                                    kRowHeight)];
+                                                                    kArtworkSize)];
             paste = [NSButton buttonWithTitle:@"􀫵"
                                                   target:self
                                                   action:@selector(copyQueryToPasteboard:)];
@@ -556,9 +559,9 @@ const CGFloat kTableRowHeight = 52.0f;
             [paste setButtonType:NSButtonTypeMomentaryPushIn];
             paste.bezelStyle = NSBezelStyleTexturedRounded;
             paste.frame = NSMakeRect(  0.0,
-                                        kRowHeight / 2.0,
+                                    roundf(kArtworkSize / 2.0),
                                         kRegularFontSize * 2.0f,
-                                        kRowHeight / 2.0);
+                                     roundf(kArtworkSize / 2.0));
             [view addSubview:paste];
             soundcloud = [NSButton buttonWithTitle:@"􀙀"
                                             target:self
@@ -570,7 +573,7 @@ const CGFloat kTableRowHeight = 52.0f;
             soundcloud.frame = NSMakeRect(  0.0,
                                           0.0,
                                           kRegularFontSize * 2.0f,
-                                          kRowHeight / 2.0);
+                                          roundf(kArtworkSize / 2.0));
             [view addSubview:soundcloud];
             apple = [NSButton buttonWithTitle:@"􀣺"
                                         target:self
@@ -582,7 +585,7 @@ const CGFloat kTableRowHeight = 52.0f;
             apple.frame = NSMakeRect(  18.0,
                                         0.0,
                                         kRegularFontSize * 2.0f,
-                                        kRowHeight / 2.0);
+                                     roundf(kArtworkSize / 2.0));
             [view addSubview:apple];
             beatport = [NSButton buttonWithTitle:@"B"
                                         target:self
@@ -594,7 +597,7 @@ const CGFloat kTableRowHeight = 52.0f;
             beatport.frame = NSMakeRect(36.0,
                                         0.0,
                                         kRegularFontSize * 2.0f,
-                                        kRowHeight / 2.0);
+                                        roundf(kArtworkSize / 2.0));
             [view addSubview:beatport];
             result = view;
         } else {
@@ -616,46 +619,30 @@ const CGFloat kTableRowHeight = 52.0f;
             NSView* view = [[NSView alloc] initWithFrame:NSMakeRect(  0.0,
                                                                       0.0,
                                                                       tableColumn.width,
-                                                                      kRowHeight)];
+                                                                        kArtworkSize)];
 
-            title = [[NSTextField alloc] initWithFrame:NSMakeRect(0.0,
-                                                                            33.0,
-                                                                            tableColumn.width,
-                                                                            kLargeFontSize + 3.0)];
-            title.editable = NO;
-            title.font = [NSFont boldSystemFontOfSize:kLargeFontSize];
-            title.drawsBackground = NO;
-            title.bordered = NO;
-            title.usesSingleLineMode = YES;
-            title.alignment = NSTextAlignmentLeft;
-            //tf.backgroundColor = [NSColor blackColor];
-            title.textColor = [[Defaults sharedDefaults] lightBeamColor];
+            title = [IdentifyController textFieldWithFrame:NSMakeRect(  0.0,
+                                                                        ((kSmallFontSize + 4.0) * 2.0),
+                                                                        tableColumn.width,
+                                                                        kLargeFontSize + 3.0)
+                                                      size:kLargeFontSize
+                                                     color:[[Defaults sharedDefaults] lightBeamColor]];
             [view addSubview:title];
-            
-            artist = [[NSTextField alloc] initWithFrame:NSMakeRect(0.0,
-                                                               kLargeFontSize,
-                                                               tableColumn.width,
-                                                               kLargeFontSize + 2.0)];
-            artist.editable = NO;
-            artist.font = [NSFont systemFontOfSize:kSmallFontSize];
-            artist.drawsBackground = NO;
-            artist.usesSingleLineMode = YES;
-            artist.bordered = NO;
-            artist.alignment = NSTextAlignmentLeft;
-            artist.textColor = [[Defaults sharedDefaults] secondaryLabelColor];
+
+            artist = [IdentifyController textFieldWithFrame:NSMakeRect( 0.0,
+                                                                        (kSmallFontSize + 2.0) + 3.0,
+                                                                        tableColumn.width,
+                                                                        kSmallFontSize + 2.0)
+                                                       size:kSmallFontSize
+                                                      color:[[Defaults sharedDefaults] secondaryLabelColor]];
             [view addSubview:artist];
 
-            genre = [[NSTextField alloc] initWithFrame:NSMakeRect(0.0,
-                                                               2.0,
-                                                               tableColumn.width,
-                                                               kSmallFontSize + 2.0)];
-            genre.editable = NO;
-            genre.font = [NSFont systemFontOfSize:kSmallFontSize];
-            genre.drawsBackground = NO;
-            genre.bordered = NO;
-            genre.usesSingleLineMode = YES;
-            genre.alignment = NSTextAlignmentLeft;
-            genre.textColor = [[Defaults sharedDefaults] secondaryLabelColor];
+            genre = [IdentifyController textFieldWithFrame:NSMakeRect(  0.0,
+                                                                        2.0,
+                                                                        tableColumn.width,
+                                                                        kSmallFontSize + 2.0)
+                                                      size:kSmallFontSize
+                                                     color:[[Defaults sharedDefaults] secondaryLabelColor]];
             [view addSubview:genre];
 
             result = view;

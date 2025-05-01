@@ -75,6 +75,11 @@ extern NSString * const kBeatTrackedSampleTempoChangeNotification;
     return self;
 }
 
+- (BOOL)allowsVibrancy
+{
+    return YES;
+}
+
 - (void)tempoChange:(NSNotification*)notification
 {
     NSNumber* tempo = notification.object;

@@ -1082,6 +1082,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
         table.backgroundColor = [NSColor clearColor];
         table.style = NSTableViewStylePlain;
         table.autosaveTableColumns = YES;
+        table.allowsEmptySelection = NO;
         table.delegate = _browser;
         table.dataSource = _browser;
         table.headerView.wantsLayer = YES;

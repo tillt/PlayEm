@@ -43,6 +43,7 @@ extern NSString * const kBeatTrackedSampleTempoChangeNotification;
     BOOL animating;
     BOOL paused;
     BOOL unknown;
+    double lastEnergy;
 }
 
 - (id)initWithFrame:(NSRect)frameRect contentsInsets:(NSEdgeInsets)insets style:(CoverViewStyleMask)style
@@ -53,6 +54,7 @@ extern NSString * const kBeatTrackedSampleTempoChangeNotification;
         paused = NO;
         unknown = YES;
         currentTempo = 120.0f;
+        lastEnergy = 0.0;
         _overlayIntensity = 0.3f;
         _secondImageLayerOpacity = 0.2;
         _style = style;
@@ -82,24 +84,29 @@ extern NSString * const kBeatTrackedSampleTempoChangeNotification;
     }
 }
 
-//- (void)beatPumpingLayer:(CALayer*)layer localEnergy:(double)localEnergy totalEnergy:(double)totalEnergy
 - (void)beatPumpingLayer:(CALayer*)layer localEnergy:(double)localEnergy totalEnergy:(double)totalEnergy
 {
+    const CGSize halfSize = CGSizeMake(layer.bounds.size.width / 2.0, layer.bounds.size.height / 2.0);
+
     if (localEnergy == 0.0) {
         localEnergy = 0.000000001;
     }
-//    double depth = (self->currentTempo * self->currentTempo) / (70.0 * 70.0);
-    double depth = 3.0f;
+    const double depth = 3.0f;
+    // Attempt to get a reasonably wide signal range by normalizing the locals peaks by
+    // the globally most energy loaded samples.
     const double normalizedEnergy = MIN(localEnergy / totalEnergy, 1.0);
-    static double lastEnergy = 0.0;
-    CGSize halfSize = CGSizeMake(layer.bounds.size.width / 2.0, layer.bounds.size.height / 2.0);
+
+    // We quickly attempt to reach a value that is higher than the current one.
+    const double convergenceSpeedUp = 0.8;
+    // We slowly decay into a value that is lower than the current one.
+    const double convergenceSlowDown = 0.08;
+
+    double convergenceSpeed = normalizedEnergy > lastEnergy ? convergenceSpeedUp : convergenceSlowDown;
+    // To make sure the result is not flapping we smooth (lerp) using the previous result.
+    double lerpEnergy = (normalizedEnergy * convergenceSpeed) + lastEnergy *  (1.0 - convergenceSpeed);
+    // Gate the result for safety -- may mathematically not be needed, too lazy to find out.
+    double slopedEnergy = MIN(lerpEnergy, 1.0);
     
-    const double normalFactorUp = 0.8;
-    const double normalFactorDown = 0.08;
-    
-    double normalFactor = normalizedEnergy > lastEnergy ? normalFactorUp : normalFactorDown;
-    double lerpEnergy = (normalizedEnergy * normalFactor) + lastEnergy *  (1.0 - normalFactor);
-    double slopedEnergy = lerpEnergy;
     lastEnergy = slopedEnergy;
     
     CGFloat scaleByPixel = slopedEnergy * depth;
@@ -116,9 +123,6 @@ extern NSString * const kBeatTrackedSampleTempoChangeNotification;
     layer.transform = tr;
     
     CABasicAnimation* animation = [CABasicAnimation animationWithKeyPath:@"transform"];
-    //    CASpringAnimation* animation = [CASpringAnimation animationWithKeyPath:@"transform"];
-    //    animation.stiffness = 60.0;
-    //    animation.damping = 5;
     animation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseOut];
     animation.fillMode = kCAFillModeBoth;
     animation.removedOnCompletion = NO;
@@ -128,13 +132,10 @@ extern NSString * const kBeatTrackedSampleTempoChangeNotification;
     animation.repeatCount = 1.0f;
     animation.autoreverses = YES;
     animation.duration = phaseLength;
-    
+    animation.removedOnCompletion = NO;
     [layer addAnimation:animation forKey:@"beatPumping"];
     
     animation = [CABasicAnimation animationWithKeyPath:@"backgroundFilters.CIZoomBlur.inputAmount"];
-    //animation = [CASpringAnimation animationWithKeyPath:@"backgroundFilters.CIZoomBlur.inputAmount"];
-    //    animation.stiffness = 60.0;
-    //    animation.damping = 5;
     animation.fromValue = @(peakZoomBlurAmount);
     animation.toValue = @(0.0);
     animation.repeatCount = 1.0f;
@@ -146,31 +147,24 @@ extern NSString * const kBeatTrackedSampleTempoChangeNotification;
     [_finalFxLayer addAnimation:animation forKey:@"beatWarping"];
     
     animation = [CABasicAnimation animationWithKeyPath:@"opacity"];
-    const float shrinkFactor = 10.0;
-    const float glowQuantum = slopedEnergy / shrinkFactor;
-    const float minGlowOpacity = 0;
-    const float maxGlowOpacity = unknown ? 0.0 : minGlowOpacity + (glowQuantum * (shrinkFactor / 2.0));
-    
-    animation.fromValue = @(maxGlowOpacity);
-    animation.toValue = @(minGlowOpacity);
+    // We want the lighting to be very dimm for low values and to only become prominent with
+    // enery levels way above 50%.
+    float glowQuantum = powf(slopedEnergy, 5);
+    animation.fromValue = @(glowQuantum);
+    animation.toValue = @(0.0);
     animation.repeatCount = 1.0f;
     animation.autoreverses = YES;
     animation.duration = phaseLength;
     animation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseOut];
     animation.fillMode = kCAFillModeBoth;
     animation.removedOnCompletion = NO;
-
     [_heloLayer addAnimation:animation forKey:@"cornerFlashing"];
 }
 
-- (void)beatShakingLayer:(CALayer*)layer beatIndex:(int)index
+- (void)beatShakingLayer:(CALayer*)layer
 {
     static BOOL forward = YES;
     const int moveBeats = 4;
-    
-    if (index != 1) {
-        return;
-    }
     
     const CGFloat phaseLength = (60.0 * (moveBeats / 2.0)) / self->currentTempo;
     CGFloat angleToAdd = M_PI_2 / 90.0;
@@ -200,14 +194,16 @@ extern NSString * const kBeatTrackedSampleTempoChangeNotification;
 
     [CATransaction begin];
     [CATransaction setDisableActions:YES];
-   
+
+    // Bomb the bass!
     [self beatPumpingLayer:self.layer
                localEnergy:[dict[kBeatNotificationKeyLocalEnergy] doubleValue]
                totalEnergy:[dict[kBeatNotificationKeyTotalEnergy] doubleValue]];
 
-    [self beatShakingLayer:_backingLayer beatIndex:[dict[kBeatNotificationKeyBeat] intValue]];
-
-    
+    // We start shaking only on the first beat of a bar.
+    if ([dict[kBeatNotificationKeyBeat] intValue] == 1) {
+        [self beatShakingLayer:_backingLayer];
+    }
     
     [CATransaction commit];
 }
@@ -246,31 +242,10 @@ extern NSString * const kBeatTrackedSampleTempoChangeNotification;
     [additionFilter setDefaults];
 
     if ((_style & CoverViewStyleGlowBehindCoverAtLaser) == CoverViewStyleGlowBehindCoverAtLaser) {
-        _glowLayer = [CALayer layer];
-        _glowLayer.magnificationFilter = kCAFilterLinear;
-        _glowLayer.minificationFilter = kCAFilterLinear;
-        NSImage* input = [NSImage resizedImage:[NSImage imageNamed:@"FadeGlow"]
-                                            size:contentsBounds.size];
-        _glowLayer.contents = input;
-        
-        //_glowLayer.contents = [self lightTunnelFilterImage:[input CG] withInputCenter:CGPointMake(self.bounds.size.width / 2.0, self.bounds.size.height / 2.0) inputRotation:0.0 inputRadius:0.0];
-        _glowLayer.frame = CGRectInset(contentsFrame, -100.0, -100.0);
-    //    _glowLayer.frame = CGRectOffset(_glowLayer.frame, -50.0, -50.0);
-        _glowLayer.allowsEdgeAntialiasing = YES;
-        _glowLayer.shouldRasterize = YES;
-        _glowLayer.opacity = 0.4f;
-        _glowLayer.autoresizingMask = kCALayerWidthSizable | kCALayerHeightSizable;
-        _glowLayer.rasterizationScale = layer.contentsScale;
-        _glowLayer.contentsScale = [[NSScreen mainScreen] backingScaleFactor];
-        _glowLayer.masksToBounds = YES;
-//        _glowLayer.backgroundFilters = @[ bloomFilter ];
-        _glowLayer.compositingFilter = additionFilter;
-        [layer addSublayer:_glowLayer];
-
         _heloLayer = [CALayer layer];
         _heloLayer.magnificationFilter = kCAFilterLinear;
         _heloLayer.minificationFilter = kCAFilterLinear;
-        input = [NSImage resizedImage:[NSImage imageNamed:@"HeloGlow"]
+        NSImage* input = [NSImage resizedImage:[NSImage imageNamed:@"HeloGlow"]
                                  size:contentsBounds.size];
         _heloLayer.contents = input;
         
@@ -279,14 +254,36 @@ extern NSString * const kBeatTrackedSampleTempoChangeNotification;
     //    _glowLayer.frame = CGRectOffset(_glowLayer.frame, -50.0, -50.0);
         _heloLayer.allowsEdgeAntialiasing = YES;
         _heloLayer.shouldRasterize = YES;
-        _heloLayer.opacity = 0.6f;
+        _heloLayer.opacity = 0.0f;
+        _heloLayer.filters = @[ bloomFilter ];
         _heloLayer.autoresizingMask = kCALayerWidthSizable | kCALayerHeightSizable;
         _heloLayer.rasterizationScale = layer.contentsScale;
         _heloLayer.contentsScale = [[NSScreen mainScreen] backingScaleFactor];
         _heloLayer.masksToBounds = YES;
-//        _glowLayer.backgroundFilters = @[ bloomFilter ];
         _heloLayer.compositingFilter = additionFilter;
         [layer addSublayer:_heloLayer];
+
+        _glowLayer = [CALayer layer];
+        _glowLayer.magnificationFilter = kCAFilterLinear;
+        _glowLayer.minificationFilter = kCAFilterLinear;
+        input = [NSImage resizedImage:[NSImage imageNamed:@"FadeGlow"]
+                                            size:contentsBounds.size];
+        _glowLayer.contents = input;
+        
+        //_glowLayer.contents = [self lightTunnelFilterImage:[input CG] withInputCenter:CGPointMake(self.bounds.size.width / 2.0, self.bounds.size.height / 2.0) inputRotation:0.0 inputRadius:0.0];
+        _glowLayer.frame = CGRectInset(contentsFrame, -100.0, -100.0);
+    //    _glowLayer.frame = CGRectOffset(_glowLayer.frame, -50.0, -50.0);
+        _glowLayer.allowsEdgeAntialiasing = YES;
+        _glowLayer.shouldRasterize = YES;
+        _glowLayer.opacity = 0.6f;
+        _glowLayer.autoresizingMask = kCALayerWidthSizable | kCALayerHeightSizable;
+        _glowLayer.rasterizationScale = layer.contentsScale;
+        _glowLayer.contentsScale = [[NSScreen mainScreen] backingScaleFactor];
+        _glowLayer.backgroundFilters = @[ bloomFilter ];
+        _glowLayer.masksToBounds = YES;
+        _glowLayer.filters = @[ bloomFilter ];
+        _glowLayer.compositingFilter = additionFilter;
+        [layer addSublayer:_glowLayer];
     }
 
     // A layer meant to assert that our cover pops out and has maximal contrast. We need
@@ -365,7 +362,7 @@ extern NSString * const kBeatTrackedSampleTempoChangeNotification;
     if ((_style & CoverViewStyleGlowBehindCoverAtLaser) == CoverViewStyleGlowBehindCoverAtLaser) {
         _imageLayer.borderWidth = 1.0;
         //_imageLayer.borderColor = [NSColor windowFrameColor].CGColor;
-        _imageLayer.borderColor = [[[Defaults sharedDefaults] lightBeamColor] colorWithAlphaComponent:0.7].CGColor;
+        _imageLayer.borderColor = [[[Defaults sharedDefaults] lightBeamColor] colorWithAlphaComponent:0.3].CGColor;
     }
     if ((_style & CoverViewStyleRotatingLaser) == CoverViewStyleRotatingLaser) {
         _imageLayer.mask = _maskLayer;
@@ -374,7 +371,7 @@ extern NSString * const kBeatTrackedSampleTempoChangeNotification;
     CIFilter* fxFilter = [CIFilter filterWithName:@"CIZoomBlur"];
     [fxFilter setDefaults];
     //CGPoint center = CGPointMake(contentsBounds.size.width / 2.0f, contentsBounds.size.height / 2.0f);
-    [fxFilter setValue: [NSNumber numberWithFloat:0.1] forKey: @"inputAmount"];
+    [fxFilter setValue: [NSNumber numberWithFloat:0.0] forKey: @"inputAmount"];
     //[fxFilter setValue: [NSValue valueWithPoint:center] forKey: @"inputCenter"];
     //[fxFilter setValue: [NSNumber numberWithFloat:0.1] forKey: @"inputScale"];
 

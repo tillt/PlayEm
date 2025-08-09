@@ -6,7 +6,7 @@
 //  Copyright © 2022 Till Toenshoff. All rights reserved.
 //
 
-#import "IdentifyController.h"
+#import "IdentifyViewController.h"
 #import <WebKit/WebKit.h>
 #import <ShazamKit/ShazamKit.h>
 
@@ -46,7 +46,7 @@ const CGFloat kTableRowHeight = 52.0f;
 @end
 
 
-@interface IdentifyController ()
+@interface IdentifyViewController ()
 
 @property (weak, nonatomic) AudioController* audioController;
 @property (strong, nonatomic) SHSession* session;
@@ -63,8 +63,6 @@ const CGFloat kTableRowHeight = 52.0f;
 @property (strong, nonatomic, nullable) NSURL* imageURL;
 
 @property (strong, nonatomic) NSVisualEffectView* effectBelowList;
-//@property (strong, nonatomic) NSVisualEffectView* effectBelowImage;
-//@property (strong, nonatomic) NSView* coverColorBackView;
 
 @end
 
@@ -106,7 +104,7 @@ const CGFloat kTableRowHeight = 52.0f;
 @end
 
 
-@implementation IdentifyController
+@implementation IdentifyViewController
 
 - (id)initWithAudioController:(AudioController *)audioController
 {
@@ -139,9 +137,10 @@ const CGFloat kTableRowHeight = 52.0f;
 - (void)viewWillAppear
 {
     NSLog(@"IdentifyController.view becoming visible");
+    [_identificationCoverView startAnimating];
     [self updateCover:nil animated:NO];
     [self shazam:self];
-    [_identificationCoverView startAnimating];
+    //[_identificationCoverView startAnimating];
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(AudioControllerPlaybackStateChange:)
                                                  name:kAudioControllerChangedPlaybackStateNotification
@@ -157,7 +156,7 @@ const CGFloat kTableRowHeight = 52.0f;
     NSLog(@"IdentifyController.view becoming invisible");
     [[NSApplication sharedApplication] stopModal];
     [_audioController stopTapping];
-
+    
     [[NSNotificationCenter defaultCenter] removeObserver:self
                                                     name:kAudioControllerChangedPlaybackStateNotification
                                                   object:nil];
@@ -173,13 +172,11 @@ const CGFloat kTableRowHeight = 52.0f;
     const CGFloat kTableViewWidth = 340.0f;
     
     const CGFloat kCoverColumnWidth = kTableRowHeight;
-    const CGFloat kTitleColumnWidth = 200.0;
-    const CGFloat kButtonsColumnWidth = 50.0;
+    const CGFloat kTitleColumnWidth = 238.0;
+    const CGFloat kButtonsColumnWidth = 12.0;
     
     const CGFloat kBorderWidth = 20.0f;
     const CGFloat kBorderHeight = 0.0f;
-    
-    //const CGFloat kTitleFontSize = 19.0f;
     
     const CGFloat kCoverViewWidth = 260.0;
     const CGFloat kCoverViewHeight = kCoverViewWidth + 30.0;
@@ -190,8 +187,6 @@ const CGFloat kTableRowHeight = 52.0f;
                                                          0.0,
                                                          kPopoverWidth,
                                                          kPopoverHeight)];
-    //self.view = _effectBelow;
-    
     _effectBelowList = [[NSVisualEffectView alloc] initWithFrame:NSMakeRect(kCoverViewWidth + kBorderWidth + kBorderWidth,
                                                                             0,
                                                                             kTableViewWidth + kBorderWidth + kBorderWidth,
@@ -200,20 +195,6 @@ const CGFloat kTableRowHeight = 52.0f;
     _effectBelowList.autoresizingMask = NSViewHeightSizable | NSViewMinXMargin;
     _effectBelowList.blendingMode = NSVisualEffectBlendingModeBehindWindow;
     
-//    _coverColorBackView = [[NSView alloc] initWithFrame:NSMakeRect(0,
-//                                                                 0,
-//                                                                 kCoverViewWidth + kBorderWidth + kBorderWidth,
-//                                                                 kPopoverHeight+30.0)];
-//    _coverColorBackView.autoresizingMask = kViewFullySizeable;
-//    _coverColorBackView.wantsLayer = YES;
-//    _coverColorBackView.layerUsesCoreImageFilters = YES;
-//    _coverColorBackView.layer.backgroundColor = [NSColor windowBackgroundColor].CGColor;
-    
-    //    NSView* back = [[NSView alloc] initWithFrame:NSMakeRect(kCoverViewWidth,
-    //                                                            0,
-    //                                                            kTableViewWidth + kBorderWidth,
-    //                                                            self.view.frame.size.height)];
-    //
     CGFloat y = (kPopoverHeight + 12.0) - (kCoverViewHeight + kBorderHeight);
     
     NSScrollView* sv = [[NSScrollView alloc] initWithFrame:NSMakeRect(0,
@@ -233,7 +214,6 @@ const CGFloat kTableRowHeight = 52.0f;
     _tableView.dataSource = self;
     _tableView.backgroundColor = [NSColor clearColor];
     _tableView.allowsEmptySelection = NO;
-    //_tableView.backgroundColor = [NSColor blueColor];
     _tableView.autoresizingMask = kViewFullySizeable;
     _tableView.headerView = nil;
     _tableView.columnAutoresizingStyle = NSTableViewNoColumnAutoresizing;
@@ -261,35 +241,19 @@ const CGFloat kTableRowHeight = 52.0f;
     sv.documentView = _tableView;
     
     [_effectBelowList addSubview:sv];
-
-    //    _coverColorBackView = [[NSView alloc] initWithFrame:NSMakeRect(0,
-    //                                                                 0,
-    //                                                                 kCoverViewWidth + kBorderWidth + kBorderWidth,
-    //                                                                 kPopoverHeight+30.0)];
-//    _identificationCoverView = [[IdentificationCoverView alloc] initWithFrame:NSMakeRect(kBorderWidth,
-//                                                                                         y,
-//                                                                                         kCoverViewWidth,
-//                                                                                         kCoverViewHeight)
-//                                                                        style:CoverViewStyleGlowBehindCoverAtLaser
-//                                                                            | CoverViewStyleSepiaForSecondImageLayer
-//                                                                            | CoverViewStylePumpingToTheBeat
-//                                                                            | CoverViewStyleRotatingLaser];
-
+    
     _identificationCoverView = [[IdentificationCoverView alloc] initWithFrame:NSMakeRect(0,
                                                                                          0,
                                                                                          kCoverViewWidth + kBorderWidth + kBorderWidth,
                                                                                          kPopoverHeight+30.0)
                                                                contentsInsets:NSEdgeInsetsMake(kBorderWidth,kBorderWidth, 30.0,kBorderWidth)
                                                                         style:CoverViewStyleGlowBehindCoverAtLaser
-                                                                            | CoverViewStyleSepiaForSecondImageLayer
-                                                                            | CoverViewStylePumpingToTheBeat
-                                                                            | CoverViewStyleRotatingLaser];
-    //_identificationCoverView.alignmentRectInsets
-//    [_coverColorBackView addSubview:_identificationCoverView];
-//    [self.view addSubview:_coverColorBackView];
-//    [_coverColorBackView addSubview:_identificationCoverView];
-    [self.view addSubview:_identificationCoverView];
+                                | CoverViewStyleSepiaForSecondImageLayer
+                                | CoverViewStylePumpingToTheBeat
+                                | CoverViewStyleRotatingLaser];
 
+    [self.view addSubview:_identificationCoverView];
+    
     [self.view addSubview:_effectBelowList];
 }
 
@@ -302,6 +266,53 @@ const CGFloat kTableRowHeight = 52.0f;
         ret = [NSString stringWithFormat:@"%@ - %@", artist, title];
     }
     return ret;
+}
+
+- (NSMenu*)itemMenuForTag:(int)tag
+{
+    NSMenu* menu = [NSMenu new];
+    
+    NSMenuItem* item = [[NSMenuItem alloc] initWithTitle:@"Copy to Clipboard"
+                                                  action:@selector(copyQueryToPasteboard:)
+                                           keyEquivalent:@""];
+    [item setKeyEquivalentModifierMask:NSEventModifierFlagCommand];
+    item.tag = tag;
+    [menu addItem:item];
+
+    [menu addItem:[NSMenuItem separatorItem]];
+
+    item = [[NSMenuItem alloc] initWithTitle:@"Open in Soundcloud"
+                                      action:@selector(openSoundcloud:)
+                               keyEquivalent:@""];
+    [item setKeyEquivalentModifierMask:NSEventModifierFlagCommand];
+    item.tag = tag;
+    [menu addItem:item];
+
+    item = [[NSMenuItem alloc] initWithTitle:@"Open in Beatport"
+                                      action:@selector(openBeatport:)
+                               keyEquivalent:@""];
+    [item setKeyEquivalentModifierMask:NSEventModifierFlagCommand];
+    item.tag = tag;
+    [menu addItem:item];
+
+    item = [menu addItemWithTitle:@"Open in Apple Music"
+                           action:@selector(musicURLClicked:)
+                    keyEquivalent:@""];
+    item.tag = tag;
+    item.target = self;
+    
+    return menu;
+}
+
+- (void)showMenu:(id)sender
+{
+    NSButton* button = sender;
+    NSMenu* menu = [self itemMenuForTag:(int)button.tag];
+    NSPoint mouseLocation = [NSEvent mouseLocation];
+
+    [menu popUpMenuPositioningItem:menu.itemArray[0]
+                        atLocation:NSMakePoint(mouseLocation.x - 12.0f, mouseLocation.y + 12.0f)
+                            inView:nil];
 }
 
 - (void)copyQueryToPasteboard:(id)sender
@@ -329,7 +340,7 @@ const CGFloat kTableRowHeight = 52.0f;
     NSString* search = [self queryWithIdentifiedItem:_identifieds[row]];
     search = [search stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
     search = [search stringByAddingPercentEncodingWithAllowedCharacters:URLFullCharacterSet];
-
+    
     NSURL* queryURL = [NSURL URLWithString:[NSString stringWithFormat:kSoundCloudQuery, search]];
     NSURL* appURL = [[NSWorkspace sharedWorkspace] URLForApplicationToOpenURL:queryURL];
     NSWorkspaceOpenConfiguration* configuration = [NSWorkspaceOpenConfiguration new];
@@ -353,7 +364,7 @@ const CGFloat kTableRowHeight = 52.0f;
     NSString* search = [self queryWithIdentifiedItem:_identifieds[row]];
     search = [search stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
     search = [search stringByAddingPercentEncodingWithAllowedCharacters:URLFullCharacterSet];
-
+    
     NSURL* queryURL = [NSURL URLWithString:[NSString stringWithFormat:kBeatportQuery, search]];
     NSURL* appURL = [[NSWorkspace sharedWorkspace] URLForApplicationToOpenURL:queryURL];
     NSWorkspaceOpenConfiguration* configuration = [NSWorkspaceOpenConfiguration new];
@@ -370,7 +381,7 @@ const CGFloat kTableRowHeight = 52.0f;
     unsigned long row = (_identifieds.count - button.tag) - 1;
     NSLog(@"music url row %ld", row);
     NSURL* musicURL = _identifieds[row].musicURL;
-//    NSLog(@"opening %@", _musicURL);
+    //    NSLog(@"opening %@", _musicURL);
     // For making sure this wont open Music.app we fetch the
     // default app for URLs.
     // With that we explicitly call the browser for opening the
@@ -388,24 +399,23 @@ const CGFloat kTableRowHeight = 52.0f;
 - (void)shazam:(id)sender
 {
     NSLog(@"shazam!");
-
+    
     _session = [[SHSession alloc] init];
     _session.delegate = self;
-
-    LazySample* sample = _audioController.sample;
-    assert(sample);
+    
+    SampleFormat sampleFormat = _audioController.sample.sampleFormat;
     
     AVAudioFrameCount matchWindowFrameCount = kPlaybackBufferFrames;
     AVAudioChannelLayout* layout = [[AVAudioChannelLayout alloc] initWithLayoutTag:kAudioChannelLayoutTag_Mono];
     AVAudioFormat* format = [[AVAudioFormat alloc] initWithCommonFormat:AVAudioPCMFormatFloat32
-                                                             sampleRate:sample.rate
+                                                             sampleRate:sampleFormat.rate
                                                             interleaved:NO
                                                           channelLayout:layout];
     
     _stream = [[AVAudioPCMBuffer alloc] initWithPCMFormat:format frameCapacity:matchWindowFrameCount];
     
-//#define DEBUG_TAPPING 1
-
+    //#define DEBUG_TAPPING 1
+    
 #ifdef DEBUG_TAPPING
     FILE* fp = fopen("/tmp/debug_tap.out", "wb");
 #endif
@@ -416,17 +426,17 @@ const CGFloat kTableRowHeight = 52.0f;
             float* outputBuffer = self.stream.floatChannelData[0];
             for (int i = 0; i < frames; i++) {
                 float s = 0.0;
-                for (int channel = 0; channel < sample.channels; channel++) {
-                    s += input[(sample.channels * i) + channel];
+                for (int channel = 0; channel < sampleFormat.channels; channel++) {
+                    s += input[(sampleFormat.channels * i) + channel];
                 }
-                s /= sample.channels;
+                s /= sampleFormat.channels;
                 outputBuffer[i] = s;
             }
 #ifdef DEBUG_TAPPING
             fwrite(outputBuffer, sizeof(float), frames, fp);
 #endif
             [self.session matchStreamingBuffer:self.stream
-                                        atTime:[AVAudioTime timeWithSampleTime:offset atRate:sample.rate]];
+                                        atTime:[AVAudioTime timeWithSampleTime:offset atRate:sampleFormat.rate]];
         });
     }];
 }
@@ -444,10 +454,10 @@ const CGFloat kTableRowHeight = 52.0f;
     dispatch_async(dispatch_get_main_queue(), ^{
         if (match.mediaItems[0].artworkURL != nil && ![match.mediaItems[0].artworkURL.absoluteString isEqualToString:self.imageURL.absoluteString]) {
             NSLog(@"need to re/load the image as the displayed URL %@ wouldnt match the requested URL %@", self.imageURL.absoluteString, match.mediaItems[0].artworkURL.absoluteString);
-
+            
             IdentifiedItem* item = [[IdentifiedItem alloc] initWithMatchedMediaItem:match.mediaItems[0]];
             self.imageURL = match.mediaItems[0].artworkURL;
-
+            
             dispatch_async(dispatch_queue_create("AsyncImageQueue", NULL), ^{
                 NSImage* image = [[NSImage alloc] initWithContentsOfURL:match.mediaItems[0].artworkURL];
                 dispatch_async(dispatch_get_main_queue(), ^{
@@ -457,7 +467,7 @@ const CGFloat kTableRowHeight = 52.0f;
                     [self->_tableView beginUpdates];
                     NSIndexSet* indexSet = [NSIndexSet indexSetWithIndex:0];
                     [self->_tableView insertRowsAtIndexes:indexSet
-                                      withAnimation:NSTableViewAnimationSlideRight];
+                                            withAnimation:NSTableViewAnimationSlideRight];
                     [self->_tableView selectRowIndexes:indexSet byExtendingSelection:NO];
                     [self->_tableView endUpdates];
                 });
@@ -468,27 +478,11 @@ const CGFloat kTableRowHeight = 52.0f;
 
 - (void)session:(SHSession *)session didNotFindMatchForSignature:(SHSignature *)signature error:(nullable NSError *)error
 {
-    /*
-    NSArray<NSString*>* messages = @[   @"... so far, not known ...",
-                                        @"... that reminds me of ...",
-                                        @"... almost got it but then ...",
-                                        @"... crunching hard but so far ...",
-                                        @"... dont tell me someone pitched this stuff ...",
-                                        @"... heard this the other day ...",
-                                        @"... nah, no idea ...",
-                                        @"... hah, yeah I think I know this one ...",
-                                        @"... darn, I swear that one I know for sure ...",
-                                        @"... slipped my mind, knew it the other day ...",
-                                        @"... wasnt that done by that dude ...",
-                                        @"... wait! what was that again..." ];
-    int r = arc4random_uniform((unsigned int)messages.count);
-    */
-
     NSLog(@"didNotFindMatchForSignature - error was: %@", error);
     dispatch_async(dispatch_get_main_queue(), ^{
         [self->_tableView selectRowIndexes:[NSIndexSet indexSet] byExtendingSelection:NO];
         [self updateCover:nil animated:YES];
-   });
+    });
 }
 
 #pragma mark - Table View delegate
@@ -518,13 +512,13 @@ const CGFloat kTableRowHeight = 52.0f;
     NSLog(@"%s -- column:%@ row:%ld", __PRETTY_FUNCTION__, [tableColumn description], row);
     NSView* result = [tableView makeViewWithIdentifier:tableColumn.identifier owner:self];
     
+    NSString* const buttonTitle = @"􀍠";
+
     const CGFloat kArtworkSize = kTableRowHeight - 2.0;
-    //const CGFloat kRowHeight = kTableRowHeight;
-    
     const CGFloat kSmallFontSize = 11.0;
     const CGFloat kRegularFontSize = 13.0;
     const CGFloat kLargeFontSize = 17.0;
-
+    
     assert(_identifieds.count > 0);
     
     const NSInteger tag = (_identifieds.count - 1) - row;
@@ -542,109 +536,64 @@ const CGFloat kTableRowHeight = 52.0f;
         imageView.image = [NSImage resizedImage:_identifieds[row].artwork
                                            size:NSMakeSize(kArtworkSize, kArtworkSize)];;
     } else if ([tableColumn.identifier isEqualToString:kButtonColumnIdenfifier]) {
-        NSButton* paste = nil;
-        NSButton* soundcloud = nil;
-        NSButton* apple = nil;
-        NSButton* beatport = nil;
+        NSButton* menuButton = nil;
         if (result == nil) {
             NSView* view = [[NSView alloc] initWithFrame:NSMakeRect(0.0,
                                                                     0.0,
                                                                     tableColumn.width,
                                                                     kArtworkSize)];
-            paste = [NSButton buttonWithTitle:@"􀫵"
-                                                  target:self
-                                                  action:@selector(copyQueryToPasteboard:)];
-            paste.font = [NSFont systemFontOfSize:kRegularFontSize];
-            paste.bordered = NO;
-            [paste setButtonType:NSButtonTypeMomentaryPushIn];
-            paste.bezelStyle = NSBezelStyleTexturedRounded;
-            paste.frame = NSMakeRect(  0.0,
-                                    roundf(kArtworkSize / 2.0),
-                                        kRegularFontSize * 2.0f,
-                                     roundf(kArtworkSize / 2.0));
-            [view addSubview:paste];
-            soundcloud = [NSButton buttonWithTitle:@"􀙀"
+            menuButton = [NSButton buttonWithTitle:buttonTitle
                                             target:self
-                                            action:@selector(openSoundcloud:)];
-            soundcloud.font = [NSFont systemFontOfSize:kRegularFontSize];
-            soundcloud.bordered = NO;
-            [soundcloud setButtonType:NSButtonTypeMomentaryPushIn];
-            soundcloud.bezelStyle = NSBezelStyleTexturedRounded;
-            soundcloud.frame = NSMakeRect(  0.0,
-                                          0.0,
-                                          kRegularFontSize * 2.0f,
+                                            action:@selector(showMenu:)];
+            menuButton.font = [NSFont systemFontOfSize:kRegularFontSize];
+            menuButton.bordered = NO;
+            [menuButton setButtonType:NSButtonTypeMomentaryPushIn];
+            menuButton.bezelStyle = NSBezelStyleTexturedRounded;
+            menuButton.frame = NSMakeRect(0.0,
+                                          roundf((kArtworkSize - roundf(kArtworkSize / 2.0)) / 2.0),
+                                          tableColumn.width,
                                           roundf(kArtworkSize / 2.0));
-            [view addSubview:soundcloud];
-            apple = [NSButton buttonWithTitle:@"􀣺"
-                                        target:self
-                                        action:@selector(musicURLClicked:)];
-            apple.font = [NSFont systemFontOfSize:kRegularFontSize];
-            apple.bordered = NO;
-            [apple setButtonType:NSButtonTypeMomentaryPushIn];
-            apple.bezelStyle = NSBezelStyleTexturedRounded;
-            apple.frame = NSMakeRect(  18.0,
-                                        0.0,
-                                        kRegularFontSize * 2.0f,
-                                     roundf(kArtworkSize / 2.0));
-            [view addSubview:apple];
-            beatport = [NSButton buttonWithTitle:@"B"
-                                        target:self
-                                        action:@selector(openBeatport:)];
-            beatport.font = [NSFont systemFontOfSize:kRegularFontSize];
-            beatport.bordered = NO;
-            [beatport setButtonType:NSButtonTypeMomentaryPushIn];
-            beatport.bezelStyle = NSBezelStyleTexturedRounded;
-            beatport.frame = NSMakeRect(36.0,
-                                        0.0,
-                                        kRegularFontSize * 2.0f,
-                                        roundf(kArtworkSize / 2.0));
-            [view addSubview:beatport];
+            [view addSubview:menuButton];
             result = view;
         } else {
             NSArray<NSButton*>* subviews = [result subviews];
-            paste = subviews[0];
-            soundcloud = subviews[1];
-            apple = subviews[2];
-            beatport = subviews[3];
+            menuButton = subviews[0];
         }
-        paste.tag = tag;
-        soundcloud.tag = tag;
-        apple.tag = tag;
-        beatport.tag = tag;
+        menuButton.tag = tag;
     } else if ([tableColumn.identifier isEqualToString:kTitleColumnIdenfifier]) {
         NSTextField* title = nil;
         NSTextField* artist = nil;
         NSTextField* genre = nil;
         if (result == nil) {
             NSView* view = [[NSView alloc] initWithFrame:NSMakeRect(  0.0,
-                                                                      0.0,
-                                                                      tableColumn.width,
-                                                                        kArtworkSize)];
-
-            title = [IdentifyController textFieldWithFrame:NSMakeRect(  0.0,
-                                                                        ((kSmallFontSize + 4.0) * 2.0),
-                                                                        tableColumn.width,
-                                                                        kLargeFontSize + 3.0)
-                                                      size:kLargeFontSize
-                                                     color:[[Defaults sharedDefaults] lightBeamColor]];
+                                                                    0.0,
+                                                                    tableColumn.width,
+                                                                    kArtworkSize)];
+            
+            title = [IdentifyViewController textFieldWithFrame:NSMakeRect(  0.0,
+                                                                          ((kSmallFontSize + 4.0) * 2.0),
+                                                                          tableColumn.width,
+                                                                          kLargeFontSize + 3.0)
+                                                          size:kLargeFontSize
+                                                         color:[[Defaults sharedDefaults] lightBeamColor]];
             [view addSubview:title];
-
-            artist = [IdentifyController textFieldWithFrame:NSMakeRect( 0.0,
-                                                                        (kSmallFontSize + 2.0) + 3.0,
-                                                                        tableColumn.width,
-                                                                        kSmallFontSize + 2.0)
-                                                       size:kSmallFontSize
-                                                      color:[[Defaults sharedDefaults] secondaryLabelColor]];
+            
+            artist = [IdentifyViewController textFieldWithFrame:NSMakeRect( 0.0,
+                                                                           (kSmallFontSize + 2.0) + 3.0,
+                                                                           tableColumn.width,
+                                                                           kSmallFontSize + 2.0)
+                                                           size:kSmallFontSize
+                                                          color:[[Defaults sharedDefaults] secondaryLabelColor]];
             [view addSubview:artist];
-
-            genre = [IdentifyController textFieldWithFrame:NSMakeRect(  0.0,
-                                                                        2.0,
-                                                                        tableColumn.width,
-                                                                        kSmallFontSize + 2.0)
-                                                      size:kSmallFontSize
-                                                     color:[[Defaults sharedDefaults] secondaryLabelColor]];
+            
+            genre = [IdentifyViewController textFieldWithFrame:NSMakeRect(  0.0,
+                                                                          2.0,
+                                                                          tableColumn.width,
+                                                                          kSmallFontSize + 2.0)
+                                                          size:kSmallFontSize
+                                                         color:[[Defaults sharedDefaults] secondaryLabelColor]];
             [view addSubview:genre];
-
+            
             result = view;
         } else {
             NSArray<NSTextField*>* subviews = result.subviews;
@@ -657,7 +606,7 @@ const CGFloat kTableRowHeight = 52.0f;
         [genre setStringValue:_identifieds[row].genre];
     }
     result.identifier = tableColumn.identifier;
-
+    
     return result;
 }
 

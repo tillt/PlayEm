@@ -12,7 +12,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface IndexedBlockOperation : NSObject
 
-@property (nonatomic, assign) size_t index;
+@property (nonatomic, assign) size_t index;         // FIXME: Yeah, this stinks so bad, i am barfing.
+                                                    // FIXME: The indexed operation needs to know its own index - not so clever!
 @property (nonatomic, strong) NSMutableData* data;
 @property (nonatomic, copy, nullable) dispatch_block_t dispatchBlock;
 @property (nonatomic, assign) BOOL isFinished;

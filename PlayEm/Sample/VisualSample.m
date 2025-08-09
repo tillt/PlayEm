@@ -51,26 +51,27 @@
         assert(pixelPerSecond);
         _pixelPerSecond = pixelPerSecond;
         _operations = [ConcurrentAccessDictionary new];
-        _framesPerPixel = (double)sample.rate / pixelPerSecond;
+        _framesPerPixel = (double)sample.sampleFormat.rate / pixelPerSecond;
         _tileWidth = tileWidth;
         _energy = [EnergyDetector new];
         assert(_framesPerPixel >= 1.0);
         _sampleBuffers = [NSMutableArray array];
 
         unsigned long long framesNeeded = tileWidth * _framesPerPixel;
-        for (int channel = 0; channel < sample.channels; channel++) {
+        for (int channel = 0; channel < sample.sampleFormat.channels; channel++) {
             NSMutableData* buffer = [NSMutableData dataWithCapacity:framesNeeded * _sample.frameSize];
             [_sampleBuffers addObject:buffer];
         }
 
         dispatch_queue_attr_t attr = dispatch_queue_attr_make_with_qos_class(DISPATCH_QUEUE_SERIAL, QOS_CLASS_USER_INITIATED, 0);
-        const char* queue_name = [[NSString stringWithFormat:@"VisualSample%fPPS", pixelPerSecond] cStringUsingEncoding:NSStringEncodingConversionAllowLossy];
+        const char* queue_name = [[NSString stringWithFormat:@"VisualSample%.0fPPM", pixelPerSecond * 60.0] cStringUsingEncoding:NSStringEncodingConversionAllowLossy];
         _calculations_queue = dispatch_queue_create(queue_name, attr);
         
         _reducedTotalWidth = 0;
         _reducedSample = nil;
         _framesPerReducedValue = 0;
         _reductionWindowFrame = 0.0;
+        NSLog(@"VisualSample %@ init", self);
     }
     return self;
 }
@@ -90,10 +91,13 @@
 
 - (void)allAbort
 {
-    NSLog(@"aborting all operations...");
+    NSLog(@"aborting all operations for %@ ...", _calculations_queue);
     NSArray* keys = [_operations allKeys];
+    //NSMutableArray<IndexedBlockOperation*>* killem = [NSMutableArray array];
+    
     for (id key in keys) {
         IndexedBlockOperation* operation = [_operations objectForKey:key];
+        //[killem addObject:operation];
         if (!operation.isFinished) {
             [operation cancel];
         }
@@ -108,6 +112,7 @@
 
 - (void)dealloc
 {
+    NSLog(@"VisualSample %@ removing from memory", self);
     [self allAbort];
 }
 
@@ -126,7 +131,7 @@
     _pixelPerSecond = pixelPerSecond;
     assert(_pixelPerSecond > 0.0f);
 
-    _framesPerPixel = (double)_sample.rate / pixelPerSecond;
+    _framesPerPixel = (double)_sample.sampleFormat.rate / pixelPerSecond;
     assert(_framesPerPixel >= 1.0);
 }
 
@@ -266,7 +271,7 @@
     [_operations setObject:blockOperation forKey:[NSNumber numberWithLong:pageIndex]];
     
     [blockOperation run:^(void){
-        const int channels = weakSelf.sample.channels;
+        const int channels = weakSelf.sample.sampleFormat.channels;
 
         if (weakOperation.isCancelled || channels == 0) {
             return;

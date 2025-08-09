@@ -11,8 +11,9 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @class AudioController;
+@class LazySample;
 
-@interface IdentifyController : NSViewController <SHSessionDelegate, NSTableViewDelegate, NSTableViewDataSource>
+@interface IdentifyViewController : NSViewController <SHSessionDelegate, NSMenuDelegate, NSTableViewDelegate, NSTableViewDataSource>
 
 - (id)initWithAudioController:(AudioController*)audioController;
 

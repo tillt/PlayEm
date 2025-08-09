@@ -48,8 +48,8 @@ const size_t kMaxFramesPerBuffer = 16384;
         }
     
         AVAudioFormat* format = _source.processingFormat;
-        _channels = format.channelCount;
-        _rate = format.sampleRate;
+        _sampleFormat.rate = format.sampleRate;
+        _sampleFormat.channels = format.channelCount;
         _frameSize = format.channelCount * sizeof(float);
         _buffers = [NSMutableDictionary dictionary];
         NSLog(@"...lazy sample initialized");
@@ -119,7 +119,7 @@ const size_t kMaxFramesPerBuffer = 16384;
 
         unsigned long long count = MIN(kMaxFramesPerBuffer - pageOffset, frames);
         
-        copy(count, pageOffset, _channels, channels);
+        copy(count, pageOffset, _sampleFormat.channels, channels);
         
         offset += count;
         frames -= count;
@@ -132,8 +132,8 @@ const size_t kMaxFramesPerBuffer = 16384;
                                        outputs:(float * const _Nonnull * _Nullable)outputs
 {
     // Prepare the data pointer array to point at our outputs pointers
-    float* data[_channels];
-    memcpy(data, outputs, _channels * sizeof(float*));
+    float* data[_sampleFormat.channels];
+    memcpy(data, outputs, _sampleFormat.channels * sizeof(float*));
 
     __block float** output = data;
     return [self rawSampleFromFrameOffset:offset 
@@ -171,12 +171,15 @@ const size_t kMaxFramesPerBuffer = 16384;
     FILE* fp;
     
     fp = fopen("/tmp/dumpedLazySample.raw", "rb");
+    if (fp == NULL) {
+        return;
+    }
 
-    float* windows[_channels];
-    float* data[_channels];
+    float* windows[_sampleFormat.channels];
+    float* data[_sampleFormat.channels];
     const size_t channelWindowFrames = 180000;
 
-    for (int channelIndex=0; channelIndex < _channels; channelIndex++) {
+    for (int channelIndex=0; channelIndex < _sampleFormat.channels; channelIndex++) {
         windows[channelIndex] = malloc(channelWindowFrames * sizeof(float));
     }
     
@@ -189,11 +192,11 @@ const size_t kMaxFramesPerBuffer = 16384;
         
         [self rawSampleFromFrameOffset:offset frames:fetchSize outputs:windows];
 
-        for (int channelIndex=0; channelIndex < _channels; channelIndex++) {
+        for (int channelIndex=0; channelIndex < _sampleFormat.channels; channelIndex++) {
             data[channelIndex] = windows[channelIndex];
         }
         for (size_t i=0; i < fetchSize;i++){
-            for (int channelIndex=0; channelIndex < _channels; channelIndex++) {
+            for (int channelIndex=0; channelIndex < _sampleFormat.channels; channelIndex++) {
                 *output = *data[channelIndex];
                 output++;
                 data[channelIndex]++;
@@ -207,7 +210,7 @@ const size_t kMaxFramesPerBuffer = 16384;
     fclose(fp);
     
     free(outp);
-    for (int channelIndex=0; channelIndex < _channels; channelIndex++) {
+    for (int channelIndex=0; channelIndex < _sampleFormat.channels; channelIndex++) {
         free(windows[channelIndex]);
     }
 }
@@ -218,11 +221,11 @@ const size_t kMaxFramesPerBuffer = 16384;
     
     fp = fopen("/tmp/dumpedLazySample.raw", "wb");
 
-    float* windows[_channels];
-    float* data[_channels];
+    float* windows[_sampleFormat.channels];
+    float* data[_sampleFormat.channels];
     const size_t channelWindowFrames = 180000;
 
-    for (int channelIndex=0; channelIndex < _channels; channelIndex++) {
+    for (int channelIndex=0; channelIndex < _sampleFormat.channels; channelIndex++) {
         windows[channelIndex] = malloc(channelWindowFrames * sizeof(float));
     }
     
@@ -235,11 +238,11 @@ const size_t kMaxFramesPerBuffer = 16384;
         
         [self rawSampleFromFrameOffset:offset frames:fetchSize outputs:windows];
 
-        for (int channelIndex=0; channelIndex < _channels; channelIndex++) {
+        for (int channelIndex=0; channelIndex < _sampleFormat.channels; channelIndex++) {
             data[channelIndex] = windows[channelIndex];
         }
         for (size_t i=0; i < fetchSize;i++){
-            for (int channelIndex=0; channelIndex < _channels; channelIndex++) {
+            for (int channelIndex=0; channelIndex < _sampleFormat.channels; channelIndex++) {
                 *output = *data[channelIndex];
                 output++;
                 data[channelIndex]++;
@@ -253,27 +256,27 @@ const size_t kMaxFramesPerBuffer = 16384;
     fclose(fp);
     
     free(outp);
-    for (int channelIndex=0; channelIndex < _channels; channelIndex++) {
+    for (int channelIndex=0; channelIndex < _sampleFormat.channels; channelIndex++) {
         free(windows[channelIndex]);
     }
 }
 
 - (NSTimeInterval)duration
 {
-    assert(_rate != 0.0);
+    assert(_sampleFormat.rate != 0.0);
     assert(_source.length != 0);
-    return _source.length / _rate;
+    return _source.length / _sampleFormat.rate;
 }
 
 - (NSTimeInterval)timeForFrame:(unsigned long long)frame
 {
-    assert(_rate != 0.0);
-    return frame / _rate;
+    assert(_sampleFormat.rate != 0.0);
+    return frame / _sampleFormat.rate;
 }
 
 - (NSString*)beautifulTimeWithFrame:(unsigned long long)frame
 {
-    NSTimeInterval time = frame / _rate;
+    NSTimeInterval time = frame / _sampleFormat.rate;
     unsigned int hours = floor(time / 3600);
     unsigned int minutes = (unsigned int)floor(time) % 3600 / 60;
     unsigned int seconds = (unsigned int)floor(time) % 3600 % 60;
@@ -285,8 +288,8 @@ const size_t kMaxFramesPerBuffer = 16384;
 
 - (NSString *)description
 {
-    return [NSString stringWithFormat:@"file: %@, channels: %d, rate: %ld, encoding: %d, duration: %.02f seconds",
-            _source.url, _channels, _rate, _encoding, self.duration];
+    return [NSString stringWithFormat:@"file: %@, channels: %d, rate: %ld, duration: %.02f seconds",
+            _source.url, _sampleFormat.channels, _sampleFormat.rate, self.duration];
 }
 
 @end

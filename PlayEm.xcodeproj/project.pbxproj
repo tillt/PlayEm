@@ -54,8 +54,8 @@
 		BB9C77E52A8D5F7C00A138BE /* WaveView.m in Sources */ = {isa = PBXBuildFile; fileRef = BB9C77E42A8D5F7C00A138BE /* WaveView.m */; };
 		BB9C77E72A8D618700A138BE /* CoreImage.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BB9C77E62A8D618700A138BE /* CoreImage.framework */; };
 		BB9CE9B128D388F3008DFF91 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = BB9CE9B028D388F3008DFF91 /* MainMenu.xib */; };
-		BBA456E129395B970062D470 /* IdentifyController.m in Sources */ = {isa = PBXBuildFile; fileRef = BBA456E029395B970062D470 /* IdentifyController.m */; };
-		BBA507DA244224E100AABCF7 /* Sample.m in Sources */ = {isa = PBXBuildFile; fileRef = BBA507D9244224E100AABCF7 /* Sample.m */; };
+		BB9D7C102E3E480E0018BA27 /* SampleFormat.h in Sources */ = {isa = PBXBuildFile; fileRef = BB9D7C0F2E3E480E0018BA27 /* SampleFormat.h */; };
+		BBA456E129395B970062D470 /* IdentifyViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = BBA456E029395B970062D470 /* IdentifyViewController.m */; };
 		BBA507DF2443E66800AABCF7 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BBA507DE2443E66800AABCF7 /* AVFoundation.framework */; };
 		BBA623D42620F6A200924D44 /* UIView+Visibility.m in Sources */ = {isa = PBXBuildFile; fileRef = BBA623D32620F6A200924D44 /* UIView+Visibility.m */; };
 		BBAC78972DBC47B800640C19 /* EnergyDetector.m in Sources */ = {isa = PBXBuildFile; fileRef = BBAC78962DBC47B800640C19 /* EnergyDetector.m */; };
@@ -190,10 +190,9 @@
 		BB9C77E42A8D5F7C00A138BE /* WaveView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WaveView.m; sourceTree = "<group>"; };
 		BB9C77E62A8D618700A138BE /* CoreImage.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreImage.framework; path = System/Library/Frameworks/CoreImage.framework; sourceTree = SDKROOT; };
 		BB9CE9B028D388F3008DFF91 /* MainMenu.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = MainMenu.xib; sourceTree = "<group>"; };
-		BBA456DF29395B970062D470 /* IdentifyController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IdentifyController.h; sourceTree = "<group>"; };
-		BBA456E029395B970062D470 /* IdentifyController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = IdentifyController.m; sourceTree = "<group>"; };
-		BBA507D8244224E100AABCF7 /* Sample.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Sample.h; sourceTree = "<group>"; };
-		BBA507D9244224E100AABCF7 /* Sample.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Sample.m; sourceTree = "<group>"; };
+		BB9D7C0F2E3E480E0018BA27 /* SampleFormat.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SampleFormat.h; sourceTree = "<group>"; };
+		BBA456DF29395B970062D470 /* IdentifyViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IdentifyViewController.h; sourceTree = "<group>"; };
+		BBA456E029395B970062D470 /* IdentifyViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = IdentifyViewController.m; sourceTree = "<group>"; };
 		BBA507DE2443E66800AABCF7 /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
 		BBA623D22620F67500924D44 /* UIView+Visibility.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "UIView+Visibility.h"; sourceTree = "<group>"; };
 		BBA623D32620F6A200924D44 /* UIView+Visibility.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "UIView+Visibility.m"; sourceTree = "<group>"; };
@@ -341,8 +340,7 @@
 		BBA456DD293948910062D470 /* Sample */ = {
 			isa = PBXGroup;
 			children = (
-				BBA507D8244224E100AABCF7 /* Sample.h */,
-				BBA507D9244224E100AABCF7 /* Sample.m */,
+				BB9D7C0F2E3E480E0018BA27 /* SampleFormat.h */,
 				BB2CF8AB259EB66900D6BA03 /* LazySample.h */,
 				BB2CF8AC259EB66900D6BA03 /* LazySample.m */,
 				BBDB1B422B65CC0500A953F7 /* VisualPair.h */,
@@ -375,8 +373,8 @@
 				BBE5FEB42A892A410001B807 /* BeatLayerDelegate.m */,
 				BBDEBD3B2A99417A0085E6D8 /* WaveLayerDelegate.h */,
 				BBDEBD3C2A99417A0085E6D8 /* WaveLayerDelegate.m */,
-				BBA456DF29395B970062D470 /* IdentifyController.h */,
-				BBA456E029395B970062D470 /* IdentifyController.m */,
+				BBA456DF29395B970062D470 /* IdentifyViewController.h */,
+				BBA456E029395B970062D470 /* IdentifyViewController.m */,
 				BB7C626A2932E1540019AF25 /* ControlPanelController.h */,
 				BB7C626B2932E1540019AF25 /* ControlPanelController.m */,
 				BBC43B6E28D28CDD00CD1080 /* InfoPanel.h */,
@@ -665,6 +663,7 @@
 				BBC2AF7A2B8DF0960077EB5E /* NSAlert+BetterError.m in Sources */,
 				BB9C77E52A8D5F7C00A138BE /* WaveView.m in Sources */,
 				BB539A592D0F51AF0095B8C7 /* KeyTrackedSample.mm in Sources */,
+				BB9D7C102E3E480E0018BA27 /* SampleFormat.h in Sources */,
 				BBF7982D2ADC4BAA00893533 /* NSString+BeautifulPast.m in Sources */,
 				BBCE23542B5C9C41003892F3 /* GraphicsTools.m in Sources */,
 				BBC2AF7D2B8FD97C0077EB5E /* MusicAuthenticationController.m in Sources */,
@@ -683,14 +682,13 @@
 				BB896FF32928874500B41809 /* TableHeaderCell.m in Sources */,
 				BB7C6269293144890019AF25 /* Defaults.m in Sources */,
 				BBD24D6A2432948B00DC2A81 /* main.m in Sources */,
-				BBA507DA244224E100AABCF7 /* Sample.m in Sources */,
 				BBA623D42620F6A200924D44 /* UIView+Visibility.m in Sources */,
 				BBC2AF732B8B5B5A0077EB5E /* MediaMetaData+AVAsset.m in Sources */,
 				BBE5FEB52A892A410001B807 /* BeatLayerDelegate.m in Sources */,
 				BBE284682467612F00BE9D7F /* ScopeRenderer.m in Sources */,
 				BBAD5EF32CE0ECBD00F664AB /* CALayer+PauseAnimations.m in Sources */,
 				BBC2AF772B8DE2780077EB5E /* NSError+BetterError.m in Sources */,
-				BBA456E129395B970062D470 /* IdentifyController.m in Sources */,
+				BBA456E129395B970062D470 /* IdentifyViewController.m in Sources */,
 				BB5A4D9128FC5C2B003A733C /* NSBezierPath+CGPath.m in Sources */,
 				BBC43B7328D296B800CD1080 /* AVMetadataItem+THAdditions.m in Sources */,
 				BB097A092921967700D33E44 /* LevelIndicatorCell.m in Sources */,

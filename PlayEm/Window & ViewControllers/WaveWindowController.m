@@ -30,7 +30,7 @@
 #import "InfoPanel.h"
 #import "TableHeaderCell.h"
 #import "ControlPanelController.h"
-#import "IdentifyController.h"
+#import "IdentifyViewController.h"
 #import "Defaults.h"
 #import "BeatLayerDelegate.h"
 #import "WaveLayerDelegate.h"
@@ -1277,8 +1277,13 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
 
     NSSize newSize = NSMakeSize(_belowVisuals.bounds.size.width,
                                 _belowVisuals.bounds.size.height - (_totalView.bounds.size.height + _waveView.bounds.size.height));
-    NSLog(@"windowDidResize with `ScopeView` to height %f", newSize.height);
-    [_renderer mtkView:_scopeView drawableSizeWillChange:newSize];
+    if (_scopeView.frame.size.width != newSize.width ||
+        _scopeView.frame.size.height != newSize.height) {
+        NSLog(@"windowDidResize with `ScopeView` to %f x %f", newSize.width, newSize.height);
+        [_renderer mtkView:_scopeView drawableSizeWillChange:newSize];
+    } else {
+        NSLog(@"windowDidResize with `ScopeView` remaining as is");
+    }
 }
 
 - (void)windowWillEnterFullScreen:(NSNotification *)notification
@@ -1479,7 +1484,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
 
     NSPanel* window;
     if (_iffy == nil) {
-        self.iffy = [[IdentifyController alloc] initWithAudioController:_audioController];
+        self.iffy = [[IdentifyViewController alloc] initWithAudioController:_audioController];
         [_iffy view];
         NSPanel* panel = [NSPanel windowWithContentViewController:_iffy];
         window = panel;
@@ -1572,38 +1577,6 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
 
 #pragma mark - Splitter delegate
 
-- (void)splitViewWillResizeSubviews:(NSNotification *)notification
-{
-    NSSplitView* sv = notification.object;
-    NSNumber* indexNumber = notification.userInfo[@"NSSplitViewDividerIndex"];
-
-    if (sv == _split) {
-        if (indexNumber != nil) {
-            switch(indexNumber.intValue) {
-                case 0: {
-                    //NSSize newSize = NSMakeSize(_split.bounds.size.width, _split.bounds.size.height - (_totalView.bounds.size.height + _waveView.bounds.size.height));
-//                    NSSize newSize = NSMakeSize(_belowVisuals.bounds.size.width, _belowVisuals.bounds.size.height - (_totalView.bounds.size.height + _waveView.bounds.size.height));
-//                    NSLog(@"splitViewWillResizeSubview 0 `ScopeView` to height %f", newSize.height);
-//                    if (newSize.height > 0.0) {
-//                        [_renderer mtkView:_scopeView drawableSizeWillChange:newSize];
-//                    }
-//                    NSSize newSize = NSMakeSize(_belowVisuals.bounds.size.width, _belowVisuals.bounds.size.height - (_totalView.bounds.size.height + _waveView.bounds.size.height));
-//                    NSLog(@"windowDidResize with `ScopeView` to height %f", newSize.height);
-//                    [_renderer mtkView:_scopeView drawableSizeWillChange:newSize];
-
-                    break;
-                }
-                case 1:
-                    NSLog(@"splitViewWillResizeSubview 1 to height %f", _splitSelectors.bounds.size.height);
-                    break;
-                case 2:
-                    NSLog(@"splitViewWillResizeSubview 2 to height %f", _songsTable.enclosingScrollView.bounds.size.height);
-                    break;
-            }
-        }
-    }
-}
-
 - (BOOL)splitView:(NSSplitView *)splitView canCollapseSubview:(NSView *)subview
 {
     return YES;
@@ -1657,7 +1630,14 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
             case 0: {
                 NSSize newSize = NSMakeSize(_belowVisuals.bounds.size.width,
                                             _belowVisuals.bounds.size.height - (_totalView.bounds.size.height + _waveView.bounds.size.height));
-                [_renderer mtkView:_scopeView drawableSizeWillChange:newSize];
+
+                if (_scopeView.frame.size.width != newSize.width ||
+                    _scopeView.frame.size.height != newSize.height) {
+                    NSLog(@"splitViewDidResizeSubviews with `ScopeView` to %f x %f", newSize.width, newSize.height);
+                    [_renderer mtkView:_scopeView drawableSizeWillChange:newSize];
+                } else {
+                    NSLog(@"splitViewDidResizeSubviews with `ScopeView` remaining as is");
+                }
                 break;
             }
         }
@@ -1853,12 +1833,13 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     [[NSDocumentController sharedDocumentController] noteNewRecentDocumentURL:url];
 
     self->_loaderState = LoaderStateAbortingKeyDetection;
+    // The loader may already be active at this moment -- we abort it and hand over
+    // our payload block when abort did its job.
     [self abortLoader:^{
         NSLog(@"loading new sample from URL:%@ ...", url);
         self->_loaderState = LoaderStateDecoder;
         [self loadLazySample:lazySample];
         [self setMeta:meta];
-        self->_audioController.sample = lazySample;
         NSLog(@"playback starting...");
         [self->_audioController playSample:lazySample frame:frame paused:!playing];
     }];
@@ -1873,10 +1854,12 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
             if (_keySample != nil) {
                 NSLog(@"attempting to abort key detection...");
                 [self->_keySample abortWithCallback:^{
+                    NSLog(@"key detector aborted, calling back...");
                     self->_loaderState = LoaderStateAbortingBeatDetection;
                     [self abortLoader:callback];
                 }];
             } else {
+                NSLog(@"key detector was not active, calling back...");
                 _loaderState = LoaderStateAbortingBeatDetection;
                 [self abortLoader:callback];
             }
@@ -1885,10 +1868,12 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
             if (_beatSample != nil) {
                 NSLog(@"attempting to abort beat detection...");
                 [self->_beatSample abortWithCallback:^{
+                    NSLog(@"beat detector aborted, calling back...");
                     self->_loaderState = LoaderStateAbortingDecoder;
                     [self abortLoader:callback];
                 }];
             } else {
+                NSLog(@"beat detector was not active, calling back...");
                 _loaderState = LoaderStateAbortingDecoder;
                 [self abortLoader:callback];
             }
@@ -1897,15 +1882,18 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
             if (_lazySample != nil) {
                 NSLog(@"attempting to abort decoder...");
                 [self->_audioController decodeAbortWithCallback:^{
+                    NSLog(@"decoder aborted, calling back...");
                     self->_loaderState = LoaderStateAborted;
                     callback();
                 }];
             } else {
+                NSLog(@"decoder wasnt active, calling back...");
                 _loaderState = LoaderStateAborted;
                 callback();
             }
             break;
         default:
+            NSLog(@"catch all states, claiming all stages aborted...");
             _loaderState = LoaderStateAbortingKeyDetection;
             [self abortLoader:callback];
     }
@@ -2083,7 +2071,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
         [songInfo setObject:artwork forKey:MPMediaItemPropertyArtwork];
     }
     
-    [songInfo setObject:@(_audioController.sample.duration) forKey:MPMediaItemPropertyPlaybackDuration];
+    [songInfo setObject:@(_audioController.expectedDuration) forKey:MPMediaItemPropertyPlaybackDuration];
     [songInfo setObject:@(_audioController.currentTime) forKey:MPNowPlayingInfoPropertyElapsedPlaybackTime];
     [songInfo setObject:@(_audioController.tempoShift) forKey:MPNowPlayingInfoPropertyPlaybackRate];
     
@@ -2107,7 +2095,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
 - (void)updateRemotePosition
 {
     NSMutableDictionary *songInfo = [NSMutableDictionary dictionaryWithDictionary:[[MPNowPlayingInfoCenter defaultCenter] nowPlayingInfo]];
-    [songInfo setObject:@(_audioController.sample.duration) forKey:MPMediaItemPropertyPlaybackDuration];
+    [songInfo setObject:@(_audioController.expectedDuration) forKey:MPMediaItemPropertyPlaybackDuration];
     [songInfo setObject:@(_audioController.currentTime) forKey:MPNowPlayingInfoPropertyElapsedPlaybackTime];
     [[MPNowPlayingInfoCenter defaultCenter] setNowPlayingInfo:songInfo];
 }

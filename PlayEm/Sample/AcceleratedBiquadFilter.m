@@ -61,7 +61,7 @@ static inline float squared(float x) { return x * x; }
 
 - (void)calculateParamsWithCutoff:(float)frequency resonance:(float)resonance nyquistPeriod:(float)nyquistPeriod
 {
-    if (lastFrequency == frequency && lastResonance == resonance && _sample.channels == lastNumChannels) {
+    if (lastFrequency == frequency && lastResonance == resonance && _sample.sampleFormat.channels == lastNumChannels) {
         return;
     }
   
@@ -75,7 +75,7 @@ static inline float squared(float x) { return x * x; }
     memset(F, kKernelSize, sizeof(double));
     
     int index = 0;
-    for (int channel = 0; channel < _sample.channels; channel++) {
+    for (int channel = 0; channel < _sample.sampleFormat.channels; channel++) {
         F[index++] = c3;
         F[index++] = c3 + c3;
         F[index++] = c3;
@@ -84,7 +84,7 @@ static inline float squared(float x) { return x * x; }
     }
     
     // As long as we have the same number of channels, we can use Accelerate's function to update the filter.
-    if (setup != NULL && _sample.channels == lastNumChannels) {
+    if (setup != NULL && _sample.sampleFormat.channels == lastNumChannels) {
         vDSP_biquadm_SetTargetsDouble(setup, 
                                       F,
                                       updateRate,
@@ -92,19 +92,19 @@ static inline float squared(float x) { return x * x; }
                                       0,
                                       0,
                                       1,
-                                      _sample.channels);
+                                      _sample.sampleFormat.channels);
     } else {
         // Otherwise, we need to deallocate and create new storage for the filter definition. 
         // NOTE: this should never be done from within the audio render thread.
         if (setup != NULL) {
             vDSP_biquadm_DestroySetup(setup);
         }
-        setup = vDSP_biquadm_CreateSetup(F, 1, _sample.channels);
+        setup = vDSP_biquadm_CreateSetup(F, 1, _sample.sampleFormat.channels);
   }
   
   lastFrequency = frequency;
   lastResonance = resonance;
-  lastNumChannels = _sample.channels;
+  lastNumChannels = _sample.sampleFormat.channels;
 }
 
 

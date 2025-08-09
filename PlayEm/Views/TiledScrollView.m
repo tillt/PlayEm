@@ -10,7 +10,7 @@
 #import <CoreImage/CoreImage.h>
 
 #import "TiledScrollView.h"
-#import "Sample.h"
+#import "LazySample.h"
 #import "VisualSample.h"
 #import "CAShapeLayer+Path.h"
 #import "NSBezierPath+CGPath.h"

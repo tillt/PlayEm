@@ -8,7 +8,7 @@
 
 #import <Foundation/Foundation.h>
 #import <AVFoundation/AVFoundation.h>
-
+#import "../Sample/SampleFormat.h"
 NS_ASSUME_NONNULL_BEGIN
 
 extern const unsigned int kPlaybackBufferFrames;
@@ -26,8 +26,9 @@ typedef void (^TapBlock) (unsigned long long framePosition, float* frameData, un
 
 @interface AudioController : NSObject
 
-@property (nonatomic, strong, nullable) LazySample* sample;
+@property (nonatomic, assign, readonly) SampleFormat sampleFormat;
 @property (nonatomic, assign) AVAudioFramePosition currentFrame;
+@property (nonatomic, assign, readonly) NSTimeInterval expectedDuration;
 
 @property (nonatomic, assign) double outputVolume;
 
@@ -48,7 +49,7 @@ typedef void (^TapBlock) (unsigned long long framePosition, float* frameData, un
 - (void)stopTapping;
 - (NSTimeInterval)currentTime;
 - (void)setCurrentTime:(NSTimeInterval)time;
-
+- (LazySample*)sample;
 - (void)decodeAsyncWithSample:(LazySample*)sample callback:(void (^)(BOOL))callback;
 - (void)decodeAbortWithCallback:(void (^)(void))callback;
 

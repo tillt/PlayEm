@@ -534,12 +534,12 @@ static const double kLevelDecreaseValue = 0.042;
 {
     NSLog(@"renderer starting...");
     _sourceChannelData = [NSMutableArray array];
-    for (size_t channelIndex = 0; channelIndex < visual.sample.channels; channelIndex++) {
+    for (size_t channelIndex = 0; channelIndex < visual.sample.sampleFormat.channels; channelIndex++) {
         NSData* data = [NSMutableData dataWithLength:MAX(_sampleCount, kWindowSamples) * sizeof(float)];
         [_sourceChannelData addObject:data];
     }
     _blockSourceChannelData = [NSMutableArray array];
-    for (size_t channelIndex = 0; channelIndex < visual.sample.channels; channelIndex++) {
+    for (size_t channelIndex = 0; channelIndex < visual.sample.sampleFormat.channels; channelIndex++) {
         NSData* data = [NSMutableData dataWithLength:MAX(_sampleCount, kWindowSamples) * sizeof(float)];
         [_blockSourceChannelData addObject:data];
     }
@@ -628,7 +628,7 @@ static const double kLevelDecreaseValue = 0.042;
     float last;
 
     const size_t sampleFrames = self->_visual.sample.frames;
-    const size_t channels = self->_visual.sample.channels;
+    const size_t channels = self->_visual.sample.sampleFormat.channels;
     
     // Fetches sample pointers from `_sourceChannelData`
     float* sourceChannels[channels];
@@ -796,7 +796,7 @@ static const double kLevelDecreaseValue = 0.042;
         node[i].position[1] = data;
 
         ++f;
-        if (f >= self->_audio.sample.frames) {
+        if (f >= self->_visual.sample.frames) {
             f = self->_minTriggerOffset;
         }
     }

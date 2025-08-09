@@ -124,7 +124,7 @@ AVAudioFramePosition currentFrame(AudioContext* context)
 
 NSTimeInterval currentTime(AudioContext* context)
 {
-    return ((NSTimeInterval)currentFrame(context) / context->sample.rate);
+    return ((NSTimeInterval)currentFrame(context) / context->sample.sampleFormat.rate);
 }
 #endif
 
@@ -209,7 +209,7 @@ void bufferCallback(void* user_data, AudioQueueRef queue, AudioQueueBufferRef bu
                                                                      data:p];
     // Pad last frame with silence, if needed.
     if (fetched < frames) {
-        memset(p + fetched * context->sample.channels, 0, (frames - fetched) * context->sample.frameSize);
+        memset(p + fetched * context->sample.sampleFormat.channels, 0, (frames - fetched) * context->sample.frameSize);
     }
     if (fetched == 0) {
         NSLog(@"reached end of stream at %lld", context->stream.nextFrame);
@@ -339,14 +339,16 @@ void bufferCallback(void* user_data, AudioQueueRef queue, AudioQueueBufferRef bu
     _context.tapBlock = NULL;
 }
 
+- (NSTimeInterval)expectedDuration
+{
+    return _context.sample.duration;
+}
+
 - (void)playSample:(LazySample*)sample frame:(unsigned long long)nextFrame paused:(BOOL)paused
 {
-    if (self.playing) {
-        NSLog(@"playing already");
-        return;
-    }
+    [self prepareWithSample:sample];
 
-    const unsigned long long enoughFrames = _context.sample.rate * kEnoughSecondsDecoded;
+    const unsigned long long enoughFrames = _context.sample.sampleFormat.rate * kEnoughSecondsDecoded;
     
     if (nextFrame + enoughFrames >= _context.sample.frames) {
         NSLog(@"too late for restarting from that position again");
@@ -369,7 +371,7 @@ void bufferCallback(void* user_data, AudioQueueRef queue, AudioQueueBufferRef bu
     // TODO: We should use something more appropriate here, preventing polling.
     _timer = [NSTimer scheduledTimerWithTimeInterval:kDecodingPollInterval
                                              repeats:YES block:^(NSTimer* timer){
-        if (self->_context.sample.decodedFrames >= nextFrame + (self->_context.sample.rate * kEnoughSecondsDecoded)) {
+        if (self->_context.sample.decodedFrames >= nextFrame + (self->_context.sample.sampleFormat.rate * kEnoughSecondsDecoded)) {
             NSLog(@"waiting done, triggering...");
             [timer invalidate];
             self.timer = nil;
@@ -505,12 +507,15 @@ void bufferCallback(void* user_data, AudioQueueRef queue, AudioQueueBufferRef bu
 
 - (void)setCurrentTime:(NSTimeInterval)time
 {
-    [self setCurrentFrame:time * _context.sample.rate];
+    [self setCurrentFrame:time * _context.sample.sampleFormat.rate];
 }
 
 - (AVAudioFramePosition)currentFrame
 {
 #ifdef support_audioqueueplayback
+    if (_context.stream.queue == nil) {
+        return 0;
+    }
     NSAssert(_context.stream.queue != nil, @"queue shouldnt be empty");
     if (_isPaused) {
         return _context.stream.nextFrame;
@@ -564,7 +569,7 @@ void bufferCallback(void* user_data, AudioQueueRef queue, AudioQueueBufferRef bu
 
 - (AVAudioFramePosition)frameCountDeltaWithTimeDelta:(NSTimeInterval)duration
 {
-    return ceil(_context.sample.rate * duration);
+    return ceil(_context.sample.sampleFormat.rate * duration);
 }
 
 - (void)reset
@@ -734,11 +739,11 @@ void LogBufferContents(const uint8_t *buffer, size_t length)
     // Create an audio queue with 32bit floating point samples.
     AudioStreamBasicDescription fmt;
     memset(&fmt, 0, sizeof(fmt));
-    fmt.mSampleRate = (Float64)sample.rate;
+    fmt.mSampleRate = (Float64)sample.sampleFormat.rate;
     fmt.mFormatID = kAudioFormatLinearPCM;
     fmt.mFormatFlags = kLinearPCMFormatFlagIsFloat | kAudioFormatFlagIsPacked;
     fmt.mFramesPerPacket = 1;
-    fmt.mChannelsPerFrame = (uint32_t)sample.channels;
+    fmt.mChannelsPerFrame = (uint32_t)sample.sampleFormat.channels;
     fmt.mBytesPerFrame = (unsigned int)_context.sample.frameSize;
     fmt.mBytesPerPacket = (unsigned int)_context.sample.frameSize;
     fmt.mBitsPerChannel = 32;
@@ -748,16 +753,23 @@ void LogBufferContents(const uint8_t *buffer, size_t length)
 }
 #endif
 
-- (void)setSample:(LazySample*)sample
+
+//- (AudioContext)contextWithSample:(LazySample*)sample
+//{
+//    AudioContext context = AudioContext(sample, stream, tapBlock, semaphore);
+//    return context;
+//}
+
+- (void)prepareWithSample:(LazySample*)sample
 {
+    [self reset];
+
     if (sample == nil) {
         NSLog(@"Update with empty sample");
         _context.sample = nil;
         return;
     }
     NSLog(@"audiocontroller update with new sample %@", sample.source.url);
-
-    [self reset];
 
     _context.sample = sample;
     _context.stream.nextFrame = 0;
@@ -839,14 +851,16 @@ void LogBufferContents(const uint8_t *buffer, size_t length)
     });
 #else
     __block BOOL done = NO;
-    _decodeOperation = dispatch_block_create(DISPATCH_BLOCK_NO_QOS_CLASS, ^{
+    __block dispatch_block_t block = dispatch_block_create(DISPATCH_BLOCK_NO_QOS_CLASS, ^{
         done = [self decode:sample cancelTest:^{
-            if (dispatch_block_testcancel(self->_decodeOperation) != 0) {
+            if (dispatch_block_testcancel(block) != 0) {
                 return YES;
             }
             return NO;
         }];
     });
+    
+    _decodeOperation = block;
     
     // Run the decode operation!
     dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0), _decodeOperation);
@@ -858,15 +872,15 @@ void LogBufferContents(const uint8_t *buffer, size_t length)
 #endif
 }
 
-- (BOOL)decode:(LazySample*)sample cancelTest:(BOOL (^)(void))cancelTest
+- (BOOL)decode:(LazySample*)encodedSample cancelTest:(BOOL (^)(void))cancelTest
 {
-    NSLog(@"decoding sample %@...", sample);
+    NSLog(@"decoding sample %@...", encodedSample);
     AVAudioEngine* engine = [[AVAudioEngine alloc] init];
 
     NSLog(@"enabling manual render...");
     NSError* error = nil;
     [engine enableManualRenderingMode:AVAudioEngineManualRenderingModeOffline
-                               format:sample.source.processingFormat
+                               format:encodedSample.source.processingFormat
                     maximumFrameCount:kDecoderBufferFrames
                                 error:&error];
 
@@ -878,7 +892,7 @@ void LogBufferContents(const uint8_t *buffer, size_t length)
     NSLog(@"connecting player to engine...");
     [engine connect:player
                  to:engine.outputNode
-             format:sample.source.processingFormat];
+             format:encodedSample.source.processingFormat];
 
     NSLog(@"starting engine...");
     if (![engine startAndReturnError:&error]) {
@@ -887,7 +901,7 @@ void LogBufferContents(const uint8_t *buffer, size_t length)
     }
 
     NSLog(@"scheduling file...");
-    [player scheduleFile:sample.source atTime:0 completionHandler:nil];
+    [player scheduleFile:encodedSample.source atTime:0 completionHandler:nil];
 
     NSLog(@"engine state: %@", [engine description]);
 
@@ -903,7 +917,7 @@ void LogBufferContents(const uint8_t *buffer, size_t length)
     
     BOOL ret = YES;
 
-    while (engine.manualRenderingSampleTime < sample.source.length) {
+    while (engine.manualRenderingSampleTime < encodedSample.source.length) {
         if (cancelTest()) {
             ret = NO;
             NSLog(@"...decoding aborted!!!");
@@ -912,7 +926,7 @@ void LogBufferContents(const uint8_t *buffer, size_t length)
         //NSLog(@"manual rendering sample time: %lld\n", _engine.manualRenderingSampleTime);
         // `_source.length` is the number of sample frames in the file.
         // `_engine.manualRenderingSampleTime`
-        unsigned long long frameLeftCount = sample.source.length - engine.manualRenderingSampleTime;
+        unsigned long long frameLeftCount = encodedSample.source.length - engine.manualRenderingSampleTime;
         //_engine.manualRenderingMaximumFrameCount
 
         if ((unsigned long long)buffer.frameCapacity > frameLeftCount) {
@@ -929,12 +943,12 @@ void LogBufferContents(const uint8_t *buffer, size_t length)
                 
                 NSMutableArray<NSData*>* channels = [NSMutableArray array];
                 
-                for (int channelIndex = 0; channelIndex < sample.channels; channelIndex++) {
+                for (int channelIndex = 0; channelIndex < encodedSample.sampleFormat.channels; channelIndex++) {
                     NSData* channel = [NSData dataWithBytes:buffer.floatChannelData[channelIndex]
                                                      length:rawDataLengthPerChannel];
                     [channels addObject:channel];
                 }
-                [sample addLazyPageIndex:pageIndex channels:channels];
+                [encodedSample addLazyPageIndex:pageIndex channels:channels];
                 pageIndex++;
             }
             // Whenever the engine needs more data, this will get triggered - for our manual

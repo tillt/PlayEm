@@ -8,6 +8,8 @@
 
 #import "Sample.h"
 
+
+// Our average and therefor default song sample data shall be of 30mb in size.
 const size_t kAverageSampleSize = 30 * 1024 * 1024;
 
 @interface Sample ()
@@ -16,15 +18,12 @@ const size_t kAverageSampleSize = 30 * 1024 * 1024;
 
 @implementation Sample
 
-- (id)initWithChannels:(int)channels rate:(long)rate encoding:(int)encoding
+- (id)initWithChannels:(int)channels rate:(long)rate
 {
     self = [super init];
     if (self) {
         _data = [[NSMutableData alloc] initWithCapacity:kAverageSampleSize];
-        _channels = channels;
-        _rate = rate;
-        _encoding = encoding;
-        _frameSize = sizeof(float) * channels;
+        _frameSize = sizeof(float) * channels;  // Hardcoded float-sized samples.
     }
     return self;
 }
@@ -37,12 +36,14 @@ const size_t kAverageSampleSize = 30 * 1024 * 1024;
 
 - (NSString *)description
 {
-    return [NSString stringWithFormat:@"Channels: %d, Rate: %ld, Encoding: %d, Duration: %f seconds, Buffer: %@", _channels, _rate, _encoding, [self duration], _data];
+    return [NSString stringWithFormat:@"Duration: %f seconds, Buffer: %@",
+            self.duration,
+            _data];
 }
 
 - (NSTimeInterval)duration
 {
-    return (NSTimeInterval)((double)_data.length / (_rate * _frameSize));
+    return (NSTimeInterval)((double)_data.length / (_sampleFormat.rate * _frameSize));
 }
 
 - (unsigned long long)size

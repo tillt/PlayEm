@@ -10,16 +10,16 @@
 
 @implementation NSImage (Resize)
 
-+ (NSImage *)resizedImage:(NSImage*)image size:(NSSize)size
++ (NSImage*)resizedImage:(NSImage*)image size:(NSSize)size
 {
-    NSImage *sourceImage = image;
+    NSImage* sourceImage = image;
     
     if (![image isValid]){
         NSLog(@"invalid image");
         return nil;
     }
 
-    NSImage *smallImage = [[NSImage alloc] initWithSize:size];
+    NSImage* smallImage = [[NSImage alloc] initWithSize:size];
 
     [smallImage lockFocus];
 

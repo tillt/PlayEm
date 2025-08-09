@@ -21,6 +21,7 @@
 #import "../NSImage+Average.h"
 
 //#define HIDE_COVER_DEBBUG 1
+//#define WITH_HELO 1
 
 static NSString * const kLayerImageName = @"IdentificationActiveStill";
 static NSString * const kLayerMaskImageName = @"IdentificationActiveStill";
@@ -56,7 +57,7 @@ extern NSString * const kBeatTrackedSampleTempoChangeNotification;
         currentTempo = 120.0f;
         lastEnergy = 0.0;
         _overlayIntensity = 0.3f;
-        _secondImageLayerOpacity = 0.2;
+        _secondImageLayerOpacity = 0.8;
         _style = style;
         self.additionalSafeAreaInsets = insets;
         self.wantsLayer = YES;
@@ -96,7 +97,7 @@ extern NSString * const kBeatTrackedSampleTempoChangeNotification;
     if (localEnergy == 0.0) {
         localEnergy = 0.000000001;
     }
-    const double depth = 3.0f;
+    const double depth = 4.3f;
     // Attempt to get a reasonably wide signal range by normalizing the locals peaks by
     // the globally most energy loaded samples.
     const double normalizedEnergy = MIN(localEnergy / totalEnergy, 1.0);
@@ -150,7 +151,20 @@ extern NSString * const kBeatTrackedSampleTempoChangeNotification;
     animation.fillMode = kCAFillModeBoth;
     animation.removedOnCompletion = NO;
     [_finalFxLayer addAnimation:animation forKey:@"beatWarping"];
+
+//    animation = [CABasicAnimation animationWithKeyPath:@"filters.CICircularScreen.inputSharpness"];
+//    animation.fromValue = @(0.0 + (1.0 - (slopedEnergy / 2.0)));
+//    animation.toValue = @(0.0);
+//    animation.repeatCount = 1.0f;
+//    animation.autoreverses = YES;
+//    animation.duration = phaseLength;
+//    animation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut];
+//    animation.fillMode = kCAFillModeBoth;
+//    animation.removedOnCompletion = NO;
+//    [_imageCopyLayer addAnimation:animation forKey:@"beatWarping11"];
+
     
+#ifdef WITH_HELO
     animation = [CABasicAnimation animationWithKeyPath:@"opacity"];
     // We want the lighting to be very dimm for low values and to only become prominent with
     // enery levels way above 50%.
@@ -164,6 +178,7 @@ extern NSString * const kBeatTrackedSampleTempoChangeNotification;
     animation.fillMode = kCAFillModeBoth;
     animation.removedOnCompletion = NO;
     [_heloLayer addAnimation:animation forKey:@"cornerFlashing"];
+#endif
 }
 
 - (void)beatShakingLayer:(CALayer*)layer
@@ -171,8 +186,8 @@ extern NSString * const kBeatTrackedSampleTempoChangeNotification;
     static BOOL forward = YES;
     const int moveBeats = 4;
     
-    const CGFloat phaseLength = (60.0 * (moveBeats / 2.0)) / self->currentTempo;
-    CGFloat angleToAdd = M_PI_2 / 90.0;
+    const double phaseLength = (60.0 * (moveBeats / 2.0)) / (double)self->currentTempo;
+    double angleToAdd = (M_PI_2 / 180.0) * 2.0;
     
     forward = !forward;
     
@@ -191,6 +206,11 @@ extern NSString * const kBeatTrackedSampleTempoChangeNotification;
     animation.removedOnCompletion = NO;
     
     [layer addAnimation:animation forKey:@"beatShaking"];
+    
+    /// HACK ALERT!!!
+    ///
+    /// THIS SHOULDNT BE HERE
+    
 }
 
 - (void)beatEffect:(NSNotification*)notification
@@ -234,6 +254,9 @@ extern NSString * const kBeatTrackedSampleTempoChangeNotification;
     layer.masksToBounds = NO;
     layer.anchorPoint = CGPointMake(0.5, 0.5);
     
+    CGPoint center = NSMakePoint(CGRectGetMidX(layer.bounds) - 21.0,
+                                 CGRectGetMidY(layer.bounds) - 23.0);
+    
     CGRect contentsBounds = CGRectMake(0.0, 0.0, self.bounds.size.width - (self.additionalSafeAreaInsets.left + self.additionalSafeAreaInsets.right), self.bounds.size.height - (self.additionalSafeAreaInsets.top + self.additionalSafeAreaInsets.bottom));
     CGRect contentsFrame = CGRectMake(self.additionalSafeAreaInsets.left, self.additionalSafeAreaInsets.top, self.bounds.size.width - (self.additionalSafeAreaInsets.left + self.additionalSafeAreaInsets.right), self.bounds.size.height - (self.additionalSafeAreaInsets.top + self.additionalSafeAreaInsets.bottom));
     //CGRect contentsFrame = CGRectInset(self.bounds, self.additionalSafeAreaInsets.left, self.additionalSafeAreaInsets.top);
@@ -243,16 +266,38 @@ extern NSString * const kBeatTrackedSampleTempoChangeNotification;
     [bloomFilter setValue: [NSNumber numberWithFloat:7.0] forKey: @"inputRadius"];
     [bloomFilter setValue: [NSNumber numberWithFloat:1.0] forKey: @"inputIntensity"];
 
+//    CIFilter* linesFilter = [CIFilter filterWithName:@"CIHatchedScreen"];
+//    [linesFilter setDefaults];
+//    [linesFilter setValue: [NSNumber numberWithFloat:4.0] forKey: @"inputWidth"];
+//    [linesFilter setValue: [NSNumber numberWithFloat:0.0] forKey: @"inputAngle"];
+//    [linesFilter setValue: [NSNumber numberWithFloat:0.02] forKey: @"inputSharpness"];
+    CIFilter* linesFilter = [CIFilter filterWithName:@"CICircularScreen"];
+    [linesFilter setDefaults];
+    [linesFilter setValue: [NSNumber numberWithFloat:7.0] forKey: @"inputWidth"];
+    [linesFilter setValue: [NSNumber numberWithFloat:0.02] forKey: @"inputSharpness"];
+    [linesFilter setValue: [CIVector vectorWithCGPoint:center] forKey: @"inputCenter"];
+
+    CIFilter* darkenFilter = [CIFilter filterWithName:@"CIColorControls"];
+    [darkenFilter setDefaults];
+    [darkenFilter setValue: [NSNumber numberWithFloat:-0.47] forKey: @"inputBrightness"];
+    [darkenFilter setValue: [NSNumber numberWithFloat:0.01] forKey: @"inputContrast"];
+
+    CIFilter* lightenFilter = [CIFilter filterWithName:@"CIGammaAdjust"];
+    [lightenFilter setDefaults];
+    [lightenFilter setValue:[NSNumber numberWithFloat:0.05] forKey:@"inputPower"];
+
+//    hexagonalPixelateFilter.scale = 50
+//
     CIFilter* additionFilter = [CIFilter filterWithName:@"CIAdditionCompositing"];
     [additionFilter setDefaults];
 
     if ((_style & CoverViewStyleGlowBehindCoverAtLaser) == CoverViewStyleGlowBehindCoverAtLaser) {
+#ifdef WITH_HELO
         _heloLayer = [CALayer layer];
         _heloLayer.magnificationFilter = kCAFilterLinear;
         _heloLayer.minificationFilter = kCAFilterLinear;
-        NSImage* input = [NSImage resizedImage:[NSImage imageNamed:@"HeloGlow"]
-                                 size:contentsBounds.size];
-        _heloLayer.contents = input;
+        _heloLayer.contents = [NSImage resizedImage:[NSImage imageNamed:@"HeloGlow"]
+                                               size:contentsBounds.size];
         
         //_glowLayer.contents = [self lightTunnelFilterImage:[input CG] withInputCenter:CGPointMake(self.bounds.size.width / 2.0, self.bounds.size.height / 2.0) inputRotation:0.0 inputRadius:0.0];
         _heloLayer.frame = CGRectInset(contentsFrame, -55.0, -55.0);
@@ -267,13 +312,12 @@ extern NSString * const kBeatTrackedSampleTempoChangeNotification;
         _heloLayer.masksToBounds = YES;
         _heloLayer.compositingFilter = additionFilter;
         [layer addSublayer:_heloLayer];
-
+#endif
         _glowLayer = [CALayer layer];
         _glowLayer.magnificationFilter = kCAFilterLinear;
         _glowLayer.minificationFilter = kCAFilterLinear;
-        input = [NSImage resizedImage:[NSImage imageNamed:@"FadeGlow"]
-                                            size:contentsBounds.size];
-        _glowLayer.contents = input;
+        _glowLayer.contents = [NSImage resizedImage:[NSImage imageNamed:@"FadeGlow"]
+                                               size:contentsBounds.size];
         
         //_glowLayer.contents = [self lightTunnelFilterImage:[input CG] withInputCenter:CGPointMake(self.bounds.size.width / 2.0, self.bounds.size.height / 2.0) inputRotation:0.0 inputRadius:0.0];
         _glowLayer.frame = CGRectInset(contentsFrame, -100.0, -100.0);
@@ -343,9 +387,7 @@ extern NSString * const kBeatTrackedSampleTempoChangeNotification;
     }
 
     if ((_style & CoverViewStyleSepiaForSecondImageLayer) == CoverViewStyleSepiaForSecondImageLayer) {
-        CIFilter* sepia = [CIFilter filterWithName:@"CISepiaTone"];
-        [sepia setDefaults];
-        _imageCopyLayer.filters = @[ sepia ];
+        _imageCopyLayer.filters = @[ darkenFilter  ];
     }
     _imageCopyLayer.opacity = _secondImageLayerOpacity;
     [_backingLayer addSublayer:_imageCopyLayer];

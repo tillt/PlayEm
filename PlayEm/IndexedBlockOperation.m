@@ -16,9 +16,13 @@
     if (self) {
         _index = index;
         _dispatchBlock = nil;
-        _isFinished = NO;
     }
     return self;
+}
+
+- (BOOL)isFinished
+{
+    return  dispatch_block_wait(_dispatchBlock, DISPATCH_TIME_NOW) == 0;
 }
 
 - (BOOL)isCancelled
@@ -28,11 +32,13 @@
 
 - (void)run:(nonnull void (^)(void))block
 {
-    self.dispatchBlock = dispatch_block_create(DISPATCH_BLOCK_NO_QOS_CLASS, block);
+    // FIXME: Getting exceptions in the block operation after having canceled early.
+    _dispatchBlock = dispatch_block_create(DISPATCH_BLOCK_NO_QOS_CLASS, block);
 }
 
 - (void)cancel
 {
+    // FIXME: Getting exceptions in the block operation after having canceled early.
     if (_dispatchBlock != nil) {
         dispatch_block_cancel(_dispatchBlock);
     }
@@ -42,15 +48,17 @@
 {
     if (_dispatchBlock != nil) {
         dispatch_block_wait(_dispatchBlock, DISPATCH_TIME_FOREVER);
+        _dispatchBlock = nil;
     }
 }
 
 - (void)dealloc
 {
-//    if (_block != nil) {
-//        dispatch_block_cancel(_block);
-//        dispatch_block_wait(_block, DISPATCH_TIME_FOREVER);
-//    }
+    if (_dispatchBlock != nil) {
+        dispatch_block_cancel(_dispatchBlock);
+//        dispatch_block_wait(_dispatchBlock, DISPATCH_TIME_FOREVER);
+        _dispatchBlock = nil;
+    }
 }
 
 @end

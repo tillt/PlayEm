@@ -98,32 +98,34 @@ static const CGFloat kViewLeftMargin = 10.0f;
     if (self) {
         _metas = metas;
         
+        NSNumber* bigWidth = @475;
+        
         _viewConfiguration = @{
             kInfoPageKeyDetails: @{
                 @"title": @{
                     @"order": @1,
-                    @"width": @340,
+                    @"width": bigWidth,
                     @"placeholder": kInfoTextMultipleValues,
                 },
                 @"artist": @{
                     @"order": @2,
-                    @"width": @340,
+                    @"width": bigWidth,
                     @"placeholder": kInfoTextMultipleValues,
                 },
                 @"album": @{
                     @"order": @3,
-                    @"width": @340,
+                    @"width": bigWidth,
                     @"placeholder": kInfoTextMultipleValues,
                 },
                 @"album artist": @{
                     @"order": @4,
-                    @"width": @340,
+                    @"width": bigWidth,
                     @"key": @"albumArtist",
                     @"placeholder": kInfoTextMultipleValues,
                 },
                 @"tags": @{
                     @"order": @5,
-                    @"width": @340,
+                    @"width": bigWidth,
                     @"placeholder": kInfoTextMultipleValues,
                 },
                 @"genre": @{
@@ -157,7 +159,7 @@ static const CGFloat kViewLeftMargin = 10.0f;
                 },
                 @"compilation": @{
                     @"order": @10,
-                    @"width": @340,
+                    @"width": bigWidth,
                     @"description": @"Album is a compilation of songs by various artists",
                     @"type": @(InfoControlTypeCheck),
                 },
@@ -180,52 +182,53 @@ static const CGFloat kViewLeftMargin = 10.0f;
                 },
                 @"comment": @{
                     @"order": @13,
-                    @"width": @340,
+                    @"width": bigWidth,
+                    @"rows": @6,
                     @"placeholder": kInfoTextMultipleValues,
                 },
             },
             kInfoPageKeyFile: @{
                 @"size": @{
                     @"order": @1,
-                    @"width": @340,
+                    @"width": bigWidth,
                     @"editable": @NO,
                 },
                 @"duration": @{
                     @"order": @2,
-                    @"width": @340,
+                    @"width": bigWidth,
                     @"editable": @NO,
                 },
                 @"bit rate": @{
                     @"order": @3,
-                    @"width": @340,
+                    @"width": bigWidth,
                     @"key": @"bitrate",
                     @"editable": @NO,
                 },
                 @"sample rate": @{
                     @"order": @4,
-                    @"width": @340,
+                    @"width": bigWidth,
                     @"key": @"samplerate",
                     @"editable": @NO,
                 },
                 @"channels": @{
                     @"order": @5,
-                    @"width": @340,
+                    @"width": bigWidth,
                     @"editable": @NO,
                 },
                 @"format": @{
                     @"order": @6,
-                    @"width": @340,
+                    @"width": bigWidth,
                     @"editable": @NO,
                 },
                 @"volume": @{
                     @"order": @3,
-                    @"width": @340,
+                    @"width": bigWidth,
                     @"editable": @NO,
                 },
                 @"location": @{
                     @"order": @7,
-                    @"width": @340,
-                    @"rows": @4,
+                    @"width": bigWidth,
+                    @"rows": @6,
                     @"editable": @NO,
                 },
             },
@@ -263,12 +266,14 @@ static const CGFloat kViewLeftMargin = 10.0f;
     
     NSEnumerator* reversed = [orderedKeys reverseObjectEnumerator];
     
-    CGFloat y = 30.0f;
+    CGFloat y = 10.0f;
     
     NSView* lastInputView = nil;
     NSView* firstInputView = nil;
     
     for (NSString* key in reversed) {
+        NSMutableDictionary* elements = [NSMutableDictionary dictionary];
+
         NSString* configKey = key;
         if ([_viewConfiguration[pageKey][key] objectForKey:@"key"]) {
             configKey = _viewConfiguration[pageKey][key][@"key"];
@@ -340,7 +345,7 @@ static const CGFloat kViewLeftMargin = 10.0f;
                                              (rows * rowUnitHeight) + kRowInset);
                 [view addSubview:textField];
                 
-                dict[configKey] = textField;
+                elements[@"control"] = textField;
                 
                 textField.nextKeyView = lastInputView;
                 lastInputView = textField;
@@ -357,8 +362,8 @@ static const CGFloat kViewLeftMargin = 10.0f;
                 comboBox.editable = YES;
                 comboBox.drawsBackground = NO;
                 [view addSubview:comboBox];
-                
-                dict[configKey] = comboBox;
+
+                elements[@"control"] = comboBox;
                 
                 comboBox.nextKeyView = lastInputView;
                 lastInputView = comboBox;
@@ -377,7 +382,7 @@ static const CGFloat kViewLeftMargin = 10.0f;
 
                 [view addSubview:popup];
                 
-                dict[configKey] = popup;
+                elements[@"control"] = popup;
                 
                 popup.nextKeyView = lastInputView;
                 lastInputView = popup;
@@ -395,18 +400,31 @@ static const CGFloat kViewLeftMargin = 10.0f;
                 button.allowsMixedState = NO;
                 [view addSubview:button];
                 
-                dict[configKey] = button;
+                elements[@"control"] = button;
 
                 button.nextKeyView = lastInputView;
                 lastInputView = button;
             } break;
         }
-        
+
         if (firstInputView == nil) {
             firstInputView = lastInputView;
         }
         
+        // FIXME: There still is a lot wrong with this checkmark thing:
+        // 1. It should be a button for being able to undo the change.
+        // 2. The symbol is line based -- thus for lines with multiple entries (ie track / tracks) it needs to track multiple value fields.
+        NSTextField* checkMark = [NSTextField textFieldWithString:@"􀁣"];
+        checkMark.bordered = NO;
+        checkMark.textColor = [[Defaults sharedDefaults] secondaryLabelColor];
+        checkMark.drawsBackground = NO;
+        checkMark.editable = NO;
+        checkMark.hidden = YES;
+        checkMark.selectable = NO;
+        checkMark.font = [NSFont systemFontOfSize:15.0];
+
         if (extra != nil) {
+            NSMutableDictionary* extraElements = [NSMutableDictionary dictionaryWithDictionary:elements];
             NSTextField* textField = [NSTextField textFieldWithString:extra[@"title"]];
             textField.bordered = NO;
             textField.textColor = [[Defaults sharedDefaults] secondaryLabelColor];
@@ -440,11 +458,26 @@ static const CGFloat kViewLeftMargin = 10.0f;
                                          (rows * rowUnitHeight) + kRowInset);
             [view addSubview:textField];
 
-            dict[extra[@"key"]] = textField;
-            
+            extraElements[@"control"] = textField;
+            extraElements[@"mark"] = checkMark;
+
             textField.nextKeyView = lastInputView;
             lastInputView = textField;
+
+            checkMark.frame = NSMakeRect(x + width + kBorderWidth + width + dynamicWidth - 5.0,
+                                         y,
+                                         20.0,
+                                         rowUnitHeight + kRowInset);
+            dict[extra[@"key"]] = extraElements;
+        } else {
+            checkMark.frame = NSMakeRect(x + width - 5.0,
+                                         y,
+                                         20.0,
+                                         rowUnitHeight + kRowInset);
         }
+        dict[configKey] = elements;
+        elements[@"mark"] = checkMark;
+        [view addSubview:checkMark];
 
         y += (rows * rowUnitHeight) + kRowInset + kRowSpace;
     }
@@ -465,7 +498,7 @@ static const CGFloat kViewLeftMargin = 10.0f;
 
 - (void)loadArtworkWithView:(NSView*)view
 {
-    const CGFloat imageWidth = 400.0;
+    const CGFloat imageWidth = 480.0;
 //    NSImage* image = [NSImage imageWithSystemSymbolName:@"text.page.badge.magnifyingglass"
 //                               accessibilityDescription:nil];
 //    NSImageSymbolConfiguration* config = [NSImageSymbolConfiguration configurationWithPointSize:100 weight:NSFontWeightBlack scale:NSImageSymbolScaleLarge];
@@ -488,7 +521,7 @@ static const CGFloat kViewLeftMargin = 10.0f;
     _largeCoverView.alignment = NSViewHeightSizable | NSViewWidthSizable | NSViewMinYMargin | NSViewMaxYMargin;
     _largeCoverView.imageScaling = NSImageScaleProportionallyUpOrDown;
     _largeCoverView.frame = CGRectMake((self.view.bounds.size.width - (imageWidth + (2 * kViewLeftMargin))) / 2.0f,
-                                       10+kViewTopMargin,
+                                       kViewTopMargin,
                                        imageWidth,
                                        imageWidth);
     _largeCoverView.wantsLayer = YES;
@@ -542,7 +575,7 @@ static const CGFloat kViewLeftMargin = 10.0f;
 {
     NSLog(@"loadView");
 
-    self.preferredContentSize = NSMakeSize(480.0, 630.0);
+    self.preferredContentSize = NSMakeSize(600, 700.0);
 
     const CGFloat imageWidth = 100.0f;
     const CGFloat kRowInset = 4.0f;
@@ -662,7 +695,10 @@ static const CGFloat kViewLeftMargin = 10.0f;
         [_tabView removeFromSuperview];
     }
     
-    self.tabView = [[NSTabView alloc] initWithFrame:NSMakeRect(0.0, kViewTopMargin * 2, self.view.frame.size.width, self.view.frame.size.height - (100.0 + (kViewTopMargin * 2)))];
+    self.tabView = [[NSTabView alloc] initWithFrame:NSMakeRect(0.0,
+                                                               kViewTopMargin * 2,
+                                                               self.view.frame.size.width,
+                                                               self.view.frame.size.height - (100.0 + (kViewTopMargin * 2)))];
     self.tabView.delegate = self;
     
     NSViewController* vc = [NSViewController new];
@@ -843,7 +879,8 @@ static const CGFloat kViewLeftMargin = 10.0f;
     for (NSString* pageKey in pageKeys) {
         NSArray<NSString*>* keys = [_viewControls[pageKey] allKeys];
         for (NSString* key in keys) {
-            id control = _viewControls[pageKey][key];
+            NSDictionary* elements = _viewControls[pageKey][key];
+            id control = elements[@"control"];
             if (control == nil) {
                 continue;
             }
@@ -970,13 +1007,22 @@ static const CGFloat kViewLeftMargin = 10.0f;
 
 - (void)patchMetasAtKey:(NSString*)key string:(NSString*)stringValue
 {
-    _mutatedKeys[key] = @YES;
-    [_deltaMeta updateWithKey:key string:stringValue];
+    NSTextField* checkMark = _viewControls[kInfoPageKeyDetails][key][@"mark"];
+
+    // Make sure we need to patch in the first place...
+    if (![[_commonMeta stringForKey:key] isEqualToString:stringValue]) {
+        _mutatedKeys[key] = @YES;
+        [_deltaMeta updateWithKey:key string:stringValue];
+        checkMark.hidden = NO;
+    } else {
+        [_mutatedKeys removeObjectForKey:key];
+        checkMark.hidden = YES;
+    }
 }
 
 - (void)compilationAction:(id)sender
 {   
-    NSButton* button = (NSButton*)_viewControls[kInfoPageKeyDetails][@"compilation"];
+    NSButton* button = (NSButton*)_viewControls[kInfoPageKeyDetails][@"compilation"][@"control"];
 
     // Even if we signalled allowing mixed state, the user decided and this we stop
     // supporting that.
@@ -1007,7 +1053,7 @@ static const CGFloat kViewLeftMargin = 10.0f;
     NSString *key = nil;
     for (NSString* pageKey in [_viewControls allKeys]) {
         for (NSString* k in [_viewControls[pageKey] allKeys]) {
-            if ([_viewControls[pageKey] valueForKey:k] == textField) {
+            if ([[_viewControls[pageKey] valueForKey:k] valueForKey:@"control"] == textField) {
                 key = k;
                 break;
             }
@@ -1065,10 +1111,10 @@ static const CGFloat kViewLeftMargin = 10.0f;
     }
     stringValue = [self comboBox:comboBox objectValueForItemAtIndex:index];
     
-    if (comboBox == _viewControls[kInfoPageKeyDetails][@"genre"]) {
+    if (comboBox == _viewControls[kInfoPageKeyDetails][@"genre"][@"control"]) {
         [self patchMetasAtKey:@"genre" string:stringValue];
     }
-    if (comboBox == _viewControls[kInfoPageKeyDetails][@"stars"]) {
+    if (comboBox == _viewControls[kInfoPageKeyDetails][@"stars"][@"control"]) {
         [self patchMetasAtKey:@"stars" string:stringValue];
     }
 }
@@ -1086,10 +1132,10 @@ static const CGFloat kViewLeftMargin = 10.0f;
 
 - (NSInteger)numberOfItemsInComboBox:(NSComboBox*)comboBox
 {
-    if (comboBox == _viewControls[kInfoPageKeyDetails][@"stars"]) {
+    if (comboBox == _viewControls[kInfoPageKeyDetails][@"stars"][@"control"]) {
         return [[MediaMetaData starRatings] count];
     }
-    if (comboBox == _viewControls[kInfoPageKeyDetails][@"genre"]) {
+    if (comboBox == _viewControls[kInfoPageKeyDetails][@"genre"][@"control"]) {
         return [[_delegate knownGenres] count];
     }
 //    assert(NO);
@@ -1098,10 +1144,10 @@ static const CGFloat kViewLeftMargin = 10.0f;
 
 - (nullable id)comboBox:(NSComboBox*)comboBox objectValueForItemAtIndex:(NSInteger)index
 {
-    if (comboBox == _viewControls[kInfoPageKeyDetails][@"stars"]) {
+    if (comboBox == _viewControls[kInfoPageKeyDetails][@"stars"][@"control"]) {
         return [MediaMetaData starRatings][index];
     }
-    if (comboBox == _viewControls[kInfoPageKeyDetails][@"genre"]) {
+    if (comboBox == _viewControls[kInfoPageKeyDetails][@"genre"][@"control"]) {
         return [_delegate knownGenres][index];
     }
     //    assert(NO);

@@ -7,6 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "SampleFormat.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -14,16 +15,17 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (strong, nonatomic) NSMutableData *data;
 
-@property (assign, nonatomic) int channels;
-@property (assign, nonatomic) long rate;
-@property (assign, nonatomic) int encoding;
+//@property (assign, nonatomic) int channels;
+//@property (assign, nonatomic) long rate;
+//@property (assign, nonatomic) int encoding;
 @property (assign, nonatomic, readonly) unsigned long long size;
 @property (assign, nonatomic, readonly) unsigned long long frames;
 @property (assign, nonatomic, readonly) size_t frameSize;
 @property (assign, nonatomic, readonly) NSTimeInterval duration;
 @property (copy, nonatomic, readonly) NSString* description;
 
-- (id)initWithChannels:(int)channels rate:(long)rate encoding:(int)encoding;
+//- (id)initWithChannels:(int)channels rate:(long)rate encoding:(int)encoding;
+- (id)initWithChannels:(int)channels rate:(long)rate;
 - (unsigned long long)addSampleData:(void *)buffer size:(unsigned long long)size;
 
 @end

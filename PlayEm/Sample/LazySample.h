@@ -7,7 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
-
+#import "SampleFormat.h"
 NS_ASSUME_NONNULL_BEGIN
 
 @class AVAudioFormat;
@@ -15,9 +15,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface LazySample : NSObject
 
-@property (assign, nonatomic) int channels;
-@property (assign, nonatomic) long rate;
-@property (assign, nonatomic) int encoding;
+@property (assign, nonatomic) SampleFormat sampleFormat;
+//@property (assign, nonatomic) int encoding;
 @property (readonly, nonatomic) NSTimeInterval duration;
 @property (readonly, assign, nonatomic) unsigned long long decodedFrames;
 
@@ -26,7 +25,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (assign, nonatomic, readonly) unsigned long long frames;
 @property (assign, nonatomic, readonly) unsigned int frameSize;
 
-@property (readonly, assign, nonatomic) AVAudioFormat* format;
+//@property (readonly, assign, nonatomic) AVAudioFormat* format;
 
 - (id)initWithPath:(NSString*)path error:(NSError**)error;
 

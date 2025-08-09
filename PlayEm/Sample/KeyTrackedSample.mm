@@ -49,7 +49,7 @@ const double kBeatSampleDurationThreshold = 30.0 * 60.0;
         _sampleBuffers = [NSMutableArray array];
         
         unsigned long long framesNeeded = _windowWidth * 1024;
-        for (int channel = 0; channel < sample.channels; channel++) {
+        for (int channel = 0; channel < sample.sampleFormat.channels; channel++) {
             NSMutableData* buffer = [NSMutableData dataWithCapacity:framesNeeded * _sample.frameSize];
             [_sampleBuffers addObject:buffer];
         }
@@ -93,7 +93,7 @@ const double kBeatSampleDurationThreshold = 30.0 * 60.0;
         return YES;
     }
 
-    const int channels = self->_sample.channels;
+    const int channels = self->_sample.sampleFormat.channels;
 
     float* data[channels];
     for (int channel = 0; channel < channels; channel++) {
@@ -101,7 +101,7 @@ const double kBeatSampleDurationThreshold = 30.0 * 60.0;
     }
 
     _audioData.setChannels(channels);
-    _audioData.setFrameRate((unsigned int)self->_sample.rate);
+    _audioData.setFrameRate((unsigned int)self->_sample.sampleFormat.rate);
     _audioData.addToSampleCount((unsigned int)self->_windowWidth * channels);
     
     unsigned long long sourceWindowFrameOffset = 0LL;

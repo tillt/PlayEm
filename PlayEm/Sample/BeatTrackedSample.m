@@ -196,7 +196,7 @@ NSString * const kBeatNotificationKeyTotalPeak = @"totalPeak";
         _beats = [NSMutableDictionary dictionary];
 
         unsigned long long framesNeeded = _hopSize * 1024;
-        for (int channel = 0; channel < sample.channels; channel++) {
+        for (int channel = 0; channel < sample.sampleFormat.channels; channel++) {
             NSMutableData* buffer = [NSMutableData dataWithCapacity:framesNeeded * _sample.frameSize];
             [_sampleBuffers addObject:buffer];
         }
@@ -215,7 +215,7 @@ NSString * const kBeatNotificationKeyTotalPeak = @"totalPeak";
     _aubio_tempo = new_aubio_tempo("default",
                                    (unsigned int)_windowWidth,
                                    (unsigned int)_hopSize,
-                                   (unsigned int)_sample.rate);
+                                   (unsigned int)_sample.sampleFormat.rate);
     aubio_tempo_set_threshold(_aubio_tempo, 0.75f);
     assert(_aubio_tempo);
 #else
@@ -224,7 +224,7 @@ NSString * const kBeatNotificationKeyTotalPeak = @"totalPeak";
 #endif
     _filterEnabled = YES;
     _filterFrequency = kParamFilterDefaultValue;
-    _filterConstant = _sample.rate / (2.0f * M_PI * _filterFrequency);
+    _filterConstant = _sample.sampleFormat.rate / (2.0f * M_PI * _filterFrequency);
 }
 
 - (void)cleanupTracking
@@ -280,8 +280,8 @@ void beatsContextReset(BeatsParserContext* context)
     NSLog(@"beats tracking...");
     [self setupTracking];
     
-    float* data[self->_sample.channels];
-    const int channels = self->_sample.channels;
+    float* data[self->_sample.sampleFormat.channels];
+    const int channels = self->_sample.sampleFormat.channels;
     for (int channel = 0; channel < channels; channel++) {
         data[channel] = (float*)((NSMutableData*)self->_sampleBuffers[channel]).bytes;
     }
@@ -521,8 +521,8 @@ void beatsContextReset(BeatsParserContext* context)
     unsigned long long frame;
 
     unsigned long long framesNeeded = windowSize;
-    float* data[self->_sample.channels];
-    for (int channel = 0; channel < self->_sample.channels; channel++) {
+    float* data[self->_sample.sampleFormat.channels];
+    for (int channel = 0; channel < self->_sample.sampleFormat.channels; channel++) {
         NSMutableData* buffer = [NSMutableData dataWithCapacity:framesNeeded * _sample.frameSize];
         data[channel] = (float*)buffer.bytes;
     }
@@ -553,10 +553,10 @@ void beatsContextReset(BeatsParserContext* context)
             const unsigned long int inputWindowFrameCount = MIN(windowSize, self->_sample.frames - (sourceWindowFrameOffset + sourceFrameIndex));
             for (unsigned long int inputFrameIndex = 0; inputFrameIndex < inputWindowFrameCount; inputFrameIndex++) {
                 double s = 0.0;
-                for (int channel = 0; channel < self->_sample.channels; channel++) {
+                for (int channel = 0; channel < self->_sample.sampleFormat.channels; channel++) {
                     s += data[channel][sourceFrameIndex];
                 }
-                s /= (float)self->_sample.channels;
+                s /= (float)self->_sample.sampleFormat.channels;
                 //self->_aubio_input_buffer->data[inputFrameIndex] = s;
                 [nrg addFrame:s];
                 
@@ -738,7 +738,7 @@ void beatsContextReset(BeatsParserContext* context)
     };
 
     const BeatEvent* events = data.bytes;
-    size_t eventCount = data.length / sizeof(BeatEvent);
+    const size_t eventCount = data.length / sizeof(BeatEvent);
 
     if (iterator->eventIndex == 0) {
         iterator->pageIndex--;
@@ -758,9 +758,6 @@ void beatsContextReset(BeatsParserContext* context)
             NSLog(@"we somehow went past the first beat");
             return ULONG_LONG_MAX;
         }
-
-        events = data.bytes;
-        eventCount = data.length / sizeof(BeatEvent);
 
         NSAssert(eventCount > 0, @"we should really have at least some data");
         iterator->eventIndex = eventCount - 1;

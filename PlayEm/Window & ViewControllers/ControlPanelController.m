@@ -64,10 +64,13 @@ extern NSString * const kPlaybackStatePlaying;
     NSString* state = notification.object;
     if ([state isEqualToString:kPlaybackStateEnded]) {
         [_coverButton stopAnimating];
+        NSLog(@"audioControllerChangedPlaybackState now stopped");
     } else if ([state isEqualToString:kPlaybackStatePaused]) {
         [_coverButton pauseAnimating];
+        NSLog(@"audioControllerChangedPlaybackState now paused");
     } else if ([state isEqualToString:kPlaybackStatePlaying]) {
         [_coverButton startAnimating];
+        NSLog(@"audioControllerChangedPlaybackState now playing");
     }
 }
 
@@ -478,6 +481,10 @@ extern NSString * const kPlaybackStatePlaying;
 
 - (void)setKey:(NSString*)key hint:(NSString*)hint
 {
+    if (key == nil) {
+        NSLog(@"invalid key pressed - just got a nil pointer");
+        return;
+    }
     _keyField.stringValue = key;
     _keyField.toolTip = hint;
 }

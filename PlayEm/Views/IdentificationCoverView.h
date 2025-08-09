@@ -18,7 +18,7 @@ typedef enum : NSUInteger {
 } CoverViewStyleMask;
 
 @interface IdentificationCoverView : NSView <CALayerDelegate>
-@property (nonatomic, strong) NSImage* image;
+@property (nonatomic, strong, nullable) NSImage* image;
 @property (nonatomic, assign) float overlayIntensity;
 @property (nonatomic, assign) float secondImageLayerOpacity;
 @property (nonatomic, assign) CoverViewStyleMask style;

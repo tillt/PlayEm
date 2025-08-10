@@ -43,6 +43,15 @@
     });
 }
 
+//- (id)createObject:(Class)theType
+//{
+//    __block id obj = nil;
+//    dispatch_barrier_sync(_access_queue, ^{
+//        obj = [theType new];
+//    });
+//    return obj;
+//}
+
 - (void)removeObjectForKey:(id)aKey
 {
     dispatch_barrier_async(_access_queue, ^{

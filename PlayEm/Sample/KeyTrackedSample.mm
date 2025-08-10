@@ -47,6 +47,8 @@ const double kBeatSampleDurationThreshold = 30.0 * 60.0;
         _sample = sample;
         _windowWidth = 1024;
         _sampleBuffers = [NSMutableArray array];
+        _key = nil;
+        _hint = nil;
         
         unsigned long long framesNeeded = _windowWidth * 1024;
         for (int channel = 0; channel < sample.sampleFormat.channels; channel++) {
@@ -90,6 +92,7 @@ const double kBeatSampleDurationThreshold = 30.0 * 60.0;
     if (_sample.duration > kBeatSampleDurationThreshold) {
         NSLog(@"skipping key tracking - sample is too long to get any value out.");
         _key = @"";
+        _hint = @"";
         return YES;
     }
 

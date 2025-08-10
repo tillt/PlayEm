@@ -32,7 +32,6 @@
 @property (assign, nonatomic) size_t reductionWindowFrame;
 @property (assign, nonatomic) VisualPairContext reductionPairContext;
 
-@property (strong, nonatomic) NSMutableData* reducedSample;
 @property (strong, nonatomic) NSMutableArray<NSMutableData*>* sampleBuffers;
 @property (strong, nonatomic) EnergyDetector* energy;
 
@@ -51,7 +50,8 @@
         assert(pixelPerSecond);
         _pixelPerSecond = pixelPerSecond;
         _operations = [ConcurrentAccessDictionary new];
-        _framesPerPixel = (double)sample.sampleFormat.rate / pixelPerSecond;
+        //_framesPerPixel = (double)sample.sampleFormat.rate / pixelPerSecond;
+        _framesPerPixel = ceil((double)sample.sampleFormat.rate / pixelPerSecond);
         _tileWidth = tileWidth;
         _energy = [EnergyDetector new];
         assert(_framesPerPixel >= 1.0);
@@ -68,7 +68,6 @@
         _calculations_queue = dispatch_queue_create(queue_name, attr);
         
         _reducedTotalWidth = 0;
-        _reducedSample = nil;
         _framesPerReducedValue = 0;
         _reductionWindowFrame = 0.0;
         NSLog(@"VisualSample %@ init", self);
@@ -83,8 +82,7 @@
         _framesPerReducedValue = _sample.frames / reducedMaxWidth;
         _reducedTotalWidth = _sample.frames / _framesPerReducedValue;
         NSLog(@"frames per reduced value: %ld (total %ld)", _framesPerReducedValue, _reducedTotalWidth);
-        _reducedSample = [NSMutableData new];
-        _reductionPairContext = (VisualPairContext){};
+        _reductionPairContext = (VisualPairContext){ .reductionBuffer = [NSMutableData new] };
     }
     return self;
 }
@@ -98,15 +96,13 @@
     for (id key in keys) {
         IndexedBlockOperation* operation = [_operations objectForKey:key];
         //[killem addObject:operation];
-        if (!operation.isFinished) {
-            [operation cancel];
-        }
+        //if (!operation.isFinished) {
+        [operation cancel];
+        //}
     }
     for (id key in keys) {
         IndexedBlockOperation* operation = [_operations objectForKey:key];
-        if (!operation.isFinished) {
-            [operation wait];
-        }
+        [operation wait];
     }
 }
 
@@ -186,7 +182,6 @@
     for (NSNumber* pageNumber in keys) {
         if (pageNumber.integerValue < left || pageNumber.integerValue > right) {
             IndexedBlockOperation* operation = [_operations objectForKey:pageNumber];
-            [operation cancel];
             [_operations removeObjectForKey:pageNumber];
             NSLog(@"garbage collecting tile %@", pageNumber);
         }
@@ -214,7 +209,7 @@
             .positiveAverage = context->positiveSum > 0 ? context->positiveSum / context->positiveCount : 0.0
         };
 
-        [_reducedSample appendBytes:&pair length:sizeof(VisualPair)];
+        [context->reductionBuffer appendBytes:&pair length:sizeof(VisualPair)];
 
         *context = (VisualPairContext){
             .negativeSum = 0.0,
@@ -259,13 +254,13 @@
     BOOL reduce = NO;
     BOOL fromReduced = NO;
     if (_reducedTotalWidth > 0) {
-        if (_reducedSample.length < _reducedTotalWidth) {
+        if (reductionPairContext->reductionBuffer.length < _reducedTotalWidth) {
             reduce = YES;
         } else {
             NSLog(@"from reduced!");
             fromReduced = YES;
         }
-        reduce = _reducedSample.length < _reducedTotalWidth;
+        reduce = reductionPairContext->reductionBuffer.length < _reducedTotalWidth;
     }
 
     [_operations setObject:blockOperation forKey:[NSNumber numberWithLong:pageIndex]];
@@ -278,7 +273,6 @@
         }
         assert(!weakOperation.isFinished);
         
-        double counter = 0.0;
         const unsigned long int framesNeeded = width * weakSelf.framesPerPixel;
 
         float* data[channels];
@@ -310,16 +304,19 @@
         weakOperation.data = buffer;
 
         unsigned long int frameIndex = 0;
-        
-        VisualPairContext context;
+        unsigned long int pixelIndex = 0;
 
-        while(frameIndex < displayFrameCount) {
+        VisualPairContext context;
+        
+        while(pixelIndex < width) {
             context = (VisualPairContext){
                 .negativeSum = 0.0,
                 .positiveSum = 0.0,
                 .negativeCount = 0,
                 .positiveCount = 0
             };
+
+            unsigned long int frameOffset = frameIndex;
 
             do {
                 if (weakOperation.isCancelled) {
@@ -349,20 +346,16 @@
                 }
 
                 frameIndex++;
-                counter += 1.0;
-            } while (counter < weakSelf.framesPerPixel);
+            } while ((frameIndex - frameOffset) < weakSelf.framesPerPixel);
 
             if (weakOperation.isCancelled) {
                 break;
             }
-
-            counter -= weakSelf.framesPerPixel;
-
-            *storage = (VisualPair) {
+            
+            storage[pixelIndex++] = (VisualPair) {
                 .negativeAverage = context.negativeCount > 0 ? context.negativeSum / context.negativeCount : 0.0,
                 .positiveAverage = context.positiveSum > 0 ? context.positiveSum / context.positiveCount : 0.0
             };
-            ++storage;
         };
         
         weakOperation.isFinished = !weakOperation.isCancelled;

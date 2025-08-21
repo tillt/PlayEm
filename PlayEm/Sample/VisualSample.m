@@ -247,8 +247,9 @@
         return blockOperation;
     }
     blockOperation = [[IndexedBlockOperation alloc] initWithIndex:pageIndex];
+
     IndexedBlockOperation* __weak weakOperation = blockOperation;
-    VisualSample* __weak weakSelf = self;
+    VisualSample* __weak weakSample = self;
     
     VisualPairContext* reductionPairContext = &_reductionPairContext;
     BOOL reduce = NO;
@@ -266,19 +267,19 @@
     [_operations setObject:blockOperation forKey:[NSNumber numberWithLong:pageIndex]];
     
     [blockOperation run:^(void){
-        const int channels = weakSelf.sample.sampleFormat.channels;
+        const int channels = weakSample.sample.sampleFormat.channels;
 
         if (weakOperation.isCancelled || channels == 0) {
             return;
         }
         assert(!weakOperation.isFinished);
         
-        const unsigned long int framesNeeded = width * weakSelf.framesPerPixel;
+        const unsigned long int framesNeeded = width * weakSample.framesPerPixel;
 
         float* data[channels];
         
         for (int channel = 0; channel < channels; channel++) {
-            data[channel] = (float*)((NSMutableData*)weakSelf.sampleBuffers[channel]).bytes;
+            data[channel] = (float*)((NSMutableData*)weakSample.sampleBuffers[channel]).bytes;
         }
      
         //NSLog(@"we got room for %ld bytes", width * sizeof(VisualPair));
@@ -288,14 +289,14 @@
         VisualPair* storage = (VisualPair*)buffer.mutableBytes;
         assert(storage);
 
-        unsigned long long displaySampleFrameIndexOffset = origin * weakSelf.framesPerPixel;
-        if (displaySampleFrameIndexOffset >= weakSelf.sample.frames) {
+        unsigned long long displaySampleFrameIndexOffset = origin * weakSample.framesPerPixel;
+        if (displaySampleFrameIndexOffset >= weakSample.sample.frames) {
             return;
         }
-        unsigned long long displayFrameCount = MIN(framesNeeded, weakSelf.sample.frames - displaySampleFrameIndexOffset);
+        unsigned long long displayFrameCount = MIN(framesNeeded, weakSample.sample.frames - displaySampleFrameIndexOffset);
 
         // This may block for a loooooong time!
-        [weakSelf.sample rawSampleFromFrameOffset:displaySampleFrameIndexOffset
+        [weakSample.sample rawSampleFromFrameOffset:displaySampleFrameIndexOffset
                                            frames:displayFrameCount
                                           outputs:data];
         
@@ -342,11 +343,11 @@
                 }
 
                 if (reduce) {
-                    [weakSelf appendToReducedSampleWithValue:s context:reductionPairContext];
+                    [weakSample appendToReducedSampleWithValue:s context:reductionPairContext];
                 }
 
                 frameIndex++;
-            } while ((frameIndex - frameOffset) < weakSelf.framesPerPixel);
+            } while ((frameIndex - frameOffset) < weakSample.framesPerPixel);
 
             if (weakOperation.isCancelled) {
                 break;

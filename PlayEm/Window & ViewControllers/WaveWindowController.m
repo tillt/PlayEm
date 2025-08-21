@@ -97,7 +97,7 @@ os_log_t pointsOfInterest;
 
 @property (strong, nonatomic) ScopeRenderer* renderer;
 @property (assign, nonatomic) CGRect preFullscreenFrame;
-@property (strong, nonatomic) LazySample* lazySample;
+@property (strong, nonatomic) LazySample* sample;
 @property (assign, nonatomic) BOOL inTransition;
 @property (strong, nonatomic) PlaylistController* playlist;
 @property (strong, nonatomic) MediaMetaData* meta;
@@ -168,14 +168,14 @@ os_log_t pointsOfInterest;
     [_displayLink invalidate];
 }
 
-- (void)setLazySample:(LazySample*)sample
-{
-    if (_lazySample == sample) {
-        return;
-    }
-    _lazySample = sample;
-    NSLog(@"sample %@ assigned", sample.description);
-}
+//- (void)setLazySample:(LazySample*)sample
+//{
+//    if (_lazySample == sample) {
+//        return;
+//    }
+//    _lazySample = sample;
+//    NSLog(@"sample %@ assigned", sample.description);
+//}
 
 - (void)updateSongsCount:(size_t)songs
 {
@@ -262,7 +262,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
 {
     BOOL enable = YES;
     if ([[toolbarItem itemIdentifier] isEqual:kIdentifyToolbarIdentifier]) {
-        enable = (_lazySample != nil) & _audioController.playing;
+        enable = _audioController.playing;
     }
     return enable;
 }
@@ -1054,17 +1054,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     _ratingsTable.autosaveName = @"RatingsTable";
     _tagsTable.autosaveName = @"TagsTable";
     _songsTable.autosaveName = @"SongsTable";
-    
-    _browser = [[BrowserController alloc] initWithGenresTable:_genreTable
-                                                 artistsTable:_artistsTable
-                                                  albumsTable:_albumsTable
-                                                  temposTable:_temposTable
-                                                   songsTable:_songsTable
-                                                    keysTable:_keysTable
-                                                  ratingsTable:_ratingsTable
-                                                    tagsTable:_tagsTable
-                                                     delegate:self];
-    
+
     // Replace the header cell in all of the main tables on this view.
     NSArray<NSTableView*>* fixupTables = @[ _songsTable,
                                             _genreTable,
@@ -1083,12 +1073,24 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
         table.style = NSTableViewStylePlain;
         table.autosaveTableColumns = YES;
         table.allowsEmptySelection = NO;
-        table.delegate = _browser;
-        table.dataSource = _browser;
         table.headerView.wantsLayer = YES;
     }
+
+    _browser = [[BrowserController alloc] initWithGenresTable:_genreTable
+                                                 artistsTable:_artistsTable
+                                                  albumsTable:_albumsTable
+                                                  temposTable:_temposTable
+                                                   songsTable:_songsTable
+                                                    keysTable:_keysTable
+                                                  ratingsTable:_ratingsTable
+                                                    tagsTable:_tagsTable
+                                                     delegate:self];
+    for (NSTableView *table in fixupTables) {
+        table.delegate = _browser;
+        table.dataSource = _browser;
+    }
     
-    _lazySample = nil;
+    _sample = nil;
     
     _inTransition = NO;
     
@@ -1265,7 +1267,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     // The scope view takes are of itself by reacting to `viewDidEndLiveResize`.
 //    [_waveView ];
     
-    [_totalVisual setPixelPerSecond:_totalView.bounds.size.width / _lazySample.duration];
+    [_totalVisual setPixelPerSecond:_totalView.bounds.size.width / _sample.duration];
     [_totalView resize];
     [_totalView refresh];
 }
@@ -1543,8 +1545,8 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
         return;
     }
     os_signpost_interval_begin(pointsOfInterest, POIStringStuff, "StringStuff");
-    _controlPanelController.duration.stringValue = [_lazySample beautifulTimeWithFrame:_lazySample.frames - frame];
-    _controlPanelController.time.stringValue = [_lazySample beautifulTimeWithFrame:frame];
+    _controlPanelController.duration.stringValue = [_sample beautifulTimeWithFrame:_sample.frames - frame];
+    _controlPanelController.time.stringValue = [_sample beautifulTimeWithFrame:frame];
     os_signpost_interval_end(pointsOfInterest, POIStringStuff, "StringStuff");
 
     os_signpost_interval_begin(pointsOfInterest, POIWaveViewSetCurrentFrame, "WaveViewSetCurrentFrame");
@@ -1840,8 +1842,11 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
         self->_loaderState = LoaderStateDecoder;
         [self loadLazySample:lazySample];
         [self setMeta:meta];
+
         NSLog(@"playback starting...");
-        [self->_audioController playSample:lazySample frame:frame paused:!playing];
+        [self->_audioController playSample:lazySample
+                                     frame:frame
+                                    paused:!playing];
     }];
 
     return YES;
@@ -1879,7 +1884,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
             }
             break;
         case LoaderStateAbortingDecoder:
-            if (_lazySample != nil) {
+            if (_sample != nil) {
                 NSLog(@"attempting to abort decoder...");
                 [self->_audioController decodeAbortWithCallback:^{
                     NSLog(@"decoder aborted, calling back...");
@@ -1899,15 +1904,15 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     }
 }
 
-- (void)loadLazySample:(LazySample*)lazySample
+- (void)loadLazySample:(LazySample*)sample
 {
     if (_loaderState == LoaderStateAborted) {
         return;
     }
+    //NSLog(@"Retain count is %ld", CFGetRetainCount((__bridge CFTypeRef)_sample));
 
-    // We keep a reference around so that the `sample` setter will cause the possibly
-    // ongoing decode of a previous sample to get aborted.
-    _lazySample = lazySample;
+    NSLog(@"previous sample %p should get unretained now", _sample);
+    _sample = sample;
     _waveLayerDelegate.visualSample = nil;
     _visualSample = nil;
     _totalVisual = nil;
@@ -1920,7 +1925,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     [self loadTrackState:LoadStateInit value:0.0];
     [self loadTrackState:LoadStateStopped value:0.0];
 
-    _visualSample = [[VisualSample alloc] initWithSample:lazySample
+    _visualSample = [[VisualSample alloc] initWithSample:sample
                                           pixelPerSecond:kPixelPerSecond
                                                tileWidth:kDirectWaveViewTileWidth];
 
@@ -1928,8 +1933,8 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     
     _waveLayerDelegate.visualSample = self.visualSample;
 
-    _totalVisual = [[VisualSample alloc] initWithSample:lazySample
-                                         pixelPerSecond:_totalView.bounds.size.width / lazySample.duration
+    _totalVisual = [[VisualSample alloc] initWithSample:sample
+                                         pixelPerSecond:_totalView.bounds.size.width / sample.duration
                                               tileWidth:kTotalWaveViewTileWidth
                                            reducedWidth:kReducedVisualSampleWidth];
 
@@ -1937,7 +1942,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
 
     _loaderState = LoaderStateDecoder;
     
-    [_audioController decodeAsyncWithSample:lazySample callback:^(BOOL decodeFinished){
+    [_audioController decodeAsyncWithSample:sample callback:^(BOOL decodeFinished){
         if (decodeFinished) {
             [self lazySampleDecoded];
        } else {
@@ -1945,22 +1950,22 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
         }
     }];
     
-    _waveView.frames = lazySample.frames;
-    _totalView.frames = lazySample.frames;
+    _waveView.frames = sample.frames;
+    _totalView.frames = sample.frames;
     _waveView.frame = CGRectMake(0.0,
                                  0.0,
                                  self.visualSample.width,
                                  self.waveView.bounds.size.height);
     [_totalView refresh];
     
-    NSTimeInterval duration = [self.visualSample.sample timeForFrame:lazySample.frames];
+    NSTimeInterval duration = [self.visualSample.sample timeForFrame:sample.frames];
     [_controlPanelController setKeyHidden:duration > kBeatSampleDurationThreshold];
     [_controlPanelController setKey:@"" hint:@""];
 }
 
 - (void)lazySampleDecoded
 {
-    BeatTrackedSample* beatSample = [[BeatTrackedSample alloc] initWithSample:_lazySample
+    BeatTrackedSample* beatSample = [[BeatTrackedSample alloc] initWithSample:_sample
                                                                framesPerPixel:self.visualSample.framesPerPixel];
     _beatLayerDelegate.beatSample = beatSample;
 
@@ -2005,7 +2010,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     [self.waveView invalidateTiles];
     [self beatEffectStart];
 
-    KeyTrackedSample* keySample = [[KeyTrackedSample alloc] initWithSample:_lazySample];
+    KeyTrackedSample* keySample = [[KeyTrackedSample alloc] initWithSample:_sample];
 
     if (_keySample != nil) {
         NSLog(@"key tracking may need aborting");
@@ -2583,6 +2588,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     return [_browser knownGenres];
 }
 
+// FIXME: This screams for an objective c native approach; key value observation
 - (void)metaChangedForMeta:(MediaMetaData*)meta updatedMeta:(MediaMetaData*)updatedMeta
 {
     NSAssert(meta != nil, @"missing original");

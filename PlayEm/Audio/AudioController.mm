@@ -54,6 +54,19 @@ typedef struct {
     dispatch_semaphore_t        semaphore;
 } AudioContext;
 
+/*
+@interface AudioContext ()
+{
+}
+
+@property (weak, nonatomic) LazySample* sample;
+@property (assign, nonatomic) AudioOutputStream stream;
+@property (assign, nonatomic) TapBlock tapBlock;
+@property (assign, nonatomic) dispatch_semaphore_t semaphore;
+
+@end
+*/
+
 @interface AudioController ()
 {
     AudioContext            _context;

@@ -78,6 +78,8 @@ NSString* const kSongsColGenre = @"GenreCell";
     bool _updatingKeys;
     bool _updatingRatings;
     bool _updatingTags;
+    
+    MediaMetaData* _lazyUpdatedMeta;
 }
 
 - (id)initWithGenresTable:(NSTableView*)genresTable
@@ -238,6 +240,8 @@ NSString* const kSongsColGenre = @"GenreCell";
 
         dispatch_sync(dispatch_get_main_queue(), ^{
             weakSelf.filteredItems = filteredItems;
+            
+            [weakSelf setNowPlayingWithMeta:self->_lazyUpdatedMeta];
 
             NSIndexSet* genreSelections = [self->_genresTable selectedRowIndexes];
             NSIndexSet* artistSelections = [self->_artistsTable selectedRowIndexes];
@@ -313,6 +317,7 @@ NSString* const kSongsColGenre = @"GenreCell";
             self->_updatingKeys = NO;
             self->_updatingRatings = NO;
             self->_updatingTags = NO;
+            
 
             [weakSelf.delegate updateSongsCount:weakSelf.filteredItems.count];
         });
@@ -476,15 +481,21 @@ NSString* const kSongsColGenre = @"GenreCell";
             [weakSelf reloadTableView:weakSelf.ratingsTable];
             [weakSelf reloadTableView:weakSelf.tagsTable];
             [weakSelf reloadTableView:weakSelf.songsTable];
+            
+            [weakSelf setNowPlayingWithMeta:self->_lazyUpdatedMeta];
         });
     });
 }
 
 - (void)setNowPlayingWithMeta:(MediaMetaData*)meta
 {
-    [self setCurrentMeta:meta];
-    [self setPlaying:YES];
-    [self showSongRowForMeta:meta];
+    if ( _filteredItems != nil) {
+        [self setPlaying:YES];
+        [self setCurrentMeta:meta];
+        [self showSongRowForMeta:meta];
+    } else {
+        _lazyUpdatedMeta = meta;
+    }
 }
 
 - (void)setPlaying:(BOOL)playing

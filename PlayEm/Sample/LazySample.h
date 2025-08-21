@@ -25,21 +25,21 @@ NS_ASSUME_NONNULL_BEGIN
 @property (assign, nonatomic, readonly) unsigned long long frames;
 @property (assign, nonatomic, readonly) unsigned int frameSize;
 
-//@property (readonly, assign, nonatomic) AVAudioFormat* format;
-
 - (id)initWithPath:(NSString*)path error:(NSError**)error;
 
-- (unsigned long long)rawSampleFromFrameOffset:(unsigned long long)offset frames:(unsigned long long)frames outputs:(float * const _Nonnull * _Nullable)outputs;
-- (unsigned long long)rawSampleFromFrameOffset:(unsigned long long)offset frames:(unsigned long long)frames data:(float *)data;
+- (unsigned long long)rawSampleFromFrameOffset:(unsigned long long)offset
+                                        frames:(unsigned long long)frames
+                                       outputs:(float * const _Nonnull * _Nullable)outputs;
+- (unsigned long long)rawSampleFromFrameOffset:(unsigned long long)offset
+                                        frames:(unsigned long long)frames
+                                          data:(float *)data;
 
 - (void)dumpToFile;
 
 - (NSTimeInterval)timeForFrame:(unsigned long long)frame;
 - (NSString*)beautifulTimeWithFrame:(unsigned long long)frame;
-- (void)addLazyPageIndex:(unsigned long long)pageIndex channels:(NSArray<NSData*>*)channels;
-
-//TODO: NSEnumerator Support
-
+- (void)addLazyPageIndex:(unsigned long long)pageIndex
+                channels:(NSArray<NSData*>*)channels;
 
 @end
 

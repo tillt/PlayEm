@@ -233,9 +233,18 @@ void logscaleFFT(float* map, float* frequencyData)
         if (counters[i] > 0.0f) {
             buffer[i] /= counters[i];
         }
-//        if (buffer[i] > 0.05) {
-//            buffer[i] += 0.2;
-//        }
+        if (buffer[i] > 0.09) {
+            buffer[i] += (float)i / ((float)kScaledFrequencyDataLength * 10.0);
+            /*
+            x = 0.2 (high frequency)
+            x = 0.0 (low frequency)
+             
+             kScaledFrequencyDataLength = 0.2
+               = 0.2
+            */
+            
+            
+        }
         //buffer[i] = buffer[i] * buffer[i];
     }
     memcpy(frequencyData, buffer, kScaledFrequencyDataLength * sizeof(float));

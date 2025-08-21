@@ -24,7 +24,6 @@ const size_t kMaxFramesPerBuffer = 16384;
 
 @end
 
-
 @implementation LazySample
 
 - (id)initWithPath:(NSString*)path error:(NSError**)error
@@ -75,6 +74,7 @@ const size_t kMaxFramesPerBuffer = 16384;
 
 - (void)dealloc
 {
+    NSLog(@"dyingh sample");
 }
 
 - (void)addLazyPageIndex:(unsigned long long)pageIndex channels:(NSArray<NSData*>*)channels

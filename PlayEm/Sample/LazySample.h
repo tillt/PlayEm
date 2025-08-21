@@ -16,7 +16,6 @@ NS_ASSUME_NONNULL_BEGIN
 @interface LazySample : NSObject
 
 @property (assign, nonatomic) SampleFormat sampleFormat;
-//@property (assign, nonatomic) int encoding;
 @property (readonly, nonatomic) NSTimeInterval duration;
 @property (readonly, assign, nonatomic) unsigned long long decodedFrames;
 

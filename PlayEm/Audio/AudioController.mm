@@ -855,36 +855,29 @@ void LogBufferContents(const uint8_t *buffer, size_t length)
 
 - (void)decodeAsyncWithSample:(LazySample*)sample callback:(void (^)(BOOL))callback
 {
-#ifdef DEBUGGING
+    AudioController* __weak weakSelf = self;
+
     __block BOOL done = NO;
-    _queueOperation = dispatch_block_create(DISPATCH_BLOCK_NO_QOS_CLASS, ^{
-        done = [self decode];
-    });
-    dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0), _queueOperation);
-    dispatch_block_notify(_queueOperation, dispatch_get_main_queue(), ^{
-        callback(done);
-    });
-#else
-    __block BOOL done = NO;
-    __block dispatch_block_t block = dispatch_block_create(DISPATCH_BLOCK_NO_QOS_CLASS, ^{
-        done = [self decode:sample cancelTest:^{
-            if (dispatch_block_testcancel(block) != 0) {
-                return YES;
-            }
-            return NO;
+    __weak __block dispatch_block_t weakBlock;
+
+    dispatch_block_t block = dispatch_block_create(DISPATCH_BLOCK_NO_QOS_CLASS, ^{
+        done = [weakSelf decode:sample cancelTest:^{
+            return dispatch_block_testcancel(weakBlock) != 0 ? YES : NO;
         }];
     });
     
+    weakBlock = block;
     _decodeOperation = block;
     
     // Run the decode operation!
-    dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0), _decodeOperation);
+    dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0),
+                   _decodeOperation);
+
     // Dispatch a callback on the main thread once decoding is done.
     dispatch_block_notify(_decodeOperation, dispatch_get_main_queue(), ^{
         NSLog(@"decoder is done - we are back on the main thread - run the callback block with %d", done);
         callback(done);
     });
-#endif
 }
 
 - (BOOL)decode:(LazySample*)encodedSample cancelTest:(BOOL (^)(void))cancelTest

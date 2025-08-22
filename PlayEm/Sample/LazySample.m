@@ -51,7 +51,7 @@ const size_t kMaxFramesPerBuffer = 16384;
         _sampleFormat.channels = format.channelCount;
         _frameSize = format.channelCount * sizeof(float);
         _buffers = [NSMutableDictionary dictionary];
-        NSLog(@"...lazy sample initialized");
+        NSLog(@"...lazy sample %p initialized", self);
     }
     return self;
 }
@@ -74,7 +74,7 @@ const size_t kMaxFramesPerBuffer = 16384;
 
 - (void)dealloc
 {
-    NSLog(@"dyingh sample");
+    NSLog(@"removing LazySample %p from memory", self);
 }
 
 - (void)addLazyPageIndex:(unsigned long long)pageIndex channels:(NSArray<NSData*>*)channels

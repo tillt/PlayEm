@@ -843,9 +843,11 @@ void LogBufferContents(const uint8_t *buffer, size_t length)
 {
     if (_decodeOperation != NULL) {
         dispatch_block_cancel(_decodeOperation);
-        dispatch_block_notify(_decodeOperation, dispatch_get_main_queue(), ^{
-            callback();
-        });
+        if (callback != NULL) {
+            dispatch_block_notify(_decodeOperation, dispatch_get_main_queue(), ^{
+                callback();
+            });
+        }
     } else {
         callback();
     }

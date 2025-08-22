@@ -181,7 +181,6 @@
     NSArray* keys = [_operations allKeys];
     for (NSNumber* pageNumber in keys) {
         if (pageNumber.integerValue < left || pageNumber.integerValue > right) {
-            IndexedBlockOperation* operation = [_operations objectForKey:pageNumber];
             [_operations removeObjectForKey:pageNumber];
             NSLog(@"garbage collecting tile %@", pageNumber);
         }

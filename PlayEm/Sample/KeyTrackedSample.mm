@@ -75,8 +75,11 @@ const double kBeatSampleDurationThreshold = 30.0 * 60.0;
 - (void)trackKeyAsyncWithCallback:(void (^)(BOOL))callback;
 {
     __block BOOL done = NO;
+
+    KeyTrackedSample* __weak weakSelf = self;
+
     _queueOperation = dispatch_block_create(DISPATCH_BLOCK_NO_QOS_CLASS, ^{
-        done = [self trackKey];
+        done = [weakSelf trackKey];
     });
     dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0), _queueOperation);
     dispatch_block_notify(_queueOperation, dispatch_get_main_queue(), ^{

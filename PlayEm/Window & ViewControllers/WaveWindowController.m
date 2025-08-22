@@ -466,9 +466,11 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     NSPoint pos = NSMakePoint(NSMidX(screen.visibleFrame) - self.window.frame.size.width * 0.5,
                               NSMidY(screen.visibleFrame) - self.window.frame.size.height * 0.5);
 
+    WaveWindowController* __weak weakSelf = self;
+
     [NSAnimationContext runAnimationGroup:^(NSAnimationContext *context) {
         [context setDuration:0.7];
-        [self.window.animator setFrame:NSMakeRect(pos.x, pos.y, self.window.frame.size.width, self.window.frame.size.height) display:YES];
+        [weakSelf.window.animator setFrame:NSMakeRect(pos.x, pos.y, weakSelf.window.frame.size.width, weakSelf.window.frame.size.height) display:YES];
     } completionHandler:^{
     }];
 }
@@ -1834,14 +1836,16 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     }
     [[NSDocumentController sharedDocumentController] noteNewRecentDocumentURL:url];
 
+    WaveWindowController* __weak weakSelf = self;
+
     self->_loaderState = LoaderStateAbortingKeyDetection;
     // The loader may already be active at this moment -- we abort it and hand over
     // our payload block when abort did its job.
     [self abortLoader:^{
         NSLog(@"loading new sample from URL:%@ ...", url);
         self->_loaderState = LoaderStateDecoder;
-        [self loadLazySample:lazySample];
-        [self setMeta:meta];
+        [weakSelf loadLazySample:lazySample];
+        [weakSelf setMeta:meta];
 
         NSLog(@"playback starting...");
         [self->_audioController playSample:lazySample
@@ -1854,6 +1858,8 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
 
 - (void)abortLoader:(void (^)(void))callback
 {
+    WaveWindowController* __weak weakSelf = self;
+
     switch(_loaderState) {
         case LoaderStateAbortingKeyDetection:
             if (_keySample != nil) {
@@ -1861,7 +1867,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
                 [self->_keySample abortWithCallback:^{
                     NSLog(@"key detector aborted, calling back...");
                     self->_loaderState = LoaderStateAbortingBeatDetection;
-                    [self abortLoader:callback];
+                    [weakSelf abortLoader:callback];
                 }];
             } else {
                 NSLog(@"key detector was not active, calling back...");
@@ -1875,7 +1881,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
                 [self->_beatSample abortWithCallback:^{
                     NSLog(@"beat detector aborted, calling back...");
                     self->_loaderState = LoaderStateAbortingDecoder;
-                    [self abortLoader:callback];
+                    [weakSelf abortLoader:callback];
                 }];
             } else {
                 NSLog(@"beat detector was not active, calling back...");
@@ -1906,6 +1912,8 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
 
 - (void)loadLazySample:(LazySample*)sample
 {
+    WaveWindowController* __weak weakSelf = self;
+
     if (_loaderState == LoaderStateAborted) {
         return;
     }
@@ -1944,7 +1952,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     
     [_audioController decodeAsyncWithSample:sample callback:^(BOOL decodeFinished){
         if (decodeFinished) {
-            [self lazySampleDecoded];
+            [weakSelf lazySampleDecoded];
        } else {
             NSLog(@"never finished the decoding");
         }
@@ -1969,10 +1977,12 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
                                                                framesPerPixel:self.visualSample.framesPerPixel];
     _beatLayerDelegate.beatSample = beatSample;
 
+    WaveWindowController* __weak weakSelf = self;
+
     if (_beatSample != nil) {
         NSLog(@"beats tracking may need aborting");
         [_beatSample abortWithCallback:^{
-            [self loadBeats:beatSample];
+            [weakSelf loadBeats:beatSample];
         }];
     } else {
         [self loadBeats:beatSample];
@@ -1993,9 +2003,11 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
 
     _beatSample = beatsSample;
 
+    WaveWindowController* __weak weakSelf = self;
+
     [_beatSample trackBeatsAsyncWithCallback:^(BOOL beatsFinished){
         if (beatsFinished) {
-            [self beatsTracked];
+            [weakSelf beatsTracked];
         } else {
             NSLog(@"never finished the beat tracking");
         }
@@ -2011,11 +2023,12 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     [self beatEffectStart];
 
     KeyTrackedSample* keySample = [[KeyTrackedSample alloc] initWithSample:_sample];
+    WaveWindowController* __weak weakSelf = self;
 
     if (_keySample != nil) {
         NSLog(@"key tracking may need aborting");
         [_keySample abortWithCallback:^{
-            [self detectKey:keySample];
+            [weakSelf detectKey:keySample];
         }];
     } else {
         [self detectKey:keySample];

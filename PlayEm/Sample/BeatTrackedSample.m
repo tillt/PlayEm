@@ -575,8 +575,11 @@ void beatsContextReset(BeatsParserContext* context)
 - (void)trackBeatsAsyncWithCallback:(void (^)(BOOL))callback
 {
     __block BOOL done = NO;
+
+    BeatTrackedSample* __weak weakSelf = self;
+
     _queueOperation = dispatch_block_create(DISPATCH_BLOCK_NO_QOS_CLASS, ^{
-        done = [self trackBeats];
+        done = [weakSelf trackBeats];
     });
     dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0), _queueOperation);
     dispatch_block_notify(_queueOperation, dispatch_get_main_queue(), ^{

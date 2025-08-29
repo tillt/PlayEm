@@ -15,15 +15,18 @@
 
 #import "WaveWindowController.h"
 #import "AudioController.h"
+#import "WaveScrollView.h"
 #import "VisualSample.h"
 #import "BeatTrackedSample.h"
 #import "KeyTrackedSample.h"
 #import "LazySample.h"
 #import "BrowserController.h"
 #import "PlaylistController.h"
+#import "CreditsViewController.h"
 #import "LoadState.h"
 #import "MediaMetaData.h"
 #import "ScopeRenderer.h"
+#import "TileLayerDelegate.h"
 #import "TotalWaveView.h"
 #import "WaveView.h"
 #import "UIView+Visibility.h"
@@ -109,6 +112,9 @@ os_log_t pointsOfInterest;
 
 @property (strong, nonatomic) NSWindowController* infoWindowController;
 @property (strong, nonatomic) NSWindowController* identifyWindowController;
+@property (strong, nonatomic) NSWindowController* aboutWindowController;
+
+@property (strong, nonatomic) NSViewController* aboutViewController;
 
 @property (strong, nonatomic) BeatLayerDelegate* beatLayerDelegate;
 @property (strong, nonatomic) WaveLayerDelegate* waveLayerDelegate;
@@ -592,10 +598,12 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     _totalView.translatesAutoresizingMaskIntoConstraints = YES;
     [_belowVisuals addSubview:_totalView];
     
-    TiledScrollView* tiledSV = [[TiledScrollView alloc] initWithFrame:NSMakeRect(_belowVisuals.bounds.origin.x,
+    WaveScrollView* tiledSV = [[WaveScrollView alloc] initWithFrame:NSMakeRect(_belowVisuals.bounds.origin.x,
                                                                                  _belowVisuals.bounds.origin.y + totalWaveViewHeight,
                                                                                  _belowVisuals.bounds.size.width,
                                                                                  scrollingWaveViewHeight)];
+    tiledSV.layerDelegate = _waveLayerDelegate;
+
     tiledSV.autoresizingMask = NSViewWidthSizable;
     tiledSV.drawsBackground = NO;
     tiledSV.translatesAutoresizingMaskIntoConstraints = YES;
@@ -1476,6 +1484,31 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
             self.effectBelowPlaylist.alphaValue = 0.0f;
         }
     }];
+}
+
+- (void)showAbout:(id)sender
+{
+    NSPanel* window = nil;
+
+    if (_aboutWindowController == nil) {
+        self.aboutWindowController = [NSWindowController new];
+    }
+    if (_aboutViewController == nil) {
+        self.aboutViewController = [[CreditsViewController alloc] init];
+        [_aboutViewController view];
+        NSPanel* panel = [NSPanel windowWithContentViewController:_aboutViewController];
+        window = panel;
+        window.styleMask &= ~(NSWindowStyleMaskResizable | NSWindowStyleMaskMiniaturizable);
+        window.titleVisibility = NSWindowTitleHidden;
+        window.movableByWindowBackground = YES;
+        window.titlebarAppearsTransparent = YES;
+        window.level = NSFloatingWindowLevel;
+        _aboutWindowController.window = window;
+    } else {
+        window = (NSPanel*)self.aboutWindowController.window;
+    }
+    [window setFloatingPanel:YES];
+    [window makeKeyAndOrderFront:nil];
 }
 
 - (void)showIdentifier:(id)sender

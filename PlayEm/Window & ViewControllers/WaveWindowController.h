@@ -13,7 +13,6 @@
 #import "AudioController.h"
 #import "BrowserController.h"
 #import "PlaylistController.h"
-#import "TiledScrollView.h"
 #import "ScopeRenderer.h"
 #import "ScopeView.h"
 #import "ControlPanelController.h"
@@ -93,6 +92,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (BOOL)loadDocumentFromURL:(NSURL*)url meta:(nullable MediaMetaData*)meta;
 - (IBAction)loadITunesLibrary:(id)sender;
 - (IBAction)showPlaylist:(id)sender;
+- (IBAction)showAbout:(id)sender;
 - (IBAction)playNext:(id)sender;
 - (IBAction)playPrevious:(id)sender;
 - (IBAction)togglePause:(id)sender;

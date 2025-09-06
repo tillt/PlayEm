@@ -1,5 +1,5 @@
 //
-//  CreditsViewController.h
+//  TileView.h
 //  PlayEm
 //
 //  Created by Till Toenshoff on 8/23/25.
@@ -10,8 +10,9 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface CreditsViewController : NSViewController
-
+@interface TileView : NSView
+@property (readwrite, nonatomic) NSInteger tileTag;
 @end
+
 
 NS_ASSUME_NONNULL_END

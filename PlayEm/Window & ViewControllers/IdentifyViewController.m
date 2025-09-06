@@ -575,7 +575,7 @@ const CGFloat kTableRowHeight = 52.0f;
                                                                           tableColumn.width,
                                                                           kLargeFontSize + 3.0)
                                                           size:kLargeFontSize
-                                                         color:[[Defaults sharedDefaults] lightBeamColor]];
+                                                         color:[[Defaults sharedDefaults] lightFakeBeamColor]];
             [view addSubview:title];
             
             artist = [IdentifyViewController textFieldWithFrame:NSMakeRect( 0.0,

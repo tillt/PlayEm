@@ -107,14 +107,14 @@ static const double kFontSize = 11.0f;
     NSColor* color = nil;
 
     if (_extraState == kExtraStateActive || _extraState == kExtraStatePlaying) {
-        color = [[Defaults sharedDefaults] lightBeamColor];
+        color = [[Defaults sharedDefaults] lightFakeBeamColor];
     } else {
         switch (self.backgroundStyle) {
             case NSBackgroundStyleNormal:
                 color = [[Defaults sharedDefaults] secondaryLabelColor];
                 break;
             case NSBackgroundStyleEmphasized:
-                color = [[Defaults sharedDefaults] lightBeamColor];
+                color = [[Defaults sharedDefaults] lightFakeBeamColor];
                 break;
             case NSBackgroundStyleRaised:
             case NSBackgroundStyleLowered:
@@ -148,7 +148,7 @@ static const double kFontSize = 11.0f;
         
         //animation.fromValue = (id)[[[Defaults sharedDefaults] lightBeamColor] CGColor];
         //animation.toValue = (id)[[NSColor secondaryLabelColor] CGColor];
-        animation.values = @[ (id)[[[Defaults sharedDefaults] lightBeamColor] CGColor],
+        animation.values = @[ (id)[[[Defaults sharedDefaults] lightFakeBeamColor] CGColor],
                               (id)[[NSColor secondaryLabelColor] CGColor] ];
         animation.fillMode = kCAFillModeBoth;
         [animation setValue:@"barSyncedColor" forKey:@"name"];

@@ -321,7 +321,7 @@ static const CGFloat kViewLeftMargin = 10.0f;
             case InfoControlTypeText: {
                 textField = [NSTextField textFieldWithString:@""];
                 textField.bordered = editable;
-                textField.textColor = [[Defaults sharedDefaults] lightBeamColor];
+                textField.textColor = [[Defaults sharedDefaults] lightFakeBeamColor];
                 textField.drawsBackground = NO;
                 textField.editable = editable;
                 textField.alignment = NSTextAlignmentLeft;
@@ -442,7 +442,7 @@ static const CGFloat kViewLeftMargin = 10.0f;
 
             textField = [NSTextField textFieldWithString:@""];
             textField.bordered = editable;
-            textField.textColor = [[Defaults sharedDefaults] lightBeamColor];
+            textField.textColor = [[Defaults sharedDefaults] lightFakeBeamColor];
             textField.drawsBackground = NO;
             textField.editable = editable;
             textField.alignment = NSTextAlignmentLeft;
@@ -557,7 +557,7 @@ static const CGFloat kViewLeftMargin = 10.0f;
                                     self.view.bounds.size.width - 60.0f,
                                     self.view.bounds.size.height - 230.0f);
 
-    _lyricsTextView.textColor = [[Defaults sharedDefaults] lightBeamColor];
+    _lyricsTextView.textColor = [[Defaults sharedDefaults] lightFakeBeamColor];
     scrollView.drawsBackground = NO;
     scrollView.hasVerticalScroller = YES;
     scrollView.verticalScrollElasticity = NSScrollElasticityNone;
@@ -616,7 +616,7 @@ static const CGFloat kViewLeftMargin = 10.0f;
 
     NSTextField* textField = [NSTextField textFieldWithString:@""];
     textField.bordered = NO;
-    textField.textColor = [[Defaults sharedDefaults] lightBeamColor];
+    textField.textColor = [[Defaults sharedDefaults] lightFakeBeamColor];
     textField.font = [NSFont systemFontOfSize:kBigFontSize];
     textField.drawsBackground = NO;
     textField.editable = NO;

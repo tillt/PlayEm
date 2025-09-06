@@ -205,7 +205,7 @@ extern NSString * const kPlaybackStatePlaying;
     _albumArtistView.font = [NSFont systemFontOfSize:_albumArtistView.frame.size.height - 5.0];
     [self.view addSubview:_albumArtistView];
 
-    layer = [CALayer new];
+    layer = [CATiledLayer new];
     layer.backgroundFilters = @[ lowBloomFilter ];
     layer.frame = NSInsetRect(_albumArtistView.bounds, -16, -16);
     layer.masksToBounds = NO;
@@ -297,7 +297,7 @@ extern NSString * const kPlaybackStatePlaying;
                                                                volumeSliderY,
                                                                sliderWidth,
                                                                sliderHeight)];
-    _volumeSlider.trackFillColor = [[Defaults sharedDefaults] lightBeamColor];
+    _volumeSlider.trackFillColor = [[Defaults sharedDefaults] lightFakeBeamColor];
     _volumeSlider.vertical = NO;
     _volumeSlider.maxValue = 1.0;
     _volumeSlider.minValue = 0.0;
@@ -434,7 +434,7 @@ extern NSString * const kPlaybackStatePlaying;
     _beatIndicator.wantsLayer = YES;
     [self.view addSubview:_beatIndicator];
 
-    layer = [CALayer new];
+    layer = [CATiledLayer new];
     layer.backgroundFilters = @[ intenseBloomFilter ];
     layer.frame = NSInsetRect(_beatIndicator.bounds, -8, -8);
     layer.masksToBounds = NO;
@@ -463,14 +463,14 @@ extern NSString * const kPlaybackStatePlaying;
                             bpmLabelHeight);
     [self.view addSubview:_bpm];
     
-    layer = [CALayer new];
+    layer = [CATiledLayer new];
     layer.backgroundFilters = @[ intenseBloomFilter ];
     layer.frame = NSInsetRect(_level.bounds, -8, -8);
     layer.masksToBounds = NO;
     layer.mask = [CAShapeLayer MaskLayerFromRect:layer.bounds];
     [_level.layer addSublayer:layer];
     
-    layer = [CALayer layer];
+    layer = [CATiledLayer layer];
     layer.backgroundColor = [[NSColor colorWithPatternImage:[NSImage imageNamed:@"RastaPattern"]] CGColor];
     layer.contentsScale = NSViewLayerContentsPlacementScaleProportionallyToFill;
     layer.frame = NSInsetRect(_level.bounds, -8, -8);

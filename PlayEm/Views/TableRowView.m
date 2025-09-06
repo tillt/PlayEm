@@ -85,7 +85,7 @@ typedef enum : NSUInteger {
 
 - (CALayer*)makeBackingLayer
 {
-    CALayer* layer = [CALayer layer];
+    CATiledLayer* layer = [CATiledLayer layer];
     layer.masksToBounds = NO;
     layer.autoresizingMask = kCALayerNotSizable;
     layer.frame = self.bounds;
@@ -100,7 +100,7 @@ typedef enum : NSUInteger {
     _symbolLayer.truncationMode = kCATruncationEnd;
     _symbolLayer.allowsEdgeAntialiasing = YES;
     _symbolLayer.contentsScale = [[NSScreen mainScreen] backingScaleFactor];
-    _symbolLayer.foregroundColor = [[Defaults sharedDefaults] lightBeamColor].CGColor;
+    _symbolLayer.foregroundColor = [[Defaults sharedDefaults] lightFakeBeamColor].CGColor;
     _symbolLayer.frame = NSOffsetRect(NSInsetRect(symbolRect, 0.0, 5.0), 8.0, 0.0);
 //    _symbolLayer.drawsAsynchronously = YES;
     [layer addSublayer:_symbolLayer];

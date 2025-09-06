@@ -33,7 +33,11 @@ static const double kScrollSpeed = 1.0 / 24.0;
         self.wantsLayer = YES;
         self.clipsToBounds = YES;
         self.layerContentsRedrawPolicy = NSViewLayerContentsRedrawOnSetNeedsDisplay;
-        
+
+        self.layer = [self makeBackingLayer];
+        self.layer.drawsAsynchronously = YES;
+        self.layerUsesCoreImageFilters = YES;
+
         _first = [CATextLayer layer];
         _first.anchorPoint = CGPointMake(0.0, 0.0);
         _first.frame = self.bounds;

@@ -52,17 +52,17 @@
     
     CIFilter* clampFilter = [CIFilter filterWithName:@"CIAffineClamp"];
     [clampFilter setDefaults];
-
+    
     CGFloat scaleFactor = 1.15;
-
+    
     CGAffineTransform transform = CGAffineTransformScale(CGAffineTransformMakeTranslation(0.0, self.enclosingScrollView.bounds.size.height * -(scaleFactor - 1.0) / 2.0), 1.0, scaleFactor);
     [clampFilter setValue:[NSValue valueWithBytes:&transform objCType:@encode(CGAffineTransform)] forKey:@"inputTransform"];
-
+    
     CIFilter* bloomFilter = [CIFilter filterWithName:@"CIBloom"];
     [bloomFilter setDefaults];
     [bloomFilter setValue: [NSNumber numberWithFloat:9.0] forKey: @"inputRadius"];
     [bloomFilter setValue: [NSNumber numberWithFloat:1.5] forKey: @"inputIntensity"];
-
+    
     CGFloat height = floor(self.enclosingScrollView.bounds.size.height);
     
     _headLayer.contents = image;
@@ -73,7 +73,7 @@
     _headLayer.compositingFilter = [CIFilter filterWithName:@"CISourceAtopCompositing"];
     _headLayer.zPosition = 1.1;
     _headLayer.name = @"HeadLayer";
-
+    
     _headBloomFxLayer = [CALayer layer];
     _headBloomFxLayer.backgroundFilters = @[ clampFilter, bloomFilter ];
     _headBloomFxLayer.anchorPoint = CGPointMake(0.5, 0.0);
@@ -85,7 +85,7 @@
     _headBloomFxLayer.mask = [CAShapeLayer MaskLayerFromRect:_headBloomFxLayer.frame];
     [self.layer addSublayer:_headLayer];
     [self.layer addSublayer:_headBloomFxLayer];
-
+    
     const unsigned int trailingBloomLayerCount = 3;
     NSMutableArray* layers = [NSMutableArray array];
     for (int i = 0; i < trailingBloomLayerCount; i++) {
@@ -96,7 +96,7 @@
         //[bloom setValue: [NSNumber numberWithFloat:1.0 + ((trailingBloomLayerCount - i) * 0.1)] forKey: @"inputIntensity"];
         [bloom setValue: [NSNumber numberWithFloat:1.0]
                  forKey: @"inputIntensity"];
-
+        
         CALayer* layer = [CALayer layer];
         layer.backgroundFilters = @[ bloom ];
         layer.drawsAsynchronously = YES;
@@ -107,14 +107,15 @@
         layer.name = [NSString stringWithFormat:@"TrailBloomFxLayer%d", i+1];
         layer.mask = [CAShapeLayer MaskLayerFromRect:layer.frame];
         [layers addObject:layer];
-
+        
         [self.layer addSublayer:layer];
     }
     //_trailBloomFxLayers = [layers copy];
     _trailBloomFxLayers = layers;
-
+    
     _followTime = YES;
-    _userMomentum = NO;}
+    _userMomentum = NO;
+}
 
 - (void)dealloc
 {

@@ -204,7 +204,7 @@
             NSColor* color = nil;
             if (row == historyLength-1) {
                 if (_playing) {
-                    color = [[Defaults sharedDefaults] lightBeamColor];
+                    color = [[Defaults sharedDefaults] lightFakeBeamColor];
                 } else {
                     color = [[Defaults sharedDefaults] secondaryLabelColor];
                 }

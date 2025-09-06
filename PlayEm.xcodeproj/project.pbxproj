@@ -32,6 +32,11 @@
 		BB46D4AC2D8DCD150090CD56 /* NSString+OccurenceCount.m in Sources */ = {isa = PBXBuildFile; fileRef = BB46D4AB2D8DCD150090CD56 /* NSString+OccurenceCount.m */; };
 		BB46D4AF2D98715B0090CD56 /* NSImage+Resize.m in Sources */ = {isa = PBXBuildFile; fileRef = BB46D4AE2D98715B0090CD56 /* NSImage+Resize.m */; };
 		BB46D4B22D99AD5E0090CD56 /* NSImage+Average.m in Sources */ = {isa = PBXBuildFile; fileRef = BB46D4B12D99AD5E0090CD56 /* NSImage+Average.m */; };
+		BB51C1E02E59C1990049355F /* WaveScrollView.m in Sources */ = {isa = PBXBuildFile; fileRef = BB51C1DF2E59C1990049355F /* WaveScrollView.m */; };
+		BB51C1E22E59DAA50049355F /* TileView.m in Sources */ = {isa = PBXBuildFile; fileRef = BB51C1E12E59DAA50049355F /* TileView.m */; };
+		BB51C1E62E5A21750049355F /* TileLayerDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = BB51C1E52E5A21750049355F /* TileLayerDelegate.m */; };
+		BB51C1E92E5A4A320049355F /* CreditsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = BB51C1E82E5A4A320049355F /* CreditsViewController.m */; };
+		BB51C1F12E5D18940049355F /* credits.rtf in Resources */ = {isa = PBXBuildFile; fileRef = BB51C1F02E5D18940049355F /* credits.rtf */; };
 		BB539A592D0F51AF0095B8C7 /* KeyTrackedSample.mm in Sources */ = {isa = PBXBuildFile; fileRef = BB539A582D0F51AF0095B8C7 /* KeyTrackedSample.mm */; };
 		BB539A5F2D0F6D390095B8C7 /* libkeyfinder.2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = BB539A5E2D0F6D380095B8C7 /* libkeyfinder.2.dylib */; };
 		BB539A602D0F6D390095B8C7 /* libkeyfinder.2.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = BB539A5E2D0F6D380095B8C7 /* libkeyfinder.2.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
@@ -41,6 +46,7 @@
 		BB577E162AA486C500046251 /* libsamplerate.0.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = BB577E152AA486C500046251 /* libsamplerate.0.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		BB5A2C232B925CD300040209 /* TextViewWithPlaceholder.m in Sources */ = {isa = PBXBuildFile; fileRef = BB5A2C222B925CD300040209 /* TextViewWithPlaceholder.m */; };
 		BB5A4D9128FC5C2B003A733C /* NSBezierPath+CGPath.m in Sources */ = {isa = PBXBuildFile; fileRef = BB5A4D9028FC5C2B003A733C /* NSBezierPath+CGPath.m */; };
+		BB694CA32E6BB09C00818B01 /* BloomyText.m in Sources */ = {isa = PBXBuildFile; fileRef = BB694CA22E6BB09C00818B01 /* BloomyText.m */; };
 		BB7C6269293144890019AF25 /* Defaults.m in Sources */ = {isa = PBXBuildFile; fileRef = BB7C6268293144890019AF25 /* Defaults.m */; };
 		BB7C626C2932E1540019AF25 /* ControlPanelController.m in Sources */ = {isa = PBXBuildFile; fileRef = BB7C626B2932E1540019AF25 /* ControlPanelController.m */; };
 		BB8197702B7980C50025B860 /* ConcurrentAccessDictionary.m in Sources */ = {isa = PBXBuildFile; fileRef = BB81976F2B7980C50025B860 /* ConcurrentAccessDictionary.m */; };
@@ -155,6 +161,15 @@
 		BB46D4AE2D98715B0090CD56 /* NSImage+Resize.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSImage+Resize.m"; sourceTree = "<group>"; };
 		BB46D4B02D99AD5E0090CD56 /* NSImage+Average.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSImage+Average.h"; sourceTree = "<group>"; };
 		BB46D4B12D99AD5E0090CD56 /* NSImage+Average.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSImage+Average.m"; sourceTree = "<group>"; };
+		BB51C1DE2E59C1990049355F /* WaveScrollView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WaveScrollView.h; sourceTree = "<group>"; };
+		BB51C1DF2E59C1990049355F /* WaveScrollView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WaveScrollView.m; sourceTree = "<group>"; };
+		BB51C1E12E59DAA50049355F /* TileView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TileView.m; sourceTree = "<group>"; };
+		BB51C1E32E59DAFE0049355F /* TileView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TileView.h; sourceTree = "<group>"; };
+		BB51C1E42E5A21750049355F /* TileLayerDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TileLayerDelegate.h; sourceTree = "<group>"; };
+		BB51C1E52E5A21750049355F /* TileLayerDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TileLayerDelegate.m; sourceTree = "<group>"; };
+		BB51C1E72E5A4A320049355F /* CreditsViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CreditsViewController.h; sourceTree = "<group>"; };
+		BB51C1E82E5A4A320049355F /* CreditsViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CreditsViewController.m; sourceTree = "<group>"; };
+		BB51C1F02E5D18940049355F /* credits.rtf */ = {isa = PBXFileReference; lastKnownFileType = text.rtf; path = credits.rtf; sourceTree = "<group>"; };
 		BB539A552D0F39550095B8C7 /* KeyTrackedSample.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = KeyTrackedSample.h; sourceTree = "<group>"; };
 		BB539A582D0F51AF0095B8C7 /* KeyTrackedSample.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = KeyTrackedSample.mm; sourceTree = "<group>"; };
 		BB539A5E2D0F6D380095B8C7 /* libkeyfinder.2.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libkeyfinder.2.dylib; sourceTree = "<group>"; };
@@ -166,6 +181,8 @@
 		BB5A2C222B925CD300040209 /* TextViewWithPlaceholder.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TextViewWithPlaceholder.m; sourceTree = "<group>"; };
 		BB5A4D8F28FC5C2B003A733C /* NSBezierPath+CGPath.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSBezierPath+CGPath.h"; sourceTree = "<group>"; };
 		BB5A4D9028FC5C2B003A733C /* NSBezierPath+CGPath.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSBezierPath+CGPath.m"; sourceTree = "<group>"; };
+		BB694CA12E6BB09C00818B01 /* BloomyText.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BloomyText.h; sourceTree = "<group>"; };
+		BB694CA22E6BB09C00818B01 /* BloomyText.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = BloomyText.m; sourceTree = "<group>"; };
 		BB7C6267293144890019AF25 /* Defaults.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Defaults.h; sourceTree = "<group>"; };
 		BB7C6268293144890019AF25 /* Defaults.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Defaults.m; sourceTree = "<group>"; };
 		BB7C626A2932E1540019AF25 /* ControlPanelController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ControlPanelController.h; sourceTree = "<group>"; };
@@ -373,8 +390,12 @@
 				BBE5FEB42A892A410001B807 /* BeatLayerDelegate.m */,
 				BBDEBD3B2A99417A0085E6D8 /* WaveLayerDelegate.h */,
 				BBDEBD3C2A99417A0085E6D8 /* WaveLayerDelegate.m */,
+				BB51C1E42E5A21750049355F /* TileLayerDelegate.h */,
+				BB51C1E52E5A21750049355F /* TileLayerDelegate.m */,
 				BBA456DF29395B970062D470 /* IdentifyViewController.h */,
 				BBA456E029395B970062D470 /* IdentifyViewController.m */,
+				BB51C1E72E5A4A320049355F /* CreditsViewController.h */,
+				BB51C1E82E5A4A320049355F /* CreditsViewController.m */,
 				BB7C626A2932E1540019AF25 /* ControlPanelController.h */,
 				BB7C626B2932E1540019AF25 /* ControlPanelController.m */,
 				BBC43B6E28D28CDD00CD1080 /* InfoPanel.h */,
@@ -417,10 +438,14 @@
 				BB097A0B2921B1E500D33E44 /* ScrollingTextView.m */,
 				BBCE1DD7257C3CAB006CE886 /* TiledScrollView.h */,
 				BBCE1DD8257C3CAB006CE886 /* TiledScrollView.m */,
+				BB51C1DE2E59C1990049355F /* WaveScrollView.h */,
+				BB51C1DF2E59C1990049355F /* WaveScrollView.m */,
 				BB9C77E32A8D5F3400A138BE /* WaveView.h */,
 				BB9C77E42A8D5F7C00A138BE /* WaveView.m */,
 				BB03622725FE57E800FA0A7E /* TotalWaveView.h */,
 				BB03622825FE57E800FA0A7E /* TotalWaveView.m */,
+				BB51C1E32E59DAFE0049355F /* TileView.h */,
+				BB51C1E12E59DAA50049355F /* TileView.m */,
 				BB5A2C212B925CD300040209 /* TextViewWithPlaceholder.h */,
 				BB5A2C222B925CD300040209 /* TextViewWithPlaceholder.m */,
 				BBDBBA772BA3AF9F003A80C1 /* DragImageFileView.h */,
@@ -430,6 +455,8 @@
 				BB3927012C14C606009C7B32 /* TableCellView.m */,
 				BB3926FD2C14B3FA009C7B32 /* TableRowView.h */,
 				BB3926FE2C14B43E009C7B32 /* TableRowView.m */,
+				BB694CA12E6BB09C00818B01 /* BloomyText.h */,
+				BB694CA22E6BB09C00818B01 /* BloomyText.m */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -489,6 +516,7 @@
 				BBD24D612432948800DC2A81 /* AppDelegate.m */,
 				BBD24D632432948B00DC2A81 /* Assets.xcassets */,
 				BBECB0242D4FF33E00C6A6F3 /* LargeRastaPattern.png */,
+				BB51C1F02E5D18940049355F /* credits.rtf */,
 				BBD24D682432948B00DC2A81 /* Info.plist */,
 				BBD24D692432948B00DC2A81 /* main.m */,
 				BBD24D6B2432948B00DC2A81 /* PlayEm.entitlements */,
@@ -604,6 +632,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				BB51C1F12E5D18940049355F /* credits.rtf in Resources */,
 				BBECB0252D4FF33E00C6A6F3 /* LargeRastaPattern.png in Resources */,
 				BBDB1B3D2B640AA700A953F7 /* build_dmg.sh in Resources */,
 				BB8571032972152B0004218B /* README.md in Resources */,
@@ -661,6 +690,7 @@
 				BB8A100C290586E500FC6013 /* CAShapeLayer+Path.m in Sources */,
 				BB9401882AD0974900B7B150 /* AcceleratedBiquadFilter.m in Sources */,
 				BBC2AF7A2B8DF0960077EB5E /* NSAlert+BetterError.m in Sources */,
+				BB51C1E62E5A21750049355F /* TileLayerDelegate.m in Sources */,
 				BB9C77E52A8D5F7C00A138BE /* WaveView.m in Sources */,
 				BB539A592D0F51AF0095B8C7 /* KeyTrackedSample.mm in Sources */,
 				BB9D7C102E3E480E0018BA27 /* SampleFormat.h in Sources */,
@@ -680,6 +710,7 @@
 				BB8571012972078A0004218B /* IndexedBlockOperation.m in Sources */,
 				BBF81D932CBB025C0086AECB /* NSColor+Metal.m in Sources */,
 				BB896FF32928874500B41809 /* TableHeaderCell.m in Sources */,
+				BB51C1E22E59DAA50049355F /* TileView.m in Sources */,
 				BB7C6269293144890019AF25 /* Defaults.m in Sources */,
 				BBD24D6A2432948B00DC2A81 /* main.m in Sources */,
 				BBA623D42620F6A200924D44 /* UIView+Visibility.m in Sources */,
@@ -708,6 +739,7 @@
 				BB5A2C232B925CD300040209 /* TextViewWithPlaceholder.m in Sources */,
 				BBD24D622432948800DC2A81 /* AppDelegate.m in Sources */,
 				BBAD7D55262B973C00089ACC /* ScopeView.m in Sources */,
+				BB51C1E02E59C1990049355F /* WaveScrollView.m in Sources */,
 				BBDEBD3D2A99417A0085E6D8 /* WaveLayerDelegate.m in Sources */,
 				BB0D5281244CEE22007C909F /* VisualSample.m in Sources */,
 				BB46D4AF2D98715B0090CD56 /* NSImage+Resize.m in Sources */,
@@ -717,6 +749,8 @@
 				BB2CF8AD259EB66900D6BA03 /* LazySample.m in Sources */,
 				BB3927022C14C606009C7B32 /* TableCellView.m in Sources */,
 				BB0C5D9327768D2400856978 /* MatrixUtilities.m in Sources */,
+				BB694CA32E6BB09C00818B01 /* BloomyText.m in Sources */,
+				BB51C1E92E5A4A320049355F /* CreditsViewController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

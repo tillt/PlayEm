@@ -15,14 +15,15 @@ NS_ASSUME_NONNULL_BEGIN
 extern const CGFloat kDirectWaveViewTileWidth;
 
 @class VisualSample;
+@class TileView;
 
-@interface TiledScrollView : NSScrollView<WaveViewHeadDelegate>
+@interface TiledScrollView : NSScrollView
 
-@property (strong, nonatomic) CALayer* rastaLayer;
+@property (assign, nonatomic) BOOL horizontal;
+@property (weak, nonatomic) id<CALayerDelegate> layerDelegate;
+@property (assign, nonatomic) NSSize tileSize;
 
-@property (strong, nonatomic) CAShapeLayer* aheadVibranceFxLayerMask;
-@property (strong, nonatomic) CALayer* aheadVibranceFxLayer;
-@property (strong, nonatomic) CALayer* trailBloomFxLayer;
+- (TileView*)createTile;
 
 @end
 

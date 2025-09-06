@@ -7,6 +7,7 @@
 //
 
 #import "TotalWaveView.h"
+#import "TileView.h"
 
 #import <QuartzCore/QuartzCore.h>
 #import <CoreImage/CoreImage.h>
@@ -14,10 +15,6 @@
 #import "CAShapeLayer+Path.h"
 
 const CGFloat kTotalWaveViewTileWidth = 8.0f;
-
-@interface TileView : NSView
-@property (readwrite, nonatomic) NSInteger tag;
-@end
 
 @interface TotalWaveView ()
 @property (strong, nonatomic) CALayer* headLayer;
@@ -50,7 +47,7 @@ const CGFloat kTotalWaveViewTileWidth = 8.0f;
 
 - (void)setupHead
 {
-    _headLayer = [CALayer layer];
+    _headLayer = [CATiledLayer layer];
     
     NSImage* image = [NSImage imageNamed:@"TinyTotalCurrentTime"];
     image.resizingMode = NSImageResizingModeTile;
@@ -88,7 +85,7 @@ const CGFloat kTotalWaveViewTileWidth = 8.0f;
     _headLayer.zPosition = 1.0;
     _headLayer.name = @"HeadLayer";
 
-    _headBloomFxLayer = [CALayer layer];
+    _headBloomFxLayer = [CATiledLayer layer];
     _headBloomFxLayer.backgroundFilters = @[ clampFilter, headBloomFilter ];
     _headBloomFxLayer.frame = _headLayer.bounds;
     _headBloomFxLayer.masksToBounds = NO;
@@ -96,7 +93,7 @@ const CGFloat kTotalWaveViewTileWidth = 8.0f;
     _headBloomFxLayer.name = @"HeadBloomFxLayer";
     _headBloomFxLayer.mask = [CAShapeLayer MaskLayerFromRect:_headBloomFxLayer.frame];
     
-    _aheadVibranceFxLayer = [CALayer layer];
+    _aheadVibranceFxLayer = [CATiledLayer layer];
     _aheadVibranceFxLayer.backgroundFilters = @[ darkenFilter, vibranceFilter ];
     _aheadVibranceFxLayer.anchorPoint = CGPointMake(0.0, 0.0);
     _aheadVibranceFxLayer.bounds = CGRectMake(0.0, 0.0, width, height);
@@ -106,7 +103,7 @@ const CGFloat kTotalWaveViewTileWidth = 8.0f;
     _aheadVibranceFxLayer.name = @"AheadVibranceFxLayer";
     _aheadVibranceFxLayer.mask = [CAShapeLayer MaskLayerFromRect:_aheadVibranceFxLayer.frame];
     
-    _rastaLayer = [CALayer layer];
+    _rastaLayer = [CATiledLayer layer];
     _rastaLayer.backgroundColor = [[NSColor colorWithPatternImage:[NSImage imageNamed:@"RastaPattern"]] CGColor];
     _rastaLayer.autoresizingMask = kCALayerNotSizable;
     _rastaLayer.contentsScale = NSViewLayerContentsPlacementScaleProportionallyToFill;
@@ -124,7 +121,7 @@ const CGFloat kTotalWaveViewTileWidth = 8.0f;
     [tailBloomFilter setValue: [NSNumber numberWithFloat:3.0] forKey: @"inputRadius"];
     [tailBloomFilter setValue: [NSNumber numberWithFloat:1.0] forKey: @"inputIntensity"];
 
-    _tailBloomFxLayer = [CALayer layer];
+    _tailBloomFxLayer = [CATiledLayer layer];
     _tailBloomFxLayer.backgroundFilters = @[ tailBloomFilter ];
     _tailBloomFxLayer.anchorPoint = CGPointMake(1.0, 0.0);
     _tailBloomFxLayer.frame = CGRectMake(0.0, 0.0, width, height);
@@ -194,7 +191,7 @@ const CGFloat kTotalWaveViewTileWidth = 8.0f;
         for (CGFloat y = yMin; y < yMax; y += tileSize.height) {
             NSRect rect = NSMakeRect(x, y, tileSize.width, tileSize.height);
             TileView* v = [[TileView alloc] initWithFrame:rect];
-            v.tag = x / tileSize.width;
+            v.tileTag = x / tileSize.width;
             v.layer.delegate = self.layerDelegate;
             [sv addObject:v];
             [v.layer setNeedsDisplay];
@@ -215,6 +212,24 @@ const CGFloat kTotalWaveViewTileWidth = 8.0f;
     
     view.layer.delegate = self.layerDelegate;
     [view.layer setNeedsDisplay];
+}
+
+- (TileView*)tileWithTag:(NSInteger)tag
+{
+    NSIndexSet *indexes = [self.subviews indexesOfObjectsPassingTest:^BOOL(id obj, NSUInteger idx, BOOL* stop) {
+       return ((TileView*)obj).tileTag == tag;
+    }];
+
+    if (indexes.count == 0) {
+        NSLog(@"no tile with tag %ld found", (long)tag);
+        return nil;
+    }
+    if (indexes.count > 1) {
+        NSLog(@"more than one tile with tag %ld found", (long)tag);
+        return nil;
+    }
+
+    return [self.subviews objectsAtIndexes:indexes][0];
 }
 
 - (void)resize
@@ -248,11 +263,11 @@ const CGFloat kTotalWaveViewTileWidth = 8.0f;
     for (CGFloat x = xMin; x < xMax; x += tileSize.width) {
         for (CGFloat y = yMin; y < yMax; y += tileSize.height) {
             NSInteger tag = x / tileSize.width;
-            if ([self viewWithTag:tag] == nil) {
+            if ([self tileWithTag:tag] == nil) {
                 NSRect rect = NSMakeRect(x, y, tileSize.width, tileSize.height);
                 TileView* v = [[TileView alloc] initWithFrame:rect];
                 v.layer.delegate = self.layerDelegate;
-                v.tag = tag;
+                v.tileTag = tag;
                 [v.layer setNeedsDisplay];
                 [sv addObject:v];
             }
@@ -274,19 +289,3 @@ const CGFloat kTotalWaveViewTileWidth = 8.0f;
 @end
 
 
-@implementation TileView
-
-@synthesize tag;
-
-- (CALayer*)makeBackingLayer
-{
-    CALayer* layer = [CALayer layer];
-    return layer;
-}
-
-- (BOOL)wantsLayer
-{
-    return YES;
-}
-
-@end

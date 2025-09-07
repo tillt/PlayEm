@@ -490,8 +490,8 @@ NSString* const kSongsColGenre = @"GenreCell";
 - (void)setNowPlayingWithMeta:(MediaMetaData*)meta
 {
     if ( _filteredItems != nil) {
-        [self setPlaying:YES];
         [self setCurrentMeta:meta];
+        [self setPlaying:YES];
         [self showSongRowForMeta:meta];
     } else {
         _lazyUpdatedMeta = meta;

@@ -88,6 +88,7 @@ extern NSString * const kBeatTrackedSampleTempoChangeNotification;
     if (value > 0.0) {
         currentTempo = value;
     }
+    [self animate];
 }
 
 - (void)beatPumpingLayer:(CALayer*)layer localEnergy:(double)localEnergy totalEnergy:(double)totalEnergy
@@ -537,37 +538,36 @@ extern NSString * const kBeatTrackedSampleTempoChangeNotification;
 
     [CATransaction begin];
     [CATransaction setDisableActions:YES];
-        CABasicAnimation* animation = [CABasicAnimation animationWithKeyPath:@"transform.rotation.z"];
-        animation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionLinear];
-        animation.fillMode = kCAFillModeForwards;
-        animation.removedOnCompletion = NO;
-        NSAssert(currentTempo > 0.0, @"current tempo set to zero, that should never happen");
-        animation.duration = beatsPerCycle * 60.0f / self->currentTempo;
-        const CGFloat angleToAdd = -M_PI_2 * beatsPerCycle;
-        if ((_style & CoverViewStyleRotatingLaser) == CoverViewStyleRotatingLaser) {
-            [_overlayLayer setValue:@(M_PI_2 * beatsPerCycle) forKeyPath:@"transform.rotation.z"];
-            [_maskLayer setValue:@(M_PI_2 * beatsPerCycle) forKeyPath:@"transform.rotation.z"];
-        }
-        if ((_style & CoverViewStyleGlowBehindCoverAtLaser) == CoverViewStyleGlowBehindCoverAtLaser) {
-            [_glowLayer setValue:@(M_PI_2 * beatsPerCycle) forKeyPath:@"transform.rotation.z"];
-        }
-        animation.toValue = @(0.0);
-        animation.byValue = @(angleToAdd);
-        animation.repeatCount = 1.0f;
-        [CATransaction setCompletionBlock:^{
-            if (!self->animating) {
-                NSLog(@"we are not animating anymore!!!!");
-                return;
-            }
-            [self animate];
-        }];
-        if ((_style & CoverViewStyleRotatingLaser) == CoverViewStyleRotatingLaser) {
-            [_overlayLayer addAnimation:animation forKey:@"rotation"];
-            [_maskLayer addAnimation:animation forKey:@"rotation"];
-        }
-        if ((_style & CoverViewStyleGlowBehindCoverAtLaser) == CoverViewStyleGlowBehindCoverAtLaser) {
-            [_glowLayer addAnimation:animation forKey:@"rotation"];
-        }
+
+    CABasicAnimation* animation = [CABasicAnimation animationWithKeyPath:@"transform.rotation.z"];
+    animation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionLinear];
+    animation.fillMode = kCAFillModeForwards;
+    animation.removedOnCompletion = NO;
+    NSAssert(currentTempo > 0.0, @"current tempo set to zero, that should never happen");
+    animation.duration = beatsPerCycle * 60.0f / self->currentTempo;
+    const CGFloat anglePerBeat = M_PI_2 * beatsPerCycle;
+    const CGFloat angleToAdd = -anglePerBeat;
+
+    if ((_style & CoverViewStyleRotatingLaser) == CoverViewStyleRotatingLaser) {
+        [_overlayLayer setValue:@(anglePerBeat) forKeyPath:@"transform.rotation.z"];
+        [_maskLayer setValue:@(anglePerBeat) forKeyPath:@"transform.rotation.z"];
+    }
+    if ((_style & CoverViewStyleGlowBehindCoverAtLaser) == CoverViewStyleGlowBehindCoverAtLaser) {
+        [_glowLayer setValue:@(anglePerBeat) forKeyPath:@"transform.rotation.z"];
+    }
+
+    animation.toValue = @(0.0);
+    animation.byValue = @(angleToAdd);
+    animation.repeatCount = FLT_MAX;
+
+    if ((_style & CoverViewStyleRotatingLaser) == CoverViewStyleRotatingLaser) {
+        [_overlayLayer addAnimation:animation forKey:@"rotation"];
+        [_maskLayer addAnimation:animation forKey:@"rotation"];
+    }
+    if ((_style & CoverViewStyleGlowBehindCoverAtLaser) == CoverViewStyleGlowBehindCoverAtLaser) {
+        [_glowLayer addAnimation:animation forKey:@"rotation"];
+    }
+
     [CATransaction commit];
 }
 
@@ -594,21 +594,36 @@ extern NSString * const kBeatTrackedSampleTempoChangeNotification;
 - (void)stopAnimating
 {
     paused = NO;
+    if ((_style & CoverViewStyleRotatingLaser) == CoverViewStyleRotatingLaser) {
+        [_maskLayer removeAllAnimations];
+        [_overlayLayer removeAllAnimations];
+    }
+    if ((_style & CoverViewStyleGlowBehindCoverAtLaser) == CoverViewStyleGlowBehindCoverAtLaser) {
+        [_glowLayer removeAllAnimations];
+    }
 }
 
 - (void)resumeAnimating
 {
-    [_overlayLayer resumeAnimating];
-    [_maskLayer resumeAnimating];
-
+    if ((_style & CoverViewStyleRotatingLaser) == CoverViewStyleRotatingLaser) {
+        [_overlayLayer resumeAnimating];
+        [_maskLayer resumeAnimating];
+    }
+    if ((_style & CoverViewStyleGlowBehindCoverAtLaser) == CoverViewStyleGlowBehindCoverAtLaser) {
+        [_glowLayer resumeAnimating];
+    }
     paused = NO;
 }
 
 - (void)pauseAnimating
 {
-    [_overlayLayer pauseAnimating];
-    [_maskLayer pauseAnimating];
-
+    if ((_style & CoverViewStyleRotatingLaser) == CoverViewStyleRotatingLaser) {
+        [_overlayLayer pauseAnimating];
+        [_maskLayer pauseAnimating];
+    }
+    if ((_style & CoverViewStyleGlowBehindCoverAtLaser) == CoverViewStyleGlowBehindCoverAtLaser) {
+        [_glowLayer pauseAnimating];
+    }
     paused = YES;
 }
 

@@ -19,10 +19,6 @@
 
 const CGFloat kDirectWaveViewTileWidth = 256.0f;
 
-@interface WaveTileView : TileView
-+ (CALayer*)makeOverheadLayer;
-@end
-
 @interface WaveScrollView () // Private
 @property (nonatomic, strong) NSMutableArray* reusableViews;
 - (void)updateTiles;
@@ -172,14 +168,15 @@ const CGFloat kDirectWaveViewTileWidth = 256.0f;
     // Add needed tiles from the to-do list.
     for (NSValue* neededFrame in neededTileFrames) {
         CALayer* overheadLayer = nil;
-        WaveTileView* view = [reusableViews lastObject];
+        TileView* view = [reusableViews lastObject];
         [reusableViews removeLastObject];
 
         // Create one if we did not find a reusable one.
         if (nil == view) {
             view = [self createTile];
 
-            overheadLayer = [WaveTileView makeOverheadLayer];
+            overheadLayer = [CALayer layer];
+            overheadLayer.masksToBounds = NO;
             overheadLayer.delegate = ((WaveView*)self.documentView).beatLayerDelegate;
             [view.layer addSublayer:overheadLayer];
         } else {
@@ -222,18 +219,6 @@ const CGFloat kDirectWaveViewTileWidth = 256.0f;
             _trailBloomFxLayer.position = CGPointMake(self.documentVisibleRect.size.width, self.bounds.origin.y);
         }
     }
-}
-
-@end
-
-
-@implementation WaveTileView
-
-+ (CALayer*)makeOverheadLayer
-{
-    CALayer* layer = [CALayer layer];
-    layer.masksToBounds = NO;
-    return layer;
 }
 
 @end

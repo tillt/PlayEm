@@ -41,6 +41,7 @@ extern NSString* const kSongsColGenre;
 @protocol BrowserControllerDelegate <NSObject>
 - (MediaMetaData*)currentSongMeta;
 - (BOOL)playing;
+- (void)closeFilter;
 - (void)browseSelectedUrl:(NSURL*)url meta:(MediaMetaData*)meta;
 - (void)loadLibraryState:(LoadState)state;
 - (void)loadLibraryState:(LoadState)state value:(double)value;
@@ -50,7 +51,7 @@ extern NSString* const kSongsColGenre;
 - (void)showInfoForMetas:(NSArray<MediaMetaData*>*)metas;
 @end
 
-@interface BrowserController : NSResponder <NSTableViewDelegate, NSTableViewDataSource, CAAnimationDelegate>
+@interface BrowserController : NSResponder <NSTableViewDelegate, NSTableViewDataSource, CAAnimationDelegate, NSSearchFieldDelegate>
 
 @property (nonatomic, weak) id <BrowserControllerDelegate> delegate;
 
@@ -62,6 +63,7 @@ extern NSString* const kSongsColGenre;
                 keysTable:(NSTableView*)keysTable
              ratingsTable:(NSTableView*)ratingsTable
               tagsTable:(NSTableView*)tagsTable
+              searchField:(NSSearchField*)searchField
                  delegate:(id <BrowserControllerDelegate>)delegate;
 - (void)loadITunesLibrary;
 - (void)reloadData;

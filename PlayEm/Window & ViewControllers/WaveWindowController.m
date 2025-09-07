@@ -519,6 +519,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
 
     const CGFloat playlistFxViewWidth = 280.0f;
     const CGFloat statusLineHeight = 14.0f;
+    const CGFloat searchFieldHeight = 25.0f;
     const CGFloat songsTableViewHeight = floor(totalHeight / 4.0f);
     const CGFloat selectorTableViewWidth = floor(self.window.contentView.bounds.size.width / 7.0f);
     const CGFloat selectorTableViewHeight = floor(totalHeight / 5.0f);
@@ -554,7 +555,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
                                                                 self.window.contentView.bounds.origin.y,
                                                                 self.window.contentView.bounds.size.width,
                                                                 statusLineHeight)];
-    _songsCount.font = [NSFont systemFontOfSize:11.0];
+    _songsCount.font = [[Defaults sharedDefaults] smallFont];
     _songsCount.textColor = [[Defaults sharedDefaults] tertiaryLabelColor];
     _songsCount.bordered = NO;
     _songsCount.alignment = NSTextAlignmentCenter;
@@ -565,20 +566,19 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     [self.window.contentView addSubview:_songsCount];
 
     // Below Visuals.
-    CGFloat height = scopeViewHeight +
-    scrollingWaveViewHeight +
-    totalWaveViewHeight;
+    CGFloat height = scopeViewHeight + scrollingWaveViewHeight + totalWaveViewHeight;
 
-    _split = [[NSSplitView alloc] initWithFrame:NSMakeRect(self.window.contentView.bounds.origin.x,
-                                                           self.window.contentView.bounds.origin.y + statusLineHeight,
-                                                           self.window.contentView.bounds.size.width,
-                                                           self.window.contentView.bounds.size.height - statusLineHeight)];
-    _split.autoresizingMask = kViewFullySizeable;
-    _split.autoresizesSubviews = YES;
-    _split.dividerStyle = NSSplitViewDividerStyleThin;
-    _split.delegate = self;
-    _split.identifier = @"VerticalSplitterID";
-    _split.translatesAutoresizingMaskIntoConstraints = YES;
+    NSRect availableRect = NSMakeRect(self.window.contentView.bounds.origin.x,
+                                      self.window.contentView.bounds.origin.y + statusLineHeight,
+                                      self.window.contentView.bounds.size.width,
+                                      self.window.contentView.bounds.size.height - statusLineHeight);
+    _horizontalSplitView = [[NSSplitView alloc] initWithFrame:availableRect];
+    _horizontalSplitView.autoresizingMask = kViewFullySizeable;
+    _horizontalSplitView.autoresizesSubviews = YES;
+    _horizontalSplitView.dividerStyle = NSSplitViewDividerStyleThin;
+    _horizontalSplitView.delegate = self;
+    _horizontalSplitView.identifier = @"VerticalSplitterID";
+    _horizontalSplitView.translatesAutoresizingMaskIntoConstraints = YES;
     
     _belowVisuals = [[NSView alloc] initWithFrame:NSMakeRect(self.window.contentView.bounds.origin.x,
                                                              self.window.contentView.bounds.origin.y,
@@ -700,19 +700,20 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     
     [_belowVisuals addSubview:_effectBelowPlaylist];
     
-    [_split addArrangedSubview:_belowVisuals];
+    [_horizontalSplitView addArrangedSubview:_belowVisuals];
     
     ///
     /// Genre, Artist, Album, BPM, Key Tables.
     ///
-    _splitSelectors = [[NSSplitView alloc] initWithFrame:NSMakeRect(_split.bounds.origin.x,
-                                                                    _split.bounds.origin.y,
-                                                                    _split.bounds.size.width,
-                                                                    selectorTableViewHeight)];
-    _splitSelectors.vertical = YES;
-    _splitSelectors.delegate = self;
-    _splitSelectors.identifier = @"HorizontalSplittersID";
-    _splitSelectors.dividerStyle = NSSplitViewDividerStyleThin;
+    NSRect verticalRect = NSMakeRect(_horizontalSplitView.bounds.origin.x,
+                                     _horizontalSplitView.bounds.origin.y,
+                                     _horizontalSplitView.bounds.size.width,
+                                     selectorTableViewHeight);
+    _verticalSplitView = [[NSSplitView alloc] initWithFrame:verticalRect];
+    _verticalSplitView.vertical = YES;
+    _verticalSplitView.delegate = self;
+    _verticalSplitView.identifier = @"HorizontalSplittersID";
+    _verticalSplitView.dividerStyle = NSSplitViewDividerStyleThin;
     
     sv = [[NSScrollView alloc] initWithFrame:NSMakeRect(  0.0,
                                                           0.0,
@@ -731,8 +732,8 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     col.minWidth = selectorTableViewMinWidth;
     [_genreTable addTableColumn:col];
     sv.documentView = _genreTable;
-    [_splitSelectors addArrangedSubview:sv];
-    [_splitSelectors addConstraint:[NSLayoutConstraint constraintWithItem:sv
+    [_verticalSplitView addArrangedSubview:sv];
+    [_verticalSplitView addConstraint:[NSLayoutConstraint constraintWithItem:sv
                                                                 attribute:NSLayoutAttributeWidth
                                                                 relatedBy:NSLayoutRelationGreaterThanOrEqual
                                                                    toItem:nil
@@ -740,7 +741,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
                                                                multiplier:1.0
                                                                  constant:selectorTableViewMinWidth]];
 
-    [_splitSelectors addConstraint:[NSLayoutConstraint constraintWithItem:sv
+    [_verticalSplitView addConstraint:[NSLayoutConstraint constraintWithItem:sv
               attribute:NSLayoutAttributeHeight
               relatedBy:NSLayoutRelationGreaterThanOrEqual
               toItem:nil
@@ -764,8 +765,8 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     col.minWidth = selectorTableViewMinWidth;
     [_artistsTable addTableColumn:col];
     sv.documentView = _artistsTable;
-    [_splitSelectors addArrangedSubview:sv];
-    [_splitSelectors addConstraint:[NSLayoutConstraint constraintWithItem:sv
+    [_verticalSplitView addArrangedSubview:sv];
+    [_verticalSplitView addConstraint:[NSLayoutConstraint constraintWithItem:sv
                                                                 attribute:NSLayoutAttributeWidth
                                                                 relatedBy:NSLayoutRelationGreaterThanOrEqual
                                                                    toItem:nil
@@ -789,8 +790,8 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     col.minWidth = selectorTableViewMinWidth;
     [_albumsTable addTableColumn:col];
     sv.documentView = _albumsTable;
-    [_splitSelectors addArrangedSubview:sv];
-    [_splitSelectors addConstraint:[NSLayoutConstraint constraintWithItem:sv
+    [_verticalSplitView addArrangedSubview:sv];
+    [_verticalSplitView addConstraint:[NSLayoutConstraint constraintWithItem:sv
                                                                 attribute:NSLayoutAttributeWidth
                                                                 relatedBy:NSLayoutRelationGreaterThanOrEqual
                                                                    toItem:nil
@@ -813,8 +814,8 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     col.minWidth = selectorTableViewMinWidth;
     [_temposTable addTableColumn:col];
     sv.documentView = _temposTable;
-    [_splitSelectors addArrangedSubview:sv];
-    [_splitSelectors addConstraint:[NSLayoutConstraint constraintWithItem:sv
+    [_verticalSplitView addArrangedSubview:sv];
+    [_verticalSplitView addConstraint:[NSLayoutConstraint constraintWithItem:sv
                                                                 attribute:NSLayoutAttributeWidth
                                                                 relatedBy:NSLayoutRelationGreaterThanOrEqual
                                                                    toItem:nil
@@ -837,8 +838,8 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     col.minWidth = selectorTableViewMinWidth;
     [_keysTable addTableColumn:col];
     sv.documentView = _keysTable;
-    [_splitSelectors addArrangedSubview:sv];
-    [_splitSelectors addConstraint:[NSLayoutConstraint constraintWithItem:sv
+    [_verticalSplitView addArrangedSubview:sv];
+    [_verticalSplitView addConstraint:[NSLayoutConstraint constraintWithItem:sv
                                                                 attribute:NSLayoutAttributeWidth
                                                                 relatedBy:NSLayoutRelationGreaterThanOrEqual
                                                                    toItem:nil
@@ -861,8 +862,8 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     col.minWidth = selectorTableViewMinWidth;
     [_ratingsTable addTableColumn:col];
     sv.documentView = _ratingsTable;
-    [_splitSelectors addArrangedSubview:sv];
-    [_splitSelectors addConstraint:[NSLayoutConstraint constraintWithItem:sv
+    [_verticalSplitView addArrangedSubview:sv];
+    [_verticalSplitView addConstraint:[NSLayoutConstraint constraintWithItem:sv
                                                                 attribute:NSLayoutAttributeWidth
                                                                 relatedBy:NSLayoutRelationGreaterThanOrEqual
                                                                    toItem:nil
@@ -885,8 +886,8 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     col.minWidth = selectorTableViewMinWidth;
     [_tagsTable addTableColumn:col];
     sv.documentView = _tagsTable;
-    [_splitSelectors addArrangedSubview:sv];
-    [_splitSelectors addConstraint:[NSLayoutConstraint constraintWithItem:sv
+    [_verticalSplitView addArrangedSubview:sv];
+    [_verticalSplitView addConstraint:[NSLayoutConstraint constraintWithItem:sv
                                                                 attribute:NSLayoutAttributeWidth
                                                                 relatedBy:NSLayoutRelationGreaterThanOrEqual
                                                                    toItem:nil
@@ -894,14 +895,22 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
                                                                multiplier:1.0
                                                                  constant:selectorTableViewMinWidth]];
 
-    [_split addArrangedSubview:_splitSelectors];
+    [_horizontalSplitView addArrangedSubview:_verticalSplitView];
+    
+    _searchField = [[NSSearchField alloc] initWithFrame:NSMakeRect(0,0,_horizontalSplitView.bounds.size.width,searchFieldHeight)];
+    _searchField.sendsWholeSearchString = NO;
+    _searchField.sendsSearchStringImmediately = YES;
+    _searchField.textColor = [[Defaults sharedDefaults] lightFakeBeamColor];
+    _searchField.font = [[Defaults sharedDefaults] normalFont];
+    _searchField.placeholderString = @"Filter";
+    
     
     ///
     /// Songs Table.
     ///
-    sv = [[NSScrollView alloc] initWithFrame:NSMakeRect(_split.bounds.origin.x,
-                                                        _split.bounds.origin.y,
-                                                        _split.bounds.size.width,
+    sv = [[NSScrollView alloc] initWithFrame:NSMakeRect(_horizontalSplitView.bounds.origin.x,
+                                                        _horizontalSplitView.bounds.origin.y,
+                                                        _horizontalSplitView.bounds.size.width,
                                                         songsTableViewHeight)];
     sv.hasVerticalScroller = YES;
     sv.drawsBackground = NO;
@@ -1002,17 +1011,18 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     [_songsTable addTableColumn:col];
 
     sv.documentView = _songsTable;
-    [_split addArrangedSubview:sv];
+    [_horizontalSplitView addArrangedSubview:sv];
 
-    [_split addConstraint:[NSLayoutConstraint constraintWithItem:sv
-              attribute:NSLayoutAttributeHeight
-              relatedBy:NSLayoutRelationGreaterThanOrEqual
-              toItem:nil
-              attribute:NSLayoutAttributeNotAnAttribute
-              multiplier:1.0
-              constant:kMinTableHeight]];
+    NSLayoutConstraint* constraint = [NSLayoutConstraint constraintWithItem:sv
+                                                                  attribute:NSLayoutAttributeHeight
+                                                                  relatedBy:NSLayoutRelationGreaterThanOrEqual
+                                                                     toItem:nil
+                                                                  attribute:NSLayoutAttributeNotAnAttribute
+                                                                 multiplier:1.0
+                                                                   constant:kMinTableHeight];
+    [_horizontalSplitView addConstraint:constraint];
 
-    [self.window.contentView addSubview:_split];
+    [self.window.contentView addSubview:_horizontalSplitView];
     
     _progress = [[NSProgressIndicator alloc] initWithFrame:NSMakeRect((self.window.contentView.bounds.size.width - progressIndicatorWidth) / 2.0,
                                                                       (self.window.contentView.bounds.size.height - progressIndicatorHeight) / 4.0,
@@ -1053,8 +1063,8 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     
     // The following assignments can not happen earlier - they rely on the fact
     // that the controls in question have a parent view / window.
-    _split.autosaveName = @"VerticalSplitters";
-    _splitSelectors.autosaveName = @"HorizontalSplitters";
+    _horizontalSplitView.autosaveName = @"VerticalSplitters";
+    _verticalSplitView.autosaveName = @"HorizontalSplitters";
     
     _genreTable.autosaveName = @"GenresTable";
     _artistsTable.autosaveName = @"ArtistsTable";
@@ -1094,6 +1104,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
                                                     keysTable:_keysTable
                                                   ratingsTable:_ratingsTable
                                                     tagsTable:_tagsTable
+                                                  searchField:_searchField
                                                      delegate:self];
     for (NSTableView *table in fixupTables) {
         table.delegate = _browser;
@@ -1387,18 +1398,18 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     if (toFullscreen) {
         memcpy(splitPositionMemory, splitPosition, sizeof(CGFloat) * kSplitPositionCount);
         // Restore the old positions.
-        [_splitSelectors setPosition:splitSelectorPositionMemory[0] ofDividerAtIndex:0];
-        [_splitSelectors setPosition:splitSelectorPositionMemory[1] ofDividerAtIndex:1];
-        [_splitSelectors setPosition:splitSelectorPositionMemory[2] ofDividerAtIndex:2];
-        [_splitSelectors setPosition:splitSelectorPositionMemory[3] ofDividerAtIndex:3];
-        [_splitSelectors setPosition:splitSelectorPositionMemory[4] ofDividerAtIndex:4];
-        [_splitSelectors setPosition:splitSelectorPositionMemory[5] ofDividerAtIndex:5];
-        [_splitSelectors setPosition:splitSelectorPositionMemory[6] ofDividerAtIndex:6];
+        [_verticalSplitView setPosition:splitSelectorPositionMemory[0] ofDividerAtIndex:0];
+        [_verticalSplitView setPosition:splitSelectorPositionMemory[1] ofDividerAtIndex:1];
+        [_verticalSplitView setPosition:splitSelectorPositionMemory[2] ofDividerAtIndex:2];
+        [_verticalSplitView setPosition:splitSelectorPositionMemory[3] ofDividerAtIndex:3];
+        [_verticalSplitView setPosition:splitSelectorPositionMemory[4] ofDividerAtIndex:4];
+        [_verticalSplitView setPosition:splitSelectorPositionMemory[5] ofDividerAtIndex:5];
+        [_verticalSplitView setPosition:splitSelectorPositionMemory[6] ofDividerAtIndex:6];
     }
 
-    [_splitSelectors adjustSubviews];
+    [_verticalSplitView adjustSubviews];
 
-    _splitSelectors.animator.hidden = toFullscreen ? YES : NO;
+    _verticalSplitView.animator.hidden = toFullscreen ? YES : NO;
 
     _songsTable.enclosingScrollView.animator.hidden = toFullscreen ? YES : NO;
 
@@ -1407,10 +1418,10 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
         // can trash the stored positions immediately.
         CGFloat positions[kSplitPositionCount];
         memcpy(positions, splitPositionMemory, sizeof(CGFloat) * kSplitPositionCount);
-        [_split setPosition:splitPositionMemory[0] ofDividerAtIndex:0];
-        [_split setPosition:splitPositionMemory[1] ofDividerAtIndex:1];
+        [_horizontalSplitView setPosition:splitPositionMemory[0] ofDividerAtIndex:0];
+        [_horizontalSplitView setPosition:splitPositionMemory[1] ofDividerAtIndex:1];
     }
-    [_split adjustSubviews];
+    [_horizontalSplitView adjustSubviews];
     NSLog(@"relayout to fullscreen %X\n", toFullscreen);
 }
 
@@ -1638,7 +1649,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
         return;
     }
 
-    if (sv == _splitSelectors) {
+    if (sv == _verticalSplitView) {
         switch(indexNumber.intValue) {
             case 0:
                 splitSelectorPositionMemory[0] = _genreTable.enclosingScrollView.bounds.size.width;
@@ -1662,7 +1673,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
                 splitSelectorPositionMemory[6] = _tagsTable.enclosingScrollView.bounds.size.width;
                 break;
         }
-    } else if (sv == _split) {
+    } else if (sv == _horizontalSplitView) {
         switch(indexNumber.intValue) {
             case 0: {
                 NSSize newSize = NSMakeSize(_belowVisuals.bounds.size.width,
@@ -1679,7 +1690,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
             }
         }
         splitPosition[0] = _belowVisuals.bounds.size.height;
-        splitPosition[1] = _belowVisuals.bounds.size.height + _splitSelectors.bounds.size.height;
+        splitPosition[1] = _belowVisuals.bounds.size.height + _verticalSplitView.bounds.size.height;
     }
 }
 
@@ -2257,6 +2268,25 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
 }
 
 #pragma mark - Browser delegate
+
+- (void)performFindPanelAction :(id)sender
+{
+    [_searchField setFrame:NSMakeRect(0, 0, self->_searchField.frame.size.width, 0.0)];
+    [_horizontalSplitView insertArrangedSubview:_searchField atIndex:2];
+    [_searchField.window makeFirstResponder:_searchField];
+
+//    [NSAnimationContext runAnimationGroup:^(NSAnimationContext *context) {
+//        [context setDuration:5.0];
+//        [self->_searchField.animator setFrame:NSMakeRect(0, 0, self->_searchField.frame.size.width, 30.0)];
+//    } completionHandler:^{
+//    }];
+
+}
+
+- (void)closeFilter
+{
+    [_horizontalSplitView removeArrangedSubview:_searchField];
+}
 
 - (MediaMetaData*)currentSongMeta
 {

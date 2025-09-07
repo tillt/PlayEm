@@ -53,8 +53,9 @@ NSString* const kSongsColGenre = @"GenreCell";
 @property (nonatomic, weak) NSTableView* songsTable;
 @property (nonatomic, weak) NSTableView* ratingsTable;
 @property (nonatomic, weak) NSTableView* tagsTable;
+@property (nonatomic, weak) NSSearchField* searchField;
 
-@property (nonatomic, strong) NSURL* currentLocation;
+@property (nonatomic, copy) NSURL* currentLocation;
 
 @property (nonatomic, strong) NSMutableArray<NSString*>* genres;
 @property (nonatomic, strong) NSMutableArray<NSString*>* artists;
@@ -88,8 +89,9 @@ NSString* const kSongsColGenre = @"GenreCell";
               temposTable:(NSTableView*)temposTable
                songsTable:(NSTableView*)songsTable
                 keysTable:(NSTableView*)keysTable
-               ratingsTable:(NSTableView*)ratingsTable
+             ratingsTable:(NSTableView*)ratingsTable
                 tagsTable:(NSTableView*)tagsTable
+              searchField:(NSSearchField*)searchField
                  delegate:(id<BrowserControllerDelegate>)delegate
 {
     self = [super init];
@@ -113,6 +115,9 @@ NSString* const kSongsColGenre = @"GenreCell";
         _keys = [NSMutableArray array];
         _ratings = [NSMutableArray array];
         _tags = [NSMutableArray array];
+        
+        _searchField = searchField;
+        _searchField.delegate = self;
 
         _genresTable = genresTable;
         _genresTable.dataSource = self;
@@ -176,6 +181,7 @@ NSString* const kSongsColGenre = @"GenreCell";
     NSMutableArray<MediaMetaData*>* __block cachedLibrary = _cachedLibrary;
     NSArray<MediaMetaData*>* __block filteredItems = _filteredItems;
 
+    NSString* needle = _searchField.stringValue;
     NSString* genre = _genresTable.selectedRow > 0 ? _genres[_genresTable.selectedRow] : nil;
     NSString* artist = _artistsTable.selectedRow > 0 ? _artists[_artistsTable.selectedRow] : nil;
     NSString* album = _albumsTable.selectedRow > 0 ? _albums[_albumsTable.selectedRow] : nil;
@@ -193,7 +199,8 @@ NSString* const kSongsColGenre = @"GenreCell";
                                               tempo:tempo
                                                 key:key
                                              rating:rating
-                                                tag:tag] sortedArrayUsingDescriptors:descriptors];
+                                                tag:tag
+                                             needle:needle] sortedArrayUsingDescriptors:descriptors];
 
         // This weird construct shall assure that we only reload those columns that are
         // undetermined by a selection with a priority built in. 
@@ -548,6 +555,41 @@ NSString* const kSongsColGenre = @"GenreCell";
     _currentLocation = currentLocation;
 }
 
+- (void)updatedNeedle
+{
+    NSString* needle = _searchField.stringValue;
+    NSLog(@"starting search for: %@", needle);
+
+    NSString* genre = _genresTable.selectedRow > 0 ? _genres[_genresTable.selectedRow] : nil;
+    NSString* artist = _artistsTable.selectedRow > 0 ? _artists[_artistsTable.selectedRow] : nil;
+    NSString* album = _albumsTable.selectedRow > 0 ? _albums[_albumsTable.selectedRow] : nil;
+    NSString* tempo = _temposTable.selectedRow > 0 ? _tempos[_temposTable.selectedRow] : nil;
+    NSString* key = _keysTable.selectedRow > 0 ? _keys[_keysTable.selectedRow] : nil;
+    NSString* rating = _ratingsTable.selectedRow > 0 ? _ratings[_ratingsTable.selectedRow] : nil;
+    NSString* tag = _tagsTable.selectedRow > 0 ? _tags[_tagsTable.selectedRow] : nil;
+
+    BrowserController* __weak weakSelf = self;
+    NSArray<NSSortDescriptor*>* descriptors = [_songsTable sortDescriptors];
+
+    dispatch_async(_filterQueue, ^{
+        weakSelf.filteredItems = [[weakSelf filterMediaItems:weakSelf.cachedLibrary
+                                                       genre:genre
+                                                      artist:artist
+                                                       album:album
+                                                       tempo:tempo
+                                                         key:key
+                                                      rating:rating
+                                                         tag:tag
+                                                      needle:needle] sortedArrayUsingDescriptors:descriptors];
+
+        dispatch_sync(dispatch_get_main_queue(), ^{
+            [weakSelf.songsTable beginUpdates];
+            [weakSelf.songsTable reloadData];
+            [weakSelf.songsTable endUpdates];
+        });
+    });
+}
+
 - (void)showSongRowForMeta:(MediaMetaData*)meta
 {
     NSUInteger rowIndex = [self songsRowForMeta:meta];
@@ -641,8 +683,9 @@ NSString* const kSongsColGenre = @"GenreCell";
                          key:(NSString*)key
                        rating:(NSString*)rating
                          tag:(NSString*)tag
+                      needle:(NSString*)needle
 {
-    NSLog(@"filtered based on genre:%@ artist:%@ album:%@ tempo:%@ key:%@, rating:%@, tag:%@", genre, artist, album, tempo, key, rating, tag);
+    NSLog(@"filtered based on genre:%@ artist:%@ album:%@ tempo:%@ key:%@, rating:%@, tag:%@, needle: %@", genre, artist, album, tempo, key, rating, tag, needle);
     NSMutableArray* filtered = [NSMutableArray array];
 
     for (MediaMetaData *d in items) {
@@ -652,6 +695,7 @@ NSString* const kSongsColGenre = @"GenreCell";
                 tags = [[d.tags substringFromIndex:1] componentsSeparatedByString:@"#"];
             }
         }
+        // Filter per column browser first.
         if ((genre == nil || (d.genre && d.genre.length && [d.genre isEqualTo:genre])) &&
             (artist == nil || (d.artist && d.artist.length && [d.artist isEqualTo:artist])) &&
             (album == nil || (d.album && d.album.length && [d.album isEqualTo:album])) &&
@@ -659,7 +703,21 @@ NSString* const kSongsColGenre = @"GenreCell";
             (rating == nil || (d.rating && d.stars.length && [d.stars isEqualTo:rating])) &&
             (tag == nil || [tags containsObject:tag]) &&
             (tempo == nil || (d.tempo && [[d.tempo stringValue] isEqualTo:tempo]))) {
-            [filtered addObject:d];
+            // When the user entered a search needle, we additionally filter for that.
+            if (needle.length) {
+                if ((d.genre && d.genre.length && [d.genre localizedCaseInsensitiveContainsString:needle]) ||
+                    (d.title && d.title.length && [d.title localizedCaseInsensitiveContainsString:needle]) ||
+                    (d.artist && d.artist.length && [d.artist localizedCaseInsensitiveContainsString:needle]) ||
+                    (d.album && d.album.length && [d.album localizedCaseInsensitiveContainsString:needle]) ||
+                    (d.key && d.key.length && [d.key localizedCaseInsensitiveContainsString:needle]) ||
+                    (d.rating && d.stars.length && [d.stars localizedCaseInsensitiveContainsString:needle]) ||
+                    ([tags containsObject:needle]) ||
+                    ([[d.tempo stringValue] localizedCaseInsensitiveContainsString:needle])) {
+                    [filtered addObject:d];
+                }
+            } else {
+                [filtered addObject:d];
+            }
         }
     }
 
@@ -794,6 +852,7 @@ NSString* const kSongsColGenre = @"GenreCell";
     NSString* key = nil;
     NSString* rating = nil;
     NSString* tag = nil;
+    NSString* needle = nil;
 
     BrowserController* __weak weakSelf = self;
 
@@ -801,13 +860,14 @@ NSString* const kSongsColGenre = @"GenreCell";
 
     dispatch_async(_filterQueue, ^{
         weakSelf.filteredItems = [[self filterMediaItems:weakSelf.cachedLibrary
-                                                  genre:genre
-                                                 artist:artist
-                                                  album:album
-                                                  tempo:tempo
-                                                    key:key
+                                                   genre:genre
+                                                  artist:artist
+                                                   album:album
+                                                   tempo:tempo
+                                                     key:key
                                                   rating:rating
-                                                     tag:tag] sortedArrayUsingDescriptors:descriptors];
+                                                     tag:tag
+                                                  needle:needle] sortedArrayUsingDescriptors:descriptors];
         
         [weakSelf columnsFromMediaItems:weakSelf.filteredItems
                                  genres:nil
@@ -815,7 +875,7 @@ NSString* const kSongsColGenre = @"GenreCell";
                                  albums:weakSelf.albums
                                  tempos:weakSelf.tempos
                                    keys:weakSelf.keys
-                                 ratings:weakSelf.ratings
+                                ratings:weakSelf.ratings
                                    tags:weakSelf.tags];
 
         dispatch_sync(dispatch_get_main_queue(), ^{
@@ -885,6 +945,7 @@ NSString* const kSongsColGenre = @"GenreCell";
     NSString* key = nil;
     NSString* rating = nil;
     NSString* tag = nil;
+    NSString* needle = nil;
 
     NSArray<NSSortDescriptor*>* descriptors = [_songsTable sortDescriptors];
 
@@ -896,7 +957,8 @@ NSString* const kSongsColGenre = @"GenreCell";
                                                       tempo:tempo
                                                         key:key
                                                       rating:rating
-                                                         tag:tag] sortedArrayUsingDescriptors:descriptors];
+                                                         tag:tag
+                                                      needle:needle] sortedArrayUsingDescriptors:descriptors];
     
         [weakSelf columnsFromMediaItems:weakSelf.filteredItems
                                  genres:nil
@@ -964,6 +1026,7 @@ NSString* const kSongsColGenre = @"GenreCell";
     NSString* key = nil;
     NSString* rating = nil;
     NSString* tag = nil;
+    NSString* needle = nil;
 
     BrowserController* __weak weakSelf = self;
 
@@ -977,7 +1040,8 @@ NSString* const kSongsColGenre = @"GenreCell";
                                                        tempo:tempo
                                                          key:key
                                                       rating:rating
-                                                         tag:tag] sortedArrayUsingDescriptors:descriptors];
+                                                         tag:tag
+                                                      needle:needle] sortedArrayUsingDescriptors:descriptors];
 
         [weakSelf columnsFromMediaItems:weakSelf.filteredItems
                                  genres:nil
@@ -1038,6 +1102,7 @@ NSString* const kSongsColGenre = @"GenreCell";
     NSString* key = nil;
     NSString* rating = nil;
     NSString* tag = nil;
+    NSString* needle = nil;
 
     BrowserController* __weak weakSelf = self;
     NSArray<NSSortDescriptor*>* descriptors = [_songsTable sortDescriptors];
@@ -1050,7 +1115,8 @@ NSString* const kSongsColGenre = @"GenreCell";
                                                        tempo:tempo
                                                          key:key
                                                       rating:rating
-                                                         tag:tag] sortedArrayUsingDescriptors:descriptors];
+                                                         tag:tag
+                                                      needle:needle] sortedArrayUsingDescriptors:descriptors];
 
         [weakSelf columnsFromMediaItems:weakSelf.filteredItems
                                  genres:nil
@@ -1106,6 +1172,7 @@ NSString* const kSongsColGenre = @"GenreCell";
     NSString* key = row > 0 ? _keys[row] : nil;
     NSString* rating = nil;
     NSString* tag = nil;
+    NSString* needle = nil;
 
     BrowserController* __weak weakSelf = self;
     NSArray<NSSortDescriptor*>* descriptors = [_songsTable sortDescriptors];
@@ -1118,7 +1185,8 @@ NSString* const kSongsColGenre = @"GenreCell";
                                                        tempo:tempo
                                                          key:key
                                                       rating:rating
-                                                         tag:tag] sortedArrayUsingDescriptors:descriptors];
+                                                         tag:tag
+                                                      needle:needle] sortedArrayUsingDescriptors:descriptors];
 
         dispatch_sync(dispatch_get_main_queue(), ^{
             [weakSelf.ratingsTable beginUpdates];
@@ -1157,6 +1225,7 @@ NSString* const kSongsColGenre = @"GenreCell";
     NSString* key = _keysTable.selectedRow > 0 ? _keys[_keysTable.selectedRow] : nil;
     NSString* rating = row > 0 ? _ratings[row] : nil;
     NSString* tag = nil;
+    NSString* needle = nil;
 
     BrowserController* __weak weakSelf = self;
     NSArray<NSSortDescriptor*>* descriptors = [_songsTable sortDescriptors];
@@ -1169,7 +1238,8 @@ NSString* const kSongsColGenre = @"GenreCell";
                                                        tempo:tempo
                                                          key:key
                                                       rating:rating
-                                                         tag:tag] sortedArrayUsingDescriptors:descriptors];
+                                                         tag:tag
+                                                      needle:needle] sortedArrayUsingDescriptors:descriptors];
 
         dispatch_sync(dispatch_get_main_queue(), ^{
             [weakSelf.tagsTable beginUpdates];
@@ -1201,6 +1271,7 @@ NSString* const kSongsColGenre = @"GenreCell";
     NSString* key = _keysTable.selectedRow > 0 ? _keys[_keysTable.selectedRow] : nil;
     NSString* rating = _ratingsTable.selectedRow > 0 ? _ratings[_ratingsTable.selectedRow] : nil;
     NSString* tag = row > 0 ? _tags[row] : nil;
+    NSString* needle = nil;
 
     BrowserController* __weak weakSelf = self;
     NSArray<NSSortDescriptor*>* descriptors = [_songsTable sortDescriptors];
@@ -1213,7 +1284,8 @@ NSString* const kSongsColGenre = @"GenreCell";
                                                        tempo:tempo
                                                          key:key
                                                       rating:rating
-                                                         tag:tag] sortedArrayUsingDescriptors:descriptors];
+                                                         tag:tag
+                                                      needle:needle] sortedArrayUsingDescriptors:descriptors];
 
         dispatch_sync(dispatch_get_main_queue(), ^{
             [weakSelf.songsTable beginUpdates];
@@ -1541,6 +1613,24 @@ typeSelectStringForTableColumn:(NSTableColumn*)tableColumn
             return 0;
     }
     return 0;
+}
+
+#pragma mark - Search Field
+
+- (void)controlTextDidChange:(NSNotification *)obj
+{
+    [self updatedNeedle];
+}
+
+- (void)searchFieldDidStartSearching:(NSSearchField*)sender
+{
+    [self updatedNeedle];
+}
+
+- (void)searchFieldDidEndSearching:(NSSearchField*)sender
+{
+    [self.delegate closeFilter];
+    [self updatedNeedle];
 }
 
 @end

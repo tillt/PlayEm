@@ -71,14 +71,15 @@ NS_ASSUME_NONNULL_BEGIN
 @property (strong, nonatomic) IBOutlet NSTableView* keysTable;
 @property (strong, nonatomic) IBOutlet NSTableView* ratingsTable;
 @property (strong, nonatomic) IBOutlet NSTableView* tagsTable;
+@property (strong, nonatomic) IBOutlet NSSearchField* searchField;
 
 @property (strong, nonatomic) IBOutlet NSProgressIndicator* progress;
 @property (strong, nonatomic) IBOutlet NSProgressIndicator* trackLoadProgress;
 @property (strong, nonatomic) IBOutlet NSProgressIndicator* trackRenderProgress;
 @property (strong, nonatomic) IBOutlet NSProgressIndicator* trackSeekingProgress;
 
-@property (strong, nonatomic) IBOutlet NSSplitView* split;
-@property (strong, nonatomic) IBOutlet NSSplitView* splitSelectors;
+@property (strong, nonatomic) IBOutlet NSSplitView* horizontalSplitView;
+@property (strong, nonatomic) IBOutlet NSSplitView* verticalSplitView;
 @property (strong, nonatomic) IBOutlet NSTableView* playlistTable;
 @property (strong, nonatomic) IdentifyViewController* iffy;
 @property (strong, nonatomic, nullable) NSMenu* dockMenu;

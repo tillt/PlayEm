@@ -566,7 +566,7 @@ static const CGFloat kViewLeftMargin = 10.0f;
     _lyricsTextView.drawsBackground = NO;
     _lyricsTextView.alignment = NSTextAlignmentLeft;
     _lyricsTextView.delegate = self;
-    _lyricsTextView.font = [NSFont systemFontOfSize:kNormalFontSize];
+    _lyricsTextView.font = [[Defaults sharedDefaults] normalFont];
     
     [view addSubview:scrollView];
 }
@@ -617,7 +617,7 @@ static const CGFloat kViewLeftMargin = 10.0f;
     NSTextField* textField = [NSTextField textFieldWithString:@""];
     textField.bordered = NO;
     textField.textColor = [[Defaults sharedDefaults] lightFakeBeamColor];
-    textField.font = [NSFont systemFontOfSize:kBigFontSize];
+    textField.font = [[Defaults sharedDefaults] bigFont];
     textField.drawsBackground = NO;
     textField.editable = NO;
     textField.selectable = NO;
@@ -636,7 +636,7 @@ static const CGFloat kViewLeftMargin = 10.0f;
     textField = [NSTextField textFieldWithString:@""];
     textField.bordered = NO;
     textField.textColor = [[Defaults sharedDefaults] secondaryLabelColor];
-    textField.font = [NSFont systemFontOfSize:kNormalFontSize];
+    textField.font = [[Defaults sharedDefaults] normalFont];
     textField.drawsBackground = NO;
     textField.editable = NO;
     textField.cell.truncatesLastVisibleLine = YES;

@@ -9,15 +9,6 @@
 #import <QuartzCore/QuartzCore.h>
 #import "../CAShapeLayer+Path.h"
 #import "BloomyText.h"
-#import "BeatEvent.h"
-
-//extern NSString * const kAudioControllerChangedPlaybackStateNotification;
-//extern NSString * const kPlaybackStateStarted;
-//extern NSString * const kPlaybackStateEnded;
-//extern NSString * const kPlaybackStatePaused;
-//extern NSString * const kPlaybackStatePlaying;
-static const NSTimeInterval kBeatEffectRampUp = 0.05f;
-static const NSTimeInterval kBeatEffectRampDown = 0.9f;
 
 @interface BloomyText()
 
@@ -40,16 +31,6 @@ static const NSTimeInterval kBeatEffectRampDown = 0.9f;
         self.layerUsesCoreImageFilters = YES;
         self.layer = [self makeBackingLayer];
         self.layer.frame = frameRect;
-        
-//        [[NSNotificationCenter defaultCenter] addObserver:self
-//                                                 selector:@selector(audioControllerChangedPlaybackState:)
-//                                                     name:kAudioControllerChangedPlaybackStateNotification
-//                                                   object:nil];
-//        [[NSNotificationCenter defaultCenter] addObserver:self
-//                                                 selector:@selector(beatEffect:)
-//                                                     name:kBeatTrackedSampleBeatNotification
-//                                                   object:nil];
-
     }
     return self;
 }
@@ -72,19 +53,17 @@ static const NSTimeInterval kBeatEffectRampDown = 0.9f;
 {
     CALayer* layer = [CALayer layer];
     layer.drawsAsynchronously = YES;
-//    layer.anchorPoint = CGPointMake(0.5, 0.5);
     return layer;
 }
 
 - (CATextLayer*)makeTextLayer
 {
     CATextLayer* layer = [CATextLayer layer];
-//    layer.anchorPoint = CGPointMake(1.0, 0.0);
-//    layer.frame = self.bounds;
     layer.font = (__bridge  CFTypeRef)self.font;
     layer.fontSize = self.fontSize;
+    layer.allowsEdgeAntialiasing = YES;
+    layer.contentsScale = [[NSScreen mainScreen] backingScaleFactor];
     layer.foregroundColor = _textColor.CGColor;
-//    layer.backgroundColor = [NSColor whiteColor].CGColor;
     return layer;
 }
 
@@ -172,71 +151,6 @@ static const NSTimeInterval kBeatEffectRampDown = 0.9f;
     _textColor = color;
 
     [self setNeedsDisplay:YES];
-}
-
-- (void)beatEffect:(id)sender
-{
-//    CAAnimationGroup *group = [[CAAnimationGroup alloc] init];
-//    NSMutableArray* animations = [NSMutableArray array];
-    CABasicAnimation* animation;
-    
-    float scale = 1.05;
-    
-    CATransform3D tr = CATransform3DIdentity;
-
-    //CGFloat halfWidth = 0.0;
-
-    CGFloat halfWidth = _textLayer.frame.size.width / 2.0;
-    CGFloat halfHeight = _textLayer.frame.size.height / 2.0;
-
-//    animation = [CABasicAnimation animationWithKeyPath:@"transform"];
-//
-//    tr = CATransform3DTranslate(tr, halfWidth, halfHeight, 0.0);
-//    tr = CATransform3DScale(tr, scale, scale, 1.0);
-//    tr = CATransform3DTranslate(tr, -halfWidth, -halfHeight, 0.0);
-//
-////    animation.fromValue = [NSValue valueWithCATransform3D:CATransform3DIdentity];
-//    animation.fromValue = [NSValue valueWithCATransform3D:tr];
-//
-//    tr = CATransform3DIdentity;
-//
-//    animation.toValue = [NSValue valueWithCATransform3D:tr];
-//    animation.repeatCount = 1.0f;
-//    animation.autoreverses = YES;
-//    animation.duration = kBeatEffectRampDown / 2.0;
-//    animation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseOut];
-//    animation.fillMode = kCAFillModeBoth;
-//    animation.removedOnCompletion = NO;
-//    [_textLayer addAnimation:animation forKey:@"beatScaling"];
-//    _textLayer.transform = tr;
-
-//    animation = [CABasicAnimation animationWithKeyPath:@"foregroundColor"];
-//
-//    animation.fromValue = (id)_lightTextColor.CGColor;
-//    animation.toValue = (id)_textColor.CGColor;
-//    animation.repeatCount = 1.0f;
-//    animation.autoreverses = NO;
-//    animation.duration = kBeatEffectRampDown;
-//    animation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseOut];
-//    animation.fillMode = kCAFillModeBoth;
-//    animation.removedOnCompletion = NO;
-    //[animations addObject:animation];
-//    [_textLayer addAnimation:animation forKey:@"beatColor"];
-
-//    animation = [CABasicAnimation animationWithKeyPath:@"backgroundFilters.CIZoomBlur.inputAmount"];
-//    animation.fromValue = @(7.0);
-//    animation.toValue = @(1.0);
-//    animation.repeatCount = 1.0f;
-//    animation.autoreverses = NO;
-//    animation.duration = kBeatEffectRampDown;
-//    animation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseOut];
-//    animation.fillMode = kCAFillModeBoth;
-//    animation.removedOnCompletion = NO;
-//    //[animations addObject:animation];
-//    [_fxLayer addAnimation:animation forKey:@"beatWarping"];
-
-//    group.animations = animations;
-
 }
 
 @end

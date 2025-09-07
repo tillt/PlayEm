@@ -8,6 +8,10 @@
 
 #import "Defaults.h"
 
+static const CGFloat kSmallFontSize = 11.0f;
+static const CGFloat kNormalFontSize = 13.0f;
+static const CGFloat kBigFontSize = 24.0f;
+
 @implementation Defaults
 
 + (id)sharedDefaults
@@ -74,13 +78,15 @@
                                                blue:1.000
                                               alpha:0.54901961];
 
-//        NSLog(@"secondary label color: %.8f,%.8f,%.8f,%.8f", _secondaryLabelColor.redComponent, _secondaryLabelColor.greenComponent, _secondaryLabelColor.blueComponent, _secondaryLabelColor.alphaComponent);
-//        NSLog(@"tertiary label color: %.8f,%.8f,%.8f,%.8f", _tertiaryLabelColor.redComponent, _tertiaryLabelColor.greenComponent, _tertiaryLabelColor.blueComponent, _tertiaryLabelColor.alphaComponent);
-
         _selectionBorderColor = [NSColor colorWithRed:(CGFloat)0x50 / 255.0
                                                 green:(CGFloat)0x36 / 255.0
                                                  blue:(CGFloat)0x14 / 255.0
                                                 alpha:(CGFloat)1.0];
+        
+        
+        _normalFont = [NSFont systemFontOfSize:kNormalFontSize];
+        _smallFont = [NSFont systemFontOfSize:kSmallFontSize];
+        _bigFont = [NSFont systemFontOfSize:kBigFontSize];
 
     }
     return self;

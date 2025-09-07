@@ -16,15 +16,24 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (strong, nonatomic) NSColor* lightBeamColor;
 @property (strong, nonatomic) NSColor* lightFakeBeamColor;
+
 @property (strong, nonatomic) NSColor* regularBeamColor;
 @property (strong, nonatomic) NSColor* regularFakeBeamColor;
+
 @property (strong, nonatomic) NSColor* fftColor;
 @property (strong, nonatomic) NSColor* backColor;
+
 @property (strong, nonatomic) NSColor* selectionBorderColor;
+
 @property (strong, nonatomic) NSColor* barColor;
 @property (strong, nonatomic) NSColor* beatColor;
+
 @property (strong, nonatomic) NSColor* secondaryLabelColor;
 @property (strong, nonatomic) NSColor* tertiaryLabelColor;
+
+@property (strong, nonatomic) NSFont* normalFont;
+@property (strong, nonatomic) NSFont* smallFont;
+@property (strong, nonatomic) NSFont* bigFont;
 
 + (id)sharedDefaults;
 

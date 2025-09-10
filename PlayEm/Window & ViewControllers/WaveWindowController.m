@@ -183,14 +183,29 @@ os_log_t pointsOfInterest;
 //    NSLog(@"sample %@ assigned", sample.description);
 //}
 
-- (void)updateSongsCount:(size_t)songs
+- (void)updateSongsCount:(size_t)songs filtered:(size_t)filtered
 {
+    NSString* value = nil;
+    NSString* unit = nil;
+
     if (songs == 0) {
-        _songsCount.stringValue = @"nothing";
-    } else if (songs == 1) {
-        _songsCount.stringValue = @"1 song";
+        value = @"Nothing";
     } else {
-        _songsCount.stringValue = [NSString stringWithFormat:@"%ld songs", songs];
+        if (filtered == songs) {
+            value = [NSString stringWithFormat:@"%ld", songs];
+        } else {
+            value = [NSString stringWithFormat:@"%ld / %ld", filtered, songs];
+        }
+        if (songs == 1) {
+            unit = @"Song";
+        } else {
+            unit = @"Songs";
+        }
+    }
+    if (unit == nil) {
+        _songsCount.stringValue = [NSString stringWithFormat:@"%@", value];
+    } else {
+        _songsCount.stringValue = [NSString stringWithFormat:@"%@ %@", value, unit];
     }
 }
 

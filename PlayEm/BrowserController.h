@@ -47,7 +47,7 @@ extern NSString* const kSongsColGenre;
 - (void)loadLibraryState:(LoadState)state value:(double)value;
 - (void)addToPlaylistNext:(MediaMetaData*)meta;
 - (void)addToPlaylistLater:(MediaMetaData*)meta;
-- (void)updateSongsCount:(size_t)songs;
+- (void)updateSongsCount:(size_t)songs filtered:(size_t)filtered;
 - (void)showInfoForMetas:(NSArray<MediaMetaData*>*)metas;
 @end
 

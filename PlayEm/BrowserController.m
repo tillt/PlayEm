@@ -325,8 +325,8 @@ NSString* const kSongsColGenre = @"GenreCell";
             self->_updatingRatings = NO;
             self->_updatingTags = NO;
             
-
-            [weakSelf.delegate updateSongsCount:weakSelf.filteredItems.count];
+            [weakSelf.delegate updateSongsCount:weakSelf.cachedLibrary.count
+                                       filtered:weakSelf.filteredItems.count];
         });
     });
 }
@@ -469,7 +469,8 @@ NSString* const kSongsColGenre = @"GenreCell";
         dispatch_sync(dispatch_get_main_queue(), ^{
             [weakSelf reloadTableView:weakSelf.genresTable];
             
-            [weakSelf.delegate updateSongsCount:weakSelf.filteredItems.count];
+            [weakSelf.delegate updateSongsCount:weakSelf.cachedLibrary.count
+                                       filtered:weakSelf.filteredItems.count];
             
             self->_updatingGenres = NO;
             self->_updatingArtists = NO;
@@ -725,7 +726,7 @@ NSString* const kSongsColGenre = @"GenreCell";
 
     NSUInteger count = filtered.count;
     dispatch_async(dispatch_get_main_queue(), ^{
-        [self.delegate updateSongsCount:count];
+        [self.delegate updateSongsCount:self->_cachedLibrary.count filtered:count];
     });
     
     return filtered;

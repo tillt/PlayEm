@@ -43,6 +43,7 @@
 - (void)wait
 {
     dispatch_block_wait(_dispatchBlock, DISPATCH_TIME_FOREVER);
+    _dispatchBlock = nil;
 }
 
 - (void)dealloc

@@ -108,6 +108,12 @@
                     <modifierMask key="keyEquivalentModifierMask"/>
                     <menu key="submenu" title="Edit" id="MbF-a4-Kff">
                         <items>
+                            <menuItem title="Filter…" tag="1" keyEquivalent="f" id="ixx-Gj-zfR" userLabel="Filter…">
+                                <connections>
+                                    <action selector="performFindPanelAction:" target="-1" id="dKd-7d-Bvm"/>
+                                </connections>
+                            </menuItem>
+                            <menuItem isSeparatorItem="YES" id="wta-3U-mgJ"/>
                             <menuItem title="Undo" keyEquivalent="z" id="Mz5-Oq-zfQ">
                                 <connections>
                                     <action selector="undo:" target="-1" id="8g3-ZZ-ktn"/>
@@ -118,7 +124,7 @@
                                     <action selector="redo:" target="-1" id="i4O-7I-xoD"/>
                                 </connections>
                             </menuItem>
-                            <menuItem isSeparatorItem="YES" id="wta-3U-mgJ"/>
+                            <menuItem isSeparatorItem="YES" id="0nz-P4-A65"/>
                             <menuItem title="Cut" keyEquivalent="x" id="mta-Oa-ERe">
                                 <connections>
                                     <action selector="cut:" target="-1" id="24g-ig-8Dy"/>
@@ -146,44 +152,6 @@
                                 </connections>
                             </menuItem>
                             <menuItem isSeparatorItem="YES" id="pNE-IE-5FE"/>
-                            <menuItem title="Find" id="iHY-o6-tTj">
-                                <modifierMask key="keyEquivalentModifierMask"/>
-                                <menu key="submenu" title="Find" id="u6U-hP-gox">
-                                    <items>
-                                        <menuItem title="Find…" tag="1" keyEquivalent="f" id="ixx-Gj-zfR">
-                                            <connections>
-                                                <action selector="performFindPanelAction:" target="-1" id="dKd-7d-Bvm"/>
-                                            </connections>
-                                        </menuItem>
-                                        <menuItem title="Find and Replace…" tag="12" keyEquivalent="f" id="Z5Y-Z4-cTG">
-                                            <modifierMask key="keyEquivalentModifierMask" option="YES" command="YES"/>
-                                            <connections>
-                                                <action selector="performFindPanelAction:" target="-1" id="A96-x7-2qB"/>
-                                            </connections>
-                                        </menuItem>
-                                        <menuItem title="Find Next" tag="2" keyEquivalent="g" id="F8z-za-tXC">
-                                            <connections>
-                                                <action selector="performFindPanelAction:" target="-1" id="Aa1-bB-QMC"/>
-                                            </connections>
-                                        </menuItem>
-                                        <menuItem title="Find Previous" tag="3" keyEquivalent="G" id="XsN-eh-UIz">
-                                            <connections>
-                                                <action selector="performFindPanelAction:" target="-1" id="ZNr-3q-jsa"/>
-                                            </connections>
-                                        </menuItem>
-                                        <menuItem title="Use Selection for Find" tag="7" keyEquivalent="e" id="kJW-Mp-PaG">
-                                            <connections>
-                                                <action selector="performFindPanelAction:" target="-1" id="iYr-6N-og5"/>
-                                            </connections>
-                                        </menuItem>
-                                        <menuItem title="Jump to Selection" keyEquivalent="j" id="TS6-1j-a86">
-                                            <connections>
-                                                <action selector="centerSelectionInVisibleArea:" target="-1" id="z0u-m1-EQD"/>
-                                            </connections>
-                                        </menuItem>
-                                    </items>
-                                </menu>
-                            </menuItem>
                             <menuItem title="Spelling and Grammar" id="tnf-Vb-RO4">
                                 <modifierMask key="keyEquivalentModifierMask"/>
                                 <menu key="submenu" title="Spelling" id="Cwg-7y-64o">
@@ -334,6 +302,7 @@
                                 </connections>
                             </menuItem>
                             <menuItem isSeparatorItem="YES" id="n2v-0a-hOP"/>
+                            <menuItem isSeparatorItem="YES" id="MCV-IV-hSf"/>
                             <menuItem title="Enter Full Screen" keyEquivalent="f" id="4J7-dP-txa">
                                 <modifierMask key="keyEquivalentModifierMask" control="YES" command="YES"/>
                                 <connections>
@@ -468,5 +437,11 @@
             <point key="canvasLocation" x="140" y="154"/>
         </menu>
         <userDefaultsController representsSharedInstance="YES" id="BHS-rQ-YL6"/>
+        <menuItem title="Playlist" id="RgU-df-Hga" userLabel="Playlist">
+            <modifierMask key="keyEquivalentModifierMask"/>
+            <connections>
+                <action selector="showPlaylist:" target="-1" id="mSG-Nt-YUJ"/>
+            </connections>
+        </menuItem>
     </objects>
 </document>

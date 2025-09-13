@@ -79,11 +79,10 @@ NS_ASSUME_NONNULL_BEGIN
 @property (strong, nonatomic) IBOutlet NSProgressIndicator* trackSeekingProgress;
 
 @property (strong, nonatomic) IBOutlet NSSplitView* horizontalSplitView;
-@property (strong, nonatomic) IBOutlet NSSplitView* verticalSplitView;
+@property (strong, nonatomic) IBOutlet NSSplitView* browserColumnSplitView;
 @property (strong, nonatomic) IBOutlet NSTableView* playlistTable;
 @property (strong, nonatomic) IdentifyViewController* iffy;
 @property (strong, nonatomic, nullable) NSMenu* dockMenu;
-
 
 @property (strong, nonatomic) NSSplitViewController* splitViewController;
 

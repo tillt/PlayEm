@@ -21,9 +21,9 @@
     
     // Parameters
 
-    CGFloat margin = 10;
+//    CGFloat margin = 10;
     NSColor* color =  [NSColor whiteColor];
-    CGFloat fontSize = 32;
+//    CGFloat fontSize = 32;
     // You can use the Font Book app to find the name
     //NSString* fontName = @"Chalkboard";
 //    CTFontRef font = CTFontCreateWithName((__bridge CFStringRef)fontName,
@@ -43,7 +43,7 @@
 
     // Render
     CTLineRef line = CTLineCreateWithAttributedString((__bridge CFAttributedStringRef)attributedString);
-    CGRect stringRect = CTLineGetImageBounds(line, context);
+  //  CGRect stringRect = CTLineGetImageBounds(line, context);
 
 //    context.textPosition = CGMakePoint(bounds.maxX - stringRect.width - margin,
 //                                       bounds.minY + margin);

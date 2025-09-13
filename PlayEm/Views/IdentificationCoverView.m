@@ -605,6 +605,10 @@ extern NSString * const kBeatTrackedSampleTempoChangeNotification;
 
 - (void)resumeAnimating
 {
+    if (!animating) {
+        [self startAnimating];
+        return;
+    }
     if ((_style & CoverViewStyleRotatingLaser) == CoverViewStyleRotatingLaser) {
         [_overlayLayer resumeAnimating];
         [_maskLayer resumeAnimating];
@@ -617,6 +621,9 @@ extern NSString * const kBeatTrackedSampleTempoChangeNotification;
 
 - (void)pauseAnimating
 {
+    if (!animating) {
+        return;
+    }
     if ((_style & CoverViewStyleRotatingLaser) == CoverViewStyleRotatingLaser) {
         [_overlayLayer pauseAnimating];
         [_maskLayer pauseAnimating];

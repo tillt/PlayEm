@@ -55,8 +55,21 @@ const CGFloat kMinWindowHeight = 100.0f;    // Constraints on the subviews make 
                                             // that is never reached.
 const CGFloat kMinScopeHeight = 64.0f;      // Smaller would still be ok...
 const CGFloat kMinTableHeight = 0.0f;       // Just forget about it.
+const CGFloat kMinSearchHeight = 25.0f;       // Just forget about it.
 
 static const int kSplitPositionCount = 7;
+
+const size_t kBrowserSplitIndexGenres = 0;
+const size_t kBrowserSplitIndexAlbums = 1;
+const size_t kBrowserSplitIndexArtists = 2;
+const size_t kBrowserSplitIndexTempos = 3;
+const size_t kBrowserSplitIndexKey = 4;
+const size_t kBrowserSplitIndexRatings = 5;
+const size_t kBrowserSplitIndexTags = 6;
+
+const size_t kWindowSplitIndexVisuals = 0;
+const size_t kWindowSplitIndexBrowser = 1;
+
 
 typedef enum : NSUInteger {
     LoaderStateReady,
@@ -89,6 +102,7 @@ os_log_t pointsOfInterest;
     float _visibleBPM;
     
     BOOL _mediakeyJustJumped;
+    BOOL _filtering;
     
     LoaderState _loaderState;
 }
@@ -124,7 +138,11 @@ os_log_t pointsOfInterest;
 @property (strong, nonatomic) AVRouteDetector* routeDetector;
 @property (strong, nonatomic) AVRoutePickerView* pickerView;
 
+@property (assign, nonatomic) CFTimeInterval videoDelay;
 @property (strong, nonatomic) CADisplayLink* displayLink;
+
+@property (strong, nonatomic) NSButton* identifyToolbarButton;
+@property (strong, nonatomic) NSButton* playlistToolbarButton;
 
 @end
 
@@ -140,15 +158,20 @@ os_log_t pointsOfInterest;
 - (void)renderCallback:(CADisplayLink*)sender
 {
     //os_signpost_interval_begin(pointsOfInterest, POICADisplayLink, "CADisplayLink");
+
+
     // Substract the latency introduced by the output device setup to compensate and get
     // video in sync with audible audio.
     const AVAudioFramePosition delta = [self.audioController totalLatency];
     AVAudioFramePosition frame = self.audioController.currentFrame >= delta ? self.audioController.currentFrame - delta : 0;
+    
     // Add the delay until the video gets visible to the playhead position for compensation.
-    frame += [self.audioController frameCountDeltaWithTimeDelta:sender.duration];
+    CFTimeInterval timeToDisplay = sender.duration + self.videoDelay;
+    frame += [self.audioController frameCountDeltaWithTimeDelta:timeToDisplay];
 
     //os_signpost_interval_begin(pointsOfInterest, POISetCurrentFrame, "SetCurrentFrame");
     self.currentFrame = frame;
+
     //os_signpost_interval_end(pointsOfInterest, POISetCurrentFrame, "SetCurrentFrame");
     //os_signpost_interval_end(pointsOfInterest, POICADisplayLink, "CADisplayLink");
 }
@@ -159,7 +182,9 @@ os_log_t pointsOfInterest;
     if (self) {
         pointsOfInterest = os_log_create("com.toenshoff.playem", OS_LOG_CATEGORY_POINTS_OF_INTEREST);
         _noSleepAssertionID = 0;
+        _noSleepAssertionID = 0;
         _loaderState = LoaderStateReady;
+        _videoDelay = 0.0;
     }
     return self;
 }
@@ -174,20 +199,13 @@ os_log_t pointsOfInterest;
     [_displayLink invalidate];
 }
 
-//- (void)setLazySample:(LazySample*)sample
-//{
-//    if (_lazySample == sample) {
-//        return;
-//    }
-//    _lazySample = sample;
-//    NSLog(@"sample %@ assigned", sample.description);
-//}
-
 - (void)updateSongsCount:(size_t)songs filtered:(size_t)filtered
 {
     NSString* value = nil;
     NSString* unit = nil;
 
+    assert(filtered <= songs);
+    
     if (songs == 0) {
         value = @"Nothing";
     } else {
@@ -207,6 +225,21 @@ os_log_t pointsOfInterest;
     } else {
         _songsCount.stringValue = [NSString stringWithFormat:@"%@ %@", value, unit];
     }
+}
+
+- (void)performFindPanelAction :(id)sender
+{
+    _filtering = YES;
+    [_horizontalSplitView insertArrangedSubview:_searchField atIndex:2];
+//    NSLayoutConstraint* constraint = [NSLayoutConstraint constraintWithItem:_searchField
+//                                                                  attribute:NSLayoutAttributeHeight
+//                                                                  relatedBy:NSLayoutRelationEqual
+//                                                                     toItem:nil
+//                                                                  attribute:NSLayoutAttributeNotAnAttribute
+//                                                                 multiplier:1.0
+//                                                                   constant:kMinSearchHeight];
+//    [_horizontalSplitView addConstraint:constraint];
+    [_searchField.window makeFirstResponder:_searchField];
 }
 
 - (void)beatEffectStart
@@ -253,14 +286,11 @@ os_log_t pointsOfInterest;
 
 static const NSString* kPlaylistToolbarIdentifier = @"Playlist";
 static const NSString* kIdentifyToolbarIdentifier = @"Identify";
-//static const NSString* kRouteToolbarIdentifier = @"Route";
 
 - (NSArray*)toolbarDefaultItemIdentifiers:(NSToolbar*)toolbar
 {
     return @[
         NSToolbarFlexibleSpaceItemIdentifier,
-//        kRouteToolbarIdentifier,
-//        NSToolbarSpaceItemIdentifier,
         kIdentifyToolbarIdentifier,
         NSToolbarSpaceItemIdentifier,
         kPlaylistToolbarIdentifier
@@ -271,21 +301,10 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
 {
     return @[
         NSToolbarFlexibleSpaceItemIdentifier,
-//        kRouteToolbarIdentifier,
-//        NSToolbarSpaceItemIdentifier,
         kIdentifyToolbarIdentifier,
         NSToolbarSpaceItemIdentifier,
         kPlaylistToolbarIdentifier
     ];
-}
-
--(BOOL)validateToolbarItem:(NSToolbarItem*)toolbarItem
-{
-    BOOL enable = YES;
-    if ([[toolbarItem itemIdentifier] isEqual:kIdentifyToolbarIdentifier]) {
-        enable = _audioController.playing;
-    }
-    return enable;
 }
 
 - (NSSet<NSToolbarItemIdentifier> *)toolbarImmovableItemIdentifiers:(NSToolbar *)toolbar
@@ -295,25 +314,40 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
 
 - (NSToolbarItem *)toolbar:(NSToolbar *)toolbar itemForItemIdentifier:(NSToolbarItemIdentifier)itemIdentifier willBeInsertedIntoToolbar:(BOOL)flag
 {
+    NSToolbarItem* item = nil;
+    NSImage* image = nil;
+    NSButton* button = nil;
+
     if (itemIdentifier == kPlaylistToolbarIdentifier) {
-        NSToolbarItem* item = [[NSToolbarItem alloc] initWithItemIdentifier:itemIdentifier];
-        item.target = self;
-        item.action = @selector(showPlaylist:);
-        item.label = @"playlist";
-        item.bordered = NO;
-        item.image = [NSImage imageWithSystemSymbolName:@"list.bullet" accessibilityDescription:@""];
-        return item;
+        item = [[NSToolbarItem alloc] initWithItemIdentifier:itemIdentifier];
+        image = [NSImage imageWithSystemSymbolName:@"list.bullet"
+                               accessibilityDescription:@"playlist"];
+    } else if (itemIdentifier == kIdentifyToolbarIdentifier) {
+        item = [[NSToolbarItem alloc] initWithItemIdentifier:itemIdentifier];
+        image = [NSImage imageWithSystemSymbolName:@"waveform.and.magnifyingglass"
+                               accessibilityDescription:@"identify"];
+    } else {
+        assert(NO);
     }
-    if (itemIdentifier == kIdentifyToolbarIdentifier) {
-        NSToolbarItem* item = [[NSToolbarItem alloc] initWithItemIdentifier:itemIdentifier];
-        item.target = self;
-        item.action = @selector(showIdentifier:);
-        item.label = @"identify";
-        item.bordered = NO;
-        item.image = [NSImage imageWithSystemSymbolName:@"waveform.and.magnifyingglass" accessibilityDescription:@""];
-        return item;
+
+    button = [[NSButton alloc] initWithFrame:NSMakeRect(0, 0, 40.0, 40.0)];
+    button.title = @"";
+    button.image = image;
+    [button setButtonType:NSButtonTypeToggle];
+    button.bezelStyle = NSBezelStyleTexturedRounded;
+    
+    if (itemIdentifier == kPlaylistToolbarIdentifier) {
+        _playlistToolbarButton = button;
+        button.action = @selector(showPlaylist:);
+    } else if (itemIdentifier == kIdentifyToolbarIdentifier) {
+        _identifyToolbarButton = button;
+        button.action = @selector(showIdentifier:);
+        button.enabled = !_audioController.paused;
     }
-    return nil;
+
+    [item setView:button];
+
+    return item;
 }
 
 #pragma mark Window lifecycle
@@ -724,11 +758,11 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
                                      _horizontalSplitView.bounds.origin.y,
                                      _horizontalSplitView.bounds.size.width,
                                      selectorTableViewHeight);
-    _verticalSplitView = [[NSSplitView alloc] initWithFrame:verticalRect];
-    _verticalSplitView.vertical = YES;
-    _verticalSplitView.delegate = self;
-    _verticalSplitView.identifier = @"HorizontalSplittersID";
-    _verticalSplitView.dividerStyle = NSSplitViewDividerStyleThin;
+    _browserColumnSplitView = [[NSSplitView alloc] initWithFrame:verticalRect];
+    _browserColumnSplitView.vertical = YES;
+    _browserColumnSplitView.delegate = self;
+    _browserColumnSplitView.identifier = @"HorizontalSplittersID";
+    _browserColumnSplitView.dividerStyle = NSSplitViewDividerStyleThin;
     
     sv = [[NSScrollView alloc] initWithFrame:NSMakeRect(  0.0,
                                                           0.0,
@@ -747,8 +781,8 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     col.minWidth = selectorTableViewMinWidth;
     [_genreTable addTableColumn:col];
     sv.documentView = _genreTable;
-    [_verticalSplitView addArrangedSubview:sv];
-    [_verticalSplitView addConstraint:[NSLayoutConstraint constraintWithItem:sv
+    [_browserColumnSplitView addArrangedSubview:sv];
+    [_browserColumnSplitView addConstraint:[NSLayoutConstraint constraintWithItem:sv
                                                                 attribute:NSLayoutAttributeWidth
                                                                 relatedBy:NSLayoutRelationGreaterThanOrEqual
                                                                    toItem:nil
@@ -756,7 +790,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
                                                                multiplier:1.0
                                                                  constant:selectorTableViewMinWidth]];
 
-    [_verticalSplitView addConstraint:[NSLayoutConstraint constraintWithItem:sv
+    [_browserColumnSplitView addConstraint:[NSLayoutConstraint constraintWithItem:sv
               attribute:NSLayoutAttributeHeight
               relatedBy:NSLayoutRelationGreaterThanOrEqual
               toItem:nil
@@ -780,8 +814,8 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     col.minWidth = selectorTableViewMinWidth;
     [_artistsTable addTableColumn:col];
     sv.documentView = _artistsTable;
-    [_verticalSplitView addArrangedSubview:sv];
-    [_verticalSplitView addConstraint:[NSLayoutConstraint constraintWithItem:sv
+    [_browserColumnSplitView addArrangedSubview:sv];
+    [_browserColumnSplitView addConstraint:[NSLayoutConstraint constraintWithItem:sv
                                                                 attribute:NSLayoutAttributeWidth
                                                                 relatedBy:NSLayoutRelationGreaterThanOrEqual
                                                                    toItem:nil
@@ -805,8 +839,8 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     col.minWidth = selectorTableViewMinWidth;
     [_albumsTable addTableColumn:col];
     sv.documentView = _albumsTable;
-    [_verticalSplitView addArrangedSubview:sv];
-    [_verticalSplitView addConstraint:[NSLayoutConstraint constraintWithItem:sv
+    [_browserColumnSplitView addArrangedSubview:sv];
+    [_browserColumnSplitView addConstraint:[NSLayoutConstraint constraintWithItem:sv
                                                                 attribute:NSLayoutAttributeWidth
                                                                 relatedBy:NSLayoutRelationGreaterThanOrEqual
                                                                    toItem:nil
@@ -829,8 +863,8 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     col.minWidth = selectorTableViewMinWidth;
     [_temposTable addTableColumn:col];
     sv.documentView = _temposTable;
-    [_verticalSplitView addArrangedSubview:sv];
-    [_verticalSplitView addConstraint:[NSLayoutConstraint constraintWithItem:sv
+    [_browserColumnSplitView addArrangedSubview:sv];
+    [_browserColumnSplitView addConstraint:[NSLayoutConstraint constraintWithItem:sv
                                                                 attribute:NSLayoutAttributeWidth
                                                                 relatedBy:NSLayoutRelationGreaterThanOrEqual
                                                                    toItem:nil
@@ -853,8 +887,8 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     col.minWidth = selectorTableViewMinWidth;
     [_keysTable addTableColumn:col];
     sv.documentView = _keysTable;
-    [_verticalSplitView addArrangedSubview:sv];
-    [_verticalSplitView addConstraint:[NSLayoutConstraint constraintWithItem:sv
+    [_browserColumnSplitView addArrangedSubview:sv];
+    [_browserColumnSplitView addConstraint:[NSLayoutConstraint constraintWithItem:sv
                                                                 attribute:NSLayoutAttributeWidth
                                                                 relatedBy:NSLayoutRelationGreaterThanOrEqual
                                                                    toItem:nil
@@ -877,8 +911,8 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     col.minWidth = selectorTableViewMinWidth;
     [_ratingsTable addTableColumn:col];
     sv.documentView = _ratingsTable;
-    [_verticalSplitView addArrangedSubview:sv];
-    [_verticalSplitView addConstraint:[NSLayoutConstraint constraintWithItem:sv
+    [_browserColumnSplitView addArrangedSubview:sv];
+    [_browserColumnSplitView addConstraint:[NSLayoutConstraint constraintWithItem:sv
                                                                 attribute:NSLayoutAttributeWidth
                                                                 relatedBy:NSLayoutRelationGreaterThanOrEqual
                                                                    toItem:nil
@@ -901,8 +935,8 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     col.minWidth = selectorTableViewMinWidth;
     [_tagsTable addTableColumn:col];
     sv.documentView = _tagsTable;
-    [_verticalSplitView addArrangedSubview:sv];
-    [_verticalSplitView addConstraint:[NSLayoutConstraint constraintWithItem:sv
+    [_browserColumnSplitView addArrangedSubview:sv];
+    [_browserColumnSplitView addConstraint:[NSLayoutConstraint constraintWithItem:sv
                                                                 attribute:NSLayoutAttributeWidth
                                                                 relatedBy:NSLayoutRelationGreaterThanOrEqual
                                                                    toItem:nil
@@ -910,7 +944,16 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
                                                                multiplier:1.0
                                                                  constant:selectorTableViewMinWidth]];
 
-    [_horizontalSplitView addArrangedSubview:_verticalSplitView];
+    [_horizontalSplitView addArrangedSubview:_browserColumnSplitView];
+    NSLayoutConstraint* constraint = [NSLayoutConstraint constraintWithItem:_browserColumnSplitView
+                                                                  attribute:NSLayoutAttributeHeight
+                                                                  relatedBy:NSLayoutRelationGreaterThanOrEqual
+                                                                     toItem:nil
+                                                                  attribute:NSLayoutAttributeNotAnAttribute
+                                                                 multiplier:1.0
+                                                                   constant:kMinTableHeight];
+    [_horizontalSplitView addConstraint:constraint];
+
     
     _searchField = [[NSSearchField alloc] initWithFrame:NSMakeRect(0,0,_horizontalSplitView.bounds.size.width,searchFieldHeight)];
     _searchField.sendsWholeSearchString = NO;
@@ -1028,7 +1071,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     sv.documentView = _songsTable;
     [_horizontalSplitView addArrangedSubview:sv];
 
-    NSLayoutConstraint* constraint = [NSLayoutConstraint constraintWithItem:sv
+    constraint = [NSLayoutConstraint constraintWithItem:sv
                                                                   attribute:NSLayoutAttributeHeight
                                                                   relatedBy:NSLayoutRelationGreaterThanOrEqual
                                                                      toItem:nil
@@ -1078,8 +1121,8 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     
     // The following assignments can not happen earlier - they rely on the fact
     // that the controls in question have a parent view / window.
-    _horizontalSplitView.autosaveName = @"VerticalSplitters";
-    _verticalSplitView.autosaveName = @"HorizontalSplitters";
+    _horizontalSplitView.autosaveName = @"WindowSplitters";
+    _browserColumnSplitView.autosaveName = @"BrowserColumnSplitters";
     
     _genreTable.autosaveName = @"GenresTable";
     _artistsTable.autosaveName = @"ArtistsTable";
@@ -1108,7 +1151,6 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
         table.style = NSTableViewStylePlain;
         table.autosaveTableColumns = YES;
         table.allowsEmptySelection = NO;
-        table.headerView.wantsLayer = YES;
     }
 
     _browser = [[BrowserController alloc] initWithGenresTable:_genreTable
@@ -1409,32 +1451,35 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     _keysTable.enclosingScrollView.animator.hidden = toFullscreen ? YES : NO;
     _ratingsTable.enclosingScrollView.animator.hidden = toFullscreen ? YES : NO;
     _tagsTable.enclosingScrollView.animator.hidden = toFullscreen ? YES : NO;
+    
+    _songsCount.animator.hidden = toFullscreen ? YES : NO;
+
 
     if (toFullscreen) {
         memcpy(splitPositionMemory, splitPosition, sizeof(CGFloat) * kSplitPositionCount);
         // Restore the old positions.
-        [_verticalSplitView setPosition:splitSelectorPositionMemory[0] ofDividerAtIndex:0];
-        [_verticalSplitView setPosition:splitSelectorPositionMemory[1] ofDividerAtIndex:1];
-        [_verticalSplitView setPosition:splitSelectorPositionMemory[2] ofDividerAtIndex:2];
-        [_verticalSplitView setPosition:splitSelectorPositionMemory[3] ofDividerAtIndex:3];
-        [_verticalSplitView setPosition:splitSelectorPositionMemory[4] ofDividerAtIndex:4];
-        [_verticalSplitView setPosition:splitSelectorPositionMemory[5] ofDividerAtIndex:5];
-        [_verticalSplitView setPosition:splitSelectorPositionMemory[6] ofDividerAtIndex:6];
+        [_browserColumnSplitView setPosition:splitSelectorPositionMemory[kBrowserSplitIndexGenres] ofDividerAtIndex:kBrowserSplitIndexGenres];
+        [_browserColumnSplitView setPosition:splitSelectorPositionMemory[kBrowserSplitIndexAlbums] ofDividerAtIndex:kBrowserSplitIndexAlbums];
+        [_browserColumnSplitView setPosition:splitSelectorPositionMemory[kBrowserSplitIndexArtists] ofDividerAtIndex:kBrowserSplitIndexArtists];
+        [_browserColumnSplitView setPosition:splitSelectorPositionMemory[kBrowserSplitIndexTempos] ofDividerAtIndex:kBrowserSplitIndexTempos];
+        [_browserColumnSplitView setPosition:splitSelectorPositionMemory[kBrowserSplitIndexKey] ofDividerAtIndex:kBrowserSplitIndexKey];
+        [_browserColumnSplitView setPosition:splitSelectorPositionMemory[kBrowserSplitIndexRatings] ofDividerAtIndex:kBrowserSplitIndexRatings];
+        [_browserColumnSplitView setPosition:splitSelectorPositionMemory[kBrowserSplitIndexTags] ofDividerAtIndex:kBrowserSplitIndexTags];
     }
 
-    [_verticalSplitView adjustSubviews];
+    [_browserColumnSplitView adjustSubviews];
 
-    _verticalSplitView.animator.hidden = toFullscreen ? YES : NO;
+    _browserColumnSplitView.animator.hidden = toFullscreen ? YES : NO;
 
     _songsTable.enclosingScrollView.animator.hidden = toFullscreen ? YES : NO;
 
     if (!toFullscreen) {
         // We quickly stash the position memory for making sure the first position set
         // can trash the stored positions immediately.
-        CGFloat positions[kSplitPositionCount];
-        memcpy(positions, splitPositionMemory, sizeof(CGFloat) * kSplitPositionCount);
-        [_horizontalSplitView setPosition:splitPositionMemory[0] ofDividerAtIndex:0];
-        [_horizontalSplitView setPosition:splitPositionMemory[1] ofDividerAtIndex:1];
+        //CGFloat positions[kSplitPositionCount];
+        //memcpy(positions, splitPositionMemory, sizeof(CGFloat) * kSplitPositionCount);
+        [_horizontalSplitView setPosition:splitPositionMemory[kWindowSplitIndexVisuals] ofDividerAtIndex:kWindowSplitIndexVisuals];
+        [_horizontalSplitView setPosition:splitPositionMemory[kWindowSplitIndexBrowser] ofDividerAtIndex:kWindowSplitIndexBrowser];
     }
     [_horizontalSplitView adjustSubviews];
     NSLog(@"relayout to fullscreen %X\n", toFullscreen);
@@ -1445,6 +1490,8 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     [self loadProgress:_controlPanelController.autoplayProgress state:LoadStateStopped value:0.0];
     
     _controlPanelController.playPause.state = active ? NSControlStateValueOn : NSControlStateValueOff;
+    NSLog(@"playback active: %d", (int)active);
+    _identifyToolbarButton.enabled = active ? YES : NO;
     //_browser.playPause = active ? NSControlStateValueOn : NSControlStateValueOff;
 }
 
@@ -1640,9 +1687,27 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
 
 #pragma mark - Splitter delegate
 
-- (BOOL)splitView:(NSSplitView *)splitView canCollapseSubview:(NSView *)subview
+//- (BOOL)splitView:(NSSplitView*)splitView shouldAdjustSizeOfSubview:(NSView*)view
+//{
+//    NSScrollView* sv = nil;
+//    if ([view isKindOfClass:[NSScrollView class]]) {
+//        NSScrollView* sv = (NSScrollView*)view;
+//        view = sv.documentView;
+//    }
+//
+//    NSLog(@"shouldAdjustSizeOfSubview: %@", view);
+//
+//    BOOL ret = view == _songsTable;
+//    if (ret)  {
+//        NSLog(@"YESSSS");
+//    }
+// //   assert(ret == NO);
+//    return YES;
+//}
+
+- (BOOL)splitView:(NSSplitView*)splitView canCollapseSubview:(NSView*)view
 {
-    return YES;
+    return view != _searchField;
 }
 
 - (void)splitViewDidResizeSubviews:(NSNotification *)notification
@@ -1664,33 +1729,33 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
         return;
     }
 
-    if (sv == _verticalSplitView) {
+    if (sv == _browserColumnSplitView) {
         switch(indexNumber.intValue) {
-            case 0:
-                splitSelectorPositionMemory[0] = _genreTable.enclosingScrollView.bounds.size.width;
+            case kBrowserSplitIndexGenres:
+                splitSelectorPositionMemory[kBrowserSplitIndexGenres] = _genreTable.enclosingScrollView.bounds.size.width;
                 break;
-            case 1:
-                splitSelectorPositionMemory[1] = _artistsTable.enclosingScrollView.bounds.size.width;
+            case kBrowserSplitIndexArtists:
+                splitSelectorPositionMemory[kBrowserSplitIndexArtists] = _artistsTable.enclosingScrollView.bounds.size.width;
                 break;
-            case 2:
-                splitSelectorPositionMemory[2] = _albumsTable.enclosingScrollView.bounds.size.width;
+            case kBrowserSplitIndexAlbums:
+                splitSelectorPositionMemory[kBrowserSplitIndexAlbums] = _albumsTable.enclosingScrollView.bounds.size.width;
                 break;
-            case 3:
-                splitSelectorPositionMemory[3] = _temposTable.enclosingScrollView.bounds.size.width;
+            case kBrowserSplitIndexTempos:
+                splitSelectorPositionMemory[kBrowserSplitIndexTempos] = _temposTable.enclosingScrollView.bounds.size.width;
                 break;
-            case 4:
-                splitSelectorPositionMemory[4] = _keysTable.enclosingScrollView.bounds.size.width;
+            case kBrowserSplitIndexKey:
+                splitSelectorPositionMemory[kBrowserSplitIndexKey] = _keysTable.enclosingScrollView.bounds.size.width;
                 break;
-            case 5:
-                splitSelectorPositionMemory[5] = _ratingsTable.enclosingScrollView.bounds.size.width;
+            case kBrowserSplitIndexRatings:
+                splitSelectorPositionMemory[kBrowserSplitIndexRatings] = _ratingsTable.enclosingScrollView.bounds.size.width;
                 break;
-            case 6:
-                splitSelectorPositionMemory[6] = _tagsTable.enclosingScrollView.bounds.size.width;
+            case kBrowserSplitIndexTags:
+                splitSelectorPositionMemory[kBrowserSplitIndexTags] = _tagsTable.enclosingScrollView.bounds.size.width;
                 break;
         }
     } else if (sv == _horizontalSplitView) {
         switch(indexNumber.intValue) {
-            case 0: {
+            case kWindowSplitIndexVisuals: {
                 NSSize newSize = NSMakeSize(_belowVisuals.bounds.size.width,
                                             _belowVisuals.bounds.size.height - (_totalView.bounds.size.height + _waveView.bounds.size.height));
 
@@ -1704,8 +1769,12 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
                 break;
             }
         }
-        splitPosition[0] = _belowVisuals.bounds.size.height;
-        splitPosition[1] = _belowVisuals.bounds.size.height + _verticalSplitView.bounds.size.height;
+        CGFloat y = _belowVisuals.bounds.size.height;
+        splitPosition[kWindowSplitIndexVisuals] = y;
+//        if (_filtering) {
+//            splitPosition[kWindowSplitIndexFilter] = _belowVisuals.bounds.size.height + _searchField.bounds.size.height;
+//        }
+        splitPosition[kWindowSplitIndexBrowser] = _belowVisuals.bounds.size.height + _browserColumnSplitView.bounds.size.height;
     }
 }
 
@@ -2283,20 +2352,6 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
 }
 
 #pragma mark - Browser delegate
-
-- (void)performFindPanelAction :(id)sender
-{
-    [_searchField setFrame:NSMakeRect(0, 0, self->_searchField.frame.size.width, 0.0)];
-    [_horizontalSplitView insertArrangedSubview:_searchField atIndex:2];
-    [_searchField.window makeFirstResponder:_searchField];
-
-//    [NSAnimationContext runAnimationGroup:^(NSAnimationContext *context) {
-//        [context setDuration:5.0];
-//        [self->_searchField.animator setFrame:NSMakeRect(0, 0, self->_searchField.frame.size.width, 30.0)];
-//    } completionHandler:^{
-//    }];
-
-}
 
 - (void)closeFilter
 {

@@ -52,6 +52,7 @@ typedef struct {
     AudioOutputStream           stream;
     TapBlock                    tapBlock;
     dispatch_semaphore_t        semaphore;
+    BOOL                        paused;
 } AudioContext;
 
 /*
@@ -70,7 +71,6 @@ typedef struct {
 @interface AudioController ()
 {
     AudioContext            _context;
-    BOOL                    _isPaused;
     float                   _tempoShift;
     double                  _outputVolume;
 }
@@ -192,13 +192,21 @@ void propertyCallbackIsRunning (void* user_data,
     dispatch_async(dispatch_get_main_queue(), ^{
         NSLog(@"audio now running = %d", isRunning);
         if (isRunning) {
-            [[NSNotificationCenter defaultCenter] postNotificationName:kAudioControllerChangedPlaybackStateNotification
-                                                                object:kPlaybackStatePlaying];
+            NSLog(@"signalling we are running");
+            if (context->paused) {
+                [[NSNotificationCenter defaultCenter] postNotificationName:kAudioControllerChangedPlaybackStateNotification
+                                                                    object:kPlaybackStatePaused];
+            } else {
+                [[NSNotificationCenter defaultCenter] postNotificationName:kAudioControllerChangedPlaybackStateNotification
+                                                                    object:kPlaybackStatePlaying];
+            }
         } else {
             if (context->stream.endOfStream) {
+                NSLog(@"signalling we are done");
                 [[NSNotificationCenter defaultCenter] postNotificationName:kAudioControllerChangedPlaybackStateNotification
                                                                     object:kPlaybackStateEnded];
             } else {
+                NSLog(@"signalling we are paused");
                 [[NSNotificationCenter defaultCenter] postNotificationName:kAudioControllerChangedPlaybackStateNotification
                                                                     object:kPlaybackStatePaused];
             }
@@ -248,7 +256,6 @@ void bufferCallback(void* user_data, AudioQueueRef queue, AudioQueueBufferRef bu
 {
     self = [super init];
     if (self) {
-        _isPaused = NO;
 #ifdef support_audioqueueplayback
         _context.stream.queue = NULL;
 #endif
@@ -330,7 +337,7 @@ void bufferCallback(void* user_data, AudioQueueRef queue, AudioQueueBufferRef bu
     UInt32 size = sizeof(isRunning);
     OSStatus res = AudioQueueGetProperty(_context.stream.queue, kAudioQueueProperty_IsRunning, &isRunning, &size);
     assert(0 == res);
-    return (isRunning > 0) & !_isPaused;
+    return (isRunning > 0) & !_context.paused;
 #endif
     
 #ifdef support_avaudioengine
@@ -425,7 +432,7 @@ void bufferCallback(void* user_data, AudioQueueRef queue, AudioQueueBufferRef bu
     [_player pause];
 #endif
 
-    _isPaused = YES;
+    _context.paused = YES;
     [[NSNotificationCenter defaultCenter] postNotificationName:kAudioControllerChangedPlaybackStateNotification
                                                         object:kPlaybackStatePaused];
 }
@@ -474,12 +481,14 @@ void bufferCallback(void* user_data, AudioQueueRef queue, AudioQueueBufferRef bu
     NSLog(@"starting audioqueue to play %@", _context.sample.source.url);
     OSStatus res = AudioQueueStart(_context.stream.queue, NULL);
     assert(0 == res);
-    _isPaused = NO;
 
     [[NSNotificationCenter defaultCenter] postNotificationName:kAudioControllerChangedPlaybackStateNotification
                                                         object:kPlaybackStateStarted];
-    [[NSNotificationCenter defaultCenter] postNotificationName:kAudioControllerChangedPlaybackStateNotification
-                                                        object:kPlaybackStatePlaying];
+    if (_context.paused) {
+        _context.paused = NO;
+        [[NSNotificationCenter defaultCenter] postNotificationName:kAudioControllerChangedPlaybackStateNotification
+                                                            object:kPlaybackStatePlaying];
+    }
 }
 #endif
 
@@ -530,7 +539,7 @@ void bufferCallback(void* user_data, AudioQueueRef queue, AudioQueueBufferRef bu
         return 0;
     }
     NSAssert(_context.stream.queue != nil, @"queue shouldnt be empty");
-    if (_isPaused) {
+    if (_context.paused) {
         return _context.stream.nextFrame;
     }
     return currentFrame(&_context);
@@ -603,7 +612,10 @@ void bufferCallback(void* user_data, AudioQueueRef queue, AudioQueueBufferRef bu
                 _context.stream.buffers[i] = NULL;
             }
         }
-        AudioQueueRemovePropertyListener(_context.stream.queue, kAudioQueueProperty_IsRunning, propertyCallbackIsRunning, &_context);
+        AudioQueueRemovePropertyListener(_context.stream.queue,
+                                         kAudioQueueProperty_IsRunning,
+                                         propertyCallbackIsRunning,
+                                         &_context);
 
         AudioQueueDispose(_context.stream.queue, true);
         _context.stream.queue = NULL;

@@ -1234,7 +1234,8 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
 
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(ScrollViewStartsLiveScrolling:) name:@"NSScrollViewWillStartLiveScrollNotification" object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(ScrollViewEndsLiveScrolling:) name:@"NSScrollViewDidEndLiveScrollNotification" object:nil];
-    
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(someWindowWillClose:) name:@"NSWindowWillCloseNotification" object:nil];
+
     NSNumber* fullscreenValue = [userDefaults objectForKey:@"fullscreen"];
     if ([fullscreenValue boolValue]) {
         [self.window toggleFullScreen:self];
@@ -1485,6 +1486,14 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     NSLog(@"relayout to fullscreen %X\n", toFullscreen);
 }
 
+- (void)someWindowWillClose:(NSNotification*)notification
+{
+    id object = notification.object;
+    if (object == _identifyWindowController.window) {
+        _identifyToolbarButton.state = NSControlStateValueOff;
+    }
+}
+
 - (void)setPlaybackActive:(BOOL)active
 {
     [self loadProgress:_controlPanelController.autoplayProgress state:LoadStateStopped value:0.0];
@@ -1587,12 +1596,17 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
 - (void)showIdentifier:(id)sender
 {
     NSApplication* sharedApplication = [NSApplication sharedApplication];
-    
+ 
+    NSPanel* window = (NSPanel*)_identifyWindowController.window;
+    if (window.isVisible) {
+        [window close];
+        return;
+    }
+
     if (_identifyWindowController == nil) {
         self.identifyWindowController = [NSWindowController new];
     }
 
-    NSPanel* window;
     if (_iffy == nil) {
         self.iffy = [[IdentifyViewController alloc] initWithAudioController:_audioController];
         [_iffy view];

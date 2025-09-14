@@ -50,7 +50,7 @@ const CGFloat kDirectWaveViewTileWidth = 256.0f;
         [darkenFilter setDefaults];
         [darkenFilter setValue:[NSNumber numberWithFloat:2.5] forKey:@"inputPower"];
         
-        _rastaLayer = [CATiledLayer layer];
+        _rastaLayer = [CALayer layer];
         _rastaLayer.backgroundColor = [[NSColor colorWithPatternImage:[NSImage imageNamed:@"LargeRastaPattern"]] CGColor];
         _rastaLayer.contentsScale = NSViewLayerContentsPlacementScaleProportionallyToFill;
         _rastaLayer.anchorPoint = CGPointMake(1.0, 0.0);
@@ -60,15 +60,17 @@ const CGFloat kDirectWaveViewTileWidth = 256.0f;
                                        self.bounds.size.width,
                                        self.bounds.size.height);
         _rastaLayer.zPosition = 1.1;
+        _rastaLayer.drawsAsynchronously = YES;
         _rastaLayer.opacity = 0.7;
         _rastaLayer.compositingFilter = [CIFilter filterWithName:@"CISourceAtopCompositing"];
         
-        _aheadVibranceFxLayer = [CATiledLayer layer];
+        _aheadVibranceFxLayer = [CALayer layer];
         _aheadVibranceFxLayer.backgroundFilters = @[ darkenFilter, vibranceFilter ];
         _aheadVibranceFxLayer.anchorPoint = CGPointMake(0.0, 0.0);
         // FIXME: This looks weird - why 4?
         _aheadVibranceFxLayer.frame = CGRectMake(0.0, 0.0, self.bounds.size.width * 4, self.bounds.size.height);
         _aheadVibranceFxLayer.masksToBounds = NO;
+        _aheadVibranceFxLayer.drawsAsynchronously = YES;
         _aheadVibranceFxLayer.zPosition = 1.0;
         
         _aheadVibranceFxLayerMask = [CAShapeLayer layer];
@@ -84,13 +86,14 @@ const CGFloat kDirectWaveViewTileWidth = 256.0f;
         [trailBloomFilter setValue:[NSNumber numberWithFloat:3.0] forKey:@"inputRadius"];
         [trailBloomFilter setValue:[NSNumber numberWithFloat:1.0] forKey:@"inputIntensity"];
         
-        _trailBloomFxLayer = [CATiledLayer layer];
+        _trailBloomFxLayer = [CALayer layer];
         _trailBloomFxLayer.backgroundFilters = @[ trailBloomFilter ];
         _trailBloomFxLayer.anchorPoint = CGPointMake(1.0, 0.0);
         // FIXME: This looks weird - why 4?
         _trailBloomFxLayer.frame = CGRectMake(0.0, 0.0, self.bounds.size.width * 4, self.bounds.size.height);
         _trailBloomFxLayer.masksToBounds = NO;
         _trailBloomFxLayer.zPosition = 1.9;
+        _trailBloomFxLayer.drawsAsynchronously = YES;
         _trailBloomFxLayer.name = @"TailBloomFxLayer";
         _trailBloomFxLayer.mask = [CAShapeLayer MaskLayerFromRect:_trailBloomFxLayer.frame];
     }
@@ -152,7 +155,9 @@ const CGFloat kDirectWaveViewTileWidth = 256.0f;
     assert(self.documentView != nil);
 
     // See if we already have subviews that cover these needed frames.
-    for (NSView* subview in [[self.documentView subviews] copy]) {
+    NSArray<NSView*>* screenTiles = [[self.documentView subviews] copy];
+
+    for (NSView* subview in screenTiles) {
         NSValue* frameRectVal = [NSValue valueWithRect:subview.frame];
         // If we don't need this one any more.
         if (![neededTileFrames containsObject:frameRectVal]) {
@@ -177,6 +182,7 @@ const CGFloat kDirectWaveViewTileWidth = 256.0f;
 
             overheadLayer = [CALayer layer];
             overheadLayer.masksToBounds = NO;
+            overheadLayer.drawsAsynchronously = YES;
             overheadLayer.delegate = ((WaveView*)self.documentView).beatLayerDelegate;
             [view.layer addSublayer:overheadLayer];
         } else {
@@ -185,11 +191,9 @@ const CGFloat kDirectWaveViewTileWidth = 256.0f;
             assert(overheadLayer);
         }
 
-        [self.documentView addSubview:view];
-
         // Place it and install it.
         view.frame = [neededFrame rectValue];
-        view.layer.frame = [neededFrame rectValue];
+        //view.layer.frame = [neededFrame rectValue];
         overheadLayer.frame = CGRectMake(0.0, 0.0, view.frame.size.width, view.frame.size.height);
 
         assert(view.layer);
@@ -197,6 +201,8 @@ const CGFloat kDirectWaveViewTileWidth = 256.0f;
 
         assert(overheadLayer);
         [overheadLayer setNeedsDisplay];
+
+        [self.documentView addSubview:view];
     }
 }
 

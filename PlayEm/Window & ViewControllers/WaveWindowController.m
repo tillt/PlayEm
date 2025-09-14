@@ -694,6 +694,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     _playlistTable.autoresizingMask = kViewFullySizeable;
     _playlistTable.headerView = nil;
     _playlistTable.rowHeight = 36.0;
+    _playlistTable.allowsMultipleSelection = YES;
     _playlistTable.intercellSpacing = NSMakeSize(0.0, 0.0);
 
     NSTableColumn* col = [[NSTableColumn alloc] init];
@@ -961,8 +962,11 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     _searchField.textColor = [[Defaults sharedDefaults] lightFakeBeamColor];
     _searchField.font = [[Defaults sharedDefaults] normalFont];
     _searchField.placeholderString = @"Filter";
-    
-    
+    NSImage* image = [NSImage imageWithSystemSymbolName:@"line.3.horizontal.decrease"
+                               accessibilityDescription:@"filter"];
+    NSSearchFieldCell* cell = _searchField.cell;
+    cell.searchButtonCell.image = image;
+
     ///
     /// Songs Table.
     ///

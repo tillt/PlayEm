@@ -140,6 +140,7 @@
 - (CALayer*)makeBackingLayer
 {
     CALayer* layer = [CALayer layer];
+    layer.drawsAsynchronously = YES;
     return layer;
 }
 

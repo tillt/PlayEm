@@ -89,7 +89,7 @@
     return _reusableViews;
 }
 
-- (void)reflectScrolledClipView:(NSClipView *)view
+- (void)reflectScrolledClipView:(NSClipView*)view
 {
     [super reflectScrolledClipView:view];
     [self updateTiles];
@@ -121,7 +121,6 @@
     const CGFloat xMin = floor(NSMinX(documentVisibleRect) / _tileSize.width) * _tileSize.width;
     const CGFloat xMax = xMin + (ceil((NSMaxX(documentVisibleRect) - xMin) / _tileSize.width) * _tileSize.width);
     const CGFloat yMin = floor(NSMinY(documentVisibleRect) / _tileSize.height) * _tileSize.height;
-    //const CGFloat yMax = ceil((NSMaxY(documentVisibleRect) - yMin) / _tileSize.height) * _tileSize.height;
     const CGFloat yMax = yMin + (ceil((NSMaxY(documentVisibleRect) - yMin) / _tileSize.height) * _tileSize.height);
 
     // Figure out the tile frames we would need to get full coverage and add them to
@@ -137,7 +136,9 @@
     assert(self.documentView != nil);
 
     // See if we already have subviews that cover these needed frames.
-    for (NSView* subview in [[self.documentView subviews] copy]) {
+    NSArray<NSView*>* screenTiles = [[self.documentView subviews] copy];
+
+    for (NSView* subview in screenTiles) {
         NSValue* frameRectVal = [NSValue valueWithRect:subview.frame];
         // If we don't need this one any more.
         if (![neededTileFrames containsObject:frameRectVal]) {
@@ -154,21 +155,18 @@
     for (NSValue* neededFrame in neededTileFrames) {
         TileView* view = [reusableViews lastObject];
         [reusableViews removeLastObject];
-
         // Create one if we did not find a reusable one.
         if (view == nil) {
             view = [self createTile];
         }
-        [self.documentView addSubview:view];
-
-        
         // Place it and install it.
         view.frame = [neededFrame rectValue];
         view.layer.frame = [neededFrame rectValue];
-        NSLog(@"adding layer %@ %f,%f,%f,%f", view.layer, view.layer.frame.origin.x, view.layer.frame.origin.y, view.layer.frame.size.width, view.layer.frame.size.height );
-
-        assert(view.layer);
         [view.layer setNeedsDisplay];
+        //NSLog(@"adding layer %@ %f,%f,%f,%f", view.layer, view.layer.frame.origin.x, view.layer.frame.origin.y, view.layer.frame.size.width, view.layer.frame.size.height );
+        assert(view.layer);
+        //[view.layer setNeedsDisplay];
+        [self.documentView addSubview:view];
     }
 }
 

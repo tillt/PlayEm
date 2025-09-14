@@ -23,7 +23,8 @@
 
 - (CALayer*)makeBackingLayer
 {
-    CATiledLayer* layer = [CATiledLayer layer];
+    CALayer* layer = [CALayer layer];
+    layer.drawsAsynchronously = YES;
     layer.masksToBounds = NO;
     return layer;
 }

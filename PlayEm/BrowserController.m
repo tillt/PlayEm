@@ -643,11 +643,6 @@ NSString* const kSongsColGenre = @"GenreCell";
 
 - (void)showInfoForSelectedSongs:(id)sender
 {
-//    if (self.songsTable.clickedRow >= 0) {
-//        [metas addObject:self.]
-//        meta = self.filteredItems[self.songsTable.clickedRow];
-//        NSLog(@"item: %@", self.filteredItems[self.songsTable.clickedRow]);
-//
     NSMutableArray* metas = [NSMutableArray array];
     if (self.songsTable.clickedRow >= 0) {
         assert(self.songsTable.clickedRow < self.filteredItems.count);

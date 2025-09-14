@@ -47,7 +47,7 @@ const CGFloat kTotalWaveViewTileWidth = 8.0f;
 
 - (void)setupHead
 {
-    _headLayer = [CATiledLayer layer];
+    _headLayer = [CALayer layer];
     
     NSImage* image = [NSImage imageNamed:@"TinyTotalCurrentTime"];
     image.resizingMode = NSImageResizingModeTile;
@@ -79,21 +79,24 @@ const CGFloat kTotalWaveViewTileWidth = 8.0f;
 
     _headLayer.contents = image;
     _headImageSize = image.size;
+    _headLayer.drawsAsynchronously = YES;
     _headLayer.bounds = CGRectMake(0.0, 0.0, _headImageSize.width, height);
     _headLayer.position = CGPointMake(0.0, height / 2.0f);
     _headLayer.compositingFilter = [CIFilter filterWithName:@"CISourceAtopCompositing"];
     _headLayer.zPosition = 1.0;
     _headLayer.name = @"HeadLayer";
 
-    _headBloomFxLayer = [CATiledLayer layer];
+    _headBloomFxLayer = [CALayer layer];
     _headBloomFxLayer.backgroundFilters = @[ clampFilter, headBloomFilter ];
     _headBloomFxLayer.frame = _headLayer.bounds;
+    _headBloomFxLayer.drawsAsynchronously = YES;
     _headBloomFxLayer.masksToBounds = NO;
     _headBloomFxLayer.zPosition = 1.9;
     _headBloomFxLayer.name = @"HeadBloomFxLayer";
     _headBloomFxLayer.mask = [CAShapeLayer MaskLayerFromRect:_headBloomFxLayer.frame];
     
-    _aheadVibranceFxLayer = [CATiledLayer layer];
+    _aheadVibranceFxLayer = [CALayer layer];
+    _aheadVibranceFxLayer.drawsAsynchronously = YES;
     _aheadVibranceFxLayer.backgroundFilters = @[ darkenFilter, vibranceFilter ];
     _aheadVibranceFxLayer.anchorPoint = CGPointMake(0.0, 0.0);
     _aheadVibranceFxLayer.bounds = CGRectMake(0.0, 0.0, width, height);
@@ -103,12 +106,13 @@ const CGFloat kTotalWaveViewTileWidth = 8.0f;
     _aheadVibranceFxLayer.name = @"AheadVibranceFxLayer";
     _aheadVibranceFxLayer.mask = [CAShapeLayer MaskLayerFromRect:_aheadVibranceFxLayer.frame];
     
-    _rastaLayer = [CATiledLayer layer];
+    _rastaLayer = [CALayer layer];
     _rastaLayer.backgroundColor = [[NSColor colorWithPatternImage:[NSImage imageNamed:@"RastaPattern"]] CGColor];
     _rastaLayer.autoresizingMask = kCALayerNotSizable;
     _rastaLayer.contentsScale = NSViewLayerContentsPlacementScaleProportionallyToFill;
     _rastaLayer.anchorPoint = CGPointMake(1.0, 0.0);
     _rastaLayer.opacity = 0.8f;
+    _rastaLayer.drawsAsynchronously = YES;
     _rastaLayer.frame = NSMakeRect(0.0,
                                    0.0,
                                    self.bounds.size.width,
@@ -121,11 +125,12 @@ const CGFloat kTotalWaveViewTileWidth = 8.0f;
     [tailBloomFilter setValue: [NSNumber numberWithFloat:3.0] forKey: @"inputRadius"];
     [tailBloomFilter setValue: [NSNumber numberWithFloat:1.0] forKey: @"inputIntensity"];
 
-    _tailBloomFxLayer = [CATiledLayer layer];
+    _tailBloomFxLayer = [CALayer layer];
     _tailBloomFxLayer.backgroundFilters = @[ tailBloomFilter ];
     _tailBloomFxLayer.anchorPoint = CGPointMake(1.0, 0.0);
     _tailBloomFxLayer.frame = CGRectMake(0.0, 0.0, width, height);
     _tailBloomFxLayer.masksToBounds = NO;
+    _tailBloomFxLayer.drawsAsynchronously = YES;
     _tailBloomFxLayer.zPosition = 1.9;
     _tailBloomFxLayer.name = @"TailBloomFxLayer";
     _tailBloomFxLayer.mask = [CAShapeLayer MaskLayerFromRect:_tailBloomFxLayer.frame];
@@ -172,6 +177,7 @@ const CGFloat kTotalWaveViewTileWidth = 8.0f;
 - (CALayer*)makeBackingLayer
 {
     CALayer* layer = [CALayer layer];
+    layer.drawsAsynchronously = YES;
     return layer;
 }
 

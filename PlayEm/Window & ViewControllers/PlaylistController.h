@@ -35,6 +35,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (MediaMetaData* _Nullable)nextItem;
 - (MediaMetaData* _Nullable)itemAtIndex:(NSUInteger)index;
 
+- (NSMenu*)menu;
+
 @end
 
 NS_ASSUME_NONNULL_END

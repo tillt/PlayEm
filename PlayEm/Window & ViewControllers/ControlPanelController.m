@@ -186,6 +186,7 @@ extern NSString * const kPlaybackStatePlaying;
     layer.backgroundFilters = @[ titleBloomFilter ];
     layer.frame = NSInsetRect(_titleView.bounds, -16, -16);
     layer.masksToBounds = NO;
+    layer.drawsAsynchronously = YES;
     layer.mask = [CAShapeLayer MaskLayerFromRect:layer.bounds];
     [_titleView.layer addSublayer:layer];
 
@@ -205,9 +206,10 @@ extern NSString * const kPlaybackStatePlaying;
     _albumArtistView.font = [NSFont systemFontOfSize:_albumArtistView.frame.size.height - 5.0];
     [self.view addSubview:_albumArtistView];
 
-    layer = [CATiledLayer new];
+    layer = [CALayer new];
     layer.backgroundFilters = @[ lowBloomFilter ];
     layer.frame = NSInsetRect(_albumArtistView.bounds, -16, -16);
+    layer.drawsAsynchronously = YES;
     layer.masksToBounds = NO;
     layer.mask = [CAShapeLayer MaskLayerFromRect:layer.bounds];
     [_albumArtistView.layer addSublayer:layer];
@@ -434,7 +436,8 @@ extern NSString * const kPlaybackStatePlaying;
     _beatIndicator.wantsLayer = YES;
     [self.view addSubview:_beatIndicator];
 
-    layer = [CATiledLayer new];
+    layer = [CALayer new];
+    layer.drawsAsynchronously = YES;
     layer.backgroundFilters = @[ intenseBloomFilter ];
     layer.frame = NSInsetRect(_beatIndicator.bounds, -8, -8);
     layer.masksToBounds = NO;
@@ -463,14 +466,16 @@ extern NSString * const kPlaybackStatePlaying;
                             bpmLabelHeight);
     [self.view addSubview:_bpm];
     
-    layer = [CATiledLayer new];
+    layer = [CALayer new];
     layer.backgroundFilters = @[ intenseBloomFilter ];
+    layer.drawsAsynchronously = YES;
     layer.frame = NSInsetRect(_level.bounds, -8, -8);
     layer.masksToBounds = NO;
     layer.mask = [CAShapeLayer MaskLayerFromRect:layer.bounds];
     [_level.layer addSublayer:layer];
     
-    layer = [CATiledLayer layer];
+    layer = [CALayer layer];
+    layer.drawsAsynchronously = YES;
     layer.backgroundColor = [[NSColor colorWithPatternImage:[NSImage imageNamed:@"RastaPattern"]] CGColor];
     layer.contentsScale = NSViewLayerContentsPlacementScaleProportionallyToFill;
     layer.frame = NSInsetRect(_level.bounds, -8, -8);

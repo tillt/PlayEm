@@ -253,6 +253,7 @@ extern NSString * const kBeatTrackedSampleTempoChangeNotification;
     layer.autoresizingMask = kCALayerWidthSizable | kCALayerHeightSizable;
     layer.frame = self.bounds;
     layer.masksToBounds = NO;
+    layer.drawsAsynchronously = YES;
     layer.anchorPoint = CGPointMake(0.5, 0.5);
     
     CGPoint center = NSMakePoint(CGRectGetMidX(layer.bounds) - 21.0,
@@ -331,6 +332,7 @@ extern NSString * const kBeatTrackedSampleTempoChangeNotification;
         _glowLayer.contentsScale = [[NSScreen mainScreen] backingScaleFactor];
         _glowLayer.backgroundFilters = @[ bloomFilter ];
         _glowLayer.masksToBounds = YES;
+        _glowLayer.drawsAsynchronously = YES;
         _glowLayer.filters = @[ bloomFilter ];
         _glowLayer.compositingFilter = additionFilter;
         [layer addSublayer:_glowLayer];
@@ -343,6 +345,7 @@ extern NSString * const kBeatTrackedSampleTempoChangeNotification;
     _backingLayer.frame = contentsFrame;
     _backingLayer.shouldRasterize = YES;
     _backingLayer.masksToBounds = NO;
+    _backingLayer.drawsAsynchronously = YES;
     _backingLayer.cornerRadius = 7.0f;
     _backingLayer.anchorPoint = CGPointMake(0.5, 0.5);
     _backingLayer.allowsEdgeAntialiasing = YES;
@@ -379,6 +382,7 @@ extern NSString * const kBeatTrackedSampleTempoChangeNotification;
     _imageCopyLayer.allowsEdgeAntialiasing = YES;
     _imageCopyLayer.contentsScale = [[NSScreen mainScreen] backingScaleFactor];
     _imageCopyLayer.frame = contentsBounds;
+    _imageCopyLayer.drawsAsynchronously = YES;
     _imageCopyLayer.mask = _maskLayer;
     _imageCopyLayer.masksToBounds = YES;
     if ((_style & CoverViewStyleGlowBehindCoverAtLaser) == CoverViewStyleGlowBehindCoverAtLaser) {
@@ -402,6 +406,7 @@ extern NSString * const kBeatTrackedSampleTempoChangeNotification;
     _imageLayer.autoresizingMask = kCALayerWidthSizable | kCALayerHeightSizable;
     _imageLayer.allowsEdgeAntialiasing = YES;
     _imageLayer.shouldRasterize = YES;
+    _imageLayer.drawsAsynchronously = YES;
     _imageLayer.rasterizationScale = layer.contentsScale;
     _imageLayer.contentsScale = [[NSScreen mainScreen] backingScaleFactor];
     _imageLayer.cornerRadius = 7.0f;
@@ -435,6 +440,7 @@ extern NSString * const kBeatTrackedSampleTempoChangeNotification;
         _overlayLayer.shouldRasterize = YES;
         _overlayLayer.cornerRadius = 7.0f;
         _overlayLayer.allowsEdgeAntialiasing = YES;
+        _overlayLayer.drawsAsynchronously = YES;
         _overlayLayer.rasterizationScale = layer.contentsScale;
         _overlayLayer.contentsScale = [[NSScreen mainScreen] backingScaleFactor];
         _overlayLayer.magnificationFilter = kCAFilterLinear;
@@ -455,7 +461,7 @@ extern NSString * const kBeatTrackedSampleTempoChangeNotification;
     _finalFxLayer = [CALayer layer];
     _finalFxLayer.frame = contentsBounds;
     _finalFxLayer.backgroundFilters = @[ fxFilter];
-    
+    _finalFxLayer.drawsAsynchronously = YES;
     [_backingLayer addSublayer:_finalFxLayer];
     
 

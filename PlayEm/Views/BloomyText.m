@@ -16,7 +16,7 @@
 @property (nonatomic, strong) CALayer* fxLayer;
 @property (nonatomic, strong, readonly) NSDictionary* attributes;
 @property (nonatomic, strong) CIFilter* titleBloomFilter;
-@property (nonatomic, strong) CATiledLayer* rastaLayer;
+@property (nonatomic, strong) CALayer* rastaLayer;
 
 @end
 
@@ -59,6 +59,7 @@
 - (CATextLayer*)makeTextLayer
 {
     CATextLayer* layer = [CATextLayer layer];
+    layer.drawsAsynchronously = YES;
     layer.font = (__bridge  CFTypeRef)self.font;
     layer.fontSize = self.fontSize;
     layer.allowsEdgeAntialiasing = YES;
@@ -88,16 +89,18 @@
 //    [_titleBloomFilter setValue: [CIVector vectorWithCGPoint:CGPointMake(self.textLayer.frame.size.width / 2.0, self.textLayer.frame.size.height / 2.0)] forKey: @"inputCenter"];
 
     self.fxLayer = [CALayer layer];
+    _fxLayer.drawsAsynchronously = YES;
     _fxLayer.backgroundFilters = @[ bloomFilter];
     _fxLayer.frame = NSInsetRect(self.bounds, -16, -16);
     _fxLayer.masksToBounds = NO;
     _fxLayer.mask = [CAShapeLayer MaskLayerFromRect:_fxLayer.bounds];
 
 
-    self.rastaLayer = [CATiledLayer layer];
+    self.rastaLayer = [CALayer layer];
     _rastaLayer.backgroundColor = [[NSColor colorWithPatternImage:[NSImage imageNamed:@"RastaPattern"]] CGColor];
     _rastaLayer.contentsScale = NSViewLayerContentsPlacementScaleProportionallyToFill;
     _rastaLayer.anchorPoint = CGPointMake(1.0, 0.0);
+    _rastaLayer.drawsAsynchronously = YES;
     _rastaLayer.autoresizingMask = kCALayerWidthSizable;
     _rastaLayer.frame = NSMakeRect(self.bounds.origin.x,
                                    self.bounds.origin.y,

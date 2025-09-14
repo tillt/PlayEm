@@ -16,7 +16,7 @@
 
 #pragma mark Layer delegate
 
-- (void)drawLayer:(CALayer *)layer inContext:(CGContextRef)context
+- (void)drawLayer:(CALayer*)layer inContext:(CGContextRef)context
 {
     if (_visualSample == nil || layer.frame.origin.x < 0) {
         return;

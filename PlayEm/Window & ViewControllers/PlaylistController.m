@@ -36,6 +36,8 @@
         _table = table;
         _table.dataSource = self;
         _table.delegate = self;
+        _table.doubleAction = @selector(tableViewDoubleClickedRow:);
+        _table.menu = [self menu];
         _preventSelection = NO;
     }
     return self;
@@ -66,16 +68,18 @@
 
 - (void)playedMeta:(MediaMetaData*)item
 {
-    [_history addObject:item];
-    
-    _preventSelection = YES;
-    [_table beginUpdates];
-    [_table insertRowsAtIndexes:[NSIndexSet indexSetWithIndex:_history.count - 1] 
-                  withAnimation:NSTableViewAnimationSlideRight];
-    [_table endUpdates];
-    _preventSelection = NO;
-    [_table reloadDataForRowIndexes:[NSIndexSet indexSetWithIndexesInRange:NSMakeRange(_history.count - 1, 1)]
-                      columnIndexes:[NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0, 2)]];
+    if (_history.count && item == _history[_history.count - 1]) {
+    } else {
+        [_history addObject:item];
+        _preventSelection = YES;
+        [_table beginUpdates];
+        [_table insertRowsAtIndexes:[NSIndexSet indexSetWithIndex:_history.count - 1]
+                      withAnimation:NSTableViewAnimationSlideRight];
+        [_table endUpdates];
+        _preventSelection = NO;
+        [_table reloadDataForRowIndexes:[NSIndexSet indexSetWithIndexesInRange:NSMakeRange(_history.count - 1, 1)]
+                          columnIndexes:[NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0, 2)]];
+    }
 }
 
 - (MediaMetaData* _Nullable)nextItem
@@ -112,6 +116,68 @@
     
     [_table reloadDataForRowIndexes:[NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0, _list.count + _history.count)]
                       columnIndexes:[NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0, 2)]];
+    
+    [_table scrollRowToVisible:_history.count - 1];
+}
+
+- (NSArray<MediaMetaData*>*)selectedSongMetas
+{
+    __block NSMutableArray<MediaMetaData*>* metas = [NSMutableArray array];;
+    [_table.selectedRowIndexes enumerateIndexesWithOptions:NSEnumerationReverse
+                                                         usingBlock:^(NSUInteger idx, BOOL *stop) {
+        MediaMetaData* meta = nil;
+        if (idx < _history.count) {
+            meta = _history[idx];
+        } else {
+            meta = _list[idx - _history.count];
+        }
+        [metas addObject:meta];
+    }];
+    return metas;
+}
+
+- (void)removeFromPlaylist:(id)sender
+{
+    NSArray* metasToRemove = [self selectedSongMetas];
+    NSMutableArray* newList = [NSMutableArray array];
+    for (MediaMetaData* item in _list) {
+        if (![metasToRemove containsObject:item]) {
+            [newList addObject:item];
+        }
+    }
+    _list = newList;
+    [_table reloadData];
+}
+
+- (NSMenu*)menu
+{
+    NSMenu* menu = [NSMenu new];
+    
+    NSMenuItem* item = [[NSMenuItem alloc] initWithTitle:@"Remove from Playlist"
+                                                  action:@selector(removeFromPlaylist:)
+                                           keyEquivalent:@""];
+    item.target = self;
+    [menu addItem:item];
+
+    [menu addItem:[NSMenuItem separatorItem]];
+
+    item = [menu addItemWithTitle:@"Show Info"
+                           action:@selector(showInfoForSelectedSongs:)
+                    keyEquivalent:@""];
+    item.target = self;
+    [menu addItem:[NSMenuItem separatorItem]];
+
+    item = [menu addItemWithTitle:@"Show in Finder"
+                    action:@selector(showInFinder:)
+             keyEquivalent:@""];
+    item.target = self;
+
+
+// TODO: allow disabling depending on the number of songs selected. Note to myself, this here is the wrong place!
+//    size_t numberOfSongsSelected = ;
+//    showInFinder.enabled = numberOfSongsSelected > 1;
+  
+    return menu;
 }
 
 - (NSView*)tableView:(NSTableView*)tableView viewForTableColumn:(NSTableColumn *)tableColumn row:(NSInteger)row
@@ -225,10 +291,9 @@
     return result;
 }
 
--(void)tableViewSelectionDidChange:(NSNotification*)notification
+- (void)tableViewDoubleClickedRow:(id)sender
 {
-    NSTableView* tableView = [notification object];
-    NSInteger row = [tableView selectedRow];
+    NSInteger row = _table.clickedRow;
     if (row < 0) {
         return;
     }
@@ -250,13 +315,17 @@
     _preventSelection = YES;
 
     [_table beginUpdates];
-    [_table removeRowsAtIndexes:[NSIndexSet indexSetWithIndex:row] 
+    [_table removeRowsAtIndexes:[NSIndexSet indexSetWithIndex:row]
                   withAnimation:NSTableViewAnimationSlideDown];
     [_table endUpdates];
 
     _preventSelection = NO;
 
     [self.delegate browseSelectedUrl:meta.location meta:meta];
+}
+
+-(void)tableViewSelectionDidChange:(NSNotification*)notification
+{
 }
 
 - (BOOL)tableView:(NSTableView*)tableView shouldSelectRow:(NSInteger)row

@@ -27,6 +27,8 @@
     CALayer* layer = [CALayer layer];
     layer.drawsAsynchronously = YES;
     layer.masksToBounds = NO;
+//    NSColor* fillColor = [[[Defaults sharedDefaults] regularBeamColor] colorWithAlphaComponent:0.2];
+//    layer.backgroundColor = fillColor.CGColor;
     return layer;
 }
 

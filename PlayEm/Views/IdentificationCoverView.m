@@ -352,16 +352,7 @@ extern NSString * const kBeatTrackedSampleTempoChangeNotification;
     _backingLayer.magnificationFilter = kCAFilterLinear;
     _backingLayer.minificationFilter = kCAFilterLinear;
     _backingLayer.contentsScale = [[NSScreen mainScreen] backingScaleFactor];
-//    _backingLayer.contents = [NSImage resizedImage:[NSImage imageNamed:@"UnknownSong"]
-//                                            size:self.bounds.size];
-//    
-//    if ((_style & CoverViewStyleRotatingLaser) == CoverViewStyleRotatingLaser) {
-//        _backingLayer.filt = @[ darkFilter     ];
-//    }
-
-    //_backingLayer.backgroundColor = [NSColor blackColor].CGColor;
     _backingLayer.backgroundColor = [NSColor controlBackgroundColor].CGColor;
-    //_backingLayer.backgroundColor = [NSColor blackColor].CGColor;
 
     _maskLayer = [CALayer layer];
     _maskLayer.contents = [NSImage imageNamed:@"FadeMask"];
@@ -369,6 +360,8 @@ extern NSString * const kBeatTrackedSampleTempoChangeNotification;
     _maskLayer.autoresizingMask = kCALayerWidthSizable | kCALayerHeightSizable;
     _maskLayer.contentsScale = [[NSScreen mainScreen] backingScaleFactor];
     _maskLayer.allowsEdgeAntialiasing = YES;
+    _maskLayer.magnificationFilter = kCAFilterLinear;
+    _maskLayer.minificationFilter = kCAFilterLinear;
     _maskLayer.position = CGPointMake(contentsBounds.size.width / 2, contentsBounds.size.height / 2);
     
     _imageCopyLayer = [CALayer layer];
@@ -423,10 +416,7 @@ extern NSString * const kBeatTrackedSampleTempoChangeNotification;
 
     CIFilter* fxFilter = [CIFilter filterWithName:@"CIZoomBlur"];
     [fxFilter setDefaults];
-    //CGPoint center = CGPointMake(contentsBounds.size.width / 2.0f, contentsBounds.size.height / 2.0f);
     [fxFilter setValue: [NSNumber numberWithFloat:0.0] forKey: @"inputAmount"];
-    //[fxFilter setValue: [NSValue valueWithPoint:center] forKey: @"inputCenter"];
-    //[fxFilter setValue: [NSNumber numberWithFloat:0.1] forKey: @"inputScale"];
 
     if ((_style & CoverViewStyleRotatingLaser) == CoverViewStyleRotatingLaser) {
         _imageLayer.filters = @[ bloomFilter ];
@@ -450,36 +440,19 @@ extern NSString * const kBeatTrackedSampleTempoChangeNotification;
         _overlayLayer.frame = _maskLayer.frame;
         _overlayLayer.compositingFilter = additionFilter;
         [_imageLayer addSublayer:_overlayLayer];
-
-//        _overlayLayer.backgroundFilters = @[ fxFilter ];
     }
 
     
 #ifndef HIDE_COVER_DEBBUG
     [layer addSublayer:_backingLayer];
 #endif
+
     _finalFxLayer = [CALayer layer];
     _finalFxLayer.frame = contentsBounds;
     _finalFxLayer.backgroundFilters = @[ fxFilter];
     _finalFxLayer.drawsAsynchronously = YES;
     [_backingLayer addSublayer:_finalFxLayer];
     
-
-//    NSImage* image = [NSImage resizedImage:[NSImage imageNamed:@"UnknownSong"] size:self.bounds.size];
-//    CIImage* ciImage = [CIImage imageWithCGImage:[image CGImageForProposedRect:nil context:nil hints:nil]];
-//    [fxFilter setValue:ciImage forKey: @"inputImage"];
-
-//        _finalFxLayer = [CALayer layer];
-//        //_glowLayer.contents = [self lightTunnelFilterImage:[input CG] withInputCenter:CGPointMake(self.bounds.size.width / 2.0, self.bounds.size.height / 2.0) inputRotation:0.0 inputRadius:0.0];
-//        _finalFxLayer.frame = CGRectInset(self.bounds, -100.0, -100.0);
-//    //    _glowLayer.frame = CGRectOffset(_glowLayer.frame, -50.0, -50.0);
-//        _finalFxLayer.autoresizingMask = kCALayerWidthSizable | kCALayerHeightSizable;
-//        _finalFxLayer.masksToBounds = YES;
-//        [_overlayLayer addSublayer:_finalFxLayer];
-//    //}
-//    
-    //    //if ((_style & CoverViewStyleGlowBehindCoverAtLaser) == CoverViewStyleGlowBehindCoverAtLaser) {
-
     return layer;
 }
 

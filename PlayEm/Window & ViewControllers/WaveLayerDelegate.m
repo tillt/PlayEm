@@ -73,6 +73,11 @@
         bottoms[sampleIndex] = bottom;
     }
 
+//    CGContextSetFillColorWithColor(context, [[NSColor blueColor] CGColor]);
+//    CGContextFillRect(context, layer.frame);
+
+    CGContextSetFillColorWithColor(context, self.fillColor.CGColor);
+
     CGContextSetLineCap(context, kCGLineCapRound);
     CGContextSetLineJoin(context, kCGLineJoinRound);
 

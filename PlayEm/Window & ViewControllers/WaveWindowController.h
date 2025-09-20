@@ -88,17 +88,24 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (id)init;
 + (NSURL*)encodeQueryItemsWithUrl:(NSURL*)url frame:(unsigned long long)frame playing:(BOOL)playing;
-- (void)setCurrentFrame:(unsigned long long)frame;
 - (BOOL)loadDocumentFromURL:(NSURL*)url meta:(nullable MediaMetaData*)meta;
 - (IBAction)loadITunesLibrary:(id)sender;
+
 - (IBAction)showPlaylist:(id)sender;
 - (IBAction)showAbout:(id)sender;
+- (IBAction)showIdentifier:(id)sender;
+
+
 - (IBAction)playNext:(id)sender;
 - (IBAction)playPrevious:(id)sender;
+
 - (IBAction)togglePause:(id)sender;
+
 - (IBAction)volumeIncrease:(id)sender;
 - (IBAction)volumeDecrease:(id)sender;
+
 - (IBAction)seekToFrame:(unsigned long long)frame;
+- (void)setCurrentFrame:(unsigned long long)frame;
 
 - (IBAction)skip1Beat:(id)sender;
 - (IBAction)repeat1Beat:(id)sender;

@@ -289,19 +289,23 @@
                     <modifierMask key="keyEquivalentModifierMask"/>
                     <menu key="submenu" title="View" id="HyV-fh-RgO">
                         <items>
-                            <menuItem title="Info" id="v5e-hV-TSp">
-                                <modifierMask key="keyEquivalentModifierMask"/>
+                            <menuItem title="Info" keyEquivalent="i" id="v5e-hV-TSp">
                                 <connections>
-                                    <action selector="showInfoForSelectedSongs:" target="-1" id="XcS-oG-crW"/>
+                                    <action selector="showInfoForCurrentSong:" target="-1" id="tgm-4U-0QI"/>
                                 </connections>
                             </menuItem>
-                            <menuItem title="Playlist" id="P7M-Th-XxO" userLabel="Playlist">
-                                <modifierMask key="keyEquivalentModifierMask"/>
+                            <menuItem title="Playlist" keyEquivalent="u" id="P7M-Th-XxO" userLabel="Playlist">
+                                <modifierMask key="keyEquivalentModifierMask" option="YES" command="YES"/>
                                 <connections>
                                     <action selector="showPlaylist:" target="-1" id="L5m-6j-mGT"/>
                                 </connections>
                             </menuItem>
-                            <menuItem isSeparatorItem="YES" id="n2v-0a-hOP"/>
+                            <menuItem title="Identify" keyEquivalent="i" id="5Ir-VV-gf3">
+                                <modifierMask key="keyEquivalentModifierMask" option="YES" command="YES"/>
+                                <connections>
+                                    <action selector="showIdentifier:" target="-1" id="arW-xx-XLn"/>
+                                </connections>
+                            </menuItem>
                             <menuItem isSeparatorItem="YES" id="MCV-IV-hSf"/>
                             <menuItem title="Enter Full Screen" keyEquivalent="f" id="4J7-dP-txa">
                                 <modifierMask key="keyEquivalentModifierMask" control="YES" command="YES"/>

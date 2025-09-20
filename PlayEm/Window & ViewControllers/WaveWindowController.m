@@ -1503,9 +1503,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     [self loadProgress:_controlPanelController.autoplayProgress state:LoadStateStopped value:0.0];
     
     _controlPanelController.playPause.state = active ? NSControlStateValueOn : NSControlStateValueOff;
-    NSLog(@"playback active: %d", (int)active);
     _identifyToolbarButton.enabled = active ? YES : NO;
-    //_browser.playPause = active ? NSControlStateValueOn : NSControlStateValueOff;
 }
 
 - (void)showInfoForMetas:(NSArray*)metas
@@ -1538,14 +1536,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
 {
     BOOL isShow = _effectBelowPlaylist.alphaValue <= 0.05f;
     
-//    NSArray<NSToolbarItem*>* items = self.window.toolbar.visibleItems;
-//    for (NSToolbarItem* item in items) {
-//        NSToolbarItemIdentifier ident = item.itemIdentifier;
-//        if ([ident isEqualToString:kPlaylistToolbarIdentifier]) {
-//        }
-//    }
-    
-//    kPlaylistToolbarIdentifier
+    _playlistToolbarButton.state = isShow ? NSControlStateValueOn : NSControlStateValueOff;
     
     if (isShow) {
         _effectBelowPlaylist.alphaValue = 1.0f;
@@ -1599,6 +1590,8 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
 
 - (void)showIdentifier:(id)sender
 {
+    _identifyToolbarButton.state = NSControlStateValueOn;
+    
     NSApplication* sharedApplication = [NSApplication sharedApplication];
  
     NSPanel* window = (NSPanel*)_identifyWindowController.window;
@@ -1704,24 +1697,6 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
 }
 
 #pragma mark - Splitter delegate
-
-//- (BOOL)splitView:(NSSplitView*)splitView shouldAdjustSizeOfSubview:(NSView*)view
-//{
-//    NSScrollView* sv = nil;
-//    if ([view isKindOfClass:[NSScrollView class]]) {
-//        NSScrollView* sv = (NSScrollView*)view;
-//        view = sv.documentView;
-//    }
-//
-//    NSLog(@"shouldAdjustSizeOfSubview: %@", view);
-//
-//    BOOL ret = view == _songsTable;
-//    if (ret)  {
-//        NSLog(@"YESSSS");
-//    }
-// //   assert(ret == NO);
-//    return YES;
-//}
 
 - (BOOL)splitView:(NSSplitView*)splitView canCollapseSubview:(NSView*)view
 {

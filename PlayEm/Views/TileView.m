@@ -8,6 +8,7 @@
 
 #import <QuartzCore/QuartzCore.h>
 #import "TileView.h"
+#import "../Defaults.h"
 
 @implementation TileView
 

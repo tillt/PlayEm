@@ -607,6 +607,7 @@ extern NSString * const kBeatTrackedSampleTempoChangeNotification;
     if ((_style & CoverViewStyleGlowBehindCoverAtLaser) == CoverViewStyleGlowBehindCoverAtLaser) {
         [_glowLayer removeAllAnimations];
     }
+    animating = NO;
 }
 
 - (void)resumeAnimating

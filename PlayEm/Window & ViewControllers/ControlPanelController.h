@@ -12,6 +12,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @class ScrollingTextView;
 @class MediaMetaData;
+@class SymbolButton;
 
 @protocol ControlPanelControllerDelegate <NSObject>
 
@@ -25,7 +26,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface ControlPanelController : NSTitlebarAccessoryViewController
 
-@property (strong, nonatomic) NSButton* playPause;
+@property (strong, nonatomic) SymbolButton* playPause;
 @property (strong, nonatomic) NSTextField* duration;
 @property (strong, nonatomic) NSTextField* time;
 @property (strong, nonatomic) NSTextField* bpm;

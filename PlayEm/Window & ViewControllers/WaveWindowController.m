@@ -41,6 +41,7 @@
 #import "NSAlert+BetterError.h"
 #import "MusicAuthenticationController.h"
 #import "EnergyDetector.h"
+#import "SymbolButton.h"
 
 static const float kShowHidePanelAnimationDuration = 0.3f;
 

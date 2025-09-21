@@ -16,6 +16,7 @@
 #import "../Views/IdentificationCoverView.h"
 #import "MediaMetaData.h"
 #import "BeatEvent.h"
+#import "../Views/SymbolButton.h"
 
 NSString * const kBPMDefault = @"";
 NSString * const kKeyDefault = @"";
@@ -84,7 +85,7 @@ extern NSString * const kPlaybackStatePlaying;
     NSLog(@"%s", __PRETTY_FUNCTION__);
     
     const CGFloat playPauseButtonY = 5.0;
-    const CGFloat playPauseButtonWidth = 35.0;
+    const CGFloat playPauseButtonWidth = 30.0;
     
     const CGFloat volumeSliderY = 10.0;
     
@@ -222,16 +223,48 @@ extern NSString * const kPlaybackStatePlaying;
 //    layer.opacity = 0.4;
 //    [_albumArtistView.layer addSublayer:layer];
     
-    _playPause = [NSButton buttonWithTitle:@"􀊄" target:_delegate action:@selector(togglePause:)];
-    _playPause.frame = NSMakeRect(_titleView.frame.origin.x + scrollingTextViewWidth + 70.0f,
-                                  playPauseButtonY,
-                                  playPauseButtonWidth,
-                                  largeSymbolFontSize + 2.0);
-    _playPause.bordered = NO;
-    _playPause.alternateTitle = @"􀊆";
-    [_playPause setButtonType: NSButtonTypeToggle];
-    _playPause.bezelStyle = NSBezelStyleTexturedRounded;
-    _playPause.font = [NSFont systemFontOfSize:largeSymbolFontSize];
+    _playPause = [[SymbolButton alloc] initWithFrame:CGRectMake(_titleView.frame.origin.x + scrollingTextViewWidth + 70.0f,
+                                                                playPauseButtonY,
+                                                                playPauseButtonWidth,
+                                                                largeSymbolFontSize + 2.0)];
+    
+    _playPause.symbolName = @"play.fill";
+    _playPause.alternateSymbolName = @"pause.fill";
+    _playPause.target = _delegate;
+    _playPause.action = @selector(togglePause:);
+    
+    
+//    NSImage* image = [NSImage imageWithSystemSymbolName:@"play.fill" accessibilityDescription:@"play"];
+//    NSImageSymbolConfiguration* config = [NSImageSymbolConfiguration configurationWithPointSize:100
+//                                                                                         weight:NSFontWeightBlack
+//                                                                                          scale:NSImageSymbolScaleLarge];
+//    NSImage* imageWithConfig = [image imageWithSymbolConfiguration:config];
+//    NSImageView* iv = [NSImageView imageViewWithImage:imageWithConfig];
+//
+//    iv.frame = CGRectMake(_titleView.frame.origin.x + scrollingTextViewWidth + 70.0f,
+//                                                            playPauseButtonY,
+//                                                            playPauseButtonWidth,
+//                                                            largeSymbolFontSize + 2.0);
+//    
+//    //[iv addSymb0o :[NSSymbolReplaceContentTransition transition] options:[NSSymbolEffectOptions options] animated:YES];
+//
+//    
+//    _playPause = iv;
+//    NSSymbolEffectOptions* o = [NSSymbolEffectOptions options];
+//    _playPause = [NSButton buttonWithTitle:@"􀊄" target:_delegate action:@selector(togglePause:)];
+//
+//
+//    _playPause.frame = NSMakeRect(_titleView.frame.origin.x + scrollingTextViewWidth + 70.0f,
+//                                  playPauseButtonY,
+//                                  playPauseButtonWidth,
+//                                  largeSymbolFontSize + 2.0);
+//    _playPause.bordered = NO;
+//    _playPause.alternateTitle = @"􀊆";
+//    [_playPause setButtonType: NSButtonTypeToggle];
+//    _playPause.bezelStyle = NSBezelStyleTexturedRounded;
+//    _playPause.font = [NSFont systemFontOfSize:largeSymbolFontSize];
+
+
     [self.view addSubview:_playPause];
 
     _autoplayProgress = [[NSProgressIndicator alloc] initWithFrame:NSMakeRect(_titleView.frame.origin.x + scrollingTextViewWidth + 54.0f,

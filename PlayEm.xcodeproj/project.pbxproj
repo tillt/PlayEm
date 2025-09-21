@@ -10,6 +10,7 @@
 		BB03622925FE57E800FA0A7E /* TotalWaveView.m in Sources */ = {isa = PBXBuildFile; fileRef = BB03622825FE57E800FA0A7E /* TotalWaveView.m */; };
 		BB097A092921967700D33E44 /* LevelIndicatorCell.m in Sources */ = {isa = PBXBuildFile; fileRef = BB097A082921967700D33E44 /* LevelIndicatorCell.m */; };
 		BB097A0C2921B1E500D33E44 /* ScrollingTextView.m in Sources */ = {isa = PBXBuildFile; fileRef = BB097A0B2921B1E500D33E44 /* ScrollingTextView.m */; };
+		BB09C23D2E8028FB00C506FC /* SymbolButton.m in Sources */ = {isa = PBXBuildFile; fileRef = BB09C23C2E8028FB00C506FC /* SymbolButton.m */; };
 		BB0C5D9327768D2400856978 /* MatrixUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = BB0C5D9227768D2400856978 /* MatrixUtilities.m */; };
 		BB0D5281244CEE22007C909F /* VisualSample.m in Sources */ = {isa = PBXBuildFile; fileRef = BB0D5280244CEE22007C909F /* VisualSample.m */; };
 		BB1614B92AACB0C300F6C5E6 /* libaubio.5.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = BB1614B82AACB0C300F6C5E6 /* libaubio.5.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
@@ -125,6 +126,8 @@
 		BB097A082921967700D33E44 /* LevelIndicatorCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = LevelIndicatorCell.m; sourceTree = "<group>"; };
 		BB097A0A2921B1E500D33E44 /* ScrollingTextView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ScrollingTextView.h; sourceTree = "<group>"; };
 		BB097A0B2921B1E500D33E44 /* ScrollingTextView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ScrollingTextView.m; sourceTree = "<group>"; };
+		BB09C23B2E8028FB00C506FC /* SymbolButton.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SymbolButton.h; path = PlayEm/Views/SymbolButton.h; sourceTree = SOURCE_ROOT; };
+		BB09C23C2E8028FB00C506FC /* SymbolButton.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = SymbolButton.m; path = PlayEm/Views/SymbolButton.m; sourceTree = SOURCE_ROOT; };
 		BB0C5D9127768D2400856978 /* MatrixUtilities.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MatrixUtilities.h; sourceTree = "<group>"; };
 		BB0C5D9227768D2400856978 /* MatrixUtilities.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MatrixUtilities.m; sourceTree = "<group>"; };
 		BB0D527F244CEE22007C909F /* VisualSample.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VisualSample.h; sourceTree = "<group>"; };
@@ -567,6 +570,8 @@
 				BB896FF22928874500B41809 /* TableHeaderCell.m */,
 				BB097A072921967700D33E44 /* LevelIndicatorCell.h */,
 				BB097A082921967700D33E44 /* LevelIndicatorCell.m */,
+				BB09C23B2E8028FB00C506FC /* SymbolButton.h */,
+				BB09C23C2E8028FB00C506FC /* SymbolButton.m */,
 			);
 			path = Controls;
 			sourceTree = "<group>";
@@ -692,6 +697,7 @@
 				BBC2AF7A2B8DF0960077EB5E /* NSAlert+BetterError.m in Sources */,
 				BB51C1E62E5A21750049355F /* TileLayerDelegate.m in Sources */,
 				BB9C77E52A8D5F7C00A138BE /* WaveView.m in Sources */,
+				BB09C23D2E8028FB00C506FC /* SymbolButton.m in Sources */,
 				BB539A592D0F51AF0095B8C7 /* KeyTrackedSample.mm in Sources */,
 				BB9D7C102E3E480E0018BA27 /* SampleFormat.h in Sources */,
 				BBF7982D2ADC4BAA00893533 /* NSString+BeautifulPast.m in Sources */,

@@ -43,6 +43,53 @@
     return self;
 }
 
+- (void)writeToDefaults
+{
+    NSUserDefaults* userDefaults = [NSUserDefaults standardUserDefaults];
+    NSMutableArray* bookmarks = [NSMutableArray array];
+
+    for (MediaMetaData* item in _list) {
+        NSError* error = nil;
+        NSData* bookmark = [item.location bookmarkDataWithOptions:NSURLBookmarkCreationWithSecurityScope
+                           includingResourceValuesForKeys:nil
+                                            relativeToURL:nil // Make it app-scoped
+                                                    error:&error];
+        NSLog(@"writing URL for item: %@", item);
+        if (error) {
+            NSLog(@"Error creating bookmark for URL (%@): %@", item.location, error);
+            continue;
+        }
+        [bookmarks addObject:bookmark];
+    }
+    [userDefaults setObject:bookmarks forKey:@"playlist"];
+}
+
+- (void)readFromDefaults
+{
+    NSUserDefaults* userDefaults = [NSUserDefaults standardUserDefaults];
+    NSArray* bookmarks = [userDefaults objectForKey:@"playlist"];
+
+    for (NSData* item in bookmarks) {
+        NSError* error = nil;
+        NSURL* url = [NSURL URLByResolvingBookmarkData:item
+                                               options:NSURLBookmarkResolutionWithSecurityScope
+                                         relativeToURL:nil
+                                   bookmarkDataIsStale:nil
+                                                 error:&error];
+        if (error) {
+            NSLog(@"Error reading bookmark: %@", error);
+            continue;
+        }
+        NSLog(@"reading URL for item: %@", url);
+        MediaMetaData* meta = [MediaMetaData mediaMetaDataWithURL:url error:&error];
+        if (error) {
+            NSLog(@"Error reading url: %@", error);
+            continue;
+        }
+        [_list addObject:meta];
+    }
+}
+
 - (NSInteger)numberOfRowsInTableView:(NSTableView*)tableView
 {
     return _history.count + _list.count;
@@ -185,21 +232,30 @@
     const int kTitleViewTag = 1;
     const int kArtistViewTag = 2;
     
-    const CGFloat kRowHeight = tableView.rowHeight;
-    const CGFloat kHalfRowHeight = round(tableView.rowHeight / 2.0);
-    const CGFloat kTitleFontSize = kHalfRowHeight - 4.0;
-    const CGFloat kArtistFontSize = kTitleFontSize - 4.0;
+    const CGFloat kRowInset = 8.0;
+    const CGFloat kRowHeight = tableView.rowHeight - kRowInset;
+    const CGFloat kHalfRowHeight = round(kRowHeight / 2.0);
 
-    NSLog(@"tableView: viewForTableColumn:%@ row:%ld", [tableColumn description], row);
     NSView* result = [tableView makeViewWithIdentifier:tableColumn.identifier owner:self];
     
     if (result == nil) {
         if ([tableColumn.identifier isEqualToString:@"CoverColumn"]) {
+            NSView* back = [[NSView alloc] initWithFrame:NSMakeRect(0.0,
+                                                                    0.0,
+                                                                    tableView.rowHeight,
+                                                                    tableView.rowHeight)];
             NSImageView* iv = [[NSImageView alloc] initWithFrame:NSMakeRect(0.0,
-                                                                            0.0,
+                                                                            round(kRowInset / 2.0),
                                                                             kRowHeight,
                                                                             kRowHeight)];
-            result = iv;
+
+            iv.wantsLayer = YES;
+            iv.layer.contentsScale = [[NSScreen mainScreen] backingScaleFactor];
+            iv.layer.cornerRadius = 3.0f;
+            iv.layer.masksToBounds = YES;
+
+            [back addSubview:iv];
+            result = back;
         } else {
             NSView* view = [[NSView alloc] initWithFrame:NSMakeRect(0.0,
                                                                     0.0,
@@ -211,7 +267,7 @@
                                                                             tableColumn.width,
                                                                             kHalfRowHeight)];
             tf.editable = NO;
-            tf.font = [NSFont systemFontOfSize:kTitleFontSize];
+            tf.font = [[Defaults sharedDefaults] largeFont];
             tf.drawsBackground = NO;
             tf.bordered = NO;
             tf.alignment = NSTextAlignmentLeft;
@@ -220,11 +276,11 @@
             [view addSubview:tf];
 
             tf = [[NSTextField alloc] initWithFrame:NSMakeRect(0.0,
-                                                               0.0,
+                                                               4.0,
                                                                tableColumn.width,
                                                                kHalfRowHeight - 2.0)];
             tf.editable = NO;
-            tf.font = [NSFont systemFontOfSize:kArtistFontSize];
+            tf.font = [[Defaults sharedDefaults] normalFont];
             tf.drawsBackground = NO;
             tf.bordered = NO;
             tf.alignment = NSTextAlignmentLeft;
@@ -240,14 +296,13 @@
     NSUInteger historyLength = _history.count;
 
     if ([tableColumn.identifier isEqualToString:@"CoverColumn"]) {
+        NSImageView* iv = (NSImageView*)result.subviews[0];
         if (row >= historyLength) {
-            assert(_list.count > row-historyLength);
-            NSImageView* iv = (NSImageView*)result;
+            //assert(_list.count > row-historyLength);
             iv.image = [NSImage resizedImage:[_list[row-historyLength] imageFromArtwork]
                                         size:iv.frame.size];
         } else {
             assert(_history.count > row);
-            NSImageView* iv = (NSImageView*)result;
             iv.image = [NSImage resizedImage:[_history[row] imageFromArtwork]
                                         size:iv.frame.size];
         }

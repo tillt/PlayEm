@@ -566,7 +566,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     const CGFloat totalWaveViewHeight = 46.0;
     const CGFloat scrollingWaveViewHeight = 158.0;
 
-    const CGFloat playlistFxViewWidth = 280.0f;
+    const CGFloat playlistFxViewWidth = 320.0f;
     const CGFloat statusLineHeight = 14.0f;
     const CGFloat searchFieldHeight = 25.0f;
     const CGFloat songsTableViewHeight = floor(totalHeight / 4.0f);
@@ -693,7 +693,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     _playlistTable.backgroundColor = [NSColor clearColor];
     _playlistTable.autoresizingMask = kViewFullySizeable;
     _playlistTable.headerView = nil;
-    _playlistTable.rowHeight = 36.0;
+    _playlistTable.rowHeight = 52.0;
     _playlistTable.allowsMultipleSelection = YES;
     _playlistTable.intercellSpacing = NSMakeSize(0.0, 0.0);
 
@@ -1244,6 +1244,8 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     if ([fullscreenValue boolValue]) {
         [self.window toggleFullScreen:self];
     }
+    
+    [_playlist readFromDefaults];
 }
 
 - (void)setupDisplayLink
@@ -1313,6 +1315,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     
     NSDocumentController* dc = [NSDocumentController sharedDocumentController];
     NSURL* recentURL = dc.recentDocumentURLs[0];
+
     NSLog(@"current file:%@", [recentURL filePathURL]);
     NSLog(@"current frame: %lld", currentFrame);
     
@@ -1339,10 +1342,10 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     }
     [userDefaults setObject:bookmark forKey:@"bookmark"];
     
+    [_playlist writeToDefaults];
+    
     // Abort all the async operations that might be in flight.
     [_audioController decodeAbortWithCallback:^{}];
-    //[BeatTrackedSample abort];
-    // Finish playback, if anything was ongoing.
 }
 
 - (void)windowDidEndLiveResize:(NSNotification *)notification

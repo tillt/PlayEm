@@ -31,8 +31,9 @@ NS_ASSUME_NONNULL_BEGIN
 @property (strong, nonatomic) NSColor* secondaryLabelColor;
 @property (strong, nonatomic) NSColor* tertiaryLabelColor;
 
-@property (strong, nonatomic) NSFont* normalFont;
 @property (strong, nonatomic) NSFont* smallFont;
+@property (strong, nonatomic) NSFont* normalFont;
+@property (strong, nonatomic) NSFont* largeFont;
 @property (strong, nonatomic) NSFont* bigFont;
 
 + (id)sharedDefaults;

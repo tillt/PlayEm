@@ -10,6 +10,7 @@
 
 static const CGFloat kSmallFontSize = 11.0f;
 static const CGFloat kNormalFontSize = 13.0f;
+static const CGFloat kLargeFontSize = 17.0f;
 static const CGFloat kBigFontSize = 24.0f;
 
 @implementation Defaults
@@ -86,6 +87,7 @@ static const CGFloat kBigFontSize = 24.0f;
         
         _normalFont = [NSFont systemFontOfSize:kNormalFontSize];
         _smallFont = [NSFont systemFontOfSize:kSmallFontSize];
+        _largeFont = [NSFont systemFontOfSize:kLargeFontSize];
         _bigFont = [NSFont systemFontOfSize:kBigFontSize];
 
     }

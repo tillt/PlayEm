@@ -492,11 +492,11 @@ const CGFloat kTableRowHeight = 52.0f;
     return NO;
 }
 
-+ (NSTextField*)textFieldWithFrame:(NSRect)frame size:(float)size color:(NSColor*)color
++ (NSTextField*)textFieldWithFrame:(NSRect)frame font:(NSFont*)font color:(NSColor*)color
 {
     NSTextField* title = [[NSTextField alloc] initWithFrame:frame];
     title.editable = NO;
-    title.font = [NSFont systemFontOfSize:size];
+    title.font = font;
     title.drawsBackground = NO;
     title.bordered = NO;
     title.usesSingleLineMode = YES;
@@ -515,6 +515,7 @@ const CGFloat kTableRowHeight = 52.0f;
     NSString* const buttonTitle = @"􀍠";
 
     const CGFloat kArtworkSize = kTableRowHeight - 2.0;
+
     const CGFloat kSmallFontSize = 11.0;
     const CGFloat kRegularFontSize = 13.0;
     const CGFloat kLargeFontSize = 17.0;
@@ -574,7 +575,7 @@ const CGFloat kTableRowHeight = 52.0f;
                                                                           ((kSmallFontSize + 4.0) * 2.0),
                                                                           tableColumn.width,
                                                                           kLargeFontSize + 3.0)
-                                                          size:kLargeFontSize
+                                                          font:[[Defaults sharedDefaults] largeFont]
                                                          color:[[Defaults sharedDefaults] lightFakeBeamColor]];
             [view addSubview:title];
             
@@ -582,7 +583,7 @@ const CGFloat kTableRowHeight = 52.0f;
                                                                            (kSmallFontSize + 2.0) + 3.0,
                                                                            tableColumn.width,
                                                                            kSmallFontSize + 2.0)
-                                                           size:kSmallFontSize
+                                                           font:[[Defaults sharedDefaults] smallFont]
                                                           color:[[Defaults sharedDefaults] secondaryLabelColor]];
             [view addSubview:artist];
             
@@ -590,7 +591,7 @@ const CGFloat kTableRowHeight = 52.0f;
                                                                           2.0,
                                                                           tableColumn.width,
                                                                           kSmallFontSize + 2.0)
-                                                          size:kSmallFontSize
+                                                          font:[[Defaults sharedDefaults] smallFont]
                                                          color:[[Defaults sharedDefaults] secondaryLabelColor]];
             [view addSubview:genre];
             

@@ -163,8 +163,8 @@ extern NSString * const kPlaybackStatePlaying;
 //    _coverButton.imagePosition = NSImageOnly;
     //_coverButton.imageScaling = NSImageScaleProportionallyUpOrDown;
 //    [_coverButton setButtonType: NSButtonTypeMomentaryPushIn];
-    _coverButton.layer.cornerRadius = 3;
-    _coverButton.layer.masksToBounds = YES;
+//    _coverButton.layer.cornerRadius = 3;
+//    _coverButton.layer.masksToBounds = YES;
     [self.view addSubview:_coverButton];
    
 //    CALayer* layer = [CALayer new];

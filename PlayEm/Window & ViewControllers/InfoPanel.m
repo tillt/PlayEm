@@ -73,6 +73,8 @@ static const CGFloat kViewLeftMargin = 10.0f;
 
 @property (strong, nonatomic) CALayer* effectLayer;
 
+@property (strong, nonatomic) NSVisualEffectView* effectBelowHeader;
+
 @end
 
 @implementation InfoPanelController
@@ -539,13 +541,6 @@ static const CGFloat kViewLeftMargin = 10.0f;
                                                     nil];
     [_largeCoverView registerForDraggedTypes:dragTypes];
     _largeCoverView.allowsCutCopyPaste = YES;
-    
-//    _effectLayer = [CALayer new];
-//    _effectLayer.backgroundFilters = @[ [InfoPanelController sharedBloomFilter] ];
-//    _effectLayer.frame = NSInsetRect(_largeCoverView.bounds, -10, -10);
-//    _effectLayer.masksToBounds = NO;
-//    _effectLayer.mask = [CAShapeLayer MaskLayerFromRect:_effectLayer.bounds];
-//    [_largeCoverView.layer addSublayer:_effectLayer];
 }
 
 - (void)loadLyricsWithView:(NSView*)view
@@ -585,34 +580,47 @@ static const CGFloat kViewLeftMargin = 10.0f;
 //    view.autoresizingMask = NSViewWidthSizable | NSViewHeightSizable;
 
     NSView* view = [[NSView alloc] initWithFrame:NSMakeRect(0.0,  0.0, self.preferredContentSize.width, self.preferredContentSize.height)];
+
+    const CGFloat headerHeight = 130.0f;
+    _effectBelowHeader = [[NSVisualEffectView alloc] initWithFrame:NSMakeRect(0,
+                                                                              self.preferredContentSize.height - (headerHeight - 30.0f),
+                                                                              self.preferredContentSize.width,
+                                                                              headerHeight)];
+    _effectBelowHeader.material = NSVisualEffectMaterialMenu;
+    _effectBelowHeader.autoresizingMask = NSViewHeightSizable | NSViewMinXMargin;
+    _effectBelowHeader.blendingMode = NSVisualEffectBlendingModeBehindWindow;
     
     CGFloat progressIndicatorWidth = 32;
     CGFloat progressIndicatorHeight = 32;
-    _progress = [[NSProgressIndicator alloc] initWithFrame:NSMakeRect((view.frame.size.width - progressIndicatorWidth) / 2.0,
-                                                                      view.frame.size.height - (progressIndicatorHeight + kViewTopMargin),
+    _progress = [[NSProgressIndicator alloc] initWithFrame:NSMakeRect((_effectBelowHeader.frame.size.width - progressIndicatorWidth) / 2.0,
+                                                                      _effectBelowHeader.frame.size.height - (progressIndicatorHeight + kViewTopMargin),
                                                                       progressIndicatorWidth,
                                                                       progressIndicatorHeight)];
     _progress.style = NSProgressIndicatorStyleSpinning;
     _progress.displayedWhenStopped = NO;
     _progress.autoresizingMask =  NSViewNotSizable | NSViewMinXMargin | NSViewMaxXMargin| NSViewMinYMargin | NSViewMaxYMargin;
     _progress.indeterminate = YES;
+    [_effectBelowHeader addSubview:_progress];
 
-    [view addSubview:_progress];
-
-    
     _smallCoverView = [NSImageView imageViewWithImage:[NSImage resizedImage:[NSImage imageNamed:@"UnknownSong"]
                                                                        size:NSMakeSize(imageWidth, imageWidth)]];
     _smallCoverView.alignment = NSViewHeightSizable | NSViewWidthSizable | NSViewMinYMargin | NSViewMaxYMargin;
     _smallCoverView.imageScaling = NSImageScaleProportionallyUpOrDown;
-    _smallCoverView.frame = CGRectMake( kViewTopMargin,
-                                        kViewLeftMargin + self.preferredContentSize.height - imageWidth,
+    _smallCoverView.frame = CGRectMake( kViewLeftMargin + kViewLeftMargin,
+                                        _effectBelowHeader.frame.size.height - (imageWidth + kViewTopMargin),
                                         imageWidth,
                                         imageWidth);
-    [view addSubview:_smallCoverView];
+    _smallCoverView.wantsLayer = YES;
+    _smallCoverView.layer.borderColor = [NSColor separatorColor].CGColor;
+    _smallCoverView.layer.borderWidth = 2.0f;
+    _smallCoverView.layer.cornerRadius = 7.0f;
+    _smallCoverView.layer.masksToBounds = YES;
 
-    CGFloat x = imageWidth + 30.0;
-    CGFloat fieldWidth = view.frame.size.width - (imageWidth + 40.0);
-    CGFloat y = view.frame.size.height - 30.0;
+    [_effectBelowHeader addSubview:_smallCoverView];
+
+    CGFloat x = imageWidth + kViewLeftMargin + kViewLeftMargin + kViewLeftMargin;
+    CGFloat fieldWidth = _effectBelowHeader.frame.size.width - (imageWidth + 40.0);
+    CGFloat y = _effectBelowHeader.frame.size.height - (kViewTopMargin + kViewTopMargin + kBigFontSize);
 
     NSTextField* textField = [NSTextField textFieldWithString:@""];
     textField.bordered = NO;
@@ -628,7 +636,7 @@ static const CGFloat kViewLeftMargin = 10.0f;
                                  y,
                                  fieldWidth,
                                  kBigFontSize + kRowInset);
-    [view addSubview:textField];
+    [_effectBelowHeader addSubview:textField];
     self.titleTextField = textField;
 
     y -= kBigFontSize + kRowInset - 10.0f;
@@ -647,7 +655,7 @@ static const CGFloat kViewLeftMargin = 10.0f;
                                  y,
                                  fieldWidth,
                                  kNormalFontSize + kRowInset);
-    [view addSubview:textField];
+    [_effectBelowHeader addSubview:textField];
     self.artistTextField = textField;
 
     y -= kNormalFontSize + kRowInset;
@@ -667,8 +675,10 @@ static const CGFloat kViewLeftMargin = 10.0f;
                                  y,
                                  fieldWidth,
                                  kNormalFontSize + kRowInset);
-    [view addSubview:textField];
+    [_effectBelowHeader addSubview:textField];
     self.albumTextField = textField;
+
+    [view addSubview:_effectBelowHeader];
 
     y = 10.0;
     x = view.frame.size.width - 200.0;
@@ -700,6 +710,25 @@ static const CGFloat kViewLeftMargin = 10.0f;
                                                                self.view.frame.size.width,
                                                                self.view.frame.size.height - (100.0 + (kViewTopMargin * 2)))];
     self.tabView.delegate = self;
+    self.tabView.tabViewBorderType = NSTabViewBorderTypeBezel;
+    self.tabView.drawsBackground = YES;
+    // For some weird reason the NSColour windowBack.. etc colours do not seem to be
+    // actual colours - but just transparent. So we hardcode something here for now.
+    //
+//    self.tabView.backgroundColor = [NSColor colorWithDeviceRed:228.f/255
+//                                                     green:228.f/255
+//                                                      blue:228.f/255
+//                                                     alpha:1];
+//    
+//    if (windowBackgroundColor == nil) {
+//        self.windowBackgroundColor = [NSColor colorWithDeviceRed:237.f/255
+//                                                           green:237.f/255
+//                                                            blue:237.f/255
+//                                                           alpha:1];
+//    }
+//    
+//    if (bezelColor == nil)
+//        self.bezelColor = [NSColor darkGrayColor];
     
     NSViewController* vc = [NSViewController new];
     self.detailsTabViewItem = [NSTabViewItem tabViewItemWithViewController:vc];

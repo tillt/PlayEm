@@ -371,7 +371,7 @@ extern NSString * const kBeatTrackedSampleTempoChangeNotification;
     _imageCopyLayer.contents = [NSImage resizedImage:[NSImage imageNamed:@"UnknownSong"]
                                                 size:contentsBounds.size];
     _imageCopyLayer.autoresizingMask = kCALayerWidthSizable | kCALayerHeightSizable;
-    _imageCopyLayer.cornerRadius = 7.0f;
+    //_imageCopyLayer.cornerRadius = 7.0f;
     _imageCopyLayer.allowsEdgeAntialiasing = YES;
     _imageCopyLayer.contentsScale = [[NSScreen mainScreen] backingScaleFactor];
     _imageCopyLayer.frame = contentsBounds;
@@ -402,7 +402,7 @@ extern NSString * const kBeatTrackedSampleTempoChangeNotification;
     _imageLayer.drawsAsynchronously = YES;
     _imageLayer.rasterizationScale = layer.contentsScale;
     _imageLayer.contentsScale = [[NSScreen mainScreen] backingScaleFactor];
-    _imageLayer.cornerRadius = 7.0f;
+    //_imageLayer.cornerRadius = 7.0f;
     _imageLayer.frame = contentsBounds;
     _imageLayer.masksToBounds = YES;
     if ((_style & CoverViewStyleGlowBehindCoverAtLaser) == CoverViewStyleGlowBehindCoverAtLaser) {

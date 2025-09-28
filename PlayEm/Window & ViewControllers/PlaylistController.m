@@ -51,9 +51,9 @@
     for (MediaMetaData* item in _list) {
         NSError* error = nil;
         NSData* bookmark = [item.location bookmarkDataWithOptions:NSURLBookmarkCreationWithSecurityScope
-                           includingResourceValuesForKeys:nil
-                                            relativeToURL:nil // Make it app-scoped
-                                                    error:&error];
+                                   includingResourceValuesForKeys:nil
+                                                    relativeToURL:nil // Make it app-scoped
+                                                            error:&error];
         NSLog(@"writing URL for item: %@", item);
         if (error) {
             NSLog(@"Error creating bookmark for URL (%@): %@", item.location, error);
@@ -270,6 +270,8 @@
             tf.font = [[Defaults sharedDefaults] largeFont];
             tf.drawsBackground = NO;
             tf.bordered = NO;
+            tf.cell.truncatesLastVisibleLine = YES;
+            tf.cell.lineBreakMode = NSLineBreakByTruncatingTail;
             tf.alignment = NSTextAlignmentLeft;
             tf.textColor = [[Defaults sharedDefaults] secondaryLabelColor];
             tf.tag = kTitleViewTag;
@@ -282,6 +284,8 @@
             tf.editable = NO;
             tf.font = [[Defaults sharedDefaults] normalFont];
             tf.drawsBackground = NO;
+            tf.cell.truncatesLastVisibleLine = YES;
+            tf.cell.lineBreakMode = NSLineBreakByTruncatingTail;
             tf.bordered = NO;
             tf.alignment = NSTextAlignmentLeft;
             tf.textColor = [[Defaults sharedDefaults] secondaryLabelColor];

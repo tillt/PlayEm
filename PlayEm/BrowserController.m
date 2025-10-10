@@ -174,6 +174,11 @@ NSString* const kSongsColGenre = @"GenreCell";
 
 - (void)reloadData
 {
+    if (_cachedLibrary == nil) {
+        NSLog(@"we dont have a cached library just yet - reload will happen when that is established");
+        return;
+    }
+
     NSArray<NSSortDescriptor*>* descriptors = [_songsTable sortDescriptors];
     
     BrowserController* __weak weakSelf = self;

@@ -20,7 +20,6 @@
 const CGFloat kDirectWaveViewTileWidth = 256.0f;
 
 @interface WaveScrollView () // Private
-@property (nonatomic, strong) NSMutableArray* reusableViews;
 - (void)updateTiles;
 @end
 
@@ -36,6 +35,7 @@ const CGFloat kDirectWaveViewTileWidth = 256.0f;
         self.backgroundColor = [[Defaults sharedDefaults] backColor];
         
         self.allowsMagnification = NO;
+        self.canDrawConcurrently = YES;
         
         self.horizontal = YES;
         
@@ -131,7 +131,6 @@ const CGFloat kDirectWaveViewTileWidth = 256.0f;
 {
     NSSize tileSize = { kDirectWaveViewTileWidth, self.bounds.size.height };
 
-    NSMutableArray* reusableViews = self.reusableViews;
     NSRect documentVisibleRect = self.documentVisibleRect;
     // Lie to get the last tile invisilbe, always. That way we wont regularly
     // see updates of the right most tile when the scrolling follows playback.
@@ -155,14 +154,15 @@ const CGFloat kDirectWaveViewTileWidth = 256.0f;
     assert(self.documentView != nil);
 
     // See if we already have subviews that cover these needed frames.
-    NSArray<NSView*>* screenTiles = [[self.documentView subviews] copy];
+    NSArray<TileView*>* screenTiles = [[self.documentView subviews] copy];
 
-    for (NSView* subview in screenTiles) {
+    for (TileView* subview in screenTiles) {
+//        assert(subview.frame.size.width < 512);
         NSValue* frameRectVal = [NSValue valueWithRect:subview.frame];
         // If we don't need this one any more.
         if (![neededTileFrames containsObject:frameRectVal]) {
             // Then recycle it.
-            [reusableViews addObject:subview];
+            [self.reusableViews addObject:subview];
             [subview removeFromSuperview];
         } else {
             // Take this frame rect off the to-do list.
@@ -172,36 +172,16 @@ const CGFloat kDirectWaveViewTileWidth = 256.0f;
 
     // Add needed tiles from the to-do list.
     for (NSValue* neededFrame in neededTileFrames) {
-        CALayer* overheadLayer = nil;
-        TileView* view = [reusableViews lastObject];
-        [reusableViews removeLastObject];
+        TileView* view = [self.reusableViews lastObject];
+        [self.reusableViews removeLastObject];
 
         // Create one if we did not find a reusable one.
         if (nil == view) {
-            view = [self createTile];
-
-            overheadLayer = [CALayer layer];
-            overheadLayer.masksToBounds = NO;
-            overheadLayer.drawsAsynchronously = YES;
-            overheadLayer.delegate = ((WaveView*)self.documentView).beatLayerDelegate;
-            [view.layer addSublayer:overheadLayer];
-        } else {
-            assert(view.layer);
-            overheadLayer = view.layer.sublayers[0];
-            assert(overheadLayer);
+            view = [[TileView alloc] initWithFrame:NSZeroRect layerDelegate:self.layerDelegate overlayLayerDelegate:self.beatLayerDelegate];
         }
 
         // Place it and install it.
         view.frame = [neededFrame rectValue];
-        //view.layer.frame = [neededFrame rectValue];
-        overheadLayer.frame = CGRectMake(0.0, 0.0, view.frame.size.width, view.frame.size.height);
-
-        assert(view.layer);
-        [view.layer setNeedsDisplay];
-
-        assert(overheadLayer);
-        [overheadLayer setNeedsDisplay];
-
         [self.documentView addSubview:view];
     }
 }

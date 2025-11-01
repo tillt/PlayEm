@@ -11,6 +11,10 @@
 		BB097A092921967700D33E44 /* LevelIndicatorCell.m in Sources */ = {isa = PBXBuildFile; fileRef = BB097A082921967700D33E44 /* LevelIndicatorCell.m */; };
 		BB097A0C2921B1E500D33E44 /* ScrollingTextView.m in Sources */ = {isa = PBXBuildFile; fileRef = BB097A0B2921B1E500D33E44 /* ScrollingTextView.m */; };
 		BB09C23D2E8028FB00C506FC /* SymbolButton.m in Sources */ = {isa = PBXBuildFile; fileRef = BB09C23C2E8028FB00C506FC /* SymbolButton.m */; };
+		BB0A62C62E88331600BAF444 /* TrackList.m in Sources */ = {isa = PBXBuildFile; fileRef = BB0A62C52E88331600BAF444 /* TrackList.m */; };
+		BB0A62C92E8855C200BAF444 /* IdentifiedTrack.m in Sources */ = {isa = PBXBuildFile; fileRef = BB0A62C82E8855C200BAF444 /* IdentifiedTrack.m */; };
+		BB0A62CE2E88796A00BAF444 /* TracklistController.m in Sources */ = {isa = PBXBuildFile; fileRef = BB0A62CD2E88796500BAF444 /* TracklistController.m */; };
+		BB0A62D52EAD690A00BAF444 /* TODO.md in Resources */ = {isa = PBXBuildFile; fileRef = BB0A62D42EAD690A00BAF444 /* TODO.md */; };
 		BB0C5D9327768D2400856978 /* MatrixUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = BB0C5D9227768D2400856978 /* MatrixUtilities.m */; };
 		BB0D5281244CEE22007C909F /* VisualSample.m in Sources */ = {isa = PBXBuildFile; fileRef = BB0D5280244CEE22007C909F /* VisualSample.m */; };
 		BB1614B92AACB0C300F6C5E6 /* libaubio.5.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = BB1614B82AACB0C300F6C5E6 /* libaubio.5.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
@@ -35,7 +39,6 @@
 		BB46D4B22D99AD5E0090CD56 /* NSImage+Average.m in Sources */ = {isa = PBXBuildFile; fileRef = BB46D4B12D99AD5E0090CD56 /* NSImage+Average.m */; };
 		BB51C1E02E59C1990049355F /* WaveScrollView.m in Sources */ = {isa = PBXBuildFile; fileRef = BB51C1DF2E59C1990049355F /* WaveScrollView.m */; };
 		BB51C1E22E59DAA50049355F /* TileView.m in Sources */ = {isa = PBXBuildFile; fileRef = BB51C1E12E59DAA50049355F /* TileView.m */; };
-		BB51C1E62E5A21750049355F /* TileLayerDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = BB51C1E52E5A21750049355F /* TileLayerDelegate.m */; };
 		BB51C1E92E5A4A320049355F /* CreditsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = BB51C1E82E5A4A320049355F /* CreditsViewController.m */; };
 		BB51C1F12E5D18940049355F /* credits.rtf in Resources */ = {isa = PBXBuildFile; fileRef = BB51C1F02E5D18940049355F /* credits.rtf */; };
 		BB539A592D0F51AF0095B8C7 /* KeyTrackedSample.mm in Sources */ = {isa = PBXBuildFile; fileRef = BB539A582D0F51AF0095B8C7 /* KeyTrackedSample.mm */; };
@@ -128,6 +131,13 @@
 		BB097A0B2921B1E500D33E44 /* ScrollingTextView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ScrollingTextView.m; sourceTree = "<group>"; };
 		BB09C23B2E8028FB00C506FC /* SymbolButton.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SymbolButton.h; path = PlayEm/Views/SymbolButton.h; sourceTree = SOURCE_ROOT; };
 		BB09C23C2E8028FB00C506FC /* SymbolButton.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = SymbolButton.m; path = PlayEm/Views/SymbolButton.m; sourceTree = SOURCE_ROOT; };
+		BB0A62C42E88331600BAF444 /* TrackList.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TrackList.h; sourceTree = "<group>"; };
+		BB0A62C52E88331600BAF444 /* TrackList.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TrackList.m; sourceTree = "<group>"; };
+		BB0A62C72E88554D00BAF444 /* IdentifiedTrack.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IdentifiedTrack.h; sourceTree = "<group>"; };
+		BB0A62C82E8855C200BAF444 /* IdentifiedTrack.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = IdentifiedTrack.m; sourceTree = "<group>"; };
+		BB0A62CC2E88791400BAF444 /* TracklistController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TracklistController.h; sourceTree = "<group>"; };
+		BB0A62CD2E88796500BAF444 /* TracklistController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TracklistController.m; sourceTree = "<group>"; };
+		BB0A62D42EAD690A00BAF444 /* TODO.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = TODO.md; sourceTree = "<group>"; };
 		BB0C5D9127768D2400856978 /* MatrixUtilities.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MatrixUtilities.h; sourceTree = "<group>"; };
 		BB0C5D9227768D2400856978 /* MatrixUtilities.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MatrixUtilities.m; sourceTree = "<group>"; };
 		BB0D527F244CEE22007C909F /* VisualSample.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VisualSample.h; sourceTree = "<group>"; };
@@ -168,8 +178,6 @@
 		BB51C1DF2E59C1990049355F /* WaveScrollView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WaveScrollView.m; sourceTree = "<group>"; };
 		BB51C1E12E59DAA50049355F /* TileView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TileView.m; sourceTree = "<group>"; };
 		BB51C1E32E59DAFE0049355F /* TileView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TileView.h; sourceTree = "<group>"; };
-		BB51C1E42E5A21750049355F /* TileLayerDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TileLayerDelegate.h; sourceTree = "<group>"; };
-		BB51C1E52E5A21750049355F /* TileLayerDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TileLayerDelegate.m; sourceTree = "<group>"; };
 		BB51C1E72E5A4A320049355F /* CreditsViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CreditsViewController.h; sourceTree = "<group>"; };
 		BB51C1E82E5A4A320049355F /* CreditsViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CreditsViewController.m; sourceTree = "<group>"; };
 		BB51C1F02E5D18940049355F /* credits.rtf */ = {isa = PBXFileReference; lastKnownFileType = text.rtf; path = credits.rtf; sourceTree = "<group>"; };
@@ -376,7 +384,6 @@
 				BBAC78962DBC47B800640C19 /* EnergyDetector.m */,
 				BB2A34A22D23735F006BF132 /* ConstantBeatRefiner.h */,
 				BB2A34A02D2372CC006BF132 /* ConstantBeatRefiner.m */,
-				BB9401862AD0974900B7B150 /* AcceleratedBiquadFilter.h */,
 				BB9401872AD0974900B7B150 /* AcceleratedBiquadFilter.m */,
 			);
 			path = Sample;
@@ -389,14 +396,16 @@
 				BB2CB5642481A92600D47258 /* WaveWindowController.m */,
 				BBB37D1F290F4A7E0007A6BB /* PlaylistController.h */,
 				BBB37D20290F4A7E0007A6BB /* PlaylistController.m */,
+				BB0A62CC2E88791400BAF444 /* TracklistController.h */,
+				BB0A62CD2E88796500BAF444 /* TracklistController.m */,
 				BBE5FEB32A892A410001B807 /* BeatLayerDelegate.h */,
 				BBE5FEB42A892A410001B807 /* BeatLayerDelegate.m */,
 				BBDEBD3B2A99417A0085E6D8 /* WaveLayerDelegate.h */,
 				BBDEBD3C2A99417A0085E6D8 /* WaveLayerDelegate.m */,
-				BB51C1E42E5A21750049355F /* TileLayerDelegate.h */,
-				BB51C1E52E5A21750049355F /* TileLayerDelegate.m */,
 				BBA456DF29395B970062D470 /* IdentifyViewController.h */,
 				BBA456E029395B970062D470 /* IdentifyViewController.m */,
+				BB0A62C82E8855C200BAF444 /* IdentifiedTrack.m */,
+				BB0A62C72E88554D00BAF444 /* IdentifiedTrack.h */,
 				BB51C1E72E5A4A320049355F /* CreditsViewController.h */,
 				BB51C1E82E5A4A320049355F /* CreditsViewController.m */,
 				BB7C626A2932E1540019AF25 /* ControlPanelController.h */,
@@ -426,6 +435,8 @@
 				BBC43B7228D296B800CD1080 /* AVMetadataItem+THAdditions.m */,
 				BBC2AF712B8B5ACA0077EB5E /* MediaMetaData+AVAsset.h */,
 				BBC2AF722B8B5B5A0077EB5E /* MediaMetaData+AVAsset.m */,
+				BB0A62C42E88331600BAF444 /* TrackList.h */,
+				BB0A62C52E88331600BAF444 /* TrackList.m */,
 			);
 			path = Metadata;
 			sourceTree = "<group>";
@@ -519,7 +530,9 @@
 				BBD24D612432948800DC2A81 /* AppDelegate.m */,
 				BBD24D632432948B00DC2A81 /* Assets.xcassets */,
 				BBECB0242D4FF33E00C6A6F3 /* LargeRastaPattern.png */,
+				BB9401862AD0974900B7B150 /* AcceleratedBiquadFilter.h */,
 				BB51C1F02E5D18940049355F /* credits.rtf */,
+				BB0A62D42EAD690A00BAF444 /* TODO.md */,
 				BBD24D682432948B00DC2A81 /* Info.plist */,
 				BBD24D692432948B00DC2A81 /* main.m */,
 				BBD24D6B2432948B00DC2A81 /* PlayEm.entitlements */,
@@ -639,6 +652,7 @@
 			files = (
 				BB51C1F12E5D18940049355F /* credits.rtf in Resources */,
 				BBECB0252D4FF33E00C6A6F3 /* LargeRastaPattern.png in Resources */,
+				BB0A62D52EAD690A00BAF444 /* TODO.md in Resources */,
 				BBDB1B3D2B640AA700A953F7 /* build_dmg.sh in Resources */,
 				BB8571032972152B0004218B /* README.md in Resources */,
 				BBD24D642432948B00DC2A81 /* Assets.xcassets in Resources */,
@@ -695,7 +709,6 @@
 				BB8A100C290586E500FC6013 /* CAShapeLayer+Path.m in Sources */,
 				BB9401882AD0974900B7B150 /* AcceleratedBiquadFilter.m in Sources */,
 				BBC2AF7A2B8DF0960077EB5E /* NSAlert+BetterError.m in Sources */,
-				BB51C1E62E5A21750049355F /* TileLayerDelegate.m in Sources */,
 				BB9C77E52A8D5F7C00A138BE /* WaveView.m in Sources */,
 				BB09C23D2E8028FB00C506FC /* SymbolButton.m in Sources */,
 				BB539A592D0F51AF0095B8C7 /* KeyTrackedSample.mm in Sources */,
@@ -709,6 +722,7 @@
 				BB46D4B22D99AD5E0090CD56 /* NSImage+Average.m in Sources */,
 				BBCE1DD9257C3CAB006CE886 /* TiledScrollView.m in Sources */,
 				BBDC988A250E81D0008B19D1 /* BrowserController.m in Sources */,
+				BB0A62CE2E88796A00BAF444 /* TracklistController.m in Sources */,
 				BBC43B7028D28CDD00CD1080 /* InfoPanel.m in Sources */,
 				BB03622925FE57E800FA0A7E /* TotalWaveView.m in Sources */,
 				BB3927092C1BA8BD009C7B32 /* NSURL+WithoutParameters.m in Sources */,
@@ -732,6 +746,7 @@
 				BB2A34A12D2372CC006BF132 /* ConstantBeatRefiner.m in Sources */,
 				BB26B51129442E9A006EBAA7 /* AudioProcessing.m in Sources */,
 				BBDBBA7B2BA4B013003A80C1 /* WaveShaders.metal in Sources */,
+				BB0A62C92E8855C200BAF444 /* IdentifiedTrack.m in Sources */,
 				BB2CB58724827A0900D47258 /* AudioController.mm in Sources */,
 				BB96D1E12D30748400AD48A5 /* AudioDevice.m in Sources */,
 				BB2CB5652481A92600D47258 /* WaveWindowController.m in Sources */,
@@ -739,6 +754,7 @@
 				BB8A100728FF49E400FC6013 /* Scroller.m in Sources */,
 				BBDBBA792BA3AF9F003A80C1 /* DragImageFileView.m in Sources */,
 				BBE2846D246765BD00BE9D7F /* Shaders.metal in Sources */,
+				BB0A62C62E88331600BAF444 /* TrackList.m in Sources */,
 				BBC2AF4B2B8974C20077EB5E /* MediaMetaData+TagLib.m in Sources */,
 				BB8197702B7980C50025B860 /* ConcurrentAccessDictionary.m in Sources */,
 				BB097A0C2921B1E500D33E44 /* ScrollingTextView.m in Sources */,

@@ -7,6 +7,7 @@
 //
 #include <stdlib.h>
 #import "MediaMetaData.h"
+#import "TrackList.h"
 
 #import <AVFoundation/AVFoundation.h>
 #import <iTunesLibrary/ITLibArtist.h>
@@ -442,6 +443,15 @@ NSString* const kMediaMetaDataMapTypeNumber = @"number";
     };
     
     return mimeMap[@(format)];
+}
+
+- (id)init
+{
+    self = [super init];
+    if (self) {
+        _trackList = [TrackList new];
+    }
+    return self;
 }
 
 - (NSString*)mimeTypeForArtwork
@@ -1148,6 +1158,7 @@ NSString* const kMediaMetaDataMapTypeNumber = @"number";
 {
     MediaMetaDataFileFormatType type = [MediaMetaData fileTypeWithURL:self.location error:error];
     
+    // We are using taglib for anything MP4 for which we use the system provided functions.
     BOOL ret = NO;
     if (type == MediaMetaDataFileFormatTypeMP3) {
         ret = [self readFromMP3FileWithError:error] == 0;
@@ -1162,6 +1173,27 @@ NSString* const kMediaMetaDataMapTypeNumber = @"number";
         _key = [MediaMetaData correctedKeyNotation:_key];
     }
     return ret;
+}
+
+- (NSString*)pathForTemporaryFileWithPrefix:(NSString*)prefix
+{
+    NSString* result;
+    CFUUIDRef uuid;
+    CFStringRef uuidStr;
+
+    uuid = CFUUIDCreate(NULL);
+    assert(uuid != NULL);
+
+    uuidStr = CFUUIDCreateString(NULL, uuid);
+    assert(uuidStr != NULL);
+
+    result = [NSTemporaryDirectory() stringByAppendingPathComponent:[NSString stringWithFormat:@"%@-%@", prefix, uuidStr]];
+    assert(result != nil);
+
+    CFRelease(uuidStr);
+    CFRelease(uuid);
+
+    return result;
 }
 
 - (BOOL)writeToFileWithError:(NSError**)error
@@ -1187,8 +1219,29 @@ NSString* const kMediaMetaDataMapTypeNumber = @"number";
     if (type == MediaMetaDataFileFormatTypeMP3) {
         return [self writeToMP3FileWithError:error] == 0;
     }
+
     if (type == MediaMetaDataFileFormatTypeMP4) {
-        return [self writeToMP4FileWithError:error] == 0;
+        if ([self writeToMP4FileWithError:error] == 0) {
+            NSString* tempFilePath = [self pathForTemporaryFileWithPrefix:@"PlayEm"];
+            NSURL* tempFileUrl = [[NSURL URLWithString:tempFilePath] URLByAppendingPathExtension:@"mp4"];
+
+            NSArray<NSDictionary*>* chapters = @[
+               @{@"title": @"Intro", @"time": @(0)},
+               @{@"title": @"Scene 1", @"time": @(60)},
+               @{@"title": @"Scene 2", @"time": @(120)}
+            ];
+
+            [self addChaptersToAudioFileAtURL:self.location
+                                    outputURL:tempFileUrl];
+/*
+            if ([self addChapterMarksToMP4:self.location
+                               outputURL:tempFileUrl
+                                chapters:chapters
+                                     error:error] == 0) {
+                return YES;
+            }
+ */
+        }
     }
     
     NSString* description = [NSString stringWithFormat:@"Unsupported filetype for modifying metadata"];

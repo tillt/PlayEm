@@ -456,7 +456,7 @@ NSString* const kSongsColGenre = @"GenreCell";
     dispatch_async(_filterQueue, ^{
         //[_delegate loadLibraryState:LoadStateStarted value:0.0];
         
-        NSMutableArray<MediaMetaData*>* cachedLibrary = [self cacheFromiTunesLibrary:weakSelf.library];
+        NSMutableArray<MediaMetaData*>* cachedLibrary = [weakSelf cacheFromiTunesLibrary:weakSelf.library];
         
         // Apply sorting.
         weakSelf.filteredItems = [cachedLibrary sortedArrayUsingDescriptors:descriptors];

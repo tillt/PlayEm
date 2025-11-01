@@ -12,6 +12,11 @@
 #import "TiledScrollView.h"
 #import "WaveView.h"
 #import "Defaults.h"
+#import "../Sample/LazySample.h"
+
+@interface BeatLayerDelegate()
+
+@end
 
 @implementation BeatLayerDelegate
 {
@@ -19,46 +24,65 @@
 
 #pragma mark Layer delegate
 
+- (void)setBeatSample:(BeatTrackedSample *)beatSample
+{
+    if (beatSample == _beatSample) {
+        return;
+    }
+    _beatSample = beatSample;
+    assert(self.waveView.frame.size.width > 0);
+}
+
 - (void)drawLayer:(CALayer*)layer inContext:(CGContextRef)context
 {
     if (_waveView == nil || _beatSample == nil || layer.frame.origin.x < 0) {
         return;
     }
-    const double framesPerPixel = _beatSample.framesPerPixel;
 
     CGContextSetAllowsAntialiasing(context, YES);
     CGContextSetShouldAntialias(context, YES);
 
-    CGFloat start = layer.superlayer.frame.origin.x > 0 ? layer.superlayer.frame.origin.x : 0.0f;
+    double framesPerPixel = _beatSample.sample.frames / _waveView.frame.size.width;
 
-    NSData* buffer = [_beatSample beatsFromOrigin:start];
-    if (buffer == nil) {
-        NSLog(@"beat buffer from screen position %f not yet available", start);
+    CGFloat start = layer.superlayer.frame.origin.x > 0 ? layer.superlayer.frame.origin.x : 0.0f;
+    const CGFloat end = start + layer.frame.size.width;
+
+    const unsigned long long frameOffset = floor(start * framesPerPixel);
+    unsigned long long currentBeatIndex = [_beatSample firstBeatIndexAfterFrame:frameOffset];
+    if (currentBeatIndex == ULONG_LONG_MAX) {
+        NSLog(@"beat buffer from frame %lld (screen %f) not yet available", frameOffset, start);
         return;
     }
-    
-    BeatEvent* events = (BeatEvent*)buffer.bytes;
-    const float maxBeatCount = buffer.length / sizeof(BeatEvent);
-    
-    CGColorRef barColor = [[[Defaults sharedDefaults] barColor] CGColor];
-    CGColorRef beatColor = [[[Defaults sharedDefaults] beatColor] CGColor];
 
-    CGContextSetLineWidth(context, 3.0);
-    
-    for (unsigned int beatIndex = 0; beatIndex < maxBeatCount; beatIndex++) {
-        const CGFloat x = floor((events[beatIndex].frame / framesPerPixel) - start);
-        assert(x <= 256.0);
+    const unsigned long long beatCount = [_beatSample beatCount];
+    assert(beatCount > 0 && beatCount != ULONG_LONG_MAX);
 
-        CGColorRef color = (events[beatIndex].style & BeatEventStyleBar) == BeatEventStyleBar ?
+    while (currentBeatIndex < beatCount) {
+        BeatEvent currentEvent;
+        [_beatSample getBeat:&currentEvent at:currentBeatIndex++];
+        
+        const CGFloat x = floor((currentEvent.frame / framesPerPixel) - start);
+        if (x > end - start) {
+            break;
+        }
+        
+        if ((currentEvent.style & _beatMask) == 0) {
+            continue;
+        }
+        
+        CGColorRef barColor = [[[Defaults sharedDefaults] barColor] CGColor];
+        CGColorRef beatColor = [[[Defaults sharedDefaults] beatColor] CGColor];
+
+        CGContextSetLineWidth(context, 3.0);
+
+        CGColorRef color = (currentEvent.style & BeatEventStyleBar) == BeatEventStyleBar ?
                             barColor : beatColor;
 
-        CGContextMoveToPoint(context,
-                             x,
-                             0.0f);
+        CGContextMoveToPoint(context, x, 0.0f);
         CGContextSetStrokeColorWithColor(context, color);
         CGContextAddLineToPoint(context, x, layer.frame.size.height);
         CGContextStrokePath(context);
-    }
+    };
 }
 
 @end

@@ -408,6 +408,9 @@ void bufferCallback(void* user_data, AudioQueueRef queue, AudioQueueBufferRef bu
 
 - (void)togglePause
 {
+    if (_context.sample == nil) {
+        return;
+    }
     if (!self.playing) {
         [self play];
     } else {
@@ -576,6 +579,10 @@ void bufferCallback(void* user_data, AudioQueueRef queue, AudioQueueBufferRef bu
 
 - (void)setCurrentFrame:(AVAudioFramePosition)newFrame
 {
+    if (_context.sample == nil) {
+        NSLog(@"nothing to play");
+        return;
+    }
     // Secure tapping state.
     TapBlock tap = _context.tapBlock;
     [self stopTapping];
@@ -592,6 +599,11 @@ void bufferCallback(void* user_data, AudioQueueRef queue, AudioQueueBufferRef bu
 - (AVAudioFramePosition)frameCountDeltaWithTimeDelta:(NSTimeInterval)duration
 {
     return ceil(_context.sample.sampleFormat.rate * duration);
+}
+
+- (NSTimeInterval)timeDeltaWithFrameCountDelta:(AVAudioFramePosition)frames;
+{
+    return ceil(frames / _context.sample.sampleFormat.rate);
 }
 
 - (void)reset

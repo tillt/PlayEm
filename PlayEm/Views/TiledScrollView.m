@@ -95,15 +95,11 @@
     [self updateTiles];
 }
 
-- (TileView*)createTile
-{
-    TileView* view = [[TileView alloc] initWithFrame:NSZeroRect];
-    view.layer.delegate = _layerDelegate;
-    return view;
-}
-
 /**
  Should get called whenever the visible tiles could possibly be outdated.
+
+ Pretty much a copy from https://stackoverflow.com/a/9242043
+
  */
 - (void)updateTiles
 {
@@ -157,15 +153,17 @@
         [reusableViews removeLastObject];
         // Create one if we did not find a reusable one.
         if (view == nil) {
-            view = [self createTile];
+            view = [[TileView alloc] initWithFrame:NSZeroRect
+                                     layerDelegate:_layerDelegate
+                              overlayLayerDelegate:_beatLayerDelegate];
         }
         // Place it and install it.
         view.frame = [neededFrame rectValue];
         view.layer.frame = [neededFrame rectValue];
-        [view.layer setNeedsDisplay];
+//        assert(view.layer.frame.size.width < 512);
+        view.needsDisplay = YES;
         //NSLog(@"adding layer %@ %f,%f,%f,%f", view.layer, view.layer.frame.origin.x, view.layer.frame.origin.y, view.layer.frame.size.width, view.layer.frame.size.height );
         assert(view.layer);
-        //[view.layer setNeedsDisplay];
         [self.documentView addSubview:view];
     }
 }

@@ -200,7 +200,6 @@
                     if ([type isEqualToString:kMediaMetaDataMapTypeNumber]) {
                         [self updateWithKey:map[kMediaMetaDataMapKeys][0] string:values];
                     } else if ([type isEqualToString:kMediaMetaDataMapTypeString]) {
-                        NSLog(@"key: %@, string: %@", key, values);
                         [self updateWithKey:map[kMediaMetaDataMapKeys][0] string:values];
                     } else if ([type isEqualToString:kMediaMetaDataMapTypeTuple]) {
                         NSArray<NSString*>* components = [values componentsSeparatedByString:@"/"];
@@ -272,13 +271,17 @@
     
     const TagLib_AudioProperties* properties = taglib_file_audioproperties(file);
     
-    //self.volume = taglib_volume
-    self.bitrate = [NSString stringWithFormat:@"%ld kbps", (unsigned long)taglib_audioproperties_bitrate(properties)];
-    self.samplerate = [NSString stringWithFormat:@"%.1f kHz", (unsigned long)taglib_audioproperties_samplerate(properties) / 1000.0f];
-    self.channels = taglib_audioproperties_channels(properties) == 1 ? @"Mono" : @"Stereo";
-    unsigned long long size = [[[NSFileManager defaultManager] attributesOfItemAtPath:path error:nil] fileSize];
-    self.size = [NSString BeautifulSize:[NSNumber numberWithUnsignedLongLong:size]];
-    self.format = @"MPEG audio file";
+    if (properties != NULL) {
+        //self.volume = taglib_volume
+        self.bitrate = [NSString stringWithFormat:@"%ld kbps", (unsigned long)taglib_audioproperties_bitrate(properties)];
+        self.samplerate = [NSString stringWithFormat:@"%.1f kHz", (unsigned long)taglib_audioproperties_samplerate(properties) / 1000.0f];
+        self.channels = taglib_audioproperties_channels(properties) == 1 ? @"Mono" : @"Stereo";
+        unsigned long long size = [[[NSFileManager defaultManager] attributesOfItemAtPath:path error:nil] fileSize];
+        self.size = [NSString BeautifulSize:[NSNumber numberWithUnsignedLongLong:size]];
+        self.format = @"MPEG audio file";   // FIXME: This is wrong - AIFF and WAV could also involved.
+    } else {
+        NSLog(@"for some reason this file has no audio properties");
+    }
 
     taglib_tag_free_strings();
     taglib_file_free(file);

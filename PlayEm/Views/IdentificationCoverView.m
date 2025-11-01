@@ -44,7 +44,9 @@ extern NSString * const kBeatTrackedSampleTempoChangeNotification;
     BOOL animating;
     BOOL paused;
     BOOL unknown;
+    BOOL used;
     double lastEnergy;
+    int moveBeats;
 }
 
 - (id)initWithFrame:(NSRect)frameRect contentsInsets:(NSEdgeInsets)insets style:(CoverViewStyleMask)style
@@ -53,9 +55,11 @@ extern NSString * const kBeatTrackedSampleTempoChangeNotification;
     if (self) {
         animating = NO;
         paused = NO;
+        used = NO;
         unknown = YES;
         currentTempo = 120.0f;
         lastEnergy = 0.0;
+        moveBeats = 4;
         _overlayIntensity = 0.3f;
         _secondImageLayerOpacity = 0.8;
         _style = style;
@@ -185,10 +189,8 @@ extern NSString * const kBeatTrackedSampleTempoChangeNotification;
 - (void)beatShakingLayer:(CALayer*)layer
 {
     static BOOL forward = YES;
-    const int moveBeats = 4;
-    
-    const double phaseLength = (60.0 * (moveBeats / 2.0)) / (double)self->currentTempo;
-    double angleToAdd = (M_PI_2 / 180.0) * 2.0;
+    const double phaseLength = (60.0 * (moveBeats / 2.0)) / currentTempo;
+    double angleToAdd = (M_PI_2 / 180.0) * 10.0;
     
     forward = !forward;
     
@@ -207,11 +209,6 @@ extern NSString * const kBeatTrackedSampleTempoChangeNotification;
     animation.removedOnCompletion = NO;
     
     [layer addAnimation:animation forKey:@"beatShaking"];
-    
-    /// HACK ALERT!!!
-    ///
-    /// THIS SHOULDNT BE HERE
-    
 }
 
 - (void)beatEffect:(NSNotification*)notification
@@ -226,8 +223,33 @@ extern NSString * const kBeatTrackedSampleTempoChangeNotification;
                localEnergy:[dict[kBeatNotificationKeyLocalEnergy] doubleValue]
                totalEnergy:[dict[kBeatNotificationKeyTotalEnergy] doubleValue]];
 
+    const unsigned long long beatIndex = [dict[kBeatNotificationKeyBeat] unsignedLongLongValue];
+
+    double localEnergy = [dict[kBeatNotificationKeyLocalEnergy] doubleValue];
+    double totalEnergy = [dict[kBeatNotificationKeyTotalEnergy] doubleValue];
+
+    // Attempt to get a reasonably wide signal range by normalizing the locals peaks by
+    // the globally most energy loaded samples.
+    const double normalizedEnergy = MIN(localEnergy / totalEnergy, 1.0);
+
+    // We quickly attempt to reach a value that is higher than the current one.
+    const double convergenceSpeedUp = 0.8;
+    // We slowly decay into a value that is lower than the current one.
+    const double convergenceSlowDown = 0.08;
+
+    double convergenceSpeed = normalizedEnergy > lastEnergy ? convergenceSpeedUp : convergenceSlowDown;
+    // To make sure the result is not flapping we smooth (lerp) using the previous result.
+    double lerpEnergy = (normalizedEnergy * convergenceSpeed) + lastEnergy *  (1.0 - convergenceSpeed);
+    // Gate the result for safety -- may mathematically not be needed, too lazy to find out.
+    double slopedEnergy = MIN(lerpEnergy, 1.0);
+    
+    if (slopedEnergy < 0.5) {
+        moveBeats = 4;
+    } else if (beatIndex % 16 == 1) {
+        moveBeats = 1 + ((moveBeats + 1) % 4);
+    }
     // We start shaking only on the first beat of a bar.
-    if ([dict[kBeatNotificationKeyBeat] intValue] == 1) {
+    if (beatIndex % 4 == 1) {
         [self beatShakingLayer:_backingLayer];
     }
     
@@ -363,7 +385,7 @@ extern NSString * const kBeatTrackedSampleTempoChangeNotification;
     _maskLayer.magnificationFilter = kCAFilterLinear;
     _maskLayer.minificationFilter = kCAFilterLinear;
     _maskLayer.position = CGPointMake(contentsBounds.size.width / 2, contentsBounds.size.height / 2);
-    
+
     _imageCopyLayer = [CALayer layer];
     _imageCopyLayer.magnificationFilter = kCAFilterLinear;
     _imageCopyLayer.minificationFilter = kCAFilterLinear;
@@ -376,7 +398,6 @@ extern NSString * const kBeatTrackedSampleTempoChangeNotification;
     _imageCopyLayer.contentsScale = [[NSScreen mainScreen] backingScaleFactor];
     _imageCopyLayer.frame = contentsBounds;
     _imageCopyLayer.drawsAsynchronously = YES;
-    _imageCopyLayer.mask = _maskLayer;
     _imageCopyLayer.masksToBounds = YES;
     if ((_style & CoverViewStyleGlowBehindCoverAtLaser) == CoverViewStyleGlowBehindCoverAtLaser) {
         _imageCopyLayer.borderWidth = 1.0;
@@ -389,6 +410,7 @@ extern NSString * const kBeatTrackedSampleTempoChangeNotification;
     }
     _imageCopyLayer.opacity = _secondImageLayerOpacity;
     [_backingLayer addSublayer:_imageCopyLayer];
+    _imageCopyLayer.hidden = YES;
 
     _imageLayer = [CALayer layer];
     _imageLayer.magnificationFilter = kCAFilterLinear;
@@ -410,10 +432,6 @@ extern NSString * const kBeatTrackedSampleTempoChangeNotification;
         //_imageLayer.borderColor = [NSColor windowFrameColor].CGColor;
         _imageLayer.borderColor = [[[Defaults sharedDefaults] lightBeamColor] colorWithAlphaComponent:0.3].CGColor;
     }
-    if ((_style & CoverViewStyleRotatingLaser) == CoverViewStyleRotatingLaser) {
-        _imageLayer.mask = _maskLayer;
-    }
-
     CIFilter* fxFilter = [CIFilter filterWithName:@"CIZoomBlur"];
     [fxFilter setDefaults];
     [fxFilter setValue: [NSNumber numberWithFloat:0.0] forKey: @"inputAmount"];
@@ -422,6 +440,7 @@ extern NSString * const kBeatTrackedSampleTempoChangeNotification;
         _imageLayer.filters = @[ bloomFilter ];
     }
     [_backingLayer addSublayer:_imageLayer];
+    _imageLayer.hidden = YES;
 
     if ((_style & CoverViewStyleRotatingLaser) == CoverViewStyleRotatingLaser) {
         _overlayLayer = [CALayer layer];
@@ -440,8 +459,8 @@ extern NSString * const kBeatTrackedSampleTempoChangeNotification;
         _overlayLayer.frame = _maskLayer.frame;
         _overlayLayer.compositingFilter = additionFilter;
         [_imageLayer addSublayer:_overlayLayer];
+        _overlayLayer.hidden = YES;
     }
-
     
 #ifndef HIDE_COVER_DEBBUG
     [layer addSublayer:_backingLayer];
@@ -563,6 +582,16 @@ extern NSString * const kBeatTrackedSampleTempoChangeNotification;
         NSLog(@"coverview got this already");
         return;
     }
+
+    _maskLayer.hidden = NO;
+    _imageCopyLayer.hidden = NO;
+    _imageLayer.hidden = NO;
+    _overlayLayer.hidden = NO;
+    if ((_style & CoverViewStyleRotatingLaser) == CoverViewStyleRotatingLaser) {
+        _imageCopyLayer.mask = _maskLayer;
+        _imageLayer.mask = _maskLayer;
+    }
+
 
     [self animate];
 

@@ -23,7 +23,7 @@
  */
 double roundBpmWithinRange(double minBpm, double centerBpm, double maxBpm)
 {
-    NSLog(@"rounding BPM - min: %.4f, center: %.4f, max: %.4f", minBpm, centerBpm, maxBpm);
+    //NSLog(@"rounding BPM - min: %.4f, center: %.4f, max: %.4f", minBpm, centerBpm, maxBpm);
 
     // First try to snap to a full integer BPM
     double snapBpm = (double)round(centerBpm);
@@ -431,18 +431,16 @@ static const int kMinRegionBeatCount = 10;
  This is mostly a copy of code from MixxxDJ.
  from https://github.com/mixxxdj/mixxx/blob/8354c8e0f57a635acb7f4b3cc16b9745dc83312c/src/track/beatfactory.cpp#L51
  */
-- (void)makeConstantBeats
+- (NSMutableData*)makeConstantBeats:(NSData*)constantRegions
 {
-    NSData* constantRegions = [self retrieveConstantRegions];
-    
     if (!constantRegions.length) {
-        return;
+        return 0;
     }
     
     signed long long firstBeatFrame = 0;
     
     const double constBPM = [self makeConstBpm:constantRegions firstBeat:&firstBeatFrame];
-    const double beatLength = 60 * self.sample.sampleFormat.rate / constBPM;
+    const double beatLength = 60.0 * self.sample.sampleFormat.rate / constBPM;
     
     firstBeatFrame = [self adjustPhase:firstBeatFrame bpm:constBPM];
     
@@ -452,27 +450,67 @@ static const int kMinRegionBeatCount = 10;
     BOOL fakeFirst = firstBeatFrame < 0.0;
     unsigned long long nextBeatFrame = fakeFirst ? 0.0 : firstBeatFrame;
     
-    int beatIndex = 0;
+    unsigned long long beatIndex = 0;
+    unsigned long long beatCountAssumption = (self.sample.frames + (beatLength - 1)) / beatLength;
+    
+    unsigned long introBeatCount = 32 * 4;
+    unsigned long buildupBeatCount = 64 * 4;
+    unsigned long teardownBeatCount;
+    unsigned long outroBeatCount;
+    
+    if (beatCountAssumption < 3 * buildupBeatCount) {
+        buildupBeatCount = beatCountAssumption / 4;
+        introBeatCount = beatCountAssumption / 4;
+    }
+    outroBeatCount = introBeatCount;
+    teardownBeatCount = buildupBeatCount;
+
+    const unsigned long long introBeatsStartingAt = introBeatCount;
+    const unsigned long long buildupBeatsStartingAt = buildupBeatCount;
+    const unsigned long long teardownBeatsStartingAt = beatCountAssumption - teardownBeatCount;
+    const unsigned long long outroBeatsStartingAt = beatCountAssumption - outroBeatCount;
+
+    NSMutableData* constantBeats = [NSMutableData data];
+    unsigned long long eventWindowOffset = 0LL;
+
     while (nextBeatFrame < self.sample.frames) {
+        int index = beatIndex % 4;
         event.frame = nextBeatFrame;
         event.bpm = constBPM;
         event.style = BeatEventStyleBeat;
         event.index = beatIndex;
-        if (beatIndex == 0) {
+        if (index == 0) {
             event.style |= BeatEventStyleBar;
         }
         
-        size_t origin = event.frame / self.framesPerPixel;
-        NSNumber* pageKey = [NSNumber numberWithLong:origin / self.tileWidth];
-        
-        NSMutableData* data = [self.beats objectForKey:pageKey];
-        if (data == nil) {
-            data = [NSMutableData data];
+        if (beatIndex == outroBeatsStartingAt) {
+            event.style |= BeatEventStyleMarkIntro;
+        } else if (beatIndex == buildupBeatsStartingAt) {
+            event.style |= BeatEventStyleMarkBuildup;
+        } else if (beatIndex == teardownBeatsStartingAt) {
+            event.style |= BeatEventStyleMarkTeardown;
+        } else if (beatIndex == outroBeatsStartingAt) {
+            event.style |= BeatEventStyleMarkOutro;
         }
         
-        [data appendBytes:&event length:sizeof(BeatEvent)];
+        if (beatIndex >= outroBeatsStartingAt) {
+            event.style |= BeatEventStyleAlarmOutro;
+        } else if (beatIndex >= teardownBeatsStartingAt) {
+            event.style |= BeatEventStyleAlarmTeardown;
+        } else if (beatIndex < introBeatsStartingAt) {
+            event.style |= BeatEventStyleAlarmIntro;
+        } else if (beatIndex < buildupBeatsStartingAt) {
+            event.style |= BeatEventStyleAlarmBuildup;
+        }
+
+        const size_t page = event.frame / self.shardFrameCount;
+        NSNumber* pageKey = [NSNumber numberWithLong:page];
         
-        [self.beats setObject:data forKey:pageKey];
+        [constantBeats appendBytes:&event length:sizeof(BeatEvent)];
+        eventWindowOffset += sizeof(BeatEvent);
+        
+        [self.beats setObject:@(beatIndex)
+                       forKey:pageKey];
         
         if (fakeFirst) {
             nextBeatFrame = firstBeatFrame + beatLength;
@@ -480,8 +518,10 @@ static const int kMinRegionBeatCount = 10;
         } else {
             nextBeatFrame += beatLength;
         }
-        beatIndex = (beatIndex + 1) % 4;
+        beatIndex++;
     };
+
+    return constantBeats;
 }
 
 @end

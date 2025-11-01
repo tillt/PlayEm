@@ -8,6 +8,7 @@
 
 #import "SymbolButton.h"
 
+const static double transitionSpeedFactor = 10.0;
 
 typedef void (*ActionMethodImplementation)(id, SEL, id);
 
@@ -29,7 +30,7 @@ typedef void (*ActionMethodImplementation)(id, SEL, id);
         self.autoresizingMask = NSViewHeightSizable | NSViewWidthSizable;
 
         _state = NSControlStateValueOff;
-        _imageView = [[NSImageView alloc] initWithFrame:NSInsetRect(self.bounds, 6.0, 2.0)];
+        _imageView = [[NSImageView alloc] initWithFrame:NSInsetRect(self.bounds, 0.0, 0.0)];
         _imageView.autoresizingMask = NSViewHeightSizable | NSViewWidthSizable;
         [self addSubview:_imageView];
     }
@@ -38,12 +39,7 @@ typedef void (*ActionMethodImplementation)(id, SEL, id);
 
 - (void)viewWillMoveToWindow:(NSWindow*)window
 {
-    NSTrackingArea* tracking = [[NSTrackingArea alloc] initWithRect:self.bounds
-                                                            options:NSTrackingMouseEnteredAndExited | NSTrackingActiveAlways | NSTrackingAssumeInside
-                                                              owner:self
-                                                           userInfo:nil];
-    [self addTrackingArea:tracking];
-    [self updateTrackingAreas];
+    [self addTrackingRect:self.bounds owner:self userData:NULL assumeInside:NO];
 }
 
 - (void)mouseEntered:(NSEvent *)event
@@ -57,12 +53,22 @@ typedef void (*ActionMethodImplementation)(id, SEL, id);
 
 - (void)updateColor
 {
-    self.imageView.contentTintColor = self.highlighted ? [NSColor labelColor] : [NSColor secondaryLabelColor];
+    if (self.enabled == NO) {
+        self.imageView.contentTintColor = [NSColor disabledControlTextColor];
+    } else {
+        self.imageView.contentTintColor = self.highlighted ? [NSColor labelColor] : [NSColor secondaryLabelColor];
+    }
 }
 
 - (void)setHighlighted:(BOOL)highlighted
 {
     [super setHighlighted:highlighted];
+    [self updateColor];
+}
+
+- (void)setEnabled:(BOOL)enabled
+{
+    [super setEnabled:enabled];
     [self updateColor];
 }
 
@@ -74,17 +80,33 @@ typedef void (*ActionMethodImplementation)(id, SEL, id);
 
 - (void)mouseDown:(NSEvent *)event
 {
+    if (self.enabled == NO) {
+        return;
+    }
     self.highlighted = YES;
 }
 
+// FIXME: This doesnt work as regular buttons do. We need to assert that when the user clicks and drags outside the button, the action gets canceled.
 - (void)mouseUp:(NSEvent *)event
 {
-    self.state = self.state == NSControlStateValueOff ? NSControlStateValueOn : NSControlStateValueOff;
-    self.highlighted = NO;
+    if (self.enabled == NO) {
+        return;
+    }
+    if (event.type == NSEventTypeLeftMouseUp) {
+        NSPoint pt = [self convertPoint:[event locationInWindow] fromView:nil];
+        if (NSPointInRect(pt, self.bounds)) {
+            // Flip state.
+            self.state = self.state == NSControlStateValueOff ? NSControlStateValueOn : NSControlStateValueOff;
 
-    ActionMethodImplementation impl;
-    impl = (ActionMethodImplementation)[self.target methodForSelector:self.action];
-    impl(self.target, self.action, self);
+            // Call action.
+            if (self.target) {
+                ActionMethodImplementation impl;
+                impl = (ActionMethodImplementation)[self.target methodForSelector:self.action];
+                impl(self.target, self.action, self);
+            }
+        }
+    }
+    self.highlighted = NO;
 }
 
 - (void)transitionImage
@@ -92,7 +114,7 @@ typedef void (*ActionMethodImplementation)(id, SEL, id);
     NSImage* imageWithConfig = [self currentSymbolImage];
 
     NSSymbolReplaceContentTransition* transition = [NSSymbolReplaceContentTransition replaceDownUpTransition];
-    NSSymbolEffectOptions* options = [NSSymbolEffectOptions optionsWithSpeed:10.0];
+    NSSymbolEffectOptions* options = [NSSymbolEffectOptions optionsWithSpeed:transitionSpeedFactor];
 
     [self.imageView setSymbolImage:imageWithConfig
              withContentTransition:transition
@@ -104,8 +126,8 @@ typedef void (*ActionMethodImplementation)(id, SEL, id);
     NSString* name = self.state == NSControlStateValueOn ? _alternateSymbolName : _symbolName;
     NSImage* image = [NSImage imageWithSystemSymbolName:name
                                accessibilityDescription:@""];
-    NSImageSymbolConfiguration* config = [NSImageSymbolConfiguration configurationWithPointSize:100
-                                                                                         weight:NSFontWeightRegular
+    NSImageSymbolConfiguration* config = [NSImageSymbolConfiguration configurationWithPointSize:self.frame.size.height
+                                                                                         weight:NSFontWeightBold
                                                                                           scale:NSImageSymbolScaleLarge];
     NSImage* imageWithConfig = [image imageWithSymbolConfiguration:config];
     return imageWithConfig;

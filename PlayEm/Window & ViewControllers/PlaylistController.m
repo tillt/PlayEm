@@ -39,6 +39,27 @@
         _table.doubleAction = @selector(tableViewDoubleClickedRow:);
         _table.menu = [self menu];
         _preventSelection = NO;
+        
+        const NSAutoresizingMaskOptions kViewFullySizeable = NSViewHeightSizable | NSViewWidthSizable;
+
+        _table.backgroundColor = [NSColor clearColor];
+        _table.autoresizingMask = kViewFullySizeable;
+        _table.headerView = nil;
+        _table.rowHeight = 52.0;
+        _table.allowsMultipleSelection = YES;
+        _table.intercellSpacing = NSMakeSize(0.0, 0.0);
+
+        NSTableColumn* col = [[NSTableColumn alloc] init];
+        col.title = @"";
+        col.identifier = @"CoverColumn";
+        col.width = _table.rowHeight;
+        [_table addTableColumn:col];
+
+        col = [[NSTableColumn alloc] init];
+        col.title = @"";
+        col.identifier = @"TitleColumn";
+        col.width = _table.enclosingScrollView.bounds.size.width - _table.rowHeight;
+        [_table addTableColumn:col];
     }
     return self;
 }
@@ -88,6 +109,7 @@
         }
         [_list addObject:meta];
     }
+    [_table reloadData];
 }
 
 - (NSInteger)numberOfRowsInTableView:(NSTableView*)tableView
@@ -116,26 +138,42 @@
 - (void)playedMeta:(MediaMetaData*)item
 {
     if (_history.count && item == _history[_history.count - 1]) {
-    } else {
-        [_history addObject:item];
-        _preventSelection = YES;
-        [_table beginUpdates];
-        [_table insertRowsAtIndexes:[NSIndexSet indexSetWithIndex:_history.count - 1]
-                      withAnimation:NSTableViewAnimationSlideRight];
-        [_table endUpdates];
-        _preventSelection = NO;
-        [_table reloadDataForRowIndexes:[NSIndexSet indexSetWithIndexesInRange:NSMakeRange(_history.count - 1, 1)]
-                          columnIndexes:[NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0, 2)]];
+        NSLog(@"we got this one already in our history");
+        return;
     }
+    [_history addObject:item];
+
+    _preventSelection = YES;
+    [_table beginUpdates];
+    [_table insertRowsAtIndexes:[NSIndexSet indexSetWithIndex:_history.count - 1]
+                  withAnimation:NSTableViewAnimationSlideRight];
+    [_table endUpdates];
+    _preventSelection = NO;
+    [_table reloadDataForRowIndexes:[NSIndexSet indexSetWithIndexesInRange:NSMakeRange(_history.count - 1, 1)]
+                      columnIndexes:[NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0, 2)]];
+}
+
+- (NSInteger)firstListItemIndex
+{
+    return _history.count;
+}
+
+- (NSInteger)firstHistoryItemIndex
+{
+    return 0;
 }
 
 - (MediaMetaData* _Nullable)nextItem
 {
     MediaMetaData* item = [_list firstObject];
-    if (item != nil) {
-        [_list removeObjectAtIndex:0];
+    if (item == nil) {
+        return item;
+    }
+
+    [_list removeObjectAtIndex:0];
+    if (_history.count > 0) {
         [_table beginUpdates];
-        [_table removeRowsAtIndexes:[NSIndexSet indexSetWithIndex:_history.count] 
+        [_table removeRowsAtIndexes:[NSIndexSet indexSetWithIndex:_history.count]
                       withAnimation:NSTableViewAnimationSlideDown];
         [_table endUpdates];
     }

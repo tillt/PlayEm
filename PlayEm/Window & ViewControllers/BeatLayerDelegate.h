@@ -9,7 +9,7 @@
 #import <Foundation/Foundation.h>
 #import <Cocoa/Cocoa.h>
 #import <QuartzCore/QuartzCore.h>
-
+#import "../Sample/BeatEvent.h"
 NS_ASSUME_NONNULL_BEGIN
 @class BeatTrackedSample;
 @class WaveView;
@@ -18,8 +18,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (strong, nonatomic) WaveView* waveView;
 @property (strong, nonatomic, nullable) BeatTrackedSample* beatSample;
-@property (assign, nonatomic) double framesPerPixel;
-
+//@property (assign, nonatomic) double framesPerPixel;
+@property (assign, nonatomic) BeatEventStyle beatMask;
 @end
 
 NS_ASSUME_NONNULL_END

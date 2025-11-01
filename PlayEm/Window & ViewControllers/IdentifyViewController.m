@@ -17,6 +17,8 @@
 #import "../NSImage+Resize.h"
 #import "../NSImage+Average.h"
 
+#import "IdentifiedTrack.h"
+
 NSString* const kTitleColumnIdenfifier = @"TitleColumn";
 NSString* const kCoverColumnIdenfifier = @"CoverColumn";
 NSString* const kButtonColumnIdenfifier = @"ButtonColumn";
@@ -26,30 +28,12 @@ NSString* const kBeatportQuery = @"https://beatport.com/search?q=%@";
 
 const CGFloat kTableRowHeight = 52.0f;
 
-@interface IdentifiedItem : NSObject
-
-@property (copy, nonatomic, nullable) NSString* title;
-@property (copy, nonatomic, nullable) NSString* artist;
-@property (copy, nonatomic, nullable) NSString* genre;
-@property (strong, nonatomic, nullable) NSURL* imageURL;
-@property (strong, nonatomic, nullable) NSImage* artwork;
-@property (strong, nonatomic, nullable) NSURL* musicURL;
-
-- (id)initWithTitle:(NSString*)title
-             artist:(NSString*)artist
-              genre:(NSString*)genre
-           musicURL:(NSURL*)musicURL
-           imageURL:(NSURL*)imageURL;
-
-- (id)initWithMatchedMediaItem:(SHMatchedMediaItem*)item;
-
-@end
-
 
 @interface IdentifyViewController ()
 
 @property (weak, nonatomic) AudioController* audioController;
 @property (strong, nonatomic) SHSession* session;
+@property (assign, nonatomic) unsigned long long sessionFrame;
 
 @property (strong, nonatomic) AVAudioPCMBuffer* stream;
 
@@ -57,7 +41,7 @@ const CGFloat kTableRowHeight = 52.0f;
 
 @property (strong, nonatomic) dispatch_queue_t identifyQueue;
 
-@property (strong, nonatomic) NSMutableArray<IdentifiedItem*>* identifieds;
+@property (strong, nonatomic) NSMutableArray<IdentifiedTrack*>* identifieds;
 
 @property (strong, nonatomic) NSTableView* tableView;
 @property (strong, nonatomic, nullable) NSURL* imageURL;
@@ -67,49 +51,13 @@ const CGFloat kTableRowHeight = 52.0f;
 @end
 
 
-@implementation IdentifiedItem
-
-- (id)initWithTitle:(NSString*)title artist:(NSString*)artist genre:(NSString*)genre musicURL:(NSURL*)musicURL imageURL:(NSURL*)imageURL
-{
-    self = [super init];
-    if (self) {
-        _title = title;
-        _artist = artist;
-        _genre = genre;
-        _imageURL = imageURL;
-        _musicURL = musicURL;
-    }
-    return self;
-}
-
-- (id)initWithMatchedMediaItem:(SHMatchedMediaItem*)item
-{
-    self = [super init];
-    if (self) {
-        _title = item.title;
-        _artist = item.artist;
-        _genre = item.genres.count ? item.genres[0] : @"";
-        _imageURL = item.artworkURL;
-        _musicURL = item.appleMusicURL;
-    }
-    return self;
-}
-
-- (NSString*)description
-{
-    return [NSString stringWithFormat:@"title:%@ artist:%@ genre:%@ imageURL:%@ musicURL:%@",
-            _title, _artist, _genre, _imageURL, _musicURL];
-}
-
-@end
-
-
 @implementation IdentifyViewController
 
-- (id)initWithAudioController:(AudioController *)audioController
+- (id)initWithAudioController:(AudioController*)audioController delegate:(id<IdentifyViewControllerDelegate>)delegate
 {
     self = [super init];
     if (self) {
+        _delegate = delegate;
         _audioController = audioController;
         dispatch_queue_attr_t attr = dispatch_queue_attr_make_with_qos_class(DISPATCH_QUEUE_SERIAL, QOS_CLASS_USER_INITIATED, 0);
         _identifyQueue = dispatch_queue_create("PlayEm.IdentifyQueue", attr);
@@ -121,6 +69,8 @@ const CGFloat kTableRowHeight = 52.0f;
 - (void)viewDidLoad {
     [super viewDidLoad];
     NSLog(@"viewDidLoad");
+    self.view.wantsLayer = YES;
+    self.view.layer.masksToBounds = NO;
 }
 
 - (void)AudioControllerPlaybackStateChange:(NSNotification*)notification
@@ -257,7 +207,7 @@ const CGFloat kTableRowHeight = 52.0f;
     [self.view addSubview:_effectBelowList];
 }
 
-- (NSString*)queryWithIdentifiedItem:(IdentifiedItem*)item
+- (NSString*)queryWithIdentifiedTrack:(IdentifiedTrack*)item
 {
     NSString* artist = item.artist;
     NSString* title = item.title;
@@ -271,9 +221,17 @@ const CGFloat kTableRowHeight = 52.0f;
 - (NSMenu*)itemMenuForTag:(int)tag
 {
     NSMenu* menu = [NSMenu new];
-    
-    NSMenuItem* item = [[NSMenuItem alloc] initWithTitle:@"Copy to Clipboard"
-                                                  action:@selector(copyQueryToPasteboard:)
+    NSMenuItem* item = [[NSMenuItem alloc] initWithTitle:@"Add to Track List"
+                                                  action:@selector(addToTrackList:)
+                                           keyEquivalent:@""];
+    [item setKeyEquivalentModifierMask:NSEventModifierFlagCommand];
+    item.tag = tag;
+    [menu addItem:item];
+
+    [menu addItem:[NSMenuItem separatorItem]];
+
+    item = [[NSMenuItem alloc] initWithTitle:@"Copy to Clipboard"
+                                              action:@selector(copyQueryToPasteboard:)
                                            keyEquivalent:@""];
     [item setKeyEquivalentModifierMask:NSEventModifierFlagCommand];
     item.tag = tag;
@@ -315,6 +273,16 @@ const CGFloat kTableRowHeight = 52.0f;
                             inView:nil];
 }
 
+- (void)addToTrackList:(id)sender
+{
+    NSButton* button = sender;
+    unsigned long row = (_identifieds.count - button.tag) - 1;
+    IdentifiedTrack* track = _identifieds[row];
+    NSLog(@"identified: %@", track);
+    //NSTimeInterval time = [_audioController.sample timeForFrame:track.frame];
+    [_delegate addTrackToTracklist:track atFrame:track.frame];
+}
+
 - (void)copyQueryToPasteboard:(id)sender
 {
     NSButton* button = sender;
@@ -322,7 +290,7 @@ const CGFloat kTableRowHeight = 52.0f;
     NSLog(@"requested query from row: %ld", row);
     NSLog(@"identified: %@", _identifieds[row]);
     [[NSPasteboard generalPasteboard] clearContents];
-    [[NSPasteboard generalPasteboard] setString:[self queryWithIdentifiedItem:_identifieds[row]]
+    [[NSPasteboard generalPasteboard] setString:[self queryWithIdentifiedTrack:_identifieds[row]]
                                         forType:NSPasteboardTypeString];
 }
 
@@ -337,7 +305,7 @@ const CGFloat kTableRowHeight = 52.0f;
     // FIXME: when needed -- all the predefined sets dont do that for some reason.
     NSCharacterSet *URLFullCharacterSet = [[NSCharacterSet characterSetWithCharactersInString:@" \"#%/:<>?@[\\]^`{|}&"] invertedSet];
     
-    NSString* search = [self queryWithIdentifiedItem:_identifieds[row]];
+    NSString* search = [self queryWithIdentifiedTrack:_identifieds[row]];
     search = [search stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
     search = [search stringByAddingPercentEncodingWithAllowedCharacters:URLFullCharacterSet];
     
@@ -361,7 +329,7 @@ const CGFloat kTableRowHeight = 52.0f;
     // FIXME: when needed -- all the predefined sets dont do that for some reason.
     NSCharacterSet *URLFullCharacterSet = [[NSCharacterSet characterSetWithCharactersInString:@" \"#%/:<>?@[\\]^`{|}&"] invertedSet];
     
-    NSString* search = [self queryWithIdentifiedItem:_identifieds[row]];
+    NSString* search = [self queryWithIdentifiedTrack:_identifieds[row]];
     search = [search stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
     search = [search stringByAddingPercentEncodingWithAllowedCharacters:URLFullCharacterSet];
     
@@ -435,6 +403,7 @@ const CGFloat kTableRowHeight = 52.0f;
 #ifdef DEBUG_TAPPING
             fwrite(outputBuffer, sizeof(float), frames, fp);
 #endif
+            self.sessionFrame = offset;
             [self.session matchStreamingBuffer:self.stream
                                         atTime:[AVAudioTime timeWithSampleTime:offset atRate:sampleFormat.rate]];
         });
@@ -455,7 +424,9 @@ const CGFloat kTableRowHeight = 52.0f;
         if (match.mediaItems[0].artworkURL != nil && ![match.mediaItems[0].artworkURL.absoluteString isEqualToString:self.imageURL.absoluteString]) {
             NSLog(@"need to re/load the image as the displayed URL %@ wouldnt match the requested URL %@", self.imageURL.absoluteString, match.mediaItems[0].artworkURL.absoluteString);
             
-            IdentifiedItem* item = [[IdentifiedItem alloc] initWithMatchedMediaItem:match.mediaItems[0]];
+            IdentifiedTrack* item = [[IdentifiedTrack alloc] initWithMatchedMediaItem:match.mediaItems[0]];
+            item.frame = self.sessionFrame;
+            NSLog(@"item frame: %lld", item.frame);
             self.imageURL = match.mediaItems[0].artworkURL;
             
             dispatch_async(dispatch_queue_create("AsyncImageQueue", NULL), ^{

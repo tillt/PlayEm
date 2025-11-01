@@ -12,6 +12,7 @@
 #import "CAShapeLayer+Path.h"
 #import "NSBezierPath+CGPath.h"
 #import "ProfilingPointsOfInterest.h"
+#import "TileView.h"
 
 @interface WaveView ()
 
@@ -34,9 +35,10 @@
 {
     self = [super initWithFrame:frameRect];
     if (self) {
+        self.layerContentsRedrawPolicy = NSViewLayerContentsRedrawOnSetNeedsDisplay;
+        self.wantsLayer = YES;
         self.layer = [self makeBackingLayer];
         self.layer.masksToBounds = NO;
-        self.layer.drawsAsynchronously = YES;
         self.layerUsesCoreImageFilters = YES;
     }
     return self;
@@ -131,11 +133,11 @@
 {
     return YES;
 }
-
-- (BOOL)wantsUpdateLayer
-{
-    return YES;
-}
+//
+//- (BOOL)wantsUpdateLayer
+//{
+//    return YES;
+//}
 
 - (CALayer*)makeBackingLayer
 {
@@ -144,12 +146,28 @@
     return layer;
 }
 
+- (void)invalidateBeats
+{
+    for (TileView* view in [self subviews]) {
+//        [view.layer setNeedsDisplay];
+        [view.overlayLayer setNeedsDisplay];
+        //view.needsDisplay = YES;
+    }
+}
+
 - (void)invalidateTiles
 {
-    for (NSView* view in [self subviews]) {
+    for (TileView* view in [self subviews]) {
         [view.layer setNeedsDisplay];
-        [view.layer.sublayers[0] setNeedsDisplay];
+        //[view.layer.sublayers[0] setNeedsDisplay];
+        //view.needsDisplay = YES;
     }
+    //self.needsDisplay = YES;
+//    for (NSView* view in [self subviews]) {
+////        [view.layer setNeedsDisplay];
+////        [view.layer.sublayers[0] setNeedsDisplay];
+//        view.needsDisplay = YES;
+//    }
 }
 
 - (void)setFrames:(unsigned long long)frames

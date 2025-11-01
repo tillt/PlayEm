@@ -18,7 +18,8 @@ typedef struct {
 
 @interface BeatTrackedSample (ConstantBeatRefiner)
 
-- (void)makeConstantBeats;
+- (NSData*)retrieveConstantRegions;
+- (NSMutableData*)makeConstantBeats:(NSData*)constantRegions;
 
 @end
 

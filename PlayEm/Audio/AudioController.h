@@ -55,6 +55,7 @@ typedef void (^TapBlock) (unsigned long long framePosition, float* frameData, un
 
 - (AVAudioFramePosition)totalLatency;
 - (AVAudioFramePosition)frameCountDeltaWithTimeDelta:(NSTimeInterval)timestamp;
+- (NSTimeInterval)timeDeltaWithFrameCountDelta:(AVAudioFramePosition)timestamp;
 
 @end
 

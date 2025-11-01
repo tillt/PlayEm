@@ -18,7 +18,14 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (BOOL)readFromAVAsset:(AVAsset *)asset;
 - (BOOL)readFromMP4FileWithError:(NSError**)error;
+- (void)addChaptersToAudioFileAtURL:(NSURL *)inputURL
+                          outputURL:(NSURL *)outputURL;
+/*
+- (void)addChapterMarksToMP4AtURL:(NSURL*)inputURL
+                        outputURL:(NSURL*)outputURL
+                       completion:(void (^)(BOOL success, NSError* error))completion;
 
+*/
 @end
 
 NS_ASSUME_NONNULL_END

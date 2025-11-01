@@ -12,10 +12,19 @@ NS_ASSUME_NONNULL_BEGIN
 
 @class AudioController;
 @class LazySample;
+@class IdentifiedTrack;
+
+@protocol IdentifyViewControllerDelegate <NSObject>
+
+- (void)addTrackToTracklist:(IdentifiedTrack*)track atFrame:(unsigned long long)frame;
+
+@end
 
 @interface IdentifyViewController : NSViewController <SHSessionDelegate, NSMenuDelegate, NSTableViewDelegate, NSTableViewDataSource>
 
-- (id)initWithAudioController:(AudioController*)audioController;
+@property (nonatomic, weak) id <IdentifyViewControllerDelegate> delegate;
+
+- (id)initWithAudioController:(AudioController*)audioController delegate:(id<IdentifyViewControllerDelegate>)delegate;
 
 @end
 

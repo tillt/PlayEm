@@ -21,9 +21,10 @@ extern const CGFloat kDirectWaveViewTileWidth;
 
 @property (assign, nonatomic) BOOL horizontal;
 @property (weak, nonatomic) id<CALayerDelegate> layerDelegate;
+@property (weak, nonatomic) id<CALayerDelegate> beatLayerDelegate;
 @property (assign, nonatomic) NSSize tileSize;
 
-- (TileView*)createTile;
+- (NSMutableArray*)reusableViews;
 
 @end
 

@@ -1,3 +1,19 @@
+//
+//  IdentifiedTrack.h
+//  PlayEm
+//
+//  Created by Till Toenshoff on 9/27/25.
+//  Copyright © 2025 Till Toenshoff. All rights reserved.
+//
+#import <Foundation/Foundation.h>
+
+#ifndef IdentifiedTrack_h
+#define IdentifiedTrack_h
+
+NS_ASSUME_NONNULL_BEGIN
+
+@class SHMatchedMediaItem;
+
 @interface IdentifiedTrack : NSObject
 
 @property (copy, nonatomic, nullable) NSString* title;
@@ -17,3 +33,6 @@
 - (id)initWithMatchedMediaItem:(SHMatchedMediaItem*)item;
 
 @end
+
+NS_ASSUME_NONNULL_END
+#endif /* IdentifiedTrack_h */

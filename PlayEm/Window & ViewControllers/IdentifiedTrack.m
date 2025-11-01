@@ -1,3 +1,15 @@
+//
+//  IdentifiedTrack.m
+//  PlayEm
+//
+//  Created by Till Toenshoff on 9/27/25.
+//  Copyright © 2025 Till Toenshoff. All rights reserved.
+//
+#import <Foundation/Foundation.h>
+#import <ShazamKit/ShazamKit.h>
+
+#import "IdentifiedTrack.h"
+
 @implementation IdentifiedTrack
 
 - (id)initWithTitle:(NSString*)title artist:(NSString*)artist genre:(NSString*)genre musicURL:(NSURL*)musicURL imageURL:(NSURL*)imageURL

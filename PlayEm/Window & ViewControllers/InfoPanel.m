@@ -697,87 +697,12 @@ static const CGFloat kViewLeftMargin = 10.0f;
     self.view = view;
 }
 
-- (void)viewWillAppear
+- (void)updateMetaFromFile
 {
-    NSLog(@"InfoPanel becoming visible");
-
-    if (_tabView != nil) {
-        [_tabView removeFromSuperview];
-    }
-    
-    self.tabView = [[NSTabView alloc] initWithFrame:NSMakeRect(0.0,
-                                                               kViewTopMargin * 2,
-                                                               self.view.frame.size.width,
-                                                               self.view.frame.size.height - (100.0 + (kViewTopMargin * 2)))];
-    self.tabView.delegate = self;
-    self.tabView.tabViewBorderType = NSTabViewBorderTypeBezel;
-    self.tabView.drawsBackground = YES;
-    // For some weird reason the NSColour windowBack.. etc colours do not seem to be
-    // actual colours - but just transparent. So we hardcode something here for now.
-    //
-//    self.tabView.backgroundColor = [NSColor colorWithDeviceRed:228.f/255
-//                                                     green:228.f/255
-//                                                      blue:228.f/255
-//                                                     alpha:1];
-//    
-//    if (windowBackgroundColor == nil) {
-//        self.windowBackgroundColor = [NSColor colorWithDeviceRed:237.f/255
-//                                                           green:237.f/255
-//                                                            blue:237.f/255
-//                                                           alpha:1];
-//    }
-//    
-//    if (bezelColor == nil)
-//        self.bezelColor = [NSColor darkGrayColor];
-    
-    NSViewController* vc = [NSViewController new];
-    self.detailsTabViewItem = [NSTabViewItem tabViewItemWithViewController:vc];
-    [_detailsTabViewItem setLabel:kInfoPageKeyDetails];
-    [self.tabView addTabViewItem:_detailsTabViewItem];
-    [self loadControlsWithView:_detailsTabViewItem.view pageKey:kInfoPageKeyDetails];
-
-    vc = [NSViewController new];
-    self.artworkTabViewItem = [NSTabViewItem tabViewItemWithViewController:vc];
-    [_artworkTabViewItem setLabel:kInfoPageKeyArtwork];
-    [self.tabView addTabViewItem:_artworkTabViewItem];
-    [self loadArtworkWithView:_artworkTabViewItem.view];
-
-    vc = [NSViewController new];
-    self.lyricsTabViewItem = [NSTabViewItem tabViewItemWithViewController:vc];
-    [_lyricsTabViewItem setLabel:kInfoPageKeyLyrics];
-    [self.tabView addTabViewItem:_lyricsTabViewItem];
-    [self loadLyricsWithView:_lyricsTabViewItem.view];
-
-    if ([self.metas count] == 1) {
-        vc = [NSViewController new];
-        self.fileTabViewItem = [NSTabViewItem tabViewItemWithViewController:vc];
-        [_fileTabViewItem setLabel:kInfoPageKeyFile];
-        [self.tabView addTabViewItem:_fileTabViewItem];
-        [self loadControlsWithView:_fileTabViewItem.view pageKey:kInfoPageKeyFile];
-    }
-
-    [self.view addSubview:_tabView];
-
-    if ([_tabView.selectedTabViewItem.label isEqualToString:@"Lyrics"]) {
-        [_lyricsTextView.window makeFirstResponder:_lyricsTextView];
-    }
-    
-    self.deltaMeta = [MediaMetaData new];
-
-    _progress.hidden = NO;
-    [_progress startAnimation:self];
-    
-    NSString* const kPatchedMetaKey = @"new";
-    NSString* const kOriginalMetaKey = @"old";
-    
-    _titleTextField.stringValue = @"loading...";
-    _artistTextField.stringValue = @"loading...";
-    _albumTextField.stringValue = @"loading...";
-    // Lets confirm the metadata from the files - iTunes doesnt give us all the
-    // beauty we need and it may also rely on outdated informations. iTunes does the
-    // same when showing the info from a library entry - it reads up the latest info
-    // from the song file metadata.
     dispatch_async(_metaIOQueue, ^{
+        NSString* const kPatchedMetaKey = @"new";
+        NSString* const kOriginalMetaKey = @"old";
+
         NSError* error = nil;
         NSMutableArray* patchedMetas = [NSMutableArray array];
         NSMutableArray* unpatchedMetas = [NSMutableArray array];
@@ -802,22 +727,120 @@ static const CGFloat kViewLeftMargin = 10.0f;
             for (NSDictionary* dict in patchedMetas) {
                 MediaMetaData* patchedMeta = dict[kPatchedMetaKey];
                 MediaMetaData* meta = dict[kOriginalMetaKey];
-                [self.delegate metaChangedForMeta:meta 
+                [self.delegate metaChangedForMeta:meta
                                       updatedMeta:patchedMeta];
                 [metas addObject:patchedMeta];
             }
             [self.delegate finalizeMetaUpdates];
             
             [self.progress stopAnimation:self];
-
+            
             self.metas = metas;
         });
     });
 }
 
+- (void)viewWillAppear
+{
+    NSLog(@"InfoPanel becoming visible");
+
+    if (_tabView != nil) {
+        [_tabView removeFromSuperview];
+    }
+    
+    NSSegmentedControl* segment = [NSSegmentedControl segmentedControlWithLabels:@[kInfoPageKeyDetails, kInfoPageKeyArtwork, kInfoPageKeyLyrics]
+                                                      trackingMode:NSSegmentSwitchTrackingSelectOne
+                                                            target:self
+                                                            action:@selector(listsSwitched:)];
+    segment.segmentStyle = NSSegmentStyleRounded;
+    segment.frame = NSMakeRect(kViewLeftMargin * 4, self.view.frame.size.height - (100.0 + (kViewTopMargin * 2)), self.view.bounds.size.width - (kViewLeftMargin * 8), 30.0);
+    [self.view addSubview:segment];
+    [segment setSelectedSegment:0];
+    
+    _tabView = [[NSTabView alloc] initWithFrame:NSMakeRect(kViewLeftMargin,
+                                                               kViewTopMargin * 2,
+                                                               self.view.frame.size.width,
+                                                               self.view.frame.size.height - (100.0 + (kViewTopMargin * 2) + 30.0))];
+    _tabView.delegate = self;
+    _tabView.tabViewType = NSNoTabsNoBorder;
+    _tabView.drawsBackground = YES;
+    // For some weird reason the NSColour windowBack.. etc colours do not seem to be
+    // actual colours - but just transparent. So we hardcode something here for now.
+    //
+//    self.tabView.backgroundColor = [NSColor colorWithDeviceRed:228.f/255
+//                                                     green:228.f/255
+//                                                      blue:228.f/255
+//                                                     alpha:1];
+//    
+//    if (windowBackgroundColor == nil) {
+//        self.windowBackgroundColor = [NSColor colorWithDeviceRed:237.f/255
+//                                                           green:237.f/255
+//                                                            blue:237.f/255
+//                                                           alpha:1];
+//    }
+//    
+//    if (bezelColor == nil)
+//        self.bezelColor = [NSColor darkGrayColor];
+    
+    NSViewController* vc = [NSViewController new];
+    _detailsTabViewItem = [NSTabViewItem tabViewItemWithViewController:vc];
+    [_detailsTabViewItem setLabel:kInfoPageKeyDetails];
+    [_tabView addTabViewItem:_detailsTabViewItem];
+    [self loadControlsWithView:_detailsTabViewItem.view pageKey:kInfoPageKeyDetails];
+
+    vc = [NSViewController new];
+    _artworkTabViewItem = [NSTabViewItem tabViewItemWithViewController:vc];
+    [_artworkTabViewItem setLabel:kInfoPageKeyArtwork];
+    [_tabView addTabViewItem:_artworkTabViewItem];
+    [self loadArtworkWithView:_artworkTabViewItem.view];
+
+    vc = [NSViewController new];
+    _lyricsTabViewItem = [NSTabViewItem tabViewItemWithViewController:vc];
+    [_lyricsTabViewItem setLabel:kInfoPageKeyLyrics];
+    [_tabView addTabViewItem:_lyricsTabViewItem];
+    [self loadLyricsWithView:_lyricsTabViewItem.view];
+
+    if ([_metas count] == 1) {
+        vc = [NSViewController new];
+        _fileTabViewItem = [NSTabViewItem tabViewItemWithViewController:vc];
+        [_fileTabViewItem setLabel:kInfoPageKeyFile];
+        [_tabView addTabViewItem:_fileTabViewItem];
+        [self loadControlsWithView:_fileTabViewItem.view pageKey:kInfoPageKeyFile];
+
+        [segment setSegmentCount:segment.segmentCount + 1];
+        [segment setLabel:kInfoPageKeyFile forSegment:segment.segmentCount - 1];
+    }
+
+    [self.view addSubview:_tabView];
+
+    if ([_tabView.selectedTabViewItem.label isEqualToString:@"Lyrics"]) {
+        [_lyricsTextView.window makeFirstResponder:_lyricsTextView];
+    }
+    
+    _deltaMeta = [MediaMetaData new];
+
+    _progress.hidden = NO;
+    [_progress startAnimation:self];
+    
+    _titleTextField.stringValue = @"loading...";
+    _artistTextField.stringValue = @"loading...";
+    _albumTextField.stringValue = @"loading...";
+    
+    // Lets confirm the metadata from the files - iTunes doesnt give us all the
+    // beauty we need and it may also rely on outdated informations. iTunes does the
+    // same when showing the info from a library entry - it reads up the latest info
+    // from the song file metadata.
+    [self updateMetaFromFile];
+}
+
 - (void)viewWillDisappear
 {
     [[NSApplication sharedApplication] stopModal];
+}
+
+- (void)listsSwitched:(id)sender
+{
+    [_tabView selectTabViewItemAtIndex:[sender selectedSegment]];
 }
 
 - (void)updateViewHeader:(NSMutableDictionary<NSString*,NSNumber*>*)deltaKeys

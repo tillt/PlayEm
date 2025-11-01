@@ -33,6 +33,9 @@ extern NSString * const kPlaybackStatePlaying;
 @interface ControlPanelController ()
 @property (strong, nonatomic) NSTextField* keyField;
 
+@property (strong, nonatomic) NSTextField* duration;
+@property (strong, nonatomic) NSTextField* time;
+
 @property (strong, nonatomic) ScrollingTextView* titleView;
 @property (strong, nonatomic) ScrollingTextView* albumArtistView;
 
@@ -47,6 +50,7 @@ extern NSString * const kPlaybackStatePlaying;
 {
     self = [super init];
     if (self) {
+        _durationUnitTime = YES;
         _delegate = delegate;
         [[NSNotificationCenter defaultCenter] addObserver:self
                                                  selector:@selector(audioControllerChangedPlaybackState:)
@@ -78,6 +82,11 @@ extern NSString * const kPlaybackStatePlaying;
 - (BOOL)automaticallyAdjustsSize
 {
     return YES;
+}
+
+- (void)toggleProgressUnit:(id)sender
+{
+    _durationUnitTime = !_durationUnitTime;
 }
 
 - (void)loadView
@@ -214,14 +223,6 @@ extern NSString * const kPlaybackStatePlaying;
     layer.masksToBounds = NO;
     layer.mask = [CAShapeLayer MaskLayerFromRect:layer.bounds];
     [_albumArtistView.layer addSublayer:layer];
-
-//    layer = [CALayer layer];
-//    layer.backgroundColor = [[NSColor colorWithPatternImage:[NSImage imageNamed:@"LargeRastaPattern"]] CGColor];
-//    layer.contentsScale = NSViewLayerContentsPlacementScaleProportionallyToFill;
-//    layer.frame = CGRectMake(0.0, 0.0, _albumArtistView.frame.size.width, _albumArtistView.frame.size.height);
-//    layer.compositingFilter = [CIFilter filterWithName:@"CISourceAtopCompositing"];
-//    layer.opacity = 0.4;
-//    [_albumArtistView.layer addSublayer:layer];
     
     _playPause = [[SymbolButton alloc] initWithFrame:CGRectMake(_titleView.frame.origin.x + scrollingTextViewWidth + 70.0f,
                                                                 playPauseButtonY,
@@ -230,41 +231,10 @@ extern NSString * const kPlaybackStatePlaying;
     
     _playPause.symbolName = @"play.fill";
     _playPause.alternateSymbolName = @"pause.fill";
+    _playPause.state = NSControlStateValueOff;
+    _playPause.enabled = NO;
     _playPause.target = _delegate;
     _playPause.action = @selector(togglePause:);
-    
-    
-//    NSImage* image = [NSImage imageWithSystemSymbolName:@"play.fill" accessibilityDescription:@"play"];
-//    NSImageSymbolConfiguration* config = [NSImageSymbolConfiguration configurationWithPointSize:100
-//                                                                                         weight:NSFontWeightBlack
-//                                                                                          scale:NSImageSymbolScaleLarge];
-//    NSImage* imageWithConfig = [image imageWithSymbolConfiguration:config];
-//    NSImageView* iv = [NSImageView imageViewWithImage:imageWithConfig];
-//
-//    iv.frame = CGRectMake(_titleView.frame.origin.x + scrollingTextViewWidth + 70.0f,
-//                                                            playPauseButtonY,
-//                                                            playPauseButtonWidth,
-//                                                            largeSymbolFontSize + 2.0);
-//    
-//    //[iv addSymb0o :[NSSymbolReplaceContentTransition transition] options:[NSSymbolEffectOptions options] animated:YES];
-//
-//    
-//    _playPause = iv;
-//    NSSymbolEffectOptions* o = [NSSymbolEffectOptions options];
-//    _playPause = [NSButton buttonWithTitle:@"􀊄" target:_delegate action:@selector(togglePause:)];
-//
-//
-//    _playPause.frame = NSMakeRect(_titleView.frame.origin.x + scrollingTextViewWidth + 70.0f,
-//                                  playPauseButtonY,
-//                                  playPauseButtonWidth,
-//                                  largeSymbolFontSize + 2.0);
-//    _playPause.bordered = NO;
-//    _playPause.alternateTitle = @"􀊆";
-//    [_playPause setButtonType: NSButtonTypeToggle];
-//    _playPause.bezelStyle = NSBezelStyleTexturedRounded;
-//    _playPause.font = [NSFont systemFontOfSize:largeSymbolFontSize];
-
-
     [self.view addSubview:_playPause];
 
     _autoplayProgress = [[NSProgressIndicator alloc] initWithFrame:NSMakeRect(_titleView.frame.origin.x + scrollingTextViewWidth + 54.0f,
@@ -276,18 +246,19 @@ extern NSString * const kPlaybackStatePlaying;
     _autoplayProgress.autoresizingMask =  NSViewNotSizable | NSViewMinXMargin | NSViewMaxXMargin| NSViewMinYMargin | NSViewMaxYMargin;
     [self.view addSubview:_autoplayProgress];
 
-    _loop = [NSButton buttonWithTitle:@"􀊞" target:nil action:nil];
-    _loop.frame = NSMakeRect(_playPause.frame.origin.x + _playPause.frame.size.width,
-                             loopButtonY,
-                             loopButtonWidth,
-                             regularSymbolFontSize + 2.0);
-    _loop.bordered = NO;
-    [_loop setButtonType: NSButtonTypeToggle];
-    _loop.state = NSControlStateValueOff;
-    _loop.bezelStyle = NSBezelStyleTexturedRounded;
-    _loop.font = [NSFont systemFontOfSize:regularSymbolFontSize];
-    [self.view addSubview:_loop];
+    _loop = [[SymbolButton alloc] initWithFrame:NSMakeRect(_playPause.frame.origin.x + _playPause.frame.size.width,
+                                                           loopButtonY,
+                                                           loopButtonWidth,
+                                                           regularSymbolFontSize + 2.0)];
     
+    _loop.symbolName = @"arrow.right";
+    _loop.alternateSymbolName = @"infinity";
+    _loop.target = nil;
+    _loop.action = nil;
+
+    _loop.state = NSControlStateValueOff;
+    [self.view addSubview:_loop];
+
     _time = [NSTextField textFieldWithString:@"--:--:--"];
     _time.bordered = NO;
     _time.editable = NO;
@@ -300,7 +271,11 @@ extern NSString * const kPlaybackStatePlaying;
                              timeLabelWidth,
                              timeLabelHeight);
     [self.view addSubview:_time];
-   
+
+    NSClickGestureRecognizer* gesture = [[NSClickGestureRecognizer alloc] initWithTarget:self action:@selector(toggleProgressUnit:)];
+    gesture.buttonMask = 0x1;
+    [_time addGestureRecognizer:gesture];
+
     NSTextField* textField = [NSTextField textFieldWithString:@"-"];
     textField.bordered = NO;
     textField.textColor = [[Defaults sharedDefaults] secondaryLabelColor];
@@ -327,6 +302,10 @@ extern NSString * const kPlaybackStatePlaying;
                                  timeLabelWidth,
                                  timeLabelHeight);
     [self.view addSubview:_duration];
+    
+    gesture = [[NSClickGestureRecognizer alloc] initWithTarget:self action:@selector(toggleProgressUnit:)];
+    gesture.buttonMask = 0x1;
+    [_duration addGestureRecognizer:gesture];
     
     _volumeSlider = [[NSSlider alloc] initWithFrame:NSMakeRect(_playPause.frame.origin.x + _playPause.frame.size.width + 70.0,
                                                                volumeSliderY,
@@ -383,7 +362,7 @@ extern NSString * const kPlaybackStatePlaying;
     [_tempoSlider setAction:@selector(tempoChange:)];
     [self.view addSubview:_tempoSlider];
     
-    NSClickGestureRecognizer* gesture = [[NSClickGestureRecognizer alloc] initWithTarget:self action:@selector(resetTempo:)];
+    gesture = [[NSClickGestureRecognizer alloc] initWithTarget:self action:@selector(resetTempo:)];
     gesture.buttonMask = 0x2; // right mouse
     [_tempoSlider addGestureRecognizer:gesture];
     
@@ -561,10 +540,13 @@ extern NSString * const kPlaybackStatePlaying;
         (meta.album.length > 0 ? meta.album : (meta.artist.length > 0 ?
                                                meta.artist : @"unknown") );
 //    _coverButton.enabled = YES;
+    _playPause.enabled = YES;
 }
 
 - (void)beatEffect:(NSNotification*)notification
 {
+    // Animate the beat-indicator
+    
     // Thats a weird mid-point but hey...
     CGSize mid = CGSizeMake((self.beatIndicator.layer.bounds.size.width - 1) / 2,
                             self.beatIndicator.layer.bounds.size.height - 2);
@@ -588,6 +570,63 @@ extern NSString * const kPlaybackStatePlaying;
             self.beatIndicator.animator.layer.transform = tr;
         }];
     }];
+
+    const NSDictionary* dict = notification.object;
+    int style = [dict[kBeatNotificationKeyStyle] intValue];
+    unsigned long long beat = [dict[kBeatNotificationKeyBeat] unsignedLongLongValue];
+    unsigned int index = (beat + 1) % 4;
+    double bpm = [dict[kBeatNotificationKeyTempo] doubleValue];
+    double beatLength = 60 / bpm;
+
+    if ((style & BeatEventStyleAlarmOutro) == BeatEventStyleAlarmOutro) {
+        [NSAnimationContext runAnimationGroup:^(NSAnimationContext *context) {
+            [context setDuration:beatLength / 2.0];
+            [context setTimingFunction:[CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseIn]];
+            self.duration.animator.alphaValue = 0.4;
+        } completionHandler:^{
+            [NSAnimationContext runAnimationGroup:^(NSAnimationContext *context) {
+                [context setDuration:beatLength / 2.0];
+                [context setTimingFunction:[CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseOut]];
+                self.duration.animator.alphaValue = 1.0;
+            }];
+        }];
+    } else if ((style & BeatEventStyleAlarmTeardown) == BeatEventStyleAlarmTeardown && index == 1) {
+        [NSAnimationContext runAnimationGroup:^(NSAnimationContext *context) {
+            [context setDuration:beatLength];
+            [context setTimingFunction:[CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseIn]];
+            self.duration.animator.alphaValue = 0.4;
+        } completionHandler:^{
+            [NSAnimationContext runAnimationGroup:^(NSAnimationContext *context) {
+                [context setDuration:beatLength];
+                [context setTimingFunction:[CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseOut]];
+                self.duration.animator.alphaValue = 1.0;
+            }];
+        }];
+    }
+    
+    if (!_durationUnitTime) {
+        const unsigned long long totalBeats = [dict[kBeatNotificationKeyTotalBeats] unsignedLongLongValue];
+        const unsigned long long remainingBeats = totalBeats - beat;
+        
+        const unsigned long long barIndex = (beat / 4) + 1;
+        const unsigned int beatIndex = (beat % 4) + 1;
+
+        const unsigned long long remainingBarIndex = (remainingBeats / 4) + 1;
+        const unsigned int remainingBeatIndex = (remainingBeats % 4) + 1;
+
+        [self updateDuration:[NSString stringWithFormat:@"%lld:%d", remainingBarIndex, remainingBeatIndex]
+                        time:[NSString stringWithFormat:@"%lld:%d", barIndex, beatIndex]];
+    }
+}
+
+- (void)updateDuration:(NSString*)duration time:(NSString*)time
+{
+    _duration.stringValue = duration;
+    _time.stringValue = time;
+}
+
+- (void)warningEffect:(NSNotification*)notification
+{
 }
 
 @end

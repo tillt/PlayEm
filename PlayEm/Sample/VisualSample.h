@@ -24,8 +24,10 @@ NS_ASSUME_NONNULL_BEGIN
 /// Get a visual data blob starting at a specific origin, if available.
 - (NSData* _Nullable)visualsFromOrigin:(size_t)origin;
 /// Calculate visual sample data starting from origin,
-- (void)prepareVisualsFromOrigin:(size_t)origin width:(size_t)width window:(size_t)window total:(size_t)totalWidth callback:(void (^)(void))callback;
+- (void)prepareVisualsFromOrigin:(size_t)origin pairs:(size_t)width window:(size_t)window total:(size_t)totalWidth callback:(void (^)(void))callback;
 - (double)framesPerPixel;
+
+- (void)reset;
 
 @end
 

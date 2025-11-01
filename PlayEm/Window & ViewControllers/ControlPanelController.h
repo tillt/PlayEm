@@ -27,11 +27,9 @@ NS_ASSUME_NONNULL_BEGIN
 @interface ControlPanelController : NSTitlebarAccessoryViewController
 
 @property (strong, nonatomic) SymbolButton* playPause;
-@property (strong, nonatomic) NSTextField* duration;
-@property (strong, nonatomic) NSTextField* time;
 @property (strong, nonatomic) NSTextField* bpm;
 @property (strong, nonatomic) NSTextField* beatIndicator;
-@property (strong, nonatomic) NSButton* loop;
+@property (strong, nonatomic) SymbolButton* loop;
 @property (strong, nonatomic) NSButton* shuffle;
 @property (strong, nonatomic) NSSlider* volumeSlider;
 @property (strong, nonatomic) NSSlider* tempoSlider;
@@ -43,11 +41,15 @@ NS_ASSUME_NONNULL_BEGIN
 @property (strong, nonatomic) NSProgressIndicator* keyProgress;
 @property (strong, nonatomic) NSProgressIndicator* autoplayProgress;
 
+@property (assign, nonatomic) BOOL durationUnitTime;
+
+
 - (id)initWithDelegate:(id<ControlPanelControllerDelegate>)delegate;
 - (void)loadView;
 
 - (void)setKey:(NSString*)key hint:(NSString*)hint;
 - (void)setKeyHidden:(BOOL)hidden;
+- (void)updateDuration:(NSString*)duration time:(NSString*)time;
 
 @end
 

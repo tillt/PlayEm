@@ -23,15 +23,16 @@
 @property (assign, nonatomic) unsigned long long currentFrame;
 @property (assign, nonatomic) CGFloat head;
 @property (strong, nonatomic) NSColor* color;
-
-@property (weak, nonatomic) id<CALayerDelegate> waveLayerDelegate;
-@property (weak, nonatomic) id<CALayerDelegate> beatLayerDelegate;
+//
+//@property (weak, nonatomic) id<CALayerDelegate> waveLayerDelegate;
+//@property (weak, nonatomic) id<CALayerDelegate> beatLayerDelegate;
 @property (weak, nonatomic) id<WaveViewHeadDelegate> headDelegate;
 
 - (void)userInitiatedScrolling;
 - (void)userEndsScrolling;
 - (void)updateHeadPositionTransaction;
 - (void)invalidateTiles;
+- (void)invalidateBeats;
 
 @end
 

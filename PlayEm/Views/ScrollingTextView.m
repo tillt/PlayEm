@@ -33,23 +33,27 @@ static const double kScrollSpeed = 1.0 / 24.0;
         self.wantsLayer = YES;
         self.clipsToBounds = YES;
         self.layerContentsRedrawPolicy = NSViewLayerContentsRedrawOnSetNeedsDisplay;
-
+        self.layerUsesCoreImageFilters = YES;
         self.layer = [self makeBackingLayer];
         self.layer.drawsAsynchronously = YES;
-        self.layerUsesCoreImageFilters = YES;
+        self.layer.shouldRasterize = YES;
 
         _first = [CATextLayer layer];
+        _first.drawsAsynchronously = YES;
         _first.anchorPoint = CGPointMake(0.0, 0.0);
         _first.frame = self.bounds;
         _first.allowsEdgeAntialiasing = YES;
+        _first.shouldRasterize = YES;
         _first.contentsScale = [[NSScreen mainScreen] backingScaleFactor];
 
         [self.layer addSublayer:_first];
         
         _second = [CATextLayer layer];
+        _second.drawsAsynchronously = YES;
         _second.anchorPoint = CGPointMake(0.0, 0.0);
         _second.frame = self.bounds;
         _second.allowsEdgeAntialiasing = YES;
+        _second.shouldRasterize = YES;
         _second.contentsScale = [[NSScreen mainScreen] backingScaleFactor];
         [self.layer addSublayer:_second];
         
@@ -57,6 +61,12 @@ static const double kScrollSpeed = 1.0 / 24.0;
     }
     return self;
 }
+//
+//- (CALayer*)makeBackingLayer
+//{
+//    CALayer* layer = [CALayer layer];
+//    return layer;
+//}
 
 - (void)viewDidMoveToSuperview
 {
@@ -145,8 +155,11 @@ static const double kScrollSpeed = 1.0 / 24.0;
     [CATransaction commit];
     
     if (width > self.frame.size.width) {
+        _second.hidden = NO;
         [self addAnimation:_first];
         [self addAnimation:_second];
+    } else {
+        _second.hidden = YES;
     }
 }
 

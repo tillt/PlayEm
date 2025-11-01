@@ -13,10 +13,20 @@
 NS_ASSUME_NONNULL_BEGIN
 
 typedef enum : NSUInteger {
-    BeatEventStyleBeat  = 0x01,
-    BeatEventStyleBar   = 0x02,
-    BeatEventStyleFound = 0x04,
-    BeatEventStyleAlarm = 0x08,
+    BeatEventStyleBeat  = 1 << 0,
+    BeatEventStyleBar   = 1 << 1,
+
+    BeatEventStyleFound = 1 << 2,
+
+    BeatEventStyleAlarmIntro = 1 << 3,
+    BeatEventStyleAlarmBuildup = 1 << 4,
+    BeatEventStyleAlarmTeardown = 1 << 5,
+    BeatEventStyleAlarmOutro = 1 << 6,
+
+    BeatEventStyleMarkIntro = 1 << 7,
+    BeatEventStyleMarkBuildup = 1 << 8,
+    BeatEventStyleMarkTeardown = 1 << 9,
+    BeatEventStyleMarkOutro = 1 << 10,
 } BeatEventStyle;
 
 typedef struct {
@@ -40,6 +50,7 @@ extern NSString * const kBeatNotificationKeyLocalEnergy;
 extern NSString * const kBeatNotificationKeyLocalPeak;
 extern NSString * const kBeatNotificationKeyTotalEnergy;
 extern NSString * const kBeatNotificationKeyTotalPeak;
+extern NSString * const kBeatNotificationKeyTotalBeats;
 
 NS_ASSUME_NONNULL_END
 #endif /* BeatEvent_h */

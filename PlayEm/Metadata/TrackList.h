@@ -10,7 +10,26 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+@class IdentifiedTrack;
+
+@interface TrackListIterator : NSObject
+
+@property (strong, nonatomic) NSArray<NSNumber*>* keys;
+@property (assign, nonatomic) size_t index;
+
+@end
+
+
 @interface TrackList : NSObject
+
+- (void)setTrack:(IdentifiedTrack*)track atFrame:(unsigned long long)frame;
+- (void)removeTrackAtFrame:(unsigned long long)frame;
+- (IdentifiedTrack*)trackAtFrame:(unsigned long long)frame;
+- (NSArray<IdentifiedTrack*>*)tracks;
+- (NSArray<NSNumber*>*)frames;
+
+- (unsigned long long)firstTrackFrame:(TrackListIterator *_Nonnull*_Nullable)iterator;
+- (unsigned long long)nextTrackFrame:(nonnull TrackListIterator *)iterator;
 
 @end
 

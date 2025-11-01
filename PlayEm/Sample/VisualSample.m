@@ -82,12 +82,41 @@
         _framesPerReducedValue = _sample.frames / reducedMaxWidth;
         _reducedTotalWidth = _sample.frames / _framesPerReducedValue;
         NSLog(@"frames per reduced value: %ld (total %ld)", _framesPerReducedValue, _reducedTotalWidth);
-        _reductionPairContext = (VisualPairContext){ .reductionBuffer = [NSMutableData new] };
+        //_reductionPairContext = (VisualPairContext){ .reductionBuffer = [NSMutableData new] };
     }
     return self;
 }
 
-- (void)allAbort
+- (void)dealloc
+{
+    NSLog(@"VisualSample %@ removing from memory", self);
+    [self reset];
+}
+
+- (void)setPixelPerSecond:(double)pixelPerSecond
+{
+    if (_pixelPerSecond == pixelPerSecond) {
+        return;
+    }
+
+    [self reset];
+
+    NSLog(@"removing all operations...");
+    NSLog(@"removed all operations - clear start!");
+
+    _pixelPerSecond = pixelPerSecond;
+    assert(_pixelPerSecond > 0.0f);
+
+    _framesPerPixel = (double)_sample.sampleFormat.rate / pixelPerSecond;
+    assert(_framesPerPixel >= 1.0);
+}
+
+- (size_t)width
+{
+    return ceil((float)_sample.frames / _framesPerPixel);
+}
+
+- (void)reset
 {
     NSLog(@"aborting all operations for %@ ...", _calculations_queue);
     NSArray* keys = [_operations allKeys];
@@ -104,37 +133,10 @@
         IndexedBlockOperation* operation = [_operations objectForKey:key];
         [operation wait];
     }
-}
 
-- (void)dealloc
-{
-    NSLog(@"VisualSample %@ removing from memory", self);
-    [self allAbort];
-}
-
-- (void)setPixelPerSecond:(double)pixelPerSecond
-{
-    if (_pixelPerSecond == pixelPerSecond) {
-        return;
-    }
-
-    [self allAbort];
-
-    NSLog(@"removing all operations...");
     [_operations removeAllObjects];
-    NSLog(@"removed all operations - clear start!");
-
-    _pixelPerSecond = pixelPerSecond;
-    assert(_pixelPerSecond > 0.0f);
-
-    _framesPerPixel = (double)_sample.sampleFormat.rate / pixelPerSecond;
-    assert(_framesPerPixel >= 1.0);
 }
 
-- (size_t)width
-{
-    return ceil((float)_sample.frames / _framesPerPixel);
-}
 
 - (NSData* _Nullable)visualsFromOrigin:(size_t)origin
 {
@@ -163,6 +165,16 @@
     return operation.data;
 }
 
+- (NSString*)description
+{
+    return [NSString stringWithFormat:@"Visual Sample - Total Width: %ld, Frames per Pixel: %.0f, Tile Width: %ld, Queue Name: %@, Underlying Sample: %@",
+            [self width],
+            _framesPerPixel,
+            _tileWidth,
+            _calculations_queue.description,
+            _sample];
+}
+
 - (double)framesPerPixel
 {
     return _framesPerPixel;
@@ -187,52 +199,52 @@
     }
 }
 
-- (void)prepareVisualsFromOrigin:(size_t)origin width:(size_t)width window:(size_t)window total:(size_t)totalWidth callback:(nonnull void (^)(void))callback
+- (void)prepareVisualsFromOrigin:(size_t)origin pairs:(size_t)pairsCount window:(size_t)window total:(size_t)totalWidth callback:(nonnull void (^)(void))callback
 {
     os_signpost_interval_begin(pointsOfInterest, POIPrepareVisualsFromOrigin, "PrepareVisualsFromOrigin");
     
     [self garbageCollectOperationsOutsideOfWindow:window width:totalWidth];
-    [self runOperationWithOrigin:origin width:width callback:callback];
+    [self runOperationWithOrigin:origin pairs:pairsCount callback:callback];
     
     os_signpost_interval_end(pointsOfInterest, POIPrepareVisualsFromOrigin, "PrepareVisualsFromOrigin");
 }
 
 // TODO(tillt): Generalize this to reuse for both, the quick-render as well as the
 // initial render.
-- (void)appendToReducedSampleWithValue:(double)s context:(VisualPairContext*)context
-{
-    // Store once we get a complete window done.
-    if (_reductionWindowFrame >= _framesPerReducedValue) {
-        VisualPair pair = {
-            .negativeAverage = context->negativeCount > 0 ? context->negativeSum / context->negativeCount : 0.0,
-            .positiveAverage = context->positiveSum > 0 ? context->positiveSum / context->positiveCount : 0.0
-        };
+//- (void)appendToReducedSampleWithValue:(double)s context:(VisualPairContext*)context
+//{
+//    // Store once we get a complete window done.
+//    if (_reductionWindowFrame >= _framesPerReducedValue) {
+//        VisualPair pair = {
+//            .negativeAverage = context->negativeCount > 0 ? context->negativeSum / context->negativeCount : 0.0,
+//            .positiveAverage = context->positiveSum > 0 ? context->positiveSum / context->positiveCount : 0.0
+//        };
+//
+//        [context->reductionBuffer appendBytes:&pair length:sizeof(VisualPair)];
+//
+//        *context = (VisualPairContext){
+//            .negativeSum = 0.0,
+//            .positiveSum = 0.0,
+//            .negativeCount = 0,
+//            .positiveCount = 0
+//        };
+//
+//        _reductionWindowFrame = 0;
+//    }
+//
+//    // Put value into either positive or negative bin.
+//    if (s >= 0) {
+//        context->positiveSum += s;
+//        context->positiveCount++;
+//    } else {
+//        context->negativeSum += s;
+//        context->negativeCount++;
+//    }
+//
+//    _reductionWindowFrame++;
+//}
 
-        [context->reductionBuffer appendBytes:&pair length:sizeof(VisualPair)];
-
-        *context = (VisualPairContext){
-            .negativeSum = 0.0,
-            .positiveSum = 0.0,
-            .negativeCount = 0,
-            .positiveCount = 0
-        };
-
-        _reductionWindowFrame = 0;
-    }
-
-    // Put value into either positive or negative bin.
-    if (s >= 0) {
-        context->positiveSum += s;
-        context->positiveCount++;
-    } else {
-        context->negativeSum += s;
-        context->negativeCount++;
-    }
-
-    _reductionWindowFrame++;
-}
-
-- (IndexedBlockOperation*)runOperationWithOrigin:(size_t)origin width:(size_t)width callback:(nonnull void (^)(void))callback
+- (IndexedBlockOperation*)runOperationWithOrigin:(size_t)origin pairs:(size_t)pairsCount callback:(nonnull void (^)(void))callback
 {
     assert(origin < self.width);
     
@@ -242,7 +254,7 @@
     IndexedBlockOperation* blockOperation = [_operations objectForKey:pageNumber];
     if (blockOperation != nil) {
         // While in theory this should not happen, it does for example when
-        NSLog(@"asking for the same operation again on page %ld", pageIndex);
+        NSLog(@"asking for the same operation again on page %ld for sample %@", pageIndex, self);
         return blockOperation;
     }
     blockOperation = [[IndexedBlockOperation alloc] initWithIndex:pageIndex];
@@ -253,17 +265,18 @@
     VisualPairContext* reductionPairContext = &_reductionPairContext;
     BOOL reduce = NO;
     BOOL fromReduced = NO;
-    if (_reducedTotalWidth > 0) {
-        if (reductionPairContext->reductionBuffer.length < _reducedTotalWidth) {
-            reduce = YES;
-        } else {
-            NSLog(@"from reduced!");
-            fromReduced = YES;
-        }
-        reduce = reductionPairContext->reductionBuffer.length < _reducedTotalWidth;
-    }
+//    if (_reducedTotalWidth > 0) {
+//        if (reductionPairContext->reductionBuffer.length < _reducedTotalWidth) {
+//            reduce = YES;
+//        } else {
+//            NSLog(@"from reduced!");
+//            fromReduced = YES;
+//        }
+//        reduce = reductionPairContext->reductionBuffer.length < _reducedTotalWidth;
+//    }
 
     [_operations setObject:blockOperation forKey:[NSNumber numberWithLong:pageIndex]];
+    //NSLog(@"asking for operation on tile %ld", pageIndex);
     
     [blockOperation run:^(void){
         const int channels = weakSample.sample.sampleFormat.channels;
@@ -273,7 +286,7 @@
         }
         assert(!weakOperation.isFinished);
         
-        const unsigned long int framesNeeded = width * weakSample.framesPerPixel;
+        const unsigned long int framesNeeded = pairsCount * weakSample.framesPerPixel;
 
         float* data[channels];
         
@@ -282,7 +295,7 @@
         }
      
         //NSLog(@"we got room for %ld bytes", width * sizeof(VisualPair));
-        NSMutableData* buffer = [NSMutableData dataWithLength:width * sizeof(VisualPair)];
+        NSMutableData* buffer = [NSMutableData dataWithLength:pairsCount * sizeof(VisualPair)];
         assert(buffer);
 
         VisualPair* storage = (VisualPair*)buffer.mutableBytes;
@@ -296,8 +309,8 @@
 
         // This may block for a loooooong time!
         [weakSample.sample rawSampleFromFrameOffset:displaySampleFrameIndexOffset
-                                           frames:displayFrameCount
-                                          outputs:data];
+                                             frames:displayFrameCount
+                                            outputs:data];
         
         //NSLog(@"This block of %lld frames is used to create visuals for %ld pixels", displayFrameCount, width);
         weakOperation.index = pageIndex;
@@ -308,7 +321,7 @@
 
         VisualPairContext context;
         
-        while(pixelIndex < width) {
+        while(pixelIndex < pairsCount) {
             context = (VisualPairContext){
                 .negativeSum = 0.0,
                 .positiveSum = 0.0,
@@ -329,10 +342,11 @@
                    
                 double s = 0.0;
                 for (int channel = 0; channel < channels; channel++) {
-                    s += data[channel][frameIndex];
+                    const float v = data[channel][frameIndex];
+                    s += v;
                 }
                 s /= channels;
-                
+
                 if (s >= 0) {
                     context.positiveSum += s;
                     context.positiveCount++;
@@ -341,9 +355,9 @@
                     context.negativeCount++;
                 }
 
-                if (reduce) {
-                    [weakSample appendToReducedSampleWithValue:s context:reductionPairContext];
-                }
+//                if (reduce) {
+//                    [weakSample appendToReducedSampleWithValue:s context:reductionPairContext];
+//                }
 
                 frameIndex++;
             } while ((frameIndex - frameOffset) < weakSample.framesPerPixel);
@@ -351,11 +365,14 @@
             if (weakOperation.isCancelled) {
                 break;
             }
-            
+
+            const float negativeAverage = context.negativeCount > 0 ? context.negativeSum / context.negativeCount : 0.0;
+            const float positiveAverage = context.positiveCount > 0 ? context.positiveSum / context.positiveCount : 0.0;
             storage[pixelIndex++] = (VisualPair) {
-                .negativeAverage = context.negativeCount > 0 ? context.negativeSum / context.negativeCount : 0.0,
-                .positiveAverage = context.positiveSum > 0 ? context.positiveSum / context.positiveCount : 0.0
+                .negativeAverage = negativeAverage,
+                .positiveAverage = positiveAverage
             };
+            
         };
         
         weakOperation.isFinished = !weakOperation.isCancelled;

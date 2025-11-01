@@ -16,9 +16,8 @@
 NS_ASSUME_NONNULL_BEGIN
 
 typedef struct {
-    size_t pageIndex;
-    size_t eventIndex;
-    BeatEvent* _Nullable currentEvent;
+    unsigned long long eventIndex;
+    BeatEvent currentEvent;
 } BeatEventIterator;
 
 typedef struct _BeatsParserContext BeatsParserContext;
@@ -36,24 +35,28 @@ typedef struct _BeatsParserContext BeatsParserContext;
 // FIXME: Allows for retrieval of beat events based on a screen origin - this is all too weird - feels like we should have something
 // FIXME: inbetween there. Screen stuff shouldnt be of any concern here.
 
-@property (assign, nonatomic) double framesPerPixel;
 @property (strong, nonatomic) LazySample* sample;
 // Beats as refined through the Mixx algorithm.
 @property (strong, nonatomic) NSMutableDictionary* beats;
-@property (strong, nonatomic) NSMutableDictionary* beatsPerPage;
+//@property (strong, nonatomic) NSMutableDictionary* beatsPerPage;
 // Beats as gathered from Aubio.
 @property (strong, nonatomic) NSMutableData* coarseBeats;
+@property (strong, nonatomic) NSMutableData* quantizedEvents;
+@property (strong, nonatomic) NSMutableData* constantBeats;
 @property (readonly, nonatomic) BOOL ready;
-@property (readonly, nonatomic) size_t tileWidth;
+//@property (readonly, nonatomic) size_t tileWidth;
 @property (readonly, nonatomic) unsigned long long initialSilenceEndsAtFrame;
 @property (readonly, nonatomic) unsigned long long trailingSilenceStartsAtFrame;
 @property (strong, nonatomic) EnergyDetector* energy;
-
+//@property (assign, readonly, nonatomic) unsigned long long beatCount;
+@property (assign, readonly, nonatomic) unsigned long long shardFrameCount;
 
 - (void)abortWithCallback:(nonnull void (^)(void))block;
 
-- (id)initWithSample:(LazySample*)sample framesPerPixel:(double)framesPerPixel;
-- (NSData* _Nullable)beatsFromOrigin:(size_t)origin;
+
+//- (unsigned long long)beatOffsetFromFrame:(unsigned long long)frame;
+
+- (id)initWithSample:(LazySample*)sample;
 
 - (void)trackBeatsAsyncWithCallback:(void (^)(BOOL))callback;
 
@@ -61,13 +64,21 @@ typedef struct _BeatsParserContext BeatsParserContext;
 - (unsigned long long)seekToNextBeat:(nonnull BeatEventIterator*)iterator;
 - (unsigned long long)seekToPreviousBeat:(nonnull BeatEventIterator*)iterator;
 
+//- (unsigned long long)totalBeats;
+//- (unsigned long long)lastBeatIndex;
+
+- (unsigned long long)beatCount;
+
 - (unsigned long long)frameForPreviousBeat:(nonnull BeatEventIterator*)iterator;
 
 - (float)currentTempo:(nonnull BeatEventIterator*)iterator;
 - (unsigned long long)currentEventFrame:(BeatEventIterator*)iterator;
 
 + (void)copyIteratorFromSource:(nonnull BeatEventIterator*)source destination:(nonnull BeatEventIterator*)destination;
+- (void)getBeat:(BeatEvent*)event at:(unsigned long long)index;
+- (void)updateBeat:(BeatEvent*)event at:(unsigned long long)index;
 
+- (unsigned long long)firstBeatIndexAfterFrame:(unsigned long long)frame;
 
 @end
 

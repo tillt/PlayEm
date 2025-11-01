@@ -12,6 +12,9 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+
+@class TrackList;
+
 ///
 /// MediaMetaData is lazily holding metadata for library entries to allow for extending iTunes provided data.
 /// iTunes provided data are held in a shadow item until data is requested and thus copied in.
@@ -85,6 +88,7 @@ extern NSString* const kMediaMetaDataMapTypeNumber;
 
 @property (readonly, nonatomic, nullable) NSImage* imageFromArtwork;
 
+@property (strong, nonatomic, nullable) TrackList* trackList;
 
 + (MediaMetaData*)mediaMetaDataWithURL:(NSURL*)url error:(NSError**)error;
 + (MediaMetaData*)mediaMetaDataWithITLibMediaItem:(ITLibMediaItem*)item error:(NSError**)error;

@@ -16,6 +16,7 @@
 #import "ScopeRenderer.h"
 #import "ScopeView.h"
 #import "ControlPanelController.h"
+#import "IdentifyViewController.h"
 #import "InfoPanel.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -41,6 +42,7 @@ NS_ASSUME_NONNULL_BEGIN
                                                       ScopeRendererDelegate,
                                                       ControlPanelControllerDelegate,
                                                       InfoPanelControllerDelegate,
+                                                      IdentifyViewControllerDelegate,
                                                       NSSplitViewDelegate,
                                                       NSMenuDelegate,
                                                       AVRoutePickerViewDelegate>
@@ -63,16 +65,6 @@ NS_ASSUME_NONNULL_BEGIN
 @property (strong, nonatomic) IBOutlet NSVisualEffectView* effectBelowPlaylist;
 @property (strong, nonatomic) IBOutlet NSTextField* songsCount;
 
-@property (strong, nonatomic) IBOutlet NSTableView* songsTable;
-@property (strong, nonatomic) IBOutlet NSTableView* genreTable;
-@property (strong, nonatomic) IBOutlet NSTableView* artistsTable;
-@property (strong, nonatomic) IBOutlet NSTableView* albumsTable;
-@property (strong, nonatomic) IBOutlet NSTableView* temposTable;
-@property (strong, nonatomic) IBOutlet NSTableView* keysTable;
-@property (strong, nonatomic) IBOutlet NSTableView* ratingsTable;
-@property (strong, nonatomic) IBOutlet NSTableView* tagsTable;
-@property (strong, nonatomic) IBOutlet NSSearchField* searchField;
-
 @property (strong, nonatomic) IBOutlet NSProgressIndicator* progress;
 @property (strong, nonatomic) IBOutlet NSProgressIndicator* trackLoadProgress;
 @property (strong, nonatomic) IBOutlet NSProgressIndicator* trackRenderProgress;
@@ -80,7 +72,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (strong, nonatomic) IBOutlet NSSplitView* horizontalSplitView;
 @property (strong, nonatomic) IBOutlet NSSplitView* browserColumnSplitView;
-@property (strong, nonatomic) IBOutlet NSTableView* playlistTable;
 @property (strong, nonatomic) IdentifyViewController* iffy;
 @property (strong, nonatomic, nullable) NSMenu* dockMenu;
 

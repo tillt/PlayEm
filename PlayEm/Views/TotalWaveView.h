@@ -15,10 +15,12 @@ extern const CGFloat kTotalWaveViewTileWidth;
 @interface TotalWaveView : NSView
 
 @property (weak, nonatomic) IBOutlet id<CALayerDelegate> layerDelegate;
+@property (weak, nonatomic) IBOutlet id<CALayerDelegate> overlayLayerDelegate;
 @property (assign, nonatomic) unsigned long long frames;
 @property (assign, nonatomic) unsigned long long currentFrame;
 
-- (void)refresh;
+- (void)invalidateTiles;
+- (void)invalidateBeats;
 - (void)resize;
 
 @end

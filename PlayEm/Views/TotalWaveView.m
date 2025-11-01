@@ -14,7 +14,7 @@
 #import "Defaults.h"
 #import "CAShapeLayer+Path.h"
 
-const CGFloat kTotalWaveViewTileWidth = 8.0f;
+const CGFloat kTotalWaveViewTileWidth = 4.0f;
 
 @interface TotalWaveView ()
 @property (strong, nonatomic) CALayer* headLayer;
@@ -22,7 +22,6 @@ const CGFloat kTotalWaveViewTileWidth = 8.0f;
 @property (strong, nonatomic) CALayer* aheadVibranceFxLayer;
 @property (strong, nonatomic) CALayer* tailBloomFxLayer;
 @property (strong, nonatomic) CALayer* rastaLayer;
-//@property (strong, nonatomic) CAShapeLayer* aheadVibranceFxLayerMask;
 @property (assign, nonatomic) NSSize headImageSize;
 @end
 
@@ -183,41 +182,28 @@ const CGFloat kTotalWaveViewTileWidth = 8.0f;
 
 - (void)updateTiles
 {
+    NSMutableArray *viewsToRemove = [[NSMutableArray alloc] init];
+    for(NSView* view in self.subviews) {
+        [viewsToRemove addObject:view];
+    }
+    [viewsToRemove makeObjectsPerformSelector:@selector(removeFromSuperview)];
+    
     NSSize tileSize = { (CGFloat)kTotalWaveViewTileWidth, self.bounds.size.height };
-
-    NSRect documentVisibleRect = self.bounds;
-//
+    NSRect documentVisibleRect = NSMakeRect(0.0, 0.0, self.bounds.size.width, self.bounds.size.height);
+    //
     const CGFloat xMin = floor(NSMinX(documentVisibleRect) / tileSize.width) * tileSize.width;
     const CGFloat xMax = xMin + (floor((NSMaxX(documentVisibleRect) - xMin) / tileSize.width) * tileSize.width);
     const CGFloat yMin = floor(NSMinY(documentVisibleRect) / tileSize.height) * tileSize.height;
     const CGFloat yMax = ceil((NSMaxY(documentVisibleRect) - yMin) / tileSize.height) * tileSize.height;
-
-    NSMutableArray<TileView*>* sv = [NSMutableArray array];
+    
     for (CGFloat x = xMin; x < xMax; x += tileSize.width) {
         for (CGFloat y = yMin; y < yMax; y += tileSize.height) {
             NSRect rect = NSMakeRect(x, y, tileSize.width, tileSize.height);
-            TileView* v = [[TileView alloc] initWithFrame:rect];
+            TileView* v = [[TileView alloc] initWithFrame:rect layerDelegate:_layerDelegate overlayLayerDelegate:_overlayLayerDelegate];
             v.tileTag = x / tileSize.width;
-            v.layer.delegate = self.layerDelegate;
-            [sv addObject:v];
-            [v.layer setNeedsDisplay];
+            [self addSubview:v];
         }
     }
-    for (NSView* v in [sv reverseObjectEnumerator]) {
-        [self addSubview:v];
-        [v.layer setNeedsDisplay];
-    }
-}
-
-- (void)addSubview:(NSView*)view
-{
-    view.layer = [view makeBackingLayer];
-    view.layerContentsRedrawPolicy = NSViewLayerContentsRedrawOnSetNeedsDisplay;
-
-    [super addSubview:view];
-    
-    view.layer.delegate = self.layerDelegate;
-    [view.layer setNeedsDisplay];
 }
 
 - (TileView*)tileWithTag:(NSInteger)tag
@@ -254,42 +240,25 @@ const CGFloat kTotalWaveViewTileWidth = 8.0f;
     
     _tailBloomFxLayer.mask = [CAShapeLayer MaskLayerFromRect:_tailBloomFxLayer.bounds];
     
+    //[self invalidateBeats];
+
     [self updateHeadPosition];
+    [self updateTiles];
+}
 
-    NSSize tileSize = { (CGFloat)kTotalWaveViewTileWidth, self.bounds.size.height };
-
-    NSRect documentVisibleRect = self.bounds;
-
-    const CGFloat xMin = floor(NSMinX(documentVisibleRect) / tileSize.width) * tileSize.width;
-    const CGFloat xMax = xMin + (ceil((NSMaxX(documentVisibleRect) - xMin) / tileSize.width) * tileSize.width);
-    const CGFloat yMin = floor(NSMinY(documentVisibleRect) / tileSize.height) * tileSize.height;
-    const CGFloat yMax = ceil((NSMaxY(documentVisibleRect) - yMin) / tileSize.height) * tileSize.height;
-
-    NSMutableArray* sv = [NSMutableArray array];
-    for (CGFloat x = xMin; x < xMax; x += tileSize.width) {
-        for (CGFloat y = yMin; y < yMax; y += tileSize.height) {
-            NSInteger tag = x / tileSize.width;
-            if ([self tileWithTag:tag] == nil) {
-                NSRect rect = NSMakeRect(x, y, tileSize.width, tileSize.height);
-                TileView* v = [[TileView alloc] initWithFrame:rect];
-                v.layer.delegate = self.layerDelegate;
-                v.tileTag = tag;
-                [v.layer setNeedsDisplay];
-                [sv addObject:v];
-            }
-        }
-    }
-    for (NSView* v in [sv reverseObjectEnumerator]) {
-        [self addSubview:v];
+- (void)invalidateBeats
+{
+    for (TileView* view in [[self subviews] reverseObjectEnumerator]) {
+        [view.overlayLayer setNeedsDisplay];
     }
 }
 
-- (void)refresh
+- (void)invalidateTiles
 {
     for (TileView* view in [[self subviews] reverseObjectEnumerator]) {
         [view.layer setNeedsDisplay];
+        [view.overlayLayer setNeedsDisplay];
     }
-    [self setNeedsDisplay:YES];
 }
 
 @end

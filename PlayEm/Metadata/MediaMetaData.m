@@ -454,6 +454,16 @@ NSString* const kMediaMetaDataMapTypeNumber = @"number";
     return self;
 }
 
+- (TrackList*)trackList
+{
+    return _trackList;
+}
+
+- (NSURL*)trackListURL
+{
+    return [[self.location URLByDeletingPathExtension] URLByAppendingPathExtension:@"tracklist"];
+}
+
 - (NSString*)mimeTypeForArtwork
 {
     if (self.artwork == nil) {
@@ -1154,6 +1164,18 @@ NSString* const kMediaMetaDataMapTypeNumber = @"number";
     return key;
 }
 
+- (BOOL)recoverTracklistWithError:(NSError *__autoreleasing  _Nullable *)error
+{
+    NSURL* url = [self trackListURL];
+    return [_trackList readFromFile:url error:error];
+}
+
+- (BOOL)storeTracklistWithError:(NSError *__autoreleasing  _Nullable *)error
+{
+    NSURL* url = [self trackListURL];
+    return [_trackList writeToFile:url error:error];
+}
+
 - (BOOL)readFromFileWithError:(NSError**)error
 {
     MediaMetaDataFileFormatType type = [MediaMetaData fileTypeWithURL:self.location error:error];
@@ -1222,17 +1244,20 @@ NSString* const kMediaMetaDataMapTypeNumber = @"number";
 
     if (type == MediaMetaDataFileFormatTypeMP4) {
         if ([self writeToMP4FileWithError:error] == 0) {
-            NSString* tempFilePath = [self pathForTemporaryFileWithPrefix:@"PlayEm"];
-            NSURL* tempFileUrl = [[NSURL URLWithString:tempFilePath] URLByAppendingPathExtension:@"mp4"];
-
-            NSArray<NSDictionary*>* chapters = @[
-               @{@"title": @"Intro", @"time": @(0)},
-               @{@"title": @"Scene 1", @"time": @(60)},
-               @{@"title": @"Scene 2", @"time": @(120)}
-            ];
-
-            [self addChaptersToAudioFileAtURL:self.location
-                                    outputURL:tempFileUrl];
+//            NSString* tempFilePath = [self pathForTemporaryFileWithPrefix:@"PlayEm"];
+//            NSURL* tempFileUrl = [[NSURL URLWithString:tempFilePath] URLByAppendingPathExtension:@"mov"];
+//            NSLog(@"url %@", tempFileUrl);
+//
+//            NSArray<NSDictionary*>* chapters = @[
+//               @{@"title": @"Intro", @"time": @(0)},
+//               @{@"title": @"Scene 1", @"time": @(60)},
+//               @{@"title": @"Scene 2", @"time": @(120)}
+//            ];
+//
+//            [self addChaptersToAudioFileAtURL:self.location
+//                                    outputURL:tempFileUrl];
+//            
+            return YES;
 /*
             if ([self addChapterMarksToMP4:self.location
                                outputURL:tempFileUrl
@@ -1244,16 +1269,16 @@ NSString* const kMediaMetaDataMapTypeNumber = @"number";
         }
     }
     
-    NSString* description = [NSString stringWithFormat:@"Unsupported filetype for modifying metadata"];
-    if (error) {
-        NSDictionary* userInfo = @{
-            NSLocalizedDescriptionKey:description,
-        };
-        *error = [NSError errorWithDomain:[[NSBundle bundleForClass:[self class]] bundleIdentifier]
-                                     code:-1
-                                 userInfo:userInfo];
-    }
-    NSLog(@"error: %@", description);
+//    NSString* description = [NSString stringWithFormat:@"Unsupported filetype for modifying metadata"];
+//    if (error) {
+//        NSDictionary* userInfo = @{
+//            NSLocalizedDescriptionKey:description,
+//        };
+//        *error = [NSError errorWithDomain:[[NSBundle bundleForClass:[self class]] bundleIdentifier]
+//                                     code:-1
+//                                 userInfo:userInfo];
+//    }
+//    NSLog(@"error: %@", description);
     
     return NO;
 }

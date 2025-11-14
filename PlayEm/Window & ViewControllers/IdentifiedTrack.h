@@ -14,7 +14,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @class SHMatchedMediaItem;
 
-@interface IdentifiedTrack : NSObject
+@interface IdentifiedTrack : NSObject<NSSecureCoding>
 
 @property (copy, nonatomic, nullable) NSString* title;
 @property (copy, nonatomic, nullable) NSString* artist;
@@ -22,13 +22,14 @@ NS_ASSUME_NONNULL_BEGIN
 @property (strong, nonatomic, nullable) NSURL* imageURL;
 @property (strong, nonatomic, nullable) NSImage* artwork;
 @property (strong, nonatomic, nullable) NSURL* musicURL;
-@property (assign, nonatomic) unsigned long long frame;
+@property (strong, nonatomic, nullable) NSNumber* frame;
 
 - (id)initWithTitle:(NSString*)title
              artist:(NSString*)artist
               genre:(NSString*)genre
            musicURL:(NSURL*)musicURL
-           imageURL:(NSURL*)imageURL;
+           imageURL:(NSURL*)imageURL
+              frame:(NSNumber*)frame;
 
 - (id)initWithMatchedMediaItem:(SHMatchedMediaItem*)item;
 

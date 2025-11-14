@@ -27,7 +27,13 @@ typedef enum : NSUInteger {
     BeatEventStyleMarkBuildup = 1 << 8,
     BeatEventStyleMarkTeardown = 1 << 9,
     BeatEventStyleMarkOutro = 1 << 10,
+    
+    BeatEventStyleMarkStart = 1 << 11,
+    BeatEventStyleMarkEnd = 1 << 12,
+    BeatEventStyleMarkChapter = 1 << 13,
 } BeatEventStyle;
+
+extern const NSUInteger BeatEventMaskMarkers;
 
 typedef struct {
     BeatEventStyle      style;

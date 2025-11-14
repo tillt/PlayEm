@@ -16,7 +16,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @protocol IdentifyViewControllerDelegate <NSObject>
 
-- (void)addTrackToTracklist:(IdentifiedTrack*)track atFrame:(unsigned long long)frame;
+- (void)addTrackToTracklist:(IdentifiedTrack*)track;
 
 @end
 

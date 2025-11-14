@@ -28,6 +28,8 @@ NS_ASSUME_NONNULL_BEGIN
 @property (strong, nonatomic) NSColor* barColor;
 @property (strong, nonatomic) NSColor* beatColor;
 
+@property (strong, nonatomic) NSColor* markerColor;
+
 @property (strong, nonatomic) NSColor* secondaryLabelColor;
 @property (strong, nonatomic) NSColor* tertiaryLabelColor;
 

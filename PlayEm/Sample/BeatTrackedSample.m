@@ -69,6 +69,14 @@ NSString * const kBeatNotificationKeyLocalPeak = @"localPeak";
 NSString * const kBeatNotificationKeyTotalPeak = @"totalPeak";
 NSString * const kBeatNotificationKeyTotalBeats = @"totalBeats";
 
+const NSUInteger BeatEventMaskMarkers = BeatEventStyleMarkIntro
+                                        | BeatEventStyleMarkBuildup
+                                        | BeatEventStyleMarkTeardown
+                                        | BeatEventStyleMarkOutro
+                                        | BeatEventStyleMarkEnd
+                                        | BeatEventStyleMarkChapter
+                                        | BeatEventStyleMarkStart;
+
 @interface BeatTrackedSample()
 {
 }
@@ -492,13 +500,7 @@ void beatsContextReset(BeatsParserContext* context)
 //
 - (unsigned long long)firstBeatIndexAfterFrame:(unsigned long long)frame
 {
-    // The initial offset has to start one shard before the requested frame to be sure it
-    // isnt skipped when accessing by discrete shard indexes.
-    const unsigned long long offset = (frame >= (self.shardFrameCount - 1))
-        ? (frame - (self.shardFrameCount - 1))
-        : 0;
-
-    const size_t page = offset / self.shardFrameCount;
+    size_t page = frame / self.shardFrameCount;
     NSNumber* pageKey = [NSNumber numberWithLong:page];
     
     NSNumber* shardBeatIndex = [_beats objectForKey:pageKey];
@@ -509,26 +511,18 @@ void beatsContextReset(BeatsParserContext* context)
 
     unsigned long long beatIndex = [shardBeatIndex unsignedLongLongValue];
     const unsigned long long beatCount = [self beatCount];
-    
+
     while(beatIndex < beatCount) {
         BeatEvent event;
-
         [self getBeat:&event at:beatIndex];
-
         if (event.frame >= frame) {
             break;
         }
-
         beatIndex++;
     };
 
     return beatIndex;
 }
-
-//- (BeatEvent*)beatEventForShard:(size_t)index
-//{
-//    BeatEvent* self.quantizedEvents.bytes;
-//}
 
 - (void)updateBeat:(BeatEvent*)event at:(unsigned long long)index
 {

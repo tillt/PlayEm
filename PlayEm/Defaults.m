@@ -58,6 +58,11 @@ static const CGFloat kBigFontSize = 24.0f;
                                      green:0.43f
                                       blue:0.03f
                                      alpha:0.08f];
+        
+        _markerColor = [NSColor colorWithRed:1.00f
+                                       green:0.43f
+                                        blue:0.03f
+                                       alpha:0.80f];
 
         _barColor = [NSColor colorWithRed:1.00f
                                     green:0.43f

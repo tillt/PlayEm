@@ -15,6 +15,7 @@
 		BB0A62C92E8855C200BAF444 /* IdentifiedTrack.m in Sources */ = {isa = PBXBuildFile; fileRef = BB0A62C82E8855C200BAF444 /* IdentifiedTrack.m */; };
 		BB0A62CE2E88796A00BAF444 /* TracklistController.m in Sources */ = {isa = PBXBuildFile; fileRef = BB0A62CD2E88796500BAF444 /* TracklistController.m */; };
 		BB0A62D52EAD690A00BAF444 /* TODO.md in Resources */ = {isa = PBXBuildFile; fileRef = BB0A62D42EAD690A00BAF444 /* TODO.md */; };
+		BB0BDC3A2EC014550052D363 /* MarkLayerController.m in Sources */ = {isa = PBXBuildFile; fileRef = BB0BDC392EC014480052D363 /* MarkLayerController.m */; };
 		BB0C5D9327768D2400856978 /* MatrixUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = BB0C5D9227768D2400856978 /* MatrixUtilities.m */; };
 		BB0D5281244CEE22007C909F /* VisualSample.m in Sources */ = {isa = PBXBuildFile; fileRef = BB0D5280244CEE22007C909F /* VisualSample.m */; };
 		BB1614B92AACB0C300F6C5E6 /* libaubio.5.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = BB1614B82AACB0C300F6C5E6 /* libaubio.5.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
@@ -92,11 +93,9 @@
 		BBDBBA7B2BA4B013003A80C1 /* WaveShaders.metal in Sources */ = {isa = PBXBuildFile; fileRef = BBDBBA7A2BA4B013003A80C1 /* WaveShaders.metal */; };
 		BBDC988A250E81D0008B19D1 /* BrowserController.m in Sources */ = {isa = PBXBuildFile; fileRef = BBDC9889250E81D0008B19D1 /* BrowserController.m */; };
 		BBDC988C250E8347008B19D1 /* iTunesLibrary.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BBDC988B250E8347008B19D1 /* iTunesLibrary.framework */; };
-		BBDEBD3D2A99417A0085E6D8 /* WaveLayerDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = BBDEBD3C2A99417A0085E6D8 /* WaveLayerDelegate.m */; };
 		BBE284682467612F00BE9D7F /* ScopeRenderer.m in Sources */ = {isa = PBXBuildFile; fileRef = BBE284672467612F00BE9D7F /* ScopeRenderer.m */; };
 		BBE2846D246765BD00BE9D7F /* Shaders.metal in Sources */ = {isa = PBXBuildFile; fileRef = BBE2846C246765A700BE9D7F /* Shaders.metal */; };
 		BBE2846F2467669500BE9D7F /* MetalKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BBE2846E2467669500BE9D7F /* MetalKit.framework */; };
-		BBE5FEB52A892A410001B807 /* BeatLayerDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = BBE5FEB42A892A410001B807 /* BeatLayerDelegate.m */; };
 		BBECB0252D4FF33E00C6A6F3 /* LargeRastaPattern.png in Resources */ = {isa = PBXBuildFile; fileRef = BBECB0242D4FF33E00C6A6F3 /* LargeRastaPattern.png */; };
 		BBF7982D2ADC4BAA00893533 /* NSString+BeautifulPast.m in Sources */ = {isa = PBXBuildFile; fileRef = BBF7982C2ADC4BAA00893533 /* NSString+BeautifulPast.m */; };
 		BBF81D932CBB025C0086AECB /* NSColor+Metal.m in Sources */ = {isa = PBXBuildFile; fileRef = BBF81D922CBB025C0086AECB /* NSColor+Metal.m */; };
@@ -138,6 +137,8 @@
 		BB0A62CC2E88791400BAF444 /* TracklistController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TracklistController.h; sourceTree = "<group>"; };
 		BB0A62CD2E88796500BAF444 /* TracklistController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TracklistController.m; sourceTree = "<group>"; };
 		BB0A62D42EAD690A00BAF444 /* TODO.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = TODO.md; sourceTree = "<group>"; };
+		BB0BDC382EC00E470052D363 /* MarkLayerController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MarkLayerController.h; sourceTree = "<group>"; };
+		BB0BDC392EC014480052D363 /* MarkLayerController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MarkLayerController.m; sourceTree = "<group>"; };
 		BB0C5D9127768D2400856978 /* MatrixUtilities.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MatrixUtilities.h; sourceTree = "<group>"; };
 		BB0C5D9227768D2400856978 /* MatrixUtilities.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MatrixUtilities.m; sourceTree = "<group>"; };
 		BB0D527F244CEE22007C909F /* VisualSample.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VisualSample.h; sourceTree = "<group>"; };
@@ -274,15 +275,11 @@
 		BBDC9888250E81CF008B19D1 /* BrowserController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BrowserController.h; sourceTree = "<group>"; };
 		BBDC9889250E81D0008B19D1 /* BrowserController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = BrowserController.m; sourceTree = "<group>"; };
 		BBDC988B250E8347008B19D1 /* iTunesLibrary.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = iTunesLibrary.framework; path = System/Library/Frameworks/iTunesLibrary.framework; sourceTree = SDKROOT; };
-		BBDEBD3B2A99417A0085E6D8 /* WaveLayerDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WaveLayerDelegate.h; sourceTree = "<group>"; };
-		BBDEBD3C2A99417A0085E6D8 /* WaveLayerDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WaveLayerDelegate.m; sourceTree = "<group>"; };
 		BBE284662467612F00BE9D7F /* ScopeRenderer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ScopeRenderer.h; sourceTree = "<group>"; };
 		BBE284672467612F00BE9D7F /* ScopeRenderer.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ScopeRenderer.m; sourceTree = "<group>"; };
 		BBE2846A2467640800BE9D7F /* ShaderTypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ShaderTypes.h; sourceTree = "<group>"; };
 		BBE2846C246765A700BE9D7F /* Shaders.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = Shaders.metal; sourceTree = "<group>"; };
 		BBE2846E2467669500BE9D7F /* MetalKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MetalKit.framework; path = System/Library/Frameworks/MetalKit.framework; sourceTree = SDKROOT; };
-		BBE5FEB32A892A410001B807 /* BeatLayerDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BeatLayerDelegate.h; sourceTree = "<group>"; };
-		BBE5FEB42A892A410001B807 /* BeatLayerDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = BeatLayerDelegate.m; sourceTree = "<group>"; };
 		BBECB0242D4FF33E00C6A6F3 /* LargeRastaPattern.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = LargeRastaPattern.png; sourceTree = "<group>"; };
 		BBF7982B2ADC4BAA00893533 /* NSString+BeautifulPast.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSString+BeautifulPast.h"; sourceTree = "<group>"; };
 		BBF7982C2ADC4BAA00893533 /* NSString+BeautifulPast.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSString+BeautifulPast.m"; sourceTree = "<group>"; };
@@ -398,10 +395,8 @@
 				BBB37D20290F4A7E0007A6BB /* PlaylistController.m */,
 				BB0A62CC2E88791400BAF444 /* TracklistController.h */,
 				BB0A62CD2E88796500BAF444 /* TracklistController.m */,
-				BBE5FEB32A892A410001B807 /* BeatLayerDelegate.h */,
-				BBE5FEB42A892A410001B807 /* BeatLayerDelegate.m */,
-				BBDEBD3B2A99417A0085E6D8 /* WaveLayerDelegate.h */,
-				BBDEBD3C2A99417A0085E6D8 /* WaveLayerDelegate.m */,
+				BB0BDC392EC014480052D363 /* MarkLayerController.m */,
+				BB0BDC382EC00E470052D363 /* MarkLayerController.h */,
 				BBA456DF29395B970062D470 /* IdentifyViewController.h */,
 				BBA456E029395B970062D470 /* IdentifyViewController.m */,
 				BB0A62C82E8855C200BAF444 /* IdentifiedTrack.m */,
@@ -735,7 +730,6 @@
 				BBD24D6A2432948B00DC2A81 /* main.m in Sources */,
 				BBA623D42620F6A200924D44 /* UIView+Visibility.m in Sources */,
 				BBC2AF732B8B5B5A0077EB5E /* MediaMetaData+AVAsset.m in Sources */,
-				BBE5FEB52A892A410001B807 /* BeatLayerDelegate.m in Sources */,
 				BBE284682467612F00BE9D7F /* ScopeRenderer.m in Sources */,
 				BBAD5EF32CE0ECBD00F664AB /* CALayer+PauseAnimations.m in Sources */,
 				BBC2AF772B8DE2780077EB5E /* NSError+BetterError.m in Sources */,
@@ -762,10 +756,10 @@
 				BBD24D622432948800DC2A81 /* AppDelegate.m in Sources */,
 				BBAD7D55262B973C00089ACC /* ScopeView.m in Sources */,
 				BB51C1E02E59C1990049355F /* WaveScrollView.m in Sources */,
-				BBDEBD3D2A99417A0085E6D8 /* WaveLayerDelegate.m in Sources */,
 				BB0D5281244CEE22007C909F /* VisualSample.m in Sources */,
 				BB46D4AF2D98715B0090CD56 /* NSImage+Resize.m in Sources */,
 				BBDA2FFE2A7FCEEC0084E2B6 /* BeatTrackedSample.m in Sources */,
+				BB0BDC3A2EC014550052D363 /* MarkLayerController.m in Sources */,
 				BB3926FF2C14B43E009C7B32 /* TableRowView.m in Sources */,
 				BBB37D21290F4A7E0007A6BB /* PlaylistController.m in Sources */,
 				BB2CF8AD259EB66900D6BA03 /* LazySample.m in Sources */,

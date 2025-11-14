@@ -36,13 +36,17 @@
 #import "ControlPanelController.h"
 #import "IdentifyViewController.h"
 #import "Defaults.h"
-#import "BeatLayerDelegate.h"
-#import "WaveLayerDelegate.h"
 #import "ProfilingPointsOfInterest.h"
 #import "NSAlert+BetterError.h"
 #import "MusicAuthenticationController.h"
 #import "EnergyDetector.h"
 #import "SymbolButton.h"
+
+#import "MarkLayerController.h"
+
+@class BeatLayerDelegate;
+@class WaveLayerDelegate;
+@class MarkLayerDelegate;
 
 static const float kShowHidePanelAnimationDuration = 0.3f;
 
@@ -135,11 +139,11 @@ os_log_t pointsOfInterest;
 
 @property (strong, nonatomic) NSViewController* aboutViewController;
 
-@property (strong, nonatomic) BeatLayerDelegate* beatLayerDelegate;
 @property (strong, nonatomic) WaveLayerDelegate* waveLayerDelegate;
+@property (strong, nonatomic) MarkLayerController* markLayerController;
 
-@property (strong, nonatomic) BeatLayerDelegate* totalBeatLayerDelegate;
 @property (strong, nonatomic) WaveLayerDelegate* totalWaveLayerDelegate;
+@property (strong, nonatomic) MarkLayerController* totalMarkLayerController;
 
 //@property (strong, nonatomic) SPMediaKeyTap* keyTap;
 @property (strong, nonatomic) AVRouteDetector* routeDetector;
@@ -452,29 +456,42 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     toolBar.delegate = self;
     self.window.toolbar = toolBar;
 
-    _beatLayerDelegate = [BeatLayerDelegate new];
-    _beatLayerDelegate.beatMask = BeatEventStyleBeat | BeatEventStyleBar;
+    _markLayerController = [MarkLayerController new];
+    _markLayerController.markerColor = [[Defaults sharedDefaults] markerColor];
+    _markLayerController.markerWidth = 2.0;
+    _markLayerController.beatMask = BeatEventStyleBeat | BeatEventStyleBar;
+    _markLayerController.beatColor = [[Defaults sharedDefaults] beatColor];
+    _markLayerController.beatWidth = 3.0;
+    _markLayerController.barColor = [[Defaults sharedDefaults] barColor];
+    _markLayerController.barWidth = 3.0;
+    _markLayerController.markerColor = [[Defaults sharedDefaults] markerColor];
+    _markLayerController.markerWidth = 5.0;
 
-    _totalBeatLayerDelegate = [BeatLayerDelegate new];
-    _totalBeatLayerDelegate.beatMask = BeatEventStyleMarkIntro | BeatEventStyleMarkBuildup | BeatEventStyleMarkTeardown | BeatEventStyleMarkOutro;
+    _totalMarkLayerController = [MarkLayerController new];
+    _totalMarkLayerController.beatMask = BeatEventStyleMarkIntro | BeatEventStyleMarkBuildup | BeatEventStyleMarkTeardown | BeatEventStyleMarkOutro;
 
+    _totalMarkLayerController.beatColor = [[Defaults sharedDefaults] beatColor];
+    _totalMarkLayerController.beatWidth = 1.0;
+    _totalMarkLayerController.barColor = [[Defaults sharedDefaults] barColor];
+    _totalMarkLayerController.barWidth = 1.0;
+    _totalMarkLayerController.markerColor = [[Defaults sharedDefaults] markerColor];
+    _totalMarkLayerController.markerWidth = 2.0;
+    
     WaveWindowController* __weak weakSelf = self;
     
-    _waveLayerDelegate = [WaveLayerDelegate new];
-    _waveLayerDelegate.visualSample = self.visualSample;
-    _waveLayerDelegate.offsetBlock = ^CGFloat{
+    _markLayerController.visualSample = self.visualSample;
+    _markLayerController.offsetBlock = ^CGFloat{
         return weakSelf.waveView.enclosingScrollView.documentVisibleRect.origin.x;
     };
-    _waveLayerDelegate.widthBlock = ^CGFloat{
+    _markLayerController.widthBlock = ^CGFloat{
         return weakSelf.waveView.enclosingScrollView.documentVisibleRect.size.width;
     };
 
-    _totalWaveLayerDelegate = [WaveLayerDelegate new];
-    _totalWaveLayerDelegate.visualSample = self.totalVisual;
-    _totalWaveLayerDelegate.offsetBlock = ^CGFloat{
+    _totalMarkLayerController.visualSample = self.totalVisual;
+    _totalMarkLayerController.offsetBlock = ^CGFloat{
         return 0.0;
     };
-    _totalWaveLayerDelegate.widthBlock = ^CGFloat{
+    _totalMarkLayerController.widthBlock = ^CGFloat{
         return weakSelf.totalView.frame.size.width;
     };
 
@@ -486,15 +503,15 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
 
     [self loadViews];
 
-    _beatLayerDelegate.waveView = _waveView;
-
-    _totalWaveLayerDelegate.fillColor = _waveView.color;
-    _totalWaveLayerDelegate.outlineColor = _waveView.color;
+    _markLayerController.waveView = _waveView;
     
-    _totalBeatLayerDelegate.waveView = _totalView;
-
-    _waveLayerDelegate.fillColor = _waveView.color;
-    _waveLayerDelegate.outlineColor = [_waveView.color colorWithAlphaComponent:0.2];
+    _totalMarkLayerController.waveFillColor = _waveView.color;
+    _totalMarkLayerController.waveOutlineColor = _waveView.color;
+    
+    _markLayerController.waveFillColor = _waveView.color;
+    _markLayerController.waveOutlineColor = [_waveView.color colorWithAlphaComponent:0.2];
+    
+    _totalMarkLayerController.waveView = _totalView;
 
     [self subscribeToRemoteCommands];
     
@@ -674,8 +691,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
                                                                  _belowVisuals.bounds.origin.y,
                                                                  _belowVisuals.bounds.size.width,
                                                                  totalWaveViewHeight)];
-    _totalView.layerDelegate = self.totalWaveLayerDelegate;
-    _totalView.overlayLayerDelegate = self.totalBeatLayerDelegate;
+    _totalView.markLayerController = self.totalMarkLayerController;
     _totalView.autoresizingMask = NSViewWidthSizable;
     _totalView.translatesAutoresizingMaskIntoConstraints = YES;
     [_belowVisuals addSubview:_totalView];
@@ -684,8 +700,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
                                                                                  _belowVisuals.bounds.origin.y + totalWaveViewHeight,
                                                                                  _belowVisuals.bounds.size.width,
                                                                                  scrollingWaveViewHeight)];
-    tiledSV.layerDelegate = _waveLayerDelegate;
-    tiledSV.beatLayerDelegate = _beatLayerDelegate;
+    tiledSV.markLayerController = self.markLayerController;
 
     tiledSV.autoresizingMask = NSViewWidthSizable;
     tiledSV.drawsBackground = NO;
@@ -695,8 +710,6 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     _waveView = [[WaveView alloc] initWithFrame:tiledSV.bounds];
     _waveView.autoresizingMask = NSViewNotSizable;
     _waveView.translatesAutoresizingMaskIntoConstraints = YES;
-//    _waveView.waveLayerDelegate = _waveLayerDelegate;
-//    _waveView.beatLayerDelegate = _beatLayerDelegate;
     _waveView.headDelegate = tiledSV;
     _waveView.color = [[Defaults sharedDefaults] regularBeamColor];
 
@@ -722,7 +735,6 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     line.borderColor = [[[Defaults sharedDefaults] lightBeamColor] colorWithAlphaComponent:0.2];
     line.autoresizingMask = NSViewWidthSizable;
     [_belowVisuals addSubview:line];
-
 
     _effectBelowPlaylist = [[NSVisualEffectView alloc] initWithFrame:NSMakeRect(_belowVisuals.bounds.size.width,
                                                                                 _belowVisuals.bounds.origin.y,
@@ -754,11 +766,12 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     _listsTabView.autoresizingMask = kViewFullySizeable;
 
     NSScrollView* sv = [[NSScrollView alloc] initWithFrame:_listsTabView.bounds];
-    sv.backgroundColor = [NSColor blueColor];
+//    sv.backgroundColor = [NSColor blueColor];
     sv.hasVerticalScroller = YES;
     sv.autoresizingMask = kViewFullySizeable;
     sv.drawsBackground = NO;
-    
+
+    // Playlist
     NSTableView* playlistTable = [[NSTableView alloc] initWithFrame:NSZeroRect];
     NSViewController* vc = [NSViewController new];
     _playlistTabViewItem = [NSTabViewItem tabViewItemWithViewController:vc];
@@ -773,17 +786,19 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     sv.autoresizingMask = kViewFullySizeable;
     sv.drawsBackground = NO;
 
+    // Tracklist
     NSTableView* tracklistTable = [[NSTableView alloc] initWithFrame:NSZeroRect];
     vc = [NSViewController new];
     _tracklistTabViewItem = [NSTabViewItem tabViewItemWithViewController:vc];
+    _tracklistTabViewItem.view.frame = _listsTabView.bounds;
     [_tracklistTabViewItem setLabel:@"tracklist"];
     sv.documentView = tracklistTable;
-    _tracklistTabViewItem.view.frame = _listsTabView.bounds;
     [_tracklistTabViewItem.view addSubview:sv];
     [_listsTabView addTabViewItem:_tracklistTabViewItem];
 
     [_effectBelowPlaylist addSubview:_listsTabView];
 
+    // Scope / FFT View
     ScopeView* scv = [[ScopeView alloc] initWithFrame:NSMakeRect(_belowVisuals.bounds.origin.x,
                                                                 _belowVisuals.bounds.origin.y + totalWaveViewHeight + scrollingWaveViewHeight + 1.0,
                                                                 _belowVisuals.bounds.size.width,
@@ -1365,7 +1380,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
         return target;
     }
     
-    NSArray* controllers = @[_browser, _playlist];
+    NSArray* controllers = @[_browser, _playlist, _tracklist];
 
     for (NSResponder *childViewController in controllers) {
         target = [NSApp targetForAction:action to:childViewController from:sender];
@@ -1401,7 +1416,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     NSDocumentController* dc = [NSDocumentController sharedDocumentController];
     NSURL* recentURL = dc.recentDocumentURLs[0];
 
-    NSLog(@"current file:%@", [recentURL filePathURL]);
+    NSLog(@"current path: %@", [recentURL filePathURL]);
     NSLog(@"current frame: %lld", currentFrame);
     
     NSError* error = nil;
@@ -1680,9 +1695,10 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     [window makeKeyAndOrderFront:nil];
 }
 
-- (void)addTrackToTracklist:(IdentifiedTrack*)track atFrame:(unsigned long long)frame
+- (void)addTrackToTracklist:(IdentifiedTrack*)track
 {
-    [_tracklist addTrack:track atFrame:frame];
+    [_tracklist addTrack:track];
+    [_totalView invalidateMarks];
 }
 
 - (void)showIdentifier:(id)sender
@@ -1702,8 +1718,10 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     }
 
     if (_iffy == nil) {
-        self.iffy = [[IdentifyViewController alloc] initWithAudioController:_audioController delegate:self];
+        self.iffy = [[IdentifyViewController alloc] initWithAudioController:_audioController
+                                                                   delegate:self];
         [_iffy view];
+
         NSPanel* panel = [NSPanel windowWithContentViewController:_iffy];
         window = panel;
         window.styleMask &= ~NSWindowStyleMaskResizable | NSWindowStyleMaskTitled;
@@ -1743,14 +1761,14 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     if (_visibleBPM == bpm) {
         return;
     }
-    NSString* display = bpm < 0.5f ? @"" : [NSString stringWithFormat:@"%3.0f BPM", floorf(bpm)];
-
-    _controlPanelController.bpm.stringValue = display;
-
-    NSNumber* number = [NSNumber numberWithFloat:bpm];
-    [[NSNotificationCenter defaultCenter] postNotificationName:kBeatTrackedSampleTempoChangeNotification object:number];
 
     _visibleBPM = bpm;
+
+    NSString* display = bpm < 0.5f ? @"" : [NSString stringWithFormat:@"%3.0f BPM", floorf(bpm)];
+    _controlPanelController.bpm.stringValue = display;
+
+    [[NSNotificationCenter defaultCenter] postNotificationName:kBeatTrackedSampleTempoChangeNotification
+                                                        object:@(bpm)];
 }
 
 - (void)setCurrentFrame:(unsigned long long)frame
@@ -1762,7 +1780,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     }
     if (_controlPanelController.durationUnitTime) {
         os_signpost_interval_begin(pointsOfInterest, POIStringStuff, "StringStuff");
-        [_controlPanelController updateDuration:[_sample beautifulTimeWithFrame:_sample.frames - frame]
+        [_controlPanelController updateDuration:[_sample beautifulTimeWithFrame:(_sample.frames - frame) + 1.0]
                                            time:[_sample beautifulTimeWithFrame:frame]];
         os_signpost_interval_end(pointsOfInterest, POIStringStuff, "StringStuff");
     }
@@ -1774,7 +1792,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     os_signpost_interval_begin(pointsOfInterest, POITotalViewSetCurrentFrame, "TotalViewSetCurrentFrame");
     _totalView.currentFrame = frame;
     os_signpost_interval_end(pointsOfInterest, POITotalViewSetCurrentFrame, "TotalViewSetCurrentFrame");
-
+    
     os_signpost_interval_begin(pointsOfInterest, POIBeatStuff, "BeatStuff");
     if (_beatSample.ready) {
         if (frame + _beatEffectRampUpFrames > _beatEffectAtFrame) {
@@ -1787,6 +1805,9 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
             };
         }
     }
+    
+    _tracklist.currentFrame = frame;
+    
     os_signpost_interval_end(pointsOfInterest, POIBeatStuff, "BeatStuff");
 }
 
@@ -2147,13 +2168,15 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     }
     NSLog(@"previous sample %p should get unretained now", _sample);
     _sample = sample;
-    _waveLayerDelegate.visualSample = nil;
     _visualSample = nil;
     _totalVisual = nil;
     _beatSample = nil;
     _keySample = nil;
-    _beatLayerDelegate.beatSample = nil;
-    _totalBeatLayerDelegate.beatSample = nil;
+    _markLayerController.beatSample = nil;
+    _markLayerController.visualSample = nil;
+    _totalMarkLayerController.beatSample = nil;
+    _totalMarkLayerController.frames = 0;
+    _totalMarkLayerController.visualSample = nil;
 
     [self setBPM:0.0];
 
@@ -2164,16 +2187,14 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
                                           pixelPerSecond:kPixelPerSecond
                                                tileWidth:kDirectWaveViewTileWidth];
 
-    //[_controlPanelController reset];
-    
-    _waveLayerDelegate.visualSample = self.visualSample;
+    _markLayerController.visualSample = _visualSample;
 
     _totalVisual = [[VisualSample alloc] initWithSample:sample
                                          pixelPerSecond:_totalView.bounds.size.width / sample.duration
                                               tileWidth:kTotalWaveViewTileWidth
                                            reducedWidth:kReducedVisualSampleWidth];
 
-    _totalWaveLayerDelegate.visualSample = _totalVisual;
+    _totalMarkLayerController.visualSample = _totalVisual;
 
     _loaderState = LoaderStateDecoder;
     
@@ -2187,11 +2208,13 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     
     _waveView.frames = sample.frames;
     _totalView.frames = sample.frames;
+    _markLayerController.frames = sample.frames;
+    _totalMarkLayerController.frames = sample.frames;
+
     _waveView.frame = CGRectMake(0.0,
                                  0.0,
                                  self.visualSample.width,
                                  self.waveView.bounds.size.height);
-    [_totalView invalidateTiles];
 
     NSTimeInterval duration = [self.visualSample.sample timeForFrame:sample.frames];
     [_controlPanelController setKeyHidden:duration > kBeatSampleDurationThreshold];
@@ -2202,8 +2225,8 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
 {
     BeatTrackedSample* beatSample = [[BeatTrackedSample alloc] initWithSample:_sample];
 
-    _beatLayerDelegate.beatSample = beatSample;
-    _totalBeatLayerDelegate.beatSample = beatSample;
+    _markLayerController.beatSample = beatSample;
+    _totalMarkLayerController.beatSample = beatSample;
 
     WaveWindowController* __weak weakSelf = self;
 
@@ -2265,9 +2288,14 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
 //    }
     //_totalBeatLayerDelegate.markedBeatIndexes = beatMarkers;
 //    [_beatSample addMarker:IntroMarker atBeat:32 * 4];
-   
-    [self.waveView invalidateBeats];
+
+    
+//    [_markLayerController updateBeats];
+//    [_totalMarkLayerController updateBeats];
+
+    [(WaveScrollView*)self.waveView.enclosingScrollView invalidateBeats];
     [self.totalView invalidateBeats];
+
     [self beatEffectStart];
 
     KeyTrackedSample* keySample = [[KeyTrackedSample alloc] initWithSample:_sample];
@@ -2348,16 +2376,30 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
 - (void)setMeta:(MediaMetaData*)meta
 {
     _meta = meta;
+    
+    // FIXME: This feels icky -- we are distributing our state here - is that really needed?
 
     [_playlist setCurrent:meta];
-    
-    [_tracklist setCurrent:meta.trackList];
+    [_tracklist setCurrent:meta];
     
     // Update meta data in playback box.
     _controlPanelController.meta = meta;
     
     [_browser setCurrentMeta:meta];
     [self setNowPlayingWithMeta:meta];
+
+    if (meta.trackList == nil || meta.trackList.tracks.count == 0) {
+        NSError* error = nil;
+        if (![meta recoverTracklistWithError:&error]) {
+            NSLog(@"tracklist recovery failed: %@", error);
+        }
+    }
+    
+    _markLayerController.trackList = meta.trackList;
+    _totalMarkLayerController.trackList = meta.trackList;
+    
+    [_totalView invalidateTiles];
+
 }
 
 - (void)updateRemotePosition
@@ -2878,6 +2920,11 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
 - (NSString*)stringFromFrame:(unsigned long long)frame
 {
     return [_audioController.sample beautifulTimeWithFrame:frame];
+}
+
+- (void)playAtFrame:(unsigned long long)frame
+{
+    [self seekToFrame:frame];
 }
 
 @end

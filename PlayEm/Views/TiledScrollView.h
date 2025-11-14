@@ -16,13 +16,16 @@ extern const CGFloat kDirectWaveViewTileWidth;
 
 @class VisualSample;
 @class TileView;
+@class MarkLayerController;
 
 @interface TiledScrollView : NSScrollView
 
 @property (assign, nonatomic) BOOL horizontal;
-@property (weak, nonatomic) id<CALayerDelegate> layerDelegate;
-@property (weak, nonatomic) id<CALayerDelegate> beatLayerDelegate;
+@property (weak, nonatomic) MarkLayerController*  markLayerController;
 @property (assign, nonatomic) NSSize tileSize;
+
+@property (strong, nonatomic) CALayer* shinyLayer;
+@property (strong, nonatomic) CALayer* normalLayer;
 
 - (NSMutableArray*)reusableViews;
 

@@ -90,6 +90,12 @@ extern NSString* const kMediaMetaDataMapTypeNumber;
 
 @property (strong, nonatomic, nullable) TrackList* trackList;
 
+- (NSURL*)trackListURL;
+
+- (BOOL)storeTracklistWithError:(NSError**)error;
+- (BOOL)recoverTracklistWithError:(NSError**)error;
+
+
 + (MediaMetaData*)mediaMetaDataWithURL:(NSURL*)url error:(NSError**)error;
 + (MediaMetaData*)mediaMetaDataWithITLibMediaItem:(ITLibMediaItem*)item error:(NSError**)error;
 

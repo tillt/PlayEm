@@ -53,9 +53,38 @@
     return self;
 }
 
-- (void)setTrack:(IdentifiedTrack*)track atFrame:(unsigned long long)frame
+- (BOOL)writeToFile:(NSURL*)url error:(NSError**)error
 {
-    [_trackMap setObject:track forKey:@(frame)];
+    NSData* data = [NSKeyedArchiver archivedDataWithRootObject:_trackMap
+                                         requiringSecureCoding:NO
+                                                         error:error];
+    return [data writeToURL:url atomically:YES];
+}
+
+- (BOOL)readFromFile:(NSURL*)url error:(NSError**)error
+{
+    NSData* data = [NSData dataWithContentsOfURL:url
+                                         options:NSDataReadingMapped
+                                           error:error];
+    if (data == nil) {
+        return NO;
+    }
+    
+    NSSet* allowedClasses = [NSSet setWithObjects:[IdentifiedTrack class], [NSString class], [NSNumber class], [NSURL class], nil];
+    NSSet* allowedKeyClasses = [NSSet setWithObjects:[NSString class], [NSNumber class], nil];
+    NSDictionary* dictionary = [NSKeyedUnarchiver unarchivedDictionaryWithKeysOfClasses:allowedKeyClasses
+                                                                       objectsOfClasses:allowedClasses
+                                                                               fromData:data error:error];
+    if (dictionary == nil) {
+        return NO;
+    }
+    _trackMap = [NSMutableDictionary dictionaryWithDictionary:dictionary];
+    return YES;
+}
+
+- (void)addTrack:(IdentifiedTrack*)track
+{
+    [_trackMap setObject:track forKey:track.frame];
 }
 
 - (void)removeTrackAtFrame:(unsigned long long)frame
@@ -80,7 +109,8 @@
 
 - (unsigned long long)firstTrackFrame:(TrackListIterator *_Nonnull*_Nullable)iterator
 {
-    *iterator = [[TrackListIterator alloc] initWithKeys:[_trackMap allKeys]];
+    NSArray<NSNumber*>* frames = [[_trackMap allKeys] sortedArrayUsingSelector:@selector(compare:)];
+    *iterator = [[TrackListIterator alloc] initWithKeys:frames];
     return [self nextTrackFrame:*iterator];
 }
 

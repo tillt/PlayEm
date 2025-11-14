@@ -6,13 +6,14 @@
 //  Copyright © 2025 Till Toenshoff. All rights reserved.
 //
 #import <Foundation/Foundation.h>
+#import <AppKit/AppKit.h>
 #import <ShazamKit/ShazamKit.h>
 
 #import "IdentifiedTrack.h"
 
 @implementation IdentifiedTrack
 
-- (id)initWithTitle:(NSString*)title artist:(NSString*)artist genre:(NSString*)genre musicURL:(NSURL*)musicURL imageURL:(NSURL*)imageURL
+- (id)initWithTitle:(NSString*)title artist:(NSString*)artist genre:(NSString*)genre musicURL:(NSURL*)musicURL imageURL:(NSURL*)imageURL frame:(NSNumber*)frame
 {
     self = [super init];
     if (self) {
@@ -21,8 +22,38 @@
         _genre = genre;
         _imageURL = imageURL;
         _musicURL = musicURL;
+        _frame = frame;
     }
     return self;
+}
+
+- (id)initWithCoder:(NSCoder *)coder
+{
+    self = [super init];
+    if (self) {
+        _title = [coder decodeObjectForKey:@"title"];
+        _artist = [coder decodeObjectForKey:@"artist"];
+        _genre = [coder decodeObjectForKey:@"genre"];
+        _imageURL = [coder decodeObjectForKey:@"imageURL"];
+        _musicURL = [coder decodeObjectForKey:@"musicURL"];
+        _frame = [coder decodeObjectForKey:@"frame"];
+    }
+    return self;
+}
+
+- (void)encodeWithCoder:(NSCoder *)coder
+{
+    [coder encodeObject:_title forKey:@"title"];
+    [coder encodeObject:_artist forKey:@"artist"];
+    [coder encodeObject:_genre  forKey:@"genre"];
+    [coder encodeObject:_imageURL forKey:@"imageURL"];
+    [coder encodeObject:_musicURL forKey:@"musicURL"];
+    [coder encodeObject:_frame  forKey:@"frame"];
+}
+
++ (BOOL)supportsSecureCoding
+{
+   return YES;
 }
 
 - (id)initWithMatchedMediaItem:(SHMatchedMediaItem*)item
@@ -34,14 +65,15 @@
         _genre = item.genres.count ? item.genres[0] : @"";
         _imageURL = item.artworkURL;
         _musicURL = item.appleMusicURL;
+        _frame = 0LL;
     }
     return self;
 }
 
 - (NSString*)description
 {
-    return [NSString stringWithFormat:@"title:%@ artist:%@ genre:%@ imageURL:%@ musicURL:%@",
-            _title, _artist, _genre, _imageURL, _musicURL];
+    return [NSString stringWithFormat:@"frame:%@ title:%@ artist:%@ genre:%@ imageURL:%@ musicURL:%@",
+            _frame, _title, _artist, _genre, _imageURL, _musicURL];
 }
 
 @end

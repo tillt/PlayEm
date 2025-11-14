@@ -18,6 +18,8 @@
 #import "MediaMetaData+AVAsset.h"
 #import "AVMetadataItem+THAdditions.h"
 
+#import "../NSError+BetterError.h"
+
 @implementation MediaMetaData(AVAsset)
 
 + (NSDictionary*)id3GenreMap
@@ -378,10 +380,10 @@ static AVTimedMetadataGroup *ChapterMetadataGroup(NSString *title, CMTime startT
 - (void)addChaptersToAudioFileAtURL:(NSURL *)inputURL
                          outputURL:(NSURL *)outputURL
 {
-    AVURLAsset *asset = [AVURLAsset URLAssetWithURL:inputURL options:nil];
+    AVURLAsset* asset = [AVURLAsset URLAssetWithURL:inputURL options:nil];
     
     // 1. Create a composition
-    AVMutableComposition *composition = [AVMutableComposition composition];
+    AVMutableComposition* composition = [AVMutableComposition composition];
     
     // 2. Add the original audio track
     AVAssetTrack *audioTrack = [[asset tracksWithMediaType:AVMediaTypeAudio] firstObject];
@@ -399,51 +401,53 @@ static AVTimedMetadataGroup *ChapterMetadataGroup(NSString *title, CMTime startT
     }
     
     // 3. Add a timed metadata track
-    AVMutableCompositionTrack *metadataTrack = [composition addMutableTrackWithMediaType:AVMediaTypeMetadata
-                                                                          preferredTrackID:kCMPersistentTrackID_Invalid];
-    
-    // 4. Create chapter marks
-    NSArray<NSDictionary *> *chapters = @[
-        @{@"title": @"Intro", @"time": @0},
-        @{@"title": @"Verse 1", @"time": @10},
-        @{@"title": @"Chorus", @"time": @30},
-        @{@"title": @"Outro", @"time": @50}
-    ];
-    
-    NSMutableArray<AVMutableMetadataItem *> *metadataItems = [NSMutableArray array];
-    
-    for (NSDictionary *chapter in chapters) {
-        AVMutableMetadataItem *item = [AVMutableMetadataItem metadataItem];
-        item.identifier = AVMetadataiTunesMetadataKeyDescription; // Chapter title
-        item.value = chapter[@"title"];
-        item.dataType = (__bridge NSString *)kCMMetadataBaseDataType_UTF8;
-        item.time = CMTimeMakeWithSeconds([chapter[@"time"] doubleValue], 600);
-        [metadataItems addObject:item];
-    }
-    
-    // 5. Insert metadata items into the track
-    for (AVMutableMetadataItem *item in metadataItems) {
-        [metadataTrack insertTimeRange:CMTimeRangeMake(item.time, CMTimeMake(1, 600))
-                                ofTrack:metadataTrack
-                                 atTime:item.time
-                                  error:&error];
-        if (error) {
-            NSLog(@"Error inserting metadata: %@", error);
-        }
-    }
+//    AVMutableCompositionTrack *metadataTrack = [composition addMutableTrackWithMediaType:AVMediaTypeMetadata
+//                                                                          preferredTrackID:kCMPersistentTrackID_Invalid];
+//    
+//    // 4. Create chapter marks
+//    NSArray<NSDictionary *> *chapters = @[
+//        @{@"title": @"Intro", @"time": @0},
+//        @{@"title": @"Verse 1", @"time": @10},
+//        @{@"title": @"Chorus", @"time": @30},
+//        @{@"title": @"Outro", @"time": @50}
+//    ];
+//    
+//    NSMutableArray<AVMutableMetadataItem *> *metadataItems = [NSMutableArray array];
+//    
+//    for (NSDictionary *chapter in chapters) {
+//        AVMutableMetadataItem *item = [AVMutableMetadataItem metadataItem];
+//        //item.identifier = AVMetadataiTunesMetadataKeyDescription; // Chapter title
+//        item.identifier = AVMetadataCommonIdentifierTitle;
+//        item.value = chapter[@"title"];
+//        item.dataType = (__bridge NSString *)kCMMetadataBaseDataType_UTF8;
+//        item.time = CMTimeMakeWithSeconds([chapter[@"time"] doubleValue], 600);
+//        [metadataItems addObject:item];
+//    }
+//    
+//    // 5. Insert metadata items into the track
+//    for (AVMutableMetadataItem *item in metadataItems) {
+//        [metadataTrack insertTimeRange:CMTimeRangeMake(item.time, CMTimeMake(1, 600))
+//                                ofTrack:metadataTrack
+//                                 atTime:item.time
+//                                  error:&error];
+//        if (error) {
+//            NSLog(@"Error inserting metadata: %@", error);
+//        }
+//    }
     
     // 6. Export the composition
     AVAssetExportSession *exporter = [[AVAssetExportSession alloc] initWithAsset:composition
                                                                       presetName:AVAssetExportPresetPassthrough];
     exporter.outputURL = outputURL;
-    exporter.outputFileType = AVFileTypeQuickTimeMovie;
+    exporter.outputFileType = AVFileTypeAppleM4A;
     //exporter.metadata = metadataItems; // ensure metadata is exported
-    
     [exporter exportAsynchronouslyWithCompletionHandler:^{
         if (exporter.status == AVAssetExportSessionStatusCompleted) {
             NSLog(@"Export completed: %@", outputURL);
         } else {
             NSLog(@"Export failed: %@", exporter.error);
+            NSError* better = [NSError betterErrorWithError:exporter.error];
+            NSLog(@"Better failure: %@", better);
         }
     }];
 

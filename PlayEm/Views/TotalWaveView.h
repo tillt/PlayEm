@@ -12,15 +12,17 @@ NS_ASSUME_NONNULL_BEGIN
 
 extern const CGFloat kTotalWaveViewTileWidth;
 
+@class MarkLayerController;
+
 @interface TotalWaveView : NSView
 
-@property (weak, nonatomic) IBOutlet id<CALayerDelegate> layerDelegate;
-@property (weak, nonatomic) IBOutlet id<CALayerDelegate> overlayLayerDelegate;
+@property (weak, nonatomic) MarkLayerController*  markLayerController;
 @property (assign, nonatomic) unsigned long long frames;
 @property (assign, nonatomic) unsigned long long currentFrame;
 
 - (void)invalidateTiles;
 - (void)invalidateBeats;
+- (void)invalidateMarks;
 - (void)resize;
 
 @end

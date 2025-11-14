@@ -13,6 +13,7 @@
 #import <CoreImage/CoreImage.h>
 #import "Defaults.h"
 #import "CAShapeLayer+Path.h"
+#import "MarkLayerController.h"
 
 const CGFloat kTotalWaveViewTileWidth = 4.0f;
 
@@ -199,9 +200,11 @@ const CGFloat kTotalWaveViewTileWidth = 4.0f;
     for (CGFloat x = xMin; x < xMax; x += tileSize.width) {
         for (CGFloat y = yMin; y < yMax; y += tileSize.height) {
             NSRect rect = NSMakeRect(x, y, tileSize.width, tileSize.height);
-            TileView* v = [[TileView alloc] initWithFrame:rect layerDelegate:_layerDelegate overlayLayerDelegate:_overlayLayerDelegate];
+            TileView* v = [[TileView alloc] initWithFrame:rect waveLayerDelegate:_markLayerController];
             v.tileTag = x / tileSize.width;
             [self addSubview:v];
+            
+            [_markLayerController updateTileView:v];
         }
     }
 }
@@ -246,19 +249,36 @@ const CGFloat kTotalWaveViewTileWidth = 4.0f;
     [self updateTiles];
 }
 
+- (void)invalidateMarks
+{
+    for (TileView* view in [[self subviews] reverseObjectEnumerator]) {
+        [_markLayerController updateTileView:view];
+    }
+}
+
 - (void)invalidateBeats
 {
     for (TileView* view in [[self subviews] reverseObjectEnumerator]) {
-        [view.overlayLayer setNeedsDisplay];
+        [_markLayerController updateTileView:view];
     }
 }
 
 - (void)invalidateTiles
 {
     for (TileView* view in [[self subviews] reverseObjectEnumerator]) {
-        [view.layer setNeedsDisplay];
-        [view.overlayLayer setNeedsDisplay];
+        [view.waveLayer setNeedsDisplay];
+        [_markLayerController updateTileView:view];
     }
+}
+
+- (void)setFrames:(unsigned long long)frames
+{
+    if (_frames == frames) {
+        return;
+    }
+    _frames = frames;
+    [self invalidateBeats];
+    [self invalidateMarks];
 }
 
 @end

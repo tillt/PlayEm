@@ -44,19 +44,53 @@
     return self;
 }
 
+- (CALayer*)makeHeadLayer
+{
+    CALayer* layer = [CALayer layer];
+    
+    layer.anchorPoint = CGPointMake(0.5, 0.0);
+    layer.drawsAsynchronously = YES;
+    layer.zPosition = 1.1;
+    layer.name = @"HeadLayer";
+
+    return layer;
+}
+
+- (CALayer*)makeHeadBloomFxLayer
+{
+    CALayer* layer = [CALayer layer];
+
+    layer.anchorPoint = CGPointMake(0.5, 0.0);
+    layer.masksToBounds = NO;
+    layer.drawsAsynchronously = YES;
+    layer.zPosition = 1.9;
+    layer.name = @"HeadBloomFxLayer";
+
+    return layer;
+}
+
 - (void)viewDidMoveToSuperview
 {
     [super viewDidMoveToSuperview];
+
     _head = -1.0;
-    _headLayer = [CALayer layer];
+
+    _headLayer = [self makeHeadLayer];
+
     NSImage* image = [NSImage imageNamed:@"CurrentTime"];
     image.resizingMode = NSImageResizingModeTile;
-    
+
+    CGFloat height = floor(self.enclosingScrollView.bounds.size.height);
+
+    _headLayer.contents = image;
+    _headLayer.compositingFilter = [CIFilter filterWithName:@"CISourceAtopCompositing"];
+    _headImageSize = image.size;
+    _headLayer.frame = CGRectMake(0.0, 0.0, floor(_headImageSize.width), height);
+    [self.layer addSublayer:_headLayer];
+
     CIFilter* clampFilter = [CIFilter filterWithName:@"CIAffineClamp"];
     [clampFilter setDefaults];
-    
     CGFloat scaleFactor = 1.15;
-    
     CGAffineTransform transform = CGAffineTransformScale(CGAffineTransformMakeTranslation(0.0, self.enclosingScrollView.bounds.size.height * -(scaleFactor - 1.0) / 2.0), 1.0, scaleFactor);
     [clampFilter setValue:[NSValue valueWithBytes:&transform objCType:@encode(CGAffineTransform)] forKey:@"inputTransform"];
     
@@ -64,28 +98,11 @@
     [bloomFilter setDefaults];
     [bloomFilter setValue: [NSNumber numberWithFloat:9.0] forKey: @"inputRadius"];
     [bloomFilter setValue: [NSNumber numberWithFloat:1.5] forKey: @"inputIntensity"];
-    
-    CGFloat height = floor(self.enclosingScrollView.bounds.size.height);
-    
-    _headLayer.contents = image;
-    _headImageSize = image.size;
-    _headLayer.anchorPoint = CGPointMake(0.5, 0.0);
-    _headLayer.frame = CGRectMake(0.0, 0.0, floor(_headImageSize.width), height);
-    _headLayer.drawsAsynchronously = YES;
-    _headLayer.compositingFilter = [CIFilter filterWithName:@"CISourceAtopCompositing"];
-    _headLayer.zPosition = 1.1;
-    _headLayer.name = @"HeadLayer";
-    
-    _headBloomFxLayer = [CALayer layer];
+
+    _headBloomFxLayer = [self makeHeadBloomFxLayer];
     _headBloomFxLayer.backgroundFilters = @[ clampFilter, bloomFilter ];
-    _headBloomFxLayer.anchorPoint = CGPointMake(0.5, 0.0);
     _headBloomFxLayer.frame = CGRectMake(0.0, 0.0, 5.0, height);
-    _headBloomFxLayer.masksToBounds = NO;
-    _headBloomFxLayer.drawsAsynchronously = YES;
-    _headBloomFxLayer.zPosition = 1.9;
-    _headBloomFxLayer.name = @"HeadBloomFxLayer";
     _headBloomFxLayer.mask = [CAShapeLayer MaskLayerFromRect:_headBloomFxLayer.frame];
-    [self.layer addSublayer:_headLayer];
     [self.layer addSublayer:_headBloomFxLayer];
     
     const unsigned int trailingBloomLayerCount = 3;
@@ -149,25 +166,22 @@
 - (void)invalidateBeats
 {
     for (TileView* view in [self subviews]) {
-//        [view.layer setNeedsDisplay];
-        [view.overlayLayer setNeedsDisplay];
-        //view.needsDisplay = YES;
+        [view.beatLayer setNeedsDisplay];
+    }
+}
+
+- (void)invalidateMarks
+{
+    for (TileView* view in [self subviews]) {
+        [view.markLayer setNeedsDisplay];
     }
 }
 
 - (void)invalidateTiles
 {
     for (TileView* view in [self subviews]) {
-        [view.layer setNeedsDisplay];
-        //[view.layer.sublayers[0] setNeedsDisplay];
-        //view.needsDisplay = YES;
+        [view.waveLayer setNeedsDisplay];
     }
-    //self.needsDisplay = YES;
-//    for (NSView* view in [self subviews]) {
-////        [view.layer setNeedsDisplay];
-////        [view.layer.sublayers[0] setNeedsDisplay];
-//        view.needsDisplay = YES;
-//    }
 }
 
 - (void)setFrames:(unsigned long long)frames

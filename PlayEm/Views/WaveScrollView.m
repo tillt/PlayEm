@@ -16,6 +16,7 @@
 #import "LazySample.h"
 #import "VisualSample.h"
 #import "Defaults.h"
+#import "MarkLayerController.h"
 
 const CGFloat kDirectWaveViewTileWidth = 256.0f;
 
@@ -177,12 +178,15 @@ const CGFloat kDirectWaveViewTileWidth = 256.0f;
 
         // Create one if we did not find a reusable one.
         if (nil == view) {
-            view = [[TileView alloc] initWithFrame:NSZeroRect layerDelegate:self.layerDelegate overlayLayerDelegate:self.beatLayerDelegate];
+            view = [[TileView alloc] initWithFrame:NSZeroRect
+                                 waveLayerDelegate:self.markLayerController];
         }
 
         // Place it and install it.
         view.frame = [neededFrame rectValue];
         [self.documentView addSubview:view];
+
+        [self.markLayerController updateTileView:view];
     }
 }
 
@@ -204,6 +208,13 @@ const CGFloat kDirectWaveViewTileWidth = 256.0f;
             _aheadVibranceFxLayer.position = CGPointMake(self.documentVisibleRect.size.width, self.bounds.origin.y);
             _trailBloomFxLayer.position = CGPointMake(self.documentVisibleRect.size.width, self.bounds.origin.y);
         }
+    }
+}
+
+- (void)invalidateBeats
+{
+    for (TileView* view in [[self.documentView subviews] reverseObjectEnumerator]) {
+        [self.markLayerController updateTileView:view];
     }
 }
 

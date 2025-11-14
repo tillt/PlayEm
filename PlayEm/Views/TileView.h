@@ -10,15 +10,19 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@protocol WaveLayerDelegate;
-@protocol BeatLayerDelegate;
+@class WaveLayerDelegate;
+@class BeatLayerDelegate;
 
 @interface TileView : NSView
 
-- (nonnull instancetype)initWithFrame:(CGRect)frameRect layerDelegate:(id<WaveLayerDelegate>)layerDelegate overlayLayerDelegate:(id<BeatLayerDelegate>)overlayLayerDelegate;
+- (nonnull instancetype)initWithFrame:(CGRect)frameRect
+                        waveLayerDelegate:(id<CALayerDelegate>)layerDelegate;
 
 @property (readwrite, nonatomic, assign) NSInteger tileTag;
-@property (readwrite, nonatomic, strong) CALayer* overlayLayer;
+
+@property (readwrite, nonatomic, strong) CALayer* beatLayer;
+@property (readwrite, nonatomic, strong) CALayer* waveLayer;
+@property (readwrite, nonatomic, strong) CALayer* markLayer;
 
 @end
 

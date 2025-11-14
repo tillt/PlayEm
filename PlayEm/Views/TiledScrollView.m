@@ -38,10 +38,10 @@
         self.horizontal = NO;
 
         self.wantsLayer = YES;
+        self.layerUsesCoreImageFilters = YES;
         self.layer = [self makeBackingLayer];
         self.layerContentsRedrawPolicy = NSViewLayerContentsRedrawOnSetNeedsDisplay;
-        self.layer.masksToBounds = NO;
-        self.layer.backgroundColor = [self.backgroundColor CGColor];
+//        self.layer.backgroundColor = [[NSColor blueColor] CGColor];
 
         [[NSNotificationCenter defaultCenter]
            addObserver:self
@@ -67,6 +67,15 @@
     [super viewDidMoveToSuperview];
 
     [self updateTiles];
+}
+
+- (CALayer*)makeBackingLayer
+{
+    CALayer* layer = [CALayer layer];
+    layer.drawsAsynchronously = YES;
+    layer.masksToBounds = NO;
+    layer.name = @"TiledScrollViewBackingLayer";
+    return layer;
 }
 
 - (void)WillStartLiveScroll:(NSNotification*)notification
@@ -154,14 +163,12 @@
         // Create one if we did not find a reusable one.
         if (view == nil) {
             view = [[TileView alloc] initWithFrame:NSZeroRect
-                                     layerDelegate:_layerDelegate
-                              overlayLayerDelegate:_beatLayerDelegate];
+                                     waveLayerDelegate:_markLayerController];
         }
         // Place it and install it.
         view.frame = [neededFrame rectValue];
         view.layer.frame = [neededFrame rectValue];
 //        assert(view.layer.frame.size.width < 512);
-        view.needsDisplay = YES;
         //NSLog(@"adding layer %@ %f,%f,%f,%f", view.layer, view.layer.frame.origin.x, view.layer.frame.origin.y, view.layer.frame.size.width, view.layer.frame.size.height );
         assert(view.layer);
         [self.documentView addSubview:view];

@@ -36,7 +36,7 @@
         _table = table;
         _table.dataSource = self;
         _table.delegate = self;
-        _table.doubleAction = @selector(tableViewDoubleClickedRow:);
+        _table.doubleAction = @selector(playlistDoubleClickedRow:);
         _table.menu = [self menu];
         _preventSelection = NO;
         
@@ -388,7 +388,7 @@
     return result;
 }
 
-- (void)tableViewDoubleClickedRow:(id)sender
+- (void)playlistDoubleClickedRow:(id)sender
 {
     NSInteger row = _table.clickedRow;
     if (row < 0) {

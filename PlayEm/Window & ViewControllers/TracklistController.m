@@ -14,9 +14,15 @@
 #import "../Sample/LazySample.h"
 #import "IdentifiedTrack.h"
 
+const CGFloat kTimeHeight = 22.0;
+const CGFloat kTotalRowHeight = 52.0 + kTimeHeight;
+
 @interface TracklistController()
 @property (nonatomic, weak) NSTableView* table;
 
+@property (strong, nonatomic) dispatch_queue_t imageQueue;
+
+@property (assign, nonatomic) NSUInteger currentTrackIndex;
 //- (void)addNext:(MediaMetaData*)item;
 //- (void)addLater:(MediaMetaData*)item;
 
@@ -36,6 +42,7 @@
         _table = tableView;
         _table.dataSource = self;
         _table.delegate = self;
+        _table.doubleAction = @selector(tracklistDoubleClickedRow:);
         _table.menu = [self menu];
 
         const NSAutoresizingMaskOptions kViewFullySizeable = NSViewHeightSizable | NSViewWidthSizable;
@@ -43,10 +50,13 @@
         _table.backgroundColor = [NSColor clearColor];
         _table.autoresizingMask = kViewFullySizeable;
         _table.headerView = nil;
-        _table.rowHeight = 68.0;
+        _table.rowHeight = kTotalRowHeight;
         _table.allowsMultipleSelection = YES;
         _table.intercellSpacing = NSMakeSize(0.0, 0.0);
-     
+        
+        dispatch_queue_attr_t attr = dispatch_queue_attr_make_with_qos_class(DISPATCH_QUEUE_SERIAL, QOS_CLASS_USER_INITIATED, 0);
+        _imageQueue = dispatch_queue_create("PlayEm.TracklistImageQueue", attr);
+
         NSTableColumn* col = [[NSTableColumn alloc] init];
         col.title = @"";
         col.identifier = @"Column";
@@ -58,25 +68,80 @@
 
 - (NSInteger)numberOfRowsInTableView:(NSTableView*)tableView
 {
-    return _current.frames.count;
+    return _current.trackList.frames.count;
 }
 
-- (void)setCurrent:(TrackList*)list
+- (void)setCurrentFrame:(unsigned long long)frame
 {
-    _current = list;
+    static size_t cache = UINT_MAX;
+
+    TrackListIterator* iter = nil;
+    size_t lastIndex = UINT_MAX;
+
+    unsigned long long nextTrackFrame = [_current.trackList firstTrackFrame:&iter];
+    //unsigned long long lastTrackFrame = 0LL;
+
+    while (nextTrackFrame != ULONG_LONG_MAX) {
+        if (frame < nextTrackFrame) {
+            break;
+        }
+        lastIndex = iter.index - 1;
+        nextTrackFrame = [_current.trackList nextTrackFrame:iter];
+    };
+    
+    if (cache != lastIndex) {
+        cache = lastIndex;
+        _currentTrackIndex = lastIndex;
+        NSLog(@"active track: %ld", _currentTrackIndex );
+        [_table reloadData];
+        [_table scrollRowToVisible:_currentTrackIndex];
+    }
+}
+
+- (void)setCurrent:(MediaMetaData*)meta
+{
+    _current = meta;
     [_table reloadData];
 }
-    
-- (void)addTrack:(IdentifiedTrack*)track atFrame:(unsigned long long)frame
+
+- (NSArray<NSNumber*>*)selectedFrames
 {
-    NSLog(@"frame: %lld adding track: %@", frame, track);
-    if ([_current trackAtFrame:frame] == track) {
+    __block NSMutableArray<NSNumber*>* trackFrames = [NSMutableArray array];;
+    [_table.selectedRowIndexes enumerateIndexesWithOptions:NSEnumerationReverse
+                                                         usingBlock:^(NSUInteger idx, BOOL *stop) {
+        NSArray<NSNumber*>* frames = [_current.trackList.frames sortedArrayUsingSelector:@selector(compare:)];
+        [trackFrames addObject:frames[idx]];
+    }];
+    return trackFrames;
+}
+
+- (void)removeFromTracklist:(id)sender
+{
+    NSArray* framesToRemove = [self selectedFrames];
+    for (NSNumber* number in framesToRemove) {
+        unsigned long long frame = [number unsignedLongLongValue];
+        [_current.trackList removeTrackAtFrame:frame];
+    }
+    // TODO: Add logic to spare us a reload.
+    [_table reloadData];
+    
+    NSError* error = nil;
+    BOOL done = [_current storeTracklistWithError:&error];
+    if (!done) {
+        NSLog(@"failed to write tracklist: %@", error);
+    }
+}
+
+- (void)addTrack:(IdentifiedTrack*)track
+{
+    NSLog(@"adding track: %@", track);
+    if ([_current.trackList trackAtFrame:[track.frame unsignedLongLongValue]] == track) {
         return;
     }
-    [_current setTrack:track atFrame:frame];
+    [_current.trackList addTrack:track];
     
-    NSArray<NSNumber*>* frames = [[_current frames] sortedArrayUsingSelector:@selector(compare:)];
-    NSUInteger index = [frames indexOfObject:@(frame)];
+    NSArray<NSNumber*>* frames = [[_current.trackList frames] sortedArrayUsingSelector:@selector(compare:)];
+    NSUInteger index = [frames indexOfObject:track.frame];
 
     assert(index != NSNotFound);
 
@@ -86,6 +151,12 @@
     [_table endUpdates];
 
     [_table scrollRowToVisible:index];
+
+    NSError* error = nil;
+    BOOL done = [_current storeTracklistWithError:&error];
+    if (!done) {
+        NSLog(@"failed to write tracklist: %@", error);
+    }
 }
 
 //- (void)addNext:(MediaMetaData*)item
@@ -153,7 +224,12 @@
     return menu;
 }
 
-- (NSView*)tableView:(NSTableView*)tableView viewForTableColumn:(NSTableColumn *)tableColumn row:(NSInteger)row
+- (void)updatedTracklist
+{
+    [_table reloadData];
+}
+
+- (NSView*)tableView:(NSTableView*)tableView viewForTableColumn:(NSTableColumn*)tableColumn row:(NSInteger)row
 {
     const int kTitleViewTag = 1;
     const int kArtistViewTag = 2;
@@ -161,7 +237,6 @@
     const int kImageViewTag = 4;
 
     const CGFloat kRowInset = 8.0;
-    const CGFloat kTimeHeight = 16.0;
     const CGFloat kRowHeight = tableView.rowHeight - (kRowInset + kTimeHeight);
     const CGFloat kHalfRowHeight = round(kRowHeight / 2.0);
 
@@ -174,33 +249,39 @@
                                                                 kRowHeight)];
 
         
-        NSVisualEffectView* fxView = [[NSVisualEffectView alloc] initWithFrame:NSMakeRect(0.0,
-                                                                                          kRowHeight + 2.0 + (kRowInset / 2.0),
-                                                                                          tableColumn.width,
-                                                                                          kHalfRowHeight - 8.0)];
-        fxView.autoresizingMask = NSViewHeightSizable | NSViewMinXMargin;
-        fxView.material = NSVisualEffectMaterialHUDWindow;
-        fxView.blendingMode = NSVisualEffectBlendingModeWithinWindow;
+//        NSVisualEffectView* fxView = [[NSVisualEffectView alloc] initWithFrame:NSMakeRect(0.0,
+//                                                                                          kRowHeight + 2.0 + (kRowInset / 2.0),
+//                                                                                          tableColumn.width,
+//                                                                                          kHalfRowHeight - 8.0)];
+//        fxView.autoresizingMask = NSViewHeightSizable | NSViewMinXMargin;
+//        fxView.material = NSVisualEffectMaterialHUDWindow;
+//        fxView.blendingMode = NSVisualEffectBlendingModeWithinWindow;
+        
+        const CGFloat kArtistHeight = 16.0;
+        const CGFloat kTitleHeight = 22.0;
 
-        NSTextField* tf = [[NSTextField alloc] initWithFrame:NSMakeRect((kRowInset / 2.0),
-                                                                        2.0,
+
+        // Time
+        NSTextField* tf = [[NSTextField alloc] initWithFrame:NSMakeRect(0,
+                                                                        tableView.rowHeight  - (kRowInset + kTimeHeight - 4.0),
                                                                         tableColumn.width,
                                                                         kTimeHeight)];
         tf.editable = NO;
-        tf.font = [[Defaults sharedDefaults] smallFont];
+        tf.font = kTimeHeight > 16.0 ? [[Defaults sharedDefaults] normalFont] : [[Defaults sharedDefaults] smallFont];
         tf.drawsBackground = NO;
         tf.bordered = NO;
         tf.cell.truncatesLastVisibleLine = YES;
         tf.cell.lineBreakMode = NSLineBreakByTruncatingTail;
         tf.alignment = NSTextAlignmentLeft;
-        tf.textColor = [[Defaults sharedDefaults] secondaryLabelColor];
         tf.tag = kTimeViewTag;
-        [fxView addSubview:tf];
-        [view addSubview:fxView];
-        
+        //[fxView addSubview:tf];
+        [view addSubview:tf];
+
+        // Cover
+        CGFloat coverWidth = kRowHeight;
         NSImageView* iv = [[NSImageView alloc] initWithFrame:NSMakeRect(0.0,
-                                                                        round(kRowInset / 2.0),
-                                                                        kRowHeight,
+                                                                        8.0,
+                                                                        coverWidth,
                                                                         kRowHeight)];
 
         iv.wantsLayer = YES;
@@ -210,12 +291,15 @@
         iv.tag = kImageViewTag;
         [view addSubview:iv];
         
-        CGFloat x = kRowHeight + kRowInset;
+        CGFloat x = coverWidth + kRowInset;
+        CGFloat labelWidth = tableColumn.width - (x + (4 * kRowInset));
+        
 
+        // Title
         tf = [[NSTextField alloc] initWithFrame:NSMakeRect( x,
-                                                            kHalfRowHeight,
-                                                            tableColumn.width - x,
-                                                            kHalfRowHeight)];
+                                                            (tableView.rowHeight - (kTimeHeight + kTitleHeight + kRowInset - 4.0)),
+                                                            labelWidth,
+                                                            kTitleHeight)];
         tf.editable = NO;
         tf.font = [[Defaults sharedDefaults] largeFont];
         tf.drawsBackground = NO;
@@ -223,14 +307,14 @@
         tf.cell.truncatesLastVisibleLine = YES;
         tf.cell.lineBreakMode = NSLineBreakByTruncatingTail;
         tf.alignment = NSTextAlignmentLeft;
-        tf.textColor = [[Defaults sharedDefaults] lightFakeBeamColor];
         tf.tag = kTitleViewTag;
         [view addSubview:tf];
 
+        // Artist
         tf = [[NSTextField alloc] initWithFrame:NSMakeRect(x,
-                                                           kHalfRowHeight - kTimeHeight,
-                                                           tableColumn.width - x,
-                                                           kHalfRowHeight - (kRowInset / 2.0))];
+                                                           (tableView.rowHeight - (kTimeHeight + kTitleHeight + kRowInset + kArtistHeight - 6.0)),
+                                                           labelWidth,
+                                                           kArtistHeight)];
         tf.editable = NO;
         tf.font = [[Defaults sharedDefaults] normalFont];
         tf.drawsBackground = NO;
@@ -246,16 +330,32 @@
         result.identifier = tableColumn.identifier;
     }
 
-    NSArray<NSNumber*>* frames = [_current.frames sortedArrayUsingSelector:@selector(compare:)];
+    NSColor* titleColor = row == _currentTrackIndex ? [[Defaults sharedDefaults] lightFakeBeamColor] : [[Defaults sharedDefaults] secondaryLabelColor];;
+
+    NSArray<NSNumber*>* frames = [_current.trackList.frames sortedArrayUsingSelector:@selector(compare:)];
     unsigned long long frame = [frames[row] unsignedLongLongValue];
-    IdentifiedTrack* track = [_current trackAtFrame:frame];
+    IdentifiedTrack* track = [_current.trackList trackAtFrame:frame];
 
     NSImageView* iv = [result viewWithTag:kImageViewTag];
-    iv.image = [NSImage resizedImage:track.artwork
-                                size:iv.frame.size];
+    
+    if (track.artwork != nil) {
+        iv.image = [NSImage resizedImage:track.artwork
+                                    size:iv.frame.size];
+    } else {
+        iv.image = [NSImage resizedImage:[NSImage imageNamed:@"UnknownSong"]
+                                    size:iv.frame.size];
+        if (track.imageURL != nil) {
+            // We can try to resolve the artwork image from the URL.
+            [self resolveImageForURL:track.imageURL callback:^(NSImage* image){
+                track.artwork = image;
+                iv.image = image;
+            }];
+        }
+    }
     
     NSString* title = nil;
     NSTextField* tf = [result viewWithTag:kTitleViewTag];
+    tf.textColor = titleColor;
     title = track.title;
     if (title == nil) {
         title = @"";
@@ -272,17 +372,42 @@
 
     NSString* time = nil;
     tf = [result viewWithTag:kTimeViewTag];
+    tf.textColor = titleColor;
     time = [_delegate stringFromFrame:frame];
     if (time == nil) {
         time = @"";
+    } else {
+//        time = [NSString stringWithFormat:@"start: %@", time];
     }
     [tf setStringValue:time];
 
     return result;
 }
 
+- (void)resolveImageForURL:(NSURL*)url callback:(void (^)(NSImage*))callback
+{
+    dispatch_async(_imageQueue, ^{
+        NSImage* image = [[NSImage alloc] initWithContentsOfURL:url];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            callback(image);
+        });
+    });
+}
+
 -(void)tableViewSelectionDidChange:(NSNotification*)notification
 {
+}
+
+- (void)tracklistDoubleClickedRow:(id)sender
+{
+    NSInteger row = _table.clickedRow;
+    if (row < 0) {
+        return;
+    }
+    NSArray<NSNumber*>* frames = [_current.trackList.frames sortedArrayUsingSelector:@selector(compare:)];
+    unsigned long long frame = [frames[row] unsignedLongLongValue];
+    NSLog(@"asking our delegate to play the active song at frame %lld", frame);
+    [self.delegate playAtFrame:frame];
 }
 
 - (BOOL)tableView:(NSTableView*)tableView shouldSelectRow:(NSInteger)row

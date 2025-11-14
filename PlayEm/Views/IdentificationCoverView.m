@@ -70,11 +70,11 @@ extern NSString * const kBeatTrackedSampleTempoChangeNotification;
         self.layerContentsRedrawPolicy = NSViewLayerContentsRedrawOnSetNeedsDisplay;
         self.layerUsesCoreImageFilters = YES;
 
-        if ((style & CoverViewStyleRotatingLaser) == CoverViewStyleRotatingLaser) {
-            [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(tempoChange:) name:kBeatTrackedSampleTempoChangeNotification object:nil];
-        }
         if ((style & CoverViewStylePumpingToTheBeat) == CoverViewStylePumpingToTheBeat) {
             [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(beatEffect:) name:kBeatTrackedSampleBeatNotification object:nil];
+        }
+        if ((style & CoverViewStyleRotatingLaser) == CoverViewStyleRotatingLaser) {
+            [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(tempoChange:) name:kBeatTrackedSampleTempoChangeNotification object:nil];
         }
     }
     return self;
@@ -83,16 +83,6 @@ extern NSString * const kBeatTrackedSampleTempoChangeNotification;
 - (BOOL)allowsVibrancy
 {
     return YES;
-}
-
-- (void)tempoChange:(NSNotification*)notification
-{
-    NSNumber* tempo = notification.object;
-    float value = [tempo floatValue];
-    if (value > 0.0) {
-        currentTempo = value;
-    }
-    [self animate];
 }
 
 - (void)beatPumpingLayer:(CALayer*)layer localEnergy:(double)localEnergy totalEnergy:(double)totalEnergy
@@ -211,9 +201,25 @@ extern NSString * const kBeatTrackedSampleTempoChangeNotification;
     [layer addAnimation:animation forKey:@"beatShaking"];
 }
 
+- (void)tempoChange:(NSNotification*)notification
+{
+    NSNumber* tempo = notification.object;
+    float value = [tempo floatValue];
+    if (value > 0.0) {
+        currentTempo = value;
+    }
+    [self animate];
+}
+
 - (void)beatEffect:(NSNotification*)notification
 {
     const NSDictionary* dict = notification.object;
+
+    NSNumber* tempo = dict[kBeatNotificationKeyTempo];
+    float value = [tempo floatValue];
+    if (value > 0.0) {
+        currentTempo = value;
+    }
 
     [CATransaction begin];
     [CATransaction setDisableActions:YES];

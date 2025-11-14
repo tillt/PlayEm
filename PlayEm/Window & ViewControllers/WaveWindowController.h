@@ -13,6 +13,7 @@
 #import "AudioController.h"
 #import "BrowserController.h"
 #import "PlaylistController.h"
+#import "TracklistController.h"
 #import "ScopeRenderer.h"
 #import "ScopeView.h"
 #import "ControlPanelController.h"
@@ -39,6 +40,7 @@ NS_ASSUME_NONNULL_BEGIN
                                                       NSToolbarItemValidation,
                                                       BrowserControllerDelegate,
                                                       PlaylistControllerDelegate,
+                                                      TracklistControllerDelegate,
                                                       ScopeRendererDelegate,
                                                       ControlPanelControllerDelegate,
                                                       InfoPanelControllerDelegate,

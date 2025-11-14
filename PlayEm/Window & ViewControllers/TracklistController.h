@@ -21,17 +21,21 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (NSString*)stringFromFrame:(unsigned long long)frame;
 
+- (void)playAtFrame:(unsigned long long)frame;
+- (void)reloadTracks;
+
 @end
 
 @interface TracklistController : NSResponder <NSTableViewDelegate, NSTableViewDataSource>
 
 @property (nonatomic, weak) id <TracklistControllerDelegate> delegate;
-@property (nonatomic, strong) TrackList* current;
+@property (nonatomic, weak) MediaMetaData* current;
+@property (nonatomic, assign) unsigned long long currentFrame;
 
 - (id)initWithTracklistTable:(NSTableView*)table
                    delegate:(id<TracklistControllerDelegate>)delegate;
 
-- (void)addTrack:(IdentifiedTrack*)track atFrame:(unsigned long long)frame;
+- (void)addTrack:(IdentifiedTrack*)track;
 - (NSMenu*)menu;
 
 @end

@@ -9,13 +9,12 @@
 #import <QuartzCore/QuartzCore.h>
 #import "TileView.h"
 #import "../Defaults.h"
-#import "BeatLayerDelegate.h"
-#import "WaveLayerDelegate.h"
-
+#import "MarkLayerController.h"
 
 @implementation TileView
 
-- (nonnull instancetype)initWithFrame:(CGRect)frameRect layerDelegate:(id<WaveLayerDelegate>)layerDelegate overlayLayerDelegate:(id<BeatLayerDelegate>)overlayLayerDelegate
+- (nonnull instancetype)initWithFrame:(CGRect)frameRect
+                        waveLayerDelegate:(WaveLayerDelegate*)waveLayerDelegate
 {
     self = [super initWithFrame:frameRect];
     if (self) {
@@ -24,17 +23,33 @@
         self.layer = [self makeBackingLayer];
         self.layer.frame = frameRect;
         self.layer.name = @"TileViewBackingLayer";
-        
-        _overlayLayer = [self makeOverlayLayer];
-        _overlayLayer.frame = CGRectMake(0.0,
+        self.layerUsesCoreImageFilters = YES;
+
+        _waveLayer = [self makeWaveLayer];
+        _waveLayer.frame = CGRectMake(0.0,
+                                     0.0,
+                                     frameRect.size.width,
+                                     frameRect.size.height);
+        _waveLayer.name = @"TileViewWaveLayer";
+        [self.layer addSublayer:_waveLayer];
+
+        _beatLayer = [self makeOverlayLayer];
+        _beatLayer.frame = CGRectMake(0.0,
                                          0.0,
                                          frameRect.size.width,
                                          frameRect.size.height);
-        _overlayLayer.name = @"TileViewOverlayLayer";
-        [self.layer addSublayer:_overlayLayer];
-        
-        self.layer.delegate = layerDelegate;
-        _overlayLayer.delegate = overlayLayerDelegate;
+        _beatLayer.name = @"TileViewOverlayLayer";
+        [self.layer addSublayer:_beatLayer];
+
+        _markLayer = [self makeMarkLayer];
+        _markLayer.frame = CGRectMake(0.0,
+                                         0.0,
+                                         frameRect.size.width,
+                                         frameRect.size.height);
+        _beatLayer.name = @"TileViewMarkLayer";
+        [self.layer addSublayer:_markLayer];
+
+        _waveLayer.delegate = waveLayerDelegate;
     }
     return self;
 }
@@ -47,6 +62,15 @@
 - (BOOL)wantsUpdateLayer
 {
     return NO;
+}
+
+- (CALayer*)makeMarkLayer
+{
+    CALayer* layer = [CALayer layer];
+    layer.drawsAsynchronously = YES;
+    layer.masksToBounds = NO;
+    layer.autoresizingMask = kCALayerWidthSizable | kCALayerHeightSizable;
+    return layer;
 }
 
 - (CALayer*)makeOverlayLayer
@@ -67,11 +91,21 @@
     return layer;
 }
 
+- (CALayer*)makeWaveLayer
+{
+    CALayer* layer = [CALayer layer];
+    layer.drawsAsynchronously = YES;
+    layer.masksToBounds = NO;
+    layer.autoresizingMask = kCALayerWidthSizable | kCALayerHeightSizable;
+    return layer;
+}
+
 - (void)viewDidMoveToSuperview
 {
     [super viewDidMoveToSuperview];
+
     [self.layer setNeedsDisplay];
-    [self.overlayLayer setNeedsDisplay];
+    [self.waveLayer setNeedsDisplay];
 }
 
 @end

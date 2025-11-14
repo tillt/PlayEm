@@ -452,16 +452,21 @@ static const int kMinRegionBeatCount = 10;
     
     unsigned long long beatIndex = 0;
     unsigned long long beatCountAssumption = (self.sample.frames + (beatLength - 1)) / beatLength;
-    
-    unsigned long introBeatCount = 32 * 4;
-    unsigned long buildupBeatCount = 64 * 4;
+
+    // Asert our total beat count is a factor of 4.
+    beatCountAssumption = (beatCountAssumption >> 2) << 2;
+
+    unsigned long introBeatCount = 32 << 2;
+    unsigned long buildupBeatCount = 64 << 2;
     unsigned long teardownBeatCount;
     unsigned long outroBeatCount;
-    
+
+    // Songs with too few beats for a shakespear format get a shortened variant.
     if (beatCountAssumption < 3 * buildupBeatCount) {
-        buildupBeatCount = beatCountAssumption / 4;
-        introBeatCount = beatCountAssumption / 4;
+        buildupBeatCount = ((buildupBeatCount >> 1) >> 2) << 2;
+        introBeatCount = ((introBeatCount >> 1) >> 2) << 2;
     }
+
     outroBeatCount = introBeatCount;
     teardownBeatCount = buildupBeatCount;
 
@@ -471,7 +476,6 @@ static const int kMinRegionBeatCount = 10;
     const unsigned long long outroBeatsStartingAt = beatCountAssumption - outroBeatCount;
 
     NSMutableData* constantBeats = [NSMutableData data];
-    unsigned long long eventWindowOffset = 0LL;
 
     while (nextBeatFrame < self.sample.frames) {
         int index = beatIndex % 4;
@@ -482,8 +486,12 @@ static const int kMinRegionBeatCount = 10;
         if (index == 0) {
             event.style |= BeatEventStyleBar;
         }
-        
-        if (beatIndex == outroBeatsStartingAt) {
+
+        if (beatIndex == 0) {
+            event.style |= BeatEventStyleMarkStart;
+        } else if (beatIndex == beatCountAssumption) {
+            event.style |= BeatEventStyleMarkEnd;
+        } else if (beatIndex == introBeatsStartingAt) {
             event.style |= BeatEventStyleMarkIntro;
         } else if (beatIndex == buildupBeatsStartingAt) {
             event.style |= BeatEventStyleMarkBuildup;
@@ -507,10 +515,10 @@ static const int kMinRegionBeatCount = 10;
         NSNumber* pageKey = [NSNumber numberWithLong:page];
         
         [constantBeats appendBytes:&event length:sizeof(BeatEvent)];
-        eventWindowOffset += sizeof(BeatEvent);
         
-        [self.beats setObject:@(beatIndex)
-                       forKey:pageKey];
+        if ([self.beats objectForKey:pageKey] == nil) {
+            [self.beats setObject:@(beatIndex) forKey:pageKey];
+        }
         
         if (fakeFirst) {
             nextBeatFrame = firstBeatFrame + beatLength;

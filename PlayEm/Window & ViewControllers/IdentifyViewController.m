@@ -40,6 +40,7 @@ const CGFloat kTableRowHeight = 52.0f;
 @property (strong, nonatomic) IdentificationCoverView* identificationCoverView;
 
 @property (strong, nonatomic) dispatch_queue_t identifyQueue;
+@property (strong, nonatomic) dispatch_queue_t imageQueue;
 
 @property (strong, nonatomic) NSMutableArray<IdentifiedTrack*>* identifieds;
 
@@ -61,6 +62,7 @@ const CGFloat kTableRowHeight = 52.0f;
         _audioController = audioController;
         dispatch_queue_attr_t attr = dispatch_queue_attr_make_with_qos_class(DISPATCH_QUEUE_SERIAL, QOS_CLASS_USER_INITIATED, 0);
         _identifyQueue = dispatch_queue_create("PlayEm.IdentifyQueue", attr);
+        _imageQueue = dispatch_queue_create("PlayEm.IdentifyImageQueue", attr);
         _identifieds = [NSMutableArray array];
     }
     return self;
@@ -280,7 +282,7 @@ const CGFloat kTableRowHeight = 52.0f;
     IdentifiedTrack* track = _identifieds[row];
     NSLog(@"identified: %@", track);
     //NSTimeInterval time = [_audioController.sample timeForFrame:track.frame];
-    [_delegate addTrackToTracklist:track atFrame:track.frame];
+    [_delegate addTrackToTracklist:track];
 }
 
 - (void)copyQueryToPasteboard:(id)sender
@@ -425,11 +427,12 @@ const CGFloat kTableRowHeight = 52.0f;
             NSLog(@"need to re/load the image as the displayed URL %@ wouldnt match the requested URL %@", self.imageURL.absoluteString, match.mediaItems[0].artworkURL.absoluteString);
             
             IdentifiedTrack* item = [[IdentifiedTrack alloc] initWithMatchedMediaItem:match.mediaItems[0]];
-            item.frame = self.sessionFrame;
-            NSLog(@"item frame: %lld", item.frame);
+            item.frame = [NSNumber numberWithUnsignedLongLong:self.sessionFrame];
+
+            NSLog(@"item frame: %@", item.frame);
             self.imageURL = match.mediaItems[0].artworkURL;
             
-            dispatch_async(dispatch_queue_create("AsyncImageQueue", NULL), ^{
+            dispatch_async(self.imageQueue, ^{
                 NSImage* image = [[NSImage alloc] initWithContentsOfURL:match.mediaItems[0].artworkURL];
                 dispatch_async(dispatch_get_main_queue(), ^{
                     item.artwork = image;

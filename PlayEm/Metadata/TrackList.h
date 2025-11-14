@@ -16,13 +16,18 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (strong, nonatomic) NSArray<NSNumber*>* keys;
 @property (assign, nonatomic) size_t index;
+@property (readonly, nonatomic) unsigned long long frame;
 
 @end
 
 
 @interface TrackList : NSObject
 
-- (void)setTrack:(IdentifiedTrack*)track atFrame:(unsigned long long)frame;
+
+- (BOOL)writeToFile:(NSURL*)url error:(NSError**)error;
+- (BOOL)readFromFile:(NSURL*)url error:(NSError**)error;
+
+- (void)addTrack:(IdentifiedTrack*)track;
 - (void)removeTrackAtFrame:(unsigned long long)frame;
 - (IdentifiedTrack*)trackAtFrame:(unsigned long long)frame;
 - (NSArray<IdentifiedTrack*>*)tracks;

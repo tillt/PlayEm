@@ -22,15 +22,15 @@ NS_ASSUME_NONNULL_BEGIN
 typedef CGFloat (^OffsetBlock) (void);
 typedef CGFloat (^TotalWidthBlock) (void);
 
-@interface MarkLayerController : NSObject <CALayerDelegate>
-
-@property (strong, nonatomic) WaveView* waveView;
+@interface MarkLayerController : NSViewController <CALayerDelegate>
 
 @property (weak, nonatomic, nullable) TrackList* trackList;
 @property (weak, nonatomic, nullable) VisualSample* visualSample;
 @property (weak, nonatomic, nullable) BeatTrackedSample* beatSample;
 
 @property (assign, nonatomic) unsigned long long frames;
+@property (assign, nonatomic) unsigned long long frame;
+@property (nonatomic, assign) CGFloat tileWidth;
 
 @property (assign, nonatomic) CGFloat markerWidth;
 @property (strong, nonatomic) NSColor* markerColor;
@@ -48,8 +48,17 @@ typedef CGFloat (^TotalWidthBlock) (void);
 @property (strong, nonatomic) OffsetBlock offsetBlock;
 @property (strong, nonatomic) TotalWidthBlock widthBlock;
 
-- (void)updateTileView:(TileView*)tile;
+@property (assign, nonatomic) unsigned long long currentFrame;
 
+- (void)userInitiatedScrolling;
+- (void)userEndsScrolling;
+
+- (void)resize;
+- (void)invalidateMarks;
+- (void)invalidateBeats;
+- (void)invalidateTiles;
+
+- (void)updateTiles;
 @end
 
 NS_ASSUME_NONNULL_END

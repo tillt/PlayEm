@@ -6,14 +6,18 @@
 //  Copyright © 2025 Till Toenshoff. All rights reserved.
 //
 
-#import "TiledScrollView.h"
+#import <Cocoa/Cocoa.h>
+#import <AppKit/AppKit.h>
 
 @class MarkLayerController;
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface WaveScrollView : TiledScrollView<WaveViewHeadDelegate>
-@property (weak, nonatomic) MarkLayerController* markLayerController;
+@interface WaveScrollView : NSScrollView
+
+@property (assign, nonatomic) BOOL horizontal;
+@property (weak, nonatomic) MarkLayerController*  markLayerController;
+@property (assign, nonatomic) NSSize tileSize;
 
 @property (strong, nonatomic) CALayer* rastaLayer;
 
@@ -21,7 +25,9 @@ NS_ASSUME_NONNULL_BEGIN
 @property (strong, nonatomic) CALayer* aheadVibranceFxLayer;
 @property (strong, nonatomic) CALayer* trailBloomFxLayer;
 
-- (void)invalidateBeats;
+- (NSMutableArray*)reusableViews;
+- (void)setHead:(CGFloat)head;
+- (void)resize;
 
 @end
 

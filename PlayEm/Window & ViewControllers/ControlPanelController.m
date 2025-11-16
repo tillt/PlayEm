@@ -464,7 +464,7 @@ extern NSString * const kPlaybackStatePlaying;
     _beatProgress.displayedWhenStopped = NO;
     _beatProgress.autoresizingMask =  NSViewNotSizable | NSViewMinXMargin | NSViewMaxXMargin| NSViewMinYMargin | NSViewMaxYMargin;
     [self.view addSubview:_beatProgress];
-
+    
     _bpm = [NSTextField textFieldWithString:kBPMDefault];
     _bpm.bordered = NO;
     _bpm.editable = NO;
@@ -606,12 +606,14 @@ extern NSString * const kPlaybackStatePlaying;
     
     if (!_durationUnitTime) {
         const unsigned long long totalBeats = [dict[kBeatNotificationKeyTotalBeats] unsignedLongLongValue];
-        const unsigned long long remainingBeats = totalBeats - beat;
+        const unsigned long long remainingBeats = totalBeats - (beat + 1);
+        
+        //NSLog(@"remain: %lld", remainingBeats);
         
         const unsigned long long barIndex = (beat / 4) + 1;
         const unsigned int beatIndex = (beat % 4) + 1;
 
-        const unsigned long long remainingBarIndex = (remainingBeats / 4) + 1;
+        const unsigned long long remainingBarIndex = remainingBeats / 4;
         const unsigned int remainingBeatIndex = (remainingBeats % 4) + 1;
 
         [self updateDuration:[NSString stringWithFormat:@"%lld:%d", remainingBarIndex, remainingBeatIndex]

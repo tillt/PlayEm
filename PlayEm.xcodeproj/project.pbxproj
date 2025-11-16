@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		BB03622925FE57E800FA0A7E /* TotalWaveView.m in Sources */ = {isa = PBXBuildFile; fileRef = BB03622825FE57E800FA0A7E /* TotalWaveView.m */; };
 		BB097A092921967700D33E44 /* LevelIndicatorCell.m in Sources */ = {isa = PBXBuildFile; fileRef = BB097A082921967700D33E44 /* LevelIndicatorCell.m */; };
 		BB097A0C2921B1E500D33E44 /* ScrollingTextView.m in Sources */ = {isa = PBXBuildFile; fileRef = BB097A0B2921B1E500D33E44 /* ScrollingTextView.m */; };
 		BB09C23D2E8028FB00C506FC /* SymbolButton.m in Sources */ = {isa = PBXBuildFile; fileRef = BB09C23C2E8028FB00C506FC /* SymbolButton.m */; };
@@ -82,7 +81,6 @@
 		BBC43B7028D28CDD00CD1080 /* InfoPanel.m in Sources */ = {isa = PBXBuildFile; fileRef = BBC43B6F28D28CDD00CD1080 /* InfoPanel.m */; };
 		BBC43B7328D296B800CD1080 /* AVMetadataItem+THAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = BBC43B7228D296B800CD1080 /* AVMetadataItem+THAdditions.m */; };
 		BBC76D912CCD9D6A00772DD2 /* IdentificationCoverView.m in Sources */ = {isa = PBXBuildFile; fileRef = BBC76D902CCD9D6A00772DD2 /* IdentificationCoverView.m */; };
-		BBCE1DD9257C3CAB006CE886 /* TiledScrollView.m in Sources */ = {isa = PBXBuildFile; fileRef = BBCE1DD8257C3CAB006CE886 /* TiledScrollView.m */; };
 		BBCE23542B5C9C41003892F3 /* GraphicsTools.m in Sources */ = {isa = PBXBuildFile; fileRef = BBCE23532B5C9C41003892F3 /* GraphicsTools.m */; };
 		BBD24D622432948800DC2A81 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = BBD24D612432948800DC2A81 /* AppDelegate.m */; };
 		BBD24D642432948B00DC2A81 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = BBD24D632432948B00DC2A81 /* Assets.xcassets */; };
@@ -122,8 +120,6 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		BB03622725FE57E800FA0A7E /* TotalWaveView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TotalWaveView.h; sourceTree = "<group>"; };
-		BB03622825FE57E800FA0A7E /* TotalWaveView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TotalWaveView.m; sourceTree = "<group>"; };
 		BB097A072921967700D33E44 /* LevelIndicatorCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LevelIndicatorCell.h; sourceTree = "<group>"; };
 		BB097A082921967700D33E44 /* LevelIndicatorCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = LevelIndicatorCell.m; sourceTree = "<group>"; };
 		BB097A0A2921B1E500D33E44 /* ScrollingTextView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ScrollingTextView.h; sourceTree = "<group>"; };
@@ -252,8 +248,6 @@
 		BBC43B7228D296B800CD1080 /* AVMetadataItem+THAdditions.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "AVMetadataItem+THAdditions.m"; sourceTree = "<group>"; };
 		BBC76D8F2CCD9D6A00772DD2 /* IdentificationCoverView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IdentificationCoverView.h; sourceTree = "<group>"; };
 		BBC76D902CCD9D6A00772DD2 /* IdentificationCoverView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = IdentificationCoverView.m; sourceTree = "<group>"; };
-		BBCE1DD7257C3CAB006CE886 /* TiledScrollView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TiledScrollView.h; sourceTree = "<group>"; };
-		BBCE1DD8257C3CAB006CE886 /* TiledScrollView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TiledScrollView.m; sourceTree = "<group>"; };
 		BBCE23522B5C9C41003892F3 /* GraphicsTools.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GraphicsTools.h; sourceTree = "<group>"; };
 		BBCE23532B5C9C41003892F3 /* GraphicsTools.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GraphicsTools.m; sourceTree = "<group>"; };
 		BBCE23552B5C9FAC003892F3 /* ScopeShaderTypes.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ScopeShaderTypes.h; path = PlayEm/ScopeShaderTypes.h; sourceTree = SOURCE_ROOT; };
@@ -445,14 +439,10 @@
 				BBAD7D54262B973C00089ACC /* ScopeView.m */,
 				BB097A0A2921B1E500D33E44 /* ScrollingTextView.h */,
 				BB097A0B2921B1E500D33E44 /* ScrollingTextView.m */,
-				BBCE1DD7257C3CAB006CE886 /* TiledScrollView.h */,
-				BBCE1DD8257C3CAB006CE886 /* TiledScrollView.m */,
 				BB51C1DE2E59C1990049355F /* WaveScrollView.h */,
 				BB51C1DF2E59C1990049355F /* WaveScrollView.m */,
 				BB9C77E32A8D5F3400A138BE /* WaveView.h */,
 				BB9C77E42A8D5F7C00A138BE /* WaveView.m */,
-				BB03622725FE57E800FA0A7E /* TotalWaveView.h */,
-				BB03622825FE57E800FA0A7E /* TotalWaveView.m */,
 				BB51C1E32E59DAFE0049355F /* TileView.h */,
 				BB51C1E12E59DAA50049355F /* TileView.m */,
 				BB5A2C212B925CD300040209 /* TextViewWithPlaceholder.h */,
@@ -708,6 +698,8 @@
 				BB09C23D2E8028FB00C506FC /* SymbolButton.m in Sources */,
 				BB539A592D0F51AF0095B8C7 /* KeyTrackedSample.mm in Sources */,
 				BB9D7C102E3E480E0018BA27 /* SampleFormat.h in Sources */,
+				BBAD5EF32CE0ECBD00F664AB /* CALayer+PauseAnimations.m in Sources */,
+				BBC2AF772B8DE2780077EB5E /* NSError+BetterError.m in Sources */,
 				BBF7982D2ADC4BAA00893533 /* NSString+BeautifulPast.m in Sources */,
 				BBCE23542B5C9C41003892F3 /* GraphicsTools.m in Sources */,
 				BBC2AF7D2B8FD97C0077EB5E /* MusicAuthenticationController.m in Sources */,
@@ -715,11 +707,9 @@
 				BB46D4AC2D8DCD150090CD56 /* NSString+OccurenceCount.m in Sources */,
 				BBC76D912CCD9D6A00772DD2 /* IdentificationCoverView.m in Sources */,
 				BB46D4B22D99AD5E0090CD56 /* NSImage+Average.m in Sources */,
-				BBCE1DD9257C3CAB006CE886 /* TiledScrollView.m in Sources */,
 				BBDC988A250E81D0008B19D1 /* BrowserController.m in Sources */,
 				BB0A62CE2E88796A00BAF444 /* TracklistController.m in Sources */,
 				BBC43B7028D28CDD00CD1080 /* InfoPanel.m in Sources */,
-				BB03622925FE57E800FA0A7E /* TotalWaveView.m in Sources */,
 				BB3927092C1BA8BD009C7B32 /* NSURL+WithoutParameters.m in Sources */,
 				BB25CF59255857BC005BFC32 /* MediaMetaData.m in Sources */,
 				BB8571012972078A0004218B /* IndexedBlockOperation.m in Sources */,
@@ -731,8 +721,6 @@
 				BBA623D42620F6A200924D44 /* UIView+Visibility.m in Sources */,
 				BBC2AF732B8B5B5A0077EB5E /* MediaMetaData+AVAsset.m in Sources */,
 				BBE284682467612F00BE9D7F /* ScopeRenderer.m in Sources */,
-				BBAD5EF32CE0ECBD00F664AB /* CALayer+PauseAnimations.m in Sources */,
-				BBC2AF772B8DE2780077EB5E /* NSError+BetterError.m in Sources */,
 				BBA456E129395B970062D470 /* IdentifyViewController.m in Sources */,
 				BB5A4D9128FC5C2B003A733C /* NSBezierPath+CGPath.m in Sources */,
 				BBC43B7328D296B800CD1080 /* AVMetadataItem+THAdditions.m in Sources */,

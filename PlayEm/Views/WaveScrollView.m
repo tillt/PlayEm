@@ -11,6 +11,8 @@
 #import "CAShapeLayer+Path.h"
 #import "NSBezierPath+CGPath.h"
 
+
+#import "Scroller.h"
 #import "WaveScrollView.h"
 #import "TileView.h"
 #import "LazySample.h"
@@ -18,10 +20,7 @@
 #import "Defaults.h"
 #import "MarkLayerController.h"
 
-const CGFloat kDirectWaveViewTileWidth = 256.0f;
-
 @interface WaveScrollView () // Private
-- (void)updateTiles;
 @end
 
 @implementation WaveScrollView
@@ -30,6 +29,21 @@ const CGFloat kDirectWaveViewTileWidth = 256.0f;
 {
     self = [super initWithFrame:frameRect];
     if (self) {
+        Scroller* scroller = [Scroller new];
+        scroller.color = [NSColor redColor];
+        self.horizontalScroller = scroller;
+        
+
+        self.wantsLayer = YES;
+        self.layerUsesCoreImageFilters = YES;
+        self.layer = [self makeBackingLayer];
+        self.layerContentsRedrawPolicy = NSViewLayerContentsRedrawOnSetNeedsDisplay;
+//        self.layer.backgroundColor = [[NSColor blueColor] CGColor];
+
+
+
+
+
         self.automaticallyAdjustsContentInsets = NO;
         self.contentInsets = NSEdgeInsetsMake(0.0, 0.0, 0.0, 0.0);
         
@@ -40,7 +54,6 @@ const CGFloat kDirectWaveViewTileWidth = 256.0f;
         
         self.horizontal = YES;
         
-        self.tileSize = NSMakeSize(kDirectWaveViewTileWidth, self.bounds.size.height);
 
         CIFilter* vibranceFilter = [CIFilter filterWithName:@"CIColorControls"];
         [vibranceFilter setDefaults];
@@ -106,102 +119,37 @@ const CGFloat kDirectWaveViewTileWidth = 256.0f;
     [super viewDidMoveToSuperview];
 
     [self.layer addSublayer:_trailBloomFxLayer];
+
     [self.layer addSublayer:_aheadVibranceFxLayer];
     [self.layer addSublayer:_rastaLayer];
 }
 
-- (void)WillStartLiveScroll:(NSNotification*)notification
+
+
+//- (void)updateHeadPosition:(CGFloat)head
+//{
+//    _headBloomFxLayer.position = CGPointMake(head, _headBloomFxLayer.position.y);
+//    _headLayer.position = CGPointMake(head, _headLayer.position.y);
+//    _aheadVibranceFxLayer.position = CGPointMake(head + (_headImageSize.width / 2.0f), 0.0);
+//
+//    _rastaLayer.frame = NSMakeRect(0.0, 0.0, floor(head), _rastaLayer.bounds.size.height);
+//
+//    _rastaLayer.position = CGPointMake(floor(head), 0.0);
+//    _tailBloomFxLayer.position = CGPointMake(head - (_headImageSize.width / 2.0f), 0.0);
+//}
+
+
+- (void)setHead:(CGFloat)head
 {
-    [(WaveView*)self.documentView updateHeadPositionTransaction];
-}
-
-- (void)DidLiveScroll:(NSNotification*)notification
-{
-    [(WaveView*)self.documentView updateHeadPositionTransaction];
-}
-
-- (void)DidEndLiveScroll:(NSNotification*)notification
-{
-    [(WaveView*)self.documentView updateHeadPositionTransaction];
-}
-
-/**
- Should get called whenever the visible tiles could possibly be outdated.
- */
-- (void)updateTiles
-{
-    NSSize tileSize = { kDirectWaveViewTileWidth, self.bounds.size.height };
-
-    NSRect documentVisibleRect = self.documentVisibleRect;
-    // Lie to get the last tile invisilbe, always. That way we wont regularly
-    // see updates of the right most tile when the scrolling follows playback.
-    documentVisibleRect.size.width += tileSize.width;
-
-    const CGFloat xMin = floor(NSMinX(documentVisibleRect) / tileSize.width) * tileSize.width;
-    const CGFloat xMax = xMin + (ceil((NSMaxX(documentVisibleRect) - xMin) / tileSize.width) * tileSize.width);
-    const CGFloat yMin = floor(NSMinY(documentVisibleRect) / tileSize.height) * tileSize.height;
-    const CGFloat yMax = ceil((NSMaxY(documentVisibleRect) - yMin) / tileSize.height) * tileSize.height;
-
-    // Figure out the tile frames we would need to get full coverage and add them to
-    // the to-do list.
-    NSMutableSet* neededTileFrames = [NSMutableSet set];
-    for (CGFloat x = xMin; x < xMax; x += tileSize.width) {
-        for (CGFloat y = yMin; y < yMax; y += tileSize.height) {
-            NSRect rect = NSMakeRect(x, y, tileSize.width, tileSize.height);
-            [neededTileFrames addObject:[NSValue valueWithRect:rect]];
-        }
-    }
-    
-    assert(self.documentView != nil);
-
-    // See if we already have subviews that cover these needed frames.
-    NSArray<TileView*>* screenTiles = [[self.documentView subviews] copy];
-
-    for (TileView* subview in screenTiles) {
-//        assert(subview.frame.size.width < 512);
-        NSValue* frameRectVal = [NSValue valueWithRect:subview.frame];
-        // If we don't need this one any more.
-        if (![neededTileFrames containsObject:frameRectVal]) {
-            // Then recycle it.
-            [self.reusableViews addObject:subview];
-            [subview removeFromSuperview];
-        } else {
-            // Take this frame rect off the to-do list.
-            [neededTileFrames removeObject:frameRectVal];
-        }
-    }
-
-    // Add needed tiles from the to-do list.
-    for (NSValue* neededFrame in neededTileFrames) {
-        TileView* view = [self.reusableViews lastObject];
-        [self.reusableViews removeLastObject];
-
-        // Create one if we did not find a reusable one.
-        if (nil == view) {
-            view = [[TileView alloc] initWithFrame:NSZeroRect
-                                 waveLayerDelegate:self.markLayerController];
-        }
-
-        // Place it and install it.
-        view.frame = [neededFrame rectValue];
-        [self.documentView addSubview:view];
-
-        [self.markLayerController updateTileView:view];
-    }
-}
-
-- (void)updatedHeadPosition
-{
-    WaveView* wv = (WaveView*)self.documentView;
     _rastaLayer.frame = NSMakeRect(_rastaLayer.frame.origin.x,
                                    _rastaLayer.frame.origin.y,
                                    self.documentVisibleRect.size.width,
                                    _rastaLayer.frame.size.height);
-    if (NSPointInRect(NSMakePoint(wv.head, 1.0f), self.documentVisibleRect)) {
-        _aheadVibranceFxLayer.position = CGPointMake(wv.head + 0.0 - self.documentVisibleRect.origin.x, self.bounds.origin.y);
-        _trailBloomFxLayer.position = CGPointMake((wv.head + 4.0) - self.documentVisibleRect.origin.x, self.bounds.origin.y);
+    if (NSPointInRect(NSMakePoint(head, 1.0f), self.documentVisibleRect)) {
+        _aheadVibranceFxLayer.position = CGPointMake(head + 0.0 - self.documentVisibleRect.origin.x, self.bounds.origin.y);
+        _trailBloomFxLayer.position = CGPointMake((head + 4.0) - self.documentVisibleRect.origin.x, self.bounds.origin.y);
     } else {
-        if (wv.head < self.documentVisibleRect.origin.x) {
+        if (head < self.documentVisibleRect.origin.x) {
             _aheadVibranceFxLayer.position = CGPointMake(self.bounds.origin.x, self.documentVisibleRect.origin.y);
             _trailBloomFxLayer.position = CGPointMake(self.bounds.origin.x, self.documentVisibleRect.origin.y);
         } else {
@@ -211,11 +159,21 @@ const CGFloat kDirectWaveViewTileWidth = 256.0f;
     }
 }
 
-- (void)invalidateBeats
+- (void)resize
 {
-    for (TileView* view in [[self.documentView subviews] reverseObjectEnumerator]) {
-        [self.markLayerController updateTileView:view];
-    }
+    _aheadVibranceFxLayer.bounds = CGRectMake(0.0f,
+                                              0.0f,
+                                              self.bounds.size.width,
+                                              self.bounds.size.height);
+    _trailBloomFxLayer.bounds = CGRectMake(0.0f,
+                                              0.0f,
+                                              self.bounds.size.width,
+                                              self.bounds.size.height);
+    // FIXME: We are redoing the mask layer cause all ways of resizing it
+    // ended up with rather weird effects.
+    _aheadVibranceFxLayer.mask = [CAShapeLayer MaskLayerFromRect:_aheadVibranceFxLayer.bounds];
+    
+    _trailBloomFxLayer.mask = [CAShapeLayer MaskLayerFromRect:_trailBloomFxLayer.bounds];
 }
 
 @end

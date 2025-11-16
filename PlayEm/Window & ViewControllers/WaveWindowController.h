@@ -60,8 +60,8 @@ NS_ASSUME_NONNULL_BEGIN
 @property (strong, nonatomic) BrowserController* browser;
 @property (strong, nonatomic) ScopeView* smallScopeView;
 @property (strong, nonatomic) IBOutlet NSView* belowVisuals;
-@property (strong, nonatomic) IBOutlet TotalWaveView* totalView;
-@property (strong, nonatomic) IBOutlet WaveView* waveView;
+//@property (strong, nonatomic) IBOutlet TotalWaveView* totalView;
+//@property (strong, nonatomic) IBOutlet WaveView* waveView;
 //@property (strong, nonatomic) IBOutlet MetalWaveView* metalWaveView;
 @property (strong, nonatomic) IBOutlet ScopeView* scopeView;
 @property (strong, nonatomic) IBOutlet NSVisualEffectView* effectBelowPlaylist;

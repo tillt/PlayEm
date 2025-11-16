@@ -124,6 +124,7 @@ const CGFloat kTotalRowHeight = 52.0 + kTimeHeight;
     }
     // TODO: Add logic to spare us a reload.
     [_table reloadData];
+    [_delegate reloadTracks];
     
     NSError* error = nil;
     BOOL done = [_current storeTracklistWithError:&error];

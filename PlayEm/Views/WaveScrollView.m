@@ -14,11 +14,12 @@
 
 #import "Scroller.h"
 #import "WaveScrollView.h"
+#import "WaveView.h"
 #import "TileView.h"
 #import "LazySample.h"
 #import "VisualSample.h"
 #import "Defaults.h"
-#import "MarkLayerController.h"
+#import "WaveViewController.h"
 
 @interface WaveScrollView () // Private
 @end
@@ -33,7 +34,6 @@
         scroller.color = [NSColor redColor];
         self.horizontalScroller = scroller;
         
-
         self.wantsLayer = YES;
         self.layerUsesCoreImageFilters = YES;
         self.layer = [self makeBackingLayer];
@@ -53,78 +53,153 @@
         self.canDrawConcurrently = YES;
         
         self.horizontal = YES;
-        
-
-        CIFilter* vibranceFilter = [CIFilter filterWithName:@"CIColorControls"];
-        [vibranceFilter setDefaults];
-        [vibranceFilter setValue:[NSNumber numberWithFloat:0.10] forKey:@"inputSaturation"];
-        [vibranceFilter setValue:[NSNumber numberWithFloat:0.0001] forKey:@"inputBrightness"];
-
-        CIFilter* darkenFilter = [CIFilter filterWithName:@"CIGammaAdjust"];
-        [darkenFilter setDefaults];
-        [darkenFilter setValue:[NSNumber numberWithFloat:2.5] forKey:@"inputPower"];
-        
-        _rastaLayer = [CALayer layer];
-        _rastaLayer.backgroundColor = [[NSColor colorWithPatternImage:[NSImage imageNamed:@"LargeRastaPattern"]] CGColor];
-        _rastaLayer.contentsScale = NSViewLayerContentsPlacementScaleProportionallyToFill;
-        _rastaLayer.anchorPoint = CGPointMake(1.0, 0.0);
-        _rastaLayer.autoresizingMask = kCALayerWidthSizable;
-        _rastaLayer.frame = NSMakeRect(self.bounds.origin.x,
-                                       self.bounds.origin.y,
-                                       self.bounds.size.width,
-                                       self.bounds.size.height);
-        _rastaLayer.zPosition = 1.1;
-        _rastaLayer.drawsAsynchronously = YES;
-        _rastaLayer.opacity = 0.7;
-        _rastaLayer.compositingFilter = [CIFilter filterWithName:@"CISourceAtopCompositing"];
-        
-        _aheadVibranceFxLayer = [CALayer layer];
-        _aheadVibranceFxLayer.backgroundFilters = @[ darkenFilter, vibranceFilter ];
-        _aheadVibranceFxLayer.anchorPoint = CGPointMake(0.0, 0.0);
-        // FIXME: This looks weird - why 4?
-        _aheadVibranceFxLayer.frame = CGRectMake(0.0, 0.0, self.bounds.size.width * 4, self.bounds.size.height);
-        _aheadVibranceFxLayer.masksToBounds = NO;
-        _aheadVibranceFxLayer.drawsAsynchronously = YES;
-        _aheadVibranceFxLayer.zPosition = 1.0;
-        
-        _aheadVibranceFxLayerMask = [CAShapeLayer layer];
-        NSRect rect = _aheadVibranceFxLayer.frame;
-        _aheadVibranceFxLayerMask.fillRule = kCAFillRuleEvenOdd;
-        NSBezierPath* path = [NSBezierPath bezierPath];
-        [path appendBezierPathWithRect:rect];
-        _aheadVibranceFxLayerMask.path = [NSBezierPath CGPathFromPath:path];
-        _aheadVibranceFxLayer.mask = _aheadVibranceFxLayerMask;
-        
-        CIFilter* trailBloomFilter = [CIFilter filterWithName:@"CIBloom"];
-        [trailBloomFilter setDefaults];
-        [trailBloomFilter setValue:[NSNumber numberWithFloat:3.0] forKey:@"inputRadius"];
-        [trailBloomFilter setValue:[NSNumber numberWithFloat:1.0] forKey:@"inputIntensity"];
-        
-        _trailBloomFxLayer = [CALayer layer];
-        _trailBloomFxLayer.backgroundFilters = @[ trailBloomFilter ];
-        _trailBloomFxLayer.anchorPoint = CGPointMake(1.0, 0.0);
-        // FIXME: This looks weird - why 4?
-        _trailBloomFxLayer.frame = CGRectMake(0.0, 0.0, self.bounds.size.width * 4, self.bounds.size.height);
-        _trailBloomFxLayer.masksToBounds = NO;
-        _trailBloomFxLayer.zPosition = 1.9;
-        _trailBloomFxLayer.drawsAsynchronously = YES;
-        _trailBloomFxLayer.name = @"TailBloomFxLayer";
-        _trailBloomFxLayer.mask = [CAShapeLayer MaskLayerFromRect:_trailBloomFxLayer.frame];
     }
     return self;
 }
 
-- (void)viewDidMoveToSuperview
+- (void)addHead
 {
-    [super viewDidMoveToSuperview];
-
-    [self.layer addSublayer:_trailBloomFxLayer];
-
-    [self.layer addSublayer:_aheadVibranceFxLayer];
-    [self.layer addSublayer:_rastaLayer];
+    WaveView* wv = (WaveView*)self.documentView;
+    
+    [self.layer addSublayer:wv.aheadVibranceFxLayer];
+    [self.layer addSublayer:wv.headLayer];
+    [self.layer addSublayer:wv.rastaLayer];
+    [self.layer addSublayer:wv.headBloomFxLayer];
+    [self.layer addSublayer:wv.trailBloomHostLayer];
 }
 
+- (void)createTrail
+{
+    WaveView* wv = (WaveView*)self.documentView;
 
+    NSImage* image = [NSImage imageNamed:@"CurrentTime"];
+
+    wv.trailBloomHostLayer = [CALayer new];
+    //wv.trailBloomHostLayer.backgroundColor = [NSColor redColor].CGColor;
+    wv.trailBloomHostLayer.drawsAsynchronously = YES;
+    wv.trailBloomHostLayer.autoresizingMask = kCALayerHeightSizable;
+    wv.trailBloomHostLayer.masksToBounds = NO;
+    wv.trailBloomHostLayer.zPosition = 1.0;
+    wv.trailBloomHostLayer.name = @"TrailBloomHostLayer";
+    wv.trailBloomHostLayer.anchorPoint = CGPointMake(1.0, 0.0);
+    wv.trailBloomHostLayer.bounds = CGRectMake(0.0, 0.0, image.size.width, self.frame.size.height);
+    //wv.trailBloomHostLayer.hidden = YES;
+    const unsigned int trailingBloomLayerCount = 3;
+    CGSize size = CGSizeMake(floor(image.size.width / (2 * trailingBloomLayerCount)), self.frame.size.height);
+
+    for (int i = 0; i < trailingBloomLayerCount; i++) {
+        CIFilter* bloom = [CIFilter filterWithName:@"CIBloom"];
+        [bloom setDefaults];
+        //NSNumber* radius = [NSNumber numberWithFloat:(float)(2.5 + trailingBloomLayerCount - i) * 1.0];
+        NSNumber* radius = [NSNumber numberWithFloat:(float)(2.5 + trailingBloomLayerCount - i) * 3.0];
+        [bloom setValue: radius forKey: @"inputRadius"];
+        //[bloom setValue: [NSNumber numberWithFloat:1.0 + ((trailingBloomLayerCount - i) * 0.1)] forKey: @"inputIntensity"];
+        [bloom setValue: [NSNumber numberWithFloat:3.0] forKey: @"inputIntensity"];
+        
+        CALayer* layer = [CALayer layer];
+        layer.backgroundFilters = @[ bloom ];
+        layer.drawsAsynchronously = YES;
+        layer.autoresizingMask = kCALayerNotSizable;
+        //layer.anchorPoint = CGPointMake(0.0, 0.0);
+        //layer.bounds = CGRectMake(0.0, 0.0, size.width, size.height);
+        //layer.position = CGPointMake((trailingBloomLayerCount - (i + 1)) * size.width, 0.0);
+        layer.frame = CGRectMake(wv.trailBloomHostLayer.bounds.size.width - ((i + 1) * size.width), 0.0, size.width, size.height);
+        NSColor* color = nil;
+        switch(i) {
+            case 0:
+                color = [NSColor redColor];
+                break;
+            case 1:
+                color = [NSColor greenColor];
+                break;
+            case 2:
+                color = [NSColor blueColor];
+                break;
+        }
+        
+        //layer.backgroundColor = color.CGColor;
+        layer.mask = [CAShapeLayer MaskLayerFromRect:layer.bounds];
+        layer.masksToBounds = YES;
+        //layer.zPosition = 3.99 + ((float)i - trailingBloomLayerCount);
+        layer.name = [NSString stringWithFormat:@"TrailBloomFxLayer%d", i+1];
+        [wv.trailBloomHostLayer addSublayer:layer];
+        NSLog(@"trailbloom layer %@", NSStringFromRect(layer.frame));
+    }
+    NSLog(@"trailbloom host layer %@", NSStringFromRect(wv.trailBloomHostLayer.frame));
+    //_trailBloomFxLayers = layers;
+}
+
+- (void)setupHead
+{
+    WaveView* wv = (WaveView*)self.documentView;
+
+    NSImage* image = [NSImage imageNamed:@"CurrentTime"];
+    image.resizingMode = NSImageResizingModeTile;
+
+    wv.headLayer.contents = image;
+    wv.headImageSize = image.size;
+
+    wv.headLayer.frame = CGRectMake(0.0, 0.0, image.size.width, self.bounds.size.height);
+    
+    wv.aheadVibranceFxLayer.bounds = self.bounds;
+    wv.aheadVibranceFxLayer.position = CGPointMake(0.0, 0.0);
+    wv.aheadVibranceFxLayer.mask = [CAShapeLayer MaskLayerFromRect:self.bounds];
+
+    wv.headBloomFxLayer.frame = CGRectMake(0.0, 0.0, 5.0, self.bounds.size.height);
+    wv.headBloomFxLayer.mask = [CAShapeLayer MaskLayerFromRect:wv.headBloomFxLayer.bounds];
+
+    //wv.trailBloomHostLayer.bounds = CGRectMake(0.0, 0.0, image.size.width, self.bounds.size.height);
+    wv.trailBloomHostLayer.position = CGPointMake(0.0, 0.0);
+
+//    const unsigned int trailFragmentWidth = floor(image.size.width / (2 * wv.trailBloomFxLayers.count));
+//    for (CALayer* layer in wv.trailBloomFxLayers) {
+//        layer.frame = CGRectMake(0.0, 0.0, trailFragmentWidth, height);
+//        NSLog(@"trailing layee %@", NSStringFromRect(layer.frame));
+//        layer.mask = [CAShapeLayer MaskLayerFromRect:layer.frame];
+//    }
+    wv.rastaLayer.backgroundColor = [[NSColor colorWithPatternImage:[NSImage imageNamed:@"LargeRastaPattern"]] CGColor];
+    wv.rastaLayer.frame = self.bounds;
+}
+//
+//- (void)setupHead
+//{
+//    WaveView* wv = (WaveView*)self.documentView;
+//
+//    NSImage* image = [NSImage imageNamed:@"CurrentTime"];
+//    image.resizingMode = NSImageResizingModeTile;
+//
+//    CGFloat height = floor(self.bounds.size.height);
+//
+//    wv.headLayer.contents = image;
+//    wv.headImageSize = image.size;
+//    wv.headLayer.frame = CGRectMake(0.0, 0.0, floor(image.size.width), height);
+//    wv.headBloomFxLayer.frame = CGRectMake(0.0, 0.0, 5.0, height);
+//    wv.headBloomFxLayer.mask = [CAShapeLayer MaskLayerFromRect:wv.headBloomFxLayer.frame];
+//    
+//    const unsigned int trailingBloomLayerCount = 3;
+//    NSMutableArray* layers = [NSMutableArray array];
+//    for (int i = 0; i < trailingBloomLayerCount; i++) {
+//        CIFilter* bloom = [CIFilter filterWithName:@"CIBloom"];
+//        [bloom setDefaults];
+//        [bloom setValue: [NSNumber numberWithFloat:(float)(2.5 + trailingBloomLayerCount - i) * 1.0]
+//                 forKey: @"inputRadius"];
+//        //[bloom setValue: [NSNumber numberWithFloat:1.0 + ((trailingBloomLayerCount - i) * 0.1)] forKey: @"inputIntensity"];
+//        [bloom setValue: [NSNumber numberWithFloat:1.0]
+//                 forKey: @"inputIntensity"];
+//        
+//        CALayer* layer = [CALayer layer];
+//        layer.backgroundFilters = @[ bloom ];
+//        layer.drawsAsynchronously = YES;
+//        layer.anchorPoint = CGPointMake(1.0, 0.0);
+//        layer.frame = CGRectMake(0.0, 0.0, floor(image.size.width / (2 * trailingBloomLayerCount)), height);
+//        layer.masksToBounds = YES;
+//        layer.zPosition = 3.99 + ((float)i - trailingBloomLayerCount);
+//        layer.name = [NSString stringWithFormat:@"TrailBloomFxLayer%d", i+1];
+//        layer.mask = [CAShapeLayer MaskLayerFromRect:layer.frame];
+//        [layers addObject:layer];
+//    }
+//    wv.trailBloomFxLayers = layers;
+//}
 
 //- (void)updateHeadPosition:(CGFloat)head
 //{
@@ -141,39 +216,52 @@
 
 - (void)setHead:(CGFloat)head
 {
-    _rastaLayer.frame = NSMakeRect(_rastaLayer.frame.origin.x,
-                                   _rastaLayer.frame.origin.y,
-                                   self.documentVisibleRect.size.width,
-                                   _rastaLayer.frame.size.height);
+    WaveView* wv = (WaveView*)self.documentView;
+
+//    _rastaLayer.frame = NSMakeRect(0.0, 0.0, floor(position), _rastaLayer.bounds.size.height);
+//    _rastaLayer.position = CGPointMake(floor(position), 0.0);
+
+    //wv.tailBloomFxLayer.position = CGPointMake(head - (_headImageSize.width / 2.0f), 0.0);
+
+    
+//    wv.rastaLayer.frame = NSMakeRect(   wv.rastaLayer.frame.origin.x,
+//                                        wv.rastaLayer.frame.origin.y,
+//                                        self.documentVisibleRect.size.width,
+//                                        wv.rastaLayer.frame.size.height);
+
+    // Check if head position is within visible window. When the head is prior to the visible
+    // window, we know all display is covered by a vibrance reduced wave. When the head is
+    // past the visible window, all displayed is covered by the fully colored variant.
     if (NSPointInRect(NSMakePoint(head, 1.0f), self.documentVisibleRect)) {
-        _aheadVibranceFxLayer.position = CGPointMake(head + 0.0 - self.documentVisibleRect.origin.x, self.bounds.origin.y);
-        _trailBloomFxLayer.position = CGPointMake((head + 4.0) - self.documentVisibleRect.origin.x, self.bounds.origin.y);
+        wv.aheadVibranceFxLayer.position = CGPointMake(head + 0.0 - self.documentVisibleRect.origin.x, self.bounds.origin.y);
     } else {
         if (head < self.documentVisibleRect.origin.x) {
-            _aheadVibranceFxLayer.position = CGPointMake(self.bounds.origin.x, self.documentVisibleRect.origin.y);
-            _trailBloomFxLayer.position = CGPointMake(self.bounds.origin.x, self.documentVisibleRect.origin.y);
+            wv.aheadVibranceFxLayer.position = CGPointMake(self.bounds.origin.x, self.documentVisibleRect.origin.y);
         } else {
-            _aheadVibranceFxLayer.position = CGPointMake(self.documentVisibleRect.size.width, self.bounds.origin.y);
-            _trailBloomFxLayer.position = CGPointMake(self.documentVisibleRect.size.width, self.bounds.origin.y);
+            wv.aheadVibranceFxLayer.position = CGPointMake(self.documentVisibleRect.size.width, self.bounds.origin.y);
         }
     }
+    wv.headBloomFxLayer.position = CGPointMake(head + 0.0 - self.documentVisibleRect.origin.x, wv.headBloomFxLayer.position.y);
+    wv.headLayer.position = CGPointMake(head + 0.0 - self.documentVisibleRect.origin.x, wv.headLayer.position.y);
+    wv.trailBloomHostLayer.position = CGPointMake((head + 4.0) - self.documentVisibleRect.origin.x, 0.0);
+    //wv.aheadVibranceFxLayer.position = CGPointMake(head + (wv.headImageSize.width / 2.0f), 0.0);
+
+    //wv.rastaLayer.position = CGPointMake(floor(head)  + 0.0 - self.documentVisibleRect.origin.x, 0.0);
+    // wv.rastaLayer.position = CGPointMake(0, wv.rastaLayer.position.y);
+    //wv.headLayer.hidden = NO;
 }
 
 - (void)resize
 {
-    _aheadVibranceFxLayer.bounds = CGRectMake(0.0f,
-                                              0.0f,
-                                              self.bounds.size.width,
-                                              self.bounds.size.height);
-    _trailBloomFxLayer.bounds = CGRectMake(0.0f,
-                                              0.0f,
-                                              self.bounds.size.width,
-                                              self.bounds.size.height);
+    WaveView* wv = (WaveView*)self.documentView;
+    CGRect rect = CGRectMake(0.0f,
+                             0.0f,
+                             self.bounds.size.width,
+                             self.bounds.size.height);
+    wv.aheadVibranceFxLayer.bounds = rect;
     // FIXME: We are redoing the mask layer cause all ways of resizing it
     // ended up with rather weird effects.
-    _aheadVibranceFxLayer.mask = [CAShapeLayer MaskLayerFromRect:_aheadVibranceFxLayer.bounds];
-    
-    _trailBloomFxLayer.mask = [CAShapeLayer MaskLayerFromRect:_trailBloomFxLayer.bounds];
+    wv.aheadVibranceFxLayer.mask = [CAShapeLayer MaskLayerFromRect:rect];
 }
 
 @end

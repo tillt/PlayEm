@@ -160,6 +160,23 @@ const CGFloat kTotalRowHeight = 52.0 + kTimeHeight;
     }
 }
 
+- (IBAction)exportTracklist:(id)sender
+{
+    NSSavePanel* save = [NSSavePanel savePanel];
+    save.allowedContentTypes = @[ [UTType typeWithFilenameExtension:@"cue"] ];
+
+    if ([save runModal] == NSModalResponseOK) {
+        NSError* error = nil;
+        FrameToString encoder = ^(unsigned long long frame) {
+            return [_delegate standardStringFromFrame:frame];
+        };
+        BOOL done = [_current exportTracklistToFile:save.URL frameEncoder:encoder error:&error];
+        if (!done) {
+            NSLog(@"failed to write tracklist: %@", error);
+        }
+    }
+}
+
 //- (void)addNext:(MediaMetaData*)item
 //{
 //    //[_list insertObject:item atIndex:0];

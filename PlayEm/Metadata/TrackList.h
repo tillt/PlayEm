@@ -12,6 +12,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @class IdentifiedTrack;
 
+typedef NSString* _Nonnull (^FrameToString)(unsigned long long frame);
+
 @interface TrackListIterator : NSObject
 
 @property (strong, nonatomic) NSArray<NSNumber*>* keys;
@@ -26,6 +28,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (BOOL)writeToFile:(NSURL*)url error:(NSError**)error;
 - (BOOL)readFromFile:(NSURL*)url error:(NSError**)error;
+
+- (BOOL)exportToFile:(NSURL*)url link:(NSURL*)location frameEncoder:(FrameToString)encoder error:(NSError**)error;
 
 - (void)addTrack:(IdentifiedTrack*)track;
 - (void)removeTrackAtFrame:(unsigned long long)frame;

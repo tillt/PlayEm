@@ -9,11 +9,9 @@
 #import <Foundation/Foundation.h>
 #import <iTunesLibrary/ITLibMediaItem.h>
 #import <iTunesLibrary/ITLibArtwork.h>
+#import "TrackList.h"
 
 NS_ASSUME_NONNULL_BEGIN
-
-
-@class TrackList;
 
 ///
 /// MediaMetaData is lazily holding metadata for library entries to allow for extending iTunes provided data.
@@ -94,7 +92,7 @@ extern NSString* const kMediaMetaDataMapTypeNumber;
 
 - (BOOL)storeTracklistWithError:(NSError**)error;
 - (BOOL)recoverTracklistWithError:(NSError**)error;
-
+- (BOOL)exportTracklistToFile:(NSURL*)url frameEncoder:(FrameToString)encoder error:(NSError *__autoreleasing  _Nullable *)error;
 
 + (MediaMetaData*)mediaMetaDataWithURL:(NSURL*)url error:(NSError**)error;
 + (MediaMetaData*)mediaMetaDataWithITLibMediaItem:(ITLibMediaItem*)item error:(NSError**)error;

@@ -41,7 +41,7 @@
 #import "EnergyDetector.h"
 #import "SymbolButton.h"
 
-#import "MarkLayerController.h"
+#import "WaveViewController.h"
 
 @class BeatLayerDelegate;
 @class WaveLayerDelegate;
@@ -139,10 +139,10 @@ os_log_t pointsOfInterest;
 @property (strong, nonatomic) NSViewController* aboutViewController;
 
 @property (strong, nonatomic) WaveLayerDelegate* waveLayerDelegate;
-@property (strong, nonatomic) MarkLayerController* markLayerController;
+@property (strong, nonatomic) WaveViewController* markLayerController;
 
 @property (strong, nonatomic) WaveLayerDelegate* totalWaveLayerDelegate;
-@property (strong, nonatomic) MarkLayerController* totalMarkLayerController;
+@property (strong, nonatomic) WaveViewController* totalMarkLayerController;
 
 //@property (strong, nonatomic) SPMediaKeyTap* keyTap;
 @property (strong, nonatomic) AVRouteDetector* routeDetector;
@@ -450,7 +450,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     toolBar.delegate = self;
     self.window.toolbar = toolBar;
 
-    _markLayerController = [MarkLayerController new];
+    _markLayerController = [WaveViewController new];
     _markLayerController.tileWidth = 256.0;
     _markLayerController.markerColor = [[Defaults sharedDefaults] markerColor];
     _markLayerController.markerWidth = 2.0;
@@ -462,7 +462,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     _markLayerController.markerColor = [[Defaults sharedDefaults] markerColor];
     _markLayerController.markerWidth = 5.0;
 
-    _totalMarkLayerController = [MarkLayerController new];
+    _totalMarkLayerController = [WaveViewController new];
     _totalMarkLayerController.tileWidth = 8.0;
     _totalMarkLayerController.beatMask = BeatEventStyleMarkIntro | BeatEventStyleMarkBuildup | BeatEventStyleMarkTeardown | BeatEventStyleMarkOutro;
 
@@ -1437,6 +1437,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     // The scope view takes are of itself by reacting to `viewDidEndLiveResize`.
     [_totalVisual setPixelPerSecond:_totalMarkLayerController.view.bounds.size.width / _sample.duration];
     [_totalMarkLayerController resize];
+    [_markLayerController resize];
 }
 
 - (void)windowDidResize:(NSNotification *)notification
@@ -1764,7 +1765,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     if (_controlPanelController.durationUnitTime) {
         os_signpost_interval_begin(pointsOfInterest, POIStringStuff, "StringStuff");
         [_controlPanelController updateDuration:[_sample beautifulTimeWithFrame:(_sample.frames - frame) + 1.0]
-                                           time:[_sample beautifulTimeWithFrame:frame]];
+                                           time:[_sample beautifulTimeWithFrame:frame  ]];
         os_signpost_interval_end(pointsOfInterest, POIStringStuff, "StringStuff");
     }
 
@@ -2898,9 +2899,19 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
 
 #pragma mark - Tracklist Contoller delegate
 
+- (NSURL*)linkedURL
+{
+    return _meta.location;
+}
+
 - (NSString*)stringFromFrame:(unsigned long long)frame
 {
     return [_audioController.sample beautifulTimeWithFrame:frame];
+}
+
+- (NSString*)standardStringFromFrame:(unsigned long long)frame
+{
+    return [_audioController.sample cueTimeWithFrame:frame];
 }
 
 - (void)playAtFrame:(unsigned long long)frame

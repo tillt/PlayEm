@@ -1,12 +1,11 @@
 //
-//  MarkLayerController.m
+//  WaveViewController.m
 //  PlayEm
-//
 //  Created by Till Toenshoff on 11/9/25.
 //  Copyright © 2025 Till Toenshoff. All rights reserved.
 //
 
-#import "MarkLayerController.h"
+#import "WaveViewController.h"
 #import "TrackList.h"
 #import "WaveView.h"
 #import "Defaults.h"
@@ -19,7 +18,7 @@
 #import "../Sample/VisualPair.h"
 #import "../Views/WaveScrollView.h"
 
-@interface MarkLayerController()
+@interface WaveViewController()
 
 @property (nonatomic, assign) BOOL followTime;
 @property (nonatomic, assign) BOOL userMomentum;
@@ -28,7 +27,7 @@
 
 @end
 
-@implementation MarkLayerController
+@implementation WaveViewController
 {
 }
 
@@ -44,20 +43,20 @@
         _tileWidth = 256.0;
         
         [[NSNotificationCenter defaultCenter]
-           addObserver:self
-              selector:@selector(willStartLiveScroll:)
-                  name:NSScrollViewWillStartLiveScrollNotification
-                object:self];
+         addObserver:self
+         selector:@selector(willStartLiveScroll:)
+         name:NSScrollViewWillStartLiveScrollNotification
+         object:self];
         [[NSNotificationCenter defaultCenter]
-           addObserver:self
-              selector:@selector(didLiveScroll:)
-                  name:NSScrollViewDidLiveScrollNotification
-                object:self];
+         addObserver:self
+         selector:@selector(didLiveScroll:)
+         name:NSScrollViewDidLiveScrollNotification
+         object:self];
         [[NSNotificationCenter defaultCenter]
-           addObserver:self
-              selector:@selector(didEndLiveScroll:)
-                  name:NSScrollViewDidEndLiveScrollNotification
-                object:self];
+         addObserver:self
+         selector:@selector(didEndLiveScroll:)
+         name:NSScrollViewDidEndLiveScrollNotification
+         object:self];
     }
     return self;
 }
@@ -74,7 +73,7 @@
 - (void)loadView
 {
     [super loadView];
-
+    
     self.view = [[WaveView alloc] initWithFrame:NSZeroRect];
     self.view.autoresizingMask = NSViewNotSizable;
     self.view.translatesAutoresizingMaskIntoConstraints = YES;
@@ -125,7 +124,7 @@
 {
     [rootLayer.sublayers makeObjectsPerformSelector:@selector(removeFromSuperlayer)];
     [rootLayer setNeedsDisplay];
-
+    
     if (_frames == 0 || self.view == nil || _trackList == nil || rootLayer.superlayer.frame.origin.x < 0) {
         return;
     }
@@ -134,12 +133,12 @@
     
     const CGFloat start = rootLayer.superlayer.frame.origin.x;
     const CGFloat width = rootLayer.frame.size.width;
-
+    
     const unsigned long long frameOffset = floor(start * framesPerPixel);
-
+    
     TrackListIterator* iter = nil;
     unsigned long long nextTrackFrame = [_trackList firstTrackFrame:&iter];
-
+    
     while (nextTrackFrame != ULONG_LONG_MAX) {
         // A mark before our tile start frame needs to get skipped.
         if (frameOffset < nextTrackFrame) {
@@ -154,7 +153,7 @@
             markLayer.frame = CGRectMake(x, 0, _markerWidth, self.view.frame.size.height);
             [rootLayer addSublayer:markLayer];
         }
-
+        
         nextTrackFrame = [_trackList nextTrackFrame:iter];
     };
 }
@@ -163,7 +162,7 @@
 {
     [rootLayer.sublayers makeObjectsPerformSelector:@selector(removeFromSuperlayer)];
     [rootLayer setNeedsDisplay];
-
+    
     if (_frames == 0 || self.view == nil || _beatSample == nil || rootLayer.superlayer.frame.origin.x < 0) {
         return;
     }
@@ -172,39 +171,39 @@
     
     const CGFloat start = rootLayer.superlayer.frame.origin.x;
     const CGFloat width = rootLayer.frame.size.width;
-
+    
     const unsigned long long frameOffset = floor(start * framesPerPixel);
-
+    
     unsigned long long currentBeatIndex = [_beatSample firstBeatIndexAfterFrame:frameOffset];
     if (currentBeatIndex == ULONG_LONG_MAX) {
         NSLog(@"beat buffer from frame %lld (screen %f) not yet available", frameOffset, start);
         return;
     }
-
+    
     const unsigned long long beatCount = [_beatSample beatCount];
     assert(beatCount > 0 && beatCount != ULONG_LONG_MAX);
-
+    
     while (currentBeatIndex < beatCount) {
         BeatEvent currentEvent;
         [_beatSample getBeat:&currentEvent
                           at:currentBeatIndex];
-
+        
         currentBeatIndex++;
-
+        
         const CGFloat x = floor((currentEvent.frame / framesPerPixel) - start);
         
         // We need to stop drawing when we reached the total width of our layer.
         if (x >= width) {
             break;
         }
-
+        
         if ((currentEvent.style & _beatMask) == 0) {
             continue;
         }
         
         CGColorRef color;
         CGFloat width;
-
+        
         if ((currentEvent.style & BeatEventMaskMarkers) != 0) {
             color = [_markerColor CGColor];
             width = _markerWidth;
@@ -215,7 +214,7 @@
             color = [_beatColor CGColor];
             width = _beatWidth;
         }
-
+        
         CALayer* beatLayer = [CALayer layer];
         beatLayer.drawsAsynchronously = YES;
         beatLayer.backgroundColor = color;
@@ -231,7 +230,7 @@
     }
     _trackList = trackList;
     assert(self.view.frame.size.width > 0);
-
+    
     [self invalidateMarks];
 }
 
@@ -261,12 +260,12 @@
     }
     _head = head;
     
-    WaveView* wv = (WaveView*)self.view;
-    [wv setHead:head];
-
     WaveScrollView* sv = (WaveScrollView*)self.view.enclosingScrollView;
     if (sv != nil) {
         [sv setHead:head];
+    } else {
+        WaveView* wv = (WaveView*)self.view;
+        [wv setHead:head];
     }
 }
 
@@ -278,22 +277,22 @@
     
     assert(layer.frame.size.width < 512);
     
-
+    
     /*
-      We try to fetch visual data first;
-       - when that fails, we draw a box and trigger a task preparing visual data
-       - when that works, we draw it
+     We try to fetch visual data first;
+     - when that fails, we draw a box and trigger a task preparing visual data
+     - when that works, we draw it
      */
     CGContextSetAllowsAntialiasing(context, YES);
     CGContextSetShouldAntialias(context, YES);
-
+    
     const unsigned long int start = layer.superlayer.frame.origin.x;
     unsigned long int samplePairCount = layer.bounds.size.width + 1;
-//    NSLog(@"drawing tile starting at %ld", start);
-
+    //    NSLog(@"drawing tile starting at %ld", start);
+    
     // Try to get visual sample data for this layer tile.
     NSData* buffer = [_visualSample visualsFromOrigin:start];
-
+    
     if (buffer == nil) {
         // We didnt find any visual data - lets make sure we get some in the near future...
         CGContextSetFillColorWithColor(context, _waveFillColor.CGColor);
@@ -314,14 +313,14 @@
         }];
         return;
     }
-
+    
     VisualPair* data = (VisualPair*)buffer.bytes;
     
     if (buffer.length / sizeof(VisualPair) < samplePairCount) {
         // We might have gotten less data than requested, accomodate.
         samplePairCount = buffer.length / sizeof(VisualPair);
     }
-
+    
     CGFloat mid = floor(layer.bounds.size.height / 2.0);
     assert(mid > 0.01);
     CGFloat tops[samplePairCount];
@@ -338,19 +337,19 @@
         tops[sampleIndex] = top;
         bottoms[sampleIndex] = bottom;
     }
-
-//    CGContextSetFillColorWithColor(context, [[NSColor blueColor] CGColor]);
-//    CGContextFillRect(context, layer.frame);
-
+    
+    //    CGContextSetFillColorWithColor(context, [[NSColor blueColor] CGColor]);
+    //    CGContextFillRect(context, layer.frame);
+    
     CGContextSetFillColorWithColor(context, _waveFillColor.CGColor);
-
+    
     CGContextSetLineCap(context, kCGLineCapRound);
     CGContextSetLineJoin(context, kCGLineJoinRound);
-
+    
     CGFloat lineWidth = 4.0;
     CGFloat aliasingWidth = 2.0;
     CGFloat outlineWidth = 4.0;
-
+    
     // Draw aliasing curve.
     CGContextSetLineWidth(context, lineWidth + outlineWidth + aliasingWidth);
     CGContextSetStrokeColorWithColor(context, [[_waveFillColor colorWithAlphaComponent:0.45f] CGColor]);
@@ -368,7 +367,7 @@
         CGContextAddLineToPoint(context, sampleIndex, bottoms[sampleIndex]);
     }
     CGContextStrokePath(context);
-
+    
     // Draw fill curve.
     CGContextSetLineWidth(context, lineWidth);
     CGContextSetStrokeColorWithColor(context, _waveFillColor.CGColor);
@@ -408,14 +407,14 @@
 {
     [CATransaction begin];
     [CATransaction setDisableActions:YES];
-
+    
     CGFloat head = [self calcHead];
     
     if (self.view.enclosingScrollView != nil) {
         if (_followTime) {
             CGPoint pointVisible = CGPointMake(self.view.enclosingScrollView.bounds.origin.x + floor(head - (self.view.enclosingScrollView.bounds.size.width / 2.0)),
                                                self.view.enclosingScrollView.bounds.origin.y + floor(self.view.enclosingScrollView.bounds.size.height / 2.0));
-
+            
             [self.view scrollPoint:pointVisible];
         } else {
             // If the user has just requested some scrolling, do not interfere but wait
@@ -431,19 +430,20 @@
             }
         }
     }
-
+    
     self.head = head;
-
+    
     [CATransaction commit];
 }
 
 - (void)resize
 {
     [self.view performSelector:@selector(resize)];
-
+    
     [self invalidateTiles];
     [self invalidateBeats];
     [self invalidateMarks];
+    
     [self updateHeadPositionTransaction];
 }
 
@@ -461,29 +461,6 @@
 {
     [self updateHeadPositionTransaction];
 }
-
-//- (void)updateTiles
-//{
-//    [self.view.subviews makeObjectsPerformSelector:@selector(removeFromSuperview)];
-//    
-//    NSSize tileSize = { _tileWidth, self.view.bounds.size.height };
-//    NSRect documentVisibleRect = NSMakeRect(0.0, 0.0, self.view.bounds.size.width, self.view.bounds.size.height);
-//    const CGFloat xMin = floor(NSMinX(documentVisibleRect) / tileSize.width) * tileSize.width;
-//    const CGFloat xMax = xMin + (floor((NSMaxX(documentVisibleRect) - xMin) / tileSize.width) * tileSize.width);
-//    const CGFloat yMin = floor(NSMinY(documentVisibleRect) / tileSize.height) * tileSize.height;
-//    const CGFloat yMax = ceil((NSMaxY(documentVisibleRect) - yMin) / tileSize.height) * tileSize.height;
-//    
-//    for (CGFloat x = xMin; x < xMax; x += tileSize.width) {
-//        for (CGFloat y = yMin; y < yMax; y += tileSize.height) {
-//            NSRect rect = NSMakeRect(x, y, tileSize.width, tileSize.height);
-//            TileView* v = [[TileView alloc] initWithFrame:rect waveLayerDelegate:self];
-//            v.tileTag = x / tileSize.width;
-//            [self.view addSubview:v];
-//            [self updateTileView:v];
-//        }
-//    }
-//}
-
 
 - (void)invalidateMarks
 {
@@ -559,16 +536,16 @@
         
         // Create one if we did not find a reusable one.
         if (nil == view) {
-            view = [[TileView alloc] initWithFrame:NSZeroRect
-                                 waveLayerDelegate:self];
+            view = [[TileView alloc] initWithFrame:NSZeroRect waveLayerDelegate:self];
         }
         
         // Place it and install it.
         view.frame = [neededFrame rectValue];
         [self.view addSubview:view];
-      
+        
         [self loadBeatLayer:view.beatLayer];
         [self loadMarkLayer:view.markLayer];
     }
 }
+
 @end

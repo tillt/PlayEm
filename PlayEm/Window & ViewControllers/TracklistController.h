@@ -19,7 +19,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 //- (void)browseSelectedUrl:(NSURL*)url meta:(MediaMetaData*)meta;
 
+- (NSString*)standardStringFromFrame:(unsigned long long)frame;
+
 - (NSString*)stringFromFrame:(unsigned long long)frame;
+- (NSURL*)linkedURL;
 
 - (void)playAtFrame:(unsigned long long)frame;
 - (void)reloadTracks;
@@ -37,6 +40,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)addTrack:(IdentifiedTrack*)track;
 - (NSMenu*)menu;
+- (IBAction)exportTracklist:(id)sender;
 
 @end
 

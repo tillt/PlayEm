@@ -14,7 +14,7 @@
 		BB0A62C92E8855C200BAF444 /* IdentifiedTrack.m in Sources */ = {isa = PBXBuildFile; fileRef = BB0A62C82E8855C200BAF444 /* IdentifiedTrack.m */; };
 		BB0A62CE2E88796A00BAF444 /* TracklistController.m in Sources */ = {isa = PBXBuildFile; fileRef = BB0A62CD2E88796500BAF444 /* TracklistController.m */; };
 		BB0A62D52EAD690A00BAF444 /* TODO.md in Resources */ = {isa = PBXBuildFile; fileRef = BB0A62D42EAD690A00BAF444 /* TODO.md */; };
-		BB0BDC3A2EC014550052D363 /* MarkLayerController.m in Sources */ = {isa = PBXBuildFile; fileRef = BB0BDC392EC014480052D363 /* MarkLayerController.m */; };
+		BB0BDC3A2EC014550052D363 /* WaveViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = BB0BDC392EC014480052D363 /* WaveViewController.m */; };
 		BB0C5D9327768D2400856978 /* MatrixUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = BB0C5D9227768D2400856978 /* MatrixUtilities.m */; };
 		BB0D5281244CEE22007C909F /* VisualSample.m in Sources */ = {isa = PBXBuildFile; fileRef = BB0D5280244CEE22007C909F /* VisualSample.m */; };
 		BB1614B92AACB0C300F6C5E6 /* libaubio.5.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = BB1614B82AACB0C300F6C5E6 /* libaubio.5.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
@@ -133,8 +133,8 @@
 		BB0A62CC2E88791400BAF444 /* TracklistController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TracklistController.h; sourceTree = "<group>"; };
 		BB0A62CD2E88796500BAF444 /* TracklistController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TracklistController.m; sourceTree = "<group>"; };
 		BB0A62D42EAD690A00BAF444 /* TODO.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = TODO.md; sourceTree = "<group>"; };
-		BB0BDC382EC00E470052D363 /* MarkLayerController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MarkLayerController.h; sourceTree = "<group>"; };
-		BB0BDC392EC014480052D363 /* MarkLayerController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MarkLayerController.m; sourceTree = "<group>"; };
+		BB0BDC382EC00E470052D363 /* WaveViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WaveViewController.h; sourceTree = "<group>"; };
+		BB0BDC392EC014480052D363 /* WaveViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WaveViewController.m; sourceTree = "<group>"; };
 		BB0C5D9127768D2400856978 /* MatrixUtilities.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MatrixUtilities.h; sourceTree = "<group>"; };
 		BB0C5D9227768D2400856978 /* MatrixUtilities.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MatrixUtilities.m; sourceTree = "<group>"; };
 		BB0D527F244CEE22007C909F /* VisualSample.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VisualSample.h; sourceTree = "<group>"; };
@@ -389,8 +389,8 @@
 				BBB37D20290F4A7E0007A6BB /* PlaylistController.m */,
 				BB0A62CC2E88791400BAF444 /* TracklistController.h */,
 				BB0A62CD2E88796500BAF444 /* TracklistController.m */,
-				BB0BDC392EC014480052D363 /* MarkLayerController.m */,
-				BB0BDC382EC00E470052D363 /* MarkLayerController.h */,
+				BB0BDC392EC014480052D363 /* WaveViewController.m */,
+				BB0BDC382EC00E470052D363 /* WaveViewController.h */,
 				BBA456DF29395B970062D470 /* IdentifyViewController.h */,
 				BBA456E029395B970062D470 /* IdentifyViewController.m */,
 				BB0A62C82E8855C200BAF444 /* IdentifiedTrack.m */,
@@ -747,7 +747,7 @@
 				BB0D5281244CEE22007C909F /* VisualSample.m in Sources */,
 				BB46D4AF2D98715B0090CD56 /* NSImage+Resize.m in Sources */,
 				BBDA2FFE2A7FCEEC0084E2B6 /* BeatTrackedSample.m in Sources */,
-				BB0BDC3A2EC014550052D363 /* MarkLayerController.m in Sources */,
+				BB0BDC3A2EC014550052D363 /* WaveViewController.m in Sources */,
 				BB3926FF2C14B43E009C7B32 /* TableRowView.m in Sources */,
 				BBB37D21290F4A7E0007A6BB /* PlaylistController.m in Sources */,
 				BB2CF8AD259EB66900D6BA03 /* LazySample.m in Sources */,

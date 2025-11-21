@@ -286,6 +286,14 @@ const size_t kMaxFramesPerBuffer = 16384;
     return [NSString stringWithFormat:@"%d:%02d", minutes, seconds];
 }
 
+- (NSString*)cueTimeWithFrame:(unsigned long long)frame
+{
+    NSTimeInterval time = frame / _sampleFormat.rate;
+    unsigned int minutes = (unsigned int)floor(time) / 60;
+    unsigned int seconds = (unsigned int)floor(time) % 60;
+    return [NSString stringWithFormat:@"%02d:%02d:00", minutes, seconds];
+}
+
 - (NSString *)description
 {
     return [NSString stringWithFormat:@"file: %@, channels: %d, rate: %ld, duration: %.02f seconds",

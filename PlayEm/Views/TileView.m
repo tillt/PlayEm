@@ -9,7 +9,7 @@
 #import <QuartzCore/QuartzCore.h>
 #import "TileView.h"
 #import "../Defaults.h"
-#import "MarkLayerController.h"
+#import "WaveViewController.h"
 
 @implementation TileView
 

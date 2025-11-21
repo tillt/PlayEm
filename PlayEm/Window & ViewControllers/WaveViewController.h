@@ -1,5 +1,5 @@
 //
-//  MarkLayerController.h
+//  WaveViewController.h
 //  PlayEm
 //
 //  Created by Till Toenshoff on 11/9/25.
@@ -22,7 +22,7 @@ NS_ASSUME_NONNULL_BEGIN
 typedef CGFloat (^OffsetBlock) (void);
 typedef CGFloat (^TotalWidthBlock) (void);
 
-@interface MarkLayerController : NSViewController <CALayerDelegate>
+@interface WaveViewController : NSViewController <CALayerDelegate>
 
 @property (weak, nonatomic, nullable) TrackList* trackList;
 @property (weak, nonatomic, nullable) VisualSample* visualSample;

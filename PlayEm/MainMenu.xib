@@ -89,6 +89,13 @@
                                 </connections>
                             </menuItem>
                             <menuItem isSeparatorItem="YES" id="dgq-hZ-iAt"/>
+                            <menuItem title="Export Tracklist..." id="RoW-bR-O5g">
+                                <modifierMask key="keyEquivalentModifierMask"/>
+                                <connections>
+                                    <action selector="exportTracklist:" target="-1" id="bYa-gH-ZvC"/>
+                                </connections>
+                            </menuItem>
+                            <menuItem isSeparatorItem="YES" id="OSS-gS-GqR"/>
                             <menuItem title="Close" keyEquivalent="w" id="DVo-aG-piG">
                                 <connections>
                                     <action selector="performClose:" target="-1" id="HmO-Ls-i7Q"/>

@@ -1176,6 +1176,11 @@ NSString* const kMediaMetaDataMapTypeNumber = @"number";
     return [_trackList writeToFile:url error:error];
 }
 
+- (BOOL)exportTracklistToFile:(NSURL*)url frameEncoder:(FrameToString)encoder error:(NSError *__autoreleasing  _Nullable *)error
+{
+    return [_trackList exportToFile:url link:_location frameEncoder:encoder error:error];
+}
+
 - (BOOL)readFromFileWithError:(NSError**)error
 {
     MediaMetaDataFileFormatType type = [MediaMetaData fileTypeWithURL:self.location error:error];

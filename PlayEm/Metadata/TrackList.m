@@ -53,6 +53,43 @@
     return self;
 }
 
+- (NSString*)cueListWithFrameEncoder:(FrameToString)encoder
+{
+    NSString* sheet = @"";
+
+    unsigned long trackIndex = 1;
+
+    NSArray<NSNumber*>* frames = [[self frames] sortedArrayUsingSelector:@selector(compare:)];
+
+    for (NSNumber* value in frames) {
+        unsigned long long frame = [value unsignedLongLongValue];
+        IdentifiedTrack* track = [self trackAtFrame:frame];
+        NSString* entry = [NSString stringWithFormat:@"  TRACK %02ld AUDIO\n", trackIndex];
+
+        if (track.title.length > 0) {
+            entry = [NSString stringWithFormat:@"%@    TITLE \"%@\"\n", entry, track.title];
+        }
+        if (track.artist.length > 0) {
+            entry = [NSString stringWithFormat:@"%@    PERFORMER \"%@\"\n", entry, track.artist];
+        }
+        entry = [NSString stringWithFormat:@"%@    INDEX 01 %@\n", entry,  encoder(frame)];
+
+        sheet = [sheet stringByAppendingString:entry];
+
+        trackIndex++;
+    }
+    return sheet;
+}
+
+- (BOOL)exportToFile:(NSURL*)url link:(NSURL*)linkURL frameEncoder:(FrameToString)encoder error:(NSError**)error
+{
+    NSString* sheet = [NSString stringWithFormat:@"FILE \"%@\" MP3\n%@",
+                       linkURL.path,
+                       [self cueListWithFrameEncoder:encoder]];
+    NSData* ascii = [sheet dataUsingEncoding:NSASCIIStringEncoding allowLossyConversion:YES];
+    return [ascii writeToFile:url.path options:NSDataWritingFileProtectionNone error:error];
+}
+
 - (BOOL)writeToFile:(NSURL*)url error:(NSError**)error
 {
     NSData* data = [NSKeyedArchiver archivedDataWithRootObject:_trackMap

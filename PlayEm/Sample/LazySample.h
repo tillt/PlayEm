@@ -37,6 +37,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (NSTimeInterval)timeForFrame:(unsigned long long)frame;
 - (NSString*)beautifulTimeWithFrame:(unsigned long long)frame;
+- (NSString*)cueTimeWithFrame:(unsigned long long)frame;
+
 - (void)addLazyPageIndex:(unsigned long long)pageIndex
                 channels:(NSArray<NSData*>*)channels;
 

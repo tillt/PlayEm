@@ -76,24 +76,6 @@
 
     NSImage* image = [NSImage imageNamed:@"CurrentTime"];
 
-
-//    wv.trailBloomHostLayer = [CALayer new];
-//    //wv.trailBloomHostLayer.backgroundColor = [NSColor redColor].CGColor;
-//    wv.trailBloomHostLayer.drawsAsynchronously = YES;
-//    wv.trailBloomHostLayer.autoresizingMask = kCALayerHeightSizable;
-//    wv.trailBloomHostLayer.masksToBounds = NO;
-//    wv.trailBloomHostLayer.zPosition = 1.0;
-//    wv.trailBloomHostLayer.name = @"TrailBloomHostLayer";
-//    wv.trailBloomHostLayer.anchorPoint = CGPointMake(1.0, 0.0);
-//    wv.trailBloomHostLayer.bounds = CGRectMake(0.0, 0.0, image.size.width, self.frame.size.height);
-//    CIFilter* linesFilter = [CIFilter filterWithName:@"CICircularScreen"];
-//    [linesFilter setDefaults];
-//    [linesFilter setValue: [NSNumber numberWithFloat:7.0] forKey: @"inputWidth"];
-//    [linesFilter setValue: [NSNumber numberWithFloat:0.02] forKey: @"inputSharpness"];
-//    [linesFilter setValue: [CIVector vectorWithCGPoint:CGPointMake(0.0,0.0)] forKey: @"inputCenter"];
-//    wv.trailBloomHostLayer.backgroundFilters = @[ bloom ];
-
-    //wv.trailBloomHostLayer.hidden = YES;
     const unsigned int trailingBloomLayerCount = 3;
     CGSize size = CGSizeMake(floor(image.size.width / (2 * trailingBloomLayerCount)), self.frame.size.height);
 

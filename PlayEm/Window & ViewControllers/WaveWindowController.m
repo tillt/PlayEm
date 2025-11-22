@@ -329,12 +329,12 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     ];
 }
 
-- (NSSet<NSToolbarItemIdentifier> *)toolbarImmovableItemIdentifiers:(NSToolbar *)toolbar
+- (NSSet<NSToolbarItemIdentifier>*)toolbarImmovableItemIdentifiers:(NSToolbar*)toolbar
 {
     return [NSSet setWithObjects:kPlaylistToolbarIdentifier, kIdentifyToolbarIdentifier, nil];
 }
 
-- (NSToolbarItem *)toolbar:(NSToolbar *)toolbar itemForItemIdentifier:(NSToolbarItemIdentifier)itemIdentifier willBeInsertedIntoToolbar:(BOOL)flag
+- (NSToolbarItem*)toolbar:(NSToolbar*)toolbar itemForItemIdentifier:(NSToolbarItemIdentifier)itemIdentifier willBeInsertedIntoToolbar:(BOOL)flag
 {
     NSToolbarItem* item = nil;
     NSImage* image = nil;

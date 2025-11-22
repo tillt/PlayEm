@@ -30,8 +30,8 @@ typedef void (*ActionMethodImplementation)(id, SEL, id);
         self.autoresizingMask = NSViewHeightSizable | NSViewWidthSizable;
 
         _state = NSControlStateValueOff;
-        _imageView = [[NSImageView alloc] initWithFrame:NSInsetRect(self.bounds, 0.0, 0.0)];
-        _imageView.autoresizingMask = NSViewHeightSizable | NSViewWidthSizable;
+        _imageView = [[NSImageView alloc] initWithFrame:NSInsetRect(self.bounds, 4.0, 4.0)];
+        _imageView.autoresizingMask = NSViewHeightSizable | NSViewWidthSizable | NSViewMaxXMargin | NSViewMaxYMargin | NSViewMinYMargin| NSViewMinXMargin;
         [self addSubview:_imageView];
     }
     return self;

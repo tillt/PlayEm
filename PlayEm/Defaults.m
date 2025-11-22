@@ -91,11 +91,15 @@ static const CGFloat kBigFontSize = 24.0f;
         
         //sharedInstance = [NSFont systemFontOfSize:kFontSize weight:NSFontWeightMedium];
 
-        _normalFont = [NSFont systemFontOfSize:kNormalFontSize];
-        _smallFont = [NSFont systemFontOfSize:kSmallFontSize  weight:NSFontWeightMedium];
-        _largeFont = [NSFont systemFontOfSize:kLargeFontSize];
-        _bigFont = [NSFont systemFontOfSize:kBigFontSize];
+        _smallFontSize = kSmallFontSize;
+        _normalFontSize = kNormalFontSize;
+        _largeFontSize = kLargeFontSize;
+        _bigFontSize = kBigFontSize;
 
+        _normalFont = [NSFont systemFontOfSize:_normalFontSize];
+        _smallFont = [NSFont systemFontOfSize:_smallFontSize  weight:NSFontWeightMedium];
+        _largeFont = [NSFont systemFontOfSize:_largeFontSize];
+        _bigFont = [NSFont systemFontOfSize:_bigFontSize];
     }
     return self;
 }

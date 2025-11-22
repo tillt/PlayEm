@@ -32,8 +32,10 @@ NSString* const kInfoPageKeyFile = @"File";
 NSString* const kInfoTextMultipleValues = @"Mixed";
 NSString* const kInfoNumberMultipleValues = @"-";
 
-static const CGFloat kBigFontSize = 24.0f;
-static const CGFloat kNormalFontSize = 13.0f;
+
+/*static const CGFloat kBigFontSize = 24.0f;
+static const CGFloat kNormalFontSize = 13.0f;*/
+
 static const CGFloat kViewTopMargin = 20.0f;
 static const CGFloat kViewLeftMargin = 10.0f;
 
@@ -312,7 +314,7 @@ static const CGFloat kViewLeftMargin = 10.0f;
         textField.selectable = NO;
         textField.alignment = NSTextAlignmentRight;
         textField.frame = NSMakeRect(kBorderWidth,
-                                     y - floor((rowUnitHeight - kNormalFontSize) / 2.0f),
+                                     y - floor((rowUnitHeight - [[Defaults sharedDefaults] normalFontSize]) / 2.0f),
                                      nameFieldWidth,
                                      (rows * rowUnitHeight) + kRowInset);
         [view addSubview:textField];
@@ -342,7 +344,7 @@ static const CGFloat kViewLeftMargin = 10.0f;
                 }
                 
                 textField.frame = NSMakeRect(x,
-                                             y - floor(editable ? 0.0f : (rowUnitHeight - kNormalFontSize) / 2.0f),
+                                             y - floor(editable ? 0.0f : (rowUnitHeight - [[Defaults sharedDefaults] normalFontSize]) / 2.0f),
                                              width - kBorderWidth,
                                              (rows * rowUnitHeight) + kRowInset);
                 [view addSubview:textField];
@@ -437,7 +439,7 @@ static const CGFloat kViewLeftMargin = 10.0f;
 
             CGFloat dynamicWidth = textField.attributedStringValue.size.width + kBorderWidth;
             textField.frame = NSMakeRect(x + width,
-                                         y - floor((rowUnitHeight - kNormalFontSize) / 2.0f),
+                                         y - floor((rowUnitHeight - [[Defaults sharedDefaults] normalFontSize]) / 2.0f),
                                          dynamicWidth,
                                          (rows * rowUnitHeight) + kRowInset);
             [view addSubview:textField];
@@ -455,7 +457,7 @@ static const CGFloat kViewLeftMargin = 10.0f;
             textField.usesSingleLineMode = YES;
 
             textField.frame = NSMakeRect(x + width + kBorderWidth + dynamicWidth,
-                                         y - floor(editable ? 0.0f : (rowUnitHeight - kNormalFontSize) / 2.0f),
+                                         y - floor(editable ? 0.0f : (rowUnitHeight - [[Defaults sharedDefaults] normalFontSize]) / 2.0f),
                                          width - kBorderWidth,
                                          (rows * rowUnitHeight) + kRowInset);
             [view addSubview:textField];
@@ -620,7 +622,7 @@ static const CGFloat kViewLeftMargin = 10.0f;
 
     CGFloat x = imageWidth + kViewLeftMargin + kViewLeftMargin + kViewLeftMargin;
     CGFloat fieldWidth = _effectBelowHeader.frame.size.width - (imageWidth + 40.0);
-    CGFloat y = _effectBelowHeader.frame.size.height - (kViewTopMargin + kViewTopMargin + kBigFontSize);
+    CGFloat y = _effectBelowHeader.frame.size.height - (kViewTopMargin + kViewTopMargin + [[Defaults sharedDefaults] bigFontSize]);
 
     NSTextField* textField = [NSTextField textFieldWithString:@""];
     textField.bordered = NO;
@@ -635,11 +637,11 @@ static const CGFloat kViewLeftMargin = 10.0f;
     textField.frame = NSMakeRect(x,
                                  y,
                                  fieldWidth,
-                                 kBigFontSize + kRowInset);
+                                 [[Defaults sharedDefaults] bigFontSize] + kRowInset);
     [_effectBelowHeader addSubview:textField];
     self.titleTextField = textField;
 
-    y -= kBigFontSize + kRowInset - 10.0f;
+    y -= [[Defaults sharedDefaults] bigFontSize] + kRowInset - 10.0f;
 
     textField = [NSTextField textFieldWithString:@""];
     textField.bordered = NO;
@@ -654,16 +656,16 @@ static const CGFloat kViewLeftMargin = 10.0f;
     textField.frame = NSMakeRect(x,
                                  y,
                                  fieldWidth,
-                                 kNormalFontSize + kRowInset);
+                                 [[Defaults sharedDefaults] normalFontSize] + kRowInset);
     [_effectBelowHeader addSubview:textField];
     self.artistTextField = textField;
 
-    y -= kNormalFontSize + kRowInset;
+    y -= [[Defaults sharedDefaults] normalFontSize] + kRowInset;
 
     textField = [NSTextField textFieldWithString:@""];
     textField.bordered = NO;
     textField.textColor = [[Defaults sharedDefaults] secondaryLabelColor];
-    textField.font = [NSFont systemFontOfSize:kNormalFontSize weight:NSFontWeightRegular];
+    textField.font = [[Defaults sharedDefaults] normalFont];
     textField.drawsBackground = NO;
     textField.editable = NO;
     textField.selectable = NO;
@@ -674,7 +676,7 @@ static const CGFloat kViewLeftMargin = 10.0f;
     textField.frame = NSMakeRect(x,
                                  y,
                                  fieldWidth,
-                                 kNormalFontSize + kRowInset);
+                                 [[Defaults sharedDefaults] normalFontSize] + kRowInset);
     [_effectBelowHeader addSubview:textField];
     self.albumTextField = textField;
 

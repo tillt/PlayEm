@@ -122,12 +122,9 @@ extern NSString * const kPlaybackStatePlaying;
     const CGFloat scrollingTextViewWidth = 320.0;
     const CGFloat scrollingTextViewHeight = 32.0;
     const CGFloat loopButtonWidth = 32;
-    
-    const CGFloat largeSymbolFontSize = 21.0;
-    const CGFloat regularSymbolFontSize = 13.0;
-   
-    const CGFloat loopButtonY = playPauseButtonY + floor((largeSymbolFontSize -
-                                                          regularSymbolFontSize) / 2.0);
+       
+    const CGFloat loopButtonY = playPauseButtonY + floor(([[Defaults sharedDefaults] largeFontSize] -
+                                                          [[Defaults sharedDefaults] normalFontSize]) / 2.0) + 2.0;
 
     NSVisualEffectView* fxView = [[NSVisualEffectView alloc] initWithFrame:NSMakeRect(0.0, 0.0, controlPanelWidth, controlPanelHeight)];
     fxView.material = NSVisualEffectMaterialSheet;
@@ -153,10 +150,6 @@ extern NSString * const kPlaybackStatePlaying;
     [_zoomBlur setDefaults];
     [_zoomBlur setValue: [NSNumber numberWithFloat:0.5] forKey: @"inputAmount"];
    
-//    _coverButton = [RadarButton buttonWithImage:[NSImage imageNamed:@"UnknownSong"]
-//                                         target:_delegate
-//                                         action:@selector(showInfoForCurrentSong:)];
-    
     const CGFloat coverButtonWidth = self.view.frame.size.height - 2.0;
     _coverButton = [[IdentificationCoverView alloc] initWithFrame:NSMakeRect(coverButtonX,
                                                                              coverButtonY,
@@ -165,25 +158,13 @@ extern NSString * const kPlaybackStatePlaying;
                                                    contentsInsets:NSEdgeInsetsZero
                                                             style:CoverViewStyleSepiaForSecondImageLayer | CoverViewStyleRotatingLaser];
 
-    NSClickGestureRecognizer* recognizer = [[NSClickGestureRecognizer alloc] initWithTarget:_delegate action:@selector(showInfoForCurrentSong:)];
+    NSClickGestureRecognizer* recognizer = [[NSClickGestureRecognizer alloc] initWithTarget:_delegate
+                                                                                     action:@selector(showInfoForCurrentSong:)];
     recognizer.numberOfClicksRequired = 1;
     [_coverButton addGestureRecognizer:recognizer];
     
-    //    _coverButton.bezelStyle = NSBezelStyleTexturedSquare;
-//    _coverButton.imagePosition = NSImageOnly;
-    //_coverButton.imageScaling = NSImageScaleProportionallyUpOrDown;
-//    [_coverButton setButtonType: NSButtonTypeMomentaryPushIn];
-//    _coverButton.layer.cornerRadius = 3;
-//    _coverButton.layer.masksToBounds = YES;
     [self.view addSubview:_coverButton];
    
-//    CALayer* layer = [CALayer new];
-//    layer.compositingFilter = @[ _zoomBlur, intenseBloomFilter ];
-//    layer.frame = NSInsetRect(_coverButton.layer.bounds, -10.0, -10.0);
-//    layer.masksToBounds = NO;
-//    layer.mask = [CAShapeLayer MaskLayerFromRect:layer.frame];
-//    [_coverButton.layer addSublayer:layer];
-    
     _titleView = [[ScrollingTextView alloc] initWithFrame:NSMakeRect(coverButtonX + coverButtonWidth + 2.0,
                                                                      self.view.frame.size.height - (scrollingTextViewHeight + 5.0),
                                                                      scrollingTextViewWidth,
@@ -199,14 +180,6 @@ extern NSString * const kPlaybackStatePlaying;
     layer.drawsAsynchronously = YES;
     layer.mask = [CAShapeLayer MaskLayerFromRect:layer.bounds];
     [_titleView.layer addSublayer:layer];
-
-//    layer = [CALayer layer];
-//    layer.backgroundColor = [[NSColor colorWithPatternImage:[NSImage imageNamed:@"LargeRastaPattern"]] CGColor];
-//    layer.contentsScale = NSViewLayerContentsPlacementScaleProportionallyToFill;
-//    layer.frame = CGRectMake(0.0, 0.0, _titleView.frame.size.width, _titleView.frame.size.height);
-//    layer.compositingFilter = [CIFilter filterWithName:@"CISourceAtopCompositing"];
-//    layer.opacity = 0.4;
-//    [_titleView.layer addSublayer:layer];
 
     _albumArtistView = [[ScrollingTextView alloc] initWithFrame:NSMakeRect(_titleView.frame.origin.x,
                                                                            _titleView.frame.origin.y - (scrollingTextViewHeight - 14.0),
@@ -224,10 +197,10 @@ extern NSString * const kPlaybackStatePlaying;
     layer.mask = [CAShapeLayer MaskLayerFromRect:layer.bounds];
     [_albumArtistView.layer addSublayer:layer];
     
-    _playPause = [[SymbolButton alloc] initWithFrame:CGRectMake(_titleView.frame.origin.x + scrollingTextViewWidth + 70.0f,
+    _playPause = [[SymbolButton alloc] initWithFrame:CGRectMake(_titleView.frame.origin.x + scrollingTextViewWidth + 64.0f,
                                                                 playPauseButtonY,
-                                                                playPauseButtonWidth,
-                                                                largeSymbolFontSize + 2.0)];
+                                                                playPauseButtonWidth + 8.0,
+                                                                [[Defaults sharedDefaults] largeFontSize] + 14.0)];
     
     _playPause.symbolName = @"play.fill";
     _playPause.alternateSymbolName = @"pause.fill";
@@ -246,10 +219,10 @@ extern NSString * const kPlaybackStatePlaying;
     _autoplayProgress.autoresizingMask =  NSViewNotSizable | NSViewMinXMargin | NSViewMaxXMargin| NSViewMinYMargin | NSViewMaxYMargin;
     [self.view addSubview:_autoplayProgress];
 
-    _loop = [[SymbolButton alloc] initWithFrame:NSMakeRect(_playPause.frame.origin.x + _playPause.frame.size.width,
+    _loop = [[SymbolButton alloc] initWithFrame:NSMakeRect(_playPause.frame.origin.x + _playPause.frame.size.width - 8.0,
                                                            loopButtonY,
                                                            loopButtonWidth,
-                                                           regularSymbolFontSize + 2.0)];
+                                                           [[Defaults sharedDefaults] normalFontSize] + 8.0)];
     
     _loop.symbolName = @"arrow.right";
     _loop.alternateSymbolName = @"infinity";
@@ -266,13 +239,14 @@ extern NSString * const kPlaybackStatePlaying;
     _time.drawsBackground = NO;
     _time.textColor = [[Defaults sharedDefaults] secondaryLabelColor];
     _time.alignment = NSTextAlignmentRight;
-    _time.frame = NSMakeRect(_playPause.frame.origin.x - timeLabelWidth,
+    _time.frame = NSMakeRect(_playPause.frame.origin.x - timeLabelWidth + 10.0,
                              _playPause.frame.origin.y + timeLabelHeight + 8.0,
                              timeLabelWidth,
                              timeLabelHeight);
     [self.view addSubview:_time];
 
-    NSClickGestureRecognizer* gesture = [[NSClickGestureRecognizer alloc] initWithTarget:self action:@selector(toggleProgressUnit:)];
+    NSClickGestureRecognizer* gesture = [[NSClickGestureRecognizer alloc] initWithTarget:self
+                                                                                  action:@selector(toggleProgressUnit:)];
     gesture.buttonMask = 0x1;
     [_time addGestureRecognizer:gesture];
 

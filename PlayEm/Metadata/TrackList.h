@@ -29,7 +29,7 @@ typedef NSString* _Nonnull (^FrameToString)(unsigned long long frame);
 - (BOOL)writeToFile:(NSURL*)url error:(NSError**)error;
 - (BOOL)readFromFile:(NSURL*)url error:(NSError**)error;
 
-- (BOOL)exportToFile:(NSURL*)url link:(NSURL*)location frameEncoder:(FrameToString)encoder error:(NSError**)error;
+- (NSString*)cueTracksWithFrameEncoder:(FrameToString)encoder;
 
 - (void)addTrack:(IdentifiedTrack*)track;
 - (void)removeTrackAtFrame:(unsigned long long)frame;

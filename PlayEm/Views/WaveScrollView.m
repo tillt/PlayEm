@@ -256,14 +256,9 @@
 - (void)resize
 {
     WaveView* wv = (WaveView*)self.documentView;
-    CGRect rect = CGRectMake(0.0f,
-                             0.0f,
-                             self.bounds.size.width,
-                             self.bounds.size.height);
-    wv.aheadVibranceFxLayer.bounds = rect;
-    // FIXME: We are redoing the mask layer cause all ways of resizing it
-    // ended up with rather weird effects.
-    wv.aheadVibranceFxLayer.mask = [CAShapeLayer MaskLayerFromRect:rect];
+    wv.aheadVibranceFxLayer.bounds = self.bounds;
+    // FIXME: We are redoing the mask layer cause all ways of resizing it ended up with rather weird effects.
+    wv.aheadVibranceFxLayer.mask = [CAShapeLayer MaskLayerFromRect:self.bounds];
 }
 
 @end

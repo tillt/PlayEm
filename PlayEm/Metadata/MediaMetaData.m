@@ -24,6 +24,7 @@
 #import "NSURL+WithoutParameters.h"
 #import "NSString+BeautifulPast.h"
 #import "NSString+OccurenceCount.h"
+#import "TemporaryFiles.h"
 
 ///
 /// MediaMetaData is lazily holding metadata for library entries to allow for extending iTunes provided data.
@@ -1111,7 +1112,7 @@ NSString* const kMediaMetaDataMapTypeNumber = @"number";
         return key;
     }
 
-    // Shortcut when the given key a proper one already.
+    // Shortcut when the given key is a proper one already.
     NSArray* properValues = [mixWheel allValues];
     if ([properValues indexOfObject:key] != NSNotFound) {
         return key;
@@ -1161,6 +1162,7 @@ NSString* const kMediaMetaDataMapTypeNumber = @"number";
     }
     
     NSLog(@"couldnt map key %@ (%@)", key, patchedKey);
+
     return key;
 }
 
@@ -1176,9 +1178,26 @@ NSString* const kMediaMetaDataMapTypeNumber = @"number";
     return [_trackList writeToFile:url error:error];
 }
 
-- (BOOL)exportTracklistToFile:(NSURL*)url frameEncoder:(FrameToString)encoder error:(NSError *__autoreleasing  _Nullable *)error
+- (BOOL)exportTracklistToFile:(NSURL*)url
+                 frameEncoder:(FrameToString)encoder
+                        error:(NSError *__autoreleasing  _Nullable *)error
 {
-    return [_trackList exportToFile:url link:_location frameEncoder:encoder error:error];
+    NSString* title = _title.length > 0 ? [NSString stringWithFormat:@"TITLE \"%@\"\n", _title] : @"";
+    NSString* performer = _artist.length > 0 ? [NSString stringWithFormat:@"PERFORMER \"%@\"\n", _artist] : @"";
+    NSString* file = [NSString stringWithFormat:@"FILE \"%@\" MP3\n", _location.path];
+ 
+    NSString* global = @"";
+    global = [global stringByAppendingString:title];
+    global = [global stringByAppendingString:performer];
+    global = [global stringByAppendingString:file];
+
+    NSString* tracks = [_trackList cueTracksWithFrameEncoder:encoder];
+
+    NSString* sheet = [global stringByAppendingString:tracks];
+
+    NSData* ascii = [sheet dataUsingEncoding:NSASCIIStringEncoding allowLossyConversion:YES];
+
+    return [ascii writeToFile:url.path options:NSDataWritingFileProtectionNone error:error];
 }
 
 - (BOOL)readFromFileWithError:(NSError**)error
@@ -1200,27 +1219,6 @@ NSString* const kMediaMetaDataMapTypeNumber = @"number";
         _key = [MediaMetaData correctedKeyNotation:_key];
     }
     return ret;
-}
-
-- (NSString*)pathForTemporaryFileWithPrefix:(NSString*)prefix
-{
-    NSString* result;
-    CFUUIDRef uuid;
-    CFStringRef uuidStr;
-
-    uuid = CFUUIDCreate(NULL);
-    assert(uuid != NULL);
-
-    uuidStr = CFUUIDCreateString(NULL, uuid);
-    assert(uuidStr != NULL);
-
-    result = [NSTemporaryDirectory() stringByAppendingPathComponent:[NSString stringWithFormat:@"%@-%@", prefix, uuidStr]];
-    assert(result != nil);
-
-    CFRelease(uuidStr);
-    CFRelease(uuid);
-
-    return result;
 }
 
 - (BOOL)writeToFileWithError:(NSError**)error

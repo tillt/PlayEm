@@ -438,27 +438,17 @@
 
 - (void)resize
 {
+    if (self.view.enclosingScrollView != nil) {
+        [self.view.enclosingScrollView performSelector:@selector(resize)];
+        return;
+    }
+
     [self.view performSelector:@selector(resize)];
     
     [self invalidateTiles];
     [self invalidateBeats];
     [self invalidateMarks];
     
-    [self updateHeadPositionTransaction];
-}
-
-- (void)willStartLiveScroll:(NSNotification*)notification
-{
-    [self updateHeadPositionTransaction];
-}
-
-- (void)didLiveScroll:(NSNotification*)notification
-{
-    [self updateHeadPositionTransaction];
-}
-
-- (void)didEndLiveScroll:(NSNotification*)notification
-{
     [self updateHeadPositionTransaction];
 }
 
@@ -547,5 +537,24 @@
         [self loadMarkLayer:view.markLayer];
     }
 }
+
+#pragma mark - Scroll View Notifications
+
+- (void)willStartLiveScroll:(NSNotification*)notification
+{
+    [self updateHeadPositionTransaction];
+}
+
+- (void)didLiveScroll:(NSNotification*)notification
+{
+    [self updateHeadPositionTransaction];
+}
+
+- (void)didEndLiveScroll:(NSNotification*)notification
+{
+    [self updateHeadPositionTransaction];
+}
+
+
 
 @end

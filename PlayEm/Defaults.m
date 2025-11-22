@@ -89,9 +89,10 @@ static const CGFloat kBigFontSize = 24.0f;
                                                  blue:(CGFloat)0x14 / 255.0
                                                 alpha:(CGFloat)1.0];
         
-        
+        //sharedInstance = [NSFont systemFontOfSize:kFontSize weight:NSFontWeightMedium];
+
         _normalFont = [NSFont systemFontOfSize:kNormalFontSize];
-        _smallFont = [NSFont systemFontOfSize:kSmallFontSize];
+        _smallFont = [NSFont systemFontOfSize:kSmallFontSize  weight:NSFontWeightMedium];
         _largeFont = [NSFont systemFontOfSize:kLargeFontSize];
         _bigFont = [NSFont systemFontOfSize:kBigFontSize];
 

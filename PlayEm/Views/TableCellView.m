@@ -16,8 +16,6 @@
 #import "Defaults.h"
 #import "BeatEvent.h"
 
-static const double kFontSize = 11.0f;
-
 
 @interface TableCellView ()
 @property (nonatomic, strong) NSTextField* tf;
@@ -25,17 +23,6 @@ static const double kFontSize = 11.0f;
 
 @implementation TableCellView
 {
-
-}
-
-+ (NSFont*)sharedFont
-{
-    static dispatch_once_t once;
-    static NSFont* sharedInstance;
-    dispatch_once(&once, ^{
-        sharedInstance = [NSFont systemFontOfSize:kFontSize weight:NSFontWeightMedium];
-    });
-    return sharedInstance;
 }
 
 - (id)initWithFrame:(NSRect)frameRect
@@ -46,7 +33,7 @@ static const double kFontSize = 11.0f;
         _tf.drawsBackground = NO;
         _tf.backgroundColor = [NSColor clearColor];
         _tf.editable = NO;
-        _tf.font = [TableCellView sharedFont];
+        _tf.font = [[Defaults sharedDefaults] smallFont];
         _tf.bordered = NO;
         _tf.alignment = NSTextAlignmentLeft;
         _tf.textColor = [[Defaults sharedDefaults] secondaryLabelColor];
@@ -63,44 +50,6 @@ static const double kFontSize = 11.0f;
 - (void)setupWithFrame:(NSRect)frameRect
 {
 }
-
-//- (BOOL)wantsUpdateLayer
-//{
-//    return YES;
-//}
-
-//- (CALayer*)makeBackingLayer
-//{
-//    [CATransaction begin];
-//    [CATransaction setDisableActions:YES];
-//
-//    CALayer* layer = [CALayer layer];
-//    layer.masksToBounds = YES;
-//    //layer.drawsAsynchronously = YES;
-//    layer.autoresizingMask = kCALayerNotSizable;
-//    //layer.backgroundColor = [NSColor textBackgroundColor].CGColor;
-//    layer.opaque = NO;
-//    layer.frame = self.bounds;
-//
-//    _textLayer = [CATextLayer layer];
-//    //_textLayer.drawsAsynchronously = YES;
-//    _textLayer.fontSize = kFontSize;
-//    _textLayer.font =  (__bridge  CFTypeRef)[TableCellView sharedFont];
-//    _textLayer.wrapped = NO;
-//    //_textLayer.backgroundColor = [NSColor textBackgroundColor].CGColor;
-//    _textLayer.autoresizingMask = kCALayerWidthSizable;
-//    _textLayer.truncationMode = kCATruncationEnd;
-//    _textLayer.allowsEdgeAntialiasing = YES;
-//    _textLayer.masksToBounds = YES;
-//    _textLayer.opaque = NO;
-//    _textLayer.contentsScale = [[NSScreen mainScreen] backingScaleFactor];
-//    _textLayer.foregroundColor = [[Defaults sharedDefaults] secondaryLabelColor].CGColor;
-//    _textLayer.frame = NSInsetRect(self.bounds, 0.0, 5.0);
-//    [layer addSublayer:_textLayer];
-//    [CATransaction commit];
-//
-//    return layer;
-//}
 
 - (void)updatedStyle
 {

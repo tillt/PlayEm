@@ -53,7 +53,7 @@
     return self;
 }
 
-- (NSString*)cueListWithFrameEncoder:(FrameToString)encoder
+- (NSString*)cueTracksWithFrameEncoder:(FrameToString)encoder
 {
     NSString* sheet = @"";
 
@@ -81,15 +81,6 @@
     return sheet;
 }
 
-- (BOOL)exportToFile:(NSURL*)url link:(NSURL*)linkURL frameEncoder:(FrameToString)encoder error:(NSError**)error
-{
-    NSString* sheet = [NSString stringWithFormat:@"FILE \"%@\" MP3\n%@",
-                       linkURL.path,
-                       [self cueListWithFrameEncoder:encoder]];
-    NSData* ascii = [sheet dataUsingEncoding:NSASCIIStringEncoding allowLossyConversion:YES];
-    return [ascii writeToFile:url.path options:NSDataWritingFileProtectionNone error:error];
-}
-
 - (BOOL)writeToFile:(NSURL*)url error:(NSError**)error
 {
     NSData* data = [NSKeyedArchiver archivedDataWithRootObject:_trackMap
@@ -115,7 +106,9 @@
     if (dictionary == nil) {
         return NO;
     }
+
     _trackMap = [NSMutableDictionary dictionaryWithDictionary:dictionary];
+
     return YES;
 }
 

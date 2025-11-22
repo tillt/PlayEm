@@ -88,7 +88,6 @@ NS_ASSUME_NONNULL_BEGIN
 - (IBAction)showAbout:(id)sender;
 - (IBAction)showIdentifier:(id)sender;
 
-
 - (IBAction)playNext:(id)sender;
 - (IBAction)playPrevious:(id)sender;
 

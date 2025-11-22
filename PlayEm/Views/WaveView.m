@@ -92,35 +92,6 @@
     return layer;
 }
 
-- (void)resize
-{
-    _aheadVibranceFxLayer.bounds = self.bounds;
-    // FIXME: We are redoing the mask layer cause all ways of resizing it ended up with rather weird effects.
-    _aheadVibranceFxLayer.mask = [CAShapeLayer MaskLayerFromRect:self.bounds];
-}
-
-/**
- Set the playheads' horizontal positition on screen.
- */
-- (void)setHead:(CGFloat)position
-{
-    _headLayer.position = CGPointMake(position, _headLayer.position.y);
-    _headBloomFxLayer.position = CGPointMake(position, _headBloomFxLayer.position.y);
-    _aheadVibranceFxLayer.position = CGPointMake(position + (_headImageSize.width / 2.0f), 0.0);
-    _rastaLayer.position = CGPointMake(0, _rastaLayer.position.y);
-
-    //_rastaLayer.frame = NSMakeRect(0.0, 0.0, floor(position), _rastaLayer.bounds.size.height);
-    //_rastaLayer.position = CGPointMake(floor(position), 0.0);
-    //_trailBloomHostLayer.position = CGPointMake(position - (_headImageSize.width / 2.0f), 0.0);
-
-    CGFloat x = 0.0;
-    CGFloat offset = 0.0;
-    for (CALayer* layer in _trailBloomFxLayers) {
-        layer.position = CGPointMake((position + offset) - x, 0.0);
-        x += layer.frame.size.width + 1.0;
-    }
-}
-
 - (void)createHead
 {
     _headLayer = [self makeHeadLayer];
@@ -231,6 +202,31 @@
     
     _rastaLayer.backgroundColor = [[NSColor colorWithPatternImage:[NSImage imageNamed:@"RastaPattern"]] CGColor];
     _rastaLayer.frame = self.bounds;
+}
+
+- (void)resize
+{
+    _aheadVibranceFxLayer.bounds = self.bounds;
+    // FIXME: We are redoing the mask layer cause all ways of resizing it ended up with rather weird effects.
+    _aheadVibranceFxLayer.mask = [CAShapeLayer MaskLayerFromRect:self.bounds];
+}
+
+/**
+ Set the playheads' horizontal positition on screen.
+ */
+- (void)setHead:(CGFloat)position
+{
+    _headLayer.position = CGPointMake(position, _headLayer.position.y);
+    _headBloomFxLayer.position = CGPointMake(position, _headBloomFxLayer.position.y);
+    _aheadVibranceFxLayer.position = CGPointMake(position + (_headImageSize.width / 2.0f), 0.0);
+    _rastaLayer.position = CGPointMake(0, _rastaLayer.position.y);
+
+    CGFloat x = 0.0;
+    CGFloat offset = 0.0;
+    for (CALayer* layer in _trailBloomFxLayers) {
+        layer.position = CGPointMake((position + offset) - x, 0.0);
+        x += layer.frame.size.width + 1.0;
+    }
 }
 
 @end

@@ -262,9 +262,9 @@
     IndexedBlockOperation* __weak weakOperation = blockOperation;
     VisualSample* __weak weakSample = self;
     
-    VisualPairContext* reductionPairContext = &_reductionPairContext;
-    BOOL reduce = NO;
-    BOOL fromReduced = NO;
+//    VisualPairContext* reductionPairContext = &_reductionPairContext;
+//    BOOL reduce = NO;
+//    BOOL fromReduced = NO;
 //    if (_reducedTotalWidth > 0) {
 //        if (reductionPairContext->reductionBuffer.length < _reducedTotalWidth) {
 //            reduce = YES;

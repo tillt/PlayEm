@@ -14,7 +14,7 @@
 @implementation TileView
 
 - (nonnull instancetype)initWithFrame:(CGRect)frameRect
-                        waveLayerDelegate:(WaveLayerDelegate*)waveLayerDelegate
+                        waveLayerDelegate:(id<CALayerDelegate>)waveLayerDelegate
 {
     self = [super initWithFrame:frameRect];
     if (self) {
@@ -26,26 +26,17 @@
         self.layerUsesCoreImageFilters = YES;
 
         _waveLayer = [self makeWaveLayer];
-        _waveLayer.frame = CGRectMake(0.0,
-                                     0.0,
-                                     frameRect.size.width,
-                                     frameRect.size.height);
+        _waveLayer.frame = CGRectMake(0.0, 0.0, frameRect.size.width, frameRect.size.height);
         _waveLayer.name = @"TileViewWaveLayer";
         [self.layer addSublayer:_waveLayer];
 
         _beatLayer = [self makeOverlayLayer];
-        _beatLayer.frame = CGRectMake(0.0,
-                                         0.0,
-                                         frameRect.size.width,
-                                         frameRect.size.height);
+        _beatLayer.frame = CGRectMake(0.0, 0.0, frameRect.size.width, frameRect.size.height);
         _beatLayer.name = @"TileViewOverlayLayer";
         [self.layer addSublayer:_beatLayer];
 
         _markLayer = [self makeMarkLayer];
-        _markLayer.frame = CGRectMake(0.0,
-                                         0.0,
-                                         frameRect.size.width,
-                                         frameRect.size.height);
+        _markLayer.frame = CGRectMake(0.0, 0.0, frameRect.size.width, frameRect.size.height);
         _beatLayer.name = @"TileViewMarkLayer";
         [self.layer addSublayer:_markLayer];
 
@@ -98,14 +89,6 @@
     layer.masksToBounds = NO;
     layer.autoresizingMask = kCALayerWidthSizable | kCALayerHeightSizable;
     return layer;
-}
-
-- (void)viewDidMoveToSuperview
-{
-    [super viewDidMoveToSuperview];
-
-    [self.layer setNeedsDisplay];
-    [self.waveLayer setNeedsDisplay];
 }
 
 @end

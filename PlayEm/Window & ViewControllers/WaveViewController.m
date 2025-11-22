@@ -20,7 +20,6 @@
 
 @interface WaveViewController()
 
-@property (nonatomic, assign) BOOL followTime;
 @property (nonatomic, assign) BOOL userMomentum;
 @property (nonatomic, assign) CGFloat head;
 @property (nonatomic, strong) NSMutableArray* reusableViews;
@@ -39,36 +38,27 @@
         _waveOutlineColor = [_waveFillColor colorWithAlphaComponent:0.2];
         _followTime = YES;
         _userMomentum = NO;
-        
+        _reusableViews = [NSMutableArray array];
+
         _tileWidth = 256.0;
         
-        [[NSNotificationCenter defaultCenter]
-         addObserver:self
-         selector:@selector(willStartLiveScroll:)
-         name:NSScrollViewWillStartLiveScrollNotification
-         object:self];
+        [[NSNotificationCenter defaultCenter] addObserver:self
+                                                 selector:@selector(willStartLiveScroll:)
+                                                     name:NSScrollViewWillStartLiveScrollNotification
+                                                   object:nil];
         [[NSNotificationCenter defaultCenter]
          addObserver:self
          selector:@selector(didLiveScroll:)
          name:NSScrollViewDidLiveScrollNotification
-         object:self];
+         object:nil];
         [[NSNotificationCenter defaultCenter]
          addObserver:self
          selector:@selector(didEndLiveScroll:)
          name:NSScrollViewDidEndLiveScrollNotification
-         object:self];
+         object:nil];
     }
     return self;
 }
-
-- (NSMutableArray*)reusableViews
-{
-    if (_reusableViews == nil) {
-        _reusableViews = [NSMutableArray array];
-    }
-    return _reusableViews;
-}
-
 
 - (void)loadView
 {
@@ -79,35 +69,22 @@
     self.view.translatesAutoresizingMaskIntoConstraints = YES;
 }
 
-/**
- Asserts that the playhead is properly positioned horizontally using a core animation
- transaction.
- 
- Use with great care and avoid nested animation transactions - those are very expensive.
- */
-
 - (void)setCurrentFrame:(unsigned long long)frame
 {
-    if (_currentFrame == frame) {
-        return;
-    }
     if (_frames == 0LL) {
         return;
     }
     _currentFrame = frame;
-    [self updateTiles];
     [self updateScrollingState];
+    [self updateTiles];
 }
 
 - (void)setFrames:(unsigned long long)frames
 {
-    if (_frames == frames) {
-        return;
-    }
     _frames = frames;
-    self.currentFrame = 0;
-    [self invalidateTiles];
-    [self invalidateBeats];
+    _currentFrame = 0;
+    [self updateScrollingState];
+    [self updateTiles];
 }
 
 - (void)setVisualSample:(VisualSample *)visualSample
@@ -255,9 +232,6 @@
 
 - (void)setHead:(CGFloat)head
 {
-    if (_head == head) {
-        return;
-    }
     _head = head;
     
     WaveScrollView* sv = (WaveScrollView*)self.view.enclosingScrollView;
@@ -276,7 +250,6 @@
     }
     
     assert(layer.frame.size.width < 512);
-    
     
     /*
      We try to fetch visual data first;
@@ -378,62 +351,12 @@
     CGContextStrokePath(context);
 }
 
-- (void)userInitiatedScrolling
-{
-    _userMomentum = YES;
-    _followTime = NO;
-}
-
-- (void)userEndsScrolling
-{
-    _userMomentum = NO;
-}
-
-- (void)rightMouseDown:(NSEvent*)event
-{
-    _followTime = YES;
-    [self updateScrollingState];
-}
-
 - (CGFloat)calcHead
 {
     if (_frames == 0LL) {
         return 0.0;
     }
     return floor(( _currentFrame * self.view.bounds.size.width) / _frames);
-}
-
-- (void)updateScrollingState
-{
-    [CATransaction begin];
-    [CATransaction setDisableActions:YES];
-    
-    CGFloat head = [self calcHead];
-    
-    if (self.view.enclosingScrollView != nil) {
-        if (_followTime) {
-            CGPoint pointVisible = CGPointMake(self.view.enclosingScrollView.bounds.origin.x + floor(head - (self.view.enclosingScrollView.bounds.size.width / 2.0)),
-                                               self.view.enclosingScrollView.bounds.origin.y + floor(self.view.enclosingScrollView.bounds.size.height / 2.0));
-            
-            [self.view scrollPoint:pointVisible];
-        } else {
-            // If the user has just requested some scrolling, do not interfere but wait
-            // as long as that state is up.
-            if (!_userMomentum) {
-                // If the head came back into the middle of the screen, snap back to following
-                // time with the scrollview.
-                const CGFloat delta = 1.0f;
-                CGFloat visibleCenter = self.view.enclosingScrollView.documentVisibleRect.origin.x + (self.view.enclosingScrollView.documentVisibleRect.size.width / 2.0f);
-                if (visibleCenter - delta <= head && visibleCenter + delta >= head) {
-                    _followTime = YES;
-                }
-            }
-        }
-    }
-    
-    self.head = head;
-    
-    [CATransaction commit];
 }
 
 - (void)resize
@@ -444,11 +367,9 @@
     }
 
     [self.view performSelector:@selector(resize)];
-    
-    [self invalidateTiles];
-    [self invalidateBeats];
-    [self invalidateMarks];
-    
+
+    [self updateTiles];
+
     [self updateHeadPositionTransaction];
 }
 
@@ -533,6 +454,9 @@
         view.frame = [neededFrame rectValue];
         [self.view addSubview:view];
         
+//        [view.layer setNeedsDisplay];
+        [view.waveLayer setNeedsDisplay];
+
         [self loadBeatLayer:view.beatLayer];
         [self loadMarkLayer:view.markLayer];
     }
@@ -540,21 +464,68 @@
 
 #pragma mark - Scroll View Notifications
 
+- (void)updateScrollingState
+{
+    [CATransaction begin];
+    [CATransaction setDisableActions:YES];
+    
+    CGFloat head = [self calcHead];
+    
+    if (self.view.enclosingScrollView != nil) {
+        if (_followTime) {
+            CGPoint pointVisible = CGPointMake(self.view.enclosingScrollView.bounds.origin.x + floor(head - (self.view.enclosingScrollView.bounds.size.width / 2.0)),
+                                               self.view.enclosingScrollView.bounds.origin.y + floor(self.view.enclosingScrollView.bounds.size.height / 2.0));
+            
+            [self.view scrollPoint:pointVisible];
+        } else {
+            // If the user has just requested some scrolling, do not interfere but wait
+            // as long as that state is up.
+            if (!_userMomentum) {
+                // If the head came back into the middle of the screen, snap back to following
+                // time with the scrollview.
+                const CGFloat delta = 1.0f;
+                CGFloat visibleCenter = self.view.enclosingScrollView.documentVisibleRect.origin.x + (self.view.enclosingScrollView.documentVisibleRect.size.width / 2.0f);
+                if (visibleCenter - delta <= head && visibleCenter + delta >= head) {
+                    _followTime = YES;
+                }
+            }
+        }
+    }
+    
+    self.head = head;
+    
+    [CATransaction commit];
+}
+
+- (void)rightMouseDown:(NSEvent*)event
+{
+    _followTime = YES;
+
+    [self updateScrollingState];
+    [self updateTiles];
+}
+
 - (void)willStartLiveScroll:(NSNotification*)notification
 {
-    [self updateHeadPositionTransaction];
+    _userMomentum = YES;
+    _followTime = NO;
+
+    [self updateScrollingState];
+    [self updateTiles];
 }
 
 - (void)didLiveScroll:(NSNotification*)notification
 {
-    [self updateHeadPositionTransaction];
+    [self updateScrollingState];
+    [self updateTiles];
 }
 
 - (void)didEndLiveScroll:(NSNotification*)notification
 {
-    [self updateHeadPositionTransaction];
+    _userMomentum = NO;
+
+    [self updateScrollingState];
+    [self updateTiles];
 }
-
-
 
 @end

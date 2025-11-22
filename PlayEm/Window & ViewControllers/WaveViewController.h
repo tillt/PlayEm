@@ -49,9 +49,9 @@ typedef CGFloat (^TotalWidthBlock) (void);
 @property (strong, nonatomic) TotalWidthBlock widthBlock;
 
 @property (assign, nonatomic) unsigned long long currentFrame;
+@property (nonatomic, assign) BOOL followTime;
 
-- (void)userInitiatedScrolling;
-- (void)userEndsScrolling;
+- (id)init;
 
 - (void)resize;
 - (void)invalidateMarks;

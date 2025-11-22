@@ -25,7 +25,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (NSURL*)linkedURL;
 
 - (void)playAtFrame:(unsigned long long)frame;
-- (void)reloadTracks;
+- (void)updatedTracks;
 
 @end
 

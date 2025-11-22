@@ -252,16 +252,6 @@
     item.target = self;
     [menu addItem:[NSMenuItem separatorItem]];
 
-    item = [menu addItemWithTitle:@"Show in Finder"
-                    action:@selector(showInFinder:)
-             keyEquivalent:@""];
-    item.target = self;
-
-
-// TODO: allow disabling depending on the number of songs selected. Note to myself, this here is the wrong place!
-//    size_t numberOfSongsSelected = ;
-//    showInFinder.enabled = numberOfSongsSelected > 1;
-  
     return menu;
 }
 

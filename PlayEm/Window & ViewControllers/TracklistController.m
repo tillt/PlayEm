@@ -19,18 +19,12 @@ const CGFloat kTotalRowHeight = 52.0 + kTimeHeight;
 
 @interface TracklistController()
 @property (nonatomic, weak) NSTableView* table;
-
 @property (strong, nonatomic) dispatch_queue_t imageQueue;
-
 @property (assign, nonatomic) NSUInteger currentTrackIndex;
-//- (void)addNext:(MediaMetaData*)item;
-//- (void)addLater:(MediaMetaData*)item;
-
 @end
 
 @implementation TracklistController
 {
-//    BOOL _preventSelection;
 }
 
 - (id)initWithTracklistTable:(NSTableView*)tableView
@@ -124,7 +118,7 @@ const CGFloat kTotalRowHeight = 52.0 + kTimeHeight;
     }
     // TODO: Add logic to spare us a reload.
     [_table reloadData];
-    [_delegate reloadTracks];
+    [_delegate updatedTracks];
     
     NSError* error = nil;
     BOOL done = [_current storeTracklistWithError:&error];
@@ -168,7 +162,7 @@ const CGFloat kTotalRowHeight = 52.0 + kTimeHeight;
     if ([save runModal] == NSModalResponseOK) {
         NSError* error = nil;
         FrameToString encoder = ^(unsigned long long frame) {
-            return [_delegate standardStringFromFrame:frame];
+            return [self->_delegate standardStringFromFrame:frame];
         };
         BOOL done = [_current exportTracklistToFile:save.URL frameEncoder:encoder error:&error];
         if (!done) {
@@ -176,40 +170,6 @@ const CGFloat kTotalRowHeight = 52.0 + kTimeHeight;
         }
     }
 }
-
-//- (void)addNext:(MediaMetaData*)item
-//{
-//    //[_list insertObject:item atIndex:0];
-//    [_table beginUpdates];
-//    [_table insertRowsAtIndexes:[NSIndexSet indexSetWithIndex:[[_list tracks] count]]
-//                  withAnimation:NSTableViewAnimationSlideRight];
-//    [_table endUpdates];
-//}
-//
-//- (void)addLater:(MediaMetaData*)item
-//{
-//    [_list addObject:item];
-//    [_table beginUpdates];
-//    [_table insertRowsAtIndexes:[NSIndexSet indexSetWithIndex:_history.count + _list.count - 1]
-//                  withAnimation:NSTableViewAnimationSlideUp];
-//    [_table endUpdates];
-//}
-
-//- (void)playedMeta:(MediaMetaData*)item
-//{
-//    if (_history.count && item == _history[_history.count - 1]) {
-//    } else {
-//        [_history addObject:item];
-//        _preventSelection = YES;
-//        [_table beginUpdates];
-//        [_table insertRowsAtIndexes:[NSIndexSet indexSetWithIndex:_history.count - 1]
-//                      withAnimation:NSTableViewAnimationSlideRight];
-//        [_table endUpdates];
-//        _preventSelection = NO;
-//        [_table reloadDataForRowIndexes:[NSIndexSet indexSetWithIndexesInRange:NSMakeRange(_history.count - 1, 1)]
-//                          columnIndexes:[NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0, 2)]];
-//    }
-//}
 
 - (NSMenu*)menu
 {
@@ -223,17 +183,17 @@ const CGFloat kTotalRowHeight = 52.0 + kTimeHeight;
 
     [menu addItem:[NSMenuItem separatorItem]];
 
-    item = [menu addItemWithTitle:@"Show Info"
-                           action:@selector(showInfoForSelectedSongs:)
-                    keyEquivalent:@""];
-    item.target = self;
-    [menu addItem:[NSMenuItem separatorItem]];
-
-    item = [menu addItemWithTitle:@"Show in Finder"
-                           action:@selector(showInFinder:)
-                    keyEquivalent:@""];
-    item.target = self;
-
+//    item = [menu addItemWithTitle:@"Show Info"
+//                           action:@selector(showInfoForSelectedSongs:)
+//                    keyEquivalent:@""];
+//    item.target = self;
+//    [menu addItem:[NSMenuItem separatorItem]];
+//
+//    item = [menu addItemWithTitle:@"Show in Finder"
+//                           action:@selector(showInFinder:)
+//                    keyEquivalent:@""];
+//    item.target = self;
+//
 
 // TODO: allow disabling depending on the number of songs selected. Note to myself, this here is the wrong place!
 //    size_t numberOfSongsSelected = ;
@@ -241,6 +201,29 @@ const CGFloat kTotalRowHeight = 52.0 + kTimeHeight;
   
     return menu;
 }
+
+//- (NSArray<MediaMetaData*>*)selectedSongMetas
+//{
+//    __block NSMutableArray<MediaMetaData*>* metas = [NSMutableArray array];;
+//    [self.songsTable.selectedRowIndexes enumerateIndexesWithOptions:NSEnumerationReverse
+//                                                         usingBlock:^(NSUInteger idx, BOOL *stop) {
+//        MediaMetaData* meta = self.filteredItems[idx];
+//        [metas addObject:meta];
+//    }];
+//    return metas;
+//}
+//
+//- (void)showInfoForSelectedSongs:(id)sender
+//{
+//    NSMutableArray* metas = [NSMutableArray array];
+//    if (_table.clickedRow >= 0) {
+//        [metas addObject:self.filteredItems[_table.clickedRow]];
+//        NSLog(@"item: %@", self.filteredItems[_table.clickedRow]);
+//    } else {
+//        [metas addObjectsFromArray:[self selectedSongMetas]];
+//    }
+//    [self.delegate showInfoForMetas:metas];
+//}
 
 - (void)updatedTracklist
 {
@@ -256,7 +239,7 @@ const CGFloat kTotalRowHeight = 52.0 + kTimeHeight;
 
     const CGFloat kRowInset = 8.0;
     const CGFloat kRowHeight = tableView.rowHeight - (kRowInset + kTimeHeight);
-    const CGFloat kHalfRowHeight = round(kRowHeight / 2.0);
+    //const CGFloat kHalfRowHeight = round(kRowHeight / 2.0);
 
     NSView* result = [tableView makeViewWithIdentifier:tableColumn.identifier owner:self];
     

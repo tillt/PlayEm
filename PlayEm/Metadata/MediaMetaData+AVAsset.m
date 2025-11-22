@@ -110,7 +110,7 @@
 
 - (BOOL)readFromAVAsset:(AVAsset *)asset
 {
-    NSArray<AVAssetTrackGroup*>* tracks = [asset trackGroups];
+    //NSArray<AVAssetTrackGroup*>* tracks = [asset trackGroups];
     NSDictionary* id3Genres = [MediaMetaData id3GenreMap];
     //NSLog(@"reading metadata from AVAsset:%@", asset );
     // Note, this code uses a pre 10.10 compatible way of parsing the tags - newer versions
@@ -192,6 +192,25 @@
     //NSLog(@"%@", asset);
     return [self readFromAVAsset:asset];
 }
+
+
+
+#pragma mark - EXPERIMENTAL: Chapter Handling 
+
+
+
+/*
+ !!! NONE OF THIS WORKS AS HOPED, SO FAR !!!
+ 
+ The idea is getting AV Foundation to allow us to create MP4 files with chapter marks.
+ This is somehow possible I bet, just there are plenty of traps and AV Foundation isnt
+ too generous with its error handling.
+ 
+ One challenge might be that chapter marks can only be stored in video files (that only
+ have an audio track).
+ */
+
+
 
 /*
 - (BOOL)addChapterMarksToMP4:(NSURL*)inputURL
@@ -360,6 +379,7 @@
 }
 */
 
+
 static AVTimedMetadataGroup *ChapterMetadataGroup(NSString *title, CMTime startTime, CMTime duration) {
     // Create title metadata item
     AVMutableMetadataItem *titleItem = [AVMutableMetadataItem metadataItem];
@@ -452,4 +472,5 @@ static AVTimedMetadataGroup *ChapterMetadataGroup(NSString *title, CMTime startT
     }];
 
 }
+
 @end

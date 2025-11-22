@@ -19,7 +19,6 @@ NS_ASSUME_NONNULL_BEGIN
 @property (weak, nonatomic) WaveViewController*  markLayerController;
 @property (assign, nonatomic) NSSize tileSize;
 
-- (NSMutableArray*)reusableViews;
 - (void)setHead:(CGFloat)head;
 - (void)resize;
 

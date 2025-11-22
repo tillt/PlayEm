@@ -65,7 +65,9 @@
     [self.layer addSublayer:wv.headLayer];
     [self.layer addSublayer:wv.rastaLayer];
     [self.layer addSublayer:wv.headBloomFxLayer];
-    [self.layer addSublayer:wv.trailBloomHostLayer];
+    for (CALayer* layer in wv.trailBloomFxLayers) {
+        [self.layer addSublayer:layer];
+    }
 }
 
 - (void)createTrail
@@ -74,59 +76,71 @@
 
     NSImage* image = [NSImage imageNamed:@"CurrentTime"];
 
-    wv.trailBloomHostLayer = [CALayer new];
-    //wv.trailBloomHostLayer.backgroundColor = [NSColor redColor].CGColor;
-    wv.trailBloomHostLayer.drawsAsynchronously = YES;
-    wv.trailBloomHostLayer.autoresizingMask = kCALayerHeightSizable;
-    wv.trailBloomHostLayer.masksToBounds = NO;
-    wv.trailBloomHostLayer.zPosition = 1.0;
-    wv.trailBloomHostLayer.name = @"TrailBloomHostLayer";
-    wv.trailBloomHostLayer.anchorPoint = CGPointMake(1.0, 0.0);
-    wv.trailBloomHostLayer.bounds = CGRectMake(0.0, 0.0, image.size.width, self.frame.size.height);
+
+//    wv.trailBloomHostLayer = [CALayer new];
+//    //wv.trailBloomHostLayer.backgroundColor = [NSColor redColor].CGColor;
+//    wv.trailBloomHostLayer.drawsAsynchronously = YES;
+//    wv.trailBloomHostLayer.autoresizingMask = kCALayerHeightSizable;
+//    wv.trailBloomHostLayer.masksToBounds = NO;
+//    wv.trailBloomHostLayer.zPosition = 1.0;
+//    wv.trailBloomHostLayer.name = @"TrailBloomHostLayer";
+//    wv.trailBloomHostLayer.anchorPoint = CGPointMake(1.0, 0.0);
+//    wv.trailBloomHostLayer.bounds = CGRectMake(0.0, 0.0, image.size.width, self.frame.size.height);
+//    CIFilter* linesFilter = [CIFilter filterWithName:@"CICircularScreen"];
+//    [linesFilter setDefaults];
+//    [linesFilter setValue: [NSNumber numberWithFloat:7.0] forKey: @"inputWidth"];
+//    [linesFilter setValue: [NSNumber numberWithFloat:0.02] forKey: @"inputSharpness"];
+//    [linesFilter setValue: [CIVector vectorWithCGPoint:CGPointMake(0.0,0.0)] forKey: @"inputCenter"];
+//    wv.trailBloomHostLayer.backgroundFilters = @[ bloom ];
+
     //wv.trailBloomHostLayer.hidden = YES;
     const unsigned int trailingBloomLayerCount = 3;
     CGSize size = CGSizeMake(floor(image.size.width / (2 * trailingBloomLayerCount)), self.frame.size.height);
 
+    NSMutableArray* list = [NSMutableArray array];
     for (int i = 0; i < trailingBloomLayerCount; i++) {
         CIFilter* bloom = [CIFilter filterWithName:@"CIBloom"];
         [bloom setDefaults];
-        //NSNumber* radius = [NSNumber numberWithFloat:(float)(2.5 + trailingBloomLayerCount - i) * 1.0];
-        NSNumber* radius = [NSNumber numberWithFloat:(float)(2.5 + trailingBloomLayerCount - i) * 3.0];
+
+        NSNumber* radius = [NSNumber numberWithFloat:2.5f + (trailingBloomLayerCount - i)];
         [bloom setValue: radius forKey: @"inputRadius"];
-        //[bloom setValue: [NSNumber numberWithFloat:1.0 + ((trailingBloomLayerCount - i) * 0.1)] forKey: @"inputIntensity"];
-        [bloom setValue: [NSNumber numberWithFloat:3.0] forKey: @"inputIntensity"];
+        [bloom setValue: [NSNumber numberWithFloat:((trailingBloomLayerCount - i) * 0.1)] forKey: @"inputIntensity"];
+        //[bloom setValue: [NSNumber numberWithFloat:0.5] forKey: @"inputIntensity"];
         
         CALayer* layer = [CALayer layer];
-        layer.backgroundFilters = @[ bloom ];
+        layer.backgroundFilters = @[bloom];
         layer.drawsAsynchronously = YES;
         layer.autoresizingMask = kCALayerNotSizable;
         //layer.anchorPoint = CGPointMake(0.0, 0.0);
         //layer.bounds = CGRectMake(0.0, 0.0, size.width, size.height);
         //layer.position = CGPointMake((trailingBloomLayerCount - (i + 1)) * size.width, 0.0);
-        layer.frame = CGRectMake(wv.trailBloomHostLayer.bounds.size.width - ((i + 1) * size.width), 0.0, size.width, size.height);
+        layer.frame = CGRectMake(image.size.width - ((i + 1) * size.width),
+                                 0.0,
+                                 size.width,
+                                 size.height);
         NSColor* color = nil;
         switch(i) {
             case 0:
-                color = [NSColor redColor];
+                color = [NSColor blueColor];
                 break;
             case 1:
-                color = [NSColor greenColor];
+                color = [NSColor blackColor];
                 break;
             case 2:
-                color = [NSColor blueColor];
+                color = [NSColor redColor];
                 break;
         }
         
-        //layer.backgroundColor = color.CGColor;
+//       layer.backgroundColor = color.CGColor;
         layer.mask = [CAShapeLayer MaskLayerFromRect:layer.bounds];
         layer.masksToBounds = YES;
-        //layer.zPosition = 3.99 + ((float)i - trailingBloomLayerCount);
+        layer.zPosition = 3.99 + ((float)i - trailingBloomLayerCount);
         layer.name = [NSString stringWithFormat:@"TrailBloomFxLayer%d", i+1];
-        [wv.trailBloomHostLayer addSublayer:layer];
+        [list addObject:layer];
         NSLog(@"trailbloom layer %@", NSStringFromRect(layer.frame));
     }
-    NSLog(@"trailbloom host layer %@", NSStringFromRect(wv.trailBloomHostLayer.frame));
-    //_trailBloomFxLayers = layers;
+    wv.trailBloomFxLayers = list;
+//    NSLog(@"trailbloom host layer %@", NSStringFromRect(wv.trailBloomHostLayer.frame));
 }
 
 - (void)setupHead
@@ -148,15 +162,13 @@
     wv.headBloomFxLayer.frame = CGRectMake(0.0, 0.0, 5.0, self.bounds.size.height);
     wv.headBloomFxLayer.mask = [CAShapeLayer MaskLayerFromRect:wv.headBloomFxLayer.bounds];
 
-    //wv.trailBloomHostLayer.bounds = CGRectMake(0.0, 0.0, image.size.width, self.bounds.size.height);
-    wv.trailBloomHostLayer.position = CGPointMake(0.0, 0.0);
+    //wv.trailBloomHostLayer.position = CGPointMake(0.0, 0.0);
 
-//    const unsigned int trailFragmentWidth = floor(image.size.width / (2 * wv.trailBloomFxLayers.count));
+//    const unsigned int trailFragmentWidth = floor(image.size.width / (wv.trailBloomFxLayers.count));
 //    for (CALayer* layer in wv.trailBloomFxLayers) {
-//        layer.frame = CGRectMake(0.0, 0.0, trailFragmentWidth, height);
-//        NSLog(@"trailing layee %@", NSStringFromRect(layer.frame));
-//        layer.mask = [CAShapeLayer MaskLayerFromRect:layer.frame];
+//        layer.frame = CGRectMake(0.0, 0.0, trailFragmentWidth, self.bounds.size.height);
 //    }
+
     wv.rastaLayer.backgroundColor = [[NSColor colorWithPatternImage:[NSImage imageNamed:@"LargeRastaPattern"]] CGColor];
     wv.rastaLayer.frame = self.bounds;
 }
@@ -243,7 +255,15 @@
     }
     wv.headBloomFxLayer.position = CGPointMake(head + 0.0 - self.documentVisibleRect.origin.x, wv.headBloomFxLayer.position.y);
     wv.headLayer.position = CGPointMake(head + 0.0 - self.documentVisibleRect.origin.x, wv.headLayer.position.y);
-    wv.trailBloomHostLayer.position = CGPointMake((head + 4.0) - self.documentVisibleRect.origin.x, 0.0);
+
+    const unsigned int trailFragmentWidth = wv.trailBloomFxLayers[0].frame.size.width;
+    unsigned int i = 0;
+    for (CALayer* layer in wv.trailBloomFxLayers) {
+        layer.position = CGPointMake((head + 4.0) - (self.documentVisibleRect.origin.x + (i * trailFragmentWidth)) - (trailFragmentWidth / 2.0), layer.position.y);
+        i++;
+    }
+
+    //wv.trailBloomHostLayer.position = CGPointMake((head + 4.0) - self.documentVisibleRect.origin.x, 0.0);
     //wv.aheadVibranceFxLayer.position = CGPointMake(head + (wv.headImageSize.width / 2.0f), 0.0);
 
     //wv.rastaLayer.position = CGPointMake(floor(head)  + 0.0 - self.documentVisibleRect.origin.x, 0.0);

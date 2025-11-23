@@ -28,16 +28,19 @@
         _waveLayer = [self makeWaveLayer];
         _waveLayer.frame = CGRectMake(0.0, 0.0, frameRect.size.width, frameRect.size.height);
         _waveLayer.name = @"TileViewWaveLayer";
+        _waveLayer.zPosition = 0.0;
         [self.layer addSublayer:_waveLayer];
 
         _beatLayer = [self makeOverlayLayer];
         _beatLayer.frame = CGRectMake(0.0, 0.0, frameRect.size.width, frameRect.size.height);
         _beatLayer.name = @"TileViewOverlayLayer";
+        _beatLayer.zPosition = -1.0;
         [self.layer addSublayer:_beatLayer];
 
         _markLayer = [self makeMarkLayer];
         _markLayer.frame = CGRectMake(0.0, 0.0, frameRect.size.width, frameRect.size.height);
-        _beatLayer.name = @"TileViewMarkLayer";
+        _markLayer.name = @"TileViewMarkLayer";
+        _markLayer.zPosition = 2.0;
         [self.layer addSublayer:_markLayer];
 
         _waveLayer.delegate = waveLayerDelegate;

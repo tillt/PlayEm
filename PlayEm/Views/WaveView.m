@@ -13,9 +13,12 @@
 #import "NSBezierPath+CGPath.h"
 #import "ProfilingPointsOfInterest.h"
 
+static const CGFloat kRastaLayerZ = 1.5;
+static const CGFloat kAheadVibrancyLayerZ = 1.0;
+static const CGFloat kHeadLayerZ = 1.1;
+static const CGFloat kHeadBloomFxLayerZ = 1.2;
+
 @interface WaveView ()
-
-
 @end
 
 @implementation WaveView
@@ -29,7 +32,6 @@
         self.layer = [self makeBackingLayer];
         self.layer.masksToBounds = NO;
         self.layerUsesCoreImageFilters = YES;
-        _trailBloomFxLayers = [NSMutableArray array];
     }
     return self;
 }
@@ -66,7 +68,6 @@
     [self createHead];
 
     if (self.enclosingScrollView == nil) {
-        [self createTrail];
         [self setupHead];
         [self addHead];
     } else {
@@ -94,23 +95,24 @@
 
 - (void)createHead
 {
+    BOOL scrolling = self.enclosingScrollView != nil;
+    
     _headLayer = [self makeHeadLayer];
     _headLayer.compositingFilter = [CIFilter filterWithName:@"CISourceAtopCompositing"];
-    //_headLayer.hidden = YES;
     
     CIFilter* clampFilter = [CIFilter filterWithName:@"CIAffineClamp"];
     [clampFilter setDefaults];
-    CGFloat scaleFactor = 1.15;
+    CGFloat scaleFactor = scrolling ? 1.25 : 1.05;
     CGAffineTransform transform = CGAffineTransformScale(CGAffineTransformMakeTranslation(0.0, self.enclosingScrollView.bounds.size.height * -(scaleFactor - 1.0) / 2.0), 1.0, scaleFactor);
     [clampFilter setValue:[NSValue valueWithBytes:&transform objCType:@encode(CGAffineTransform)] forKey:@"inputTransform"];
     
     CIFilter* bloomFilter = [CIFilter filterWithName:@"CIBloom"];
     [bloomFilter setDefaults];
-    [bloomFilter setValue: [NSNumber numberWithFloat:9.0] forKey: @"inputRadius"];
-    [bloomFilter setValue: [NSNumber numberWithFloat:1.5] forKey: @"inputIntensity"];
+    [bloomFilter setValue: [NSNumber numberWithFloat:self.bounds.size.height / 15.0] forKey: @"inputRadius"];
+    [bloomFilter setValue: [NSNumber numberWithFloat:1.0] forKey: @"inputIntensity"];
     
     _headBloomFxLayer = [self makeHeadBloomFxLayer];
-    _headBloomFxLayer.backgroundFilters = @[ clampFilter, bloomFilter ];
+    _headBloomFxLayer.backgroundFilters = @[ clampFilter, bloomFilter, bloomFilter];
 
     CIFilter* vibranceFilter = [CIFilter filterWithName:@"CIColorControls"];
     [vibranceFilter setDefaults];
@@ -126,7 +128,6 @@
     _aheadVibranceFxLayer.backgroundFilters = @[ darkenFilter, vibranceFilter ];
     _aheadVibranceFxLayer.anchorPoint = CGPointMake(0.0, 0.0);
     _aheadVibranceFxLayer.masksToBounds = NO;
-    _aheadVibranceFxLayer.zPosition = 1.0;
     _aheadVibranceFxLayer.name = @"AheadVibranceFxLayer";
 
     _rastaLayer = [CALayer layer];
@@ -134,51 +135,23 @@
     _rastaLayer.contentsScale = NSViewLayerContentsPlacementScaleProportionallyToFill;
     _rastaLayer.anchorPoint = CGPointMake(0.0, 0.0);
     _rastaLayer.autoresizingMask = kCALayerWidthSizable;
-    _rastaLayer.zPosition = 1.1;
     _rastaLayer.opacity = 0.7;
     _rastaLayer.compositingFilter = [CIFilter filterWithName:@"CISourceAtopCompositing"];
 }
 
-- (void)createTrail
-{
-    NSImage* image = [NSImage imageNamed:@"CurrentTime"];
-    const unsigned int trailingBloomLayerCount = 3;
-    CGSize size = CGSizeMake(floor(image.size.width / (2 * trailingBloomLayerCount)), 0);
-
-    NSMutableArray<CALayer*>* list = [NSMutableArray array];
-    for (int i = 0; i < trailingBloomLayerCount; i++) {
-        CIFilter* bloom = [CIFilter filterWithName:@"CIBloom"];
-        [bloom setDefaults];
-        [bloom setValue: [NSNumber numberWithFloat:(float)(2.5 + trailingBloomLayerCount - i) * 1.0]
-                 forKey: @"inputRadius"];
-        //[bloom setValue: [NSNumber numberWithFloat:1.0 + ((trailingBloomLayerCount - i) * 0.1)] forKey: @"inputIntensity"];
-        [bloom setValue: [NSNumber numberWithFloat:1.0] forKey: @"inputIntensity"];
-        
-        CALayer* layer = [CALayer layer];
-        layer.backgroundFilters = @[ bloom ];
-        layer.drawsAsynchronously = YES;
-        layer.anchorPoint = CGPointMake(1.0, 0.0);
-        layer.frame = CGRectMake(0.0, 0.0, size.width, size.height);
-        layer.mask = [CAShapeLayer MaskLayerFromRect:layer.frame];
-        layer.masksToBounds = YES;
-        //layer.zPosition = 3.99 + ((float)i - trailingBloomLayerCount);
-        layer.name = [NSString stringWithFormat:@"TrailBloomFxLayer%d", i+1];
-
-        [list addObject:layer];
-    }
-    _trailBloomFxLayers = list;
-}
-
 - (void)addHead
 {
+    _aheadVibranceFxLayer.zPosition = kAheadVibrancyLayerZ;
     [self.layer addSublayer:_aheadVibranceFxLayer];
-    [self.layer addSublayer:_headLayer];
-    [self.layer addSublayer:_headBloomFxLayer];
-    for (CALayer* layer in _trailBloomFxLayers) {
-        [self.layer addSublayer:layer];
-    }
 
+    _headLayer.zPosition = kHeadLayerZ;
+    [self.layer addSublayer:_headLayer];
+
+    _rastaLayer.zPosition = kRastaLayerZ;
     [self.layer addSublayer:_rastaLayer];
+
+    _headBloomFxLayer.zPosition = kHeadBloomFxLayerZ;
+    [self.layer addSublayer:_headBloomFxLayer];
 }
 
 - (void)setupHead
@@ -220,13 +193,6 @@
     _headBloomFxLayer.position = CGPointMake(position, _headBloomFxLayer.position.y);
     _aheadVibranceFxLayer.position = CGPointMake(position + (_headImageSize.width / 2.0f), 0.0);
     _rastaLayer.position = CGPointMake(0, _rastaLayer.position.y);
-
-    CGFloat x = 0.0;
-    CGFloat offset = 0.0;
-    for (CALayer* layer in _trailBloomFxLayers) {
-        layer.position = CGPointMake((position + offset) - x, 0.0);
-        x += layer.frame.size.width + 1.0;
-    }
 }
 
 @end

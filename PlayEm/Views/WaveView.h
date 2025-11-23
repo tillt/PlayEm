@@ -20,8 +20,7 @@
 @property (assign, nonatomic) CGSize headImageSize;
 @property (strong, nonatomic) CALayer* headLayer;
 @property (strong, nonatomic) CALayer* headBloomFxLayer;
-@property (strong, nonatomic) NSArray<CALayer*>* trailBloomFxLayers;
-//@property (strong, nonatomic) CALayer* trailBloomHostLayer;
+@property (strong, nonatomic) CALayer* trailBloomHFxLayer;
 @property (strong, nonatomic) CIFilter* headFx;
 @property (strong, nonatomic) CALayer* aheadVibranceFxLayer;
 @property (strong, nonatomic) CALayer* rastaLayer;
@@ -30,7 +29,6 @@
 - (void)resize;
 
 - (void)createHead;
-- (void)createTrail;
 - (void)setupHead;
 - (void)addHead;
 @end

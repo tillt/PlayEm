@@ -379,23 +379,23 @@
 }
 */
 
-
-static AVTimedMetadataGroup *ChapterMetadataGroup(NSString *title, CMTime startTime, CMTime duration) {
-    // Create title metadata item
-    AVMutableMetadataItem *titleItem = [AVMutableMetadataItem metadataItem];
-    titleItem.identifier = AVMetadataIdentifierQuickTimeUserDataChapter;
-    titleItem.dataType = (__bridge NSString *)kCMMetadataBaseDataType_UTF8;
-    titleItem.value = title;
-    titleItem.extendedLanguageTag = @"und"; // undetermined language
-
-    // Create time range for chapter
-    CMTimeRange timeRange = CMTimeRangeMake(startTime, duration);
-
-    // Build timed metadata group
-    AVTimedMetadataGroup *group = [[AVTimedMetadataGroup alloc] initWithItems:@[titleItem]
-                                                                    timeRange:timeRange];
-    return group;
-}
+//
+//static AVTimedMetadataGroup *ChapterMetadataGroup(NSString *title, CMTime startTime, CMTime duration) {
+//    // Create title metadata item
+//    AVMutableMetadataItem *titleItem = [AVMutableMetadataItem metadataItem];
+//    titleItem.identifier = AVMetadataIdentifierQuickTimeUserDataChapter;
+//    titleItem.dataType = (__bridge NSString *)kCMMetadataBaseDataType_UTF8;
+//    titleItem.value = title;
+//    titleItem.extendedLanguageTag = @"und"; // undetermined language
+//
+//    // Create time range for chapter
+//    CMTimeRange timeRange = CMTimeRangeMake(startTime, duration);
+//
+//    // Build timed metadata group
+//    AVTimedMetadataGroup *group = [[AVTimedMetadataGroup alloc] initWithItems:@[titleItem]
+//                                                                    timeRange:timeRange];
+//    return group;
+//}
 
 - (void)addChaptersToAudioFileAtURL:(NSURL *)inputURL
                          outputURL:(NSURL *)outputURL

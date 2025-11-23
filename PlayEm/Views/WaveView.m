@@ -102,22 +102,28 @@ static const CGFloat kHeadBloomFxLayerZ = 1.2;
     
     CIFilter* clampFilter = [CIFilter filterWithName:@"CIAffineClamp"];
     [clampFilter setDefaults];
-    CGFloat scaleFactor = scrolling ? 1.25 : 1.05;
+    CGFloat scaleFactor = scrolling ? 1.15 : 1.05;
     CGAffineTransform transform = CGAffineTransformScale(CGAffineTransformMakeTranslation(0.0, self.enclosingScrollView.bounds.size.height * -(scaleFactor - 1.0) / 2.0), 1.0, scaleFactor);
     [clampFilter setValue:[NSValue valueWithBytes:&transform objCType:@encode(CGAffineTransform)] forKey:@"inputTransform"];
     
     CIFilter* bloomFilter = [CIFilter filterWithName:@"CIBloom"];
     [bloomFilter setDefaults];
-    [bloomFilter setValue: [NSNumber numberWithFloat:self.bounds.size.height / 15.0] forKey: @"inputRadius"];
+    [bloomFilter setValue: [NSNumber numberWithFloat:self.bounds.size.height / 20.0] forKey: @"inputRadius"];
     [bloomFilter setValue: [NSNumber numberWithFloat:1.0] forKey: @"inputIntensity"];
+
     
+    CIFilter* lightenFilter = [CIFilter filterWithName:@"CIColorControls"];
+    [lightenFilter setDefaults];
+    [lightenFilter setValue:[NSNumber numberWithFloat:1.0] forKey:@"inputSaturation"];
+    [lightenFilter setValue:[NSNumber numberWithFloat:0.10] forKey:@"inputBrightness"];
+
     _headBloomFxLayer = [self makeHeadBloomFxLayer];
-    _headBloomFxLayer.backgroundFilters = @[ clampFilter, bloomFilter, bloomFilter];
+    _headBloomFxLayer.backgroundFilters = @[ clampFilter, bloomFilter, bloomFilter,lightenFilter];
 
     CIFilter* vibranceFilter = [CIFilter filterWithName:@"CIColorControls"];
     [vibranceFilter setDefaults];
     [vibranceFilter setValue:[NSNumber numberWithFloat:0.1] forKey:@"inputSaturation"];
-    [vibranceFilter setValue:[NSNumber numberWithFloat:0.001] forKey:@"inputBrightness"];
+    [vibranceFilter setValue:[NSNumber numberWithFloat:0.0001] forKey:@"inputBrightness"];
 
     CIFilter* darkenFilter = [CIFilter filterWithName:@"CIGammaAdjust"];
     [darkenFilter setDefaults];

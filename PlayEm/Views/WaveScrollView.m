@@ -92,18 +92,23 @@ static const CGFloat kTrailLayerZ = 1.4;
     mask.allowsEdgeAntialiasing = YES;
     mask.magnificationFilter = kCAFilterLinear;
     mask.minificationFilter = kCAFilterLinear;
+    
+    CIFilter* lightenFilter = [CIFilter filterWithName:@"CIColorControls"];
+    [lightenFilter setDefaults];
+    [lightenFilter setValue:[NSNumber numberWithFloat:5.5] forKey:@"inputSaturation"];
+    [lightenFilter setValue:[NSNumber numberWithFloat:0.3] forKey:@"inputBrightness"];
 
     CIFilter* bloom = [CIFilter filterWithName:@"CIBloom"];
     [bloom setDefaults];
 
     //NSNumber* radius = [NSNumber numberWithFloat:3.5f + (trailingBloomLayerCount - i)];
-    NSNumber* radius = [NSNumber numberWithFloat:6.0f];
+    NSNumber* radius = [NSNumber numberWithFloat:12.0f];
     [bloom setValue: radius forKey: @"inputRadius"];
     [bloom setValue: [NSNumber numberWithFloat:1.0f] forKey: @"inputIntensity"];
     //[bloom setValue: [NSNumber numberWithFloat:0.5] forKey: @"inputIntensity"];
     
     wv.trailBloomHFxLayer = [CALayer layer];
-    wv.trailBloomHFxLayer.backgroundFilters = @[bloom, bloom];
+   wv.trailBloomHFxLayer.backgroundFilters = @[bloom, bloom, lightenFilter];
     wv.trailBloomHFxLayer.drawsAsynchronously = YES;
     wv.trailBloomHFxLayer.autoresizingMask = kCALayerNotSizable;
     wv.trailBloomHFxLayer.mask = mask;
@@ -111,10 +116,11 @@ static const CGFloat kTrailLayerZ = 1.4;
     //layer.anchorPoint = CGPointMake(0.0, 0.0);
     //layer.bounds = CGRectMake(0.0, 0.0, size.width, size.height);
     //layer.position = CGPointMake((trailingBloomLayerCount - (i + 1)) * size.width, 0.0);
-    wv.trailBloomHFxLayer.frame = CGRectMake(image.size.width - (1 * size.width),
-                             0.0,
-                             size.width,
-                             size.height);
+//    wv.trailBloomHFxLayer.backgroundColor = [NSColor redColor].CGColor;
+    wv.trailBloomHFxLayer.frame = CGRectMake(image.size.width - size.width,
+                                             0.0,
+                                             size.width,
+                                             size.height);
     wv.trailBloomHFxLayer.masksToBounds = YES;
     wv.trailBloomHFxLayer.zPosition = 3.99;
 }

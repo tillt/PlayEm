@@ -52,16 +52,14 @@
                                                  selector:@selector(willStartLiveScroll:)
                                                      name:NSScrollViewWillStartLiveScrollNotification
                                                    object:nil];
-        [[NSNotificationCenter defaultCenter]
-         addObserver:self
-         selector:@selector(didLiveScroll:)
-         name:NSScrollViewDidLiveScrollNotification
-         object:nil];
-        [[NSNotificationCenter defaultCenter]
-         addObserver:self
-         selector:@selector(didEndLiveScroll:)
-         name:NSScrollViewDidEndLiveScrollNotification
-         object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self
+                                                 selector:@selector(didLiveScroll:)
+                                                     name:NSScrollViewDidLiveScrollNotification
+                                                   object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self
+                                                 selector:@selector(didEndLiveScroll:)
+                                                     name:NSScrollViewDidEndLiveScrollNotification
+                                                   object:nil];
     }
     return self;
 }
@@ -87,9 +85,10 @@
 
 - (void)resetTracking
 {
-    NSTrackingArea *trackingArea = [[NSTrackingArea alloc] initWithRect:[self.view bounds]
-        options: (NSTrackingMouseEnteredAndExited | NSTrackingMouseMoved |  NSTrackingActiveAlways | NSTrackingInVisibleRect)
-        owner:self userInfo:nil];
+    NSTrackingArea* trackingArea = [[NSTrackingArea alloc] initWithRect:self.view.bounds
+                                                                options:(NSTrackingMouseEnteredAndExited | NSTrackingMouseMoved |  NSTrackingActiveAlways | NSTrackingInVisibleRect)
+                                                                  owner:self
+                                                               userInfo:nil];
     [self.view addTrackingArea:trackingArea];
 }
 
@@ -97,9 +96,13 @@
 {
     _frames = frames;
     _currentFrame = 0;
+    
+    // As the total amount of frames for this sample has changed, we will also need to reload
+    // pretty much everything -- the beat layer is skipped here as it is highly likely not
+    
     [self updateScrollingState];
     [self updateTiles];
-    [self updateMarkLayer];
+    [self updateTrackDescriptions];
 }
 
 - (void)setVisualSample:(VisualSample *)visualSample
@@ -108,8 +111,8 @@
         return;
     }
     _visualSample = visualSample;
-    [self invalidateTiles];
-    [self invalidateBeats];
+    [self updateWaveLayer];
+    [self updateBeatMarkLayer];
 }
 
 - (void)loadMarkLayer:(CALayer*)rootLayer
@@ -223,8 +226,8 @@
     _trackList = trackList;
     assert(self.view.frame.size.width > 0);
     
-    [self invalidateMarks];
-    [self updateMarkLayer];
+    [self updateChapterMarkLayer];
+    [self updateTrackDescriptions];
 }
 
 - (void)setBeatSample:(BeatTrackedSample *)beatSample
@@ -235,7 +238,7 @@
     _beatSample = beatSample;
     assert(self.view.frame.size.width > 0);
     
-    [self invalidateBeats];
+    [self updateBeatMarkLayer];
 }
 
 - (void)updateHeadPositionTransaction
@@ -243,7 +246,7 @@
     [CATransaction begin];
     [CATransaction setDisableActions:YES];
     self.head = [self calcHead];
-    [self updateMarkLayer];
+    [self updateTrackDescriptions];
     [CATransaction commit];
 }
 
@@ -259,7 +262,10 @@
         [wv setHead:head];
     }
 }
+# pragma mark - Wave CALayer delegate
 
+// FIXME: Assert we cant solve this better using some variant of a CAShapeLayer. Right now this custom layer drawing is hooked into the screen asking for refresh.
+// FIXME: If we used a CAShapeLayer d that way we would have a lot more control over the process as we determine what to put onto the layer the moment we composite the screen and not the moment the screen asks for our refresh.
 - (void)drawLayer:(CALayer*)layer inContext:(CGContextRef)context
 {
     if (_visualSample == nil || layer.superlayer.frame.origin.x < 0) {
@@ -385,27 +391,27 @@
         [self.view performSelector:@selector(resize)];
     }
 
-    [self invalidateTiles];
-    [self invalidateBeats];
-    [self invalidateMarks];
+    [self updateWaveLayer];
+    [self updateBeatMarkLayer];
+    [self updateChapterMarkLayer];
     [self updateHeadPositionTransaction];
 }
 
-- (void)invalidateMarks
+- (void)updateChapterMarkLayer
 {
     for (TileView* tv in self.view.subviews) {
         [self loadMarkLayer:tv.markLayer];
     }
 }
 
-- (void)invalidateBeats
+- (void)updateBeatMarkLayer
 {
     for (TileView* tv in self.view.subviews) {
         [self loadBeatLayer:tv.beatLayer];
     }
 }
 
-- (void)invalidateTiles
+- (void)updateWaveLayer
 {
     for (TileView* tv in self.view.subviews) {
         [tv.waveLayer setNeedsDisplay];
@@ -587,7 +593,7 @@
     }
 }
 
-- (void)updateMarkLayer
+- (void)updateTrackDescriptions
 {
     NSString* style = @"big";
     
@@ -598,7 +604,6 @@
         return;
     }
     const double framesPerPixel = _frames / self.view.bounds.size.width;
-
 
     CGFloat textWidth = 200.0f;
     NSFont* titleFont = [[Defaults sharedDefaults] largeFont];
@@ -701,7 +706,10 @@
         artistLayer = background.sublayers.count > 2 ? background.sublayers[2] : nil;
 
         [background setValue:neededFrame forKey:kFrameOffsetLayerKey];
-
+        
+        //
+        // Initialize the display elements with track data.
+        //
         IdentifiedTrack* track = [_trackList trackAtFrame:[neededFrame unsignedLongLongValue]];
 
         NSImage* image = nil;
@@ -724,9 +732,9 @@
         
         assert(track.title);
         NSAttributedString* title = [self textWithFont:titleFont
-                                             color:titleColor
-                                             width:textWidth
-                                              text:track.title];
+                                                 color:titleColor
+                                                 width:textWidth
+                                                  text:track.title];
         CGSize titleSize = [title size];
         titleLayer.string = title;
         
@@ -734,9 +742,9 @@
         if (artistLayer != nil) {
             assert(track.artist);
             NSAttributedString* artist = [self textWithFont:artistFont
-                                         color:artistColor
-                                         width:textWidth
-                                          text:track.artist];
+                                                      color:artistColor
+                                                      width:textWidth
+                                                       text:track.artist];
             artistLayer.string = artist;
             artistSize = [artist size];
         }
@@ -871,7 +879,7 @@
                 }
             }
         }
-        [self updateMarkLayer];
+        [self updateTrackDescriptions];
     }
     
     self.head = head;

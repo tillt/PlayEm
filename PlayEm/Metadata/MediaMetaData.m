@@ -1178,6 +1178,21 @@ NSString* const kMediaMetaDataMapTypeNumber = @"number";
     return [_trackList writeToFile:url error:error];
 }
 
+- (NSString*)readableTracklistWithFrameEncoder:(FrameToString)encoder
+{
+    NSString* global = @"Tracklist: ";
+    if (_title.length > 0 && _artist.length > 0) {
+        global = [NSString stringWithFormat:@"%@%@ - %@", global, _artist, _title];
+    } else if (_title.length > 0) {
+        global = [NSString stringWithFormat:@"%@%@", global,  _title];
+    } else if (_artist.length > 0) {
+        global = [NSString stringWithFormat:@"%@%@", global,  _artist];
+    }
+    global = [NSString stringWithFormat:@"%@\n\n", global];
+    NSString* tracks = [_trackList beautifulTracksWithFrameEncoder:encoder];
+    return [global stringByAppendingString:tracks];
+}
+
 - (BOOL)exportTracklistToFile:(NSURL*)url
                  frameEncoder:(FrameToString)encoder
                         error:(NSError *__autoreleasing  _Nullable *)error

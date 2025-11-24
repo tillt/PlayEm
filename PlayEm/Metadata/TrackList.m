@@ -53,6 +53,38 @@
     return self;
 }
 
+- (NSString*)beautifulTracksWithFrameEncoder:(FrameToString)encoder
+{
+    NSString* sheet = @"";
+
+    unsigned long trackIndex = 1;
+
+    NSArray<NSNumber*>* frames = [[self frames] sortedArrayUsingSelector:@selector(compare:)];
+
+    for (NSNumber* value in frames) {
+        unsigned long long frame = [value unsignedLongLongValue];
+        IdentifiedTrack* track = [self trackAtFrame:frame];
+
+        NSString* entry = [NSString stringWithFormat:@"#%02ld %@ ", trackIndex, encoder(frame)];
+
+        if (track.artist.length > 0 && track.title.length > 0) {
+            entry = [NSString stringWithFormat:@"%@%@ - %@", entry, track.artist, track.title];
+        } else if (track.title.length > 0) {
+            entry = [NSString stringWithFormat:@"%@%@", entry, track.title];
+        } else if (track.artist.length > 0) {
+            entry = [NSString stringWithFormat:@"%@%@", entry, track.artist];
+        } else {
+            entry = [NSString stringWithFormat:@"%@ [Unknown]", entry];
+        }
+        entry = [NSString stringWithFormat:@"%@\n", entry];
+
+        sheet = [sheet stringByAppendingString:entry];
+
+        trackIndex++;
+    }
+    return sheet;
+}
+
 - (NSString*)cueTracksWithFrameEncoder:(FrameToString)encoder
 {
     NSString* sheet = @"";

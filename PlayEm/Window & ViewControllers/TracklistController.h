@@ -17,8 +17,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @protocol TracklistControllerDelegate <NSObject>
 
-//- (void)browseSelectedUrl:(NSURL*)url meta:(MediaMetaData*)meta;
-
 - (NSString*)standardStringFromFrame:(unsigned long long)frame;
 
 - (NSString*)stringFromFrame:(unsigned long long)frame;
@@ -34,6 +32,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, weak) id <TracklistControllerDelegate> delegate;
 @property (nonatomic, weak) MediaMetaData* current;
 @property (nonatomic, assign) unsigned long long currentFrame;
+@property (nonatomic, readonly) IdentifiedTrack* currentTrack;
 
 - (id)initWithTracklistTable:(NSTableView*)table
                    delegate:(id<TracklistControllerDelegate>)delegate;

@@ -92,6 +92,14 @@ const CGFloat kTotalRowHeight = 52.0 + kTimeHeight;
     }
 }
 
+- (IdentifiedTrack*)currentTrack
+{
+    NSArray<NSNumber*>* frames = [_current.trackList.frames sortedArrayUsingSelector:@selector(compare:)];
+    assert(_currentTrackIndex < frames.count);
+    unsigned long long frame = [frames[_currentTrackIndex] unsignedLongLongValue];
+    return [_current.trackList trackAtFrame:frame];
+}
+
 - (void)setCurrent:(MediaMetaData*)meta
 {
     _current = meta;
@@ -171,6 +179,16 @@ const CGFloat kTotalRowHeight = 52.0 + kTimeHeight;
     }
 }
 
+- (IBAction)copyTracklist:(id)sender
+{
+    FrameToString encoder = ^(unsigned long long frame) {
+        return [self->_delegate stringFromFrame:frame];
+    };
+    NSString* tracklist = [_current readableTracklistWithFrameEncoder:encoder];
+    [[NSPasteboard generalPasteboard] clearContents];
+    [[NSPasteboard generalPasteboard] setString:tracklist forType:NSPasteboardTypeString];
+}
+
 - (NSMenu*)menu
 {
     NSMenu* menu = [NSMenu new];
@@ -183,11 +201,24 @@ const CGFloat kTotalRowHeight = 52.0 + kTimeHeight;
 
     [menu addItem:[NSMenuItem separatorItem]];
 
-//    item = [menu addItemWithTitle:@"Show Info"
-//                           action:@selector(showInfoForSelectedSongs:)
-//                    keyEquivalent:@""];
-//    item.target = self;
-//    [menu addItem:[NSMenuItem separatorItem]];
+    item = [[NSMenuItem alloc] initWithTitle:@"Export Tracklist..."
+                                      action:@selector(exportTracklist:)
+                               keyEquivalent:@""];
+    [item setKeyEquivalentModifierMask:NSEventModifierFlagCommand];
+    item.target = self;
+    [menu addItem:item];
+
+    [menu addItem:[NSMenuItem separatorItem]];
+
+    item = [[NSMenuItem alloc] initWithTitle:@"Copy Tracklist to Clipboard"
+                                      action:@selector(copyTracklist:)
+                               keyEquivalent:@""];
+    [item setKeyEquivalentModifierMask:NSEventModifierFlagCommand];
+    item.target = self;
+    [menu addItem:item];
+
+    //[menu addItem:item];
+
 //
 //    item = [menu addItemWithTitle:@"Show in Finder"
 //                           action:@selector(showInFinder:)
@@ -239,7 +270,6 @@ const CGFloat kTotalRowHeight = 52.0 + kTimeHeight;
 
     const CGFloat kRowInset = 8.0;
     const CGFloat kRowHeight = tableView.rowHeight - (kRowInset + kTimeHeight);
-    //const CGFloat kHalfRowHeight = round(kRowHeight / 2.0);
 
     NSView* result = [tableView makeViewWithIdentifier:tableColumn.identifier owner:self];
     
@@ -248,19 +278,8 @@ const CGFloat kTotalRowHeight = 52.0 + kTimeHeight;
                                                                 0.0,
                                                                 tableColumn.width,
                                                                 kRowHeight)];
-
-        
-//        NSVisualEffectView* fxView = [[NSVisualEffectView alloc] initWithFrame:NSMakeRect(0.0,
-//                                                                                          kRowHeight + 2.0 + (kRowInset / 2.0),
-//                                                                                          tableColumn.width,
-//                                                                                          kHalfRowHeight - 8.0)];
-//        fxView.autoresizingMask = NSViewHeightSizable | NSViewMinXMargin;
-//        fxView.material = NSVisualEffectMaterialHUDWindow;
-//        fxView.blendingMode = NSVisualEffectBlendingModeWithinWindow;
-        
         const CGFloat kArtistHeight = 16.0;
         const CGFloat kTitleHeight = 22.0;
-
 
         // Time
         NSTextField* tf = [[NSTextField alloc] initWithFrame:NSMakeRect(0,
@@ -295,7 +314,6 @@ const CGFloat kTotalRowHeight = 52.0 + kTimeHeight;
         CGFloat x = coverWidth + kRowInset;
         CGFloat labelWidth = tableColumn.width - (x + (4 * kRowInset));
         
-
         // Title
         tf = [[NSTextField alloc] initWithFrame:NSMakeRect( x,
                                                             (tableView.rowHeight - (kTimeHeight + kTitleHeight + kRowInset - 4.0)),
@@ -377,8 +395,6 @@ const CGFloat kTotalRowHeight = 52.0 + kTimeHeight;
     time = [_delegate stringFromFrame:frame];
     if (time == nil) {
         time = @"";
-    } else {
-//        time = [NSString stringWithFormat:@"start: %@", time];
     }
     [tf setStringValue:time];
 

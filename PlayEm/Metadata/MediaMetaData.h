@@ -92,7 +92,9 @@ extern NSString* const kMediaMetaDataMapTypeNumber;
 
 - (BOOL)storeTracklistWithError:(NSError**)error;
 - (BOOL)recoverTracklistWithError:(NSError**)error;
+
 - (BOOL)exportTracklistToFile:(NSURL*)url frameEncoder:(FrameToString)encoder error:(NSError *__autoreleasing  _Nullable *)error;
+- (NSString*)readableTracklistWithFrameEncoder:(FrameToString)encoder;
 
 + (MediaMetaData*)mediaMetaDataWithURL:(NSURL*)url error:(NSError**)error;
 + (MediaMetaData*)mediaMetaDataWithITLibMediaItem:(ITLibMediaItem*)item error:(NSError**)error;

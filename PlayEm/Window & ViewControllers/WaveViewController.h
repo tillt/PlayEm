@@ -55,12 +55,12 @@ typedef CGFloat (^TotalWidthBlock) (void);
 - (void)resetTracking;
 
 - (void)resize;
-- (void)invalidateMarks;
-- (void)invalidateBeats;
-- (void)invalidateTiles;
+- (void)updateChapterMarkLayer;
+- (void)updateBeatMarkLayer;
+- (void)updateWaveLayer;
 
 - (void)updateTiles;
-- (void)updateMarkLayer;
+- (void)updateTrackDescriptions;
 @end
 
 NS_ASSUME_NONNULL_END

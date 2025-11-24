@@ -498,7 +498,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
 
     [_scrollingWaveViewController updateTiles];
     [_totalWaveViewController updateTiles];
-    [_totalWaveViewController updateMarkLayer];
+    [_totalWaveViewController updateTrackDescriptions];
 
     [self subscribeToRemoteCommands];
     
@@ -1679,8 +1679,8 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
 - (void)addTrackToTracklist:(IdentifiedTrack*)track
 {
     [_tracklist addTrack:track];
-    [_totalWaveViewController invalidateMarks];
-    [_scrollingWaveViewController invalidateMarks];
+    [_totalWaveViewController updateChapterMarkLayer];
+    [_scrollingWaveViewController updateChapterMarkLayer];
 }
 
 - (void)showIdentifier:(id)sender
@@ -2246,8 +2246,8 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
 
 - (void)beatsTracked
 {
-    [_scrollingWaveViewController invalidateBeats];
-    [_totalWaveViewController invalidateBeats];
+    [_scrollingWaveViewController updateBeatMarkLayer];
+    [_totalWaveViewController updateBeatMarkLayer];
 
     [self beatEffectStart];
 
@@ -2884,8 +2884,8 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
 
 - (void)updatedTracks
 {
-    [_scrollingWaveViewController invalidateMarks];
-    [_totalWaveViewController invalidateMarks];
+    [_scrollingWaveViewController updateChapterMarkLayer];
+    [_totalWaveViewController updateChapterMarkLayer];
 //    [_waveView invalidateMarks];
 }
 

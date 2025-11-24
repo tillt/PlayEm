@@ -26,6 +26,7 @@ static const CGFloat kAheadVibrancyLayerZ = 0.1;
 static const CGFloat kHeadLayerZ = 0.2;
 static const CGFloat kHeadBloomFxLayerZ = 1.2;
 static const CGFloat kTrailLayerZ = 1.4;
+static const CGFloat kMarkerLayerZ = 10.0;
 
 @interface WaveScrollView () // Private
 @end
@@ -63,24 +64,35 @@ static const CGFloat kTrailLayerZ = 1.4;
     WaveView* wv = (WaveView*)self.documentView;
     
     wv.aheadVibranceFxLayer.zPosition = kAheadVibrancyLayerZ;
+    
+//    NSClipView* clip = self.subviews[0];
+//    CALayer* dest = clip.layer;
+    
+    CALayer* dest = self.layer;
 
-    [self.layer addSublayer:wv.aheadVibranceFxLayer];
+    [dest addSublayer:wv.aheadVibranceFxLayer];
     wv.headLayer.zPosition = kHeadLayerZ;
-    [self.layer addSublayer:wv.headLayer];
+    [dest addSublayer:wv.headLayer];
     wv.rastaLayer.zPosition = kRastaLayerZ;
-    [self.layer addSublayer:wv.rastaLayer];
+    [dest addSublayer:wv.rastaLayer];
     wv.headBloomFxLayer.zPosition = kHeadBloomFxLayerZ;
-    [self.layer addSublayer:wv.headBloomFxLayer];
+    [dest addSublayer:wv.headBloomFxLayer];
     wv.trailBloomHFxLayer.zPosition = kTrailLayerZ;
-    [self.layer addSublayer:wv.trailBloomHFxLayer];
-  }
+    [dest addSublayer:wv.trailBloomHFxLayer];
+}
+
+//- (void)addMarkers
+//{
+//    WaveView* wv = (WaveView*)self.documentView;
+//    wv.markLayer.zPosition = kMarkerLayerZ;
+//    [self.layer addSublayer:wv.markLayer];
+//}
 
 - (void)createTrail
 {
     WaveView* wv = (WaveView*)self.documentView;
 
     NSImage* image = [NSImage imageNamed:@"CurrentTime"];
-
 
     CGSize size = CGSizeMake(image.size.width, self.frame.size.height);
     
@@ -95,28 +107,20 @@ static const CGFloat kTrailLayerZ = 1.4;
     
     CIFilter* lightenFilter = [CIFilter filterWithName:@"CIColorControls"];
     [lightenFilter setDefaults];
-    [lightenFilter setValue:[NSNumber numberWithFloat:5.5] forKey:@"inputSaturation"];
-    [lightenFilter setValue:[NSNumber numberWithFloat:0.3] forKey:@"inputBrightness"];
+    [lightenFilter setValue:@(2.1) forKey:@"inputSaturation"];
+    [lightenFilter setValue:@(0.01) forKey:@"inputBrightness"];
 
     CIFilter* bloom = [CIFilter filterWithName:@"CIBloom"];
     [bloom setDefaults];
 
-    //NSNumber* radius = [NSNumber numberWithFloat:3.5f + (trailingBloomLayerCount - i)];
-    NSNumber* radius = [NSNumber numberWithFloat:12.0f];
-    [bloom setValue: radius forKey: @"inputRadius"];
-    [bloom setValue: [NSNumber numberWithFloat:1.0f] forKey: @"inputIntensity"];
-    //[bloom setValue: [NSNumber numberWithFloat:0.5] forKey: @"inputIntensity"];
+    [bloom setValue: @(10.0f) forKey: @"inputRadius"];
+    [bloom setValue: @(1.0f) forKey: @"inputIntensity"];
     
     wv.trailBloomHFxLayer = [CALayer layer];
-   wv.trailBloomHFxLayer.backgroundFilters = @[bloom, bloom, lightenFilter];
+    wv.trailBloomHFxLayer.backgroundFilters = @[lightenFilter, bloom, bloom];
     wv.trailBloomHFxLayer.drawsAsynchronously = YES;
     wv.trailBloomHFxLayer.autoresizingMask = kCALayerNotSizable;
     wv.trailBloomHFxLayer.mask = mask;
-    //layer.zPosition = 5.0;
-    //layer.anchorPoint = CGPointMake(0.0, 0.0);
-    //layer.bounds = CGRectMake(0.0, 0.0, size.width, size.height);
-    //layer.position = CGPointMake((trailingBloomLayerCount - (i + 1)) * size.width, 0.0);
-//    wv.trailBloomHFxLayer.backgroundColor = [NSColor redColor].CGColor;
     wv.trailBloomHFxLayer.frame = CGRectMake(image.size.width - size.width,
                                              0.0,
                                              size.width,

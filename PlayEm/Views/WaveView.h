@@ -25,12 +25,17 @@
 @property (strong, nonatomic) CALayer* aheadVibranceFxLayer;
 @property (strong, nonatomic) CALayer* rastaLayer;
 
+@property (strong, nonatomic) CALayer* markLayer;
+
 - (void)setHead:(CGFloat)position;
 - (void)resize;
 
 - (void)createHead;
 - (void)setupHead;
 - (void)addHead;
+
+//- (void)updateMarkLayer;
+
 @end
 
 #endif /* WaveView_h */

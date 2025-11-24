@@ -17,12 +17,15 @@
 #import "../Sample/VisualSample.h"
 #import "../Sample/VisualPair.h"
 #import "../Views/WaveScrollView.h"
+#import "../NSImage+Resize.h"
 
 @interface WaveViewController()
 
 @property (nonatomic, assign) BOOL userMomentum;
 @property (nonatomic, assign) CGFloat head;
 @property (nonatomic, strong) NSMutableArray* reusableViews;
+@property (nonatomic, strong) NSMutableArray<CALayer*>* reusableLayers;
+@property (strong, nonatomic) dispatch_queue_t imageQueue;
 
 @end
 
@@ -39,9 +42,12 @@
         _followTime = YES;
         _userMomentum = NO;
         _reusableViews = [NSMutableArray array];
-
+        _reusableLayers = [NSMutableArray array];
         _tileWidth = 256.0;
         
+        dispatch_queue_attr_t attr = dispatch_queue_attr_make_with_qos_class(DISPATCH_QUEUE_SERIAL, QOS_CLASS_USER_INITIATED, 0);
+        _imageQueue = dispatch_queue_create("PlayEm.WaveViewImageQueue", attr);
+
         [[NSNotificationCenter defaultCenter] addObserver:self
                                                  selector:@selector(willStartLiveScroll:)
                                                      name:NSScrollViewWillStartLiveScrollNotification
@@ -79,12 +85,21 @@
     [self updateTiles];
 }
 
+- (void)resetTracking
+{
+    NSTrackingArea *trackingArea = [[NSTrackingArea alloc] initWithRect:[self.view bounds]
+        options: (NSTrackingMouseEnteredAndExited | NSTrackingMouseMoved |  NSTrackingActiveAlways | NSTrackingInVisibleRect)
+        owner:self userInfo:nil];
+    [self.view addTrackingArea:trackingArea];
+}
+
 - (void)setFrames:(unsigned long long)frames
 {
     _frames = frames;
     _currentFrame = 0;
     [self updateScrollingState];
     [self updateTiles];
+    [self updateMarkLayer];
 }
 
 - (void)setVisualSample:(VisualSample *)visualSample
@@ -209,6 +224,7 @@
     assert(self.view.frame.size.width > 0);
     
     [self invalidateMarks];
+    [self updateMarkLayer];
 }
 
 - (void)setBeatSample:(BeatTrackedSample *)beatSample
@@ -227,6 +243,7 @@
     [CATransaction begin];
     [CATransaction setDisableActions:YES];
     self.head = [self calcHead];
+    [self updateMarkLayer];
     [CATransaction commit];
 }
 
@@ -364,12 +381,13 @@
     if (self.view.enclosingScrollView != nil) {
         [self.view.enclosingScrollView performSelector:@selector(resize)];
         return;
+    } else {
+        [self.view performSelector:@selector(resize)];
     }
 
-    [self.view performSelector:@selector(resize)];
-
-    [self updateTiles];
-
+    [self invalidateTiles];
+    [self invalidateBeats];
+    [self invalidateMarks];
     [self updateHeadPositionTransaction];
 }
 
@@ -394,16 +412,379 @@
     }
 }
 
+- (NSAttributedString*)textWithFont:(NSFont*)font color:(NSColor*)color width:(CGFloat)width text:(NSString*)text
+{
+    NSString *truncationString = @"...";
+
+    assert(font != nil);
+    assert(color != nil);
+    assert(text != nil);
+    assert(text.length > 0);
+    assert(width > 0.0);
+
+    // Create the attributes for the text
+    NSMutableParagraphStyle *style = [[NSMutableParagraphStyle alloc] init];
+    style.lineBreakMode = NSLineBreakByTruncatingTail;
+
+    NSDictionary* attributes = @{   NSForegroundColorAttributeName:color,
+                                    NSFontAttributeName:font,
+                                    NSParagraphStyleAttributeName:style };
+
+    CGFloat maxWidth = width - [truncationString sizeWithAttributes:attributes].width;
+
+    NSAttributedString* attributedString = [[NSAttributedString alloc] initWithString:text attributes:attributes];
+
+    // Measure the width of the string
+    CGSize textSize = [attributedString size];
+
+    // Check if the text exceeds the available width
+    if (textSize.width > maxWidth) {
+        // Start truncating by removing characters until it fits
+        NSMutableString *truncatedText = [text mutableCopy];
+
+        while ([truncatedText sizeWithAttributes:attributes].width > maxWidth - [truncationString sizeWithAttributes:attributes].width) {
+            assert(truncatedText.length);
+            [truncatedText deleteCharactersInRange:NSMakeRange(truncatedText.length - 1, 1)];
+        };
+
+        // Add the ellipsis
+        [truncatedText appendString:truncationString];
+        attributedString = [[NSAttributedString alloc] initWithString:truncatedText attributes:attributes];
+    }
+
+    return attributedString;
+}
+
+- (CATextLayer*)textLayerWithFont:(NSFont*)font color:(NSColor*)color width:(CGFloat)width text:(NSString*)text
+{
+    CATextLayer* textLayer = [CATextLayer layer];
+    textLayer.drawsAsynchronously = YES;
+    textLayer.allowsEdgeAntialiasing = YES;
+    textLayer.wrapped = NO;
+    textLayer.anchorPoint = CGPointMake(0.0,0.0);
+    textLayer.contentsScale = [[NSScreen mainScreen] backingScaleFactor];
+    textLayer.string = [self textWithFont:font color:color width:width text:text];
+    textLayer.frame = CGRectMake(0.0, 0.0, width, 1.0f);
+    return textLayer;
+}
+
+- (CALayer*)trackLayerWithStyle:(NSString*)style hostingLayer:(CALayer*)rootLayer
+{
+    CALayer* background = [CALayer new];
+    CGSize imageSize = CGSizeMake(48.0, 48.0);
+    CGSize textSize = CGSizeMake(300.0, [[Defaults sharedDefaults] largeFontSize]);
+    CGSize backgroundSize = CGSizeMake(imageSize.width + textSize.width, imageSize.height);
+    CGFloat artistFontSize = 0;
+    CGFloat titleFontSize = 0;
+    CGFloat radius = 7.0;
+    CGFloat border = 2.0;
+    if ([style isEqualToString:@"big"]) {
+        imageSize = CGSizeMake(48.0, 48.0);
+        textSize = CGSizeMake(300.0, [[Defaults sharedDefaults] largeFontSize]);
+        backgroundSize = CGSizeMake(imageSize.width + textSize.width + 8.0, imageSize.height);
+        artistFontSize = [[Defaults sharedDefaults] normalFontSize];
+        radius = 7.0;
+        titleFontSize = [[Defaults sharedDefaults] largeFontSize];
+        border = 2.0;
+    } else {
+        imageSize = CGSizeMake(24.0, 24.0);
+        textSize = CGSizeMake(300.0, [[Defaults sharedDefaults] smallFontSize]);
+        backgroundSize = CGSizeMake(imageSize.width + textSize.width + 8.0, imageSize.height);
+        titleFontSize = [[Defaults sharedDefaults] smallFontSize];
+        artistFontSize = 0;
+        radius = 5.0;
+        border = 1.0;
+    }
+    background.backgroundColor = [[Defaults sharedDefaults] backColor].CGColor;
+    background.zPosition = 100.0f;
+    background.autoresizingMask = kCALayerWidthSizable | kCALayerHeightSizable;
+    background.allowsEdgeAntialiasing = YES;
+    background.shouldRasterize = YES;
+    background.drawsAsynchronously = YES;
+    background.rasterizationScale = rootLayer.contentsScale;
+    background.contentsScale = [[NSScreen mainScreen] backingScaleFactor];
+    background.masksToBounds = YES;
+    background.frame = CGRectMake(0, 0.0, backgroundSize.width, backgroundSize.height);
+    background.anchorPoint = CGPointZero;
+    background.cornerRadius = radius;
+    background.borderWidth = 2.0;
+    background.borderColor = [[Defaults sharedDefaults] regularFakeBeamColor].CGColor;
+
+    CALayer* imageLayer = [CALayer layer];
+    imageLayer.magnificationFilter = kCAFilterLinear;
+    imageLayer.minificationFilter = kCAFilterLinear;
+    imageLayer.zPosition = 100.0f;
+    imageLayer.autoresizingMask = kCALayerNotSizable;
+    imageLayer.allowsEdgeAntialiasing = YES;
+    imageLayer.shouldRasterize = YES;
+    imageLayer.drawsAsynchronously = YES;
+    imageLayer.rasterizationScale = rootLayer.contentsScale;
+    imageLayer.contentsScale = [[NSScreen mainScreen] backingScaleFactor];
+    imageLayer.masksToBounds = YES;
+    imageLayer.frame = CGRectMake(0.0, 0.0, imageSize.width, imageSize.height);
+    imageLayer.cornerRadius = radius;
+    imageLayer.borderWidth = 2.0;
+    imageLayer.borderColor = [NSColor blackColor].CGColor;
+    [background addSublayer:imageLayer];
+    
+    CATextLayer* titleLayer = [CATextLayer layer];
+    titleLayer.drawsAsynchronously = YES;
+    titleLayer.allowsEdgeAntialiasing = YES;
+    titleLayer.wrapped = NO;
+    titleLayer.anchorPoint = CGPointMake(0.0,0.0);
+    titleLayer.contentsScale = [[NSScreen mainScreen] backingScaleFactor];
+    titleLayer.frame = CGRectMake(imageSize.width + 4.0, 4.0, textSize.width, titleFontSize + 4.0);
+    [background addSublayer:titleLayer];
+
+    if (artistFontSize > 0) {
+        CATextLayer* artistLayer = [CATextLayer layer];
+        artistLayer.drawsAsynchronously = YES;
+        artistLayer.allowsEdgeAntialiasing = YES;
+        artistLayer.wrapped = NO;
+        artistLayer.anchorPoint = CGPointMake(0.0,0.0);
+        artistLayer.contentsScale = [[NSScreen mainScreen] backingScaleFactor];
+        artistLayer.frame = CGRectMake(imageSize.width + 4.0, titleFontSize + 8.0, textSize.width, artistFontSize + 4.0);
+        [background addSublayer:artistLayer];
+    }
+
+    return background;
+}
+
+- (void)mouseEntered:(NSEvent*)event
+{
+    if (self.view.enclosingScrollView != nil) {
+        return;
+    }
+}
+
+- (void)mouseExited:(NSEvent *)event
+{
+    if (self.view.enclosingScrollView != nil) {
+        return;
+    }
+    WaveView* wv = (WaveView*)self.view;
+    for (CALayer* background in wv.markLayer.sublayers) {
+        background.opacity = 0.0f;
+    }
+}
+
+- (void)mouseMoved:(NSEvent*)event
+{
+    if (self.view.enclosingScrollView != nil) {
+        return;
+    }
+    NSPoint mouseScreen = [NSEvent mouseLocation];
+    NSPoint mouseWindow = [self.view.window convertPointFromScreen:mouseScreen];
+    NSPoint mouseView = [self.view convertPoint:mouseWindow fromView:nil];
+    
+    WaveView* wv = (WaveView*)self.view;
+    for (CALayer* background in wv.markLayer.sublayers) {
+        if (NSPointInRect(mouseView, background.frame)) {
+            background.opacity = 1.0f;
+        } else {
+            background.opacity = 0.0f;
+        }
+    }
+}
+
+- (void)updateMarkLayer
+{
+    NSString* style = @"big";
+    
+    NSString* kFrameOffsetLayerKey = @"frameOffset";
+    WaveView* wv = (WaveView*)self.view;
+    
+    if (_frames == 0 || _trackList == nil) {
+        return;
+    }
+    const double framesPerPixel = _frames / self.view.bounds.size.width;
+
+
+    CGFloat textWidth = 200.0f;
+    NSFont* titleFont = [[Defaults sharedDefaults] largeFont];
+    NSColor* titleColor = [[Defaults sharedDefaults] lightFakeBeamColor];
+    NSFont* artistFont = [[Defaults sharedDefaults] normalFont];
+    NSColor* artistColor = [[Defaults sharedDefaults] secondaryLabelColor];
+    CGSize imageSize = CGSizeMake(48.0, 48.0);
+    CGFloat xOffset = 2.0f;
+    CGFloat yOffset = 2.0f;
+    CGFloat opacity = 1.0f;
+    //CGSize imageSize = CGSizeMake(self.view.bounds.size.height / 2.0, self.view.bounds.size.height / 2.0);
+    NSRect documentVisibleRect;
+    if (self.view.enclosingScrollView != nil) {
+        documentVisibleRect = self.view.enclosingScrollView.documentVisibleRect;
+        style = @"big";
+        opacity = 1.0;
+        textWidth = 200.0f;
+        imageSize = CGSizeMake(48.0, 48.0);
+        titleFont = [[Defaults sharedDefaults] largeFont];
+        titleColor = [[Defaults sharedDefaults] lightFakeBeamColor];
+        artistFont = [[Defaults sharedDefaults] normalFont];
+        artistColor = [[Defaults sharedDefaults] secondaryLabelColor];
+        xOffset = 0.0f;
+        //yOffset = self.view.frame.size.height - (imageSize.height + 4.0);
+        yOffset = 0.0;
+    } else {
+        documentVisibleRect = NSMakeRect(0.0, 0.0, self.view.bounds.size.width, self.view.bounds.size.height);
+        style = @"small";
+        opacity = 0.0;
+        imageSize = CGSizeMake(24.0, 24.0);
+        textWidth = 300.0f;
+        titleFont = [[Defaults sharedDefaults] smallFont];
+        titleColor = [[Defaults sharedDefaults] lightFakeBeamColor];
+        artistFont = [[Defaults sharedDefaults] normalFont];
+        artistColor = [[Defaults sharedDefaults] secondaryLabelColor];
+        xOffset = 2.0f;
+        yOffset = 2.0f;
+    }
+    
+    const CGFloat xMin = documentVisibleRect.origin.x;
+    const CGFloat width = documentVisibleRect.size.width;
+    const CGFloat backgroundWidth = textWidth + imageSize.width + 12;
+    const unsigned long long frameOffset = floor((xMin - backgroundWidth) * framesPerPixel);
+    
+    TrackListIterator* iter = nil;
+    NSMutableSet* neededTrackFrames = [NSMutableSet set];
+
+    //
+    // Go through our tracklist starting from the screen-offset and add all the
+    // frame-offsets we find until we reach the end of the screen.
+    //
+    unsigned long long nextTrackFrame = [_trackList firstTrackFrame:&iter];
+    while (nextTrackFrame != ULONG_LONG_MAX) {
+        if (frameOffset < nextTrackFrame) {
+            const CGFloat x = floor((nextTrackFrame / framesPerPixel) - xMin);
+            if (x >= width) {
+                break;
+            }
+            [neededTrackFrames addObject:[NSNumber numberWithUnsignedLongLong:nextTrackFrame]];
+        }
+        nextTrackFrame = [_trackList nextTrackFrame:iter];
+    };
+
+    //
+    // See if we already have sublayers that cover these needed track frame offsets.
+    //
+    NSArray<CALayer*>* layers = [[wv.markLayer sublayers] copy];
+    for (CALayer* layer in layers) {
+        NSNumber* keyNumber = [layer valueForKey:kFrameOffsetLayerKey];
+        // If we don't need this one any more.
+        if (![neededTrackFrames containsObject:keyNumber]) {
+            // Then recycle it.
+            [_reusableLayers addObject:layer];
+            [layer removeFromSuperlayer];
+        } else {
+            // Take this track frame offset off the to-do list - we already got it covered.
+            [neededTrackFrames removeObject:keyNumber];
+        }
+    }
+
+    //
+    // Add needed tiles from the to-do list.
+    //
+    for (NSNumber* neededFrame in neededTrackFrames) {
+        CALayer* background = [self.reusableLayers lastObject];
+        [_reusableLayers removeLastObject];
+
+        CALayer* imageLayer = nil;
+        CATextLayer* titleLayer = nil;
+        CATextLayer* artistLayer = nil;
+        
+        // Create one if we did not find a reusable one.
+        if (nil == background) {
+            background = [self trackLayerWithStyle:style hostingLayer:wv.markLayer];
+            [wv.markLayer addSublayer:background];
+        }
+
+        imageLayer = background.sublayers.count > 0 ? background.sublayers[0] : nil;
+        titleLayer = background.sublayers.count > 1 ? background.sublayers[1] : nil;
+        artistLayer = background.sublayers.count > 2 ? background.sublayers[2] : nil;
+
+        [background setValue:neededFrame forKey:kFrameOffsetLayerKey];
+
+        IdentifiedTrack* track = [_trackList trackAtFrame:[neededFrame unsignedLongLongValue]];
+
+        NSImage* image = nil;
+        if (track.artwork != nil) {
+            image = [NSImage resizedImage:track.artwork
+                                     size:imageLayer.frame.size];
+        } else {
+            image = [NSImage resizedImage:[NSImage imageNamed:@"UnknownSong"]
+                                     size:imageLayer.frame.size];
+            if (track.imageURL != nil) {
+                // We can try to resolve the artwork image from the URL.
+                [self resolveImageForURL:track.imageURL callback:^(NSImage* image){
+                    track.artwork = image;
+                    imageLayer.contents = image;
+                }];
+            }
+        }
+
+        imageLayer.contents = image;
+        
+        assert(track.title);
+        NSAttributedString* title = [self textWithFont:titleFont
+                                             color:titleColor
+                                             width:textWidth
+                                              text:track.title];
+        CGSize titleSize = [title size];
+        titleLayer.string = title;
+        
+        CGSize artistSize = CGSizeZero;
+        if (artistLayer != nil) {
+            assert(track.artist);
+            NSAttributedString* artist = [self textWithFont:artistFont
+                                         color:artistColor
+                                         width:textWidth
+                                          text:track.artist];
+            artistLayer.string = artist;
+            artistSize = [artist size];
+        }
+
+        CGFloat maxWidth = titleSize.width;
+        if (artistSize.width > maxWidth) {
+            maxWidth = artistSize.width;
+        }
+        
+        CGFloat actualLabelWidth = maxWidth > textWidth ? textWidth : maxWidth;
+        //textWidth = maxWidth;
+        CGSize backgroundSize = CGSizeMake(imageSize.width + 12.0 + actualLabelWidth, imageSize.height);
+        background.bounds = CGRectMake(0.0, 0.0, backgroundSize.width, backgroundSize.height);
+        background.opacity = opacity;
+    }
+
+    //
+    // Position all tiles -- we need to do this continuously to fake scrolling.
+    //
+    for (CALayer* layer in wv.markLayer.sublayers) {
+        NSNumber* frameOffset = [layer valueForKey:kFrameOffsetLayerKey];
+        CGFloat x = ((float)[frameOffset unsignedLongLongValue] / framesPerPixel) - xMin;
+        layer.position = CGPointMake(x + xOffset, yOffset);
+    }
+}
+
+- (void)resolveImageForURL:(NSURL*)url callback:(void (^)(NSImage*))callback
+{
+    dispatch_async(_imageQueue, ^{
+        NSImage* image = [[NSImage alloc] initWithContentsOfURL:url];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            callback(image);
+        });
+    });
+}
+
 - (void)updateTiles
 {
     NSSize tileSize = { _tileWidth, self.view.bounds.size.height };
     
-    NSRect documentVisibleRect = NSMakeRect(0.0, 0.0, self.view.bounds.size.width, self.view.bounds.size.height);
+    NSRect documentVisibleRect;
     if (self.view.enclosingScrollView != nil) {
         documentVisibleRect = self.view.enclosingScrollView.documentVisibleRect;
         // Lie to get the last tile invisilbe, always. That way we wont regularly
         // see updates of the right most tile when the scrolling follows playback.
         documentVisibleRect.size.width += tileSize.width;
+    } else {
+        documentVisibleRect = NSMakeRect(0.0, 0.0, self.view.bounds.size.width, self.view.bounds.size.height);
     }
     
     const CGFloat xMin = floor(NSMinX(documentVisibleRect) / tileSize.width) * tileSize.width;
@@ -490,10 +871,11 @@
                 }
             }
         }
+        [self updateMarkLayer];
     }
     
     self.head = head;
-    
+
     [CATransaction commit];
 }
 

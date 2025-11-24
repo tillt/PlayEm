@@ -498,6 +498,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
 
     [_scrollingWaveViewController updateTiles];
     [_totalWaveViewController updateTiles];
+    [_totalWaveViewController updateMarkLayer];
 
     [self subscribeToRemoteCommands];
     
@@ -681,18 +682,20 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     _totalWaveViewController.view.autoresizingMask = NSViewWidthSizable;
     _totalWaveViewController.view.translatesAutoresizingMaskIntoConstraints = YES;
     [_belowVisuals addSubview:_totalWaveViewController.view];
+    [_totalWaveViewController resetTracking];
     
     WaveScrollView* tiledSV = [[WaveScrollView alloc] initWithFrame:NSMakeRect(_belowVisuals.bounds.origin.x,
                                                                                  _belowVisuals.bounds.origin.y + totalWaveViewHeight,
                                                                                  _belowVisuals.bounds.size.width,
                                                                                  scrollingWaveViewHeight)];
+    tiledSV.wantsLayer = YES;
     tiledSV.autoresizingMask = NSViewWidthSizable;
     tiledSV.drawsBackground = NO;
     tiledSV.translatesAutoresizingMaskIntoConstraints = YES;
     tiledSV.verticalScrollElasticity = NSScrollElasticityNone;
     
     _scrollingWaveViewController.view.frame = tiledSV.bounds;
-    //_markLayerController.view.headDelegate = tiledSV;
+    [_scrollingWaveViewController resetTracking];
 
     tiledSV.documentView = _scrollingWaveViewController.view;
     [_belowVisuals addSubview:tiledSV];

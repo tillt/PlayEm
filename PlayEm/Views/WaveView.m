@@ -17,6 +17,7 @@ static const CGFloat kRastaLayerZ = 1.5;
 static const CGFloat kAheadVibrancyLayerZ = 1.0;
 static const CGFloat kHeadLayerZ = 1.1;
 static const CGFloat kHeadBloomFxLayerZ = 1.2;
+static const CGFloat kMarkerLayerZ = 10.0;
 
 @interface WaveView ()
 @end
@@ -32,8 +33,21 @@ static const CGFloat kHeadBloomFxLayerZ = 1.2;
         self.layer = [self makeBackingLayer];
         self.layer.masksToBounds = NO;
         self.layerUsesCoreImageFilters = YES;
+        self.markLayer = [self makeMarkLayer];
+        self.markLayer.masksToBounds = NO;
     }
     return self;
+}
+
+- (CALayer*)makeMarkLayer
+{
+    CALayer* layer = [CALayer layer];
+    
+    layer.drawsAsynchronously = YES;
+    layer.zPosition = 5.1;
+    layer.name = @"WaveMarkLayer";
+
+    return layer;
 }
 
 - (CALayer*)makeHeadLayer
@@ -61,6 +75,7 @@ static const CGFloat kHeadBloomFxLayerZ = 1.2;
     return layer;
 }
 
+
 - (void)viewDidMoveToSuperview
 {
     [super viewDidMoveToSuperview];
@@ -70,10 +85,14 @@ static const CGFloat kHeadBloomFxLayerZ = 1.2;
     if (self.enclosingScrollView == nil) {
         [self setupHead];
         [self addHead];
+        self.markLayer.frame = self.bounds;
+        [self.layer addSublayer:self.markLayer];
     } else {
         [self.enclosingScrollView performSelector:@selector(createTrail)];
         [self.enclosingScrollView performSelector:@selector(setupHead)];
         [self.enclosingScrollView performSelector:@selector(addHead)];
+        self.markLayer.frame = self.enclosingScrollView.documentVisibleRect;
+        [self.enclosingScrollView.layer addSublayer:self.markLayer];
     }
 }
 
@@ -102,32 +121,31 @@ static const CGFloat kHeadBloomFxLayerZ = 1.2;
     
     CIFilter* clampFilter = [CIFilter filterWithName:@"CIAffineClamp"];
     [clampFilter setDefaults];
-    CGFloat scaleFactor = scrolling ? 1.15 : 1.05;
+    CGFloat scaleFactor = scrolling ? 1.05 : 1.05;
     CGAffineTransform transform = CGAffineTransformScale(CGAffineTransformMakeTranslation(0.0, self.enclosingScrollView.bounds.size.height * -(scaleFactor - 1.0) / 2.0), 1.0, scaleFactor);
     [clampFilter setValue:[NSValue valueWithBytes:&transform objCType:@encode(CGAffineTransform)] forKey:@"inputTransform"];
     
     CIFilter* bloomFilter = [CIFilter filterWithName:@"CIBloom"];
     [bloomFilter setDefaults];
-    [bloomFilter setValue: [NSNumber numberWithFloat:self.bounds.size.height / 20.0] forKey: @"inputRadius"];
-    [bloomFilter setValue: [NSNumber numberWithFloat:1.0] forKey: @"inputIntensity"];
+    [bloomFilter setValue: @(self.bounds.size.height / 20.0) forKey: @"inputRadius"];
+    [bloomFilter setValue: @(1.0f) forKey: @"inputIntensity"];
 
-    
     CIFilter* lightenFilter = [CIFilter filterWithName:@"CIColorControls"];
     [lightenFilter setDefaults];
-    [lightenFilter setValue:[NSNumber numberWithFloat:1.0] forKey:@"inputSaturation"];
-    [lightenFilter setValue:[NSNumber numberWithFloat:0.10] forKey:@"inputBrightness"];
+    [lightenFilter setValue:@(3.0f) forKey:@"inputSaturation"];
+    [lightenFilter setValue:@(0.20f) forKey:@"inputBrightness"];
 
     _headBloomFxLayer = [self makeHeadBloomFxLayer];
     _headBloomFxLayer.backgroundFilters = @[ clampFilter, bloomFilter, bloomFilter,lightenFilter];
 
     CIFilter* vibranceFilter = [CIFilter filterWithName:@"CIColorControls"];
     [vibranceFilter setDefaults];
-    [vibranceFilter setValue:[NSNumber numberWithFloat:0.1] forKey:@"inputSaturation"];
-    [vibranceFilter setValue:[NSNumber numberWithFloat:0.0001] forKey:@"inputBrightness"];
+    [vibranceFilter setValue:@(0.1) forKey:@"inputSaturation"];
+    [vibranceFilter setValue:@(0.0001f) forKey:@"inputBrightness"];
 
     CIFilter* darkenFilter = [CIFilter filterWithName:@"CIGammaAdjust"];
     [darkenFilter setDefaults];
-    [darkenFilter setValue:[NSNumber numberWithFloat:2.5] forKey:@"inputPower"];
+    [darkenFilter setValue:@(2.5f) forKey:@"inputPower"];
 
     _aheadVibranceFxLayer = [CALayer layer];
     _aheadVibranceFxLayer.drawsAsynchronously = YES;
@@ -158,6 +176,12 @@ static const CGFloat kHeadBloomFxLayerZ = 1.2;
 
     _headBloomFxLayer.zPosition = kHeadBloomFxLayerZ;
     [self.layer addSublayer:_headBloomFxLayer];
+}
+
+- (void)addMarkers
+{
+    _markLayer.zPosition = kMarkerLayerZ;
+    [self.layer addSublayer:_markLayer];
 }
 
 - (void)setupHead

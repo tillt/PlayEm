@@ -52,6 +52,7 @@ typedef CGFloat (^TotalWidthBlock) (void);
 @property (nonatomic, assign) BOOL followTime;
 
 - (id)init;
+- (void)resetTracking;
 
 - (void)resize;
 - (void)invalidateMarks;
@@ -59,6 +60,7 @@ typedef CGFloat (^TotalWidthBlock) (void);
 - (void)invalidateTiles;
 
 - (void)updateTiles;
+- (void)updateMarkLayer;
 @end
 
 NS_ASSUME_NONNULL_END

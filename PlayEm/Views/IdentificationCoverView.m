@@ -127,7 +127,7 @@ extern NSString * const kBeatTrackedSampleTempoChangeNotification;
     animation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseOut];
     animation.fillMode = kCAFillModeBoth;
     animation.removedOnCompletion = NO;
-    double phaseLength = 30.0f / self->currentTempo;
+    double phaseLength = 30.0f / currentTempo;
     animation.fromValue = [NSValue valueWithCATransform3D:tr];
     animation.toValue = [NSValue valueWithCATransform3D:CATransform3DIdentity];
     animation.repeatCount = 1.0f;
@@ -218,7 +218,10 @@ extern NSString * const kBeatTrackedSampleTempoChangeNotification;
     NSNumber* tempo = dict[kBeatNotificationKeyTempo];
     float value = [tempo floatValue];
     if (value > 0.0) {
-        currentTempo = value;
+        if (value != currentTempo) {
+            currentTempo = value;
+            [self animate];
+        }
     }
 
     [CATransaction begin];

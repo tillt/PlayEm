@@ -31,16 +31,43 @@
     return [NSString stringWithCString:cString encoding:NSStringEncodingConversionAllowLossy];
 }
 
+/// Adding extended, human readable information to macOS system errors.
+///
+/// - Parameters:
+///   - error: original error object
+///
+/// - Returns: enhanced error object wrapping the origina
+///
 + (NSError*)betterErrorWithError:(NSError*)error
 {
     return [NSError betterErrorWithError:error action:nil url:nil];
 }
 
+/// Adding extended, human readable information to macOS system errors.
+///
+/// - Parameters:
+///   - error: original error object
+///   - url: location of the resource connected to the given action
+///
+/// - Returns: enhanced error object wrapping the origina
+///
 + (NSError*)betterErrorWithError:(NSError*)error url:(NSURL*)url
 {
     return [NSError betterErrorWithError:error action:nil url:url];
 }
 
+/// Adding extended, human readable information to macOS system errors.
+///
+/// - Parameters:
+///   - error: original error object
+///   - action: text describing the action that resultet in the given error
+///   - url: location of the resource connected to the given action
+///
+/// - Returns: enhanced error object wrapping the origina
+///
+///  It is a dicy game passing a system error to a user. Usually the user wont be able to "fix" the problem which is why Apple
+///  had (rightfully) decided to mystify those errors a bit. We are still surfacing them cause our users are daredevils.
+///
 + (NSError*)betterErrorWithError:(NSError*)error action:(NSString*)action url:(NSURL*)url
 {
     NSLog(@"original domain: %@", error.domain);
@@ -105,12 +132,12 @@
         @(kAudioUnitErr_ComponentManagerNotSupported): @"content manager not supported",
         // AudioToolbox/ExtendedAudioFile.h
         @(kExtAudioFileError_InvalidProperty): @"invalid property",
-        @(kExtAudioFileError_InvalidPropertySize): @"",
-        @(kExtAudioFileError_NonPCMClientFormat): @"",
+        @(kExtAudioFileError_InvalidPropertySize): @"invalid property size",
+        @(kExtAudioFileError_NonPCMClientFormat): @"not a PCM client format",
         @(kExtAudioFileError_InvalidChannelMap): @"number of channels doesn't match format",
-        @(kExtAudioFileError_InvalidOperationOrder): @"",
-        @(kExtAudioFileError_InvalidDataFormat): @"",
-        @(kExtAudioFileError_MaxPacketSizeUnknown): @"",
+        @(kExtAudioFileError_InvalidOperationOrder): @"invalid order of operations",
+        @(kExtAudioFileError_InvalidDataFormat): @"invalid date format",
+        @(kExtAudioFileError_MaxPacketSizeUnknown): @"maximum packet size is unknown",
         @(kExtAudioFileError_InvalidSeek): @"writing, or offset out of bounds",
         @(kExtAudioFileError_AsyncWriteTooLarge): @"async write too large",
         @(kExtAudioFileError_AsyncWriteBufferOverflow): @"an async write could not be completed in time",

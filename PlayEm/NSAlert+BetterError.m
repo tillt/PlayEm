@@ -13,22 +13,39 @@
 
 @implementation NSAlert (BetterError)
 
+/// Creates an alert panel showing an enhanced error message.
+///
+/// - Parameters:
+///   - error: the original error
+///   - url: location of a resource
+///
+/// - Returns: alert panel
+///
 + (NSAlert*)betterAlertWithError:(NSError*)error url:(NSURL*)url
 {
     NSError* betterError = [NSError betterErrorWithError:error url:url];
-    NSAlert* betterAlert = [NSAlert alertWithError:betterError];
-    betterAlert.informativeText = betterError.localizedFailureReason;
+    NSAlert* alert = [NSAlert alertWithError:betterError];
+    alert.informativeText = betterError.localizedFailureReason;
     
-    return betterAlert;
+    return alert;
 }
 
+/// Creates an alert panel showing an enhanced error message.
+///
+/// - Parameters:
+///   - error: the original error
+///   - action: description of the action leading to the error
+///   - url: location of the resource connected to the given action
+///
+/// - Returns: alert panel
+///
 + (NSAlert*)betterAlertWithError:(NSError*)error action:(NSString*)action url:(NSURL*)url
 {
     NSError* betterError = [NSError betterErrorWithError:error action:action url:url];
-    NSAlert* betterAlert = [NSAlert alertWithError:betterError];
-    betterAlert.informativeText = betterError.localizedFailureReason;
+    NSAlert* alert = [NSAlert alertWithError:betterError];
+    alert.informativeText = betterError.localizedFailureReason;
     
-    return betterAlert;
+    return alert;
 }
 
 @end

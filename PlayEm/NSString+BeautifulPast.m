@@ -10,6 +10,13 @@
 
 @implementation NSString (BeautifulPast)
 
+/// Describes an age in a human readable form, applying spoken patterns like "yesterday" for anything older than 24 hours
+/// but younger than 48 hours.
+///
+/// - Parameter past: point of time in the past
+///
+/// - Returns: age decription
+///
 + (NSString*)BeautifulPast:(NSDate*)past
 {
     NSDate* present = [NSDate now];

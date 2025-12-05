@@ -505,7 +505,7 @@ void beatsContextReset(BeatsParserContext* context)
     
     NSNumber* shardBeatIndex = [_beats objectForKey:pageKey];
     if (shardBeatIndex == nil) {
-        NSLog(@"that beats shard doesnt exist");
+        //NSLog(@"that beats shard doesnt exist");
         return ULONG_LONG_MAX;
     }
 

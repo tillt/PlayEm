@@ -17,6 +17,8 @@
 const CGFloat kTimeHeight = 22.0;
 const CGFloat kTotalRowHeight = 52.0 + kTimeHeight;
 
+NSString * const kTracklistControllerChangedActiveTrackNotification = @"TracklistControllerChangedActiveTrackNotification";
+
 @interface TracklistController()
 @property (nonatomic, weak) NSTableView* table;
 @property (strong, nonatomic) dispatch_queue_t imageQueue;
@@ -89,11 +91,17 @@ const CGFloat kTotalRowHeight = 52.0 + kTimeHeight;
         NSLog(@"active track: %ld", _currentTrackIndex );
         [_table reloadData];
         [_table scrollRowToVisible:_currentTrackIndex];
+        
+        [[NSNotificationCenter defaultCenter] postNotificationName:kTracklistControllerChangedActiveTrackNotification
+                                                            object:[self currentTrack]];
     }
 }
 
 - (IdentifiedTrack*)currentTrack
 {
+    if (_currentTrackIndex == UINT_MAX) {
+        return nil;
+    }
     NSArray<NSNumber*>* frames = [_current.trackList.frames sortedArrayUsingSelector:@selector(compare:)];
     assert(_currentTrackIndex < frames.count);
     unsigned long long frame = [frames[_currentTrackIndex] unsignedLongLongValue];
@@ -128,6 +136,34 @@ const CGFloat kTotalRowHeight = 52.0 + kTimeHeight;
     [_table reloadData];
     [_delegate updatedTracks];
     
+    NSError* error = nil;
+    BOOL done = [_current storeTracklistWithError:&error];
+    if (!done) {
+        NSLog(@"failed to write tracklist: %@", error);
+    }
+}
+
+- (void)moveTrackAtFrame:(unsigned long long)oldFrame frame:(unsigned long long)newFrame
+{
+    IdentifiedTrack* track = [_current.trackList trackAtFrame:oldFrame];
+    assert(track);
+    NSArray<NSNumber*>* frames = [[_current.trackList frames] sortedArrayUsingSelector:@selector(compare:)];
+    NSUInteger index = [frames indexOfObject:[NSNumber numberWithLongLong:oldFrame]];
+
+    assert(index != NSNotFound);
+    // Remove track.
+    [_current.trackList removeTrackAtFrame:oldFrame];
+    // Patch track.
+    track.frame = [NSNumber numberWithLongLong:newFrame];
+    [_current.trackList addTrack:track];
+
+    [_table beginUpdates];
+    [_table reloadDataForRowIndexes:[NSIndexSet indexSetWithIndex:index]
+                      columnIndexes:[NSIndexSet indexSetWithIndex:0]];
+    [_table endUpdates];
+
+    [_table scrollRowToVisible:index];
+
     NSError* error = nil;
     BOOL done = [_current storeTracklistWithError:&error];
     if (!done) {

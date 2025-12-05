@@ -448,6 +448,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     self.window.toolbar = toolBar;
 
     _scrollingWaveViewController = [WaveViewController new];
+    _scrollingWaveViewController.delegate = self;
     _scrollingWaveViewController.tileWidth = 256.0;
     _scrollingWaveViewController.markerColor = [[Defaults sharedDefaults] markerColor];
     _scrollingWaveViewController.markerWidth = 2.0;
@@ -460,6 +461,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     _scrollingWaveViewController.markerWidth = 5.0;
 
     _totalWaveViewController = [WaveViewController new];
+    _totalWaveViewController.delegate = self;
     _totalWaveViewController.tileWidth = 8.0;
     _totalWaveViewController.beatMask = BeatEventStyleMarkIntro | BeatEventStyleMarkBuildup | BeatEventStyleMarkTeardown | BeatEventStyleMarkOutro;
 
@@ -497,6 +499,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     };
 
     [_scrollingWaveViewController updateTiles];
+    [_scrollingWaveViewController updateTrackDescriptions];
     [_totalWaveViewController updateTiles];
     [_totalWaveViewController updateTrackDescriptions];
 
@@ -682,7 +685,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     _totalWaveViewController.view.autoresizingMask = NSViewWidthSizable;
     _totalWaveViewController.view.translatesAutoresizingMaskIntoConstraints = YES;
     [_belowVisuals addSubview:_totalWaveViewController.view];
-    [_totalWaveViewController resetTracking];
+    //[_totalWaveViewController resetTracking];
     
     WaveScrollView* tiledSV = [[WaveScrollView alloc] initWithFrame:NSMakeRect(_belowVisuals.bounds.origin.x,
                                                                                  _belowVisuals.bounds.origin.y + totalWaveViewHeight,
@@ -695,7 +698,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     tiledSV.verticalScrollElasticity = NSScrollElasticityNone;
     
     _scrollingWaveViewController.view.frame = tiledSV.bounds;
-    [_scrollingWaveViewController resetTracking];
+    //[_scrollingWaveViewController resetTracking];
 
     tiledSV.documentView = _scrollingWaveViewController.view;
     [_belowVisuals addSubview:tiledSV];
@@ -1679,8 +1682,8 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
 - (void)addTrackToTracklist:(IdentifiedTrack*)track
 {
     [_tracklist addTrack:track];
-    [_totalWaveViewController updateChapterMarkLayer];
-    [_scrollingWaveViewController updateChapterMarkLayer];
+    [_totalWaveViewController reloadTracklist];
+    [_scrollingWaveViewController reloadTracklist];
 }
 
 - (void)showIdentifier:(id)sender
@@ -2394,72 +2397,6 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     return NO;
 }
 
-#pragma mark - Mouse events
-
-- (void)mouseDown:(NSEvent*)event
-{
-    NSPoint locationInWindow = [event locationInWindow];
-
-    NSPoint location = [self.scrollingWaveViewController.view convertPoint:locationInWindow fromView:nil];
-    if (NSPointInRect(location, self.scrollingWaveViewController.view.bounds)) {
-        unsigned long long seekTo = (_visualSample.sample.frames * location.x ) / self.scrollingWaveViewController.view.frame.size.width;
-        NSLog(@"mouse down in wave view %f:%f -- seeking to %lld\n", location.x, location.y, seekTo);
-        [self seekToFrame:seekTo];
-        if (![_audioController playing]) {
-            NSLog(@"not playing, he claims...");
-            [_audioController play];
-        }
-        return;
-    }
-
-    location = [self.totalWaveViewController.view convertPoint:locationInWindow fromView:nil];
-    if (NSPointInRect(location, self.totalWaveViewController.view.bounds)) {
-        unsigned long long seekTo = (_totalVisual.sample.frames * location.x ) / self.totalWaveViewController.view.frame.size.width;
-        NSLog(@"mouse down in total wave view %f:%f -- seeking to %lld\n", location.x, location.y, seekTo);
-        [self seekToFrame:seekTo];
-        if (![_audioController playing]) {
-            NSLog(@"not playing, he claims...");
-            [_audioController play];
-        }
-    }
-}
-
-- (void)rightMouseDown:(NSEvent*)event
-{
-    NSPoint locationInWindow = [event locationInWindow];
-    NSPoint location = [_scrollingWaveViewController.view convertPoint:locationInWindow fromView:nil];
-    if (NSPointInRect(location, _scrollingWaveViewController.view.bounds)) {
-        // snap to cursor
-        return;
-    }
-}
-
-- (void)mouseDragged:(NSEvent *)event
-{
-    NSPoint locationInWindow = [event locationInWindow];
-    NSPoint location = [_scrollingWaveViewController.view convertPoint:locationInWindow fromView:nil];
-    if (NSPointInRect(location, _scrollingWaveViewController.view.bounds)) {
-        unsigned long long seekTo = (_visualSample.sample.frames * location.x ) / _scrollingWaveViewController.view.frame.size.width;
-        NSLog(@"mouse down in wave view %f:%f -- seeking to %lld\n", location.x, location.y, seekTo);
-        [self seekToFrame:seekTo];
-        if (![_audioController playing]) {
-            NSLog(@"not playing, he claims...");
-            [_audioController play];
-        }
-        return;
-    }
-    location = [_totalWaveViewController.view convertPoint:locationInWindow fromView:nil];
-    if (NSPointInRect(location, _totalWaveViewController.view.bounds)) {
-        unsigned long long seekTo = (_visualSample.sample.frames * location.x ) / _totalWaveViewController.view.frame.size.width;
-        NSLog(@"mouse down in total wave view %f:%f -- seeking to %lld\n", location.x, location.y, seekTo);
-        [self seekToFrame:seekTo];
-        if (![_audioController playing]) {
-            NSLog(@"not playing, he claims...");
-            [_audioController play];
-        }
-    }
-}
-
 #pragma mark - Browser delegate
 
 - (void)closeFilter
@@ -2884,13 +2821,23 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
 
 - (void)updatedTracks
 {
-    [_scrollingWaveViewController updateChapterMarkLayer];
-    [_totalWaveViewController updateChapterMarkLayer];
-//    [_waveView invalidateMarks];
+    [_scrollingWaveViewController reloadTracklist];
+    [_totalWaveViewController reloadTracklist];
 }
 
+- (IdentifiedTrack*)currentTrack
+{
+    return [_tracklist currentTrack];
+}
 
-- (BOOL)validateToolbarItem:(nonnull NSToolbarItem *)item { 
+- (void)moveTrackAtFrame:(unsigned long long)oldFrame toFrame:(unsigned long long)newFrame
+{
+    [_tracklist moveTrackAtFrame:oldFrame frame:newFrame];
+    [self updatedTracks];
+}
+
+- (BOOL)validateToolbarItem:(nonnull NSToolbarItem *)item
+{
     return YES;
 }
 

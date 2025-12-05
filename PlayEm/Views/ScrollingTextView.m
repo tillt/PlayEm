@@ -43,6 +43,7 @@ static const double kScrollSpeed = 1.0 / 24.0;
         _first.anchorPoint = CGPointMake(0.0, 0.0);
         _first.frame = self.bounds;
         _first.allowsEdgeAntialiasing = YES;
+        _first.allowsFontSubpixelQuantization = YES;
         _first.shouldRasterize = YES;
         _first.contentsScale = [[NSScreen mainScreen] backingScaleFactor];
 
@@ -51,6 +52,7 @@ static const double kScrollSpeed = 1.0 / 24.0;
         _second = [CATextLayer layer];
         _second.drawsAsynchronously = YES;
         _second.anchorPoint = CGPointMake(0.0, 0.0);
+        _second.allowsFontSubpixelQuantization = YES;
         _second.frame = self.bounds;
         _second.allowsEdgeAntialiasing = YES;
         _second.shouldRasterize = YES;

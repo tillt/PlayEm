@@ -15,6 +15,8 @@ NS_ASSUME_NONNULL_BEGIN
 @class IdentifiedTrack;
 @class AudioController;
 
+extern NSString * const kTracklistControllerChangedActiveTrackNotification;
+
 @protocol TracklistControllerDelegate <NSObject>
 
 - (NSString*)standardStringFromFrame:(unsigned long long)frame;
@@ -38,6 +40,8 @@ NS_ASSUME_NONNULL_BEGIN
                    delegate:(id<TracklistControllerDelegate>)delegate;
 
 - (void)addTrack:(IdentifiedTrack*)track;
+- (void)moveTrackAtFrame:(unsigned long long)oldFrame frame:(unsigned long long)newFrame;
+
 - (NSMenu*)menu;
 - (IBAction)exportTracklist:(id)sender;
 

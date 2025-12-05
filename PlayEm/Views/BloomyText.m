@@ -63,6 +63,7 @@
     layer.font = (__bridge  CFTypeRef)self.font;
     layer.fontSize = self.fontSize;
     layer.allowsEdgeAntialiasing = YES;
+    layer.allowsFontSubpixelQuantization = YES;
     layer.contentsScale = [[NSScreen mainScreen] backingScaleFactor];
     layer.foregroundColor = _textColor.CGColor;
     return layer;

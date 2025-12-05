@@ -11,7 +11,6 @@
 #import "CAShapeLayer+Path.h"
 #import "NSBezierPath+CGPath.h"
 
-
 #import "Scroller.h"
 #import "WaveScrollView.h"
 #import "WaveView.h"
@@ -26,7 +25,7 @@ static const CGFloat kAheadVibrancyLayerZ = 0.1;
 static const CGFloat kHeadLayerZ = 0.2;
 static const CGFloat kHeadBloomFxLayerZ = 1.2;
 static const CGFloat kTrailLayerZ = 1.4;
-static const CGFloat kMarkerLayerZ = 10.0;
+//static const CGFloat kMarkerLayerZ = 10.0;
 
 @interface WaveScrollView () // Private
 @end
@@ -113,11 +112,11 @@ static const CGFloat kMarkerLayerZ = 10.0;
     CIFilter* bloom = [CIFilter filterWithName:@"CIBloom"];
     [bloom setDefaults];
 
-    [bloom setValue: @(10.0f) forKey: @"inputRadius"];
-    [bloom setValue: @(1.0f) forKey: @"inputIntensity"];
+    [bloom setValue: @(14.0f) forKey: @"inputRadius"];
+    [bloom setValue: @(1.75f) forKey: @"inputIntensity"];
     
     wv.trailBloomHFxLayer = [CALayer layer];
-    wv.trailBloomHFxLayer.backgroundFilters = @[lightenFilter, bloom, bloom];
+    wv.trailBloomHFxLayer.backgroundFilters = @[lightenFilter, bloom];
     wv.trailBloomHFxLayer.drawsAsynchronously = YES;
     wv.trailBloomHFxLayer.autoresizingMask = kCALayerNotSizable;
     wv.trailBloomHFxLayer.mask = mask;

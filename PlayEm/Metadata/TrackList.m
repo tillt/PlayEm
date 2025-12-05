@@ -186,4 +186,9 @@
     return frame;
 }
 
+- (NSString*)description
+{
+    return [NSString stringWithFormat:@"%@", _trackMap];
+}
+
 @end

@@ -19,6 +19,7 @@
 #import "ControlPanelController.h"
 #import "IdentifyViewController.h"
 #import "InfoPanel.h"
+#import "WaveViewController.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -45,6 +46,7 @@ NS_ASSUME_NONNULL_BEGIN
                                                       ControlPanelControllerDelegate,
                                                       InfoPanelControllerDelegate,
                                                       IdentifyViewControllerDelegate,
+                                                      WaveViewControllerDelegate,
                                                       NSSplitViewDelegate,
                                                       NSMenuDelegate,
                                                       AVRoutePickerViewDelegate>

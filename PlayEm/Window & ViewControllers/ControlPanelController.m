@@ -420,6 +420,7 @@ extern NSString * const kPlaybackStatePlaying;
                                         beatIndicatorHeight);
     _beatIndicator.alphaValue = 0.0;
     _beatIndicator.wantsLayer = YES;
+    _beatIndicator.layer.drawsAsynchronously = YES;
     [self.view addSubview:_beatIndicator];
 
     layer = [CALayer new];

@@ -168,9 +168,10 @@ static const int kMinRegionBeatCount = 10;
                 leftIndex = rightIndex;
                 rightIndex = coarseBeatCount - 1;
                 continue;
-            } else {
-                NSLog(@"mean border error got too large for beat %ld to %ld = %f", leftIndex, rightIndex, regionBorderError);
             }
+//            else {
+//                NSLog(@"mean border error got too large for beat %ld to %ld = %f", leftIndex, rightIndex, regionBorderError);
+//            }
         }
         // Try a by one beat smaller region.
         rightIndex--;

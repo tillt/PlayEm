@@ -8,23 +8,14 @@
 
 #import <Cocoa/Cocoa.h>
 #import <AppKit/AppKit.h>
-
-@class WaveViewController;
+#import "WaveView.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface WaveScrollView : NSScrollView
+@interface WaveScrollView : NSScrollView <PlaybackDisplay>
 
 @property (assign, nonatomic) BOOL horizontal;
-@property (weak, nonatomic) WaveViewController*  markLayerController;
 @property (assign, nonatomic) NSSize tileSize;
-
-- (void)setHead:(CGFloat)head;
-- (void)resize;
-
-- (void)setupHead;
-- (void)addHead;
-
 
 @end
 

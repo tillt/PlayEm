@@ -34,7 +34,6 @@ static const CGFloat kMarkerLayerZ = 10.0;
         self.layer.masksToBounds = NO;
         self.layerUsesCoreImageFilters = YES;
         self.markLayer = [self makeMarkLayer];
-        self.markLayer.masksToBounds = NO;
     }
     return self;
 }
@@ -46,6 +45,8 @@ static const CGFloat kMarkerLayerZ = 10.0;
     layer.drawsAsynchronously = YES;
     layer.zPosition = 5.1;
     layer.name = @"WaveMarkLayer";
+    layer.layoutManager = [CAConstraintLayoutManager layoutManager];
+    layer.masksToBounds = NO;
 
     return layer;
 }
@@ -79,21 +80,27 @@ static const CGFloat kMarkerLayerZ = 10.0;
 - (void)viewDidMoveToSuperview
 {
     [super viewDidMoveToSuperview];
-
+    
     [self createHead];
+    
+    NSView<PlaybackDisplay>* target = nil;
+    if (self.enclosingScrollView == nil) {
+        target = self;
+    } else {
+        target = (NSView<PlaybackDisplay>*)self.enclosingScrollView;
+    }
+
+    [target createTrail];
+    [target setupHead];
+    [target addHead];
 
     if (self.enclosingScrollView == nil) {
-        [self setupHead];
-        [self addHead];
         self.markLayer.frame = self.bounds;
-        [self.layer addSublayer:self.markLayer];
     } else {
-        [self.enclosingScrollView performSelector:@selector(createTrail)];
-        [self.enclosingScrollView performSelector:@selector(setupHead)];
-        [self.enclosingScrollView performSelector:@selector(addHead)];
         self.markLayer.frame = self.enclosingScrollView.documentVisibleRect;
-        [self.enclosingScrollView.layer addSublayer:self.markLayer];
     }
+
+    [target.layer addSublayer:self.markLayer];
 }
 
 - (void)dealloc
@@ -141,7 +148,8 @@ static const CGFloat kMarkerLayerZ = 10.0;
     CIFilter* vibranceFilter = [CIFilter filterWithName:@"CIColorControls"];
     [vibranceFilter setDefaults];
     [vibranceFilter setValue:@(0.1) forKey:@"inputSaturation"];
-    [vibranceFilter setValue:@(0.0001f) forKey:@"inputBrightness"];
+    //[vibranceFilter setValue:@(0.0001f) forKey:@"inputBrightness"];
+    [vibranceFilter setValue:@(0.02f) forKey:@"inputBrightness"];
 
     CIFilter* darkenFilter = [CIFilter filterWithName:@"CIGammaAdjust"];
     [darkenFilter setDefaults];
@@ -161,6 +169,11 @@ static const CGFloat kMarkerLayerZ = 10.0;
     _rastaLayer.autoresizingMask = kCALayerWidthSizable;
     _rastaLayer.opacity = 0.7;
     _rastaLayer.compositingFilter = [CIFilter filterWithName:@"CISourceAtopCompositing"];
+}
+
+- (void)createTrail
+{
+    
 }
 
 - (void)addHead

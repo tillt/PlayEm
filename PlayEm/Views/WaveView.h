@@ -12,8 +12,16 @@
 #import <Cocoa/Cocoa.h>
 #import <QuartzCore/QuartzCore.h>
 
+@protocol PlaybackDisplay <NSObject>
+- (void)setHead:(CGFloat)head;
+- (void)resize;
+- (void)setupHead;
+- (void)addHead;
+- (void)createTrail;
+@end
+
 /// WaveView is the document view of the entire sample file.
-@interface WaveView : NSView
+@interface WaveView : NSView <PlaybackDisplay>
 
 @property (assign, nonatomic) unsigned long long frames;
 @property (strong, nonatomic) NSColor* color;
@@ -27,15 +35,7 @@
 
 @property (strong, nonatomic) CALayer* markLayer;
 
-- (void)setHead:(CGFloat)position;
-- (void)resize;
-
 - (void)createHead;
-- (void)setupHead;
-- (void)addHead;
-
-//- (void)updateMarkLayer;
-
 @end
 
 #endif /* WaveView_h */

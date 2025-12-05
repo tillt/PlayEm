@@ -34,14 +34,14 @@
         _beatLayer = [self makeOverlayLayer];
         _beatLayer.frame = CGRectMake(0.0, 0.0, frameRect.size.width, frameRect.size.height);
         _beatLayer.name = @"TileViewOverlayLayer";
-        _beatLayer.zPosition = -1.0;
+        _beatLayer.zPosition = 1.0;
         [self.layer addSublayer:_beatLayer];
 
-        _markLayer = [self makeMarkLayer];
-        _markLayer.frame = CGRectMake(0.0, 0.0, frameRect.size.width, frameRect.size.height);
-        _markLayer.name = @"TileViewMarkLayer";
-        _markLayer.zPosition = 2.0;
-        [self.layer addSublayer:_markLayer];
+//        _markLayer = [self makeMarkLayer];
+//        _markLayer.frame = CGRectMake(0.0, 0.0, frameRect.size.width, frameRect.size.height);
+//        _markLayer.name = @"TileViewMarkLayer";
+//        _markLayer.zPosition = 2.0;
+//        [self.layer addSublayer:_markLayer];
 
         _waveLayer.delegate = waveLayerDelegate;
     }
@@ -93,5 +93,6 @@
     layer.autoresizingMask = kCALayerWidthSizable | kCALayerHeightSizable;
     return layer;
 }
+
 
 @end

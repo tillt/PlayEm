@@ -18,15 +18,26 @@ NS_ASSUME_NONNULL_BEGIN
 @class TrackList;
 @class TileView;
 @class VisualSample;
+@class IdentifiedTrack;
 
 typedef CGFloat (^OffsetBlock) (void);
 typedef CGFloat (^TotalWidthBlock) (void);
+
+@protocol WaveViewControllerDelegate <NSObject>
+- (NSString*)stringFromFrame:(unsigned long long)frame;
+- (void)updatedTracks;
+- (void)moveTrackAtFrame:(unsigned long long)oldFrame toFrame:(unsigned long long)newFrame;
+- (void)seekToFrame:(unsigned long long)frame;
+- (IdentifiedTrack*)currentTrack;
+@end
 
 @interface WaveViewController : NSViewController <CALayerDelegate>
 
 @property (weak, nonatomic, nullable) TrackList* trackList;
 @property (weak, nonatomic, nullable) VisualSample* visualSample;
 @property (weak, nonatomic, nullable) BeatTrackedSample* beatSample;
+
+@property (weak, nonatomic, nullable) id<WaveViewControllerDelegate> delegate;
 
 @property (assign, nonatomic) unsigned long long frames;
 @property (assign, nonatomic) unsigned long long frame;
@@ -52,15 +63,17 @@ typedef CGFloat (^TotalWidthBlock) (void);
 @property (nonatomic, assign) BOOL followTime;
 
 - (id)init;
-- (void)resetTracking;
+//- (void)resetTracking;
 
 - (void)resize;
-- (void)updateChapterMarkLayer;
+//- (void)updateChapterMarkLayer;
 - (void)updateBeatMarkLayer;
 - (void)updateWaveLayer;
 
 - (void)updateTiles;
 - (void)updateTrackDescriptions;
+
+- (void)reloadTracklist;
 @end
 
 NS_ASSUME_NONNULL_END

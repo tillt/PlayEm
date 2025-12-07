@@ -103,7 +103,7 @@ static const int kMinRegionBeatCount = 10;
     // Therefore we loop through the coarse beats and calculate the average beat
     // length from the first beat.
     // A inner loop checks for outliers using the momentary average as beat length.
-    // once we have found an average with only single outliers, we store the beats using the
+    // Once we have found an average with only single outliers, we store the beats using the
     // current average to adjust them by up to +-6 ms.
     // Then we start with the region from the found beat to the end.
     //---
@@ -356,6 +356,7 @@ static const int kMinRegionBeatCount = 10;
         // be the first proper downbeat, or perhaps the CUE point.
         
         // CHANGE: Extended intend is to determine the first beat of every bar.
+        //
         // We calculate the frame for the very first beat according to the longest region
         // identified. Now this may not be optimal just yet. There may be cases with some
         // initial silence within the first beats. To account for such cases, we skip
@@ -363,7 +364,7 @@ static const int kMinRegionBeatCount = 10;
         // Then there may be cases where the true first beat is slightly before the
         // beginning of the song -- weird but there are plenty of examples of such songs.
         // For catching such cases, we check if such misplaced first beat would be less
-        // then a quarter beat before the recording.
+        // than a quarter beat before the recording.
         
         const double roundedBeatLength = 60.0 * self.sample.sampleFormat.rate / roundBpm;
         

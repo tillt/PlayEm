@@ -105,18 +105,25 @@ const CGFloat kMarkerHandleWidth = 6.0f;
         _reusableLayers = [NSMutableArray array];
         _tileWidth = 256.0;
         _currentTempo = 0.0;
-        
+        _frames = 0;
         dispatch_queue_attr_t attr = dispatch_queue_attr_make_with_qos_class(DISPATCH_QUEUE_SERIAL, QOS_CLASS_USER_INITIATED, 0);
         _imageQueue = dispatch_queue_create("PlayEm.WaveViewImageQueue", attr);
 
         _markTracking = [NSMutableSet set];
-        
+        _duckForLayer = nil;
         _currentTrack = nil;
         
-        _handleColors = @[ [NSColor secondaryLabelColor],
+        _handleColors = @[ [NSColor tertiaryLabelColor],
                            [[Defaults sharedDefaults] regularFakeBeamColor],
                            [[Defaults sharedDefaults] lightFakeBeamColor],
                            [[Defaults sharedDefaults] lightFakeBeamColor]];
+        
+        _titleFont = [[Defaults sharedDefaults] smallFont];
+        _titleColor = [[Defaults sharedDefaults] lightFakeBeamColor];
+        _artistFont = [[Defaults sharedDefaults] smallFont];
+        _artistColor = [[Defaults sharedDefaults] regularFakeBeamColor];
+        _timeFont = [[Defaults sharedDefaults] smallFont];
+        _timeColor = [[Defaults sharedDefaults] secondaryLabelColor];
         
         [[NSNotificationCenter defaultCenter] addObserver:self
                                                  selector:@selector(activeTrackChanged:)
@@ -147,8 +154,8 @@ const CGFloat kMarkerHandleWidth = 6.0f;
     WaveView* wv = (WaveView*)self.view;
     
     if (_activeLayer != nil) {
-        CALayer* handleLayer = _activeLayer.sublayers[0];
-        CALayer* fxLayer = _activeLayer.sublayers[5];
+        CALayer* handleLayer = _activeLayer.sublayers[kHandleLayerIndex];
+        CALayer* fxLayer = _activeLayer.sublayers[kFXLayerIndex];
         [handleLayer removeAllAnimations];
         [fxLayer removeAllAnimations];
         handleLayer.backgroundColor = _handleColors[NormalHandle].CGColor;
@@ -164,13 +171,6 @@ const CGFloat kMarkerHandleWidth = 6.0f;
 - (void)viewDidLayout
 {
     [super viewDidLayout];
-    
-    
-
-//    [[NSNotificationCenter defaultCenter] addObserver:self
-//                                             selector:@selector(didUpdateTrackingAreas:)
-//                                                 name:NSScrollViewWillStartLiveScrollNotification
-//                                               object:nil];
 
     if (self.view.enclosingScrollView != nil) {
         [[NSNotificationCenter defaultCenter] addObserver:self
@@ -187,6 +187,8 @@ const CGFloat kMarkerHandleWidth = 6.0f;
                                                    object:self.view.enclosingScrollView];
     }
     [self resetTracking];
+
+    _imageSize = CGSizeMake(self.view.bounds.size.height - 2, self.view.bounds.size.height - 2);
 }
 
 - (void)setCurrentFrame:(unsigned long long)frame
@@ -206,11 +208,16 @@ const CGFloat kMarkerHandleWidth = 6.0f;
     [self.view addTrackingArea:trackingArea];
 }
 
+- (double)framesPerPixel
+{
+    return _frames / self.view.bounds.size.width;
+}
+
 - (void)setFrames:(unsigned long long)frames
 {
     _frames = frames;
     _currentFrame = 0;
-    
+
     // As the total amount of frames for this sample has changed, we will also need to reload
     // pretty much everything -- the beat layer is skipped here as it is highly likely not
     
@@ -229,81 +236,22 @@ const CGFloat kMarkerHandleWidth = 6.0f;
     [self updateBeatMarkLayer];
 }
 
-//- (void)loadMarksForTile:(TileView*)tv
-//{
-//    CALayer* rootLayer = tv.markLayer;
-//    
-//    // Remove possibly existing marks for a clean start on this tile.
-//    [rootLayer.sublayers makeObjectsPerformSelector:@selector(removeFromSuperlayer)];
-//    [rootLayer setNeedsDisplay];
-//    
-//    NSArray<NSTrackingArea*>* oldTracking = [tv.trackingAreas copy];
-//    for (NSTrackingArea* trackingArea in oldTracking) {
-//        [tv removeTrackingArea:trackingArea];
-//    }
-//
-//    if (_frames == 0 || self.view == nil || _trackList == nil || rootLayer.superlayer.frame.origin.x < 0) {
-//        return;
-//    }
-//    
-//    const double framesPerPixel = _frames / self.view.frame.size.width;
-//    
-//    const CGFloat start = rootLayer.superlayer.frame.origin.x;
-//    const CGFloat width = rootLayer.frame.size.width;
-//    
-//    const unsigned long long frameOffset = floor(start * framesPerPixel);
-//    
-//    TrackListIterator* iter = nil;
-//    unsigned long long nextTrackFrame = [_trackList firstTrackFrame:&iter];
-//    
-//    while (nextTrackFrame != ULONG_LONG_MAX) {
-//        // A mark before our tile start frame needs to get skipped.
-//        if (frameOffset < nextTrackFrame) {
-//            const CGFloat x = (nextTrackFrame / framesPerPixel) - start;
-//            // We need to stop drawing when we reached the total width of our layer.
-//            if (x >= width) {
-//                break;
-//            }
-//            
-//            NSNumber* markFrame = [NSNumber numberWithUnsignedLongLong:nextTrackFrame];
-//
-//            // Add the track mark layer.
-//            CALayer* trackmark = [CALayer layer];
-//            trackmark.drawsAsynchronously = YES;
-//            trackmark.backgroundColor = [_markerColor CGColor];
-//            trackmark.frame = CGRectMake(x, 0, _markerWidth, self.view.frame.size.height);
-//            [trackmark setValue:markFrame forKey:kFrameOffsetLayerKey];
-//            [rootLayer addSublayer:trackmark];
-//            
-//            NSRect trackingRect = NSMakeRect(floor(tv.frame.origin.x + trackmark.frame.origin.x - 2.0),
-//                                             trackmark.frame.origin.y,
-//                                             ceil(trackmark.frame.size.width + 4.0),
-//                                             trackmark.frame.size.height);
-//            NSValue* rectValue = [NSValue valueWithRect:trackingRect];
-//            FrameMarker* marker = [[FrameMarker alloc] initWithFrame:markFrame rect:rectValue];
-//            [_markTracking addObject:marker];
-//        }
-//                
-//        nextTrackFrame = [_trackList nextTrackFrame:iter];
-//    };
-//}
-
 - (void)loadBeatsForTile:(TileView*)tile
 {
     CALayer* rootLayer = tile.beatLayer;
-    [rootLayer.sublayers makeObjectsPerformSelector:@selector(removeFromSuperlayer)];
+    //[rootLayer.sublayers makeObjectsPerformSelector:@selector(removeFromSuperlayer)];
+    NSArray<CALayer*>* goneLayers = [rootLayer.sublayers copy];
+    [goneLayers makeObjectsPerformSelector:@selector(removeFromSuperlayer)];
     [rootLayer setNeedsDisplay];
     
     if (_frames == 0 || self.view == nil || _beatSample == nil || rootLayer.superlayer.frame.origin.x < 0) {
         return;
     }
     
-    const double framesPerPixel = _frames / self.view.frame.size.width;
-    
     const CGFloat start = rootLayer.superlayer.frame.origin.x;
     const CGFloat width = rootLayer.frame.size.width;
     
-    const unsigned long long frameOffset = floor(start * framesPerPixel);
+    const unsigned long long frameOffset = floor(start * self.framesPerPixel);
     
     unsigned long long currentBeatIndex = [_beatSample firstBeatIndexAfterFrame:frameOffset];
     if (currentBeatIndex == ULONG_LONG_MAX) {
@@ -321,7 +269,7 @@ const CGFloat kMarkerHandleWidth = 6.0f;
         
         currentBeatIndex++;
         
-        const CGFloat x = floor((currentEvent.frame / framesPerPixel) - start);
+        const CGFloat x = floor((currentEvent.frame / self.framesPerPixel) - start);
         
         // We need to stop drawing when we reached the total width of our layer.
         if (x >= width) {
@@ -376,15 +324,6 @@ const CGFloat kMarkerHandleWidth = 6.0f;
     //[self updateChapterMarkLayer];
     [self reloadTrackDescriptions];
 }
-
-//- (void)updateChapterMarkLayer
-//{
-//    _markTracking = [NSMutableSet set];
-//
-//    for (TileView* tv in self.view.subviews) {
-//        [self loadMarksForTile:tv];
-//    }
-//}
 
 - (void)updateBeatMarkLayer
 {
@@ -498,101 +437,22 @@ const CGFloat kMarkerHandleWidth = 6.0f;
     return [[NSAttributedString alloc] initWithString:text attributes:attributes];
 }
 
-//- (CATextLayer*)textLayerWithFont:(NSFont*)font color:(NSColor*)color width:(CGFloat)width text:(NSString*)text
-//{
-//    CATextLayer* textLayer = [CATextLayer layer];
-//    textLayer.drawsAsynchronously = YES;
-//    textLayer.allowsEdgeAntialiasing = YES;
-//    textLayer.wrapped = NO;
-//    textLayer.anchorPoint = CGPointMake(0.0,0.0);
-//    textLayer.contentsScale = [[NSScreen mainScreen] backingScaleFactor];
-//    textLayer.font = font;
-//    textLayer.fontSize = []
-//    textLayer.string = [self textWithFont:font color:color width:width text:text];
-//    textLayer.frame = CGRectMake(0.0, 0.0, width, 1.0f);
-//    return textLayer;
-//}
-
-/*
-- (void)resizeTrackDescription:(CALayer*)background size:(CGSize)size
+- (CALayer*)trackLayer
 {
-    background.frame = CGRectMake(background.frame.origin.x,
-                                  background.frame.origin.y,
-                                  size.width,
-                                  size.height);
-
-    CATextLayer* titleLayer = background.sublayers[1];
-    CATextLayer* artistLayer = background.sublayers[2];
-
-    NSAttributedString* title = [self textWithFont:titleFont
-                                             color:titleColor
-                                             width:textWidth
-                                              text:track.title];
-    CGSize titleSize = [title size];
-    titleLayer.string = title;
-    
-    CGSize artistSize = CGSizeZero;
-    if (artistLayer != nil) {
-        assert(track.artist);
-        NSAttributedString* artist = [self textWithFont:artistFont
-                                                  color:artistColor
-                                                  width:textWidth
-                                                   text:track.artist];
-        artistLayer.string = artist;
-        artistSize = [artist size];
-    }
-
-    CGFloat maxWidth = titleSize.width;
-    if (artistSize.width > maxWidth) {
-        maxWidth = artistSize.width;
-    }
-    
-    CGFloat actualLabelWidth = maxWidth > textWidth ? textWidth : maxWidth;
-    //textWidth = maxWidth;
-    CGSize backgroundSize = CGSizeMake(imageSize.width + 12.0 + actualLabelWidth, imageSize.height);
-    background.bounds = CGRectMake(0.0, 0.0, backgroundSize.width, backgroundSize.height);
-
-    
-}
-*/
-
-- (CALayer*)trackLayerWithStyle:(NSString*)style hostingLayer:(CALayer*)rootLayer
-{
+    WaveView* wv = (WaveView*)self.view;
+    CGRect frame = wv.markLayer.frame;
     CAGradientLayer* background = [CAGradientLayer new];
-    CGSize imageSize = CGSizeMake(48.0, 48.0);
-    CGSize textSize = CGSizeMake(300.0, [[Defaults sharedDefaults] largeFontSize]);
-    CGSize backgroundSize = CGSizeMake(imageSize.width + textSize.width, imageSize.height);
-    CGFloat artistFontSize = 0;
-    CGFloat titleFontSize = 0;
-    CGFloat timeFontSize = 0;
-    CGFloat radius = 7.0;
-    CGFloat border = 2.0;
+    CGSize imageSize = CGSizeMake(frame.size.height - 4.0, frame.size.height - 4.0);
+    CGSize textSize = CGSizeMake(300.0, [[Defaults sharedDefaults] smallFontSize]);
+    CGSize backgroundSize = CGSizeMake(imageSize.width + textSize.width + 8.0, frame.size.height);
+    CGFloat artistFontSize = [[Defaults sharedDefaults] smallFontSize];
+    CGFloat titleFontSize = [[Defaults sharedDefaults] smallFontSize];
+    CGFloat timeFontSize = [[Defaults sharedDefaults] smallFontSize];
+    CGFloat radius = 5.0;
 
-    if ([style isEqualToString:@"big"]) {
-        background.colors = @[(id)[NSColor clearColor].CGColor,
-                              (id)[NSColor clearColor].CGColor,
-                              (id)[[[Defaults sharedDefaults] regularFakeBeamColor] colorWithAlphaComponent:0.4].CGColor];
-        imageSize = CGSizeMake(self.view.bounds.size.height, self.view.bounds.size.height);
-        textSize = CGSizeMake(300.0, [[Defaults sharedDefaults] largeFontSize]);
-        backgroundSize = CGSizeMake(imageSize.width + textSize.width + 8.0, imageSize.height);
-        radius = 7.0;
-        titleFontSize = [[Defaults sharedDefaults] largeFontSize];
-        artistFontSize = [[Defaults sharedDefaults] normalFontSize];
-        timeFontSize = [[Defaults sharedDefaults] smallFontSize];
-        border = 2.0;
-    } else {
-        background.colors = @[(id)[[[Defaults sharedDefaults] regularFakeBeamColor] colorWithAlphaComponent:0.4].CGColor,
-                                                                (id)[NSColor clearColor].CGColor,
-                              (id)[NSColor clearColor].CGColor];
-        imageSize = CGSizeMake(rootLayer.frame.size.height - 4.0, rootLayer.frame.size.height - 4.0);
-        textSize = CGSizeMake(300.0, [[Defaults sharedDefaults] smallFontSize]);
-        backgroundSize = CGSizeMake(imageSize.width + textSize.width + 8.0, rootLayer.frame.size.height);
-        titleFontSize = [[Defaults sharedDefaults] smallFontSize];
-        artistFontSize = [[Defaults sharedDefaults] smallFontSize];
-        timeFontSize = [[Defaults sharedDefaults] smallFontSize];
-        radius = 5.0;
-        border = 1.0;
-    }
+    background.colors = @[(id)[[[Defaults sharedDefaults] regularFakeBeamColor] colorWithAlphaComponent:0.4].CGColor,
+                          (id)[NSColor clearColor].CGColor,
+                          (id)[NSColor clearColor].CGColor];
 
     CIFilter* bloom = [CIFilter filterWithName:@"CIBloom"];
     [bloom setDefaults];
@@ -600,22 +460,19 @@ const CGFloat kMarkerHandleWidth = 6.0f;
     [bloom setValue: @(1.0f) forKey: @"inputIntensity"];
 
     background.borderWidth = 0.0;
-    background.zPosition = 111.0f;
     background.autoresizingMask = kCALayerWidthSizable | kCALayerHeightSizable;
     background.allowsEdgeAntialiasing = YES;
     background.shouldRasterize = YES;
     background.drawsAsynchronously = YES;
-    background.rasterizationScale = rootLayer.contentsScale;
+    background.rasterizationScale = wv.layer.contentsScale;
     background.contentsScale = [[NSScreen mainScreen] backingScaleFactor];
     background.masksToBounds = NO;
     background.frame = CGRectMake(0.0f, 0.0f, backgroundSize.width, backgroundSize.height);
     background.cornerRadius = radius;
-    background.borderColor = [[Defaults sharedDefaults] lightBeamColor].CGColor;
-    background.borderWidth = 0.5f;
-    //background.mask = [CAShapeLayer MaskLayerFromRect:background.bounds];
+    //background.borderColor = [[Defaults sharedDefaults] lightBeamColor].CGColor;
+    //background.borderWidth = 0.5f;
 
     CALayer* handleLayer = [CALayer layer];
-    handleLayer.zPosition = 130.0f;
     handleLayer.autoresizingMask = kCALayerHeightSizable;
     handleLayer.allowsEdgeAntialiasing = YES;
     handleLayer.drawsAsynchronously = YES;
@@ -625,78 +482,94 @@ const CGFloat kMarkerHandleWidth = 6.0f;
     handleLayer.masksToBounds = NO;
     handleLayer.frame = CGRectMake(0.0f, 0.0f, kMarkerHandleWidth, backgroundSize.height);
     [background addSublayer:handleLayer];
+
+    CALayer* fxLayer = [CALayer layer];
+    fxLayer.zPosition = 10.0f;
+    fxLayer.autoresizingMask = kCALayerNotSizable;
+    fxLayer.allowsEdgeAntialiasing = YES;
+    //fxLayer.shouldRasterize = YES;
+    fxLayer.drawsAsynchronously = YES;
+    //fxLayer.backgroundColor = [];
+    fxLayer.rasterizationScale = wv.layer.contentsScale;
+    fxLayer.contentsScale = [[NSScreen mainScreen] backingScaleFactor];
+    //fxLayer.masksToBounds = YES;
+    fxLayer.opacity = 0.0f;
+    fxLayer.backgroundFilters = @[ bloom ];
+    fxLayer.name = @"WaveMarkDescriptionFXLayer";
+    fxLayer.frame = CGRectMake(-5.0, 0.0, kMarkerHandleWidth + 10.0, backgroundSize.height);
+    fxLayer.mask = [CAShapeLayer MaskLayerFromRect:fxLayer.bounds];
+    [background addSublayer:fxLayer];
+
+    CALayer* clippedBackground = [CALayer layer];
+
+    clippedBackground.magnificationFilter = kCAFilterLinear;
+    clippedBackground.minificationFilter = kCAFilterLinear;
+    clippedBackground.zPosition = 1.0f;
+    clippedBackground.allowsEdgeAntialiasing = YES;
+    clippedBackground.shouldRasterize = YES;
+    clippedBackground.autoresizingMask = kCALayerWidthSizable | kCALayerHeightSizable;
+    clippedBackground.opacity = 1.0f;
+    clippedBackground.drawsAsynchronously = YES;
+    clippedBackground.rasterizationScale = wv.layer.contentsScale;
+    clippedBackground.contentsScale = [[NSScreen mainScreen] backingScaleFactor];
+    clippedBackground.masksToBounds = YES;
+    clippedBackground.frame = background.bounds;
+    clippedBackground.name = @"WaveMarkDescriptionClippedBackgroundLayer";
+    [background addSublayer:clippedBackground];
     
     CALayer* imageLayer = [CALayer layer];
     imageLayer.magnificationFilter = kCAFilterLinear;
     imageLayer.minificationFilter = kCAFilterLinear;
-    imageLayer.zPosition = 129.0f;
     imageLayer.autoresizingMask = kCALayerNotSizable;
     imageLayer.allowsEdgeAntialiasing = YES;
-    imageLayer.shouldRasterize = YES;
+    //imageLayer.filters = @[_vibranceFilter];
+    //imageLayer.shouldRasterize = YES;
+    //imageLayer.compositingFilter = [CIFilter filterWithName:@"CILinearDodgeBlendMode"];
     imageLayer.drawsAsynchronously = YES;
-    imageLayer.rasterizationScale = rootLayer.contentsScale;
+    imageLayer.rasterizationScale = wv.layer.contentsScale;
     imageLayer.contentsScale = [[NSScreen mainScreen] backingScaleFactor];
     imageLayer.masksToBounds = YES;
     imageLayer.frame = CGRectMake(kMarkerHandleWidth, 2.0, imageSize.width, imageSize.height);
     imageLayer.name = @"WaveMarkDescriptionImageLayer";
+    imageLayer.opacity = 1.0f;
     imageLayer.borderWidth = 1.0;
     imageLayer.borderColor = [NSColor blackColor].CGColor;
-    [background addSublayer:imageLayer];
+    [clippedBackground addSublayer:imageLayer];
 
-    CAConstraint* minXConstraint = [CAConstraint constraintWithAttribute:kCAConstraintMinX
-                                                              relativeTo:imageLayer.name
-                                                               attribute:kCAConstraintMaxX
-                                                                  offset:4.0];
-    CAConstraint* maxXConstraint = [CAConstraint constraintWithAttribute:kCAConstraintWidth
-                                                              relativeTo:@"superlayer"
-                                                               attribute:kCAConstraintWidth];
-    CAConstraint* minYConstraint = [CAConstraint constraintWithAttribute:kCAConstraintMaxY
-                                                              relativeTo:@"superlayer"
-                                                               attribute:kCAConstraintMaxY
-                                                                  offset:0.0];
-    CAConstraint* heightConstraint = [CAConstraint constraintWithAttribute:kCAConstraintHeight
-                                                                relativeTo:@"superlayer"
-                                                                 attribute:kCAConstraintHeight
-                                                                     scale:0.3
-                                                                    offset:0.0];
     CGFloat x = kMarkerHandleWidth + imageSize.width + 2.0;
     
     CATextLayer* timeLayer = [CATextLayer layer];
     timeLayer.drawsAsynchronously = YES;
-    timeLayer.autoresizingMask = kCALayerWidthSizable | kCALayerHeightSizable;
+    timeLayer.autoresizingMask = kCALayerWidthSizable | kCALayerHeightSizable | kCALayerMaxXMargin;
     timeLayer.allowsEdgeAntialiasing = YES;
     timeLayer.wrapped = NO;
     timeLayer.name = @"WaveMarkDescriptionTimeLayer";
     timeLayer.contentsScale = [[NSScreen mainScreen] backingScaleFactor];
     timeLayer.frame = CGRectMake(x, titleFontSize + 4.0 + artistFontSize + 4.0, backgroundSize.width - x, timeFontSize + 4.0);
 
-    [background addSublayer:timeLayer];
-
-    minYConstraint = [CAConstraint constraintWithAttribute:kCAConstraintMaxY
-                                                relativeTo:timeLayer.name
-                                                 attribute:kCAConstraintMinY];
+    [clippedBackground addSublayer:timeLayer];
 
     CATextLayer* titleLayer = [CATextLayer layer];
     titleLayer.drawsAsynchronously = YES;
-    titleLayer.autoresizingMask = kCALayerWidthSizable | kCALayerHeightSizable;
+    titleLayer.autoresizingMask = kCALayerWidthSizable | kCALayerHeightSizable | kCALayerMaxXMargin;
     titleLayer.allowsEdgeAntialiasing = YES;
     titleLayer.allowsFontSubpixelQuantization = YES;
     titleLayer.wrapped = NO;
     titleLayer.contentsScale = [[NSScreen mainScreen] backingScaleFactor];
     titleLayer.frame = CGRectMake(x, artistFontSize + 4.0, backgroundSize.width - x, titleFontSize + 4.0);
     titleLayer.name = @"WaveMarkDescriptionTitleLayer";
-    [background addSublayer:titleLayer];
+    [clippedBackground addSublayer:titleLayer];
 
     CATextLayer* artistLayer = [CATextLayer layer];
     artistLayer.drawsAsynchronously = YES;
-    artistLayer.autoresizingMask = kCALayerWidthSizable | kCALayerHeightSizable;
+    artistLayer.autoresizingMask = kCALayerWidthSizable | kCALayerHeightSizable | kCALayerMaxXMargin;
     artistLayer.allowsEdgeAntialiasing = YES;
     artistLayer.wrapped = NO;
     artistLayer.name = @"WaveMarkDescriptionArtistLayer";
     artistLayer.contentsScale = [[NSScreen mainScreen] backingScaleFactor];
     artistLayer.frame = CGRectMake(x, 0.0, backgroundSize.width - x, titleFontSize + 4.0);
-    artistLayer.constraints = @[ minXConstraint, minYConstraint, maxXConstraint, heightConstraint];
-    [background addSublayer:artistLayer];
+    //artistLayer.constraints = @[ minXConstraint, minYConstraint, maxXConstraint, heightConstraint];
+    [clippedBackground addSublayer:artistLayer];
     
 //    CALayer* shinyLayer = [CALayer layer];
 //    shinyLayer.zPosition = 131.0f;
@@ -712,40 +585,6 @@ const CGFloat kMarkerHandleWidth = 6.0f;
 //    shinyLayer.name = @"WaveMarkDescriptionShinyLayer";
 //    shinyLayer.frame = CGRectMake(1.0f, 5.0f, 3.0f, backgroundSize.height - 10.0f);
 //    [background addSublayer:shinyLayer];
-
-    CALayer* fxLayer = [CALayer layer];
-    fxLayer.zPosition = 131.0f;
-    fxLayer.autoresizingMask = kCALayerNotSizable;
-    fxLayer.allowsEdgeAntialiasing = YES;
-    //fxLayer.shouldRasterize = YES;
-    fxLayer.drawsAsynchronously = YES;
-    //fxLayer.backgroundColor = [];
-    fxLayer.rasterizationScale = rootLayer.contentsScale;
-    fxLayer.contentsScale = [[NSScreen mainScreen] backingScaleFactor];
-    //fxLayer.masksToBounds = YES;
-    fxLayer.opacity = 0.0f;
-    fxLayer.backgroundFilters = @[ bloom ];
-    fxLayer.name = @"WaveMarkDescriptionFXLayer";
-    fxLayer.frame = CGRectMake(-5.0, 0.0, kMarkerHandleWidth + 10.0, backgroundSize.height);
-    fxLayer.mask = [CAShapeLayer MaskLayerFromRect:fxLayer.bounds];
-    [background addSublayer:fxLayer];
-
-    CALayer* reflectionHostLayer = [CALayer layer];
-
-    reflectionHostLayer.magnificationFilter = kCAFilterLinear;
-    reflectionHostLayer.minificationFilter = kCAFilterLinear;
-    reflectionHostLayer.zPosition = 150.0f;
-    reflectionHostLayer.allowsEdgeAntialiasing = YES;
-    reflectionHostLayer.shouldRasterize = YES;
-    reflectionHostLayer.autoresizingMask = kCALayerWidthSizable | kCALayerHeightSizable;
-    reflectionHostLayer.opacity = 1.0f;
-    reflectionHostLayer.drawsAsynchronously = YES;
-    reflectionHostLayer.rasterizationScale = rootLayer.contentsScale;
-    reflectionHostLayer.contentsScale = [[NSScreen mainScreen] backingScaleFactor];
-    reflectionHostLayer.masksToBounds = YES;
-    reflectionHostLayer.frame = background.bounds;
-    reflectionHostLayer.name = @"WaveMarkDescriptionReflectionHostLayer";
-    [background addSublayer:reflectionHostLayer];
     
     CALayer* reflectionLayer = [CALayer layer];
     reflectionLayer.magnificationFilter = kCAFilterLinear;
@@ -757,12 +596,12 @@ const CGFloat kMarkerHandleWidth = 6.0f;
     reflectionLayer.shouldRasterize = YES;
     reflectionLayer.opacity = 0.0f;
     reflectionLayer.drawsAsynchronously = YES;
-    reflectionLayer.rasterizationScale = rootLayer.contentsScale;
+    reflectionLayer.rasterizationScale = wv.layer.contentsScale;
     reflectionLayer.contentsScale = [[NSScreen mainScreen] backingScaleFactor];
     reflectionLayer.masksToBounds = YES;
-    reflectionLayer.frame = CGRectMake(0.0, 0.0, reflectionImage.size.width, rootLayer.frame.size.height);
+    reflectionLayer.frame = CGRectMake(0.0, 0.0, reflectionImage.size.width, background.frame.size.height);
     reflectionLayer.name = @"WaveMarkDescriptionReflectionLayer";
-    [reflectionHostLayer addSublayer:reflectionLayer];
+    [clippedBackground addSublayer:reflectionLayer];
 
     return background;
 }
@@ -780,7 +619,8 @@ const CGFloat kMarkerHandleWidth = 6.0f;
 - (void)reloadTrackDescriptions
 {
     WaveView* wv = (WaveView*)self.view;
-    [wv.markLayer.sublayers makeObjectsPerformSelector:@selector(removeFromSuperlayer)];
+    NSArray<CALayer*>* goneLayers = [wv.markLayer.sublayers copy];
+    [goneLayers makeObjectsPerformSelector:@selector(removeFromSuperlayer)];
     _markTracking = [NSMutableSet set];
     [self updateTrackDescriptions];
 }
@@ -792,43 +632,16 @@ const CGFloat kMarkerHandleWidth = 6.0f;
     if (_frames == 0 || _trackList == nil) {
         return;
     }
-    const double framesPerPixel = _frames / self.view.bounds.size.width;
-    
     if (self.view.enclosingScrollView != nil) {
         return;
     }
 
-    CGFloat textWidth = 200.0f;
-    NSFont* titleFont = [[Defaults sharedDefaults] largeFont];
-    NSColor* titleColor = [[Defaults sharedDefaults] lightFakeBeamColor];
-    NSFont* timeFont = [[Defaults sharedDefaults] largeFont];
-    NSColor* timeColor = [[Defaults sharedDefaults] lightFakeBeamColor];
-    NSFont* artistFont = [[Defaults sharedDefaults] normalFont];
-    NSColor* artistColor = [[Defaults sharedDefaults] secondaryLabelColor];
-    CGSize imageSize = CGSizeMake(48.0, 48.0);
-    CGFloat xOffset = 2.0f;
-    CGFloat yOffset = 2.0f;
-    CGFloat opacity = 1.0f;
-    BOOL usesLayout = NO;
-    //CGSize imageSize = CGSizeMake(self.view.bounds.size.height / 2.0, self.view.bounds.size.height / 2.0);
-    NSRect documentVisibleRect;
-    documentVisibleRect = NSMakeRect(0.0, 0.0, self.view.bounds.size.width, self.view.bounds.size.height);
-    opacity = 1.0;
-    usesLayout = YES;
-    imageSize = CGSizeMake(self.view.bounds.size.height - 2, self.view.bounds.size.height - 2);
-    timeFont = [[Defaults sharedDefaults] smallFont];
-    timeColor = [[Defaults sharedDefaults] regularFakeBeamColor];
-    textWidth = 300.0f;
-    titleFont = [[Defaults sharedDefaults] smallFont];
-    titleColor = [[Defaults sharedDefaults] lightFakeBeamColor];
-    artistFont = [[Defaults sharedDefaults] smallFont];
-    artistColor = [[Defaults sharedDefaults] secondaryLabelColor];
-    xOffset = 2.0f;
+    NSRect documentVisibleRect = NSMakeRect(0.0, 0.0, self.view.bounds.size.width, self.view.bounds.size.height);
     
     const CGFloat xMin = documentVisibleRect.origin.x;
     const CGFloat width = documentVisibleRect.size.width;
-    const CGFloat backgroundWidth = textWidth + imageSize.width + 12;
-    const unsigned long long frameOffset = floor((xMin - backgroundWidth) * framesPerPixel);
+    const CGFloat backgroundWidth = 300.0 + _imageSize.width + 12.0;
+    const unsigned long long frameOffset = floor((xMin - backgroundWidth) * self.framesPerPixel);
     
     TrackListIterator* iter = nil;
     NSMutableSet* neededTrackFrames = [NSMutableSet set];
@@ -839,8 +652,8 @@ const CGFloat kMarkerHandleWidth = 6.0f;
     //
     unsigned long long nextTrackFrame = [_trackList firstTrackFrame:&iter];
     while (nextTrackFrame != ULONG_LONG_MAX) {
-        if (frameOffset < nextTrackFrame) {
-            const CGFloat x = floor((nextTrackFrame / framesPerPixel) - xMin);
+        if (frameOffset <= nextTrackFrame) {
+            const CGFloat x = floor((nextTrackFrame / self.framesPerPixel) - xMin);
             if (x >= width) {
                 break;
             }
@@ -849,10 +662,7 @@ const CGFloat kMarkerHandleWidth = 6.0f;
         nextTrackFrame = [_trackList nextTrackFrame:iter];
     };
 
-    NSArray<NSNumber*>* trackFrames = nil;
-    if (usesLayout) {
-        trackFrames = [[neededTrackFrames allObjects] sortedArrayUsingSelector:@selector(compare:)];
-    }
+    NSArray<NSNumber*>* trackFrames = [[neededTrackFrames allObjects] sortedArrayUsingSelector:@selector(compare:)];
 
     //
     // See if we already have sublayers that cover these needed track frame offsets.
@@ -882,7 +692,7 @@ const CGFloat kMarkerHandleWidth = 6.0f;
         
         // Create one if we did not find a reusable one.
         if (background == nil) {
-            background = [self trackLayerWithStyle:@"small" hostingLayer:wv.markLayer];
+            background = [self trackLayer];
             [wv.markLayer addSublayer:background];
         }
 
@@ -892,27 +702,26 @@ const CGFloat kMarkerHandleWidth = 6.0f;
         //
         // Initialize the display elements with track data.
         //
-        assert(background.sublayers.count == 7);
-        CALayer* imageLayer = background.sublayers[1];
-        CATextLayer* timeLayer = background.sublayers[2];
-        CATextLayer* titleLayer = background.sublayers[3];
-        CATextLayer* artistLayer = background.sublayers[4];
+        CALayer* imageLayer = background.sublayers[kClippingHostLayerIndex].sublayers[kImageLayerIndex];
+        CATextLayer* timeLayer = background.sublayers[kClippingHostLayerIndex].sublayers[kTimeLayerIndex];
+        CATextLayer* titleLayer = background.sublayers[kClippingHostLayerIndex].sublayers[kTitleLayerIndex];
+        CATextLayer* artistLayer = background.sublayers[kClippingHostLayerIndex].sublayers[kArtistLayerIndex];
         
         background.name = [neededFrame stringValue];
 
-        IdentifiedTrack* track = [_trackList trackAtFrame:[neededFrame unsignedLongLongValue]];
+        TimedMediaMetaData* track = [_trackList trackAtFrame:[neededFrame unsignedLongLongValue]];
 
         NSImage* image = nil;
-        if (track.artwork != nil) {
-            image = [NSImage resizedImage:track.artwork
+        if (track.meta.artwork != nil) {
+            image = [NSImage resizedImage:[track.meta imageFromArtwork]
                                      size:imageLayer.frame.size];
         } else {
             image = [NSImage resizedImage:[NSImage imageNamed:@"UnknownSong"]
                                      size:imageLayer.frame.size];
-            if (track.imageURL != nil) {
+            if (track.meta.artworkLocation != nil) {
                 // We can try to resolve the artwork image from the URL.
-                [self resolveImageForURL:track.imageURL callback:^(NSImage* image){
-                    track.artwork = image;
+                [self resolveImageForURL:track.meta.artworkLocation callback:^(NSImage* image){
+                    [track.meta setArtworkFromImage:image];
                     imageLayer.contents = image;
                 }];
             }
@@ -920,64 +729,27 @@ const CGFloat kMarkerHandleWidth = 6.0f;
 
         imageLayer.contents = image;
         
-        if (usesLayout) {
-            assert(track.title);
-            NSAttributedString* title = [self textWithFont:titleFont
-                                                     color:titleColor
-                                                      text:track.title];
-            titleLayer.string = title;
-            
-            assert(track.artist);
-            NSAttributedString* artist = [self textWithFont:artistFont
-                                                      color:artistColor
-                                                       text:track.artist];
-            artistLayer.string = artist;
-            
-            NSAttributedString* time = [self textWithFont:timeFont
-                                                    color:timeColor
-                                                     text:[_delegate stringFromFrame:[track.frame unsignedLongLongValue]]];
-            timeLayer.string = time;
-        } else {
-            assert(track.title);
-            NSAttributedString* title = [self textWithFont:titleFont
-                                                     color:titleColor
-                                                     width:textWidth
-                                                      text:track.title];
-            CGSize titleSize = [title size];
-            titleLayer.string = title;
-            
-            assert(track.artist);
-            NSAttributedString* artist = [self textWithFont:artistFont
-                                                      color:artistColor
-                                                      width:textWidth
-                                                       text:track.artist];
-            CGSize artistSize = [artist size];
-            artistLayer.string = artist;
-
-            NSAttributedString* time = [self textWithFont:timeFont
-                                                    color:timeColor
-                                                     text:[_delegate stringFromFrame:[track.frame unsignedLongLongValue]]];
-            CGSize timeSize = [time size];
-            timeLayer.string = time;
-           
-            CGFloat maxWidth = titleSize.width;
-            if (artistSize.width > maxWidth) {
-                maxWidth = artistSize.width;
-            }
-            if (timeSize.width > maxWidth) {
-                maxWidth = timeSize.width;
-            }
-
-            CGFloat actualLabelWidth = maxWidth > textWidth ? maxWidth : textWidth;
-            CGSize backgroundSize = CGSizeMake(imageSize.width + 12.0 + actualLabelWidth, imageSize.height);
-            background.bounds = CGRectMake(0.0, 0.0, backgroundSize.width, backgroundSize.height);
-        }
+        
+        NSAttributedString* title = [self textWithFont:_titleFont
+                                                 color:_titleColor
+                                                  text:track.meta.title != nil ? track.meta.title : @""];
+        titleLayer.string = title;
+        
+        NSAttributedString* artist = [self textWithFont:_artistFont
+                                                  color:_artistColor
+                                                   text:track.meta.artist != nil ? track.meta.artist : @""];
+        artistLayer.string = artist;
+        
+        NSAttributedString* time = [self textWithFont:_timeFont
+                                                color:_timeColor
+                                                 text:[_delegate stringFromFrame:[track.frame unsignedLongLongValue]]];
+        timeLayer.string = time;
     }
 
     //
     // Position all tiles -- we need to do this continuously to fake scrolling.
     //
-    if (usesLayout && trackFrames.count > 0) {
+    if (trackFrames.count > 0) {
         for (size_t i = 0; i < trackFrames.count; i++) {
             NSNumber* next = nil;
             NSNumber* current = trackFrames[i];
@@ -987,7 +759,7 @@ const CGFloat kMarkerHandleWidth = 6.0f;
 
             BOOL active = current == _currentTrack.frame;
 
-            CGFloat x = ((float)[current unsignedLongLongValue] / framesPerPixel) - xMin;
+            CGFloat x = [self trackMarkOffsetWithFrameOffset:[current unsignedLongLongValue]] - xMin;
             CALayer* currentLayer = [self sublayerForFrame:current layers:wv.markLayer.sublayers];
             assert(currentLayer);
             // We position using the layout manager to allow for constraint based layout.
@@ -1008,27 +780,18 @@ const CGFloat kMarkerHandleWidth = 6.0f;
             FrameMarker* marker = [[FrameMarker alloc] initWithFrame:current rect:rectValue];
             [_markTracking addObject:marker];
 
-            CALayer* fxLayer = currentLayer.sublayers[5];
-            CALayer* handleLayer = currentLayer.sublayers[0];
+            CALayer* fxLayer = currentLayer.sublayers[kFXLayerIndex];
+            CALayer* handleLayer = currentLayer.sublayers[kHandleLayerIndex];
             fxLayer.opacity = active ? 1.0f : 0.0f;
             handleLayer.backgroundColor = active ? _handleColors[ActiveHandle].CGColor : _handleColors[NormalHandle].CGColor;
             if (active) {
                 _activeLayer = currentLayer;
             }
+            currentLayer.sublayers[kClippingHostLayerIndex].sublayers[kImageLayerIndex].opacity = kRegularImageViewOpacity;
+            //currentLayer.sublayers[kClippingHostLayerIndex].sublayers[kImageLayerIndex].filters = @[ _vibranceFilter ];
         }
         [wv.markLayer setNeedsLayout];
         [wv.markLayer layoutIfNeeded];
-
-//        for (NSNumber* frame in trackFrames) {
-//            CALayer* layer = [self sublayerForFrame:frame layers:wv.markLayer.sublayers];
-//            layer.mask = [CAShapeLayer MaskLayerFromRect:layer.bounds];
-//        }
-    } else {
-        for (CALayer* currentLayer in wv.markLayer.sublayers) {
-            NSNumber* frameOffset = [currentLayer valueForKey:kFrameOffsetLayerKey];
-            CGFloat x = ((float)[frameOffset unsignedLongLongValue] / framesPerPixel) - xMin;
-            currentLayer.position = CGPointMake(x + xOffset, yOffset);
-        }
     }
 }
 
@@ -1237,8 +1000,8 @@ const CGFloat kMarkerHandleWidth = 6.0f;
 
 - (void)animateTrackMark:(CALayer*)background
 {
-    CALayer* fxLayer = background.sublayers[5];
-    CALayer* handleLayer = background.sublayers[0];
+    CALayer* fxLayer = background.sublayers[kFXLayerIndex];
+    CALayer* handleLayer = background.sublayers[kHandleLayerIndex];
     const float beatsPerCycle = 4.0f;
     
     CABasicAnimation* animation = [CABasicAnimation animationWithKeyPath:@"opacity"];
@@ -1288,16 +1051,23 @@ const CGFloat kMarkerHandleWidth = 6.0f;
     }
 }
 
+- (CGFloat)trackMarkOffsetWithFrameOffset:(unsigned long long)frame
+{
+    assert(_frames);
+    return (frame / self.framesPerPixel) - 2.0;
+}
+
 - (void)dragMark:(NSPoint)location
 {
     assert(_draggingLayer);
 
-    const double framesPerPixel = _frames / self.view.bounds.size.width;
-    unsigned long long newFrame = (location.x - (kMarkerHandleWidth / 2.0)) * framesPerPixel;
-    CGFloat x = newFrame / framesPerPixel;
+    unsigned long long newFrame = (location.x - (kMarkerHandleWidth / 2.0)) * self.framesPerPixel;
+   
+    CGFloat x = [self trackMarkOffsetWithFrameOffset:newFrame];
 
     [CATransaction begin];
     [CATransaction setDisableActions:YES];
+
     // Patch the constraints to now have a new left-side (minX) constraint.
     CAConstraint* minXConstraint = [CAConstraint constraintWithAttribute:kCAConstraintMinX
                                                               relativeTo:@"superlayer"
@@ -1309,7 +1079,7 @@ const CGFloat kMarkerHandleWidth = 6.0f;
                                     _draggingLayer.constraints[3]];
 
     WaveView* wv = (WaveView*)self.view;
-    CATextLayer* timeLayer = _draggingLayer.sublayers[2];
+    CATextLayer* timeLayer = _draggingLayer.sublayers[kClippingHostLayerIndex].sublayers[kTimeLayerIndex];
 
     NSFont* timeFont = [[Defaults sharedDefaults] smallFont];
     NSColor* timeColor = [[Defaults sharedDefaults] regularFakeBeamColor];
@@ -1322,29 +1092,26 @@ const CGFloat kMarkerHandleWidth = 6.0f;
     [wv.markLayer setNeedsLayout];
     [wv.markLayer layoutIfNeeded];
 
-//    _previousLayer.mask = [CAShapeLayer MaskLayerFromRect:_previousLayer.bounds];
-//    _draggingLayer.mask = [CAShapeLayer MaskLayerFromRect:_draggingLayer.bounds];
-
     [CATransaction commit];
 }
 
 - (void)duckImageOn:(CALayer*)background forwards:(BOOL)forwards
 {
-    CALayer* image = background.sublayers[1];
-    CATextLayer* time = background.sublayers[2];
-    CATextLayer* title = background.sublayers[3];
-    CATextLayer* artist = background.sublayers[4];
-    
-    CGFloat x = forwards ? kMarkerHandleWidth + 2.0 : image.frame.size.width + kMarkerHandleWidth + 2.0;
-    CGFloat opacity = forwards ? 0.0f : 1.0f;
+    CALayer* image = background.sublayers[kClippingHostLayerIndex].sublayers[kImageLayerIndex];
+    CATextLayer* time = background.sublayers[kClippingHostLayerIndex].sublayers[kTimeLayerIndex];
+    CATextLayer* title = background.sublayers[kClippingHostLayerIndex].sublayers[kTitleLayerIndex];
+    CATextLayer* artist = background.sublayers[kClippingHostLayerIndex].sublayers[kArtistLayerIndex];
 
-    image.opacity = opacity;
+    image.opacity = forwards ? 0.0f : kRegularImageViewOpacity;
+    //image.filters = forwards ? nil : @[ _vibranceFilter ];
+    title.opacity = forwards ? 0.0f : 1.0f;
+    artist.opacity = forwards ? 0.0f : 1.0f;
+
+    CGFloat x = forwards ? kMarkerHandleWidth + 2.0 : image.frame.size.width + kMarkerHandleWidth + 2.0;
 
     time.frame = CGRectMake(x, time.frame.origin.y, background.bounds.size.width - x, time.frame.size.height);
     title.frame = CGRectMake(x, title.frame.origin.y, background.bounds.size.width - x, title.frame.size.height);
-    title.opacity = opacity;
     artist.frame = CGRectMake(x, artist.frame.origin.y, background.bounds.size.width - x, artist.frame.size.height);
-    artist.opacity = opacity;
 }
 
 - (CALayer*)sublayerForLocation:(NSPoint)location layers:(NSArray<CALayer*>*)layers
@@ -1361,10 +1128,7 @@ const CGFloat kMarkerHandleWidth = 6.0f;
 {
     WaveView* wv = (WaveView*)self.view;
 
-    assert(background.sublayers.count > 5);
-    CALayer* hostLayer = background.sublayers[6];
-    assert(hostLayer.sublayers.count > 0);
-    CALayer* layer = hostLayer.sublayers[0];
+    CALayer* layer = background.sublayers[kClippingHostLayerIndex].sublayers[kReflectionLayerIndex];
 
     CABasicAnimation* animation = [CABasicAnimation animationWithKeyPath:@"transform.translation.x"];
     if (forwards) {
@@ -1405,18 +1169,93 @@ const CGFloat kMarkerHandleWidth = 6.0f;
     [CATransaction commit];
 }
 
+/// Updates screen cursor
+///
+/// - Parameter event: system event
+///
+/// We need to make sure nothing changes the cursor in our view - thus we override the handler but do not pass down the
+/// event. That way our cursor can be controlled exclusively during the mouseMove handler.
+///
+/// We cant use this handler as it appears to get called only sporadically, depending on other screen activities -- entirely
+/// enigmatic but the result is only moveMove gets reliable called and that is where we do our cursor updates.
+///
+/// Without this override, some other stuff trashes our cursor updates -- i have no idea what that was.
 - (void)cursorUpdate:(NSEvent*)event
 {
-    // We need to make sure nothing changes the cursor in our view - thus we override the
-    // handler but do not pass down the event. That way our cursor can be controlled
-    // exclusively during the mouseMove handler.
-    //
-    // We cant use this handler as it appears to get called only sporadically, depending
-    // on other screen activities -- entirely enigmatic but the result is only moveMove gets
-    // reliable called and that is where we do our cursor updates.
-    //
-    // Without this override, some other stuff trashes our cursor updates -- i have no idea
-    // what that was.
+}
+
+- (CGFloat)idealWidthForTrack:(TimedMediaMetaData*)track
+{
+    CGFloat width = 0.0f;
+
+    NSAttributedString* title = [self textWithFont:_titleFont
+                                             color:_titleColor
+                                              text:track.meta.title != nil ? track.meta.title : @""];
+    
+    NSAttributedString* artist = [self textWithFont:_artistFont
+                                              color:_artistColor
+                                               text:track.meta.artist != nil ? track.meta.artist : @""];
+    
+    NSAttributedString* time = [self textWithFont:_timeFont
+                                            color:_timeColor
+                                             text:[_delegate stringFromFrame:[track.frame unsignedLongLongValue]]];
+    width = title.size.width;
+    if (artist.size.width > width) {
+        width = artist.size.width;
+    }
+    if (time.size.width > width) {
+        width = time.size.width;
+    }
+
+    return ceilf(width + self.view.bounds.size.height + kMarkerHandleWidth + 8.0);
+}
+
+- (void)duckStackAfter:(CALayer*)popularMarker
+{
+    WaveView* wv = (WaveView*)self.view;
+    NSArray<CALayer*>* orderedLayers = [wv.markLayer.sublayers sortedArrayUsingComparator:^NSComparisonResult(id  _Nonnull obj1, id  _Nonnull obj2) {
+        NSNumber* frame1 = [obj1 valueForKey:kFrameOffsetLayerKey];
+        NSNumber* frame2 = [obj2 valueForKey:kFrameOffsetLayerKey];
+        return [frame1 compare:frame2];
+    }];
+    
+    NSNumber* popularFrameOffset = [popularMarker valueForKey:kFrameOffsetLayerKey];
+    TimedMediaMetaData* track = [_trackList trackAtFrame:[popularFrameOffset unsignedLongLongValue]];
+    assert(track);
+
+    CGFloat neededWidth = [self idealWidthForTrack:track];
+
+    // Shortcut if the marker already has enough room.
+    if (popularMarker.bounds.size.width >= neededWidth) {
+        return;
+    }
+    CGFloat x = neededWidth + popularMarker.frame.origin.x;
+
+    for (CALayer* layer in orderedLayers) {
+        if (layer == popularMarker) {
+            continue;
+        }
+        if (layer.frame.origin.x < popularMarker.frame.origin.x) {
+            continue;
+        }
+        // Did we reach the right side of things?
+        if (layer.frame.origin.x > x) {
+            break;
+        }
+        // Patch the constraints to now have a new left-side (minX) constraint.
+        CAConstraint* minXConstraint = [CAConstraint constraintWithAttribute:kCAConstraintMinX
+                                                                  relativeTo:@"superlayer"
+                                                                   attribute:kCAConstraintMinX
+                                                                      offset:x];
+        assert(layer.constraints.count == 4);
+        layer.constraints = @[ minXConstraint,
+                               layer.constraints[1],
+                               layer.constraints[2],
+                               layer.constraints[3]];
+        x += 20.0;
+    }
+    [wv.markLayer setNeedsLayout];
+    [wv.markLayer layoutIfNeeded];
 }
 
 - (void)mouseMoved:(NSEvent*)event
@@ -1441,8 +1280,8 @@ const CGFloat kMarkerHandleWidth = 6.0f;
     } else {
         markerBackgroundLayer = [self sublayerForFrame:marker.frame layers:wv.markLayer.sublayers];
         assert(markerBackgroundLayer);
-        handleLayer = markerBackgroundLayer.sublayers[0];
-        fxLayer = markerBackgroundLayer.sublayers[5];
+        handleLayer = markerBackgroundLayer.sublayers[kHandleLayerIndex];
+        fxLayer = markerBackgroundLayer.sublayers[kFXLayerIndex];
         _previousLayer = [self sublayerForLocation:NSMakePoint(markerBackgroundLayer.frame.origin.x - 4.0f, location.y) layers:wv.markLayer.sublayers];
     }
 
@@ -1471,6 +1310,20 @@ const CGFloat kMarkerHandleWidth = 6.0f;
         [[NSCursor arrowCursor] set];
     }
 
+    if (_duckForLayer != markerBackgroundLayer) {
+        [self updateTrackDescriptions];
+    }
+
+    // Are we above a description?
+    if (markerBackgroundLayer != nil) {
+        // Highlight by making the image layer entirely opaque,unless we are on top of a marker.
+        markerBackgroundLayer.sublayers[kClippingHostLayerIndex].sublayers[kImageLayerIndex].opacity = marker == nil ? 1.0f : 0.0f;
+        //markerBackgroundLayer.sublayers[kClippingHostLayerIndex].sublayers[kImageLayerIndex].filters = nil;
+
+        [self duckStackAfter:markerBackgroundLayer];
+        _duckForLayer = markerBackgroundLayer;
+    }
+
     _draggingLayer = markerBackgroundLayer;
     _handleLayer = handleLayer;
     _fxLayer = fxLayer;
@@ -1486,11 +1339,48 @@ const CGFloat kMarkerHandleWidth = 6.0f;
         [[NSCursor arrowCursor] set];
     }
 
+    if (_duckForLayer) {
+        [self updateTrackDescriptions];
+    }
+
     [super mouseExited:event];
+}
+
+- (CGRect)rangeRectForMarker:(FrameMarker*)popularMarker
+{
+    if (_markTracking.count < 2) {
+        return  CGRectZero;
+    }
+
+    NSArray<NSNumber*>* trackFrames = [_trackList.frames sortedArrayUsingSelector:@selector(compare:)];
+    NSUInteger index = [trackFrames indexOfObject:popularMarker.frame];
+    assert(index != NSNotFound);
+
+    NSNumber* left = nil;
+    NSNumber* right = nil;
+
+    if (index > 0) {
+        left = trackFrames[index - 1];
+    }
+    if (trackFrames.count > 0 && index < trackFrames.count - 1) {
+        right = trackFrames[index + 1];
+    }
+
+    CGFloat start = 0.0;
+    if (left != nil) {
+        start = [self trackMarkOffsetWithFrameOffset:[left unsignedLongLongValue]];
+    }
+    CGFloat end = self.view.frame.size.width;
+    if (right != nil) {
+        end = [self trackMarkOffsetWithFrameOffset:[right unsignedLongLongValue]];
+    }
+
+    return CGRectMake((start + 12.0), 0.0f, (end - 4.0) - (start + 12.0), 1.0f);
 }
 
 - (void)mouseDown:(NSEvent*)event
 {
+    // We now are tracking depending on if we have a marker below the cursor.
     _tracking = _trackingMarker != nil;
 
     WaveView* wv = (WaveView*)self.view;
@@ -1508,6 +1398,7 @@ const CGFloat kMarkerHandleWidth = 6.0f;
             _handleLayer = background.sublayers[0];
             _fxLayer = background.sublayers[6];
         }
+        _draggingRangeRect = [self rangeRectForMarker:_trackingMarker];
         _handleLayer.backgroundColor = _handleColors[PressedHandle].CGColor;
         _fxLayer.opacity = 1.0;
         [self reflectionWithLayer:background forwards:YES];
@@ -1531,9 +1422,8 @@ const CGFloat kMarkerHandleWidth = 6.0f;
     NSPoint locationInWindow = [event locationInWindow];
     NSPoint location = [self.view convertPoint:locationInWindow fromView:nil];
     
-    const double framesPerPixel = _frames / self.view.bounds.size.width;
     unsigned long long oldFrame = [_trackingMarker.frame unsignedLongLongValue];
-    unsigned long long newFrame = (location.x - (kMarkerHandleWidth / 2.0)) * framesPerPixel;
+    unsigned long long newFrame = (location.x - (kMarkerHandleWidth / 2.0)) * self.framesPerPixel;
 
     if (newFrame == oldFrame) {
         NSLog(@"track frame didnt change, skip updates");
@@ -1561,12 +1451,26 @@ const CGFloat kMarkerHandleWidth = 6.0f;
 
     NSPoint locationInWindow = [event locationInWindow];
     NSPoint location = [self.view convertPoint:locationInWindow fromView:nil];
+    if (location.x < self.view.frame.origin.x) {
+        location.x = self.view.frame.origin.x;
+    }
+    if (location.x > self.view.frame.origin.x + self.view.frame.size.width - 1.0) {
+        location.x = self.view.frame.origin.x + self.view.frame.size.width - 1.0;
+    }
 
     if (!_tracking || _trackingMarker == nil || _draggingLayer == nil) {
         unsigned long long newFrame = (_visualSample.sample.frames * location.x ) / self.view.frame.size.width;
         [_delegate seekToFrame:newFrame];
     }
     if (_draggingLayer != nil) {
+        // Assert we dont cross another marker.
+        if (location.x < _draggingRangeRect.origin.x) {
+            location.x = _draggingRangeRect.origin.x;
+        }
+        if (location.x > _draggingRangeRect.origin.x + _draggingRangeRect.size.width) {
+            location.x = _draggingRangeRect.origin.x + _draggingRangeRect.size.width;
+        }
+        // Visually drag the marker.
         [self dragMark:location];
     }
 

@@ -301,7 +301,6 @@
             tf.cell.truncatesLastVisibleLine = YES;
             tf.cell.lineBreakMode = NSLineBreakByTruncatingTail;
             tf.alignment = NSTextAlignmentLeft;
-            tf.textColor = [[Defaults sharedDefaults] secondaryLabelColor];
             tf.tag = kTitleViewTag;
             [view addSubview:tf];
 
@@ -316,7 +315,6 @@
             tf.cell.lineBreakMode = NSLineBreakByTruncatingTail;
             tf.bordered = NO;
             tf.alignment = NSTextAlignmentLeft;
-            tf.textColor = [[Defaults sharedDefaults] secondaryLabelColor];
             tf.tag = kArtistViewTag;
             [view addSubview:tf];
 
@@ -350,21 +348,28 @@
             title = _list[row-historyLength].title;
             artist = _list[row-historyLength].artist;
             tf.textColor = [[Defaults sharedDefaults] secondaryLabelColor];
+            af.textColor = [[Defaults sharedDefaults] secondaryLabelColor];
         } else {
             assert(_history.count > row);
             title = _history[row].title;
             artist = _history[row].artist;
-            NSColor* color = nil;
+
+            NSColor* titleColor = nil;
+            NSColor* artistColor = nil;
             if (row == historyLength-1) {
                 if (_playing) {
-                    color = [[Defaults sharedDefaults] lightFakeBeamColor];
+                    titleColor = [[Defaults sharedDefaults] lightFakeBeamColor];
+                    artistColor = [[Defaults sharedDefaults] regularFakeBeamColor];
                 } else {
-                    color = [[Defaults sharedDefaults] secondaryLabelColor];
+                    titleColor = [[Defaults sharedDefaults] secondaryLabelColor];
+                    artistColor = [[Defaults sharedDefaults] secondaryLabelColor];
                 }
             } else {
-                color = [[Defaults sharedDefaults] tertiaryLabelColor];
+                titleColor = [[Defaults sharedDefaults] tertiaryLabelColor];
+                artistColor = [[Defaults sharedDefaults] tertiaryLabelColor];
             }
-            tf.textColor = color;
+            tf.textColor = titleColor;
+            af.textColor = artistColor;
         }
         if (title == nil) {
             title = @"";

@@ -34,8 +34,7 @@ const size_t kMaxFramesPerBuffer = 16384;
 
         NSURL* url = [NSURL fileURLWithPath:path];
         NSAssert(url != nil, @"invalid file path: %@", path);
-        _source = [[AVAudioFile alloc] initForReading:url
-                                                error:error];
+        _source = [[AVAudioFile alloc] initForReading:url error:error];
         _tileProduced = [[NSCondition alloc] init];
         
         if (_source == nil) {

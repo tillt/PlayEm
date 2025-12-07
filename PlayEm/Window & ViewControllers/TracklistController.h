@@ -12,7 +12,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class IdentifiedTrack;
+@class TimedMediaMetaData;
 @class AudioController;
 
 extern NSString * const kTracklistControllerChangedActiveTrackNotification;

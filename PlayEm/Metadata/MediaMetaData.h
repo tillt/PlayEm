@@ -13,6 +13,8 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+@class SHMatchedMediaItem;
+
 ///
 /// MediaMetaData is lazily holding metadata for library entries to allow for extending iTunes provided data.
 /// iTunes provided data are held in a shadow item until data is requested and thus copied in.
@@ -48,7 +50,7 @@ extern NSString* const kMediaMetaDataMapTypeNumber;
 
 //extern NSString* const kStarSymbol;
 
-@interface MediaMetaData : NSObject<NSCopying>
+@interface MediaMetaData : NSObject<NSCopying, NSSecureCoding>
 @property (strong, nonatomic) ITLibMediaItem* shadow;
 @property (copy, nonatomic, nullable) NSString* title;
 @property (copy, nonatomic, nullable) NSString* album;
@@ -70,6 +72,7 @@ extern NSString* const kMediaMetaDataMapTypeNumber;
 @property (copy, nonatomic, nullable) NSNumber* disks;
 @property (copy, nonatomic, nullable) NSNumber* locationType;
 @property (strong, nonatomic, nullable) NSData* artwork;
+@property (copy, nonatomic, nullable) NSURL* artworkLocation;
 @property (copy, nonatomic, nullable) NSNumber* artworkFormat;
 @property (copy, nonatomic, nullable) NSURL* location;
 @property (copy, nonatomic, nullable) NSDate* added;
@@ -83,6 +86,7 @@ extern NSString* const kMediaMetaDataMapTypeNumber;
 @property (copy, nonatomic, nullable) NSString* volume;
 @property (copy, nonatomic, nullable) NSString* volumeAdjustment;
 @property (copy, nonatomic, nullable) NSString* stars;
+@property (copy, nonatomic, nullable) NSURL* appleLocation;
 
 @property (readonly, nonatomic, nullable) NSImage* imageFromArtwork;
 
@@ -93,11 +97,14 @@ extern NSString* const kMediaMetaDataMapTypeNumber;
 - (BOOL)storeTracklistWithError:(NSError**)error;
 - (BOOL)recoverTracklistWithError:(NSError**)error;
 
+- (void)setArtworkFromImage:(NSImage*)image;
+
 - (BOOL)exportTracklistToFile:(NSURL*)url frameEncoder:(FrameToString)encoder error:(NSError *__autoreleasing  _Nullable *)error;
 - (NSString*)readableTracklistWithFrameEncoder:(FrameToString)encoder;
 
 + (MediaMetaData*)mediaMetaDataWithURL:(NSURL*)url error:(NSError**)error;
 + (MediaMetaData*)mediaMetaDataWithITLibMediaItem:(ITLibMediaItem*)item error:(NSError**)error;
++ (MediaMetaData*)mediaMetaDataWithSHMatchedMediaItem:(SHMatchedMediaItem*)item error:(NSError**)error;
 
 + (NSDictionary<NSString*, NSDictionary*>*)mediaMetaKeyMap;
 + (NSArray<NSString*>*)mediaMetaKeys;

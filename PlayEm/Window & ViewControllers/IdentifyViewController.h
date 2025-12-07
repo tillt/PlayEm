@@ -12,11 +12,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 @class AudioController;
 @class LazySample;
-@class IdentifiedTrack;
+@class TimedMediaMetaData;
 
 @protocol IdentifyViewControllerDelegate <NSObject>
 
-- (void)addTrackToTracklist:(IdentifiedTrack*)track;
+- (void)addTrackToTracklist:(TimedMediaMetaData*)track;
 
 @end
 

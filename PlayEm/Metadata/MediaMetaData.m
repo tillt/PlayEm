@@ -12,6 +12,7 @@
 #import <AVFoundation/AVFoundation.h>
 #import <iTunesLibrary/ITLibArtist.h>
 #import <iTunesLibrary/ITLibAlbum.h>
+#import <ShazamKit/ShazamKit.h>
 
 #import <Cocoa/Cocoa.h>
 #import <objc/runtime.h>
@@ -135,11 +136,33 @@ NSString* const kMediaMetaDataMapTypeNumber = @"number";
     return meta;
 }
 
+/// Create MediaMetaData item out of an iTunes/Music.app media library item.
+///
+/// - Parameters:
+///   - item: ITLibMediaItem
+///   - error: error object
+///
+/// - Returns: MediaMetaData
+///
 + (MediaMetaData*)mediaMetaDataWithITLibMediaItem:(ITLibMediaItem*)item error:(NSError**)error
 {
     MediaMetaData* meta = [[MediaMetaData alloc] init];
     meta.shadow = item;
     meta.key = @"";
+    return meta;
+}
+
+
++ (MediaMetaData*)mediaMetaDataWithSHMatchedMediaItem:(SHMatchedMediaItem*)item error:(NSError**)error
+{
+    MediaMetaData* meta = [[MediaMetaData alloc] init];
+
+    meta.title = item.title;
+    meta.artist = item.artist;
+    meta.genre = item.genres.count > 0 ? item.genres[0] : @"";
+    meta.artworkLocation = item.artworkURL;
+    meta.appleLocation = item.appleMusicURL;
+
     return meta;
 }
 
@@ -446,6 +469,11 @@ NSString* const kMediaMetaDataMapTypeNumber = @"number";
     return mimeMap[@(format)];
 }
 
++ (BOOL)supportsSecureCoding
+{
+   return YES;
+}
+
 - (id)init
 {
     self = [super init];
@@ -455,11 +483,16 @@ NSString* const kMediaMetaDataMapTypeNumber = @"number";
     return self;
 }
 
+
 - (TrackList*)trackList
 {
     return _trackList;
 }
 
+/// Default tracklist location derived from the source file location.
+///
+/// - Returns: tracklist file location URL
+///
 - (NSURL*)trackListURL
 {
     return [[self.location URLByDeletingPathExtension] URLByAppendingPathExtension:@"tracklist"];
@@ -532,6 +565,7 @@ NSString* const kMediaMetaDataMapTypeNumber = @"number";
     }
     
     if (_channels == nil) {
+        // FIXME: This looks rather faky - why is that?
         _channels = @"stereo";
     }
     
@@ -872,6 +906,14 @@ NSString* const kMediaMetaDataMapTypeNumber = @"number";
     return _artworkFormat;
 }
 
+- (void)setArtworkFromImage:(NSImage*)image
+{
+    NSData *tiffData = [image TIFFRepresentation];
+    NSBitmapImageRep *bitmap = [NSBitmapImageRep imageRepWithData:tiffData];
+    _artwork = [bitmap representationUsingType:NSBitmapImageFileTypePNG
+                                   properties:@{}];
+}
+
 - (NSImage*)imageFromArtwork
 {
     if (self.artwork == nil) {
@@ -900,6 +942,84 @@ NSString* const kMediaMetaDataMapTypeNumber = @"number";
             self.title, self.album, self.artist, self.location, (void*)self, self.artworkFormat, self.tempo, self.key, self.duration, self.rating, self.comment];
 }
 
+- (id)initWithCoder:(NSCoder *)coder
+{
+    self = [super init];
+    if (self) {
+        _title = [coder decodeObjectForKey:@"title"];
+        _album = [coder decodeObjectForKey:@"album"];
+        _artist = [coder decodeObjectForKey:@"artist"];
+        _genre = [coder decodeObjectForKey:@"genre"];
+        _year = [coder decodeObjectForKey:@"year"];
+        _comment = [coder decodeObjectForKey:@"comment"];
+        _lyrics = [coder decodeObjectForKey:@"lyrics"];
+        _composer = [coder decodeObjectForKey:@"composer"];
+        _compilation = [coder decodeObjectForKey:@"compilation"];
+        _albumArtist = [coder decodeObjectForKey:@"albumArtist"];
+        _label = [coder decodeObjectForKey:@"label"];
+        _tempo = [coder decodeObjectForKey:@"tempo"];
+        _key = [coder decodeObjectForKey:@"key"];
+        _track = [coder decodeObjectForKey:@"track"];
+        _tracks = [coder decodeObjectForKey:@"tracks"];
+        _disk = [coder decodeObjectForKey:@"disk"];
+        _disks = [coder decodeObjectForKey:@"disks"];
+        _locationType = [coder decodeObjectForKey:@"locationType"];
+        _artwork = [coder decodeObjectForKey:@"artwork"];
+        _artworkFormat = [coder decodeObjectForKey:@"artworkFormat"];
+        _location = [coder decodeObjectForKey:@"location"];
+        _added = [coder decodeObjectForKey:@"added"];
+        _duration = [coder decodeObjectForKey:@"duration"];
+        _size = [coder decodeObjectForKey:@"size"];
+        _rating = [coder decodeObjectForKey:@"rating"];
+        _tags = [coder decodeObjectForKey:@"tags"];
+        _channels = [coder decodeObjectForKey:@"channels"];
+        _bitrate = [coder decodeObjectForKey:@"bitrate"];
+        _volume = [coder decodeObjectForKey:@"volume"];
+        _volumeAdjustment = [coder decodeObjectForKey:@"volumeAdjustment"];
+        _samplerate = [coder decodeObjectForKey:@"samplerate"];
+        _appleLocation = [coder decodeObjectForKey:@"appleLocation"];
+        _artworkLocation = [coder decodeObjectForKey:@"artworkLocation"];
+    }
+    return self;
+}
+
+- (void)encodeWithCoder:(NSCoder *)coder
+{
+    [coder encodeObject:_title forKey:@"title"];
+    [coder encodeObject:_album  forKey:@"album"];
+    [coder encodeObject:_artist  forKey:@"artist"];
+    [coder encodeObject:_genre  forKey:@"genre"];
+    [coder encodeObject:_year  forKey:@"year"];
+    [coder encodeObject:_comment  forKey:@"comment"];
+    [coder encodeObject:_lyrics  forKey:@"lyrics"];
+    [coder encodeObject:_composer  forKey:@"composer"];
+    [coder encodeObject:_compilation  forKey:@"compilation"];
+    [coder encodeObject:_albumArtist  forKey:@"albumArtist"];
+    [coder encodeObject:_label  forKey:@"label"];
+    [coder encodeObject:_tempo  forKey:@"tempo"];
+    [coder encodeObject:_key  forKey:@"key"];
+    [coder encodeObject:_track  forKey:@"track"];
+    [coder encodeObject:_tracks  forKey:@"tracks"];
+    [coder encodeObject:_disk  forKey:@"disk"];
+    [coder encodeObject:_disks  forKey:@"disks"];
+    [coder encodeObject:_locationType  forKey:@"locationType"];
+    [coder encodeObject:_artwork  forKey:@"artwork"];
+    [coder encodeObject:_artworkFormat  forKey:@"artworkFormat"];
+    [coder encodeObject:_location  forKey:@"location"];
+    [coder encodeObject:_added  forKey:@"added"];
+    [coder encodeObject:_duration  forKey:@"duration"];
+    [coder encodeObject:_size  forKey:@"size"];
+    [coder encodeObject:_rating  forKey:@"rating"];
+    [coder encodeObject:_tags  forKey:@"tags"];
+    [coder encodeObject:_channels  forKey:@"channels"];
+    [coder encodeObject:_bitrate  forKey:@"bitrate"];
+    [coder encodeObject:_volume  forKey:@"volume"];
+    [coder encodeObject:_volumeAdjustment  forKey:@"volumeAdjustment"];
+    [coder encodeObject:_samplerate  forKey:@"samplerate"];
+    [coder encodeObject:_appleLocation  forKey:@"appleLocation"];
+    [coder encodeObject:_artworkLocation  forKey:@"artworkLocation"];
+}
+
 - (id)copyWithZone:(NSZone *)zone
 {
     MediaMetaData* copy = [[[self class] allocWithZone:zone] init];
@@ -916,7 +1036,6 @@ NSString* const kMediaMetaDataMapTypeNumber = @"number";
         copy.albumArtist = [_albumArtist copyWithZone:zone];
         copy.label = [_label copyWithZone:zone];
         copy.tempo = [_tempo copyWithZone:zone];
-        copy.albumArtist = [_albumArtist copyWithZone:zone];
         copy.key = [_key copyWithZone:zone];
         copy.track = [_track copyWithZone:zone];
         copy.tracks = [_tracks copyWithZone:zone];
@@ -936,6 +1055,8 @@ NSString* const kMediaMetaDataMapTypeNumber = @"number";
         copy.volume = [_volume copyWithZone:zone];
         copy.volumeAdjustment = [_volumeAdjustment copyWithZone:zone];
         copy.samplerate = [_samplerate copyWithZone:zone];
+        copy.appleLocation = [_appleLocation copyWithZone:zone];
+        copy.artworkLocation = [_artworkLocation copyWithZone:zone];
 
         copy.shadow = _shadow;
     }

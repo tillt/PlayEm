@@ -1679,7 +1679,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     [window makeKeyAndOrderFront:nil];
 }
 
-- (void)addTrackToTracklist:(IdentifiedTrack*)track
+- (void)addTrackToTracklist:(TimedMediaMetaData*)track
 {
     [_tracklist addTrack:track];
     [_totalWaveViewController reloadTracklist];
@@ -2825,7 +2825,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     [_totalWaveViewController reloadTracklist];
 }
 
-- (IdentifiedTrack*)currentTrack
+- (TimedMediaMetaData*)currentTrack
 {
     return [_tracklist currentTrack];
 }

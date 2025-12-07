@@ -17,7 +17,8 @@
 #import "../NSImage+Resize.h"
 #import "../NSImage+Average.h"
 
-#import "IdentifiedTrack.h"
+#import "TimedMediaMetaData.h"
+#import "MediaMetaData.h"
 
 NSString* const kTitleColumnIdenfifier = @"TitleColumn";
 NSString* const kCoverColumnIdenfifier = @"CoverColumn";
@@ -42,12 +43,25 @@ const CGFloat kTableRowHeight = 52.0f;
 @property (strong, nonatomic) dispatch_queue_t identifyQueue;
 @property (strong, nonatomic) dispatch_queue_t imageQueue;
 
-@property (strong, nonatomic) NSMutableArray<IdentifiedTrack*>* identifieds;
+@property (strong, nonatomic) NSURL* identifySampleLocation;
+@property (strong, nonatomic) NSMutableArray<TimedMediaMetaData*>* identifieds;
 
 @property (strong, nonatomic) NSTableView* tableView;
 @property (strong, nonatomic, nullable) NSURL* imageURL;
 
 @property (strong, nonatomic) NSVisualEffectView* effectBelowList;
+
+@property (strong, nonatomic) NSColor* titleColor;
+@property (strong, nonatomic) NSColor* artistColor;
+@property (strong, nonatomic) NSColor* genreColor;
+
+@property (strong, nonatomic) NSFont* titleFont;
+@property (strong, nonatomic) NSFont* artistFont;
+@property (strong, nonatomic) NSFont* genreFont;
+
+@property (assign, nonatomic) CGFloat titleFontSize;
+@property (assign, nonatomic) CGFloat artistFontSize;
+@property (assign, nonatomic) CGFloat genreFontSize;
 
 @end
 
@@ -64,6 +78,18 @@ const CGFloat kTableRowHeight = 52.0f;
         _identifyQueue = dispatch_queue_create("PlayEm.IdentifyQueue", attr);
         _imageQueue = dispatch_queue_create("PlayEm.IdentifyImageQueue", attr);
         _identifieds = [NSMutableArray array];
+
+        _titleFont = [[Defaults sharedDefaults] largeFont];
+        _titleFontSize = [[Defaults sharedDefaults] largeFontSize];
+        _titleColor = [[Defaults sharedDefaults] lightFakeBeamColor];
+        
+        _artistFont = [[Defaults sharedDefaults] smallFont];
+        _artistFontSize = [[Defaults sharedDefaults] smallFontSize];
+        _artistColor = [[Defaults sharedDefaults] regularFakeBeamColor];
+
+        _genreFont = [[Defaults sharedDefaults] smallFont];
+        _genreFontSize = [[Defaults sharedDefaults] smallFontSize];
+        _genreColor = [[Defaults sharedDefaults] secondaryLabelColor];
     }
     return self;
 }
@@ -89,10 +115,16 @@ const CGFloat kTableRowHeight = 52.0f;
 - (void)viewWillAppear
 {
     NSLog(@"IdentifyController.view becoming visible");
+        
+    if (![_identifySampleLocation isEqualTo:_audioController.sample.source.url]) {
+        _identifieds = [NSMutableArray array];
+        [self.tableView reloadData];
+    }
+
     [_identificationCoverView startAnimating];
     [self updateCover:nil animated:NO];
+        
     [self shazam:self];
-    //[_identificationCoverView startAnimating];
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(AudioControllerPlaybackStateChange:)
                                                  name:kAudioControllerChangedPlaybackStateNotification
@@ -209,10 +241,10 @@ const CGFloat kTableRowHeight = 52.0f;
     [self.view addSubview:_effectBelowList];
 }
 
-- (NSString*)queryWithIdentifiedTrack:(IdentifiedTrack*)item
+- (NSString*)queryWithIdentifiedTrack:(TimedMediaMetaData*)item
 {
-    NSString* artist = item.artist;
-    NSString* title = item.title;
+    NSString* artist = item.meta.artist;
+    NSString* title = item.meta.title;
     NSString* ret = title;
     if (artist != nil && ![artist isEqualToString:@""]) {
         ret = [NSString stringWithFormat:@"%@ - %@", artist, title];
@@ -279,7 +311,7 @@ const CGFloat kTableRowHeight = 52.0f;
 {
     NSButton* button = sender;
     unsigned long row = (_identifieds.count - button.tag) - 1;
-    IdentifiedTrack* track = _identifieds[row];
+    TimedMediaMetaData* track = _identifieds[row];
     NSLog(@"identified: %@", track);
     //NSTimeInterval time = [_audioController.sample timeForFrame:track.frame];
     [_delegate addTrackToTracklist:track];
@@ -350,7 +382,7 @@ const CGFloat kTableRowHeight = 52.0f;
     NSButton* button = sender;
     unsigned long row = (_identifieds.count - button.tag) - 1;
     NSLog(@"music url row %ld", row);
-    NSURL* musicURL = _identifieds[row].musicURL;
+    NSURL* musicURL = _identifieds[row].meta.appleLocation;
     //    NSLog(@"opening %@", _musicURL);
     // For making sure this wont open Music.app we fetch the
     // default app for URLs.
@@ -374,7 +406,9 @@ const CGFloat kTableRowHeight = 52.0f;
     _session.delegate = self;
     
     SampleFormat sampleFormat = _audioController.sample.sampleFormat;
-    
+
+    _identifySampleLocation = _audioController.sample.source.url;
+
     AVAudioFrameCount matchWindowFrameCount = kPlaybackBufferFrames;
     AVAudioChannelLayout* layout = [[AVAudioChannelLayout alloc] initWithLayoutTag:kAudioChannelLayoutTag_Mono];
     AVAudioFormat* format = [[AVAudioFormat alloc] initWithCommonFormat:AVAudioPCMFormatFloat32
@@ -426,8 +460,7 @@ const CGFloat kTableRowHeight = 52.0f;
         if (match.mediaItems[0].artworkURL != nil && ![match.mediaItems[0].artworkURL.absoluteString isEqualToString:self.imageURL.absoluteString]) {
             NSLog(@"need to re/load the image as the displayed URL %@ wouldnt match the requested URL %@", self.imageURL.absoluteString, match.mediaItems[0].artworkURL.absoluteString);
             
-            IdentifiedTrack* item = [[IdentifiedTrack alloc] initWithMatchedMediaItem:match.mediaItems[0]];
-            item.frame = [NSNumber numberWithUnsignedLongLong:self.sessionFrame];
+            TimedMediaMetaData* item = [[TimedMediaMetaData alloc] initWithMatchedMediaItem:match.mediaItems[0] frame:[NSNumber numberWithUnsignedLongLong:self.sessionFrame]];
 
             NSLog(@"item frame: %@", item.frame);
             self.imageURL = match.mediaItems[0].artworkURL;
@@ -435,14 +468,14 @@ const CGFloat kTableRowHeight = 52.0f;
             dispatch_async(self.imageQueue, ^{
                 NSImage* image = [[NSImage alloc] initWithContentsOfURL:match.mediaItems[0].artworkURL];
                 dispatch_async(dispatch_get_main_queue(), ^{
-                    item.artwork = image;
+                    [item.meta setArtworkFromImage:image];
                     [self updateCover:image animated:YES];
                     [self->_identifieds insertObject:item atIndex:0];
                     [self->_tableView beginUpdates];
                     NSIndexSet* indexSet = [NSIndexSet indexSetWithIndex:0];
                     [self->_tableView insertRowsAtIndexes:indexSet
                                             withAnimation:NSTableViewAnimationSlideRight];
-                    [self->_tableView selectRowIndexes:indexSet byExtendingSelection:NO];
+                    //[self->_tableView selectRowIndexes:indexSet byExtendingSelection:NO];
                     [self->_tableView endUpdates];
                 });
             });
@@ -454,8 +487,27 @@ const CGFloat kTableRowHeight = 52.0f;
 {
     NSLog(@"didNotFindMatchForSignature - error was: %@", error);
     dispatch_async(dispatch_get_main_queue(), ^{
-        [self->_tableView selectRowIndexes:[NSIndexSet indexSet] byExtendingSelection:NO];
+        //[self->_tableView selectRowIndexes:[NSIndexSet indexSet] byExtendingSelection:NO];
+        //[self updateCover:nil animated:YES];
+        if (self->_identifieds.count > 0) {
+            TimedMediaMetaData* lastTrack = self->_identifieds[0];
+
+            if (lastTrack.meta.artworkLocation == nil && lastTrack.meta.appleLocation == nil) {
+                NSLog(@"unknown already on top, no need to add more");
+                return;
+            }
+        }
+        
+        TimedMediaMetaData* item = [TimedMediaMetaData unknownTrackAtFrame:[NSNumber numberWithUnsignedLongLong:self.sessionFrame]];
+        NSLog(@"item frame: %@", item.frame);
         [self updateCover:nil animated:YES];
+        [self->_identifieds insertObject:item atIndex:0];
+        [self->_tableView beginUpdates];
+        NSIndexSet* indexSet = [NSIndexSet indexSetWithIndex:0];
+        [self->_tableView insertRowsAtIndexes:indexSet
+                                withAnimation:NSTableViewAnimationSlideRight];
+        //[self->_tableView selectRowIndexes:indexSet byExtendingSelection:NO];
+        [self->_tableView endUpdates];
     });
 }
 
@@ -490,9 +542,6 @@ const CGFloat kTableRowHeight = 52.0f;
 
     const CGFloat kArtworkSize = kTableRowHeight - 2.0;
 
-    const CGFloat kSmallFontSize = 11.0;
-    const CGFloat kRegularFontSize = 13.0;
-    const CGFloat kLargeFontSize = 17.0;
     
     assert(_identifieds.count > 0);
     
@@ -508,7 +557,7 @@ const CGFloat kTableRowHeight = 52.0f;
         } else {
             imageView = (NSImageView*)result;
         }
-        imageView.image = [NSImage resizedImage:_identifieds[row].artwork
+        imageView.image = [NSImage resizedImage:[_identifieds[row].meta imageFromArtwork]
                                            size:NSMakeSize(kArtworkSize, kArtworkSize)];;
     } else if ([tableColumn.identifier isEqualToString:kButtonColumnIdenfifier]) {
         NSButton* menuButton = nil;
@@ -520,7 +569,7 @@ const CGFloat kTableRowHeight = 52.0f;
             menuButton = [NSButton buttonWithTitle:buttonTitle
                                             target:self
                                             action:@selector(showMenu:)];
-            menuButton.font = [NSFont systemFontOfSize:kRegularFontSize];
+            menuButton.font = [NSFont systemFontOfSize:[[Defaults sharedDefaults] normalFontSize]];
             menuButton.bordered = NO;
             [menuButton setButtonType:NSButtonTypeMomentaryPushIn];
             menuButton.bezelStyle = NSBezelStyleTexturedRounded;
@@ -546,27 +595,27 @@ const CGFloat kTableRowHeight = 52.0f;
                                                                     kArtworkSize)];
             
             title = [IdentifyViewController textFieldWithFrame:NSMakeRect(  0.0,
-                                                                          ((kSmallFontSize + 4.0) * 2.0),
+                                                                          ((_artistFontSize + 4.0) * 2.0),
                                                                           tableColumn.width,
-                                                                          kLargeFontSize + 3.0)
-                                                          font:[[Defaults sharedDefaults] largeFont]
-                                                         color:[[Defaults sharedDefaults] lightFakeBeamColor]];
+                                                                          _titleFontSize + 3.0)
+                                                          font:_titleFont
+                                                         color:_titleColor];
             [view addSubview:title];
             
             artist = [IdentifyViewController textFieldWithFrame:NSMakeRect( 0.0,
-                                                                           (kSmallFontSize + 2.0) + 3.0,
+                                                                           (_artistFontSize + 2.0) + 3.0,
                                                                            tableColumn.width,
-                                                                           kSmallFontSize + 2.0)
-                                                           font:[[Defaults sharedDefaults] smallFont]
-                                                          color:[[Defaults sharedDefaults] secondaryLabelColor]];
+                                                                           _artistFontSize + 2.0)
+                                                           font:_artistFont
+                                                          color:_artistColor];
             [view addSubview:artist];
             
-            genre = [IdentifyViewController textFieldWithFrame:NSMakeRect(  0.0,
+            genre = [IdentifyViewController textFieldWithFrame:NSMakeRect( 0.0,
                                                                           2.0,
                                                                           tableColumn.width,
-                                                                          kSmallFontSize + 2.0)
-                                                          font:[[Defaults sharedDefaults] smallFont]
-                                                         color:[[Defaults sharedDefaults] secondaryLabelColor]];
+                                                                          _genreFontSize + 2.0)
+                                                          font:_genreFont
+                                                         color:_genreColor];
             [view addSubview:genre];
             
             result = view;
@@ -576,9 +625,9 @@ const CGFloat kTableRowHeight = 52.0f;
             artist = subviews[1];
             genre = subviews[2];
         }
-        [title setStringValue:_identifieds[row].title];
-        [artist setStringValue:_identifieds[row].artist];
-        [genre setStringValue:_identifieds[row].genre];
+        [title setStringValue:_identifieds[row].meta.title];
+        [artist setStringValue:_identifieds[row].meta.artist];
+        [genre setStringValue:_identifieds[row].meta.genre];
     }
     result.identifier = tableColumn.identifier;
     

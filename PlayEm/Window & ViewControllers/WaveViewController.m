@@ -12,11 +12,13 @@
 #import <CoreImage/CIFilterBuiltins.h>
 
 #import "TrackList.h"
+#import "MediaMetaData.h"
+
 #import "WaveView.h"
 #import "Defaults.h"
 #import "../Sample/LazySample.h"
 #import "TrackList.h"
-#import "IdentifiedTrack.h"
+#import "TimedMediaMetaData.h"
 #import "TileView.h"
 #import "../Sample/BeatTrackedSample.h"
 #import "../Sample/VisualSample.h"
@@ -32,6 +34,17 @@ typedef enum : NSUInteger {
     ActiveHandle
 } TrackMarkHandleState;
 
+static const size_t kHandleLayerIndex = 0;
+static const size_t kFXLayerIndex = 1;
+static const size_t kClippingHostLayerIndex = 2;
+static const size_t kImageLayerIndex = 0;
+static const size_t kTimeLayerIndex = 1;
+static const size_t kTitleLayerIndex = 2;
+static const size_t kArtistLayerIndex = 3;
+static const size_t kReflectionLayerIndex = 4;
+
+static const CGFloat kRegularImageViewOpacity = 0.5f;
+
 extern NSString * const kTracklistControllerChangedActiveTrackNotification;
 
 
@@ -41,8 +54,6 @@ extern NSString * const kTracklistControllerChangedActiveTrackNotification;
 
 - (id)initWithFrame:(NSNumber*)frame rect:(NSValue*)rect;
 @end
-
-
 
 @interface WaveViewController()
 @property (nonatomic, assign) BOOL userMomentum;
@@ -56,15 +67,30 @@ extern NSString * const kTracklistControllerChangedActiveTrackNotification;
 @property (weak, nonatomic) CALayer* activeLayer;
 @property (weak, nonatomic) CALayer* handleLayer;
 @property (weak, nonatomic) CALayer* fxLayer;
+@property (weak, nonatomic) CALayer* duckForLayer;
 
 @property (assign, nonatomic) BOOL tracking;
 @property (strong, nonatomic) NSMutableSet<FrameMarker*>* markTracking;
 @property (strong, nonatomic) FrameMarker* trackingMarker;
 
-@property (weak, nonatomic) IdentifiedTrack* currentTrack;
+@property (weak, nonatomic) TimedMediaMetaData* currentTrack;
 
 @property (strong, nonatomic) NSArray<NSColor*>* handleColors;
 @property (assign, nonatomic) float currentTempo;
+@property (assign, nonatomic) BOOL duck;
+
+@property (strong, nonatomic) NSFont* titleFont;
+@property (strong, nonatomic) NSColor* titleColor;
+@property (strong, nonatomic) NSFont* timeFont;
+@property (strong, nonatomic) NSColor* timeColor;
+@property (strong, nonatomic) NSFont* artistFont;
+@property (strong, nonatomic) NSColor* artistColor;
+@property (assign, nonatomic) CGSize imageSize;
+@property (readonly, nonatomic) double framesPerPixel;
+@property (assign, nonatomic) CGRect draggingRangeRect;
+
+//@property (strong, nonatomic) CIFilter* vibranceFilter;
+
 
 @end
 

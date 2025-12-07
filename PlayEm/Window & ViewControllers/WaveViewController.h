@@ -18,7 +18,7 @@ NS_ASSUME_NONNULL_BEGIN
 @class TrackList;
 @class TileView;
 @class VisualSample;
-@class IdentifiedTrack;
+@class TimedMediaMetaData;
 
 typedef CGFloat (^OffsetBlock) (void);
 typedef CGFloat (^TotalWidthBlock) (void);
@@ -28,7 +28,7 @@ typedef CGFloat (^TotalWidthBlock) (void);
 - (void)updatedTracks;
 - (void)moveTrackAtFrame:(unsigned long long)oldFrame toFrame:(unsigned long long)newFrame;
 - (void)seekToFrame:(unsigned long long)frame;
-- (IdentifiedTrack*)currentTrack;
+- (TimedMediaMetaData*)currentTrack;
 @end
 
 @interface WaveViewController : NSViewController <CALayerDelegate>

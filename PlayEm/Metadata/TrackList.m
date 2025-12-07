@@ -7,7 +7,9 @@
 //
 
 #import "TrackList.h"
-#import "IdentifiedTrack.h"
+#import "TimedMediaMetaData.h"
+#import "MediaMetaData.h"
+#import <AVFoundation/AVFoundation.h>
 
 @implementation TrackListIterator
 
@@ -39,7 +41,7 @@
 @end
 
 @interface TrackList()
-@property (strong, nonatomic) NSMutableDictionary<NSNumber*, IdentifiedTrack*>* trackMap;
+@property (strong, nonatomic) NSMutableDictionary<NSNumber*, TimedMediaMetaData*>* trackMap;
 @end
 
 @implementation TrackList
@@ -49,6 +51,21 @@
     self = [super init];
     if (self) {
         _trackMap = [NSMutableDictionary dictionary];
+    }
+    return self;
+}
+
+- (id)initWithTimedMetadataGroups:(NSArray<AVTimedMetadataGroup*>*)groups framerate:(long)rate
+{
+    self = [super init];
+    if (self) {
+        _trackMap = [NSMutableDictionary dictionary];
+
+        for (AVTimedMetadataGroup* group in groups) {
+            TimedMediaMetaData* track = [[TimedMediaMetaData alloc] initWithTimedMediaGroup:group framerate:rate];
+            NSLog(@"TimedMediaMetaData: %@", track);
+            _trackMap[track.frame] = track;
+        }
     }
     return self;
 }
@@ -63,16 +80,16 @@
 
     for (NSNumber* value in frames) {
         unsigned long long frame = [value unsignedLongLongValue];
-        IdentifiedTrack* track = [self trackAtFrame:frame];
+        TimedMediaMetaData* track = [self trackAtFrame:frame];
 
         NSString* entry = [NSString stringWithFormat:@"#%02ld %@ ", trackIndex, encoder(frame)];
 
-        if (track.artist.length > 0 && track.title.length > 0) {
-            entry = [NSString stringWithFormat:@"%@%@ - %@", entry, track.artist, track.title];
-        } else if (track.title.length > 0) {
-            entry = [NSString stringWithFormat:@"%@%@", entry, track.title];
-        } else if (track.artist.length > 0) {
-            entry = [NSString stringWithFormat:@"%@%@", entry, track.artist];
+        if (track.meta.artist.length > 0 && track.meta.title.length > 0) {
+            entry = [NSString stringWithFormat:@"%@%@ - %@", entry, track.meta.artist, track.meta.title];
+        } else if (track.meta.title.length > 0) {
+            entry = [NSString stringWithFormat:@"%@%@", entry, track.meta.title];
+        } else if (track.meta.artist.length > 0) {
+            entry = [NSString stringWithFormat:@"%@%@", entry, track.meta.artist];
         } else {
             entry = [NSString stringWithFormat:@"%@ [Unknown]", entry];
         }
@@ -95,14 +112,14 @@
 
     for (NSNumber* value in frames) {
         unsigned long long frame = [value unsignedLongLongValue];
-        IdentifiedTrack* track = [self trackAtFrame:frame];
+        TimedMediaMetaData* track = [self trackAtFrame:frame];
         NSString* entry = [NSString stringWithFormat:@"  TRACK %02ld AUDIO\n", trackIndex];
 
-        if (track.title.length > 0) {
-            entry = [NSString stringWithFormat:@"%@    TITLE \"%@\"\n", entry, track.title];
+        if (track.meta.title.length > 0) {
+            entry = [NSString stringWithFormat:@"%@    TITLE \"%@\"\n", entry, track.meta.title];
         }
-        if (track.artist.length > 0) {
-            entry = [NSString stringWithFormat:@"%@    PERFORMER \"%@\"\n", entry, track.artist];
+        if (track.meta.artist.length > 0) {
+            entry = [NSString stringWithFormat:@"%@    PERFORMER \"%@\"\n", entry, track.meta.artist];
         }
         entry = [NSString stringWithFormat:@"%@    INDEX 01 %@\n", entry,  encoder(frame)];
 
@@ -130,11 +147,12 @@
         return NO;
     }
     
-    NSSet* allowedClasses = [NSSet setWithObjects:[IdentifiedTrack class], [NSString class], [NSNumber class], [NSURL class], nil];
+    NSSet* allowedClasses = [NSSet setWithObjects:[TimedMediaMetaData class], [MediaMetaData class], [NSData class], [NSString class], [NSNumber class], [NSURL class], nil];
     NSSet* allowedKeyClasses = [NSSet setWithObjects:[NSString class], [NSNumber class], nil];
     NSDictionary* dictionary = [NSKeyedUnarchiver unarchivedDictionaryWithKeysOfClasses:allowedKeyClasses
                                                                        objectsOfClasses:allowedClasses
-                                                                               fromData:data error:error];
+                                                                               fromData:data
+                                                                                  error:error];
     if (dictionary == nil) {
         return NO;
     }
@@ -144,7 +162,7 @@
     return YES;
 }
 
-- (void)addTrack:(IdentifiedTrack*)track
+- (void)addTrack:(TimedMediaMetaData*)track
 {
     [_trackMap setObject:track forKey:track.frame];
 }
@@ -154,7 +172,7 @@
     [_trackMap removeObjectForKey:@(frame)];
 }
 
-- (NSArray<IdentifiedTrack*>*)tracks
+- (NSArray<TimedMediaMetaData*>*)tracks
 {
     return [_trackMap allValues];
 }
@@ -164,7 +182,7 @@
     return [_trackMap allKeys];
 }
 
-- (IdentifiedTrack*)trackAtFrame:(unsigned long long)frame
+- (TimedMediaMetaData*)trackAtFrame:(unsigned long long)frame
 {
     return [_trackMap objectForKey:@(frame)];
 }

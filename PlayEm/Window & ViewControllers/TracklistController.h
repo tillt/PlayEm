@@ -34,12 +34,12 @@ extern NSString * const kTracklistControllerChangedActiveTrackNotification;
 @property (nonatomic, weak) id <TracklistControllerDelegate> delegate;
 @property (nonatomic, weak) MediaMetaData* current;
 @property (nonatomic, assign) unsigned long long currentFrame;
-@property (nonatomic, readonly) IdentifiedTrack* currentTrack;
+@property (nonatomic, readonly) TimedMediaMetaData* currentTrack;
 
 - (id)initWithTracklistTable:(NSTableView*)table
                    delegate:(id<TracklistControllerDelegate>)delegate;
 
-- (void)addTrack:(IdentifiedTrack*)track;
+- (void)addTrack:(TimedMediaMetaData*)track;
 - (void)moveTrackAtFrame:(unsigned long long)oldFrame frame:(unsigned long long)newFrame;
 
 - (NSMenu*)menu;

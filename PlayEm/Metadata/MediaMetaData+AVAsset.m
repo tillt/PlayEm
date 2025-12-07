@@ -108,81 +108,135 @@
     };
 }
 
+- (long)sampleRateForAsset:(AVAsset*)asset
+{
+    // Get the first audio track
+    AVAssetTrack *audioTrack = [[asset tracksWithMediaType:AVMediaTypeAudio] firstObject];
+
+    if (audioTrack == nil) {
+        return 0;
+    }
+
+    // Each track has one or more CMAudioFormatDescriptions
+    for (id desc in audioTrack.formatDescriptions) {
+        CMAudioFormatDescriptionRef formatDesc = (__bridge CMAudioFormatDescriptionRef)desc;
+        
+        const AudioStreamBasicDescription* asbd =
+            CMAudioFormatDescriptionGetStreamBasicDescription(formatDesc);
+        
+        if (asbd != NULL) {
+            return (long)(asbd->mSampleRate);
+        }
+    }
+
+    return 0; // Could not read sample rate
+}
+
+- (void)readChapterMarks:(AVAsset*)asset
+{
+    NSArray<NSString*>* preferred = [NSBundle preferredLocalizationsFromArray:[[NSBundle mainBundle] localizations]
+                                                               forPreferences:[NSLocale preferredLanguages]];
+    long rate = [self sampleRateForAsset:asset];
+    NSLog(@"Asset claims to have a rate of %ld", rate);
+
+    [asset loadChapterMetadataGroupsBestMatchingPreferredLanguages:preferred
+                                                 completionHandler:^(NSArray<AVTimedMetadataGroup*>* _Nullable chapterGroups,
+                                                                     NSError * _Nullable error) {
+        if (error) {
+            NSLog(@"Error loading chapter metadata: %@", error.localizedDescription);
+            return;
+        }
+        NSLog(@"Loaded %lu chapter groups", (unsigned long)chapterGroups.count);
+
+        self.trackList = [[TrackList alloc] initWithTimedMetadataGroups:chapterGroups framerate:rate];
+    }];
+}
+
+- (void)updateWithMetadataItem:(AVMetadataItem*)item
+{
+    NSDictionary* id3Genres = [MediaMetaData id3GenreMap];
+
+    NSLog(@"%@ (%@): %@ dataType: %@ extra:%@", [item commonKey], [item keyString], [item value], [item dataType], [item extraAttributes]);
+
+    if ([item commonKey] == nil) {
+        if ([[item keyString] isEqualToString:@"TYER"] || [[item keyString] isEqualToString:@"@day"]  || [[item keyString] isEqualToString:@"TDRL"] ) {
+            self.year = [NSNumber numberWithInt:[(NSString*)[item value] intValue]];
+        } else if ([[item keyString] isEqualToString:@"@gen"]) {
+            self.genre = (NSString*)[item value];
+        } else if ([[item keyString] isEqualToString:@"tmpo"]) {
+            self.tempo = [NSNumber numberWithInt:[(NSString*)[item value] intValue]];
+        } else if ([[item keyString] isEqualToString:@"aART"]) {
+            self.albumArtist = (NSString*)[item value];
+        } else if ([[item keyString] isEqualToString:@"@cmt"]) {
+            self.comment = (NSString*)[item value];
+        } else if ([[item keyString] isEqualToString:@"@wrt"]) {
+            self.composer = (NSString*)[item value];
+        } else if ([[item keyString] isEqualToString:@"@lyr"]) {
+            self.lyrics = (NSString*)[item value];
+        } else if ([[item keyString] isEqualToString:@"cpil"]) {
+            self.compilation = [NSNumber numberWithBool:[(NSString*)[item value] boolValue]];
+        } else if ([[item keyString] isEqualToString:@"trkn"]) {
+            NSAssert([[item dataType] isEqualToString:(__bridge NSString*)kCMMetadataBaseDataType_RawData], @"item datatype isnt data");
+            NSData* data = item.dataValue;
+            NSAssert(data.length >= 8, @"unexpected tuple encoding");
+            const uint16_t* tuple = data.bytes;
+            self.track = [NSNumber numberWithShort:ntohs(tuple[1])];
+            self.tracks = [NSNumber numberWithShort:ntohs(tuple[2])];
+        } else if ([[item keyString] isEqualToString:@"disk"]) {
+            NSAssert([[item dataType] isEqualToString:(__bridge NSString*)kCMMetadataBaseDataType_RawData], @"item datatype isnt data");
+            NSData* data = item.dataValue;
+            NSAssert(data.length >= 6, @"unexpected tuple encoding");
+            const uint16_t* tuple = data.bytes;
+            self.disk = [NSNumber numberWithShort:ntohs(tuple[1])];
+            self.disks = [NSNumber numberWithShort:ntohs(tuple[2])];
+        } else {
+            //NSLog(@"ignoring unsupported metadata: %@ (%@): %@", [item commonKey], [item keyString], [item value]);
+        }
+    } else if ([[item commonKey] isEqualToString:@"title"]) {
+        if (item.extraAttributes != nil && [item.extraAttributes objectForKey:@"dataType"] == nil) {
+            NSLog(@"skip titles meant for extras - skipping \"%@\" for  %@", [item value], [item extraAttributes]);
+        } else {
+            self.title = (NSString*)[item value];
+        }
+    } else if ([[item commonKey] isEqualToString:@"artist"]) {
+        self.artist = (NSString*)[item value];
+    } else if ([[item commonKey] isEqualToString:@"albumName"]) {
+        self.album = (NSString*)[item value];
+    } else if ([[item commonKey] isEqualToString:@"type"]) {
+        NSData* data = item.dataValue;
+        NSAssert(data.length >= 2, @"unexpected genre encoding");
+        const uint16_t* genre = data.bytes;
+        const uint16_t index = ntohs(genre[0]);
+        NSAssert(index >= 1 && index <= 80, @"unexpected genre index %d", index);
+        // For some reason AVAsset serves a genre index +1 of the original id3 one.
+        NSNumber* genreNumber = [NSNumber numberWithUnsignedShort:index - 1];
+        self.genre = id3Genres[genreNumber];
+    } else if ([[item commonKey] isEqualToString:@"artwork"]) {
+        if (item.dataValue != nil) {
+            //NSLog(@"item.dataValue artwork");
+            self.artwork = item.dataValue;
+        } else if (item.value != nil) {
+            //NSLog(@"item.value artwork");
+            self.artwork = (NSData*)item.value;
+        } else {
+            NSLog(@"unknown artwork");
+        }
+    } else {
+        //NSLog(@"ignoring unsupported metadata: %@ (%@): %@", [item commonKey], [item keyString], [item value]);
+    }
+}
+
 - (BOOL)readFromAVAsset:(AVAsset *)asset
 {
-    //NSArray<AVAssetTrackGroup*>* tracks = [asset trackGroups];
-    NSDictionary* id3Genres = [MediaMetaData id3GenreMap];
-    //NSLog(@"reading metadata from AVAsset:%@", asset );
-    // Note, this code uses a pre 10.10 compatible way of parsing the tags - newer versions
-    // of macOS do support proper identifiers
     for (NSString* format in [asset availableMetadataFormats]) {
         NSLog(@"format: %@", format);
         for (AVMetadataItem* item in [asset metadataForFormat:format]) {
-            NSLog(@"%@ (%@): %@ dataType: %@ extra:%@", [item commonKey], [item keyString], [item value], [item dataType], [item extraAttributes]);
-            if ([item commonKey] == nil) {
-                if ([[item keyString] isEqualToString:@"TYER"] || [[item keyString] isEqualToString:@"@day"]  || [[item keyString] isEqualToString:@"TDRL"] ) {
-                    self.year = [NSNumber numberWithInt:[(NSString*)[item value] intValue]];
-                } else if ([[item keyString] isEqualToString:@"@gen"]) {
-                    self.genre = (NSString*)[item value];
-                } else if ([[item keyString] isEqualToString:@"tmpo"]) {
-                    self.tempo = [NSNumber numberWithInt:[(NSString*)[item value] intValue]];
-                } else if ([[item keyString] isEqualToString:@"aART"]) {
-                    self.albumArtist = (NSString*)[item value];
-                } else if ([[item keyString] isEqualToString:@"@cmt"]) {
-                    self.comment = (NSString*)[item value];
-                } else if ([[item keyString] isEqualToString:@"@wrt"]) {
-                    self.composer = (NSString*)[item value];
-                } else if ([[item keyString] isEqualToString:@"@lyr"]) {
-                    self.lyrics = (NSString*)[item value];
-                } else if ([[item keyString] isEqualToString:@"cpil"]) {
-                    self.compilation = [NSNumber numberWithBool:[(NSString*)[item value] boolValue]];
-                } else if ([[item keyString] isEqualToString:@"trkn"]) {
-                    NSAssert([[item dataType] isEqualToString:(__bridge NSString*)kCMMetadataBaseDataType_RawData], @"item datatype isnt data");
-                    NSData* data = item.dataValue;
-                    NSAssert(data.length >= 8, @"unexpected tuple encoding");
-                    const uint16_t* tuple = data.bytes;
-                    self.track = [NSNumber numberWithShort:ntohs(tuple[1])];
-                    self.tracks = [NSNumber numberWithShort:ntohs(tuple[2])];
-                } else if ([[item keyString] isEqualToString:@"disk"]) {
-                    NSAssert([[item dataType] isEqualToString:(__bridge NSString*)kCMMetadataBaseDataType_RawData], @"item datatype isnt data");
-                    NSData* data = item.dataValue;
-                    NSAssert(data.length >= 6, @"unexpected tuple encoding");
-                    const uint16_t* tuple = data.bytes;
-                    self.disk = [NSNumber numberWithShort:ntohs(tuple[1])];
-                    self.disks = [NSNumber numberWithShort:ntohs(tuple[2])];
-                } else {
-                    //NSLog(@"ignoring unsupported metadata: %@ (%@): %@", [item commonKey], [item keyString], [item value]);
-                }
-            } else if ([[item commonKey] isEqualToString:@"title"]) {
-                self.title = (NSString*)[item value];
-            } else if ([[item commonKey] isEqualToString:@"artist"]) {
-                self.artist = (NSString*)[item value];
-            } else if ([[item commonKey] isEqualToString:@"albumName"]) {
-                self.album = (NSString*)[item value];
-            } else if ([[item commonKey] isEqualToString:@"type"]) {
-                NSData* data = item.dataValue;
-                NSAssert(data.length >= 2, @"unexpected genre encoding");
-                const uint16_t* genre = data.bytes;
-                const uint16_t index = ntohs(genre[0]);
-                NSAssert(index >= 1 && index <= 80, @"unexpected genre index %d", index);
-                // For some reason AVAsset serves a genre index +1 of the original id3 one.
-                NSNumber* genreNumber = [NSNumber numberWithUnsignedShort:index - 1];
-                self.genre = id3Genres[genreNumber];
-            } else if ([[item commonKey] isEqualToString:@"artwork"]) {
-                if (item.dataValue != nil) {
-                    //NSLog(@"item.dataValue artwork");
-                    self.artwork = item.dataValue;
-                } else if (item.value != nil) {
-                    //NSLog(@"item.value artwork");
-                    self.artwork = (NSData*)item.value;
-                } else {
-                    NSLog(@"unknown artwork");
-                }
-            } else {
-                //NSLog(@"ignoring unsupported metadata: %@ (%@): %@", [item commonKey], [item keyString], [item value]);
-            }
+            [self updateWithMetadataItem:item];
         }
     }
+    
+    [self readChapterMarks:asset];
+ 
     return YES;
 }
 
@@ -193,6 +247,14 @@
     return [self readFromAVAsset:asset];
 }
 
++ (MediaMetaData*)mediaMetaDataWithMetadataItems:(NSArray<AVMetadataItem*>*)items error:(NSError**)error
+{
+    MediaMetaData* meta = [[MediaMetaData alloc] init];
+    for (AVMetadataItem* item in items) {
+        [meta updateWithMetadataItem:item];
+    }
+    return meta;
+}
 
 
 #pragma mark - EXPERIMENTAL: Chapter Handling 

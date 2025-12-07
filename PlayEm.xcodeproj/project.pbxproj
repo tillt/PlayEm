@@ -11,7 +11,7 @@
 		BB097A0C2921B1E500D33E44 /* ScrollingTextView.m in Sources */ = {isa = PBXBuildFile; fileRef = BB097A0B2921B1E500D33E44 /* ScrollingTextView.m */; };
 		BB09C23D2E8028FB00C506FC /* SymbolButton.m in Sources */ = {isa = PBXBuildFile; fileRef = BB09C23C2E8028FB00C506FC /* SymbolButton.m */; };
 		BB0A62C62E88331600BAF444 /* TrackList.m in Sources */ = {isa = PBXBuildFile; fileRef = BB0A62C52E88331600BAF444 /* TrackList.m */; };
-		BB0A62C92E8855C200BAF444 /* IdentifiedTrack.m in Sources */ = {isa = PBXBuildFile; fileRef = BB0A62C82E8855C200BAF444 /* IdentifiedTrack.m */; };
+		BB0A62C92E8855C200BAF444 /* TimedMediaMetaData.m in Sources */ = {isa = PBXBuildFile; fileRef = BB0A62C82E8855C200BAF444 /* TimedMediaMetaData.m */; };
 		BB0A62CE2E88796A00BAF444 /* TracklistController.m in Sources */ = {isa = PBXBuildFile; fileRef = BB0A62CD2E88796500BAF444 /* TracklistController.m */; };
 		BB0A62D52EAD690A00BAF444 /* TODO.md in Resources */ = {isa = PBXBuildFile; fileRef = BB0A62D42EAD690A00BAF444 /* TODO.md */; };
 		BB0BDC3A2EC014550052D363 /* WaveViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = BB0BDC392EC014480052D363 /* WaveViewController.m */; };
@@ -129,8 +129,8 @@
 		BB09C23C2E8028FB00C506FC /* SymbolButton.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = SymbolButton.m; path = PlayEm/Views/SymbolButton.m; sourceTree = SOURCE_ROOT; };
 		BB0A62C42E88331600BAF444 /* TrackList.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TrackList.h; sourceTree = "<group>"; };
 		BB0A62C52E88331600BAF444 /* TrackList.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TrackList.m; sourceTree = "<group>"; };
-		BB0A62C72E88554D00BAF444 /* IdentifiedTrack.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IdentifiedTrack.h; sourceTree = "<group>"; };
-		BB0A62C82E8855C200BAF444 /* IdentifiedTrack.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = IdentifiedTrack.m; sourceTree = "<group>"; };
+		BB0A62C72E88554D00BAF444 /* TimedMediaMetaData.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TimedMediaMetaData.h; sourceTree = "<group>"; };
+		BB0A62C82E8855C200BAF444 /* TimedMediaMetaData.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TimedMediaMetaData.m; sourceTree = "<group>"; };
 		BB0A62CC2E88791400BAF444 /* TracklistController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TracklistController.h; sourceTree = "<group>"; };
 		BB0A62CD2E88796500BAF444 /* TracklistController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TracklistController.m; sourceTree = "<group>"; };
 		BB0A62D42EAD690A00BAF444 /* TODO.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = TODO.md; sourceTree = "<group>"; };
@@ -396,8 +396,6 @@
 				BB0BDC382EC00E470052D363 /* WaveViewController.h */,
 				BBA456DF29395B970062D470 /* IdentifyViewController.h */,
 				BBA456E029395B970062D470 /* IdentifyViewController.m */,
-				BB0A62C82E8855C200BAF444 /* IdentifiedTrack.m */,
-				BB0A62C72E88554D00BAF444 /* IdentifiedTrack.h */,
 				BB51C1E72E5A4A320049355F /* CreditsViewController.h */,
 				BB51C1E82E5A4A320049355F /* CreditsViewController.m */,
 				BB7C626A2932E1540019AF25 /* ControlPanelController.h */,
@@ -429,6 +427,8 @@
 				BBC2AF722B8B5B5A0077EB5E /* MediaMetaData+AVAsset.m */,
 				BB0A62C42E88331600BAF444 /* TrackList.h */,
 				BB0A62C52E88331600BAF444 /* TrackList.m */,
+				BB0A62C82E8855C200BAF444 /* TimedMediaMetaData.m */,
+				BB0A62C72E88554D00BAF444 /* TimedMediaMetaData.h */,
 			);
 			path = Metadata;
 			sourceTree = "<group>";
@@ -734,7 +734,7 @@
 				BB2A34A12D2372CC006BF132 /* ConstantBeatRefiner.m in Sources */,
 				BB26B51129442E9A006EBAA7 /* AudioProcessing.m in Sources */,
 				BBDBBA7B2BA4B013003A80C1 /* WaveShaders.metal in Sources */,
-				BB0A62C92E8855C200BAF444 /* IdentifiedTrack.m in Sources */,
+				BB0A62C92E8855C200BAF444 /* TimedMediaMetaData.m in Sources */,
 				BB2CB58724827A0900D47258 /* AudioController.mm in Sources */,
 				BB96D1E12D30748400AD48A5 /* AudioDevice.m in Sources */,
 				BB2CB5652481A92600D47258 /* WaveWindowController.m in Sources */,

@@ -10,7 +10,8 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class IdentifiedTrack;
+@class TimedMediaMetaData;
+@class AVTimedMetadataGroup;
 
 typedef NSString* _Nonnull (^FrameToString)(unsigned long long frame);
 
@@ -25,6 +26,7 @@ typedef NSString* _Nonnull (^FrameToString)(unsigned long long frame);
 
 @interface TrackList : NSObject
 
+- (id)initWithTimedMetadataGroups:(NSArray<AVTimedMetadataGroup*>*)groups framerate:(long)rate;
 
 - (BOOL)writeToFile:(NSURL*)url error:(NSError**)error;
 - (BOOL)readFromFile:(NSURL*)url error:(NSError**)error;
@@ -32,10 +34,10 @@ typedef NSString* _Nonnull (^FrameToString)(unsigned long long frame);
 - (NSString*)cueTracksWithFrameEncoder:(FrameToString)encoder;
 - (NSString*)beautifulTracksWithFrameEncoder:(FrameToString)encoder;
 
-- (void)addTrack:(IdentifiedTrack*)track;
+- (void)addTrack:(TimedMediaMetaData*)track;
 - (void)removeTrackAtFrame:(unsigned long long)frame;
-- (IdentifiedTrack*)trackAtFrame:(unsigned long long)frame;
-- (NSArray<IdentifiedTrack*>*)tracks;
+- (TimedMediaMetaData*)trackAtFrame:(unsigned long long)frame;
+- (NSArray<TimedMediaMetaData*>*)tracks;
 - (NSArray<NSNumber*>*)frames;
 
 - (unsigned long long)firstTrackFrame:(TrackListIterator *_Nonnull*_Nullable)iterator;

@@ -12,7 +12,8 @@
 #import "TrackList.h"
 #import "../Audio/AudioController.h"
 #import "../Sample/LazySample.h"
-#import "IdentifiedTrack.h"
+#import "TimedMediaMetaData.h"
+#import "MediaMetaData.h"
 
 const CGFloat kTimeHeight = 22.0;
 const CGFloat kTotalRowHeight = 52.0 + kTimeHeight;
@@ -97,7 +98,7 @@ NSString * const kTracklistControllerChangedActiveTrackNotification = @"Tracklis
     }
 }
 
-- (IdentifiedTrack*)currentTrack
+- (TimedMediaMetaData*)currentTrack
 {
     if (_currentTrackIndex == UINT_MAX) {
         return nil;
@@ -145,7 +146,7 @@ NSString * const kTracklistControllerChangedActiveTrackNotification = @"Tracklis
 
 - (void)moveTrackAtFrame:(unsigned long long)oldFrame frame:(unsigned long long)newFrame
 {
-    IdentifiedTrack* track = [_current.trackList trackAtFrame:oldFrame];
+    TimedMediaMetaData* track = [_current.trackList trackAtFrame:oldFrame];
     assert(track);
     NSArray<NSNumber*>* frames = [[_current.trackList frames] sortedArrayUsingSelector:@selector(compare:)];
     NSUInteger index = [frames indexOfObject:[NSNumber numberWithLongLong:oldFrame]];
@@ -171,7 +172,7 @@ NSString * const kTracklistControllerChangedActiveTrackNotification = @"Tracklis
     }
 }
 
-- (void)addTrack:(IdentifiedTrack*)track
+- (void)addTrack:(TimedMediaMetaData*)track
 {
     NSLog(@"adding track: %@", track);
     if ([_current.trackList trackAtFrame:[track.frame unsignedLongLongValue]] == track) {
@@ -377,7 +378,6 @@ NSString * const kTracklistControllerChangedActiveTrackNotification = @"Tracklis
         tf.cell.lineBreakMode = NSLineBreakByTruncatingTail;
         tf.bordered = NO;
         tf.alignment = NSTextAlignmentLeft;
-        tf.textColor = [[Defaults sharedDefaults] secondaryLabelColor];
         tf.tag = kArtistViewTag;
         [view addSubview:tf];
 
@@ -386,23 +386,24 @@ NSString * const kTracklistControllerChangedActiveTrackNotification = @"Tracklis
     }
 
     NSColor* titleColor = row == _currentTrackIndex ? [[Defaults sharedDefaults] lightFakeBeamColor] : [[Defaults sharedDefaults] secondaryLabelColor];;
-
+    NSColor* artistColor = row == _currentTrackIndex ? [[Defaults sharedDefaults] regularFakeBeamColor] : [[Defaults sharedDefaults] secondaryLabelColor];
+ 
     NSArray<NSNumber*>* frames = [_current.trackList.frames sortedArrayUsingSelector:@selector(compare:)];
     unsigned long long frame = [frames[row] unsignedLongLongValue];
-    IdentifiedTrack* track = [_current.trackList trackAtFrame:frame];
+    TimedMediaMetaData* track = [_current.trackList trackAtFrame:frame];
 
     NSImageView* iv = [result viewWithTag:kImageViewTag];
     
-    if (track.artwork != nil) {
-        iv.image = [NSImage resizedImage:track.artwork
+    if (track.meta.artwork != nil) {
+        iv.image = [NSImage resizedImage:[track.meta imageFromArtwork]
                                     size:iv.frame.size];
     } else {
         iv.image = [NSImage resizedImage:[NSImage imageNamed:@"UnknownSong"]
                                     size:iv.frame.size];
-        if (track.imageURL != nil) {
+        if (track.meta.artworkLocation != nil) {
             // We can try to resolve the artwork image from the URL.
-            [self resolveImageForURL:track.imageURL callback:^(NSImage* image){
-                track.artwork = image;
+            [self resolveImageForURL:track.meta.artworkLocation callback:^(NSImage* image){
+                [track.meta setArtworkFromImage:image];
                 iv.image = image;
             }];
         }
@@ -411,7 +412,7 @@ NSString * const kTracklistControllerChangedActiveTrackNotification = @"Tracklis
     NSString* title = nil;
     NSTextField* tf = [result viewWithTag:kTitleViewTag];
     tf.textColor = titleColor;
-    title = track.title;
+    title = track.meta.title;
     if (title == nil) {
         title = @"";
     }
@@ -419,7 +420,8 @@ NSString * const kTracklistControllerChangedActiveTrackNotification = @"Tracklis
 
     NSString* artist = nil;
     tf = [result viewWithTag:kArtistViewTag];
-    artist = track.artist;
+    tf.textColor = artistColor;
+    artist = track.meta.artist;
     if (artist == nil) {
         artist = @"";
     }

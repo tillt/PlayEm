@@ -7,37 +7,95 @@
 //
 
 #import "NSImage+Resize.h"
+#import "CoreImage/CoreImage.h"
 
 @implementation NSImage (Resize)
 
-+ (NSImage*)resizedImage:(NSImage*)image size:(NSSize)size
++ (NSImage*)resizedImage:(NSImage*)image size:(NSSize)target
 {
-    NSImage* sourceImage = image;
-    
-    if (![image isValid]){
-        NSLog(@"invalid image");
+    NSImageRep* rep = [image bestRepresentationForRect:NSMakeRect(0, 0, image.size.width, image.size.height)
+                                               context:nil
+                                                 hints:nil];
+    CGImageRef src = [rep CGImageForProposedRect:NULL context:nil hints:nil];
+    if (!src) {
         return nil;
     }
-
-    NSImage* smallImage = [[NSImage alloc] initWithSize:size];
-
-    [smallImage lockFocus];
-
-    [sourceImage setSize:size];
     
-    NSGraphicsContext* context = [NSGraphicsContext currentContext];
-    [context setImageInterpolation:NSImageInterpolationHigh];
-    [context setShouldAntialias:YES];
-    context.colorRenderingIntent = NSColorRenderingIntentPerceptual;
+    CGColorSpaceRef sRGB = CGColorSpaceCreateWithName(kCGColorSpaceSRGB);
+    CGContextRef ctx = CGBitmapContextCreate(NULL,
+                                             target.width, target.height,
+                                             8, 0, sRGB,
+                                             kCGImageAlphaPremultipliedLast | kCGBitmapByteOrder32Host);
+    if (!ctx) {
+        CGColorSpaceRelease(sRGB);
+        return nil;
+    }
     
-    [sourceImage drawAtPoint:NSZeroPoint
-                    fromRect:CGRectMake(0, 0, size.width, size.height)
-                   operation:NSCompositingOperationCopy
-                    fraction:1.0];
+    CGContextSetInterpolationQuality(ctx, kCGInterpolationHigh);
+    CGContextDrawImage(ctx, CGRectMake(0, 0, target.width, target.height), src);
+    CGImageRef scaled = CGBitmapContextCreateImage(ctx);
+    
+    NSImage *out = [[NSImage alloc] initWithCGImage:scaled size:NSMakeSize(target.width, target.height)];
+    
+    CGImageRelease(scaled);
+    CGContextRelease(ctx);
+    CGColorSpaceRelease(sRGB);
 
-    [smallImage unlockFocus];
+    return out;
+}
 
-    return smallImage;
+static CGImageRef CreateSRGBCGImage(CGImageRef src) {
+    if (!src) return nil;
+    CGColorSpaceRef sRGB = CGColorSpaceCreateWithName(kCGColorSpaceSRGB);
+    CGBitmapInfo bi = kCGImageAlphaPremultipliedLast | kCGBitmapByteOrder32Host;
+
+    size_t w = CGImageGetWidth(src);
+    size_t h = CGImageGetHeight(src);
+
+    CGContextRef ctx = CGBitmapContextCreate(NULL, w, h, 8, 0, sRGB, bi);
+    if (!ctx) { CGColorSpaceRelease(sRGB); return nil; }
+
+    CGContextSetInterpolationQuality(ctx, kCGInterpolationHigh);
+    CGContextDrawImage(ctx, CGRectMake(0, 0, w, h), src);
+    CGImageRef out = CGBitmapContextCreateImage(ctx);
+
+    CGContextRelease(ctx);
+    CGColorSpaceRelease(sRGB);
+    return out; // caller releases
+}
+
++ (NSImage*)resizedImageWithData:(NSData*)jpegData size:(NSSize)target
+{
+    // Decode with an explicit sRGB input space
+    NSDictionary *imgOpts = @{ kCIImageColorSpace : (__bridge id)[NSColorSpace sRGBColorSpace].CGColorSpace };
+    CIImage *src = [CIImage imageWithData:jpegData options:imgOpts];
+    if (!src) return nil;
+
+    // Compute scale factor
+    CGFloat scale = target.width / src.extent.size.width;
+
+    // High-quality scale
+    CIFilter *lanczos = [CIFilter filterWithName:@"CILanczosScaleTransform"];
+    [lanczos setDefaults];
+    [lanczos setValue:src forKey:kCIInputImageKey];
+    [lanczos setValue:@(scale) forKey:@"inputScale"];
+    [lanczos setValue:@1.0 forKey:@"inputAspectRatio"];
+    CIImage *outCI = lanczos.outputImage;
+    if (!outCI) return nil;
+
+    // CI context pinned to sRGB in and out
+    CIContext *ctx = [CIContext contextWithOptions:@{
+        kCIContextWorkingColorSpace : (__bridge id)[NSColorSpace sRGBColorSpace].CGColorSpace,
+        kCIContextOutputColorSpace  : (__bridge id)[NSColorSpace sRGBColorSpace].CGColorSpace
+    }];
+
+    CGRect outRect = CGRectMake(0, 0, target.width, target.height);
+    CGImageRef cg = [ctx createCGImage:outCI fromRect:outRect];
+    if (!cg) return nil;
+
+    NSImage *result = [[NSImage alloc] initWithCGImage:cg size:NSMakeSize(target.width, target.height)];
+    CGImageRelease(cg);
+    return result;
 }
 
 @end

@@ -64,7 +64,12 @@
         for (AVTimedMetadataGroup* group in groups) {
             TimedMediaMetaData* track = [[TimedMediaMetaData alloc] initWithTimedMediaGroup:group framerate:rate];
             NSLog(@"TimedMediaMetaData: %@", track);
-            _trackMap[track.frame] = track;
+            
+            if (track.meta.title.length > 0) {
+                _trackMap[track.frame] = track;
+            } else {
+                NSLog(@"skipping invalid track -- we need a title when reading");
+            }
         }
     }
     return self;
@@ -185,6 +190,11 @@
 - (TimedMediaMetaData*)trackAtFrame:(unsigned long long)frame
 {
     return [_trackMap objectForKey:@(frame)];
+}
+
+- (TimedMediaMetaData*)trackAtFrameNumber:(NSNumber*)frame
+{
+    return [_trackMap objectForKey:frame];
 }
 
 - (unsigned long long)firstTrackFrame:(TrackListIterator *_Nonnull*_Nullable)iterator

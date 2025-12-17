@@ -13,6 +13,7 @@ NS_ASSUME_NONNULL_BEGIN
 @class TimedMediaMetaData;
 @class AVTimedMetadataGroup;
 
+typedef double(^FrameToSeconds)(unsigned long long frame);
 typedef NSString* _Nonnull (^FrameToString)(unsigned long long frame);
 
 @interface TrackListIterator : NSObject
@@ -37,6 +38,7 @@ typedef NSString* _Nonnull (^FrameToString)(unsigned long long frame);
 - (void)addTrack:(TimedMediaMetaData*)track;
 - (void)removeTrackAtFrame:(unsigned long long)frame;
 - (TimedMediaMetaData*)trackAtFrame:(unsigned long long)frame;
+- (TimedMediaMetaData*)trackAtFrameNumber:(NSNumber*)frame;
 - (NSArray<TimedMediaMetaData*>*)tracks;
 - (NSArray<NSNumber*>*)frames;
 

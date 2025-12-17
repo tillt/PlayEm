@@ -137,6 +137,10 @@ NSString * const kTracklistControllerChangedActiveTrackNotification = @"Tracklis
     [_table reloadData];
     [_delegate updatedTracks];
     
+    _current.frameToSeconds = ^(unsigned long long frame) {
+        return [self->_delegate secondsFromFrame:frame];
+    };
+    
     NSError* error = nil;
     BOOL done = [_current storeTracklistWithError:&error];
     if (!done) {
@@ -165,6 +169,10 @@ NSString * const kTracklistControllerChangedActiveTrackNotification = @"Tracklis
 
     [_table scrollRowToVisible:index];
 
+    _current.frameToSeconds = ^(unsigned long long frame) {
+        return [self->_delegate secondsFromFrame:frame];
+    };
+    
     NSError* error = nil;
     BOOL done = [_current storeTracklistWithError:&error];
     if (!done) {
@@ -191,6 +199,10 @@ NSString * const kTracklistControllerChangedActiveTrackNotification = @"Tracklis
     [_table endUpdates];
 
     [_table scrollRowToVisible:index];
+    
+    _current.frameToSeconds = ^(unsigned long long frame) {
+        return [self->_delegate secondsFromFrame:frame];
+    };
 
     NSError* error = nil;
     BOOL done = [_current storeTracklistWithError:&error];
@@ -395,8 +407,8 @@ NSString * const kTracklistControllerChangedActiveTrackNotification = @"Tracklis
     NSImageView* iv = [result viewWithTag:kImageViewTag];
     
     if (track.meta.artwork != nil) {
-        iv.image = [NSImage resizedImage:[track.meta imageFromArtwork]
-                                    size:iv.frame.size];
+        iv.image = [NSImage resizedImageWithData:track.meta.artwork
+                                            size:iv.frame.size];
     } else {
         iv.image = [NSImage resizedImage:[NSImage imageNamed:@"UnknownSong"]
                                     size:iv.frame.size];

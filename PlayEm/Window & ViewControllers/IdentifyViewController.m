@@ -488,7 +488,6 @@ const CGFloat kTableRowHeight = 52.0f;
     NSLog(@"didNotFindMatchForSignature - error was: %@", error);
     dispatch_async(dispatch_get_main_queue(), ^{
         //[self->_tableView selectRowIndexes:[NSIndexSet indexSet] byExtendingSelection:NO];
-        //[self updateCover:nil animated:YES];
         if (self->_identifieds.count > 0) {
             TimedMediaMetaData* lastTrack = self->_identifieds[0];
 
@@ -499,14 +498,16 @@ const CGFloat kTableRowHeight = 52.0f;
         }
         
         TimedMediaMetaData* item = [TimedMediaMetaData unknownTrackAtFrame:[NSNumber numberWithUnsignedLongLong:self.sessionFrame]];
+
         NSLog(@"item frame: %@", item.frame);
         [self updateCover:nil animated:YES];
+
         [self->_identifieds insertObject:item atIndex:0];
+
         [self->_tableView beginUpdates];
         NSIndexSet* indexSet = [NSIndexSet indexSetWithIndex:0];
         [self->_tableView insertRowsAtIndexes:indexSet
                                 withAnimation:NSTableViewAnimationSlideRight];
-        //[self->_tableView selectRowIndexes:indexSet byExtendingSelection:NO];
         [self->_tableView endUpdates];
     });
 }
@@ -557,7 +558,7 @@ const CGFloat kTableRowHeight = 52.0f;
         } else {
             imageView = (NSImageView*)result;
         }
-        imageView.image = [NSImage resizedImage:[_identifieds[row].meta imageFromArtwork]
+        imageView.image = [NSImage resizedImageWithData:_identifieds[row].meta.artworkWithDefault
                                            size:NSMakeSize(kArtworkSize, kArtworkSize)];;
     } else if ([tableColumn.identifier isEqualToString:kButtonColumnIdenfifier]) {
         NSButton* menuButton = nil;
@@ -625,9 +626,9 @@ const CGFloat kTableRowHeight = 52.0f;
             artist = subviews[1];
             genre = subviews[2];
         }
-        [title setStringValue:_identifieds[row].meta.title];
-        [artist setStringValue:_identifieds[row].meta.artist];
-        [genre setStringValue:_identifieds[row].meta.genre];
+        [title setStringValue:_identifieds[row].meta.title != nil ? _identifieds[row].meta.title : @""];
+        [artist setStringValue:_identifieds[row].meta.artist != nil ? _identifieds[row].meta.artist : @""];
+        [genre setStringValue:_identifieds[row].meta.genre != nil ? _identifieds[row].meta.genre : @""];
     }
     result.identifier = tableColumn.identifier;
     

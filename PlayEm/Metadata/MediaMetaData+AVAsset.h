@@ -15,10 +15,17 @@ NS_ASSUME_NONNULL_BEGIN
 @interface MediaMetaData (AVAsset)
 
 + (NSDictionary*)id3GenreMap;
-+ (MediaMetaData*)mediaMetaDataWithMetadataItems:(NSArray<AVMetadataItem*>*)items error:(NSError**)error;
++ (MediaMetaData*)mediaMetaDataWithMetadataItems:(NSArray<AVMetadataItem*>*)items;
++ (long)sampleRateForAsset:(AVAsset*)asset;
 
-- (BOOL)readFromAVAsset:(AVAsset *)asset;
+- (BOOL)readFromAVAsset:(AVAsset*)asset error:(NSError**)error;
+- (BOOL)readChapterMarksFromAVAsset:(AVAsset*)asset error:(NSError**)error;
+
+- (BOOL)readChaperMarksFromMP4FileWithError:(NSError**)error;
+
 - (BOOL)readFromMP4FileWithError:(NSError**)error;
+//- (BOOL)writeChaperMarksToMP4FileWithError:(NSError**)error;
+
 - (void)addChaptersToAudioFileAtURL:(NSURL *)inputURL
                           outputURL:(NSURL *)outputURL;
 

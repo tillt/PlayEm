@@ -2023,6 +2023,8 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     predicate = [NSPredicate predicateWithFormat:@"name=%@", @"Playing"];
     item = [[components.queryItems filteredArrayUsingPredicate:predicate] firstObject];
     playing = [[item value] boolValue];
+    
+    // Check if that file is even readable.
     if (![url checkResourceIsReachableAndReturnError:&error]) {
         if (error != nil) {
             NSAlert* alert = [NSAlert betterAlertWithError:error action:@"load" url:url];
@@ -2031,7 +2033,9 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
         return NO;
     }
 
+    
     _loaderState = LoaderStateMeta;
+    // FIXME: This is far too localized -- lets not update the screen whenever we change the status explicitly -- this should happen implicitly.
     if (playing) {
         [self loadProgress:_controlPanelController.autoplayProgress state:LoadStateInit value:0.0];
     }
@@ -2047,6 +2051,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     }
 
     if (meta.trackList == nil || meta.trackList.tracks.count == 0) {
+        NSLog(@"we dont seem to have a tracklist yet - lets see if we can recover one...");
         // Not being able to get the tracklist is not a reason to fail the load process.
         if (![meta recoverTracklistWithError:&error]) {
             NSLog(@"tracklist recovery failed: %@", error);
@@ -2313,13 +2318,11 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     if (meta.year != nil) {
         [songInfo setObject:meta.year forKey:MPMediaItemPropertyReleaseDate];
     }
-    if (meta.artwork) {
-        NSImage* artworkImage = [meta imageFromArtwork];
-        MPMediaItemArtwork* artwork = [[MPMediaItemArtwork alloc] initWithBoundsSize:artworkImage.size requestHandler:^(CGSize size){
-            return artworkImage;
-        }];
-        [songInfo setObject:artwork forKey:MPMediaItemPropertyArtwork];
-    }
+    NSImage* artworkImage = [meta imageFromArtwork];
+    MPMediaItemArtwork* artwork = [[MPMediaItemArtwork alloc] initWithBoundsSize:artworkImage.size requestHandler:^(CGSize size){
+        return artworkImage;
+    }];
+    [songInfo setObject:artwork forKey:MPMediaItemPropertyArtwork];
     
     [songInfo setObject:@(_audioController.expectedDuration) forKey:MPMediaItemPropertyPlaybackDuration];
     [songInfo setObject:@(_audioController.currentTime) forKey:MPNowPlayingInfoPropertyElapsedPlaybackTime];
@@ -2802,6 +2805,11 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
 - (NSURL*)linkedURL
 {
     return _meta.location;
+}
+
+- (double)secondsFromFrame:(unsigned long long)frame
+{
+    return (double)frame / _audioController.sample.sampleFormat.rate;
 }
 
 - (NSString*)stringFromFrame:(unsigned long long)frame

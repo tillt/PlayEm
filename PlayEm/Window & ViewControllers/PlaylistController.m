@@ -329,11 +329,11 @@
         NSImageView* iv = (NSImageView*)result.subviews[0];
         if (row >= historyLength) {
             //assert(_list.count > row-historyLength);
-            iv.image = [NSImage resizedImage:[_list[row-historyLength] imageFromArtwork]
+            iv.image = [NSImage resizedImageWithData:[_list[row-historyLength] artworkWithDefault]
                                         size:iv.frame.size];
         } else {
             assert(_history.count > row);
-            iv.image = [NSImage resizedImage:[_history[row] imageFromArtwork]
+            iv.image = [NSImage resizedImageWithData:[_history[row] artworkWithDefault]
                                         size:iv.frame.size];
         }
     } else {

@@ -20,7 +20,7 @@ extern NSString * const kTracklistControllerChangedActiveTrackNotification;
 @protocol TracklistControllerDelegate <NSObject>
 
 - (NSString*)standardStringFromFrame:(unsigned long long)frame;
-
+- (double)secondsFromFrame:(unsigned long long)frame;
 - (NSString*)stringFromFrame:(unsigned long long)frame;
 - (NSURL*)linkedURL;
 

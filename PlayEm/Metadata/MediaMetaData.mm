@@ -21,6 +21,7 @@
 
 #import "MediaMetaData+TagLib.h"
 #import "MediaMetaData+AVAsset.h"
+#import "MediaMetaData+ChapterForge.hpp"
 
 #import "NSURL+WithoutParameters.h"
 #import "NSString+BeautifulPast.h"
@@ -48,6 +49,7 @@ NSString* const kMediaMetaDataMapTypeTuple = @"tuple";
 NSString* const kMediaMetaDataMapTypeTuple48 = @"tuple48";
 NSString* const kMediaMetaDataMapTypeTuple64 = @"tuple64";
 NSString* const kMediaMetaDataMapTypeNumber = @"number";
+
 
 @interface MediaMetaData ()
 @property (readonly, nonatomic, nullable) NSDictionary* starsQuantums;
@@ -124,7 +126,9 @@ NSString* const kMediaMetaDataMapTypeNumber = @"number";
 {
     MediaMetaData* meta = [[MediaMetaData alloc] init];
     meta.location = [[url filePathURL] URLWithoutParameters];
-    [meta readFromFileWithError:error];
+    if (![meta readFromFileWithError:error]) {
+        return nil;
+    }
     return meta;
 }
 
@@ -132,7 +136,9 @@ NSString* const kMediaMetaDataMapTypeNumber = @"number";
 {
     MediaMetaData* meta = [[MediaMetaData alloc] init];
     meta.location = [url URLWithoutParameters];
-    [meta readFromAVAsset:asset];
+    if (![meta readFromAVAsset:asset error:error]) {
+        return nil;
+    }
     return meta;
 }
 
@@ -152,7 +158,14 @@ NSString* const kMediaMetaDataMapTypeNumber = @"number";
     return meta;
 }
 
-
+/// Create MediaMetaData item out of a Shazam Kit, SHMatchedMediaItem matched media tiem
+///
+/// - Parameters:
+///   - item: SHMatchedMediaItem
+///   - error: error object
+///
+/// - Returns: MediaMetaData
+///
 + (MediaMetaData*)mediaMetaDataWithSHMatchedMediaItem:(SHMatchedMediaItem*)item error:(NSError**)error
 {
     MediaMetaData* meta = [[MediaMetaData alloc] init];
@@ -165,6 +178,7 @@ NSString* const kMediaMetaDataMapTypeNumber = @"number";
 
     return meta;
 }
+
 
 + (NSDictionary<NSString*, NSDictionary*>*)mediaMetaKeyMap
 {
@@ -503,7 +517,7 @@ NSString* const kMediaMetaDataMapTypeNumber = @"number";
     if (self.artwork == nil) {
         return nil;
     }
-    return [MediaMetaData mimeTypeForArtworkFormat:[self.artworkFormat integerValue]];
+    return [MediaMetaData mimeTypeForArtworkFormat:(ITLibArtworkFormat)[self.artworkFormat integerValue]];
 }
 
 - (NSString* _Nullable)title
@@ -893,6 +907,30 @@ NSString* const kMediaMetaDataMapTypeNumber = @"number";
     return _artwork;
 }
 
+- (NSData* _Nullable)artworkWithDefault
+{
+    NSData* data = nil;
+
+    if (_shadow == nil) {
+        data = _artwork;
+    }
+
+    if (data == nil) {
+        if (_shadow.hasArtworkAvailable && _shadow.artwork) {
+            data = _shadow.artwork.imageData;
+        }
+    }
+
+    if (data == nil) {
+        NSBundle* bundle = [NSBundle mainBundle];
+        NSURL* url = [bundle URLForResource:@"UnknownSong" withExtension:@"png"];
+        assert(url);
+        data = [NSData dataWithContentsOfURL:url];
+    }
+    
+    return data;
+}
+
 - (NSNumber* _Nullable)artworkFormat
 {
     if (_shadow == nil) {
@@ -916,12 +954,17 @@ NSString* const kMediaMetaDataMapTypeNumber = @"number";
 
 - (NSImage*)imageFromArtwork
 {
-    if (self.artwork == nil) {
-        return [NSImage imageNamed:@"UnknownSong"];
-    }
-
-    return [[NSImage alloc] initWithData:self.artwork];
+    return [[NSImage alloc] initWithData:self.artworkWithDefault];
 }
+
+//- (NSImage*)imageFromArtwork
+//{
+//    if (self.artwork == nil) {
+//        return [NSImage imageNamed:@"UnknownSong"];
+//    }
+//
+//    return [[NSImage alloc] initWithData:self.artwork];
+//}
 
 - (NSDate* _Nullable)added
 {
@@ -938,8 +981,8 @@ NSString* const kMediaMetaDataMapTypeNumber = @"number";
 
 - (NSString*)description
 {
-    return [NSString stringWithFormat:@"Title: %@ -- Album: %@ -- Artist: %@ -- Location: %@ -- Address: %p -- Artwork format: %@ -- Tempo: %@ -- Key: %@ -- Duration: %@ -- Rating: %@ -- Comment: %@",
-            self.title, self.album, self.artist, self.location, (void*)self, self.artworkFormat, self.tempo, self.key, self.duration, self.rating, self.comment];
+    return [NSString stringWithFormat:@"Title: %@ -- Album: %@ -- Artist: %@ -- Location: %@ -- Address: %p -- Artwork data: %@  -- Artwork format: %@ -- Tempo: %@ -- Key: %@ -- Duration: %@ -- Rating: %@ -- Comment: %@ -- Apple Location: %@",
+            self.title, self.album, self.artist, self.location, (void*)self, self.artwork, self.artworkFormat, self.tempo, self.key, self.duration, self.rating, self.comment, self.appleLocation];
 }
 
 - (id)initWithCoder:(NSCoder *)coder
@@ -1289,12 +1332,32 @@ NSString* const kMediaMetaDataMapTypeNumber = @"number";
 
 - (BOOL)recoverTracklistWithError:(NSError *__autoreleasing  _Nullable *)error
 {
+    MediaMetaDataFileFormatType type = [MediaMetaData fileTypeWithURL:self.location error:error];
+    
+    // We are using taglib for anything but MP4 for which we use the system provided functions.
+    //BOOL ret = NO;
+    if (type == MediaMetaDataFileFormatTypeMP4) {
+        [self readChaperMarksFromMP4FileWithError:error];
+        if (self.trackList.frames.count > 0) {
+            return YES;
+        }
+    }
+
+    // Try a tracklist file as a source.
     NSURL* url = [self trackListURL];
     return [_trackList readFromFile:url error:error];
 }
 
 - (BOOL)storeTracklistWithError:(NSError *__autoreleasing  _Nullable *)error
 {
+    MediaMetaDataFileFormatType type = [MediaMetaData fileTypeWithURL:self.location error:error];
+    
+    // We are using taglib for anything but MP4 for which we use the system provided functions.
+    //BOOL ret = NO;
+    if (type == MediaMetaDataFileFormatTypeMP4) {
+        return [self writeChaperMarksToMP4FileWithError:error];
+    }
+
     NSURL* url = [self trackListURL];
     return [_trackList writeToFile:url error:error];
 }
@@ -1340,7 +1403,7 @@ NSString* const kMediaMetaDataMapTypeNumber = @"number";
 {
     MediaMetaDataFileFormatType type = [MediaMetaData fileTypeWithURL:self.location error:error];
     
-    // We are using taglib for anything MP4 for which we use the system provided functions.
+    // We are using taglib for anything but MP4 for which we use the system provided functions.
     BOOL ret = NO;
     if (type == MediaMetaDataFileFormatTypeMP3) {
         ret = [self readFromMP3FileWithError:error] == 0;

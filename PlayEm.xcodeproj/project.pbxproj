@@ -20,12 +20,13 @@
 		BB1614B92AACB0C300F6C5E6 /* libaubio.5.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = BB1614B82AACB0C300F6C5E6 /* libaubio.5.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		BB1614BA2AACB0DF00F6C5E6 /* libaubio.5.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = BB1614B82AACB0C300F6C5E6 /* libaubio.5.dylib */; };
 		BB19A3772C5FAE0C00E5B4D2 /* CoreWLAN.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BB19A3762C5FAE0C00E5B4D2 /* CoreWLAN.framework */; };
-		BB25CF59255857BC005BFC32 /* MediaMetaData.m in Sources */ = {isa = PBXBuildFile; fileRef = BB25CF58255857BC005BFC32 /* MediaMetaData.m */; };
+		BB25CF59255857BC005BFC32 /* MediaMetaData.mm in Sources */ = {isa = PBXBuildFile; fileRef = BB25CF58255857BC005BFC32 /* MediaMetaData.mm */; };
 		BB26B51129442E9A006EBAA7 /* AudioProcessing.m in Sources */ = {isa = PBXBuildFile; fileRef = BB26B51029442E9A006EBAA7 /* AudioProcessing.m */; };
 		BB2A34A12D2372CC006BF132 /* ConstantBeatRefiner.m in Sources */ = {isa = PBXBuildFile; fileRef = BB2A34A02D2372CC006BF132 /* ConstantBeatRefiner.m */; };
 		BB2CB5652481A92600D47258 /* WaveWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = BB2CB5642481A92600D47258 /* WaveWindowController.m */; };
 		BB2CB58724827A0900D47258 /* AudioController.mm in Sources */ = {isa = PBXBuildFile; fileRef = BB2CB58624827A0900D47258 /* AudioController.mm */; };
 		BB2CF8AD259EB66900D6BA03 /* LazySample.m in Sources */ = {isa = PBXBuildFile; fileRef = BB2CF8AC259EB66900D6BA03 /* LazySample.m */; };
+		BB2E90BC2EF094010083B941 /* JPEGTool.m in Sources */ = {isa = PBXBuildFile; fileRef = BB2E90BB2EF094010083B941 /* JPEGTool.m */; };
 		BB3926FF2C14B43E009C7B32 /* TableRowView.m in Sources */ = {isa = PBXBuildFile; fileRef = BB3926FE2C14B43E009C7B32 /* TableRowView.m */; };
 		BB3927022C14C606009C7B32 /* TableCellView.m in Sources */ = {isa = PBXBuildFile; fileRef = BB3927012C14C606009C7B32 /* TableCellView.m */; };
 		BB3927092C1BA8BD009C7B32 /* NSURL+WithoutParameters.m in Sources */ = {isa = PBXBuildFile; fileRef = BB3927082C1BA8BD009C7B32 /* NSURL+WithoutParameters.m */; };
@@ -51,6 +52,10 @@
 		BB5A2C232B925CD300040209 /* TextViewWithPlaceholder.m in Sources */ = {isa = PBXBuildFile; fileRef = BB5A2C222B925CD300040209 /* TextViewWithPlaceholder.m */; };
 		BB5A4D9128FC5C2B003A733C /* NSBezierPath+CGPath.m in Sources */ = {isa = PBXBuildFile; fileRef = BB5A4D9028FC5C2B003A733C /* NSBezierPath+CGPath.m */; };
 		BB694CA32E6BB09C00818B01 /* BloomyText.m in Sources */ = {isa = PBXBuildFile; fileRef = BB694CA22E6BB09C00818B01 /* BloomyText.m */; };
+		BB69948C2EEB304800242456 /* libchapterforge.a in Frameworks */ = {isa = PBXBuildFile; fileRef = BB69948B2EEB304800242456 /* libchapterforge.a */; };
+		BB69948F2EEB316100242456 /* MediaMetaData+ChapterForge.mm in Sources */ = {isa = PBXBuildFile; fileRef = BB69948E2EEB316100242456 /* MediaMetaData+ChapterForge.mm */; };
+		BB6994942EEB370500242456 /* TrackList+ChapterForge.mm in Sources */ = {isa = PBXBuildFile; fileRef = BB6994932EEB370500242456 /* TrackList+ChapterForge.mm */; };
+		BB6994962EEF5BDA00242456 /* VideoToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BB6994952EEF5BDA00242456 /* VideoToolbox.framework */; };
 		BB7C6269293144890019AF25 /* Defaults.m in Sources */ = {isa = PBXBuildFile; fileRef = BB7C6268293144890019AF25 /* Defaults.m */; };
 		BB7C626C2932E1540019AF25 /* ControlPanelController.m in Sources */ = {isa = PBXBuildFile; fileRef = BB7C626B2932E1540019AF25 /* ControlPanelController.m */; };
 		BB8197702B7980C50025B860 /* ConcurrentAccessDictionary.m in Sources */ = {isa = PBXBuildFile; fileRef = BB81976F2B7980C50025B860 /* ConcurrentAccessDictionary.m */; };
@@ -73,6 +78,10 @@
 		BBAD5EF32CE0ECBD00F664AB /* CALayer+PauseAnimations.m in Sources */ = {isa = PBXBuildFile; fileRef = BBAD5EF22CE0ECBD00F664AB /* CALayer+PauseAnimations.m */; };
 		BBAD7D55262B973C00089ACC /* ScopeView.m in Sources */ = {isa = PBXBuildFile; fileRef = BBAD7D54262B973C00089ACC /* ScopeView.m */; };
 		BBB37D21290F4A7E0007A6BB /* PlaylistController.m in Sources */ = {isa = PBXBuildFile; fileRef = BBB37D20290F4A7E0007A6BB /* PlaylistController.m */; };
+		BBBBF9422EF1BAA1001035DA /* TimedMediaMetaData+ChapterForge.hpp in Sources */ = {isa = PBXBuildFile; fileRef = BBBBF9412EF1BAA1001035DA /* TimedMediaMetaData+ChapterForge.hpp */; };
+		BBBBF9442EF1BB07001035DA /* TimedMediaMetaData+ChapterForge.mm in Sources */ = {isa = PBXBuildFile; fileRef = BBBBF9432EF1BB07001035DA /* TimedMediaMetaData+ChapterForge.mm */; };
+		BBBBF9462EF2335F001035DA /* MediaMetaData+JPEGTool.m in Sources */ = {isa = PBXBuildFile; fileRef = BBBBF9452EF2335F001035DA /* MediaMetaData+JPEGTool.m */; };
+		BBBBF94B2EF30B8E001035DA /* UnknownSong.png in Resources */ = {isa = PBXBuildFile; fileRef = BBBBF94A2EF30ADF001035DA /* UnknownSong.png */; };
 		BBC2AF4B2B8974C20077EB5E /* MediaMetaData+TagLib.m in Sources */ = {isa = PBXBuildFile; fileRef = BBC2AF4A2B8974C20077EB5E /* MediaMetaData+TagLib.m */; };
 		BBC2AF732B8B5B5A0077EB5E /* MediaMetaData+AVAsset.m in Sources */ = {isa = PBXBuildFile; fileRef = BBC2AF722B8B5B5A0077EB5E /* MediaMetaData+AVAsset.m */; };
 		BBC2AF772B8DE2780077EB5E /* NSError+BetterError.m in Sources */ = {isa = PBXBuildFile; fileRef = BBC2AF762B8DE2770077EB5E /* NSError+BetterError.m */; };
@@ -144,7 +153,7 @@
 		BB19A3762C5FAE0C00E5B4D2 /* CoreWLAN.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreWLAN.framework; path = System/Library/Frameworks/CoreWLAN.framework; sourceTree = SDKROOT; };
 		BB25CF55255758CC005BFC32 /* LoadState.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LoadState.h; sourceTree = "<group>"; };
 		BB25CF57255857BC005BFC32 /* MediaMetaData.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MediaMetaData.h; sourceTree = "<group>"; };
-		BB25CF58255857BC005BFC32 /* MediaMetaData.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MediaMetaData.m; sourceTree = "<group>"; };
+		BB25CF58255857BC005BFC32 /* MediaMetaData.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = MediaMetaData.mm; sourceTree = "<group>"; };
 		BB26B51029442E9A006EBAA7 /* AudioProcessing.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AudioProcessing.m; sourceTree = "<group>"; };
 		BB26B51229442ECF006EBAA7 /* AudioProcessing.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AudioProcessing.h; sourceTree = "<group>"; };
 		BB2A34A02D2372CC006BF132 /* ConstantBeatRefiner.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ConstantBeatRefiner.m; sourceTree = "<group>"; };
@@ -155,6 +164,8 @@
 		BB2CB58624827A0900D47258 /* AudioController.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = AudioController.mm; sourceTree = "<group>"; };
 		BB2CF8AB259EB66900D6BA03 /* LazySample.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LazySample.h; sourceTree = "<group>"; };
 		BB2CF8AC259EB66900D6BA03 /* LazySample.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = LazySample.m; sourceTree = "<group>"; };
+		BB2E90BA2EF0925A0083B941 /* JPEGTool.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = JPEGTool.h; sourceTree = "<group>"; };
+		BB2E90BB2EF094010083B941 /* JPEGTool.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = JPEGTool.m; sourceTree = "<group>"; };
 		BB3926FD2C14B3FA009C7B32 /* TableRowView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TableRowView.h; sourceTree = "<group>"; };
 		BB3926FE2C14B43E009C7B32 /* TableRowView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TableRowView.m; sourceTree = "<group>"; };
 		BB3927002C14C606009C7B32 /* TableCellView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TableCellView.h; sourceTree = "<group>"; };
@@ -192,6 +203,12 @@
 		BB5A4D9028FC5C2B003A733C /* NSBezierPath+CGPath.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSBezierPath+CGPath.m"; sourceTree = "<group>"; };
 		BB694CA12E6BB09C00818B01 /* BloomyText.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BloomyText.h; sourceTree = "<group>"; };
 		BB694CA22E6BB09C00818B01 /* BloomyText.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = BloomyText.m; sourceTree = "<group>"; };
+		BB69948B2EEB304800242456 /* libchapterforge.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libchapterforge.a; path = ../../chapterforge/chapterforge/build/libchapterforge.a; sourceTree = "<group>"; };
+		BB69948D2EEB316100242456 /* MediaMetaData+ChapterForge.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = "MediaMetaData+ChapterForge.hpp"; sourceTree = "<group>"; };
+		BB69948E2EEB316100242456 /* MediaMetaData+ChapterForge.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = "MediaMetaData+ChapterForge.mm"; sourceTree = "<group>"; };
+		BB6994922EEB370500242456 /* TrackList+ChapterForge.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = "TrackList+ChapterForge.hpp"; sourceTree = "<group>"; };
+		BB6994932EEB370500242456 /* TrackList+ChapterForge.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = "TrackList+ChapterForge.mm"; sourceTree = "<group>"; };
+		BB6994952EEF5BDA00242456 /* VideoToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = VideoToolbox.framework; path = System/Library/Frameworks/VideoToolbox.framework; sourceTree = SDKROOT; };
 		BB7C6267293144890019AF25 /* Defaults.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Defaults.h; sourceTree = "<group>"; };
 		BB7C6268293144890019AF25 /* Defaults.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Defaults.m; sourceTree = "<group>"; };
 		BB7C626A2932E1540019AF25 /* ControlPanelController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ControlPanelController.h; sourceTree = "<group>"; };
@@ -233,6 +250,11 @@
 		BBAD7D54262B973C00089ACC /* ScopeView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ScopeView.m; sourceTree = "<group>"; };
 		BBB37D1F290F4A7E0007A6BB /* PlaylistController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PlaylistController.h; sourceTree = "<group>"; };
 		BBB37D20290F4A7E0007A6BB /* PlaylistController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = PlaylistController.m; sourceTree = "<group>"; };
+		BBBBF9412EF1BAA1001035DA /* TimedMediaMetaData+ChapterForge.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = "TimedMediaMetaData+ChapterForge.hpp"; sourceTree = "<group>"; };
+		BBBBF9432EF1BB07001035DA /* TimedMediaMetaData+ChapterForge.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = "TimedMediaMetaData+ChapterForge.mm"; sourceTree = "<group>"; };
+		BBBBF9452EF2335F001035DA /* MediaMetaData+JPEGTool.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "MediaMetaData+JPEGTool.m"; sourceTree = "<group>"; };
+		BBBBF9472EF23442001035DA /* MediaMetaData+JPEGTool.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "MediaMetaData+JPEGTool.h"; sourceTree = "<group>"; };
+		BBBBF94A2EF30ADF001035DA /* UnknownSong.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = UnknownSong.png; sourceTree = "<group>"; };
 		BBC257B22D7466C300236395 /* VisualPairContext.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VisualPairContext.h; sourceTree = "<group>"; };
 		BBC2AF4A2B8974C20077EB5E /* MediaMetaData+TagLib.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "MediaMetaData+TagLib.m"; sourceTree = "<group>"; };
 		BBC2AF4E2B8976DA0077EB5E /* MediaMetaData+TagLib.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "MediaMetaData+TagLib.h"; sourceTree = "<group>"; };
@@ -289,6 +311,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				BB6994962EEF5BDA00242456 /* VideoToolbox.framework in Frameworks */,
+				BB69948C2EEB304800242456 /* libchapterforge.a in Frameworks */,
 				BB19A3772C5FAE0C00E5B4D2 /* CoreWLAN.framework in Frameworks */,
 				BBC2AF7F2B8FDB140077EB5E /* StoreKit.framework in Frameworks */,
 				BB1614BA2AACB0DF00F6C5E6 /* libaubio.5.dylib in Frameworks */,
@@ -332,6 +356,8 @@
 		BB8820C5244101C200CDB8C3 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				BB6994952EEF5BDA00242456 /* VideoToolbox.framework */,
+				BB69948B2EEB304800242456 /* libchapterforge.a */,
 				BB19A3762C5FAE0C00E5B4D2 /* CoreWLAN.framework */,
 				BBC2AF7E2B8FDB140077EB5E /* StoreKit.framework */,
 				BB3B8D9C2B87CC12006AEFCA /* ShazamKit.framework */,
@@ -418,7 +444,9 @@
 			isa = PBXGroup;
 			children = (
 				BB25CF57255857BC005BFC32 /* MediaMetaData.h */,
-				BB25CF58255857BC005BFC32 /* MediaMetaData.m */,
+				BB25CF58255857BC005BFC32 /* MediaMetaData.mm */,
+				BB69948D2EEB316100242456 /* MediaMetaData+ChapterForge.hpp */,
+				BB69948E2EEB316100242456 /* MediaMetaData+ChapterForge.mm */,
 				BBC2AF4E2B8976DA0077EB5E /* MediaMetaData+TagLib.h */,
 				BBC2AF4A2B8974C20077EB5E /* MediaMetaData+TagLib.m */,
 				BBC43B7128D296B800CD1080 /* AVMetadataItem+THAdditions.h */,
@@ -427,8 +455,16 @@
 				BBC2AF722B8B5B5A0077EB5E /* MediaMetaData+AVAsset.m */,
 				BB0A62C42E88331600BAF444 /* TrackList.h */,
 				BB0A62C52E88331600BAF444 /* TrackList.m */,
+				BB6994922EEB370500242456 /* TrackList+ChapterForge.hpp */,
+				BB6994932EEB370500242456 /* TrackList+ChapterForge.mm */,
+				BB2E90BB2EF094010083B941 /* JPEGTool.m */,
+				BB2E90BA2EF0925A0083B941 /* JPEGTool.h */,
+				BBBBF9452EF2335F001035DA /* MediaMetaData+JPEGTool.m */,
+				BBBBF9472EF23442001035DA /* MediaMetaData+JPEGTool.h */,
 				BB0A62C82E8855C200BAF444 /* TimedMediaMetaData.m */,
 				BB0A62C72E88554D00BAF444 /* TimedMediaMetaData.h */,
+				BBBBF9412EF1BAA1001035DA /* TimedMediaMetaData+ChapterForge.hpp */,
+				BBBBF9432EF1BB07001035DA /* TimedMediaMetaData+ChapterForge.mm */,
 			);
 			path = Metadata;
 			sourceTree = "<group>";
@@ -518,6 +554,7 @@
 				BBD24D612432948800DC2A81 /* AppDelegate.m */,
 				BBD24D632432948B00DC2A81 /* Assets.xcassets */,
 				BBECB0242D4FF33E00C6A6F3 /* LargeRastaPattern.png */,
+				BBBBF94A2EF30ADF001035DA /* UnknownSong.png */,
 				BB9401862AD0974900B7B150 /* AcceleratedBiquadFilter.h */,
 				BB51C1F02E5D18940049355F /* credits.rtf */,
 				BB0A62D42EAD690A00BAF444 /* TODO.md */,
@@ -640,6 +677,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				BBBBF94B2EF30B8E001035DA /* UnknownSong.png in Resources */,
 				BB51C1F12E5D18940049355F /* credits.rtf in Resources */,
 				BBECB0252D4FF33E00C6A6F3 /* LargeRastaPattern.png in Resources */,
 				BB0A62D52EAD690A00BAF444 /* TODO.md in Resources */,
@@ -701,6 +739,7 @@
 				BBC2AF7A2B8DF0960077EB5E /* NSAlert+BetterError.m in Sources */,
 				BB9C77E52A8D5F7C00A138BE /* WaveView.m in Sources */,
 				BB09C23D2E8028FB00C506FC /* SymbolButton.m in Sources */,
+				BBBBF9442EF1BB07001035DA /* TimedMediaMetaData+ChapterForge.mm in Sources */,
 				BB539A592D0F51AF0095B8C7 /* KeyTrackedSample.mm in Sources */,
 				BB9D7C102E3E480E0018BA27 /* SampleFormat.h in Sources */,
 				BBAD5EF32CE0ECBD00F664AB /* CALayer+PauseAnimations.m in Sources */,
@@ -717,7 +756,7 @@
 				BB0A62CE2E88796A00BAF444 /* TracklistController.m in Sources */,
 				BBC43B7028D28CDD00CD1080 /* InfoPanel.m in Sources */,
 				BB3927092C1BA8BD009C7B32 /* NSURL+WithoutParameters.m in Sources */,
-				BB25CF59255857BC005BFC32 /* MediaMetaData.m in Sources */,
+				BB25CF59255857BC005BFC32 /* MediaMetaData.mm in Sources */,
 				BB8571012972078A0004218B /* IndexedBlockOperation.m in Sources */,
 				BBF81D932CBB025C0086AECB /* NSColor+Metal.m in Sources */,
 				BB896FF32928874500B41809 /* TableHeaderCell.m in Sources */,
@@ -725,6 +764,7 @@
 				BB7C6269293144890019AF25 /* Defaults.m in Sources */,
 				BBD24D6A2432948B00DC2A81 /* main.m in Sources */,
 				BBA623D42620F6A200924D44 /* UIView+Visibility.m in Sources */,
+				BB69948F2EEB316100242456 /* MediaMetaData+ChapterForge.mm in Sources */,
 				BBC2AF732B8B5B5A0077EB5E /* MediaMetaData+AVAsset.m in Sources */,
 				BBE284682467612F00BE9D7F /* ScopeRenderer.m in Sources */,
 				BBA456E129395B970062D470 /* IdentifyViewController.m in Sources */,
@@ -735,9 +775,11 @@
 				BB26B51129442E9A006EBAA7 /* AudioProcessing.m in Sources */,
 				BBDBBA7B2BA4B013003A80C1 /* WaveShaders.metal in Sources */,
 				BB0A62C92E8855C200BAF444 /* TimedMediaMetaData.m in Sources */,
+				BBBBF9462EF2335F001035DA /* MediaMetaData+JPEGTool.m in Sources */,
 				BB2CB58724827A0900D47258 /* AudioController.mm in Sources */,
 				BB96D1E12D30748400AD48A5 /* AudioDevice.m in Sources */,
 				BB2CB5652481A92600D47258 /* WaveWindowController.m in Sources */,
+				BB2E90BC2EF094010083B941 /* JPEGTool.m in Sources */,
 				BBAC78972DBC47B800640C19 /* EnergyDetector.m in Sources */,
 				BB8A100728FF49E400FC6013 /* Scroller.m in Sources */,
 				BBDBBA792BA3AF9F003A80C1 /* DragImageFileView.m in Sources */,
@@ -746,6 +788,8 @@
 				BBC2AF4B2B8974C20077EB5E /* MediaMetaData+TagLib.m in Sources */,
 				BB8197702B7980C50025B860 /* ConcurrentAccessDictionary.m in Sources */,
 				BB097A0C2921B1E500D33E44 /* ScrollingTextView.m in Sources */,
+				BB6994942EEB370500242456 /* TrackList+ChapterForge.mm in Sources */,
+				BBBBF9422EF1BAA1001035DA /* TimedMediaMetaData+ChapterForge.hpp in Sources */,
 				BB5A2C232B925CD300040209 /* TextViewWithPlaceholder.m in Sources */,
 				BBD24D622432948800DC2A81 /* AppDelegate.m in Sources */,
 				BBAD7D55262B973C00089ACC /* ScopeView.m in Sources */,
@@ -804,7 +848,6 @@
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
-				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_INJECT_BASE_ENTITLEMENTS = YES;
 				COPY_PHASE_STRIP = NO;
 				DEAD_CODE_STRIPPING = YES;
@@ -875,7 +918,6 @@
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
-				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_INJECT_BASE_ENTITLEMENTS = YES;
 				COPY_PHASE_STRIP = NO;
 				DEAD_CODE_STRIPPING = YES;

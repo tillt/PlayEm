@@ -503,24 +503,10 @@ static const CGFloat kViewLeftMargin = 10.0f;
 - (void)loadArtworkWithView:(NSView*)view
 {
     const CGFloat imageWidth = 480.0;
-//    NSImage* image = [NSImage imageWithSystemSymbolName:@"text.page.badge.magnifyingglass"
-//                               accessibilityDescription:nil];
-//    NSImageSymbolConfiguration* config = [NSImageSymbolConfiguration configurationWithPointSize:100 weight:NSFontWeightBlack scale:NSImageSymbolScaleLarge];
-//    NSImage* imageWithConfig = [image imageWithSymbolConfiguration:config];
-//    _googleArtwork = [NSImageView imageViewWithImage:imageWithConfig];
-//
-//    _googleArtwork.frame = CGRectMake(view.bounds.size.width - 80.0,
-//                                      view.bounds.size.height - 85.0,
-//                                      40.0,
-//                                      40.0f);
-//    
-//    [_googleArtwork addSymbolEffect:[NSSymbolBreatheEffect effect]
-//                            options:[NSSymbolEffectOptions options]
-//                           animated:YES];
-//
-//    [view addSubview:_googleArtwork];
-
     _largeCoverView = [DragImageFileView new];
+    // We initialize with that "UnknownSong" image but later we will get overwritten also
+    // by metadata without artwork - causing an empty view - by design to be extra clear
+    // in the message to the user: there is no artwork available.
     _largeCoverView.image = [NSImage resizedImage:[NSImage imageNamed:@"UnknownSong"] size:NSMakeSize(imageWidth, imageWidth)];
     _largeCoverView.alignment = NSViewHeightSizable | NSViewWidthSizable | NSViewMinYMargin | NSViewMaxYMargin;
     _largeCoverView.imageScaling = NSImageScaleProportionallyUpOrDown;
@@ -536,10 +522,12 @@ static const CGFloat kViewLeftMargin = 10.0f;
     [view addSubview:_largeCoverView];
     
     _largeCoverView.delegate = self;
-    
+
+    // Accept the usual suspects.
     NSArray *dragTypes = [NSArray arrayWithObjects: NSCreateFileContentsPboardType(@"jpeg"),
                                                     NSCreateFileContentsPboardType(@"jpg"),
-                                                    NSCreateFileContentsPboardType(@"png"), 
+                                                    NSCreateFileContentsPboardType(@"tiff"),
+                                                    NSCreateFileContentsPboardType(@"png"),
                                                     nil];
     [_largeCoverView registerForDraggedTypes:dragTypes];
     _largeCoverView.allowsCutCopyPaste = YES;
@@ -848,12 +836,9 @@ static const CGFloat kViewLeftMargin = 10.0f;
 - (void)updateViewHeader:(NSMutableDictionary<NSString*,NSNumber*>*)deltaKeys
               occurances:(NSMutableDictionary<NSString*,NSMutableDictionary*>*)occurances
 {
-    if (![deltaKeys[@"artwork"] boolValue] && _commonMeta.artwork != nil) {
-        _largeCoverView.image = [NSImage resizedImage:[_commonMeta imageFromArtwork] size:_largeCoverView.frame.size];
-        _smallCoverView.image = [NSImage resizedImage:[_commonMeta imageFromArtwork] size:_smallCoverView.frame.size];
-    } else {
-        _largeCoverView.image = [NSImage resizedImage:[NSImage imageNamed:@"UnknownSong"] size:_largeCoverView.frame.size];
-        _smallCoverView.image = [NSImage resizedImage:[NSImage imageNamed:@"UnknownSong"] size:_smallCoverView.frame.size];
+    if (![deltaKeys[@"artwork"] boolValue]) {
+        _largeCoverView.image = [NSImage resizedImageWithData:_commonMeta.artwork size:_largeCoverView.frame.size];
+        _smallCoverView.image = [NSImage resizedImageWithData:_commonMeta.artworkWithDefault size:_smallCoverView.frame.size];
     }
     
     if ([_metas count] > 1) {
@@ -1222,9 +1207,8 @@ static const CGFloat kViewLeftMargin = 10.0f;
     _deltaMeta.artworkFormat = [NSNumber numberWithInteger:[MediaMetaData artworkFormatForData:data]];
     _mutatedKeys[@"artworkFormat"] = @YES;
 
-    NSImage* image = [_deltaMeta imageFromArtwork];
-    self.largeCoverView.image = image;
-    self.smallCoverView.image = image;
+    self.largeCoverView.image = [NSImage resizedImageWithData:_deltaMeta.artwork size:self.largeCoverView.bounds.size];
+    self.smallCoverView.image = [NSImage resizedImageWithData:_deltaMeta.artworkWithDefault size:self.smallCoverView.bounds.size];
 
     return YES;
 }

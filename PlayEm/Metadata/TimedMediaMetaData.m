@@ -19,7 +19,17 @@
 {
     TimedMediaMetaData* track = [TimedMediaMetaData new];
     track.meta.title = @"unknown";
+    track.frame = frame;
     return track;
+}
+
+- (id)init
+{
+    self = [super init];
+    if (self) {
+        _meta = [[MediaMetaData alloc] init];
+    }
+    return self;
 }
 
 - (id)initWithCoder:(NSCoder *)coder
@@ -36,8 +46,9 @@
 {
     self = [super init];
     if (self) {
-        _meta = [MediaMetaData mediaMetaDataWithMetadataItems:group.items error:nil];
-        _frame = [NSNumber numberWithUnsignedLongLong:(unsigned long long)rate * (group.timeRange.start.value / group.timeRange.start.timescale)];
+        _meta = [MediaMetaData mediaMetaDataWithMetadataItems:group.items];
+        double time = (double)group.timeRange.start.value / group.timeRange.start.timescale;
+        _frame = [NSNumber numberWithUnsignedLongLong:(unsigned long long)((double)rate * time)];
     }
     return self;
 }
@@ -67,5 +78,6 @@
 {
     return [NSString stringWithFormat:@"frame:%@ meta:%@", _frame, _meta];
 }
+
 
 @end

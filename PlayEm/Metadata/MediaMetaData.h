@@ -13,6 +13,9 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+typedef double(^FrameToSeconds)(unsigned long long frame);
+
+
 @class SHMatchedMediaItem;
 
 ///
@@ -72,6 +75,7 @@ extern NSString* const kMediaMetaDataMapTypeNumber;
 @property (copy, nonatomic, nullable) NSNumber* disks;
 @property (copy, nonatomic, nullable) NSNumber* locationType;
 @property (strong, nonatomic, nullable) NSData* artwork;
+@property (readonly, nonatomic, nullable) NSData* artworkWithDefault;
 @property (copy, nonatomic, nullable) NSURL* artworkLocation;
 @property (copy, nonatomic, nullable) NSNumber* artworkFormat;
 @property (copy, nonatomic, nullable) NSURL* location;
@@ -90,12 +94,17 @@ extern NSString* const kMediaMetaDataMapTypeNumber;
 
 @property (readonly, nonatomic, nullable) NSImage* imageFromArtwork;
 
+@property (nonatomic, strong) FrameToSeconds frameToSeconds;
+
 @property (strong, nonatomic, nullable) TrackList* trackList;
 
 - (NSURL*)trackListURL;
 
 - (BOOL)storeTracklistWithError:(NSError**)error;
+
 - (BOOL)recoverTracklistWithError:(NSError**)error;
+
+//- (void)recoverTracklistWithCallback:^(NSError** error);
 
 - (void)setArtworkFromImage:(NSImage*)image;
 
@@ -105,6 +114,7 @@ extern NSString* const kMediaMetaDataMapTypeNumber;
 + (MediaMetaData*)mediaMetaDataWithURL:(NSURL*)url error:(NSError**)error;
 + (MediaMetaData*)mediaMetaDataWithITLibMediaItem:(ITLibMediaItem*)item error:(NSError**)error;
 + (MediaMetaData*)mediaMetaDataWithSHMatchedMediaItem:(SHMatchedMediaItem*)item error:(NSError**)error;
+
 
 + (NSDictionary<NSString*, NSDictionary*>*)mediaMetaKeyMap;
 + (NSArray<NSString*>*)mediaMetaKeys;

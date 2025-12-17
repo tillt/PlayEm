@@ -188,7 +188,7 @@ const CGFloat kMarkerHandleWidth = 6.0f;
         fxLayer.opacity = 0.0f;
     }
 
-    NSLog(@"active track now %@", notification.object);
+    //NSLog(@"active track now %@", notification.object);
     _currentTrack = notification.object;
     _activeLayer = [self sublayerForFrame:_currentTrack.frame layers:wv.markLayer.sublayers];
     [self updateTrackDescriptions];
@@ -739,7 +739,7 @@ const CGFloat kMarkerHandleWidth = 6.0f;
 
         NSImage* image = nil;
         if (track.meta.artwork != nil) {
-            image = [NSImage resizedImage:[track.meta imageFromArtwork]
+            image = [NSImage resizedImageWithData:track.meta.artwork
                                      size:imageLayer.frame.size];
         } else {
             image = [NSImage resizedImage:[NSImage imageNamed:@"UnknownSong"]

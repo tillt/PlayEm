@@ -10,6 +10,8 @@
 #ifndef IdentifiedTrack_h
 #define IdentifiedTrack_h
 
+#include "MediaMetaData.h"
+
 NS_ASSUME_NONNULL_BEGIN
 
 @class SHMatchedMediaItem;
@@ -24,6 +26,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (id)initWithMatchedMediaItem:(SHMatchedMediaItem*)item frame:(NSNumber*)frame;
 - (id)initWithTimedMediaGroup:(AVTimedMetadataGroup*)group framerate:(long)rate;
+
 
 @end
 

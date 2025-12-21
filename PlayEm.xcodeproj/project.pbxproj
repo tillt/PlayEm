@@ -77,6 +77,7 @@
 		BBAD5EF32CE0ECBD00F664AB /* CALayer+PauseAnimations.m in Sources */ = {isa = PBXBuildFile; fileRef = BBAD5EF22CE0ECBD00F664AB /* CALayer+PauseAnimations.m */; };
 		BBAD7D55262B973C00089ACC /* ScopeView.m in Sources */ = {isa = PBXBuildFile; fileRef = BBAD7D54262B973C00089ACC /* ScopeView.m */; };
 		BBB37D21290F4A7E0007A6BB /* PlaylistController.m in Sources */ = {isa = PBXBuildFile; fileRef = BBB37D20290F4A7E0007A6BB /* PlaylistController.m */; };
+		BBB616942EF83D7A002EA388 /* ImageController.m in Sources */ = {isa = PBXBuildFile; fileRef = BBB616932EF83D7A002EA388 /* ImageController.m */; };
 		BBBBF9422EF1BAA1001035DA /* TimedMediaMetaData+ChapterForge.hpp in Sources */ = {isa = PBXBuildFile; fileRef = BBBBF9412EF1BAA1001035DA /* TimedMediaMetaData+ChapterForge.hpp */; };
 		BBBBF9442EF1BB07001035DA /* TimedMediaMetaData+ChapterForge.mm in Sources */ = {isa = PBXBuildFile; fileRef = BBBBF9432EF1BB07001035DA /* TimedMediaMetaData+ChapterForge.mm */; };
 		BBBBF9462EF2335F001035DA /* MediaMetaData+JPEGTool.m in Sources */ = {isa = PBXBuildFile; fileRef = BBBBF9452EF2335F001035DA /* MediaMetaData+JPEGTool.m */; };
@@ -252,6 +253,8 @@
 		BBAD7D54262B973C00089ACC /* ScopeView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ScopeView.m; sourceTree = "<group>"; };
 		BBB37D1F290F4A7E0007A6BB /* PlaylistController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PlaylistController.h; sourceTree = "<group>"; };
 		BBB37D20290F4A7E0007A6BB /* PlaylistController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = PlaylistController.m; sourceTree = "<group>"; };
+		BBB616922EF83D7A002EA388 /* ImageController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ImageController.h; sourceTree = "<group>"; };
+		BBB616932EF83D7A002EA388 /* ImageController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ImageController.m; sourceTree = "<group>"; };
 		BBBBF9412EF1BAA1001035DA /* TimedMediaMetaData+ChapterForge.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = "TimedMediaMetaData+ChapterForge.hpp"; sourceTree = "<group>"; };
 		BBBBF9432EF1BB07001035DA /* TimedMediaMetaData+ChapterForge.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = "TimedMediaMetaData+ChapterForge.mm"; sourceTree = "<group>"; };
 		BBBBF9452EF2335F001035DA /* MediaMetaData+JPEGTool.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "MediaMetaData+JPEGTool.m"; sourceTree = "<group>"; };
@@ -472,6 +475,8 @@
 				BBBBF9432EF1BB07001035DA /* TimedMediaMetaData+ChapterForge.mm */,
 				BBBBF94F2EF632C6001035DA /* MetaController.h */,
 				BBBBF9502EF632C6001035DA /* MetaController.m */,
+				BBB616922EF83D7A002EA388 /* ImageController.h */,
+				BBB616932EF83D7A002EA388 /* ImageController.m */,
 			);
 			path = Metadata;
 			sourceTree = "<group>";
@@ -749,6 +754,7 @@
 				BBBBF9442EF1BB07001035DA /* TimedMediaMetaData+ChapterForge.mm in Sources */,
 				BBBBF9512EF632C6001035DA /* MetaController.m in Sources */,
 				BB539A592D0F51AF0095B8C7 /* KeyTrackedSample.mm in Sources */,
+				BBB616942EF83D7A002EA388 /* ImageController.m in Sources */,
 				BB9D7C102E3E480E0018BA27 /* SampleFormat.h in Sources */,
 				BBAD5EF32CE0ECBD00F664AB /* CALayer+PauseAnimations.m in Sources */,
 				BBC2AF772B8DE2780077EB5E /* NSError+BetterError.m in Sources */,

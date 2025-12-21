@@ -26,6 +26,7 @@
 #import "../Views/WaveScrollView.h"
 #import "../NSImage+Resize.h"
 #import "../CAShapeLayer+Path.h"
+#import "ImageController.h"
 
 typedef enum : NSUInteger {
     NormalHandle = 0,
@@ -736,25 +737,36 @@ const CGFloat kMarkerHandleWidth = 6.0f;
         background.name = [neededFrame stringValue];
 
         TimedMediaMetaData* track = [_trackList trackAtFrame:[neededFrame unsignedLongLongValue]];
+        
+        // Placeholder initially - we may need to resolve the data (unlikely for a tracklist,
+        // very likely for a playlist).
+        imageLayer.contents = [NSImage resizedImage:[NSImage imageNamed:@"UnknownSong"]
+                                               size:imageLayer.frame.size];
+        __weak CALayer* weakLayer = imageLayer;
+        
+        void (^applyImage)(NSData*) = ^(NSData*data) {
+            [[ImageController shared] imageForData:data
+                                               key:track.meta.artworkHash
+                                              size:imageLayer.frame.size.width
+                                        completion:^(NSImage* image) {
+                if (image == nil || weakLayer == nil) {
+                    return;
+                }
+                weakLayer.contents = image;
+            }];
+        };
 
-        NSImage* image = nil;
         if (track.meta.artwork != nil) {
-            image = [NSImage resizedImageWithData:track.meta.artwork
-                                     size:imageLayer.frame.size];
+            applyImage(track.meta.artwork);
         } else {
-            image = [NSImage resizedImage:[NSImage imageNamed:@"UnknownSong"]
-                                     size:imageLayer.frame.size];
             if (track.meta.artworkLocation != nil) {
-                // We can try to resolve the artwork image from the URL.
-                [self resolveImageForURL:track.meta.artworkLocation callback:^(NSImage* image){
-                    [track.meta setArtworkFromImage:image];
-                    imageLayer.contents = image;
+                assert(NO);
+                [[ImageController shared] resolveDataForURL:track.meta.artworkLocation callback:^(NSData* data){
+                    track.meta.artwork = data;
+                    applyImage(track.meta.artwork);
                 }];
             }
         }
-
-        imageLayer.contents = image;
-        
         
         NSAttributedString* title = [self textWithFont:_titleFont
                                                  color:_titleColor

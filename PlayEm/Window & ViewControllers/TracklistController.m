@@ -14,6 +14,7 @@
 #import "../Sample/LazySample.h"
 #import "TimedMediaMetaData.h"
 #import "MediaMetaData.h"
+#import "ImageController.h"
 
 const CGFloat kTimeHeight = 22.0;
 const CGFloat kTotalRowHeight = 52.0 + kTimeHeight;
@@ -22,7 +23,6 @@ NSString * const kTracklistControllerChangedActiveTrackNotification = @"Tracklis
 
 @interface TracklistController()
 @property (nonatomic, weak) NSTableView* table;
-@property (strong, nonatomic) dispatch_queue_t imageQueue;
 @property (assign, nonatomic) NSUInteger currentTrackIndex;
 @end
 
@@ -51,9 +51,6 @@ NSString * const kTracklistControllerChangedActiveTrackNotification = @"Tracklis
         _table.allowsMultipleSelection = YES;
         _table.intercellSpacing = NSMakeSize(0.0, 0.0);
         
-        dispatch_queue_attr_t attr = dispatch_queue_attr_make_with_qos_class(DISPATCH_QUEUE_SERIAL, QOS_CLASS_USER_INITIATED, 0);
-        _imageQueue = dispatch_queue_create("PlayEm.TracklistImageQueue", attr);
-
         NSTableColumn* col = [[NSTableColumn alloc] init];
         col.title = @"";
         col.identifier = @"Column";
@@ -439,17 +436,37 @@ NSString * const kTracklistControllerChangedActiveTrackNotification = @"Tracklis
 
     NSImageView* iv = [result viewWithTag:kImageViewTag];
     
-    if (track.meta.artwork != nil) {
-        iv.image = [NSImage resizedImageWithData:track.meta.artwork
-                                            size:iv.frame.size];
-    } else {
-        iv.image = [NSImage resizedImage:[NSImage imageNamed:@"UnknownSong"]
-                                    size:iv.frame.size];
-        if (track.meta.artworkLocation != nil) {
-            // We can try to resolve the artwork image from the URL.
-            [self resolveImageForURL:track.meta.artworkLocation callback:^(NSImage* image){
-                [track.meta setArtworkFromImage:image];
+    // Placeholder initially - we may need to resolve the data (unlikely for a tracklist,
+    // very likely for a playlist).
+    iv.image = [NSImage resizedImage:[NSImage imageNamed:@"UnknownSong"]
+                                size:iv.frame.size];
+
+    __weak NSView *weakView = result;
+    __weak NSTableView *weakTable = tableView;
+    
+    void (^applyImage)(NSData*) = ^(NSData*data) {
+        [[ImageController shared] imageForData:data
+                                           key:track.meta.artworkHash
+                                          size:iv.frame.size.width
+                                    completion:^(NSImage *image) {
+            if (image == nil || weakView == nil || weakTable == nil) {
+                return;
+            }
+            if ([weakTable rowForView:weakView] == row) {
+                NSImageView *iv = [weakView viewWithTag:kImageViewTag];
                 iv.image = image;
+            }
+        }];
+    };
+
+    if (track.meta.artwork != nil) {
+        applyImage(track.meta.artwork);
+    } else {
+        if (track.meta.artworkLocation != nil) {
+            assert(NO);
+            [[ImageController shared] resolveDataForURL:track.meta.artworkLocation callback:^(NSData* data){
+                track.meta.artwork = data;
+                applyImage(track.meta.artwork);
             }];
         }
     }
@@ -482,16 +499,6 @@ NSString * const kTracklistControllerChangedActiveTrackNotification = @"Tracklis
     [tf setStringValue:time];
 
     return result;
-}
-
-- (void)resolveImageForURL:(NSURL*)url callback:(void (^)(NSImage*))callback
-{
-    dispatch_async(_imageQueue, ^{
-        NSImage* image = [[NSImage alloc] initWithContentsOfURL:url];
-        dispatch_async(dispatch_get_main_queue(), ^{
-            callback(image);
-        });
-    });
 }
 
 -(void)tableViewSelectionDidChange:(NSNotification*)notification

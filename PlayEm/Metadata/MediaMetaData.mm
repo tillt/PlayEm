@@ -13,6 +13,7 @@
 #import <iTunesLibrary/ITLibArtist.h>
 #import <iTunesLibrary/ITLibAlbum.h>
 #import <ShazamKit/ShazamKit.h>
+#import <CommonCrypto/CommonCrypto.h>
 
 #import <Cocoa/Cocoa.h>
 #import <objc/runtime.h>
@@ -53,6 +54,7 @@ NSString* const kMediaMetaDataMapTypeNumber = @"number";
 
 @interface MediaMetaData ()
 @property (readonly, nonatomic, nullable) NSDictionary* starsQuantums;
+@property (copy, nonatomic, nullable) NSString* artworkHashKey;
 @end
 
 @implementation MediaMetaData
@@ -1328,6 +1330,23 @@ NSString* const kMediaMetaDataMapTypeNumber = @"number";
     NSLog(@"couldnt map key %@ (%@)", key, patchedKey);
 
     return key;
+}
+
+- (NSString*)artworkHash
+{
+    NSData* data = self.artwork;
+    if (data != nil && _artworkHashKey.length == 0) {
+        unsigned char digest[CC_SHA256_DIGEST_LENGTH];
+
+        CC_SHA256(data.bytes, (CC_LONG)data.length, digest);
+
+        NSMutableString *s = [NSMutableString stringWithCapacity:24];
+        for (int i = 0; i < 12; i++) {
+            [s appendFormat:@"%02x", digest[i]];
+        }
+        _artworkHashKey = s;
+    }
+    return _artworkHashKey;
 }
 
 - (void)recoverTracklistWithCallback:(void (^)(BOOL, NSError*))callback

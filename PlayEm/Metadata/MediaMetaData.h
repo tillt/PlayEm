@@ -74,6 +74,7 @@ extern NSString* const kMediaMetaDataMapTypeNumber;
 @property (copy, nonatomic, nullable) NSNumber* disk;
 @property (copy, nonatomic, nullable) NSNumber* disks;
 @property (copy, nonatomic, nullable) NSNumber* locationType;
+@property (readonly, nonatomic, nullable) NSString* artworkHash;
 @property (strong, nonatomic, nullable) NSData* artwork;
 @property (readonly, nonatomic, nullable) NSData* artworkWithDefault;
 @property (copy, nonatomic, nullable) NSURL* artworkLocation;

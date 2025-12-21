@@ -85,7 +85,7 @@ static const int kMinRegionBeatCount = 10;
  This is mostly a copy of code from MixxxDJ.
  from https://github.com/mixxxdj/mixxx/blob/8354c8e0f57a635acb7f4b3cc16b9745dc83312c/src/track/beatutils.cpp#L51
  */
-- (NSData*)retrieveConstantRegions
+- (NSData* _Nullable)retrieveConstantRegions
 {
     NSLog(@"pass two: locate constant regions");
     
@@ -232,7 +232,7 @@ static const int kMinRegionBeatCount = 10;
             longestRegionBeatLength = regions[i].beatLength;
             longestRegionNumberOfBeats = beatCount;
             midRegionIndex = i;
-            NSLog(@"%d: %.0f %.0f", i, length, regions[i].beatLength);
+            //NSLog(@"%d: %.0f %.0f", i, length, regions[i].beatLength);
         }
     }
     
@@ -273,7 +273,7 @@ static const int kMinRegionBeatCount = 10;
             
             if (minNumberOfBeats != maxNumberOfBeats) {
                 // Ambiguous number of beats, find a closer region.
-                NSLog(@"ambiguous number of beats - %d != %d - find a closer region ...", minNumberOfBeats, maxNumberOfBeats);
+                //NSLog(@"ambiguous number of beats - %d != %d - find a closer region ...", minNumberOfBeats, maxNumberOfBeats);
                 continue;
             }
             const int numberOfBeats = minNumberOfBeats;
@@ -433,10 +433,10 @@ static const int kMinRegionBeatCount = 10;
  This is mostly a copy of code from MixxxDJ.
  from https://github.com/mixxxdj/mixxx/blob/8354c8e0f57a635acb7f4b3cc16b9745dc83312c/src/track/beatfactory.cpp#L51
  */
-- (NSMutableData*)makeConstantBeats:(NSData*)constantRegions
+- (NSMutableData* _Nullable)makeConstantBeats:(NSData*)constantRegions
 {
     if (!constantRegions.length) {
-        return 0;
+        return nil;
     }
     
     signed long long firstBeatFrame = 0;

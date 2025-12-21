@@ -504,7 +504,7 @@ extern NSString * const kBeatTrackedSampleTempoChangeNotification;
     [layer addAnimation:animation forKey:@"BackgroundColorTransition"];
 }
 
-- (void)setImage:(NSImage*)image animated:(BOOL)animated
+- (void)setImage:(NSImage* _Nullable)image animated:(BOOL)animated
 {
     NSColor* averageColor = nil;
     if (image == nil) {

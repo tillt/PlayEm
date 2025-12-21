@@ -42,7 +42,7 @@ typedef struct _BeatsParserContext BeatsParserContext;
 // Beats as gathered from Aubio.
 @property (strong, nonatomic) NSMutableData* coarseBeats;
 @property (strong, nonatomic) NSMutableData* quantizedEvents;
-@property (strong, nonatomic) NSMutableData* constantBeats;
+@property (strong, nonatomic, nullable) NSMutableData* constantBeats;
 @property (readonly, nonatomic) BOOL ready;
 //@property (readonly, nonatomic) size_t tileWidth;
 @property (readonly, nonatomic) unsigned long long initialSilenceEndsAtFrame;

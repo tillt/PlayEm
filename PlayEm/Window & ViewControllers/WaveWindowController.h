@@ -35,6 +35,7 @@ NS_ASSUME_NONNULL_BEGIN
 @class WaveView;
 @class MetalWaveView;
 @class AVRoutePickerView;
+@class MetaController;
 
 @interface WaveWindowController : NSWindowController <NSWindowDelegate,
                                                       NSToolbarDelegate,

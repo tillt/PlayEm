@@ -27,7 +27,7 @@ typedef enum : NSUInteger {
 - (void)startAnimating;
 - (void)stopAnimating;
 - (void)pauseAnimating;
-- (void)setImage:(NSImage*)image animated:(BOOL)animated;
+- (void)setImage:(NSImage* _Nullable)image animated:(BOOL)animated;
 
 - (id)initWithFrame:(NSRect)frameRect contentsInsets:(NSEdgeInsets)insets style:(CoverViewStyleMask)style;
 

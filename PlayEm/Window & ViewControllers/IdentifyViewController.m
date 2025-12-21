@@ -448,7 +448,7 @@ const CGFloat kTableRowHeight = 52.0f;
 
 #pragma mark - Shazam session delegate
 
-- (void)updateCover:(NSImage*)image animated:(BOOL)animated
+- (void)updateCover:(NSImage* _Nullable)image animated:(BOOL)animated
 {
     [self->_identificationCoverView setImage:[NSImage resizedImage:image size:self->_identificationCoverView.frame.size]
                                     animated:animated];

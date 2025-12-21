@@ -10,7 +10,7 @@
 #import "MediaMetaData+ChapterForge.hpp"
 #import "TrackList+ChapterForge.hpp"
 
-#include "chapterforge.hpp"
+#include "ChapterForge/chapterforge.hpp"
 
 typedef NSDictionary<NSNumber*,StructuredMetaData*> ChapteredMetaData;
 
@@ -25,7 +25,7 @@ void populateChapters(TrackList* tl,
 @interface TrackList (ChapterForge)
 
 - (void)updateWithChapteredMetdaData:(ChapteredMetaData*)chaptered;
-- (ChapteredMetaData*)readChapterTextTracksFromAVAsset:(AVAsset*)asset framerate:(long)rate error:(NSError*__autoreleasing  _Nullable* _Nullable)error;
+- (ChapteredMetaData* _Nullable)readChapterTextTracksFromAVAsset:(AVAsset*)asset framerate:(long)rate error:(NSError*__autoreleasing  _Nullable* _Nullable)error;
 
 @end
 

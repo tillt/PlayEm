@@ -35,13 +35,18 @@ typedef struct {
 
     CVPixelBufferLockBaseAddress(pb, 0);
     CGColorSpaceRef cs = CGColorSpaceCreateDeviceRGB();
-    [ctx render:ciImage
-   toCVPixelBuffer:pb
-           bounds:CGRectMake(0, 0,
-                             CVPixelBufferGetWidth(pb),
-                             CVPixelBufferGetHeight(pb))
-       colorSpace:cs];
-    if (cs) CGColorSpaceRelease(cs);
+
+    [ctx render:ciImage toCVPixelBuffer:pb
+         bounds:CGRectMake(0,
+                           0,
+                           CVPixelBufferGetWidth(pb),
+                           CVPixelBufferGetHeight(pb))
+     colorSpace:cs];
+
+    if (cs) {
+        CGColorSpaceRelease(cs);
+    }
+
     CVPixelBufferUnlockBaseAddress(pb, 0);
 }
 
@@ -98,8 +103,12 @@ static void JPEGCallback(void* outputCallbackRefCon,
     CMTime pts = CMTimeMake(0, 1);
     err = VTCompressionSessionEncodeFrame(session, pb, pts, kCMTimeInvalid, NULL, NULL, NULL);
     CVPixelBufferRelease(pb);
+    if (err != noErr) {
+        NSLog(@"JPEG compression failed - not sure what we get now");
+    }
 
     VTCompressionSessionCompleteFrames(session, kCMTimeInvalid);
+
     dispatch_semaphore_wait(ctx.sema, DISPATCH_TIME_FOREVER);
 
     VTCompressionSessionInvalidate(session);
@@ -117,7 +126,7 @@ static BOOL IsSOFMarker(uint8_t marker) {
            (marker >= 0xCD && marker <= 0xCF);
 }
 
-+ (BOOL)jpegIsYUV420:(NSData*)jpegData samplingInfo:(JPEGSamplingInfo*)infoOut
++ (BOOL)isJPEGYUV420:(NSData* _Nonnull)jpegData samplingInfo:(JPEGSamplingInfo* _Nullable)infoOut
 {
     JPEGSamplingInfo localInfo = { .isYUV420 = NO, .isJPEG = NO, .hv = {{0}} };
     const uint8_t*data = (const uint8_t*)jpegData.bytes;
@@ -195,8 +204,9 @@ static BOOL IsSOFMarker(uint8_t marker) {
     return NO;
 }
 
-+ (BOOL)jpegIsYUV420:(NSData *)jpegData {
-    return [self jpegIsYUV420:jpegData samplingInfo:NULL];
++ (BOOL)isJPEGYUV420:(NSData* _Nonnull)jpegData
+{
+    return [self isJPEGYUV420:jpegData samplingInfo:NULL];
 }
 
 @end

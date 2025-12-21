@@ -981,8 +981,8 @@ NSString* const kMediaMetaDataMapTypeNumber = @"number";
 
 - (NSString*)description
 {
-    return [NSString stringWithFormat:@"Title: %@ -- Album: %@ -- Artist: %@ -- Location: %@ -- Address: %p -- Artwork data: %@  -- Artwork format: %@ -- Tempo: %@ -- Key: %@ -- Duration: %@ -- Rating: %@ -- Comment: %@ -- Apple Location: %@",
-            self.title, self.album, self.artist, self.location, (void*)self, self.artwork, self.artworkFormat, self.tempo, self.key, self.duration, self.rating, self.comment, self.appleLocation];
+    return [NSString stringWithFormat:@"Title: %@ -- Album: %@ -- Artist: %@ -- Location: %@ -- Address: %p -- Artwork data: %@  -- Artwork format: %@ -- Tempo: %@ -- Key: %@ -- Duration: %@ -- Rating: %@ -- Comment: %@ -- Apple Location: %@ -- TrackList: %@",
+            self.title, self.album, self.artist, self.location, (void*)self, self.artwork, self.artworkFormat, self.tempo, self.key, self.duration, self.rating, self.comment, self.appleLocation, self.trackList];
 }
 
 - (id)initWithCoder:(NSCoder *)coder
@@ -1202,7 +1202,7 @@ NSString* const kMediaMetaDataMapTypeNumber = @"number";
     const char* typeString = attrString + 1;
     const char* className = typeString + 2;
     const char* next = strchr(className, '"');
-    size_t classNameLength = next - className;
+    const size_t classNameLength = next - className;
     char trimmedName[classNameLength + 1];
     strncpy(trimmedName, className, classNameLength);
     trimmedName[classNameLength] = '\0';
@@ -1330,22 +1330,58 @@ NSString* const kMediaMetaDataMapTypeNumber = @"number";
     return key;
 }
 
-- (BOOL)recoverTracklistWithError:(NSError *__autoreleasing  _Nullable *)error
+- (void)recoverTracklistWithCallback:(void (^)(BOOL, NSError*))callback
 {
-    MediaMetaDataFileFormatType type = [MediaMetaData fileTypeWithURL:self.location error:error];
+    NSLog(@"attempting to recover tracklist");
+
+    NSError* error = nil;
+    MediaMetaDataFileFormatType type = [MediaMetaData fileTypeWithURL:self.location error:&error];
+    if (error != nil) {
+        NSLog(@"failed to determine file type: %@", error);
+        callback(NO, error);
+        return;
+    }
     
     // We are using taglib for anything but MP4 for which we use the system provided functions.
-    //BOOL ret = NO;
     if (type == MediaMetaDataFileFormatTypeMP4) {
-        [self readChaperMarksFromMP4FileWithError:error];
+        MediaMetaData* __weak weakSelf = self;
+
+        [self readChaperMarksFromMP4FileWithCallback:^(BOOL done, NSError* error){
+            if (!done) {
+                NSLog(@"failed to read chapter marks with error: %@", error);
+            }
+            NSLog(@"lets see if we can read chapters from our sidecar");
+            // Did we get some tracks, so far?
+            if (self.trackList.frames.count > 0) {
+                callback(YES, nil);
+                return;
+            }
+            [weakSelf recoverSidecarWithCallback:callback];
+        }];
+    } else {
+        // Did we get some tracks, so far?
         if (self.trackList.frames.count > 0) {
-            return YES;
+            callback(YES, nil);
+            return;
         }
+
+        [self recoverSidecarWithCallback:callback];
+    }
+}
+
+- (void)recoverSidecarWithCallback:(void (^)(BOOL, NSError*))callback
+{
+    NSError* error = nil;
+
+    // Try a tracklist sidecar file as a source.
+    NSURL* url = [self trackListURL];
+    if (![_trackList readFromFile:url error:&error]) {
+        callback(NO, error);
+        return;
     }
 
-    // Try a tracklist file as a source.
-    NSURL* url = [self trackListURL];
-    return [_trackList readFromFile:url error:error];
+    // No matter if we received tracks or not, an empty list is just fine.
+    callback(YES, nil);
 }
 
 - (BOOL)storeTracklistWithError:(NSError *__autoreleasing  _Nullable *)error

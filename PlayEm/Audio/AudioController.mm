@@ -858,6 +858,9 @@ void LogBufferContents(const uint8_t *buffer, size_t length)
 
     uint32_t primed = 0;
     res = AudioQueuePrime(_context.stream.queue, 0, &primed);
+    if (res != 0 || primed == 0) {
+        NSLog(@"priming didnt go too well but lets see whats next");
+    }
 //    assert((res == 0) && primed > 0);
 #endif
     return;

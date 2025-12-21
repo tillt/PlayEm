@@ -12,8 +12,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface NSImage (Resize)
 
-+ (NSImage*)resizedImage:(NSImage*)image size:(NSSize)size;
-+ (NSImage*)resizedImageWithData:(NSData*)data size:(NSSize)target;
++ (NSImage* _Nullable)resizedImage:(NSImage* _Nullable)image size:(NSSize)size;
++ (NSImage* _Nullable)resizedImageWithData:(NSData* _Nullable)data size:(NSSize)target;
 
 @end
 

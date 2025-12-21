@@ -181,6 +181,7 @@
         if (item.extraAttributes != nil && [item.extraAttributes objectForKey:@"dataType"] == nil) {
             if ([item.extraAttributes objectForKey:@"HREF"]) {
                 self.appleLocation = [NSURL URLWithString:[item.extraAttributes objectForKey:@"HREF"]];
+                self.title = (NSString*)[item value];
             } else {
                 NSLog(@"skip titles meant for extras - skipping \"%@\" for  %@", [item value], [item extraAttributes]);
             }
@@ -224,21 +225,22 @@
             [self updateWithMetadataItem:item];
         }
     }
-
-    // FIXME: Currently synchronous but excellent candidate to become async.
-    return [self readChapterMarksFromAVAsset:asset error:error];
+    return YES;
 }
 
-- (BOOL)readChaperMarksFromMP4FileWithError:(NSError**)error
+//- (void)readChapterMarksFromAVAsset:(AVAsset*)asset callback:(void (^)(BOOL, NSError*))callback
+
+- (void)readChaperMarksFromMP4FileWithCallback:(void (^)(BOOL, NSError*))callback
 {
+    NSLog(@"readChaperMarksFromMP4FileWithCallback");
     AVAsset* asset = [AVURLAsset URLAssetWithURL:self.location options:nil];
-    return [self readChapterMarksFromAVAsset:asset error:error];
+    [self readChapterMarksFromAVAsset:asset callback:callback];
 }
 
 - (BOOL)readFromMP4FileWithError:(NSError**)error
 {
+    NSLog(@"readFromMP4FileWithError");
     AVAsset* asset = [AVURLAsset URLAssetWithURL:self.location options:nil];
-    //NSLog(@"%@", asset);
     return [self readFromAVAsset:asset error:error];
 }
 

@@ -52,7 +52,6 @@
 		BB5A2C232B925CD300040209 /* TextViewWithPlaceholder.m in Sources */ = {isa = PBXBuildFile; fileRef = BB5A2C222B925CD300040209 /* TextViewWithPlaceholder.m */; };
 		BB5A4D9128FC5C2B003A733C /* NSBezierPath+CGPath.m in Sources */ = {isa = PBXBuildFile; fileRef = BB5A4D9028FC5C2B003A733C /* NSBezierPath+CGPath.m */; };
 		BB694CA32E6BB09C00818B01 /* BloomyText.m in Sources */ = {isa = PBXBuildFile; fileRef = BB694CA22E6BB09C00818B01 /* BloomyText.m */; };
-		BB69948C2EEB304800242456 /* libchapterforge.a in Frameworks */ = {isa = PBXBuildFile; fileRef = BB69948B2EEB304800242456 /* libchapterforge.a */; };
 		BB69948F2EEB316100242456 /* MediaMetaData+ChapterForge.mm in Sources */ = {isa = PBXBuildFile; fileRef = BB69948E2EEB316100242456 /* MediaMetaData+ChapterForge.mm */; };
 		BB6994942EEB370500242456 /* TrackList+ChapterForge.mm in Sources */ = {isa = PBXBuildFile; fileRef = BB6994932EEB370500242456 /* TrackList+ChapterForge.mm */; };
 		BB6994962EEF5BDA00242456 /* VideoToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BB6994952EEF5BDA00242456 /* VideoToolbox.framework */; };
@@ -82,6 +81,9 @@
 		BBBBF9442EF1BB07001035DA /* TimedMediaMetaData+ChapterForge.mm in Sources */ = {isa = PBXBuildFile; fileRef = BBBBF9432EF1BB07001035DA /* TimedMediaMetaData+ChapterForge.mm */; };
 		BBBBF9462EF2335F001035DA /* MediaMetaData+JPEGTool.m in Sources */ = {isa = PBXBuildFile; fileRef = BBBBF9452EF2335F001035DA /* MediaMetaData+JPEGTool.m */; };
 		BBBBF94B2EF30B8E001035DA /* UnknownSong.png in Resources */ = {isa = PBXBuildFile; fileRef = BBBBF94A2EF30ADF001035DA /* UnknownSong.png */; };
+		BBBBF94D2EF34F01001035DA /* ChapterForge.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BBBBF94C2EF34F01001035DA /* ChapterForge.framework */; };
+		BBBBF94E2EF378A1001035DA /* ChapterForge.framework in Embed Libraries */ = {isa = PBXBuildFile; fileRef = BBBBF94C2EF34F01001035DA /* ChapterForge.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		BBBBF9512EF632C6001035DA /* MetaController.m in Sources */ = {isa = PBXBuildFile; fileRef = BBBBF9502EF632C6001035DA /* MetaController.m */; };
 		BBC2AF4B2B8974C20077EB5E /* MediaMetaData+TagLib.m in Sources */ = {isa = PBXBuildFile; fileRef = BBC2AF4A2B8974C20077EB5E /* MediaMetaData+TagLib.m */; };
 		BBC2AF732B8B5B5A0077EB5E /* MediaMetaData+AVAsset.m in Sources */ = {isa = PBXBuildFile; fileRef = BBC2AF722B8B5B5A0077EB5E /* MediaMetaData+AVAsset.m */; };
 		BBC2AF772B8DE2780077EB5E /* NSError+BetterError.m in Sources */ = {isa = PBXBuildFile; fileRef = BBC2AF762B8DE2770077EB5E /* NSError+BetterError.m */; };
@@ -116,6 +118,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
+				BBBBF94E2EF378A1001035DA /* ChapterForge.framework in Embed Libraries */,
 				BB1614B92AACB0C300F6C5E6 /* libaubio.5.dylib in Embed Libraries */,
 				BB3B8D992B86C9B7006AEFCA /* tag_c.framework in Embed Libraries */,
 				BB539A632D0F6E980095B8C7 /* libfftw3.3.dylib in Embed Libraries */,
@@ -203,7 +206,6 @@
 		BB5A4D9028FC5C2B003A733C /* NSBezierPath+CGPath.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSBezierPath+CGPath.m"; sourceTree = "<group>"; };
 		BB694CA12E6BB09C00818B01 /* BloomyText.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BloomyText.h; sourceTree = "<group>"; };
 		BB694CA22E6BB09C00818B01 /* BloomyText.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = BloomyText.m; sourceTree = "<group>"; };
-		BB69948B2EEB304800242456 /* libchapterforge.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libchapterforge.a; path = ../../chapterforge/chapterforge/build/libchapterforge.a; sourceTree = "<group>"; };
 		BB69948D2EEB316100242456 /* MediaMetaData+ChapterForge.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = "MediaMetaData+ChapterForge.hpp"; sourceTree = "<group>"; };
 		BB69948E2EEB316100242456 /* MediaMetaData+ChapterForge.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = "MediaMetaData+ChapterForge.mm"; sourceTree = "<group>"; };
 		BB6994922EEB370500242456 /* TrackList+ChapterForge.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = "TrackList+ChapterForge.hpp"; sourceTree = "<group>"; };
@@ -255,6 +257,9 @@
 		BBBBF9452EF2335F001035DA /* MediaMetaData+JPEGTool.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "MediaMetaData+JPEGTool.m"; sourceTree = "<group>"; };
 		BBBBF9472EF23442001035DA /* MediaMetaData+JPEGTool.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "MediaMetaData+JPEGTool.h"; sourceTree = "<group>"; };
 		BBBBF94A2EF30ADF001035DA /* UnknownSong.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = UnknownSong.png; sourceTree = "<group>"; };
+		BBBBF94C2EF34F01001035DA /* ChapterForge.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = ChapterForge.framework; sourceTree = "<group>"; };
+		BBBBF94F2EF632C6001035DA /* MetaController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MetaController.h; sourceTree = "<group>"; };
+		BBBBF9502EF632C6001035DA /* MetaController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MetaController.m; sourceTree = "<group>"; };
 		BBC257B22D7466C300236395 /* VisualPairContext.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VisualPairContext.h; sourceTree = "<group>"; };
 		BBC2AF4A2B8974C20077EB5E /* MediaMetaData+TagLib.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "MediaMetaData+TagLib.m"; sourceTree = "<group>"; };
 		BBC2AF4E2B8976DA0077EB5E /* MediaMetaData+TagLib.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "MediaMetaData+TagLib.h"; sourceTree = "<group>"; };
@@ -312,7 +317,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				BB6994962EEF5BDA00242456 /* VideoToolbox.framework in Frameworks */,
-				BB69948C2EEB304800242456 /* libchapterforge.a in Frameworks */,
 				BB19A3772C5FAE0C00E5B4D2 /* CoreWLAN.framework in Frameworks */,
 				BBC2AF7F2B8FDB140077EB5E /* StoreKit.framework in Frameworks */,
 				BB1614BA2AACB0DF00F6C5E6 /* libaubio.5.dylib in Frameworks */,
@@ -322,6 +326,7 @@
 				BB3B8D9D2B87CC12006AEFCA /* ShazamKit.framework in Frameworks */,
 				BBE2846F2467669500BE9D7F /* MetalKit.framework in Frameworks */,
 				BBA507DF2443E66800AABCF7 /* AVFoundation.framework in Frameworks */,
+				BBBBF94D2EF34F01001035DA /* ChapterForge.framework in Frameworks */,
 				BB3B8D9A2B86C9B7006AEFCA /* tag.framework in Frameworks */,
 				BB3B8D982B86C9B7006AEFCA /* tag_c.framework in Frameworks */,
 				BB539A5F2D0F6D390095B8C7 /* libkeyfinder.2.dylib in Frameworks */,
@@ -357,7 +362,7 @@
 			isa = PBXGroup;
 			children = (
 				BB6994952EEF5BDA00242456 /* VideoToolbox.framework */,
-				BB69948B2EEB304800242456 /* libchapterforge.a */,
+				BBBBF94C2EF34F01001035DA /* ChapterForge.framework */,
 				BB19A3762C5FAE0C00E5B4D2 /* CoreWLAN.framework */,
 				BBC2AF7E2B8FDB140077EB5E /* StoreKit.framework */,
 				BB3B8D9C2B87CC12006AEFCA /* ShazamKit.framework */,
@@ -465,6 +470,8 @@
 				BB0A62C72E88554D00BAF444 /* TimedMediaMetaData.h */,
 				BBBBF9412EF1BAA1001035DA /* TimedMediaMetaData+ChapterForge.hpp */,
 				BBBBF9432EF1BB07001035DA /* TimedMediaMetaData+ChapterForge.mm */,
+				BBBBF94F2EF632C6001035DA /* MetaController.h */,
+				BBBBF9502EF632C6001035DA /* MetaController.m */,
 			);
 			path = Metadata;
 			sourceTree = "<group>";
@@ -740,6 +747,7 @@
 				BB9C77E52A8D5F7C00A138BE /* WaveView.m in Sources */,
 				BB09C23D2E8028FB00C506FC /* SymbolButton.m in Sources */,
 				BBBBF9442EF1BB07001035DA /* TimedMediaMetaData+ChapterForge.mm in Sources */,
+				BBBBF9512EF632C6001035DA /* MetaController.m in Sources */,
 				BB539A592D0F51AF0095B8C7 /* KeyTrackedSample.mm in Sources */,
 				BB9D7C102E3E480E0018BA27 /* SampleFormat.h in Sources */,
 				BBAD5EF32CE0ECBD00F664AB /* CALayer+PauseAnimations.m in Sources */,
@@ -951,13 +959,14 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++20";
 				CLANG_UNDEFINED_BEHAVIOR_SANITIZER_INTEGER = YES;
 				CLANG_UNDEFINED_BEHAVIOR_SANITIZER_NULLABILITY = YES;
 				CLANG_USE_OPTIMIZATION_PROFILE = NO;
 				CLANG_WARN_OBJC_IMPLICIT_ATOMIC_PROPERTIES = YES;
 				CLANG_WARN_OBJC_INTERFACE_IVARS = YES_ERROR;
 				CODE_SIGN_ENTITLEMENTS = PlayEm/PlayEm.entitlements;
-				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_IDENTITY = "Apple Development: Till Toenshoff (359X484G5G)";
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
@@ -1001,12 +1010,13 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++20";
 				CLANG_UNDEFINED_BEHAVIOR_SANITIZER_INTEGER = NO;
 				CLANG_UNDEFINED_BEHAVIOR_SANITIZER_NULLABILITY = NO;
 				CLANG_USE_OPTIMIZATION_PROFILE = NO;
 				CLANG_WARN_OBJC_IMPLICIT_ATOMIC_PROPERTIES = YES;
 				CODE_SIGN_ENTITLEMENTS = PlayEm/PlayEm.entitlements;
-				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_IDENTITY = "Apple Development: Till Toenshoff (359X484G5G)";
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;

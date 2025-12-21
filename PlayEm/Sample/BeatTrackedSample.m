@@ -126,9 +126,11 @@ const NSUInteger BeatEventMaskMarkers = BeatEventStyleMarkIntro
         _hopSize = _windowWidth / 4;
         _sampleBuffers = [NSMutableArray array];
         _lastTempo = 0.0f;
+        
         _aubio_input_buffer = NULL;
         _aubio_output_buffer = NULL;
         _aubio_tempo = NULL;
+
         _beats = [NSMutableDictionary dictionary];
         _shardFrameCount = ceil(sample.sampleFormat.rate * kBeatsShardSecondCount);
         _constantBeats = nil;
@@ -145,6 +147,7 @@ const NSUInteger BeatEventMaskMarkers = BeatEventStyleMarkIntro
 - (void)setupTracking
 {
     [self cleanupTracking];
+
     _aubio_input_buffer = new_fvec((unsigned int)_hopSize);
     assert(_aubio_input_buffer);
     _aubio_output_buffer = new_fvec((unsigned int)1);
@@ -180,6 +183,15 @@ const NSUInteger BeatEventMaskMarkers = BeatEventStyleMarkIntro
 
 - (void)dealloc
 {
+    if (_aubio_input_buffer != NULL) {
+        del_fvec(_aubio_input_buffer);
+    }
+    if (_aubio_output_buffer != NULL) {
+        del_fvec(_aubio_output_buffer);
+    }
+    if (_aubio_tempo != NULL) {
+        del_aubio_tempo(_aubio_tempo);
+    }
 }
 
 struct _BeatsParserContext {
@@ -216,6 +228,7 @@ void beatsContextReset(BeatsParserContext* context)
     while (sourceWindowFrameOffset < self->_sample.frames) {
         if (dispatch_block_testcancel(self.queueOperation) != 0) {
             NSLog(@"aborted beat detection");
+            [self cleanupTracking];
             return NO;
         }
         unsigned long long sourceWindowFrameCount = MIN(self->_hopSize * 1024,
@@ -230,6 +243,7 @@ void beatsContextReset(BeatsParserContext* context)
         while(sourceFrameIndex < received) {
             if (dispatch_block_testcancel(self.queueOperation) != 0) {
                 NSLog(@"aborted beat detection");
+                [self cleanupTracking];
                 return NO;
             }
             
@@ -291,9 +305,7 @@ void beatsContextReset(BeatsParserContext* context)
     NSLog(@"trailing silence starts %lld frames before end of sample", _sample.frames - _trailingSilenceStartsAtFrame);
     
     // Generate a constant grid pattern out of the detected beats.
-    
     NSData* constantRegions = [self retrieveConstantRegions];
-    
     _constantBeats = [self makeConstantBeats:constantRegions];
     
     [self measureEnergyAtBeats];

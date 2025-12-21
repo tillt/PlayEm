@@ -11,8 +11,11 @@
 
 @implementation NSImage (Resize)
 
-+ (NSImage*)resizedImage:(NSImage*)image size:(NSSize)target
++ (NSImage* _Nullable)resizedImage:(NSImage* _Nullable)image size:(NSSize)target
 {
+    if (image == nil) {
+        return nil;
+    }
     NSImageRep* rep = [image bestRepresentationForRect:NSMakeRect(0, 0, image.size.width, image.size.height)
                                                context:nil
                                                  hints:nil];
@@ -44,32 +47,17 @@
     return out;
 }
 
-static CGImageRef CreateSRGBCGImage(CGImageRef src) {
-    if (!src) return nil;
-    CGColorSpaceRef sRGB = CGColorSpaceCreateWithName(kCGColorSpaceSRGB);
-    CGBitmapInfo bi = kCGImageAlphaPremultipliedLast | kCGBitmapByteOrder32Host;
-
-    size_t w = CGImageGetWidth(src);
-    size_t h = CGImageGetHeight(src);
-
-    CGContextRef ctx = CGBitmapContextCreate(NULL, w, h, 8, 0, sRGB, bi);
-    if (!ctx) { CGColorSpaceRelease(sRGB); return nil; }
-
-    CGContextSetInterpolationQuality(ctx, kCGInterpolationHigh);
-    CGContextDrawImage(ctx, CGRectMake(0, 0, w, h), src);
-    CGImageRef out = CGBitmapContextCreateImage(ctx);
-
-    CGContextRelease(ctx);
-    CGColorSpaceRelease(sRGB);
-    return out; // caller releases
-}
-
-+ (NSImage*)resizedImageWithData:(NSData*)jpegData size:(NSSize)target
++ (NSImage* _Nullable)resizedImageWithData:(NSData* _Nullable)jpegData size:(NSSize)target
 {
+    if (jpegData == nil) {
+        return nil;
+    }
     // Decode with an explicit sRGB input space
     NSDictionary *imgOpts = @{ kCIImageColorSpace : (__bridge id)[NSColorSpace sRGBColorSpace].CGColorSpace };
     CIImage *src = [CIImage imageWithData:jpegData options:imgOpts];
-    if (!src) return nil;
+    if (!src) {
+        return nil;
+    }
 
     // Compute scale factor
     CGFloat scale = target.width / src.extent.size.width;
@@ -81,7 +69,9 @@ static CGImageRef CreateSRGBCGImage(CGImageRef src) {
     [lanczos setValue:@(scale) forKey:@"inputScale"];
     [lanczos setValue:@1.0 forKey:@"inputAspectRatio"];
     CIImage *outCI = lanczos.outputImage;
-    if (!outCI) return nil;
+    if (!outCI) {
+        return nil;
+    }
 
     // CI context pinned to sRGB in and out
     CIContext *ctx = [CIContext contextWithOptions:@{
@@ -91,7 +81,9 @@ static CGImageRef CreateSRGBCGImage(CGImageRef src) {
 
     CGRect outRect = CGRectMake(0, 0, target.width, target.height);
     CGImageRef cg = [ctx createCGImage:outCI fromRect:outRect];
-    if (!cg) return nil;
+    if (!cg) {
+        return nil;
+    }
 
     NSImage *result = [[NSImage alloc] initWithCGImage:cg size:NSMakeSize(target.width, target.height)];
     CGImageRelease(cg);

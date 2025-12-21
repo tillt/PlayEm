@@ -787,7 +787,9 @@ const CGFloat kMarkerHandleWidth = 6.0f;
 
             CGFloat x = [self trackMarkOffsetWithFrameOffset:[current unsignedLongLongValue]] - xMin;
             CALayer* currentLayer = [self sublayerForFrame:current layers:wv.markLayer.sublayers];
-            assert(currentLayer);
+            if (currentLayer == nil) {
+                continue;
+            }
             // We position using the layout manager to allow for constraint based layout.
             CAConstraint* minXConstraint = [CAConstraint constraintWithAttribute:kCAConstraintMinX relativeTo:@"superlayer" attribute:kCAConstraintMinX offset:x];
             CAConstraint* minYConstraint = [CAConstraint constraintWithAttribute:kCAConstraintMinY relativeTo:@"superlayer" attribute:kCAConstraintMinY];
@@ -1057,8 +1059,7 @@ const CGFloat kMarkerHandleWidth = 6.0f;
 
 - (void)beatEffect:(NSNotification*)notification
 {
-    WaveView* wv = (WaveView*)self.view;
-
+    //WaveView* wv = (WaveView*)self.view;
     NSDictionary* dict = notification.object;
 
     NSNumber* tempo = dict[kBeatNotificationKeyTempo];

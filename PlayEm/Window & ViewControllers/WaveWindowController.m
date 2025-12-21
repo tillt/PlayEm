@@ -31,6 +31,7 @@
 #import "WaveView.h"
 #import "UIView+Visibility.h"
 #import "InfoPanel.h"
+#import "MetaController.h"
 #import "TableHeaderCell.h"
 #import "ControlPanelController.h"
 #import "IdentifyViewController.h"
@@ -111,6 +112,7 @@ os_log_t pointsOfInterest;
     
     LoaderState _loaderState;
 }
+@property (nonatomic, strong) MetaController* metaController;
 
 @property (assign, nonatomic) CGFloat windowBarHeight;
 @property (assign, nonatomic) CGRect smallBelowVisualsFrame;
@@ -209,6 +211,7 @@ os_log_t pointsOfInterest;
         _noSleepAssertionID = 0;
         _loaderState = LoaderStateReady;
         _videoDelay = 0.0;
+        _metaController = [MetaController new];
     }
     return self;
 }
@@ -1987,6 +1990,36 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     }
 }
 
+typedef struct {
+    BOOL                playing;
+    unsigned long long  frame;
+    NSString*           path;
+    MediaMetaData*      meta;
+} LoaderContext;
+
+- (LoaderContext)loaderSetupWithURL:(NSURL*)url
+{
+    LoaderContext loaderOut;
+    NSURLComponents* components = [NSURLComponents componentsWithURL:url
+                                             resolvingAgainstBaseURL:YES];
+
+    NSPredicate* predicate = [NSPredicate predicateWithFormat:@"name=%@", @"CurrentFrame"];
+    NSURLQueryItem* item = [[components.queryItems filteredArrayUsingPredicate:predicate] firstObject];
+    long long frame = [[item value] longLongValue];
+    
+    if (frame < 0) {
+        NSLog(@"not fixing a bug here due to lazyness -- hope it happens rarely");
+        frame = 0;
+    }
+
+    predicate = [NSPredicate predicateWithFormat:@"name=%@", @"Playing"];
+    item = [[components.queryItems filteredArrayUsingPredicate:predicate] firstObject];
+    loaderOut.playing = [[item value] boolValue];
+    loaderOut.path = url.path;
+    loaderOut.frame = frame;
+    return loaderOut;
+}
+
 - (BOOL)loadDocumentFromURL:(NSURL*)url meta:(MediaMetaData*)meta
 {
     NSError* error = nil;
@@ -2002,28 +2035,9 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     if (url == nil) {
         return NO;
     }
-    
-    BOOL playing = NO;
-    long long frame = 0LL;
-    
+
     NSLog(@"loadDocumentFromURL url: %@ - known meta: %@", url, meta);
 
-    NSURLComponents* components = [NSURLComponents componentsWithURL:url
-                                             resolvingAgainstBaseURL:YES];
-
-    NSPredicate* predicate = [NSPredicate predicateWithFormat:@"name=%@", @"CurrentFrame"];
-    NSURLQueryItem* item = [[components.queryItems filteredArrayUsingPredicate:predicate] firstObject];
-    frame = [[item value] longLongValue];
-    
-    if (frame < 0) {
-        NSLog(@"not fixing a bug here due to lazyness -- hope it happens rarely");
-        frame = 0;
-    }
-
-    predicate = [NSPredicate predicateWithFormat:@"name=%@", @"Playing"];
-    item = [[components.queryItems filteredArrayUsingPredicate:predicate] firstObject];
-    playing = [[item value] boolValue];
-    
     // Check if that file is even readable.
     if (![url checkResourceIsReachableAndReturnError:&error]) {
         if (error != nil) {
@@ -2033,60 +2047,100 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
         return NO;
     }
 
+    LoaderContext context = [self loaderSetupWithURL:url];
     
-    _loaderState = LoaderStateMeta;
+    // This seems pointless by now -- we will re-read that meta anyway.
+    context.meta = meta;
+
     // FIXME: This is far too localized -- lets not update the screen whenever we change the status explicitly -- this should happen implicitly.
-    if (playing) {
+    if (context.playing) {
         [self loadProgress:_controlPanelController.autoplayProgress state:LoadStateInit value:0.0];
     }
-
-    if (meta == nil) {
-        // Not being able to get metadata is not a reason to fail the load process.
-        meta = [MediaMetaData mediaMetaDataWithURL:url error:&error];
-        if (meta == nil) {
-            if (error) {
-                NSLog(@"failed to read metadata from URL %@: %@ ", url, error);
-            }
-        }
-    }
-
-    if (meta.trackList == nil || meta.trackList.tracks.count == 0) {
-        NSLog(@"we dont seem to have a tracklist yet - lets see if we can recover one...");
-        // Not being able to get the tracklist is not a reason to fail the load process.
-        if (![meta recoverTracklistWithError:&error]) {
-            NSLog(@"tracklist recovery failed: %@", error);
-        }
-    }
     
-    LazySample* lazySample = [[LazySample alloc] initWithPath:url.path error:&error];
-    if (lazySample == nil) {
-        if (error) {
-            NSAlert* alert = [NSAlert betterAlertWithError:error action:@"read" url:url];
-            [alert runModal];
-        }
-        return NO;
-    }
-    [[NSDocumentController sharedDocumentController] noteNewRecentDocumentURL:url];
+    _loaderState = LoaderStateAbortingKeyDetection;
 
     WaveWindowController* __weak weakSelf = self;
+    // The loader may already be active at this moment -- we abort it and hand over
+    // our payload block when abort did its job.
+    [self abortLoader:^{
+        NSLog(@"loading new meta from: %@ ...", context.path);
+        self->_loaderState = LoaderStateMeta;
+        [weakSelf loadMetaWithContext:context];
+    }];
+
+    return YES;
+}
+
+- (void)loadMetaWithContext:(LoaderContext)context
+{
+    if (_loaderState == LoaderStateAborted) {
+        return;
+    }
+
+    _loaderState = LoaderStateMeta;
+    WaveWindowController* __weak weakSelf = self;
+
+    [_metaController loadAsyncWithPath:context.path callback:^(MediaMetaData* meta){
+        if (meta != nil) {
+            LoaderContext c = context;
+            c.meta = meta;
+
+            if (meta.trackList == nil || meta.trackList.tracks.count == 0) {
+                NSLog(@"We dont seem to have a tracklist yet - lets see if we can recover one...");
+
+                // Not being able to get the tracklist is not a reason to fail the load process.
+                [meta recoverTracklistWithCallback:^(BOOL completed, NSError* error){
+                    if (!completed) {
+                        NSLog(@"tracklist recovery failed: %@", error);
+                    }
+                    [weakSelf metaLoadedWithContext:c];
+                }];
+            } else {
+                [weakSelf metaLoadedWithContext:c];
+            }
+        } else {
+            NSLog(@"never finished the meta loading");
+            LoaderContext c = context;
+            c.meta = nil;
+            [weakSelf metaLoadedWithContext:c];
+        }
+    }];
+}
+
+- (void)metaLoadedWithContext:(LoaderContext)context
+{
+    WaveWindowController* __weak weakSelf = self;
+
+    NSError* error = nil;
+    if (context.meta != nil) {
+        [self setMeta:context.meta];
+    } else {
+        NSLog(@"!!!no meta available!!!");
+    }
+    
+    LazySample* lazySample = [[LazySample alloc] initWithPath:context.path error:&error];
+    if (lazySample == nil) {
+        if (error) {
+            NSAlert* alert = [NSAlert betterAlertWithError:error action:@"read" url:[NSURL fileURLWithPath:context.path]];
+            [alert runModal];
+        }
+        return;
+    }
+    [[NSDocumentController sharedDocumentController] noteNewRecentDocumentURL:[NSURL fileURLWithPath:context.path]];
 
     self->_loaderState = LoaderStateAbortingKeyDetection;
     // The loader may already be active at this moment -- we abort it and hand over
     // our payload block when abort did its job.
     [self abortLoader:^{
-        NSLog(@"loading new sample from URL:%@ ...", url);
+        NSLog(@"loading new sample from: %@ ...", context.path);
         self->_loaderState = LoaderStateDecoder;
-        [weakSelf prepareLazySample:lazySample];
-        [weakSelf loadLazySample];
-        [weakSelf setMeta:meta];
+        [weakSelf loadSample:lazySample];
 
         NSLog(@"playback starting...");
-        [self->_audioController playSample:lazySample
-                                     frame:frame
-                                    paused:!playing];
+        [weakSelf.audioController playSample:lazySample
+                                       frame:context.frame
+                                      paused:!context.playing];
     }];
-
-    return YES;
 }
 
 - (void)abortLoader:(void (^)(void))callback
@@ -2127,11 +2181,25 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
                 NSLog(@"attempting to abort decoder...");
                 [self->_audioController decodeAbortWithCallback:^{
                     NSLog(@"decoder aborted, calling back...");
+                    self->_loaderState = LoaderStateAbortingMeta;
+                    [self abortLoader:callback];
+                }];
+            } else {
+                NSLog(@"decoder wasnt active, calling back...");
+                _loaderState = LoaderStateAbortingMeta;
+                [self abortLoader:callback];
+            }
+            break;
+        case LoaderStateAbortingMeta:
+            if (_meta != nil) {
+                NSLog(@"attempting to abort meta loader...");
+                [self->_metaController loadAbortWithCallback:^{
+                    NSLog(@"meta loader aborted, calling back...");
                     self->_loaderState = LoaderStateAborted;
                     callback();
                 }];
             } else {
-                NSLog(@"decoder wasnt active, calling back...");
+                NSLog(@"meta loader wasnt active, calling back...");
                 _loaderState = LoaderStateAborted;
                 callback();
             }
@@ -2143,7 +2211,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     }
 }
 
-- (void)prepareLazySample:(LazySample*)sample
+- (void)loadSample:(LazySample*)sample
 {
     if (_loaderState == LoaderStateAborted) {
         return;
@@ -2189,23 +2257,20 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     NSTimeInterval duration = [self.visualSample.sample timeForFrame:sample.frames];
     [_controlPanelController setKeyHidden:duration > kBeatSampleDurationThreshold];
     [_controlPanelController setKey:@"" hint:@""];
-}
 
-- (void)loadLazySample
-{
     _loaderState = LoaderStateDecoder;
     
     WaveWindowController* __weak weakSelf = self;
     [_audioController decodeAsyncWithSample:_sample callback:^(BOOL decodeFinished){
         if (decodeFinished) {
-            [weakSelf lazySampleDecoded];
+            [weakSelf sampleDecoded];
        } else {
             NSLog(@"never finished the decoding");
         }
     }];
 }
 
-- (void)lazySampleDecoded
+- (void)sampleDecoded
 {
     BeatTrackedSample* beatSample = [[BeatTrackedSample alloc] initWithSample:_sample];
 
@@ -2334,6 +2399,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
 
 - (void)setMeta:(MediaMetaData*)meta
 {
+    NSLog(@"WaveWindowController setMeta: %@", meta);
     _meta = meta;
     
     // FIXME: This feels icky -- we are distributing our state here - is that really needed?
@@ -2809,7 +2875,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
 
 - (double)secondsFromFrame:(unsigned long long)frame
 {
-    return (double)frame / _audioController.sample.sampleFormat.rate;
+    return [_audioController.sample timeForFrame:frame];
 }
 
 - (NSString*)stringFromFrame:(unsigned long long)frame

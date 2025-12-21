@@ -102,9 +102,7 @@ extern NSString* const kMediaMetaDataMapTypeNumber;
 
 - (BOOL)storeTracklistWithError:(NSError**)error;
 
-- (BOOL)recoverTracklistWithError:(NSError**)error;
-
-//- (void)recoverTracklistWithCallback:^(NSError** error);
+- (void)recoverTracklistWithCallback:(void (^)(BOOL, NSError*))callback;
 
 - (void)setArtworkFromImage:(NSImage*)image;
 

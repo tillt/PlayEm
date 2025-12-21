@@ -12,12 +12,13 @@ typedef struct {
 @interface JPEGTool : NSObject
 
 /// Encode an NSImage to JPEG with YUV420 sampling. Returns nil on failure.
-+ (nullable NSData *)encodeImageToJPEG420:(NSImage *)image
-                                  quality:(CGFloat)quality; // 0.0–1.0
++ (nullable NSData*)encodeImageToJPEG420:(NSImage* _Nonnull)image
+                                 quality:(CGFloat)quality; // 0.0–1.0
 
 /// Check if a JPEG (NSData) is YUV420. Optionally fills samplingInfo.
-+ (BOOL)jpegIsYUV420:(NSData *)jpegData
-       samplingInfo:(nullable JPEGSamplingInfo *)infoOut;
++ (BOOL)isJPEGYUV420:(NSData* _Nonnull)jpegData
+        samplingInfo:(JPEGSamplingInfo* _Nullable)infoOut;
+
++ (BOOL)isJPEGYUV420:(NSData* _Nonnull)jpegData;
 
 @end
-

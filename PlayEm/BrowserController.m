@@ -1342,6 +1342,10 @@ NSString* const kSongsColGenre = @"GenreCell";
         MediaMetaData* meta = self.filteredItems[idx];
         [metas addObject:meta];
     }];
+    if (metas.count == 0 && self.songsTable.clickedRow >= 0) {
+        [metas addObject:self.filteredItems[self.songsTable.clickedRow]];
+    }
+
     return metas;
 }
 

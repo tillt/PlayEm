@@ -19,7 +19,7 @@
 #import "TimedMediaMetaData.h"
 #import "JPEGTool.h"
 
-#include "chapterforge.hpp"
+#include "ChapterForge/chapterforge.hpp"
 
 static NSString* kTrackListTitleArtistGlue = @" - ";
 
@@ -31,8 +31,6 @@ void populateChapters(TrackList* tl,
                       std::vector<ChapterImageSample> &imageChapters,
                       FrameToSeconds frameToSeconds)
 {
-    NSError* error = nil;
-    
     NSArray<NSNumber*>* frames = [[tl frames] sortedArrayUsingSelector:@selector(compare:)];
 
     for (NSNumber* value in frames) {
@@ -81,44 +79,34 @@ void populateChapters(TrackList* tl,
         // Note that this schema appears to scale further - if we ever needed to encode more
         // timed information, we could simply add another track - it appears sane players
         // will ignore.
-        if ((tm.meta.appleLocation != nil &&
-            [[tm.meta.appleLocation absoluteString] length] > 0) ||
-            tm.meta.artist.length > 0) {
-            
-            ChapterTextSample us{};
-            us.start_ms = start_ms;
-
-            if (tm.meta.artist.length > 0) {
-                us.text = [tm.meta.artist UTF8String];
-            }
-
-            if ([[tm.meta.appleLocation absoluteString] length] > 0) {
-                us.href = [[tm.meta.appleLocation absoluteString] UTF8String];
-            }
-
-            urlChapters.push_back(std::move(us));
-        } else {
-            NSLog(@"no URL present, skipping");
+        ChapterTextSample us{};
+        if (tm.meta.artist.length > 0) {
+            us.text = [tm.meta.artist UTF8String];
         }
+        if ([[tm.meta.appleLocation absoluteString] length] > 0) {
+            us.href = [[tm.meta.appleLocation absoluteString] UTF8String];
+        }
+        us.start_ms = start_ms;
+        urlChapters.push_back(std::move(us));
 
         //
         // Image
         //
+        // Note: If there is no artwork, we dont write a sample into our video track
+        // this might be a bad idea as it results in the previous track image getting
+        // shown again.
+        ChapterImageSample is{};
         if (tm.meta.artwork != nil) {
             NSData* artwork420 = [tm.meta sizedJPEG420];
-
-            ChapterImageSample is{};
+            
             uint8_t* buffer = (uint8_t*)[artwork420 bytes];
             size_t len = [artwork420 length];
-
+            
             std::vector<uint8_t> v(buffer, buffer + len);
-            is.start_ms = start_ms;
             is.data = v;
-
-            imageChapters.push_back(std::move(is));
-        } else {
-            NSLog(@"no image present, skipping");
         }
+        is.start_ms = start_ms;
+        imageChapters.push_back(std::move(is));
     }
 }
 
@@ -143,10 +131,11 @@ void populateChapters(TrackList* tl,
     }
 }
 
-- (ChapteredMetaData*)readChapterTextTracksFromAVAsset:(AVAsset*)asset framerate:(long)rate error:(NSError*__autoreleasing  _Nullable* _Nullable)error
+- (ChapteredMetaData* _Nullable)readChapterTextTracksFromAVAsset:(AVAsset*)asset framerate:(long)rate error:(NSError*__autoreleasing  _Nullable* _Nullable)error
 {
+    NSMutableDictionary<NSNumber*, NSMutableDictionary<NSString*, NSString*>*>* chapteredMetadata = [NSMutableDictionary dictionary];
+
     NSArray<AVAssetTrack*>* textTracks = [asset tracksWithMediaType:AVMediaTypeText];
-    ChapteredMetaData* chapteredMetadata = [NSMutableDictionary dictionary];
     
     if (textTracks.count > 0) {
         NSLog(@"titles trackID=%d", textTracks[0].trackID);
@@ -182,7 +171,7 @@ void populateChapters(TrackList* tl,
 {
     CMSampleBufferRef sb = NULL;
     
-    while ((sb = [trackOut copyNextSampleBuffer])) {
+    while ((sb = [trackOut copyNextSampleBuffer]) != NULL) {
         CMTime pts = CMSampleBufferGetPresentationTimeStamp(sb);
         CMTime dur = CMSampleBufferGetDuration(sb); // may be kCMTimeInvalid; derive from stts if needed
         Float64 ptsSec = 0;
@@ -193,10 +182,12 @@ void populateChapters(TrackList* tl,
             durSec = (CMTIME_IS_VALID(dur) && CMTIME_IS_NUMERIC(dur)) ? CMTimeGetSeconds(dur) : 0.0;
             if (durSec == 0.0f) {
                 // padding/invalid sample
+                CFRelease(sb);
                 continue;
             }
         } else {
             // padding/invalid sample
+            CFRelease(sb);
             continue;
         }
         
@@ -219,7 +210,7 @@ void populateChapters(TrackList* tl,
                         NSData* utf8 = [data subdataWithRange:NSMakeRange(2, textLen)];
                         NSString* s = [[NSString alloc] initWithData:utf8 encoding:NSUTF8StringEncoding];
                         if (s.length > 0) {
-                            NSLog(@"sample pts=%.2f dur=%.2f url entry (tx3g len=%u): %@", ptsSec, durSec, textLen, s);
+                            NSLog(@"sample pts=%.2f dur=%.2f %@ (tx3g len=%u): %@", ptsSec, durSec, key, textLen, s);
                             
                             NSMutableDictionary* item = nil;
                             NSNumber* start = @((unsigned long long)(ptsSec * rate));
@@ -237,7 +228,7 @@ void populateChapters(TrackList* tl,
                 }
             }
         }
-        //CFRelease(sb);
+        CFRelease(sb);
     }
 }
 

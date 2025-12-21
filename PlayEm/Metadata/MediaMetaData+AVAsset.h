@@ -18,16 +18,18 @@ NS_ASSUME_NONNULL_BEGIN
 + (MediaMetaData*)mediaMetaDataWithMetadataItems:(NSArray<AVMetadataItem*>*)items;
 + (long)sampleRateForAsset:(AVAsset*)asset;
 
-- (BOOL)readFromAVAsset:(AVAsset*)asset error:(NSError**)error;
-- (BOOL)readChapterMarksFromAVAsset:(AVAsset*)asset error:(NSError**)error;
 
-- (BOOL)readChaperMarksFromMP4FileWithError:(NSError**)error;
+- (BOOL)readFromAVAsset:(AVAsset*)asset error:(NSError**)error;
+
+//- (BOOL)readChapterMarksFromMP4FileWithError:(NSError**)error;
+- (void)readChaperMarksFromMP4FileWithCallback:(void (^)(BOOL, NSError*))callback;
+- (void)readChapterMarksFromAVAsset:(AVAsset*)asset callback:(void (^)(BOOL, NSError*))callback;
 
 - (BOOL)readFromMP4FileWithError:(NSError**)error;
 //- (BOOL)writeChaperMarksToMP4FileWithError:(NSError**)error;
 
-- (void)addChaptersToAudioFileAtURL:(NSURL *)inputURL
-                          outputURL:(NSURL *)outputURL;
+//- (void)addChaptersToAudioFileAtURL:(NSURL *)inputURL
+//                          outputURL:(NSURL *)outputURL;
 
 - (void)updateWithMetadataItem:(AVMetadataItem*)item;
 /*

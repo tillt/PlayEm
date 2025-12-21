@@ -85,6 +85,7 @@
     [userDefaults setObject:bookmarks forKey:@"playlist"];
 }
 
+// FIXME: This should be async as it will read metadata which can be big or complex to parse.
 - (void)readFromDefaults
 {
     NSUserDefaults* userDefaults = [NSUserDefaults standardUserDefaults];

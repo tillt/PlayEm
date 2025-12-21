@@ -98,7 +98,7 @@ NSString * const kTracklistControllerChangedActiveTrackNotification = @"Tracklis
     }
 }
 
-- (TimedMediaMetaData*)currentTrack
+- (TimedMediaMetaData* _Nullable)currentTrack
 {
     if (_currentTrackIndex == UINT_MAX) {
         return nil;
@@ -117,12 +117,16 @@ NSString * const kTracklistControllerChangedActiveTrackNotification = @"Tracklis
 
 - (NSArray<NSNumber*>*)selectedFrames
 {
+    NSArray<NSNumber*>* frames = [_current.trackList.frames sortedArrayUsingSelector:@selector(compare:)];
     __block NSMutableArray<NSNumber*>* trackFrames = [NSMutableArray array];;
     [_table.selectedRowIndexes enumerateIndexesWithOptions:NSEnumerationReverse
                                                          usingBlock:^(NSUInteger idx, BOOL *stop) {
-        NSArray<NSNumber*>* frames = [_current.trackList.frames sortedArrayUsingSelector:@selector(compare:)];
         [trackFrames addObject:frames[idx]];
     }];
+
+    if (trackFrames.count == 0 && self.table.clickedRow >= 0) {
+        [trackFrames addObject:frames[self.table.clickedRow]];
+    }
     return trackFrames;
 }
 
@@ -146,6 +150,31 @@ NSString * const kTracklistControllerChangedActiveTrackNotification = @"Tracklis
     if (!done) {
         NSLog(@"failed to write tracklist: %@", error);
     }
+}
+
+- (void)musicURLClicked:(id)sender
+{
+    NSArray* framesToRemove = [self selectedFrames];
+    assert(framesToRemove.count > 0);
+    TimedMediaMetaData* track = [_current.trackList trackAtFrameNumber:framesToRemove[0]];
+    
+    NSURL* musicURL = track.meta.appleLocation;
+    if (musicURL == nil) {
+        NSLog(@"no URL to show");
+        return;
+    }
+    // For making sure this wont open Music.app we fetch the
+    // default app for URLs.
+    // With that we explicitly call the browser for opening the
+    // URL. That way we get things displayed even in cases where
+    // Music.app does not show iCloud.Music.
+    NSURL* appURL = [[NSWorkspace sharedWorkspace] URLForApplicationToOpenURL:musicURL];
+    NSWorkspaceOpenConfiguration* configuration = [NSWorkspaceOpenConfiguration new];
+    [[NSWorkspace sharedWorkspace] openURLs:[NSArray arrayWithObject:musicURL]
+                       withApplicationAtURL:appURL
+                              configuration:configuration
+                          completionHandler:^(NSRunningApplication* app, NSError* error){
+    }];
 }
 
 - (void)moveTrackAtFrame:(unsigned long long)oldFrame frame:(unsigned long long)newFrame
@@ -242,11 +271,15 @@ NSString * const kTracklistControllerChangedActiveTrackNotification = @"Tracklis
 {
     NSMenu* menu = [NSMenu new];
     
-    NSMenuItem* item = [[NSMenuItem alloc] initWithTitle:@"Remove from Tracklist"
-                                                  action:@selector(removeFromTracklist:)
-                                           keyEquivalent:@""];
-    item.target = self;
-    [menu addItem:item];
+    NSMenuItem* item = [menu addItemWithTitle:@"Remove from Tracklist"
+                                       action:@selector(removeFromTracklist:)
+                                keyEquivalent:@""];
+
+    [menu addItem:[NSMenuItem separatorItem]];
+
+    item = [menu addItemWithTitle:@"Open in Apple Music"
+                           action:@selector(musicURLClicked:)
+                    keyEquivalent:@""];
 
     [menu addItem:[NSMenuItem separatorItem]];
 

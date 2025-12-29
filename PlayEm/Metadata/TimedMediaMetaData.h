@@ -22,6 +22,10 @@ NS_ASSUME_NONNULL_BEGIN
 + (TimedMediaMetaData*)unknownTrackAtFrame:(NSNumber*)frame;
 
 @property (strong, nonatomic, nullable) NSNumber* frame;
+@property (strong, nonatomic, nullable) NSNumber* endFrame; // optional latest frame for this key
+@property (strong, nonatomic, nullable) NSNumber* confidence;
+@property (strong, nonatomic, nullable) NSNumber* score;
+@property (strong, nonatomic, nullable) NSNumber* supportCount;
 @property (strong, nonatomic, nullable) MediaMetaData* meta;
 
 - (id)initWithMatchedMediaItem:(SHMatchedMediaItem*)item frame:(NSNumber*)frame;

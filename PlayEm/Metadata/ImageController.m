@@ -9,11 +9,14 @@
 #import "ImageController.h"
 #import <AppKit/AppKit.h>
 #import <CoreImage/CoreImage.h>
+#import <iTunesLibrary/ITLibArtist.h>
+#import <iTunesLibrary/ITLibAlbum.h>
 
 @interface ImageController ()
 @property (nonatomic) NSCache<NSString*, NSImage*>* cache;
 @property (nonatomic) CIContext* ciContext;
-@property (strong, nonatomic) dispatch_queue_t imageQueue;
+@property (strong, nonatomic) dispatch_queue_t resizingQueue;
+@property (strong, nonatomic) dispatch_queue_t downloadingQueue;
 @end
 
 @implementation ImageController
@@ -36,8 +39,9 @@
         self.cache.totalCostLimit = 50 * 1024 * 1024; // ~50 MB
         
         dispatch_queue_attr_t attr = dispatch_queue_attr_make_with_qos_class(DISPATCH_QUEUE_SERIAL, QOS_CLASS_USER_INITIATED, 0);
-        _imageQueue = dispatch_queue_create("PlayEm.ImageControllerQueue", attr);
-        
+        _resizingQueue = dispatch_queue_create("PlayEm.ImageControllerResizeQueue", attr);
+        _downloadingQueue = dispatch_queue_create("PlayEm.ImageControllerDownloadQueue", attr);
+
         CGColorSpaceRef sRGB = CGColorSpaceCreateWithName(kCGColorSpaceSRGB);
         self.ciContext = [CIContext contextWithOptions:@{
             kCIContextOutputColorSpace: (__bridge id)sRGB
@@ -59,7 +63,7 @@
         return;
     }
     
-    dispatch_async(_imageQueue, ^{
+    dispatch_async(_resizingQueue, ^{
         CIImage *ci = [CIImage imageWithData:data options:@{ kCIImageApplyOrientationProperty : @YES }];
         if (ci == nil) {
             dispatch_async(dispatch_get_main_queue(), ^{
@@ -97,12 +101,17 @@
 
 - (void)resolveDataForURL:(NSURL*)url callback:(void (^)(NSData*))callback
 {
-    dispatch_async(_imageQueue, ^{
+    dispatch_async(_downloadingQueue, ^{
         NSData* data = [[NSData alloc] initWithContentsOfURL:url];
         dispatch_async(dispatch_get_main_queue(), ^{
             callback(data);
         });
     });
+}
+
+- (NSString*)description
+{
+    return [NSString stringWithFormat:@"cache state: %@", self.cache.description];
 }
 
 @end

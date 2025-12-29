@@ -27,6 +27,7 @@
 #import "NSURL+WithoutParameters.h"
 #import "NSString+BeautifulPast.h"
 #import "NSString+OccurenceCount.h"
+#import "NSString+Sanitized.h"
 #import "TemporaryFiles.h"
 
 ///
@@ -96,6 +97,7 @@ NSString* const kMediaMetaDataMapTypeNumber = @"number";
     
     if ([fileExtension isEqualToString:@"mp4"] 
         || [fileExtension isEqualToString:@"m4v"]
+        || [fileExtension isEqualToString:@"m4p"]
         || [fileExtension isEqualToString:@"m4r"]
         || [fileExtension isEqualToString:@"m4a"]) {
         return MediaMetaDataFileFormatTypeMP4;
@@ -172,9 +174,9 @@ NSString* const kMediaMetaDataMapTypeNumber = @"number";
 {
     MediaMetaData* meta = [[MediaMetaData alloc] init];
 
-    meta.title = item.title;
-    meta.artist = item.artist;
-    meta.genre = item.genres.count > 0 ? item.genres[0] : @"";
+    meta.title = [item.title sanitizedMetadataString];
+    meta.artist = [item.artist sanitizedMetadataString];
+    meta.genre = item.genres.count > 0 ? [item.genres[0] sanitizedMetadataString] : @"";
     meta.artworkLocation = item.artworkURL;
     meta.appleLocation = item.appleMusicURL;
 
@@ -461,30 +463,6 @@ NSString* const kMediaMetaDataMapTypeNumber = @"number";
     return ITLibArtworkFormatNone;
 }
 
-+ (NSString*)mimeTypeForArtworkFormat:(ITLibArtworkFormat)format
-{
-    /*
-     ITLibArtworkFormatNone = 0,
-     ITLibArtworkFormatBitmap = 1,
-     ITLibArtworkFormatJPEG = 2,
-     ITLibArtworkFormatJPEG2000 = 3,
-     ITLibArtworkFormatGIF = 4,
-     ITLibArtworkFormatPNG = 5,
-     ITLibArtworkFormatBMP = 6,
-     ITLibArtworkFormatTIFF = 7,
-     ITLibArtworkFormatPICT = 8
-     */
-    NSDictionary* mimeMap = @{
-        @(ITLibArtworkFormatJPEG): @"image/jpeg",
-        @(ITLibArtworkFormatGIF): @"image/gif",
-        @(ITLibArtworkFormatPNG): @"image/png",
-        @(ITLibArtworkFormatBMP): @"image/bmp",
-        @(ITLibArtworkFormatTIFF): @"image/tiff",
-    };
-    
-    return mimeMap[@(format)];
-}
-
 + (BOOL)supportsSecureCoding
 {
    return YES;
@@ -514,6 +492,31 @@ NSString* const kMediaMetaDataMapTypeNumber = @"number";
     return [[self.location URLByDeletingPathExtension] URLByAppendingPathExtension:@"tracklist"];
 }
 
+
++ (NSString*)mimeTypeForArtworkFormat:(ITLibArtworkFormat)format
+{
+    /*
+     ITLibArtworkFormatNone = 0,
+     ITLibArtworkFormatBitmap = 1,
+     ITLibArtworkFormatJPEG = 2,
+     ITLibArtworkFormatJPEG2000 = 3,
+     ITLibArtworkFormatGIF = 4,
+     ITLibArtworkFormatPNG = 5,
+     ITLibArtworkFormatBMP = 6,
+     ITLibArtworkFormatTIFF = 7,
+     ITLibArtworkFormatPICT = 8
+     */
+    NSDictionary* mimeMap = @{
+        @(ITLibArtworkFormatJPEG): @"image/jpeg",
+        @(ITLibArtworkFormatGIF): @"image/gif",
+        @(ITLibArtworkFormatPNG): @"image/png",
+        @(ITLibArtworkFormatBMP): @"image/bmp",
+        @(ITLibArtworkFormatTIFF): @"image/tiff",
+    };
+    
+    return mimeMap[@(format)];
+}
+
 - (NSString*)mimeTypeForArtwork
 {
     if (self.artwork == nil) {
@@ -529,7 +532,7 @@ NSString* const kMediaMetaDataMapTypeNumber = @"number";
     }
     
     if (_title == nil) {
-        _title = _shadow.title;
+        _title = [_shadow.title sanitizedMetadataString];
     }
     
     return _title;
@@ -634,7 +637,7 @@ NSString* const kMediaMetaDataMapTypeNumber = @"number";
     }
     
     if (_artist == nil) {
-        _artist = _shadow.artist.name;
+        _artist = [_shadow.artist.name sanitizedMetadataString];
     }
     
     return _artist;
@@ -647,7 +650,7 @@ NSString* const kMediaMetaDataMapTypeNumber = @"number";
     }
     
     if (_album == nil) {
-        _album = _shadow.album.title;
+        _album = [_shadow.album.title sanitizedMetadataString];
     }
     
     return _album;
@@ -660,7 +663,7 @@ NSString* const kMediaMetaDataMapTypeNumber = @"number";
     }
     
     if (_albumArtist == nil) {
-        _albumArtist = _shadow.album.albumArtist;
+        _albumArtist = [_shadow.album.albumArtist sanitizedMetadataString];
     }
     
     return _albumArtist;
@@ -673,7 +676,7 @@ NSString* const kMediaMetaDataMapTypeNumber = @"number";
     }
     
     if (_genre == nil) {
-        _genre = _shadow.genre;
+        _genre = [_shadow.genre sanitizedMetadataString];
     }
     
     return _genre;
@@ -686,7 +689,7 @@ NSString* const kMediaMetaDataMapTypeNumber = @"number";
     }
     
     if (_composer == nil) {
-        _composer = _shadow.composer;
+        _composer = [_shadow.composer sanitizedMetadataString];
     }
     
     return _composer;
@@ -699,7 +702,7 @@ NSString* const kMediaMetaDataMapTypeNumber = @"number";
     }
     
     if (_comment == nil) {
-        _comment = _shadow.comments;
+        _comment = [_shadow.comments sanitizedMetadataString];
     }
     
     return _comment;
@@ -909,6 +912,14 @@ NSString* const kMediaMetaDataMapTypeNumber = @"number";
     return _artwork;
 }
 
++ (NSData*)defaultArtworkData
+{
+    NSBundle* bundle = [NSBundle mainBundle];
+    NSURL* url = [bundle URLForResource:@"UnknownSong" withExtension:@"png"];
+    assert(url);
+    return [NSData dataWithContentsOfURL:url];
+}
+
 - (NSData* _Nullable)artworkWithDefault
 {
     NSData* data = nil;
@@ -924,10 +935,7 @@ NSString* const kMediaMetaDataMapTypeNumber = @"number";
     }
 
     if (data == nil) {
-        NSBundle* bundle = [NSBundle mainBundle];
-        NSURL* url = [bundle URLForResource:@"UnknownSong" withExtension:@"png"];
-        assert(url);
-        data = [NSData dataWithContentsOfURL:url];
+        data = [MediaMetaData defaultArtworkData];
     }
     
     return data;
@@ -952,6 +960,7 @@ NSString* const kMediaMetaDataMapTypeNumber = @"number";
     NSBitmapImageRep *bitmap = [NSBitmapImageRep imageRepWithData:tiffData];
     _artwork = [bitmap representationUsingType:NSBitmapImageFileTypePNG
                                    properties:@{}];
+    _artworkFormat = @(ITLibArtworkFormatPNG);
 }
 
 - (NSImage*)imageFromArtwork
@@ -1211,7 +1220,7 @@ NSString* const kMediaMetaDataMapTypeNumber = @"number";
     Class objectClass = objc_getClass(trimmedName);
     
     if (objectClass == [NSString class]) {
-        [self setValue:string forKey:key];
+        [self setValue:[string sanitizedMetadataString] forKey:key];
         return;
     }
     
@@ -1501,42 +1510,10 @@ NSString* const kMediaMetaDataMapTypeNumber = @"number";
 
     if (type == MediaMetaDataFileFormatTypeMP4) {
         if ([self writeToMP4FileWithError:error] == 0) {
-//            NSString* tempFilePath = [self pathForTemporaryFileWithPrefix:@"PlayEm"];
-//            NSURL* tempFileUrl = [[NSURL URLWithString:tempFilePath] URLByAppendingPathExtension:@"mov"];
-//            NSLog(@"url %@", tempFileUrl);
-//
-//            NSArray<NSDictionary*>* chapters = @[
-//               @{@"title": @"Intro", @"time": @(0)},
-//               @{@"title": @"Scene 1", @"time": @(60)},
-//               @{@"title": @"Scene 2", @"time": @(120)}
-//            ];
-//
-//            [self addChaptersToAudioFileAtURL:self.location
-//                                    outputURL:tempFileUrl];
-//            
             return YES;
-/*
-            if ([self addChapterMarksToMP4:self.location
-                               outputURL:tempFileUrl
-                                chapters:chapters
-                                     error:error] == 0) {
-                return YES;
-            }
- */
         }
     }
-    
-//    NSString* description = [NSString stringWithFormat:@"Unsupported filetype for modifying metadata"];
-//    if (error) {
-//        NSDictionary* userInfo = @{
-//            NSLocalizedDescriptionKey:description,
-//        };
-//        *error = [NSError errorWithDomain:[[NSBundle bundleForClass:[self class]] bundleIdentifier]
-//                                     code:-1
-//                                 userInfo:userInfo];
-//    }
-//    NSLog(@"error: %@", description);
-    
+
     return NO;
 }
 

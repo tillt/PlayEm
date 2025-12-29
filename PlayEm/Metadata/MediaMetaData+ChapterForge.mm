@@ -166,6 +166,8 @@
     NSArray<NSString*>* preferred =
     [NSBundle preferredLocalizationsFromArray:[[NSBundle mainBundle] localizations]
                                forPreferences:[NSLocale preferredLanguages]];
+    
+    __weak MediaMetaData *weakSelf = self;
   
     [asset loadValuesAsynchronouslyForKeys:@[@"availableChapterLocales"] completionHandler:^{
         dispatch_async(dispatch_get_main_queue(), ^{
@@ -222,21 +224,21 @@
                     // parsing the video track might add considerable effort. We do however need to do
                     // some patcheroo on the received data as tracks without a cover will simply repeat
                     // the last cover.
-                    self.trackList = [[TrackList alloc] initWithTimedMetadataGroups:groups  framerate:rate];
+                    weakSelf.trackList = [[TrackList alloc] initWithTimedMetadataGroups:groups  framerate:rate];
                     
                     // We now need to gather metadata that AVFoundation wont read the "normal" way.
                     NSError* chapterForgeError = nil;
-                    ChapteredMetaData* chaptered = [self.trackList readChapterTextTracksFromAVAsset:asset
-                                                                                          framerate:rate
-                                                                                              error:&chapterForgeError];
+                    ChapteredMetaData* chaptered = [weakSelf.trackList readChapterTextTracksFromAVAsset:asset
+                                                                                              framerate:rate
+                                                                                                  error:&chapterForgeError];
                     if (chaptered == nil) {
                         NSLog(@"failed reading chaptered text tracks: %@", chapterForgeError);
                         callback(NO, chapterForgeError);
                         return;
                     }
-                    [self.trackList updateWithChapteredMetdaData:chaptered];
-                    callback(YES, nil);
+                    [weakSelf.trackList updateWithChapteredMetdaData:chaptered];
                 }
+                callback(YES, nil);
             }];
         });
     }];

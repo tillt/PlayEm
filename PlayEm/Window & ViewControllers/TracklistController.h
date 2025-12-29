@@ -29,17 +29,18 @@ extern NSString * const kTracklistControllerChangedActiveTrackNotification;
 
 @end
 
-@interface TracklistController : NSResponder <NSTableViewDelegate, NSTableViewDataSource>
+@interface TracklistController : NSViewController <NSTableViewDelegate, NSTableViewDataSource>
 
 @property (nonatomic, weak) id <TracklistControllerDelegate> delegate;
 @property (nonatomic, weak) MediaMetaData* current;
 @property (nonatomic, assign) unsigned long long currentFrame;
 @property (nonatomic, readonly, nullable) TimedMediaMetaData* currentTrack;
 
-- (id)initWithTracklistTable:(NSTableView*)table
-                   delegate:(id<TracklistControllerDelegate>)delegate;
+- (id)init;
 
 - (void)addTrack:(TimedMediaMetaData*)track;
+- (void)addTracks:(NSArray<TimedMediaMetaData*>*)tracks;
+
 - (void)moveTrackAtFrame:(unsigned long long)oldFrame frame:(unsigned long long)newFrame;
 
 - (NSMenu*)menu;

@@ -1,1 +1,0 @@
-    layer.drawsAsynchronously = YES;

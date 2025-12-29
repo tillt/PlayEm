@@ -12,6 +12,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @class AudioController;
 @class LazySample;
+@class MediaMetaData;
 @class TimedMediaMetaData;
 
 @protocol IdentifyViewControllerDelegate <NSObject>
@@ -25,7 +26,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, weak) id <IdentifyViewControllerDelegate> delegate;
 
 - (id)initWithAudioController:(AudioController*)audioController delegate:(id<IdentifyViewControllerDelegate>)delegate;
-
+- (void)setCurrentIdentificationSource:(NSURL*)url;
 @end
 
 NS_ASSUME_NONNULL_END

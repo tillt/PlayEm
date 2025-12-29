@@ -19,6 +19,7 @@
 #import "../NSImage+Resize.h"
 #import "../Audio/AudioProcessing.h"
 #import "../NSImage+Average.h"
+#import "MediaMetaData.h"
 
 //#define HIDE_COVER_DEBBUG 1
 //#define WITH_HELO 1
@@ -28,14 +29,25 @@ static NSString * const kLayerMaskImageName = @"IdentificationActiveStill";
 extern NSString * const kBeatTrackedSampleTempoChangeNotification;
 
 @interface IdentificationCoverView ()
+@property (nonatomic, strong) CALayer* stillImageLayer;
 @property (nonatomic, strong) CALayer* imageLayer;
+@property (nonatomic, strong) CALayer* red;
+@property (nonatomic, strong) CALayer* green;
+@property (nonatomic, strong) CALayer* blue;
 @property (nonatomic, strong) CALayer* imageCopyLayer;
 @property (nonatomic, strong) CALayer* maskLayer;
+@property (nonatomic, strong) CALayer* rotateLayer;
 @property (nonatomic, strong) CALayer* overlayLayer;
 @property (nonatomic, strong) CALayer* glowLayer;
 @property (nonatomic, strong) CALayer* heloLayer;
 //@property (nonatomic, strong) CALayer* glowMaskLayer;
 @property (nonatomic, strong) CALayer* finalFxLayer;
+@property (nonatomic, strong) CIFilter* bloomFilter;
+@property (nonatomic, strong) CIFilter* clampFilter;
+@property (nonatomic, assign) NSPoint rCurrent;
+@property (nonatomic, assign) NSPoint gCurrent;
+@property (nonatomic, assign) NSPoint bCurrent;
+
 @end
 
 @implementation IdentificationCoverView
@@ -60,9 +72,14 @@ extern NSString * const kBeatTrackedSampleTempoChangeNotification;
         currentTempo = 120.0f;
         lastEnergy = 0.0;
         moveBeats = 4;
-        _overlayIntensity = 0.3f;
-        _secondImageLayerOpacity = 0.8;
+        _overlayIntensity = 0.5f;
+        _secondImageLayerOpacity = 1.0;
         _style = style;
+        _rCurrent = NSZeroPoint;
+        _gCurrent = NSZeroPoint;
+        _bCurrent = NSZeroPoint;
+        
+        
         self.additionalSafeAreaInsets = insets;
         self.wantsLayer = YES;
         self.autoresizingMask = NSViewHeightSizable | NSViewWidthSizable;
@@ -84,96 +101,114 @@ extern NSString * const kBeatTrackedSampleTempoChangeNotification;
 {
     return YES;
 }
-
 - (void)beatPumpingLayer:(CALayer*)layer localEnergy:(double)localEnergy totalEnergy:(double)totalEnergy
 {
     const CGSize halfSize = CGSizeMake(layer.bounds.size.width / 2.0, layer.bounds.size.height / 2.0);
 
-    if (localEnergy == 0.0) {
-        localEnergy = 0.000000001;
-    }
-    const double depth = 4.3f;
-    // Attempt to get a reasonably wide signal range by normalizing the locals peaks by
-    // the globally most energy loaded samples.
-    const double normalizedEnergy = MIN(localEnergy / totalEnergy, 1.0);
+     if (localEnergy == 0.0) {
+         localEnergy = 0.000000001;
+     }
+     const double depth = 7.3;
+     // Attempt to get a reasonably wide signal range by normalizing the local peaks by
+     // the globally most energy loaded samples.
+     const double normalizedEnergy = MIN(localEnergy / totalEnergy, 1.0);
 
-    // We quickly attempt to reach a value that is higher than the current one.
-    const double convergenceSpeedUp = 0.8;
-    // We slowly decay into a value that is lower than the current one.
-    const double convergenceSlowDown = 0.08;
+     // We quickly attempt to reach a value that is higher than the current one.
+     const double convergenceSpeedUp = 0.8;
+     // We slowly decay into a value that is lower than the current one.
+     const double convergenceSlowDown = 0.08;
 
-    double convergenceSpeed = normalizedEnergy > lastEnergy ? convergenceSpeedUp : convergenceSlowDown;
-    // To make sure the result is not flapping we smooth (lerp) using the previous result.
-    double lerpEnergy = (normalizedEnergy * convergenceSpeed) + lastEnergy *  (1.0 - convergenceSpeed);
-    // Gate the result for safety -- may mathematically not be needed, too lazy to find out.
-    double slopedEnergy = MIN(lerpEnergy, 1.0);
-    
-    lastEnergy = slopedEnergy;
-    
-    CGFloat scaleByPixel = slopedEnergy * depth;
-    double peakZoomBlurAmount = (scaleByPixel  * scaleByPixel) / 2.0;
-    
-    // We want to have an enlarged image the moment the beat hits, thus we start large as
-    // that is when we are beeing called within the phase of the rhythm.
-    CATransform3D tr = CATransform3DIdentity;
-    CGFloat scaleByFactor = 1.0 / (layer.bounds.size.width / scaleByPixel);
-    tr = CATransform3DTranslate(tr, halfSize.width, halfSize.height, 0.0);
-    tr = CATransform3DScale(tr, 1.0 + scaleByFactor, 1.0 + scaleByFactor, 1.0);
-    tr = CATransform3DTranslate(tr, -halfSize.width, -halfSize.height, 0.0);
-    
-    layer.transform = tr;
-    
-    CABasicAnimation* animation = [CABasicAnimation animationWithKeyPath:@"transform"];
-    animation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseOut];
-    animation.fillMode = kCAFillModeBoth;
-    animation.removedOnCompletion = NO;
-    double phaseLength = 30.0f / currentTempo;
-    animation.fromValue = [NSValue valueWithCATransform3D:tr];
-    animation.toValue = [NSValue valueWithCATransform3D:CATransform3DIdentity];
-    animation.repeatCount = 1.0f;
-    animation.autoreverses = YES;
-    animation.duration = phaseLength;
-    animation.removedOnCompletion = NO;
-    [layer addAnimation:animation forKey:@"beatPumping"];
-    
-    animation = [CABasicAnimation animationWithKeyPath:@"backgroundFilters.CIZoomBlur.inputAmount"];
-    animation.fromValue = @(peakZoomBlurAmount);
-    animation.toValue = @(0.0);
-    animation.repeatCount = 1.0f;
-    animation.autoreverses = YES;
-    animation.duration = phaseLength;
-    animation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut];
-    animation.fillMode = kCAFillModeBoth;
-    animation.removedOnCompletion = NO;
-    [_finalFxLayer addAnimation:animation forKey:@"beatWarping"];
+     double convergenceSpeed = normalizedEnergy > lastEnergy ? convergenceSpeedUp : convergenceSlowDown;
+     // To make sure the result is not flapping we smooth (lerp) using the previous result.
+     double lerpEnergy = (normalizedEnergy * convergenceSpeed) + lastEnergy * (1.0 - convergenceSpeed);
+     // Gate the result for safety -- may mathematically not be needed, too lazy to find out.
+     double slopedEnergy = MIN(lerpEnergy, 1.0);
 
-//    animation = [CABasicAnimation animationWithKeyPath:@"filters.CICircularScreen.inputSharpness"];
-//    animation.fromValue = @(0.0 + (1.0 - (slopedEnergy / 2.0)));
-//    animation.toValue = @(0.0);
-//    animation.repeatCount = 1.0f;
-//    animation.autoreverses = YES;
-//    animation.duration = phaseLength;
-//    animation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut];
-//    animation.fillMode = kCAFillModeBoth;
-//    animation.removedOnCompletion = NO;
-//    [_imageCopyLayer addAnimation:animation forKey:@"beatWarping11"];
+     lastEnergy = slopedEnergy;
 
+     CGFloat scaleByPixel = slopedEnergy * depth;
+     //double peakZoomBlurAmount = (scaleByPixel * scaleByPixel) / 2.0;
+
+     // We want to have an enlarged image the moment the beat hits, thus we start large as
+     // that is when we are being called within the phase of the rhythm.
+     CGFloat scaleByFactor = 1.0 / (layer.bounds.size.width / scaleByPixel);
+     CGFloat upFactor = scaleByFactor * 0.6;    // soften peak
+     CGFloat downFactor = scaleByFactor * 0.1;  // shallow undershoot
+
+     CATransform3D peakUp = CATransform3DIdentity;
+     peakUp = CATransform3DTranslate(peakUp, halfSize.width, halfSize.height, 0.0);
+     peakUp = CATransform3DScale(peakUp, 1.0 + upFactor, 1.0 + upFactor, 1.0);
+     peakUp = CATransform3DTranslate(peakUp, -halfSize.width, -halfSize.height, 0.0);
+
+     CATransform3D peakDown = CATransform3DIdentity;
+     peakDown = CATransform3DTranslate(peakDown, halfSize.width, halfSize.height, 0.0);
+     peakDown = CATransform3DScale(peakDown, 1.0 - downFactor, 1.0 - downFactor, 1.0);
+     peakDown = CATransform3DTranslate(peakDown, -halfSize.width, -halfSize.height, 0.0);
+
+     // Exactly one beat duration.
+     double beatDuration = 60.0 / currentTempo;
+
+     // Clear prior animations to avoid overlap/resonance.
+     [layer removeAnimationForKey:@"beatPumping"];
+     [_finalFxLayer removeAnimationForKey:@"beatWarping"];
+ #ifdef WITH_HELO
+     [_heloLayer removeAnimationForKey:@"cornerFlashing"];
+ #endif
+
+     // Gentle swing: identity -> soft peak -> shallow undershoot -> identity over one beat.
+     CAKeyframeAnimation* pump = [CAKeyframeAnimation animationWithKeyPath:@"transform"];
+     //CAKeyframeAnimation* pump = [CAKeyframeAnimation animationWithKeyPath:@"filters.CIAffineClamp.transform"];
+     pump.values = @[
+         [NSValue valueWithCATransform3D:CATransform3DIdentity],
+         [NSValue valueWithCATransform3D:peakUp],
+         [NSValue valueWithCATransform3D:peakDown],
+         [NSValue valueWithCATransform3D:CATransform3DIdentity]
+     ];
+     pump.keyTimes = @[@0.0, @0.35, @0.75, @1.0];
+     pump.timingFunctions = @[
+         [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseOut],
+         [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut],
+         [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseIn]
+     ];
+     pump.duration = beatDuration;
+     pump.autoreverses = NO;
+
+    layer.transform = CATransform3DIdentity; // keep model neutral
+    //[_clampFilter setValue:[NSValue valueWithCATransform3D:CATransform3DIdentity] forKey:@"transform"];
+    [layer addAnimation:pump forKey:@"beatPumping"];
+
+     // Blur: soften in parallel, ending at 0 within one beat.
+//     CAKeyframeAnimation* blur = [CAKeyframeAnimation animationWithKeyPath:@"backgroundFilters.CIZoomBlur.inputAmount"];
+//     blur.values = @[
+//         @(peakZoomBlurAmount * 0.1),
+//         @(peakZoomBlurAmount * 0.01),
+//         @(0.0)
+//     ];
+//     blur.keyTimes = @[@0.0, @0.6, @1.0];
+//     blur.timingFunctions = @[
+//         [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut],
+//         [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseIn]
+//     ];
+//     blur.duration = beatDuration;
+//     blur.autoreverses = NO;
+//     [_finalFxLayer addAnimation:blur forKey:@"beatWarping"];
     
-#ifdef WITH_HELO
-    animation = [CABasicAnimation animationWithKeyPath:@"opacity"];
-    // We want the lighting to be very dimm for low values and to only become prominent with
-    // enery levels way above 50%.
-    float glowQuantum = powf(slopedEnergy, 5);
-    animation.fromValue = @(glowQuantum);
-    animation.toValue = @(0.0);
-    animation.repeatCount = 1.0f;
-    animation.autoreverses = YES;
-    animation.duration = phaseLength;
-    animation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseOut];
-    animation.fillMode = kCAFillModeBoth;
-    animation.removedOnCompletion = NO;
-    [_heloLayer addAnimation:animation forKey:@"cornerFlashing"];
-#endif
+    [self animateChannelSeparationWithRed:_red green:_green blue:_blue beatEnergy:slopedEnergy currentTempo:currentTempo];
+    
+
+
+ #ifdef WITH_HELO
+     CAKeyframeAnimation* glow = [CAKeyframeAnimation animationWithKeyPath:@"opacity"];
+     // We want the lighting to be very dim for low values and to only become prominent with
+     // energy levels way above 50%.
+     float glowQuantum = powf(slopedEnergy, 5);
+     glow.values = @[@(glowQuantum * 0.6), @(glowQuantum * 0.3), @(0.0)];
+     glow.keyTimes = blur.keyTimes;
+     glow.timingFunctions = blur.timingFunctions;
+     glow.duration = beatDuration;
+     glow.autoreverses = NO;
+     [_heloLayer addAnimation:glow forKey:@"cornerFlashing"];
+ #endif
 }
 
 - (void)beatShakingLayer:(CALayer*)layer
@@ -188,17 +223,70 @@ extern NSString * const kBeatTrackedSampleTempoChangeNotification;
         angleToAdd = angleToAdd * -1.0;
     }
     
+    CFTimeInterval anchorTime = CACurrentMediaTime();
+    CABasicAnimation* animation = [self beatShakeRotationForAngle:angleToAdd
+                                                         duration:phaseLength
+                                                        beginTime:anchorTime];
+
+    [layer addAnimation:animation forKey:@"beatShaking"];
+
+//    [self applyStaggeredChannelShakeWithAngle:angleToAdd
+//                                   phaseLength:phaseLength
+//                                     anchorTime:anchorTime];
+}
+
+- (CABasicAnimation*)beatShakeRotationForAngle:(double)angle
+                                       duration:(CFTimeInterval)duration
+                                      beginTime:(CFTimeInterval)beginTime
+{
     CABasicAnimation* animation = [CABasicAnimation animationWithKeyPath:@"transform.rotation.z"];
-    animation.toValue = @(angleToAdd);
+    animation.toValue = @(angle);
     animation.fromValue = @(0.0);
     animation.repeatCount = 1.0f;
     animation.autoreverses = YES;
-    animation.duration = phaseLength;
+    animation.duration = duration;
+    animation.beginTime = beginTime;
     animation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseOut];
     animation.fillMode = kCAFillModeBoth;
     animation.removedOnCompletion = NO;
     
-    [layer addAnimation:animation forKey:@"beatShaking"];
+    return animation;
+}
+
+- (void)applyStaggeredChannelShakeWithAngle:(double)angle
+                                phaseLength:(double)phaseLength
+                                  anchorTime:(CFTimeInterval)anchorTime
+{
+    if (_red == nil || _green == nil || _blue == nil) {
+        return;
+    }
+
+    // Slight offsets: red starts first, blue follows, green last. All share the same speed/duration.
+    const double blueDelay = phaseLength * 1.33;
+    const double greenDelay = phaseLength * 0.96;
+
+    const double redDuration = phaseLength;
+    const double blueDuration = phaseLength;
+    const double greenDuration = phaseLength;
+
+//    [_red removeAnimationForKey:@"beatShaking.red"];
+//    [_blue removeAnimationForKey:@"beatShaking.blue"];
+//    [_green removeAnimationForKey:@"beatShaking.green"];
+
+    [_red addAnimation:[self beatShakeRotationForAngle:angle
+                                              duration:redDuration
+                                             beginTime:anchorTime]
+                 forKey:@"beatShaking.red"];
+
+    [_blue addAnimation:[self beatShakeRotationForAngle:angle
+                                               duration:blueDuration
+                                              beginTime:anchorTime + blueDelay]
+                  forKey:@"beatShaking.blue"];
+
+    [_green addAnimation:[self beatShakeRotationForAngle:angle
+                                                duration:greenDuration
+                                               beginTime:anchorTime + greenDelay]
+                   forKey:@"beatShaking.green"];
 }
 
 - (void)tempoChange:(NSNotification*)notification
@@ -211,8 +299,176 @@ extern NSString * const kBeatTrackedSampleTempoChangeNotification;
     [self animate];
 }
 
+- (void)setStill:(BOOL)still animated:(BOOL)animated
+{
+    CGRect contentsBounds;
+    CGRect contentsFrame;
+
+    if (still) {
+        contentsBounds = self.bounds;
+        contentsFrame = self.bounds;
+    } else {
+        contentsBounds = CGRectMake(0.0, 0.0, self.bounds.size.width - (self.additionalSafeAreaInsets.left + self.additionalSafeAreaInsets.right), self.bounds.size.height - (self.additionalSafeAreaInsets.top + self.additionalSafeAreaInsets.bottom));
+        contentsFrame = CGRectMake(self.additionalSafeAreaInsets.left, self.additionalSafeAreaInsets.top, contentsBounds.size.width, contentsBounds.size.height);
+    }
+
+    //_imageLayer.filters = still ? nil : @[ _bloomFilter ];
+    
+    //_imageLayer.mask = still ? nil : _maskLayer;
+
+    //_overlayLayer.opacity = still ? 0.0 : _overlayIntensity;
+    //_finalFxLayer.opacity = still ? 0.0 : 1.0;
+    //_backingLayer.bounds = contentsBounds;
+    //_backingLayer.frame = contentsFrame;
+
+    CGFloat scaleByFactor = (self.bounds.size.width - (self.additionalSafeAreaInsets.left + self.additionalSafeAreaInsets.right)) / self.bounds.size.width;
+
+    CGFloat startScale = _backingLayer.presentationLayer.transform.m11;
+    CGFloat endScale = still ? 1.0 : scaleByFactor;
+    
+    CGFloat startOpacity = _overlayLayer.presentationLayer.opacity;
+    CGFloat endOpacity = still ? 0.0 : _overlayIntensity;
+
+    CGFloat startStillOpacity = _stillImageLayer.presentationLayer.opacity;
+    CGFloat endStillOpacity = still ? 1.0 : 0.0;
+
+    CGFloat startImageOpacity = _imageLayer.presentationLayer.opacity;
+    CGFloat endImageOpacity = still ? 0.0 : 1.0;
+    
+    CGFloat startGlowOpacity = _glowLayer.presentationLayer.opacity;
+    CGFloat endGlowOpacity = still ? 0.0 : 0.6;
+
+    [CATransaction begin];
+    [CATransaction setDisableActions:YES];
+
+    _backingLayer.transform = CATransform3DScale(CATransform3DIdentity, endScale, endScale, 1.0);
+//    _overlayLayer.opacity = endOpacity;
+
+    _overlayLayer.opacity = endOpacity;
+    _glowLayer.opacity = endOpacity;
+    _stillImageLayer.opacity = endStillOpacity;
+    _imageLayer.opacity = endImageOpacity;
+    _imageCopyLayer.opacity = endImageOpacity;
+
+    if (animated) {
+//        CATransform3D tr = CATransform3DIdentity;
+//        const CGSize halfSize = CGSizeMake(contentsBounds.size.width / 2.0, contentsBounds.size.height / 2.0);
+//        tr = CATransform3DTranslate(tr, halfSize.width, halfSize.height, 0.0);
+//        tr = CATransform3DScale(tr, 1.0 + scaleByFactor, 1.0 + scaleByFactor, 1.0);
+//        tr = CATransform3DTranslate(tr, -halfSize.width, -halfSize.height, 0.0);
+        CAAnimation* scale = nil;
+        CAAnimation* fadeOverlay = nil;
+        CAAnimation* fadeStill = nil;
+        CAAnimation* fadeImage = nil;
+        CAAnimation* fadeGlow = nil;
+
+        if (still) {
+            CABasicAnimation* s = [CABasicAnimation animationWithKeyPath:@"transform.scale"];
+            s.removedOnCompletion = NO;
+            s.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseIn];
+            s.fromValue = @(startScale);
+            s.toValue = @(endScale);
+            s.duration = 0.2;
+            scale = s;
+
+            CABasicAnimation* f = [CABasicAnimation animationWithKeyPath:@"opacity"];
+            f.removedOnCompletion = NO;
+            f.fillMode = kCAFillModeForwards;
+            f.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut];
+            f.fromValue = @(startOpacity);
+            f.toValue = @(endOpacity);
+            f.duration = 0.5;
+            fadeOverlay = f;
+
+            f = [CABasicAnimation animationWithKeyPath:@"opacity"];
+            f.removedOnCompletion = NO;
+            f.fillMode = kCAFillModeForwards;
+            f.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseIn];
+            f.fromValue = @(startStillOpacity);
+            f.toValue = @(endStillOpacity);
+            f.duration = 0.3;
+            fadeStill = f;
+
+            f = [CABasicAnimation animationWithKeyPath:@"opacity"];
+            f.removedOnCompletion = NO;
+            f.fillMode = kCAFillModeForwards;
+            f.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionLinear];
+            f.fromValue = @(startImageOpacity);
+            f.toValue = @(endImageOpacity);
+            f.duration = 0.7;
+            fadeImage = f;
+
+            f = [CABasicAnimation animationWithKeyPath:@"opacity"];
+            f.removedOnCompletion = NO;
+            f.fillMode = kCAFillModeForwards;
+            f.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionLinear];
+            f.fromValue = @(startGlowOpacity);
+            f.toValue = @(endGlowOpacity);
+            f.duration = 0.3;
+            fadeGlow = f;
+        } else {
+            CASpringAnimation* s = [CASpringAnimation animationWithKeyPath:@"transform.scale"];
+            s.removedOnCompletion = NO;
+            s.fromValue = @(startScale);
+            s.toValue = @(endScale);
+            s.damping = 30.0;                // lower = bouncier
+            s.stiffness = 1000.0;
+            s.mass = 2.0;
+            s.initialVelocity = 5.0;       // positive to overshoot
+            s.duration = s.settlingDuration; // auto-computed
+            scale = s;
+
+            CABasicAnimation* f = [CABasicAnimation animationWithKeyPath:@"opacity"];
+            f.removedOnCompletion = NO;
+            f.fillMode = kCAFillModeForwards;
+            f.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseIn];
+            f.fromValue = @(startOpacity);
+            f.toValue = @(endOpacity);
+            f.duration = 0.5;
+            fadeOverlay = f;
+
+            f = [CABasicAnimation animationWithKeyPath:@"opacity"];
+            f.removedOnCompletion = NO;
+            f.fillMode = kCAFillModeForwards;
+            f.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseIn];
+            f.fromValue = @(startStillOpacity);
+            f.toValue = @(endStillOpacity);
+            f.duration = 0.5;
+            fadeStill = f;
+
+            f = [CABasicAnimation animationWithKeyPath:@"opacity"];
+            f.removedOnCompletion = NO;
+            f.fillMode = kCAFillModeForwards;
+            f.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseOut];
+            f.fromValue = @(startImageOpacity);
+            f.toValue = @(endImageOpacity);
+            f.duration = 0.1;
+            fadeImage = f;
+
+            f = [CABasicAnimation animationWithKeyPath:@"opacity"];
+            f.removedOnCompletion = NO;
+            f.fillMode = kCAFillModeForwards;
+            f.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseIn];
+            f.fromValue = @(startGlowOpacity);
+            f.toValue = @(endGlowOpacity);
+            f.duration = 1.0;
+            fadeGlow = f;
+        }
+        // Overlay and glow should animate similarly as they are "one" thing.
+        [_overlayLayer addAnimation:fadeOverlay forKey:@"fade"];
+        [_glowLayer addAnimation:fadeGlow forKey:@"fade"];
+
+        [_imageLayer addAnimation:fadeImage forKey:@"fade"];
+        [_imageCopyLayer addAnimation:fadeImage forKey:@"fade"];
+        [_stillImageLayer addAnimation:fadeStill forKey:@"fade"];
+        [_backingLayer addAnimation:scale forKey:@"boundsFlonk"];
+    }
+    [CATransaction commit];
+}
+
 - (void)beatEffect:(NSNotification*)notification
 {
+//    return;
     const NSDictionary* dict = notification.object;
 
     NSNumber* tempo = dict[kBeatNotificationKeyTempo];
@@ -265,17 +521,171 @@ extern NSString * const kBeatTrackedSampleTempoChangeNotification;
     [CATransaction commit];
 }
 
-- (CGImageRef)lightTunnelFilterImage:(CGImageRef)inputImage
-                     withInputCenter:(CGPoint)center
-                       inputRotation:(CGFloat)rotation
-                         inputRadius:(CGFloat)radius
+- (CGFloat)randInRange:(CGFloat)r
 {
-    CIFilter<CILightTunnel>* tunnelFilter = CIFilter.lightTunnelFilter;
-    tunnelFilter.inputImage = [CIImage imageWithCGImage:inputImage];
-    tunnelFilter.center = center;
-    tunnelFilter.rotation = rotation;
-    tunnelFilter.radius = radius;
-    return [tunnelFilter.outputImage CGImage];
+    return ((CGFloat)arc4random_uniform((uint32_t)(2 * r)) - r);
+}
+
+- (void)animateLayer:(CALayer *)layer radius:(CGFloat)r
+{
+    // Current position (presentation if animating)
+    CALayer *pres = layer;
+    CGPoint from = pres.position;
+
+    // New target nearby
+    CGPoint to = CGPointMake(from.x + [self randInRange:r], from.y + [self randInRange:r]);
+
+    CFTimeInterval dur = 0.1 + (arc4random_uniform(500) / 1000.0); // 3–5s
+
+    [CATransaction begin];
+    [CATransaction setDisableActions:YES];
+    layer.position = to; // commit end position
+    [CATransaction setCompletionBlock:^{
+        [self animateLayer:layer radius:r]; // chain to next step
+    }];
+
+    CABasicAnimation *anim = [CABasicAnimation animationWithKeyPath:@"position"];
+    anim.fromValue = [NSValue valueWithPoint:from];
+    anim.toValue = [NSValue valueWithPoint:to];
+    anim.duration = dur;
+    anim.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut];
+
+    [layer addAnimation:anim forKey:@"wander"];
+    [CATransaction commit];
+}
+
+
+- (void)animateChannelSeparationWithRed:(CALayer*)red
+                                  green:(CALayer*)green
+                                   blue:(CALayer*)blue
+                             beatEnergy:(double)slopedEnergy
+                           currentTempo:(double)currentTempo
+{
+    double beatDuration = 60.0 / currentTempo;
+    CGFloat maxRadius = 11.0f * (slopedEnergy * slopedEnergy);
+    CGFloat blend = 0.2f;
+
+    // Current visual offsets BEFORE removing animations
+    NSPoint (^currentTranslation)(CALayer*) = ^NSPoint(CALayer*l) {
+        CALayer *pres = l.presentationLayer ?: l;
+        CATransform3D t = pres.transform;
+        return NSMakePoint(t.m41, t.m42);
+    };
+    NSPoint rFrom = currentTranslation(red);
+    NSPoint gFrom = currentTranslation(green);
+    NSPoint bFrom = currentTranslation(blue);
+
+    // Commit current translation to model to avoid snapping
+    red.transform   = CATransform3DMakeTranslation(rFrom.x, rFrom.y, 0.0);
+    green.transform = CATransform3DMakeTranslation(gFrom.x, gFrom.y, 0.0);
+    blue.transform  = CATransform3DMakeTranslation(bFrom.x, bFrom.y, 0.0);
+
+    [red removeAnimationForKey:@"channelShift"];
+    [green removeAnimationForKey:@"channelShift"];
+    [blue removeAnimationForKey:@"channelShift"];
+
+    // New target exactly on the current radius (energy-scaled), lightly blended with previous.
+    NSPoint (^randomTarget)(void) = ^NSPoint{
+        CGFloat a = (CGFloat)arc4random_uniform(1000) / 1000.0f * 2.0f * (CGFloat)M_PI;
+        return NSMakePoint(cos(a) * maxRadius, sin(a) * maxRadius);
+    };
+    NSPoint target = randomTarget();
+    NSPoint rNext = NSMakePoint(_rCurrent.x * (1.0f - blend) + target.x * blend,
+                                _rCurrent.y * (1.0f - blend) + target.y * blend);
+    target = randomTarget();
+    NSPoint gNext = NSMakePoint(_gCurrent.x * (1.0f - blend) + target.x * blend,
+                                _gCurrent.y * (1.0f - blend) + target.y * blend);
+    target = randomTarget();
+    NSPoint bNext = NSMakePoint(_bCurrent.x * (1.0f - blend) + target.x * blend,
+                                _bCurrent.y * (1.0f - blend) + target.y * blend);
+
+    CAKeyframeAnimation* (^shift)(NSPoint, NSPoint) = ^CAKeyframeAnimation* (NSPoint from, NSPoint to) {
+        CAKeyframeAnimation *a = [CAKeyframeAnimation animationWithKeyPath:@"transform.translation"];
+        a.values = @[
+            [NSValue valueWithPoint:from],        // max at beat
+            [NSValue valueWithPoint:NSZeroPoint], // origin mid-beat
+            [NSValue valueWithPoint:to]           // drift to next peak
+        ];
+        // Keep maximum separation on-beat (0 and 1); return to center shortly before the next beat.
+        a.keyTimes = @[@0.0, @0.8, @1.0];
+        a.timingFunctions = @[
+            [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut],
+            [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut]
+        ];
+        a.duration = beatDuration;
+        a.autoreverses = NO;
+        return a;
+    };
+
+    [red addAnimation:shift(rFrom, rNext) forKey:@"channelShift"];
+    [green addAnimation:shift(gFrom, gNext) forKey:@"channelShift"];
+    [blue addAnimation:shift(bFrom, bNext) forKey:@"channelShift"];
+
+    // Set model to the next peak for the next beat
+    red.transform   = CATransform3DMakeTranslation(rNext.x, rNext.y, 0.0);
+    green.transform = CATransform3DMakeTranslation(gNext.x, gNext.y, 0.0);
+    blue.transform  = CATransform3DMakeTranslation(bNext.x, bNext.y, 0.0);
+
+    _rCurrent = rNext;
+    _gCurrent = gNext;
+    _bCurrent = bNext;
+}
+
+- (CALayer*)colorSeparationLayerForImage:(NSImage *)image frame:(CGRect)frame
+{
+    CALayer *container = [CALayer layer];
+    container.frame = frame;
+    //container.contents = image;
+    container.masksToBounds = YES;
+    container.magnificationFilter = kCAFilterLinear;
+    container.minificationFilter = kCAFilterLinear;
+    container.autoresizingMask = kCALayerWidthSizable | kCALayerHeightSizable;
+    container.allowsEdgeAntialiasing = YES;
+    container.contentsScale = [[NSScreen mainScreen] backingScaleFactor];
+    container.drawsAsynchronously = YES;
+    
+    // Helper to make a channel layer
+    CALayer *(^channel)(CGFloat r, CGFloat g, CGFloat b) = ^CALayer *(CGFloat r, CGFloat g, CGFloat b) {
+        CALayer *layer = [CALayer layer];
+
+        layer.magnificationFilter = kCAFilterLinear;
+        layer.minificationFilter = kCAFilterLinear;
+        layer.autoresizingMask = kCALayerWidthSizable | kCALayerHeightSizable;
+        layer.allowsEdgeAntialiasing = YES;
+        layer.contentsScale = [[NSScreen mainScreen] backingScaleFactor];
+        layer.drawsAsynchronously = YES;
+        layer.masksToBounds = NO;
+        layer.contentsGravity = kCAGravityCenter;
+        
+        layer.frame = container.bounds;
+        //double maxRadius = 20.0;
+        //layer.frame = CGRectInset(container.bounds, -maxRadius, -maxRadius);
+        //layer.bounds = CGRectMake(0, 0, container.bounds.size.width, container.bounds.size.height); // keep content size
+        //layer.position = CGPointMake(CGRectGetMidX(container.bounds), CGRectGetMidY(container.bounds));
+        
+        CIFilter *cm = [CIFilter filterWithName:@"CIColorMatrix"];
+        // Keep only one channel, zero the others
+        [cm setValue:[CIVector vectorWithX:r Y:0 Z:0 W:0] forKey:@"inputRVector"];
+        [cm setValue:[CIVector vectorWithX:0 Y:g Z:0 W:0] forKey:@"inputGVector"];
+        [cm setValue:[CIVector vectorWithX:0 Y:0 Z:b W:0] forKey:@"inputBVector"];
+        [cm setValue:[CIVector vectorWithX:0 Y:0 Z:0 W:1] forKey:@"inputAVector"];
+
+        layer.filters = @[cm];
+        layer.opacity = 0.7;
+        layer.compositingFilter = [CIFilter filterWithName:@"CIAdditionCompositing"];
+        
+        return layer;
+    };
+
+    _red   = channel(1, 0, 0);
+    _green = channel(0, 1, 0);
+    _blue  = channel(0, 0, 1);
+
+    [container addSublayer:_blue];
+    [container addSublayer:_green];
+    [container addSublayer:_red];
+
+    return container;
 }
 
 - (CALayer*)makeBackingLayer
@@ -287,17 +697,17 @@ extern NSString * const kBeatTrackedSampleTempoChangeNotification;
     layer.drawsAsynchronously = YES;
     layer.anchorPoint = CGPointMake(0.5, 0.5);
     
-    CGPoint center = NSMakePoint(CGRectGetMidX(layer.bounds) - 21.0,
-                                 CGRectGetMidY(layer.bounds) - 23.0);
-    
-    CGRect contentsBounds = CGRectMake(0.0, 0.0, self.bounds.size.width - (self.additionalSafeAreaInsets.left + self.additionalSafeAreaInsets.right), self.bounds.size.height - (self.additionalSafeAreaInsets.top + self.additionalSafeAreaInsets.bottom));
-    CGRect contentsFrame = CGRectMake(self.additionalSafeAreaInsets.left, self.additionalSafeAreaInsets.top, self.bounds.size.width - (self.additionalSafeAreaInsets.left + self.additionalSafeAreaInsets.right), self.bounds.size.height - (self.additionalSafeAreaInsets.top + self.additionalSafeAreaInsets.bottom));
+    CGPoint center = NSMakePoint(CGRectGetMidX(layer.bounds),
+                                 CGRectGetMidY(layer.bounds));
+
+    //CGRect contentsBounds = CGRectMake(0.0, 0.0, self.bounds.size.width - (self.additionalSafeAreaInsets.left + self.additionalSafeAreaInsets.right), self.bounds.size.height - (self.additionalSafeAreaInsets.top + self.additionalSafeAreaInsets.bottom));
+    //CGRect contentsFrame = CGRectMake(self.additionalSafeAreaInsets.left, self.additionalSafeAreaInsets.top, self.bounds.size.width - (self.additionalSafeAreaInsets.left + self.additionalSafeAreaInsets.right), self.bounds.size.height - (self.additionalSafeAreaInsets.top + self.additionalSafeAreaInsets.bottom));
     //CGRect contentsFrame = CGRectInset(self.bounds, self.additionalSafeAreaInsets.left, self.additionalSafeAreaInsets.top);
 
-    CIFilter* bloomFilter = [CIFilter filterWithName:@"CIBloom"];
-    [bloomFilter setDefaults];
-    [bloomFilter setValue: [NSNumber numberWithFloat:7.0] forKey: @"inputRadius"];
-    [bloomFilter setValue: [NSNumber numberWithFloat:1.0] forKey: @"inputIntensity"];
+    _bloomFilter = [CIFilter filterWithName:@"CIBloom"];
+    [_bloomFilter setDefaults];
+    [_bloomFilter setValue: [NSNumber numberWithFloat:21.0] forKey: @"inputRadius"];
+    [_bloomFilter setValue: [NSNumber numberWithFloat:1.5] forKey: @"inputIntensity"];
 
 //    CIFilter* linesFilter = [CIFilter filterWithName:@"CIHatchedScreen"];
 //    [linesFilter setDefaults];
@@ -306,14 +716,14 @@ extern NSString * const kBeatTrackedSampleTempoChangeNotification;
 //    [linesFilter setValue: [NSNumber numberWithFloat:0.02] forKey: @"inputSharpness"];
     CIFilter* linesFilter = [CIFilter filterWithName:@"CICircularScreen"];
     [linesFilter setDefaults];
-    [linesFilter setValue: [NSNumber numberWithFloat:7.0] forKey: @"inputWidth"];
-    [linesFilter setValue: [NSNumber numberWithFloat:0.02] forKey: @"inputSharpness"];
+    [linesFilter setValue: [NSNumber numberWithFloat:5.0] forKey: @"inputWidth"];
+    [linesFilter setValue: [NSNumber numberWithFloat:0.01] forKey: @"inputSharpness"];
     [linesFilter setValue: [CIVector vectorWithCGPoint:center] forKey: @"inputCenter"];
 
     CIFilter* darkenFilter = [CIFilter filterWithName:@"CIColorControls"];
     [darkenFilter setDefaults];
-    [darkenFilter setValue: [NSNumber numberWithFloat:-0.47] forKey: @"inputBrightness"];
-    [darkenFilter setValue: [NSNumber numberWithFloat:0.01] forKey: @"inputContrast"];
+    [darkenFilter setValue: [NSNumber numberWithFloat:-0.46] forKey: @"inputBrightness"];
+    [darkenFilter setValue: [NSNumber numberWithFloat:0.02] forKey: @"inputContrast"];
 
     CIFilter* lightenFilter = [CIFilter filterWithName:@"CIGammaAdjust"];
     [lightenFilter setDefaults];
@@ -350,21 +760,20 @@ extern NSString * const kBeatTrackedSampleTempoChangeNotification;
         _glowLayer.magnificationFilter = kCAFilterLinear;
         _glowLayer.minificationFilter = kCAFilterLinear;
         _glowLayer.contents = [NSImage resizedImage:[NSImage imageNamed:@"FadeGlow"]
-                                               size:contentsBounds.size];
+                                               size:self.bounds.size];
         
         //_glowLayer.contents = [self lightTunnelFilterImage:[input CG] withInputCenter:CGPointMake(self.bounds.size.width / 2.0, self.bounds.size.height / 2.0) inputRotation:0.0 inputRadius:0.0];
-        _glowLayer.frame = CGRectInset(contentsFrame, -100.0, -100.0);
+        _glowLayer.frame = CGRectInset(self.bounds, -100.0, -100.0);
     //    _glowLayer.frame = CGRectOffset(_glowLayer.frame, -50.0, -50.0);
         _glowLayer.allowsEdgeAntialiasing = YES;
         _glowLayer.shouldRasterize = YES;
-        _glowLayer.opacity = 0.6f;
         _glowLayer.autoresizingMask = kCALayerWidthSizable | kCALayerHeightSizable;
         _glowLayer.rasterizationScale = layer.contentsScale;
         _glowLayer.contentsScale = [[NSScreen mainScreen] backingScaleFactor];
-        _glowLayer.backgroundFilters = @[ bloomFilter ];
+        _glowLayer.backgroundFilters = @[ _bloomFilter ];
         _glowLayer.masksToBounds = YES;
         _glowLayer.drawsAsynchronously = YES;
-        _glowLayer.filters = @[ bloomFilter ];
+        _glowLayer.filters = @[ _bloomFilter ];
         _glowLayer.compositingFilter = additionFilter;
         [layer addSublayer:_glowLayer];
     }
@@ -373,8 +782,8 @@ extern NSString * const kBeatTrackedSampleTempoChangeNotification;
     // this because <FIXME: Why?>
     _backingLayer = [CALayer layer];
     _backingLayer.autoresizingMask = kCALayerWidthSizable | kCALayerHeightSizable;
-    _backingLayer.frame = contentsFrame;
-    _backingLayer.shouldRasterize = YES;
+    _backingLayer.frame = self.bounds;
+    //_backingLayer.shouldRasterize = YES;
     _backingLayer.masksToBounds = NO;
     _backingLayer.drawsAsynchronously = YES;
     _backingLayer.cornerRadius = 7.0f;
@@ -383,29 +792,31 @@ extern NSString * const kBeatTrackedSampleTempoChangeNotification;
     _backingLayer.magnificationFilter = kCAFilterLinear;
     _backingLayer.minificationFilter = kCAFilterLinear;
     _backingLayer.contentsScale = [[NSScreen mainScreen] backingScaleFactor];
-    _backingLayer.backgroundColor = [NSColor controlBackgroundColor].CGColor;
+    //_backingLayer.backgroundColor = [NSColor controlBackgroundColor].CGColor;
+    _backingLayer.backgroundColor = [NSColor clearColor].CGColor;
 
     _maskLayer = [CALayer layer];
     _maskLayer.contents = [NSImage imageNamed:@"FadeMask"];
-    _maskLayer.frame = CGRectMake(-contentsBounds.size.width / 2, -contentsBounds.size.height / 2, contentsBounds.size.width * 2, contentsBounds.size.height * 2);
-    _maskLayer.autoresizingMask = kCALayerWidthSizable | kCALayerHeightSizable;
+    _maskLayer.frame = CGRectMake(-self.bounds.size.width / 2, -self.bounds.size.height / 2, self.bounds.size.width * 2, self.bounds.size.height * 2);
+    _maskLayer.autoresizingMask = kCALayerNotSizable;
     _maskLayer.contentsScale = [[NSScreen mainScreen] backingScaleFactor];
     _maskLayer.allowsEdgeAntialiasing = YES;
     _maskLayer.magnificationFilter = kCAFilterLinear;
     _maskLayer.minificationFilter = kCAFilterLinear;
-    _maskLayer.position = CGPointMake(contentsBounds.size.width / 2, contentsBounds.size.height / 2);
+    _maskLayer.position = CGPointMake(self.bounds.size.width / 2, self.bounds.size.height / 2);
 
+    //_imageCopyLayer = [self colorSeparationLayerForImage:[NSImage resizedImageWithData:[MediaMetaData defaultArtworkData] size:self.bounds.size] frame:self.bounds];
+    
     _imageCopyLayer = [CALayer layer];
     _imageCopyLayer.magnificationFilter = kCAFilterLinear;
     _imageCopyLayer.minificationFilter = kCAFilterLinear;
-    _imageCopyLayer.frame = contentsBounds;
-    _imageCopyLayer.contents = [NSImage resizedImage:[NSImage imageNamed:@"UnknownSong"]
-                                                size:contentsBounds.size];
+    _imageCopyLayer.frame = self.bounds;
+    _imageCopyLayer.contents = [NSImage resizedImageWithData:[MediaMetaData defaultArtworkData]
+                                                        size:self.bounds.size];
     _imageCopyLayer.autoresizingMask = kCALayerWidthSizable | kCALayerHeightSizable;
     //_imageCopyLayer.cornerRadius = 7.0f;
     _imageCopyLayer.allowsEdgeAntialiasing = YES;
     _imageCopyLayer.contentsScale = [[NSScreen mainScreen] backingScaleFactor];
-    _imageCopyLayer.frame = contentsBounds;
     _imageCopyLayer.drawsAsynchronously = YES;
     _imageCopyLayer.masksToBounds = YES;
     if ((_style & CoverViewStyleGlowBehindCoverAtLaser) == CoverViewStyleGlowBehindCoverAtLaser) {
@@ -417,25 +828,16 @@ extern NSString * const kBeatTrackedSampleTempoChangeNotification;
     if ((_style & CoverViewStyleSepiaForSecondImageLayer) == CoverViewStyleSepiaForSecondImageLayer) {
         _imageCopyLayer.filters = @[ darkenFilter  ];
     }
-    _imageCopyLayer.opacity = _secondImageLayerOpacity;
+//    _imageCopyLayer.opacity = _secondImageLayerOpacity;
     [_backingLayer addSublayer:_imageCopyLayer];
-    _imageCopyLayer.hidden = YES;
 
-    _imageLayer = [CALayer layer];
-    _imageLayer.magnificationFilter = kCAFilterLinear;
-    _imageLayer.minificationFilter = kCAFilterLinear;
-    _imageLayer.frame = contentsBounds;
-    _imageLayer.contents = [NSImage resizedImage:[NSImage imageNamed:@"UnknownSong"]
-                                            size:contentsBounds.size];
+    _imageLayer = [self colorSeparationLayerForImage:[NSImage resizedImageWithData:[MediaMetaData defaultArtworkData] size:self.bounds.size] frame:self.bounds];
+    _imageLayer.frame = self.bounds;
     _imageLayer.autoresizingMask = kCALayerWidthSizable | kCALayerHeightSizable;
-    _imageLayer.allowsEdgeAntialiasing = YES;
-    _imageLayer.shouldRasterize = YES;
-    _imageLayer.drawsAsynchronously = YES;
     _imageLayer.rasterizationScale = layer.contentsScale;
     _imageLayer.contentsScale = [[NSScreen mainScreen] backingScaleFactor];
     //_imageLayer.cornerRadius = 7.0f;
-    _imageLayer.frame = contentsBounds;
-    _imageLayer.masksToBounds = YES;
+    _imageLayer.frame = self.bounds;
     if ((_style & CoverViewStyleGlowBehindCoverAtLaser) == CoverViewStyleGlowBehindCoverAtLaser) {
         _imageLayer.borderWidth = 1.0;
         //_imageLayer.borderColor = [NSColor windowFrameColor].CGColor;
@@ -445,18 +847,31 @@ extern NSString * const kBeatTrackedSampleTempoChangeNotification;
     [fxFilter setDefaults];
     [fxFilter setValue: [NSNumber numberWithFloat:0.0] forKey: @"inputAmount"];
 
-    if ((_style & CoverViewStyleRotatingLaser) == CoverViewStyleRotatingLaser) {
-        _imageLayer.filters = @[ bloomFilter ];
-    }
+//    if ((_style & CoverViewStyleRotatingLaser) == CoverViewStyleRotatingLaser) {
+//        _imageLayer.filters = @[ _bloomFilter ];
+//    }
+
+
     [_backingLayer addSublayer:_imageLayer];
-    _imageLayer.hidden = YES;
+
 
     if ((_style & CoverViewStyleRotatingLaser) == CoverViewStyleRotatingLaser) {
+        _rotateLayer = [CALayer layer];
+        _rotateLayer.autoresizingMask = kCALayerNotSizable;
+        //_rotateLayer.anchorPoint = CGPointMake(0.5, 0.507);
+        _rotateLayer.drawsAsynchronously = YES;
+        _rotateLayer.position = CGPointMake(ceil(_backingLayer.bounds.size.width / 2.0),
+                                            ceil(_backingLayer.bounds.size.height / 2.0));
+        _rotateLayer.bounds = _maskLayer.bounds;
+        _rotateLayer.compositingFilter = additionFilter;
+        [_imageLayer addSublayer:_rotateLayer];
+
         _overlayLayer = [CALayer layer];
         _overlayLayer.contents = [NSImage imageNamed:kLayerImageName];
         _overlayLayer.autoresizingMask = kCALayerWidthSizable | kCALayerHeightSizable;
         _overlayLayer.shouldRasterize = YES;
         _overlayLayer.cornerRadius = 7.0f;
+        _rotateLayer.compositingFilter = additionFilter;
         _overlayLayer.allowsEdgeAntialiasing = YES;
         _overlayLayer.drawsAsynchronously = YES;
         _overlayLayer.rasterizationScale = layer.contentsScale;
@@ -464,11 +879,8 @@ extern NSString * const kBeatTrackedSampleTempoChangeNotification;
         _overlayLayer.magnificationFilter = kCAFilterLinear;
         _overlayLayer.minificationFilter = kCAFilterLinear;
         _overlayLayer.opacity = _overlayIntensity;
-        _overlayLayer.anchorPoint = CGPointMake(0.5, 0.507);
-        _overlayLayer.frame = _maskLayer.frame;
-        _overlayLayer.compositingFilter = additionFilter;
-        [_imageLayer addSublayer:_overlayLayer];
-        _overlayLayer.hidden = YES;
+        _overlayLayer.frame = _maskLayer.bounds;
+        [_rotateLayer addSublayer:_overlayLayer];
     }
     
 #ifndef HIDE_COVER_DEBBUG
@@ -476,10 +888,23 @@ extern NSString * const kBeatTrackedSampleTempoChangeNotification;
 #endif
 
     _finalFxLayer = [CALayer layer];
-    _finalFxLayer.frame = contentsBounds;
+    _finalFxLayer.frame = self.bounds;
     _finalFxLayer.backgroundFilters = @[ fxFilter];
     _finalFxLayer.drawsAsynchronously = YES;
     [_backingLayer addSublayer:_finalFxLayer];
+    
+    _stillImageLayer = [CALayer layer];
+    _stillImageLayer.magnificationFilter = kCAFilterLinear;
+    _stillImageLayer.minificationFilter = kCAFilterLinear;
+    _stillImageLayer.frame = self.bounds;
+    _stillImageLayer.contents = [NSImage resizedImageWithData:[MediaMetaData defaultArtworkData]
+                                                         size:self.bounds.size];
+    _stillImageLayer.autoresizingMask = kCALayerWidthSizable | kCALayerHeightSizable;
+    _stillImageLayer.allowsEdgeAntialiasing = YES;
+    _stillImageLayer.contentsScale = [[NSScreen mainScreen] backingScaleFactor];
+    _stillImageLayer.drawsAsynchronously = YES;
+    _stillImageLayer.masksToBounds = YES;
+    [_backingLayer addSublayer:_stillImageLayer];
     
     return layer;
 }
@@ -509,12 +934,20 @@ extern NSString * const kBeatTrackedSampleTempoChangeNotification;
     NSColor* averageColor = nil;
     if (image == nil) {
         unknown = YES;
-        image = [NSImage imageNamed:@"UnknownSong"];
+        image = [NSImage resizedImageWithData:[MediaMetaData defaultArtworkData] size:self.bounds.size];
         averageColor = [NSColor windowBackgroundColor];
     } else {
         unknown = NO;
         averageColor = [image averageColor];
     }
+  
+    CGFloat travel = 100.0f; // match your maxRadius
+    CIImage *ci = [[CIImage alloc] initWithData:image.TIFFRepresentation];
+    CIImage *clamped = [ci imageByClampingToExtent];
+    CIContext *ctx = [CIContext contextWithOptions:nil];
+
+    CGRect padRect = CGRectInset(ci.extent, -travel, -travel);
+    CGImageRef cg = [ctx createCGImage:clamped fromRect:padRect];
 
     if (animated) {
         [self animateLayer:self.layer toBackgroundColor:averageColor];
@@ -522,16 +955,24 @@ extern NSString * const kBeatTrackedSampleTempoChangeNotification;
         [NSAnimationContext runAnimationGroup:^(NSAnimationContext *context) {
             [context setDuration:2.1f];
             [context setTimingFunction:[CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseIn]];
+
             self.animator.imageCopyLayer.contents = image;
-            self.animator.imageLayer.contents = image;
+            self.animator.stillImageLayer.contents = image;
+            self.animator.red.contents = (__bridge id)cg;
+            self.animator.green.contents = (__bridge id)cg;
+            self.animator.blue.contents = (__bridge id)cg;
         }];
     } else {
         [self.layer removeAllAnimations];
 
         self.imageCopyLayer.contents = image;
-        self.imageLayer.contents = image;
+        self.stillImageLayer.contents = image;
+        self.red.contents = (__bridge id)cg;
+        self.green.contents = (__bridge id)cg;
+        self.blue.contents = (__bridge id)cg;
     }
 
+    CGImageRelease(cg);
     self.layer.backgroundColor = averageColor.CGColor;
 }
 
@@ -543,9 +984,6 @@ extern NSString * const kBeatTrackedSampleTempoChangeNotification;
     
     const float beatsPerCycle = 4.0f;
 
-    [CATransaction begin];
-    [CATransaction setDisableActions:YES];
-
     CABasicAnimation* animation = [CABasicAnimation animationWithKeyPath:@"transform.rotation.z"];
     animation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionLinear];
     animation.fillMode = kCAFillModeForwards;
@@ -554,28 +992,29 @@ extern NSString * const kBeatTrackedSampleTempoChangeNotification;
     animation.duration = beatsPerCycle * 60.0f / self->currentTempo;
     const CGFloat anglePerBeat = M_PI_2 * beatsPerCycle;
     const CGFloat angleToAdd = -anglePerBeat;
+    
+    //const CGFloat scaleX = hypot(_rotateLayer.presentationLayer.transform.m11, _rotateLayer.presentationLayer.transform.m12);
+    //const CGFloat angleStart = atan2(_rotateLayer.presentationLayer.transform.m12 / scaleX, _rotateLayer.presentationLayer.transform.m11 / scaleX);
 
-    if ((_style & CoverViewStyleRotatingLaser) == CoverViewStyleRotatingLaser) {
-        [_overlayLayer setValue:@(anglePerBeat) forKeyPath:@"transform.rotation.z"];
-        [_maskLayer setValue:@(anglePerBeat) forKeyPath:@"transform.rotation.z"];
-    }
-    if ((_style & CoverViewStyleGlowBehindCoverAtLaser) == CoverViewStyleGlowBehindCoverAtLaser) {
-        [_glowLayer setValue:@(anglePerBeat) forKeyPath:@"transform.rotation.z"];
-    }
+//    if ((_style & CoverViewStyleRotatingLaser) == CoverViewStyleRotatingLaser) {
+//        [_rotateLayer setValue:@(anglePerBeat) forKeyPath:@"transform.rotation.z"];
+//        [_maskLayer setValue:@(anglePerBeat) forKeyPath:@"transform.rotation.z"];
+//    }
+//    if ((_style & CoverViewStyleGlowBehindCoverAtLaser) == CoverViewStyleGlowBehindCoverAtLaser) {
+//        [_glowLayer setValue:@(anglePerBeat) forKeyPath:@"transform.rotation.z"];
+//    }
 
-    animation.toValue = @(0.0);
+    //animation.toValue = @(0.0);
     animation.byValue = @(angleToAdd);
     animation.repeatCount = FLT_MAX;
 
     if ((_style & CoverViewStyleRotatingLaser) == CoverViewStyleRotatingLaser) {
-        [_overlayLayer addAnimation:animation forKey:@"rotation"];
+        [_rotateLayer addAnimation:animation forKey:@"rotation"];
         [_maskLayer addAnimation:animation forKey:@"rotation"];
     }
     if ((_style & CoverViewStyleGlowBehindCoverAtLaser) == CoverViewStyleGlowBehindCoverAtLaser) {
         [_glowLayer addAnimation:animation forKey:@"rotation"];
     }
-
-    [CATransaction commit];
 }
 
 - (void)startAnimating
@@ -592,15 +1031,13 @@ extern NSString * const kBeatTrackedSampleTempoChangeNotification;
         return;
     }
 
-    _maskLayer.hidden = NO;
-    _imageCopyLayer.hidden = NO;
-    _imageLayer.hidden = NO;
-    _overlayLayer.hidden = NO;
     if ((_style & CoverViewStyleRotatingLaser) == CoverViewStyleRotatingLaser) {
         _imageCopyLayer.mask = _maskLayer;
         _imageLayer.mask = _maskLayer;
+    } else {
+        _imageCopyLayer.mask = nil;
+        _imageLayer.mask = nil;
     }
-
 
     [self animate];
 
@@ -612,109 +1049,90 @@ extern NSString * const kBeatTrackedSampleTempoChangeNotification;
 {
     paused = NO;
     if ((_style & CoverViewStyleRotatingLaser) == CoverViewStyleRotatingLaser) {
-        [_maskLayer removeAllAnimations];
+        //[_maskLayer removeAllAnimations];
         [_overlayLayer removeAllAnimations];
     }
     if ((_style & CoverViewStyleGlowBehindCoverAtLaser) == CoverViewStyleGlowBehindCoverAtLaser) {
-        [_glowLayer removeAllAnimations];
+        //[_glowLayer removeAllAnimations];
     }
     animating = NO;
 }
 
-- (void)resumeAnimating
+- (void)startLaserRotation
 {
-    if (!animating) {
-        [self startAnimating];
+    if ((_style & (CoverViewStyleRotatingLaser | CoverViewStyleGlowBehindCoverAtLaser)) == 0) {
         return;
     }
+    
+    const float beatsPerCycle = 4.0f;
+
+    CABasicAnimation* animation = [CABasicAnimation animationWithKeyPath:@"transform.rotation.z"];
+    animation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionLinear];
+    animation.fillMode = kCAFillModeForwards;
+    animation.removedOnCompletion = NO;
+    NSAssert(currentTempo > 0.0, @"current tempo set to zero, that should never happen");
+    animation.duration = beatsPerCycle * 60.0f / self->currentTempo;
+    const CGFloat anglePerBeat = M_PI_2 * beatsPerCycle;
+    const CGFloat angleToAdd = -anglePerBeat;
+    
+    //const CGFloat scaleX = hypot(_rotateLayer.presentationLayer.transform.m11, _rotateLayer.presentationLayer.transform.m12);
+    //const CGFloat angleStart = atan2(_rotateLayer.presentationLayer.transform.m12 / scaleX, _rotateLayer.presentationLayer.transform.m11 / scaleX);
+
+//    if ((_style & CoverViewStyleRotatingLaser) == CoverViewStyleRotatingLaser) {
+//        [_rotateLayer setValue:@(anglePerBeat) forKeyPath:@"transform.rotation.z"];
+//        [_maskLayer setValue:@(anglePerBeat) forKeyPath:@"transform.rotation.z"];
+//    }
+//    if ((_style & CoverViewStyleGlowBehindCoverAtLaser) == CoverViewStyleGlowBehindCoverAtLaser) {
+//        [_glowLayer setValue:@(anglePerBeat) forKeyPath:@"transform.rotation.z"];
+//    }
+
+    //animation.toValue = @(0.0);
+    animation.byValue = @(angleToAdd);
+    animation.repeatCount = FLT_MAX;
+
     if ((_style & CoverViewStyleRotatingLaser) == CoverViewStyleRotatingLaser) {
-        [_overlayLayer resumeAnimating];
-        [_maskLayer resumeAnimating];
+        [_rotateLayer addAnimation:animation forKey:@"rotation"];
+        [_maskLayer addAnimation:animation forKey:@"rotation"];
     }
     if ((_style & CoverViewStyleGlowBehindCoverAtLaser) == CoverViewStyleGlowBehindCoverAtLaser) {
-        [_glowLayer resumeAnimating];
+        [_glowLayer addAnimation:animation forKey:@"rotation"];
     }
+}
+
+- (void)haltLaserRotation
+{
+    if ((_style & CoverViewStyleRotatingLaser) == CoverViewStyleRotatingLaser) {
+        _rotateLayer.transform = _rotateLayer.presentationLayer.transform;
+        [_rotateLayer removeAnimationForKey:@"rotation"];
+        _maskLayer.transform = _maskLayer.presentationLayer.transform;
+        [_maskLayer removeAnimationForKey:@"rotation"];
+    }
+    if ((_style & CoverViewStyleGlowBehindCoverAtLaser) == CoverViewStyleGlowBehindCoverAtLaser) {
+        _glowLayer.transform = _glowLayer.presentationLayer.transform;
+        [_glowLayer removeAnimationForKey:@"rotation"];
+    }
+}
+
+- (void)resumeAnimating
+{
+    if (!animating || paused == NO) {
+        return;
+    }
+
+    [self startLaserRotation];
+
     paused = NO;
 }
 
 - (void)pauseAnimating
 {
-    if (!animating) {
+    if (!animating || paused == YES) {
         return;
     }
-    if ((_style & CoverViewStyleRotatingLaser) == CoverViewStyleRotatingLaser) {
-        [_overlayLayer pauseAnimating];
-        [_maskLayer pauseAnimating];
-    }
-    if ((_style & CoverViewStyleGlowBehindCoverAtLaser) == CoverViewStyleGlowBehindCoverAtLaser) {
-        [_glowLayer pauseAnimating];
-    }
+
+    [self haltLaserRotation];
+
     paused = YES;
 }
-
-- (NSBezierPath*)shadowPathForRect:(CGRect)rect
-{
-    const CGFloat kCoverCornerRadius = 7.0;
-    const CGFloat tr = kCoverCornerRadius;
-    const CGFloat tl = kCoverCornerRadius;
-    const CGFloat br = kCoverCornerRadius;
-    const CGFloat bl = kCoverCornerRadius;
-
-    //selectionRect = NSOffsetRect(selectionRect, -20.0, -20.0);
-
-    NSBezierPath* path = [NSBezierPath bezierPath];
-    
-    [path moveToPoint:CGPointMake(rect.origin.x + tl, rect.origin.y)];
-    [path lineToPoint:CGPointMake(rect.origin.x + rect.size.width - tr, rect.origin.y)];
-    [path appendBezierPathWithArcWithCenter:CGPointMake(rect.origin.x + rect.size.width - tr, rect.origin.y + tr)
-                                     radius:tr
-                                 startAngle:-90.0
-                                   endAngle:0.0
-                                  clockwise:NO];
-    [path lineToPoint:CGPointMake(rect.origin.x + rect.size.width, rect.origin.y + rect.size.height - br)];
-    [path appendBezierPathWithArcWithCenter:CGPointMake(rect.origin.x + rect.size.width - br, rect.origin.y + rect.size.height - br)
-                                     radius:br
-                                 startAngle:0.0
-                                   endAngle:90.0
-                                  clockwise:NO];
-
-    [path lineToPoint:CGPointMake(rect.origin.x + bl, rect.origin.y + rect.size.height)];
-    [path appendBezierPathWithArcWithCenter:CGPointMake(rect.origin.x + bl, rect.origin.y + rect.size.height - bl)
-                                     radius:bl
-                                 startAngle:90.0
-                                   endAngle:180.0
-                                  clockwise:NO];
-
-    [path lineToPoint:CGPointMake(rect.origin.x, rect.origin.y + tl)];
-    [path appendBezierPathWithArcWithCenter:CGPointMake(rect.origin.x + tl, rect.origin.y + tl)
-                                     radius:tl
-                                 startAngle:180.0
-                                   endAngle:270.0
-                                  clockwise:NO];
-
-    return path;
-}
-
-//- (void)drawLayer:(CALayer*)layer inContext:(CGContextRef)context
-//{
-//    CGContextSetAllowsAntialiasing(context, YES);
-//    CGContextSetShouldAntialias(context, YES);
-//    
-//    CGColorRef shadowColor = [[[Defaults sharedDefaults] lightBeamColor] CGColor];
-//
-//    CGContextSetShadowWithColor(context,
-//                                CGSizeMake(0.0, 0.0),
-//                                20.0,
-//                                shadowColor);
-//
-//    NSBezierPath* path = [self shadowPathForRect:NSInsetRect(layer.frame, 20.0, 20.0)];
-//    CGPathRef p = [NSBezierPath CGPathFromPath:path];
-//
-//    CGContextSetStrokeColorWithColor(context, shadowColor);
-//    CGContextSetFillColorWithColor(context, shadowColor);
-//    CGContextAddPath(context, p);
-//    CGContextFillPath(context);
-//    CGPathRelease(p);
-//}
 
 @end

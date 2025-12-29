@@ -51,6 +51,10 @@
 		BB577E162AA486C500046251 /* libsamplerate.0.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = BB577E152AA486C500046251 /* libsamplerate.0.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		BB5A2C232B925CD300040209 /* TextViewWithPlaceholder.m in Sources */ = {isa = PBXBuildFile; fileRef = BB5A2C222B925CD300040209 /* TextViewWithPlaceholder.m */; };
 		BB5A4D9128FC5C2B003A733C /* NSBezierPath+CGPath.m in Sources */ = {isa = PBXBuildFile; fileRef = BB5A4D9028FC5C2B003A733C /* NSBezierPath+CGPath.m */; };
+		BB5DC1EF2EFF098A00CCA2D6 /* TotalIdentificationController.m in Sources */ = {isa = PBXBuildFile; fileRef = BB5DC1EE2EFF098A00CCA2D6 /* TotalIdentificationController.m */; };
+		BB5DC1F22F00357000CCA2D6 /* NSString+Sanitized.m in Sources */ = {isa = PBXBuildFile; fileRef = BB5DC1F12F00357000CCA2D6 /* NSString+Sanitized.m */; };
+		BB5DC1F52F00A52100CCA2D6 /* ActivityViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = BB5DC1F42F00A52100CCA2D6 /* ActivityViewController.m */; };
+		BB53ACTP2F10A52100CCA2D6 /* ActivityManager.m in Sources */ = {isa = PBXBuildFile; fileRef = BB53ACTO2F10A52100CCA2D6 /* ActivityManager.m */; };
 		BB694CA32E6BB09C00818B01 /* BloomyText.m in Sources */ = {isa = PBXBuildFile; fileRef = BB694CA22E6BB09C00818B01 /* BloomyText.m */; };
 		BB69948F2EEB316100242456 /* MediaMetaData+ChapterForge.mm in Sources */ = {isa = PBXBuildFile; fileRef = BB69948E2EEB316100242456 /* MediaMetaData+ChapterForge.mm */; };
 		BB6994942EEB370500242456 /* TrackList+ChapterForge.mm in Sources */ = {isa = PBXBuildFile; fileRef = BB6994932EEB370500242456 /* TrackList+ChapterForge.mm */; };
@@ -199,12 +203,20 @@
 		BB539A5E2D0F6D380095B8C7 /* libkeyfinder.2.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libkeyfinder.2.dylib; sourceTree = "<group>"; };
 		BB539A612D0F6E8E0095B8C7 /* libfftw3.3.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libfftw3.3.dylib; sourceTree = "<group>"; };
 		BB539A642D15C7260095B8C7 /* BeatEvent.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BeatEvent.h; sourceTree = "<group>"; };
+		BB53ACTN2F10A52100CCA2D6 /* ActivityManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ActivityManager.h; sourceTree = "<group>"; };
+		BB53ACTO2F10A52100CCA2D6 /* ActivityManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ActivityManager.m; sourceTree = "<group>"; };
 		BB577E072AA482D400046251 /* librubberband.2.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = librubberband.2.dylib; sourceTree = "<group>"; };
 		BB577E152AA486C500046251 /* libsamplerate.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libsamplerate.0.dylib; sourceTree = "<group>"; };
 		BB5A2C212B925CD300040209 /* TextViewWithPlaceholder.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TextViewWithPlaceholder.h; sourceTree = "<group>"; };
 		BB5A2C222B925CD300040209 /* TextViewWithPlaceholder.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TextViewWithPlaceholder.m; sourceTree = "<group>"; };
 		BB5A4D8F28FC5C2B003A733C /* NSBezierPath+CGPath.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSBezierPath+CGPath.h"; sourceTree = "<group>"; };
 		BB5A4D9028FC5C2B003A733C /* NSBezierPath+CGPath.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSBezierPath+CGPath.m"; sourceTree = "<group>"; };
+		BB5DC1ED2EFF098A00CCA2D6 /* TotalIdentificationController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TotalIdentificationController.h; sourceTree = "<group>"; };
+		BB5DC1EE2EFF098A00CCA2D6 /* TotalIdentificationController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TotalIdentificationController.m; sourceTree = "<group>"; };
+		BB5DC1F02F00357000CCA2D6 /* NSString+Sanitized.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSString+Sanitized.h"; sourceTree = "<group>"; };
+		BB5DC1F12F00357000CCA2D6 /* NSString+Sanitized.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSString+Sanitized.m"; sourceTree = "<group>"; };
+		BB5DC1F32F00A52100CCA2D6 /* ActivityViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ActivityViewController.h; sourceTree = "<group>"; };
+		BB5DC1F42F00A52100CCA2D6 /* ActivityViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ActivityViewController.m; sourceTree = "<group>"; };
 		BB694CA12E6BB09C00818B01 /* BloomyText.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BloomyText.h; sourceTree = "<group>"; };
 		BB694CA22E6BB09C00818B01 /* BloomyText.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = BloomyText.m; sourceTree = "<group>"; };
 		BB69948D2EEB316100242456 /* MediaMetaData+ChapterForge.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = "MediaMetaData+ChapterForge.hpp"; sourceTree = "<group>"; };
@@ -436,6 +448,10 @@
 				BB7C626B2932E1540019AF25 /* ControlPanelController.m */,
 				BBC43B6E28D28CDD00CD1080 /* InfoPanel.h */,
 				BBC43B6F28D28CDD00CD1080 /* InfoPanel.m */,
+				BB5DC1F32F00A52100CCA2D6 /* ActivityViewController.h */,
+				BB5DC1F42F00A52100CCA2D6 /* ActivityViewController.m */,
+				BB53ACTN2F10A52100CCA2D6 /* ActivityManager.h */,
+				BB53ACTO2F10A52100CCA2D6 /* ActivityManager.m */,
 			);
 			path = "Window & ViewControllers";
 			sourceTree = "<group>";
@@ -477,6 +493,8 @@
 				BBBBF9502EF632C6001035DA /* MetaController.m */,
 				BBB616922EF83D7A002EA388 /* ImageController.h */,
 				BBB616932EF83D7A002EA388 /* ImageController.m */,
+				BB5DC1F02F00357000CCA2D6 /* NSString+Sanitized.h */,
+				BB5DC1F12F00357000CCA2D6 /* NSString+Sanitized.m */,
 			);
 			path = Metadata;
 			sourceTree = "<group>";
@@ -601,6 +619,8 @@
 				BB46D4B12D99AD5E0090CD56 /* NSImage+Average.m */,
 				BB911EE52ED231B600B2032B /* TemporaryFiles.h */,
 				BB911EE62ED231B600B2032B /* TemporaryFiles.m */,
+				BB5DC1ED2EFF098A00CCA2D6 /* TotalIdentificationController.h */,
+				BB5DC1EE2EFF098A00CCA2D6 /* TotalIdentificationController.m */,
 			);
 			path = PlayEm;
 			sourceTree = "<group>";
@@ -801,13 +821,17 @@
 				BB0A62C62E88331600BAF444 /* TrackList.m in Sources */,
 				BBC2AF4B2B8974C20077EB5E /* MediaMetaData+TagLib.m in Sources */,
 				BB8197702B7980C50025B860 /* ConcurrentAccessDictionary.m in Sources */,
+				BB5DC1F52F00A52100CCA2D6 /* ActivityViewController.m in Sources */,
+				BB53ACTP2F10A52100CCA2D6 /* ActivityManager.m in Sources */,
 				BB097A0C2921B1E500D33E44 /* ScrollingTextView.m in Sources */,
 				BB6994942EEB370500242456 /* TrackList+ChapterForge.mm in Sources */,
 				BBBBF9422EF1BAA1001035DA /* TimedMediaMetaData+ChapterForge.hpp in Sources */,
+				BB5DC1F22F00357000CCA2D6 /* NSString+Sanitized.m in Sources */,
 				BB5A2C232B925CD300040209 /* TextViewWithPlaceholder.m in Sources */,
 				BBD24D622432948800DC2A81 /* AppDelegate.m in Sources */,
 				BBAD7D55262B973C00089ACC /* ScopeView.m in Sources */,
 				BB51C1E02E59C1990049355F /* WaveScrollView.m in Sources */,
+				BB5DC1EF2EFF098A00CCA2D6 /* TotalIdentificationController.m in Sources */,
 				BB0D5281244CEE22007C909F /* VisualSample.m in Sources */,
 				BB46D4AF2D98715B0090CD56 /* NSImage+Resize.m in Sources */,
 				BBDA2FFE2A7FCEEC0084E2B6 /* BeatTrackedSample.m in Sources */,

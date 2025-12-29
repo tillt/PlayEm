@@ -90,6 +90,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (IBAction)showPlaylist:(id)sender;
 - (IBAction)showAbout:(id)sender;
 - (IBAction)showIdentifier:(id)sender;
+- (IBAction)showActivity:(id)sender;
+- (IBAction)startTrackDetection:(id)sender;
 
 - (IBAction)playNext:(id)sender;
 - (IBAction)playPrevious:(id)sender;

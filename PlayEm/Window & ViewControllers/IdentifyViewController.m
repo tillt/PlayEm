@@ -16,6 +16,7 @@
 #import "IdentificationCoverView.h"
 #import "../NSImage+Resize.h"
 #import "../NSImage+Average.h"
+#import "ImageController.h"
 
 #import "TimedMediaMetaData.h"
 #import "MediaMetaData.h"
@@ -41,9 +42,7 @@ const CGFloat kTableRowHeight = 52.0f;
 @property (strong, nonatomic) IdentificationCoverView* identificationCoverView;
 
 @property (strong, nonatomic) dispatch_queue_t identifyQueue;
-@property (strong, nonatomic) dispatch_queue_t imageQueue;
 
-@property (strong, nonatomic) NSURL* identifySampleLocation;
 @property (strong, nonatomic) NSMutableArray<TimedMediaMetaData*>* identifieds;
 
 @property (strong, nonatomic) NSTableView* tableView;
@@ -63,10 +62,27 @@ const CGFloat kTableRowHeight = 52.0f;
 @property (assign, nonatomic) CGFloat artistFontSize;
 @property (assign, nonatomic) CGFloat genreFontSize;
 
+@property (strong, nonatomic) NSURL* sampleLocation;
+
 @end
 
 
 @implementation IdentifyViewController
+
++ (NSTextField*)textFieldWithFrame:(NSRect)frame font:(NSFont*)font color:(NSColor*)color
+{
+    NSTextField* title = [[NSTextField alloc] initWithFrame:frame];
+    title.editable = NO;
+    title.font = font;
+    title.drawsBackground = NO;
+    title.bordered = NO;
+    title.usesSingleLineMode = YES;
+    title.cell.truncatesLastVisibleLine = YES;
+    title.cell.lineBreakMode = NSLineBreakByTruncatingTail;
+    title.alignment = NSTextAlignmentLeft;
+    title.textColor = color;
+    return title;
+}
 
 - (id)initWithAudioController:(AudioController*)audioController delegate:(id<IdentifyViewControllerDelegate>)delegate
 {
@@ -76,8 +92,8 @@ const CGFloat kTableRowHeight = 52.0f;
         _audioController = audioController;
         dispatch_queue_attr_t attr = dispatch_queue_attr_make_with_qos_class(DISPATCH_QUEUE_SERIAL, QOS_CLASS_USER_INITIATED, 0);
         _identifyQueue = dispatch_queue_create("PlayEm.IdentifyQueue", attr);
-        _imageQueue = dispatch_queue_create("PlayEm.IdentifyImageQueue", attr);
         _identifieds = [NSMutableArray array];
+        _sampleLocation = nil;
 
         _titleFont = [[Defaults sharedDefaults] largeFont];
         _titleFontSize = [[Defaults sharedDefaults] largeFontSize];
@@ -94,9 +110,10 @@ const CGFloat kTableRowHeight = 52.0f;
     return self;
 }
 
-- (void)viewDidLoad {
+- (void)viewDidLoad
+{
     [super viewDidLoad];
-    NSLog(@"viewDidLoad");
+
     self.view.wantsLayer = YES;
     self.view.layer.masksToBounds = NO;
 }
@@ -104,31 +121,42 @@ const CGFloat kTableRowHeight = 52.0f;
 - (void)AudioControllerPlaybackStateChange:(NSNotification*)notification
 {
     NSString* state = notification.object;
-    if ([state isEqualToString:kPlaybackStatePaused] ||
-        [state isEqualToString:kPlaybackStateEnded]) {
-        // By closing the window as soon as the playback ends or gets paused we avoid
-        // having to re-init the shazam stream. We assume its ok for the user.
-        [self.view.window close];
+    BOOL playing = [state isEqualToString:kPlaybackStatePlaying];
+    // By closing the window as soon as the playback ends or gets paused we avoid
+    // having to re-init the shazam stream. We assume its ok for the user.
+    if (!playing) {
+        [_identificationCoverView pauseAnimating];
     }
+    [_identificationCoverView setStill:!playing animated:YES];
+    if (playing) {
+        [_identificationCoverView startAnimating];
+        [self shazam:self];
+    }
+}
+
+- (void)setCurrentIdentificationSource:(NSURL*)url
+{
+    if ([_sampleLocation isEqualTo:url]) {
+        return;
+    }
+    _identifieds = [NSMutableArray array];
+    _sampleLocation = url;
+    [self.tableView reloadData];
+    [self updateCoverData:nil animated:YES];
 }
 
 - (void)viewWillAppear
 {
-    NSLog(@"IdentifyController.view becoming visible");
-        
-    if (![_identifySampleLocation isEqualTo:_audioController.sample.source.url]) {
-        _identifieds = [NSMutableArray array];
-        [self.tableView reloadData];
-    }
-
+    [self updateCoverData:nil animated:NO];
+    
+    [_identificationCoverView setStill:!_audioController.playing animated:NO];
     [_identificationCoverView startAnimating];
-    [self updateCover:nil animated:NO];
-        
-    [self shazam:self];
+    
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(AudioControllerPlaybackStateChange:)
                                                  name:kAudioControllerChangedPlaybackStateNotification
                                                object:nil];
+    [self shazam:self];
 }
 
 - (void)viewDidDisappear
@@ -226,18 +254,18 @@ const CGFloat kTableRowHeight = 52.0f;
     
     [_effectBelowList addSubview:sv];
     
+    // This better be square
     _identificationCoverView = [[IdentificationCoverView alloc] initWithFrame:NSMakeRect(0,
                                                                                          0,
                                                                                          kCoverViewWidth + kBorderWidth + kBorderWidth,
-                                                                                         kPopoverHeight+30.0)
-                                                               contentsInsets:NSEdgeInsetsMake(kBorderWidth,kBorderWidth, 30.0,kBorderWidth)
+                                                                                         kPopoverHeight+20.0)
+                                                               contentsInsets:NSEdgeInsetsMake(kBorderWidth,kBorderWidth, 20.0,kBorderWidth)
                                                                         style:CoverViewStyleGlowBehindCoverAtLaser
                                 | CoverViewStyleSepiaForSecondImageLayer
                                 | CoverViewStylePumpingToTheBeat
                                 | CoverViewStyleRotatingLaser];
 
     [self.view addSubview:_identificationCoverView];
-    
     [self.view addSubview:_effectBelowList];
 }
 
@@ -407,8 +435,6 @@ const CGFloat kTableRowHeight = 52.0f;
     
     SampleFormat sampleFormat = _audioController.sample.sampleFormat;
 
-    _identifySampleLocation = _audioController.sample.source.url;
-
     AVAudioFrameCount matchWindowFrameCount = kPlaybackBufferFrames;
     AVAudioChannelLayout* layout = [[AVAudioChannelLayout alloc] initWithLayoutTag:kAudioChannelLayoutTag_Mono];
     AVAudioFormat* format = [[AVAudioFormat alloc] initWithCommonFormat:AVAudioPCMFormatFloat32
@@ -418,16 +444,21 @@ const CGFloat kTableRowHeight = 52.0f;
     
     _stream = [[AVAudioPCMBuffer alloc] initWithPCMFormat:format frameCapacity:matchWindowFrameCount];
     
-    //#define DEBUG_TAPPING 1
-    
 #ifdef DEBUG_TAPPING
     FILE* fp = fopen("/tmp/debug_tap.out", "wb");
 #endif
+    
+    __weak IdentifyViewController* weakSelf = self;
+    
     [_audioController startTapping:^(unsigned long long offset, float* input, unsigned int frames) {
-        dispatch_async(self.identifyQueue, ^{
-            [self.stream setFrameLength:frames];
+        if (weakSelf == nil) {
+            NSLog(@"weak reference gone");
+            return;
+        }
+        dispatch_async(weakSelf.identifyQueue, ^{
+            [weakSelf.stream setFrameLength:frames];
             // TODO: Yikes, this is a total nono -- we are writing to a read-only pointer!
-            float* outputBuffer = self.stream.floatChannelData[0];
+            float* outputBuffer = weakSelf.stream.floatChannelData[0];
             for (int i = 0; i < frames; i++) {
                 float s = 0.0;
                 for (int channel = 0; channel < sampleFormat.channels; channel++) {
@@ -439,46 +470,64 @@ const CGFloat kTableRowHeight = 52.0f;
 #ifdef DEBUG_TAPPING
             fwrite(outputBuffer, sizeof(float), frames, fp);
 #endif
-            self.sessionFrame = offset;
-            [self.session matchStreamingBuffer:self.stream
-                                        atTime:[AVAudioTime timeWithSampleTime:offset atRate:sampleFormat.rate]];
+            weakSelf.sessionFrame = offset;
+
+            AVAudioTime* time = [AVAudioTime timeWithSampleTime:offset atRate:sampleFormat.rate];
+            [weakSelf.session matchStreamingBuffer:self.stream atTime:time];
         });
     }];
 }
 
 #pragma mark - Shazam session delegate
 
-- (void)updateCover:(NSImage* _Nullable)image animated:(BOOL)animated
+- (void)updateCoverData:(NSData* _Nullable)data animated:(BOOL)animated
 {
-    [self->_identificationCoverView setImage:[NSImage resizedImage:image size:self->_identificationCoverView.frame.size]
+    [self->_identificationCoverView setImage:[NSImage resizedImageWithData:data
+                                                                      size:self->_identificationCoverView.frame.size]
                                     animated:animated];
 }
 
 - (void)session:(SHSession *)session didFindMatch:(SHMatch *)match
 {
-    dispatch_async(dispatch_get_main_queue(), ^{
-        if (match.mediaItems[0].artworkURL != nil && ![match.mediaItems[0].artworkURL.absoluteString isEqualToString:self.imageURL.absoluteString]) {
-            NSLog(@"need to re/load the image as the displayed URL %@ wouldnt match the requested URL %@", self.imageURL.absoluteString, match.mediaItems[0].artworkURL.absoluteString);
-            
-            TimedMediaMetaData* item = [[TimedMediaMetaData alloc] initWithMatchedMediaItem:match.mediaItems[0] frame:[NSNumber numberWithUnsignedLongLong:self.sessionFrame]];
+    __weak IdentifyViewController* weakSelf = self;
 
-            NSLog(@"item frame: %@", item.frame);
-            self.imageURL = match.mediaItems[0].artworkURL;
+    dispatch_async(dispatch_get_main_queue(), ^{
+        IdentifyViewController* strongSelf = weakSelf;
+
+        if (match.mediaItems[0].artworkURL != nil &&
+            ![match.mediaItems[0].artworkURL.absoluteString isEqualToString:weakSelf.imageURL.absoluteString]) {
+            NSLog(@"need to re/load the image as the displayed URL %@ wouldnt match the requested URL %@", strongSelf.imageURL.absoluteString, match.mediaItems[0].artworkURL.absoluteString);
             
-            dispatch_async(self.imageQueue, ^{
-                NSImage* image = [[NSImage alloc] initWithContentsOfURL:match.mediaItems[0].artworkURL];
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    [item.meta setArtworkFromImage:image];
-                    [self updateCover:image animated:YES];
-                    [self->_identifieds insertObject:item atIndex:0];
-                    [self->_tableView beginUpdates];
-                    NSIndexSet* indexSet = [NSIndexSet indexSetWithIndex:0];
-                    [self->_tableView insertRowsAtIndexes:indexSet
-                                            withAnimation:NSTableViewAnimationSlideRight];
-                    //[self->_tableView selectRowIndexes:indexSet byExtendingSelection:NO];
-                    [self->_tableView endUpdates];
-                });
-            });
+            TimedMediaMetaData* track = [[TimedMediaMetaData alloc] initWithMatchedMediaItem:match.mediaItems[0]
+                                                                                      frame:[NSNumber numberWithUnsignedLongLong:weakSelf.sessionFrame]];
+
+            NSLog(@"track starts at frame: %@", track.frame);
+
+            
+            void (^continuation)(void) = ^(void) {
+                IdentifyViewController* strongSelf = weakSelf;
+
+                strongSelf.imageURL = match.mediaItems[0].artworkURL;
+                [strongSelf updateCoverData:track.meta.artwork animated:YES];
+
+                [strongSelf->_identifieds insertObject:track atIndex:0];
+                [strongSelf->_tableView beginUpdates];
+                NSIndexSet* indexSet = [NSIndexSet indexSetWithIndex:0];
+                [strongSelf->_tableView insertRowsAtIndexes:indexSet
+                                        withAnimation:NSTableViewAnimationSlideRight];
+                [strongSelf->_tableView endUpdates];
+            };
+            
+            if (track.meta.artwork != nil) {
+                continuation();
+            } else {
+                if (track.meta.artworkLocation != nil) {
+                    [[ImageController shared] resolveDataForURL:track.meta.artworkLocation callback:^(NSData* data){
+                        track.meta.artwork = data;
+                        continuation();
+                    }];
+                }
+            }
         }
     });
 }
@@ -500,7 +549,7 @@ const CGFloat kTableRowHeight = 52.0f;
         TimedMediaMetaData* item = [TimedMediaMetaData unknownTrackAtFrame:[NSNumber numberWithUnsignedLongLong:self.sessionFrame]];
 
         NSLog(@"item frame: %@", item.frame);
-        [self updateCover:nil animated:YES];
+        [self updateCoverData:nil animated:YES];
 
         [self->_identifieds insertObject:item atIndex:0];
 
@@ -519,22 +568,7 @@ const CGFloat kTableRowHeight = 52.0f;
     return NO;
 }
 
-+ (NSTextField*)textFieldWithFrame:(NSRect)frame font:(NSFont*)font color:(NSColor*)color
-{
-    NSTextField* title = [[NSTextField alloc] initWithFrame:frame];
-    title.editable = NO;
-    title.font = font;
-    title.drawsBackground = NO;
-    title.bordered = NO;
-    title.usesSingleLineMode = YES;
-    title.cell.truncatesLastVisibleLine = YES;
-    title.cell.lineBreakMode = NSLineBreakByTruncatingTail;
-    title.alignment = NSTextAlignmentLeft;
-    title.textColor = color;
-    return title;
-}
-
-- (NSView*)tableView:(NSTableView*)tableView viewForTableColumn:(NSTableColumn*)tableColumn row:(NSInteger)row
+- (nullable NSView*)tableView:(NSTableView*)tableView viewForTableColumn:(nullable NSTableColumn*)tableColumn row:(NSInteger)row
 {
     NSLog(@"%s -- column:%@ row:%ld", __PRETTY_FUNCTION__, [tableColumn description], row);
     NSView* result = [tableView makeViewWithIdentifier:tableColumn.identifier owner:self];
@@ -545,6 +579,8 @@ const CGFloat kTableRowHeight = 52.0f;
 
     
     assert(_identifieds.count > 0);
+    
+    TimedMediaMetaData* track = _identifieds[row];
     
     const NSInteger tag = (_identifieds.count - 1) - row;
     if ([tableColumn.identifier isEqualToString:kCoverColumnIdenfifier]) {
@@ -558,8 +594,27 @@ const CGFloat kTableRowHeight = 52.0f;
         } else {
             imageView = (NSImageView*)result;
         }
+        imageView.identifier = tableColumn.identifier;
+
         imageView.image = [NSImage resizedImageWithData:_identifieds[row].meta.artworkWithDefault
-                                           size:NSMakeSize(kArtworkSize, kArtworkSize)];;
+                                           size:NSMakeSize(kArtworkSize, kArtworkSize)];
+        
+        __weak NSImageView *weakView = imageView;
+        __weak NSTableView *weakTable = tableView;
+
+        if (_identifieds[row].meta.artwork != nil) {
+            [[ImageController shared] imageForData:track.meta.artwork
+                                               key:track.meta.artworkHash
+                                              size:imageView.frame.size.width
+                                        completion:^(NSImage *image) {
+                if (image == nil || weakView == nil || weakTable == nil) {
+                    return;
+                }
+                if ([weakTable rowForView:weakView] == row) {
+                    weakView.image = image;
+                }
+            }];
+        }
     } else if ([tableColumn.identifier isEqualToString:kButtonColumnIdenfifier]) {
         NSButton* menuButton = nil;
         if (result == nil) {
@@ -584,6 +639,8 @@ const CGFloat kTableRowHeight = 52.0f;
             NSArray<NSButton*>* subviews = [result subviews];
             menuButton = subviews[0];
         }
+        result.identifier = tableColumn.identifier;
+
         menuButton.tag = tag;
     } else if ([tableColumn.identifier isEqualToString:kTitleColumnIdenfifier]) {
         NSTextField* title = nil;
@@ -626,11 +683,11 @@ const CGFloat kTableRowHeight = 52.0f;
             artist = subviews[1];
             genre = subviews[2];
         }
-        [title setStringValue:_identifieds[row].meta.title != nil ? _identifieds[row].meta.title : @""];
-        [artist setStringValue:_identifieds[row].meta.artist != nil ? _identifieds[row].meta.artist : @""];
-        [genre setStringValue:_identifieds[row].meta.genre != nil ? _identifieds[row].meta.genre : @""];
+        result.identifier = tableColumn.identifier;
+        [title setStringValue:track.meta.title != nil ? track.meta.title : @""];
+        [artist setStringValue:track.meta.artist != nil ? track.meta.artist : @""];
+        [genre setStringValue:track.meta.genre != nil ? track.meta.genre : @""];
     }
-    result.identifier = tableColumn.identifier;
     
     return result;
 }

@@ -17,6 +17,7 @@
 #import "MediaMetaData.h"
 #import "BeatEvent.h"
 #import "../Views/SymbolButton.h"
+#import "NSImage+Resize.h"
 
 NSString * const kBPMDefault = @"";
 NSString * const kKeyDefault = @"";
@@ -53,7 +54,7 @@ extern NSString * const kPlaybackStatePlaying;
         _durationUnitTime = YES;
         _delegate = delegate;
         [[NSNotificationCenter defaultCenter] addObserver:self
-                                                 selector:@selector(audioControllerChangedPlaybackState:)
+                                                 selector:@selector(AudioControllerPlaybackStateChange:)
                                                      name:kAudioControllerChangedPlaybackStateNotification
                                                    object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self
@@ -64,18 +65,18 @@ extern NSString * const kPlaybackStatePlaying;
     return self;
 }
 
-- (void)audioControllerChangedPlaybackState:(NSNotification*)notification
+- (void)AudioControllerPlaybackStateChange:(NSNotification*)notification
 {
     NSString* state = notification.object;
-    if ([state isEqualToString:kPlaybackStateEnded]) {
-        [_coverButton stopAnimating];
-        NSLog(@"audioControllerChangedPlaybackState now stopped");
-    } else if ([state isEqualToString:kPlaybackStatePaused]) {
+    BOOL playing = [state isEqualToString:kPlaybackStatePlaying];
+    // By closing the window as soon as the playback ends or gets paused we avoid
+    // having to re-init the shazam stream. We assume its ok for the user.
+    if (!playing) {
         [_coverButton pauseAnimating];
-        NSLog(@"audioControllerChangedPlaybackState now paused");
-    } else if ([state isEqualToString:kPlaybackStatePlaying]) {
+    }
+    [_coverButton setStill:!playing animated:YES];
+    if (playing) {
         [_coverButton startAnimating];
-        NSLog(@"audioControllerChangedPlaybackState now playing");
     }
 }
 
@@ -508,7 +509,7 @@ extern NSString * const kPlaybackStatePlaying;
 
 - (void)setMeta:(MediaMetaData*)meta
 {
-    _coverButton.image = [meta imageFromArtwork];
+    _coverButton.image = [NSImage resizedImageWithData:[meta artworkWithDefault] size:_coverButton.bounds.size];
     _titleView.text = meta.title.length > 0 ? meta.title : @"unknown";
     _albumArtistView.text = (meta.album.length > 0 && meta.artist.length > 0) ?
         [NSString stringWithFormat:@"%@ — %@", meta.artist, meta.album] :

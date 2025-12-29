@@ -19,14 +19,13 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 
-@interface PlaylistController : NSResponder <NSTableViewDelegate, NSTableViewDataSource>
+@interface PlaylistController : NSViewController <NSTableViewDelegate, NSTableViewDataSource>
 
 @property (nonatomic, weak) id <PlaylistControllerDelegate> delegate;
 @property (nonatomic, strong) MediaMetaData* current;
 @property (nonatomic, assign) BOOL playing;
 
-- (id)initWithPlaylistTable:(NSTableView*)table
-                   delegate:(id<PlaylistControllerDelegate>)delegate;
+- (id)init;
 
 - (void)addLater:(MediaMetaData*)item;
 - (void)addNext:(MediaMetaData*)item;

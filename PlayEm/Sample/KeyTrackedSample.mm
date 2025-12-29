@@ -14,6 +14,8 @@
 #include <keyfinder/keyfinder.h>
 #include <keyfinder/audiodata.h>
 
+#import "ActivityManager.h"
+
 // Anything beyond 30mins playtime is not of interest for chroma tracking, I declare hereby.
 const double kBeatSampleDurationThreshold = 30.0 * 60.0;
 
@@ -91,13 +93,15 @@ const double kBeatSampleDurationThreshold = 30.0 * 60.0;
 - (BOOL)trackKey
 {
     NSLog(@"key tracking...");
-    
+
     if (_sample.duration > kBeatSampleDurationThreshold) {
         NSLog(@"skipping key tracking - sample is too long to get any value out.");
         _key = @"";
         _hint = @"";
         return YES;
     }
+
+    ActivityToken* token = [[ActivityManager shared] beginActivityWithTitle:@"Detecting Key" detail:@"" cancellable:NO cancelHandler:nil];
 
     const int channels = self->_sample.sampleFormat.channels;
 
@@ -113,8 +117,12 @@ const double kBeatSampleDurationThreshold = 30.0 * 60.0;
     unsigned long long sourceWindowFrameOffset = 0LL;
     
     while (sourceWindowFrameOffset < self->_sample.frames) {
+        double progress = (double)sourceWindowFrameOffset / self->_sample.frames;
+        [[ActivityManager shared] updateActivity:token progress:progress detail:@"detecting key"];
+
         if (dispatch_block_testcancel(self.queueOperation) != 0) {
             NSLog(@"aborted key detection");
+            [[ActivityManager shared] completeActivity:token];
             return NO;
         }
         unsigned long long sourceWindowFrameCount = MIN(self->_windowWidth * 1024,
@@ -126,6 +134,7 @@ const double kBeatSampleDurationThreshold = 30.0 * 60.0;
         unsigned long int sourceFrameIndex = 0;
         while(sourceFrameIndex < received) {
             if (dispatch_block_testcancel(self.queueOperation) != 0) {
+                [[ActivityManager shared] completeActivity:token];
                 NSLog(@"aborted key detection");
                 return NO;
             }
@@ -185,7 +194,10 @@ const double kBeatSampleDurationThreshold = 30.0 * 60.0;
     NSLog(@"key %d", key);
     [self cleanupTracking];
 
+    [[ActivityManager shared] updateActivity:token progress:1.0 detail:@"key detection done"];
+
     NSLog(@"...key tracking done");
+    [[ActivityManager shared] completeActivity:token];
 
     return YES;
 }

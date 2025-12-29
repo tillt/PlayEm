@@ -13,6 +13,7 @@
 #import "ConstantBeatRefiner.h"
 #import "../Audio/AudioProcessing.h"
 #import "EnergyDetector.h"
+#import "ActivityManager.h"
 
 #define BEATS_BY_AUBIO
 
@@ -203,9 +204,12 @@ void beatsContextReset(BeatsParserContext* context)
     context->eventIndex = 0;
 }
 
-- (BOOL)trackBeats
+- (BOOL)trackBeatsWithToken:(ActivityToken*)token
 {
     NSLog(@"beats tracking...");
+    
+    [[ActivityManager shared] updateActivity:token progress:0.0 detail:@"initializing beat detection"];
+
     [self setupTracking];
     
     float* data[self->_sample.sampleFormat.channels];
@@ -226,6 +230,9 @@ void beatsContextReset(BeatsParserContext* context)
     // Here we go, all the way through our entire sample.
     unsigned long long sourceWindowFrameOffset = 0LL;
     while (sourceWindowFrameOffset < self->_sample.frames) {
+        double progress = (double)sourceWindowFrameOffset / (double)self->_sample.frames;
+        [[ActivityManager shared] updateActivity:token progress:progress detail:@"detecting beats"];
+
         if (dispatch_block_testcancel(self.queueOperation) != 0) {
             NSLog(@"aborted beat detection");
             [self cleanupTracking];
@@ -303,7 +310,9 @@ void beatsContextReset(BeatsParserContext* context)
     
     NSLog(@"initial silence ends at %lld frames after start of sample", _initialSilenceEndsAtFrame);
     NSLog(@"trailing silence starts %lld frames before end of sample", _sample.frames - _trailingSilenceStartsAtFrame);
-    
+
+    [[ActivityManager shared] updateActivity:token progress:1.0 detail:@"refining beats"];
+
     // Generate a constant grid pattern out of the detected beats.
     NSData* constantRegions = [self retrieveConstantRegions];
     _constantBeats = [self makeConstantBeats:constantRegions];
@@ -311,7 +320,8 @@ void beatsContextReset(BeatsParserContext* context)
     [self measureEnergyAtBeats];
     
     NSLog(@"...beats tracking done - total beats: %lld", [self beatCount]);
-    
+    [[ActivityManager shared] updateActivity:token progress:1.0 detail:@"beats tracked"];
+
     return YES;
 }
 
@@ -386,12 +396,14 @@ void beatsContextReset(BeatsParserContext* context)
     __block BOOL done = NO;
     
     BeatTrackedSample* __weak weakSelf = self;
-    
+    ActivityToken* beatsToken = [[ActivityManager shared] beginActivityWithTitle:@"Beat Detection" detail:@"" cancellable:NO cancelHandler:nil];
+
     _queueOperation = dispatch_block_create(DISPATCH_BLOCK_NO_QOS_CLASS, ^{
-        done = [weakSelf trackBeats];
+        done = [weakSelf trackBeatsWithToken:beatsToken];
     });
     dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0), _queueOperation);
     dispatch_block_notify(_queueOperation, dispatch_get_main_queue(), ^{
+        [[ActivityManager shared] completeActivity:beatsToken];
         self->_ready = done;
         callback(done);
     });

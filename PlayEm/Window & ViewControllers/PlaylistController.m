@@ -11,10 +11,13 @@
 #import "../NSImage+Resize.h"
 #import "ImageController.h"
 
+
+static const NSAutoresizingMaskOptions kViewFullySizeable = NSViewHeightSizable | NSViewWidthSizable;
+
 @interface PlaylistController()
 @property (nonatomic, strong) NSMutableArray<MediaMetaData*>* list;
 @property (nonatomic, strong) NSMutableArray<MediaMetaData*>* history;
-@property (nonatomic, weak) NSTableView* table;
+@property (nonatomic, strong) NSTableView* table;
 
 - (void)addNext:(MediaMetaData*)item;
 - (void)addLater:(MediaMetaData*)item;
@@ -26,45 +29,59 @@
     BOOL _preventSelection;
 }
 
-- (id)initWithPlaylistTable:(NSTableView*)table 
-                 delegate:(id<PlaylistControllerDelegate>)delegate
+- (id)init
 {
     self = [super init];
     if (self) {
-        _delegate = delegate;
         _list = [NSMutableArray array];
         _history = [NSMutableArray array];
-        _table = table;
-        _table.dataSource = self;
-        _table.delegate = self;
-        _table.doubleAction = @selector(playlistDoubleClickedRow:);
-        _table.menu = [self menu];
         _preventSelection = NO;
-        
-        const NSAutoresizingMaskOptions kViewFullySizeable = NSViewHeightSizable | NSViewWidthSizable;
-
-        _table.backgroundColor = [NSColor clearColor];
-        _table.autoresizingMask = kViewFullySizeable;
-        _table.headerView = nil;
-        _table.rowHeight = 52.0;
-        _table.allowsMultipleSelection = YES;
-        _table.intercellSpacing = NSMakeSize(0.0, 0.0);
-
-        NSTableColumn* col = [[NSTableColumn alloc] init];
-        col.title = @"";
-        col.identifier = @"CoverColumn";
-        col.width = _table.rowHeight;
-        [_table addTableColumn:col];
-
-        col = [[NSTableColumn alloc] init];
-        col.title = @"";
-        col.identifier = @"TitleColumn";
-        col.width = _table.enclosingScrollView.bounds.size.width - _table.rowHeight;
-        [_table addTableColumn:col];
     }
     return self;
 }
 
+- (void)loadView
+{
+    NSLog(@"-[PlaylistController loadView]");
+    self.view = [[NSView alloc] initWithFrame:NSZeroRect];
+    self.view.autoresizingMask = NSViewWidthSizable | NSViewHeightSizable;
+
+    NSScrollView* sv = [[NSScrollView alloc] initWithFrame:self.view.bounds];
+    sv.hasVerticalScroller = YES;
+    sv.autoresizingMask = kViewFullySizeable;
+    sv.drawsBackground = NO;
+
+    [self.view addSubview:sv];
+
+    _table = [[NSTableView alloc] initWithFrame:sv.bounds];
+
+    _table.dataSource = self;
+    _table.delegate = self;
+    _table.doubleAction = @selector(playlistDoubleClickedRow:);
+    _table.menu = [self menu];
+    _preventSelection = NO;
+    
+    _table.backgroundColor = [NSColor clearColor];
+    _table.autoresizingMask = kViewFullySizeable;
+    _table.headerView = nil;
+    _table.rowHeight = 52.0;
+    _table.allowsMultipleSelection = YES;
+    _table.intercellSpacing = NSMakeSize(0.0, 0.0);
+
+    NSTableColumn* col = [[NSTableColumn alloc] init];
+    col.title = @"";
+    col.identifier = @"CoverColumn";
+    col.width = _table.rowHeight;
+    [_table addTableColumn:col];
+
+    col = [[NSTableColumn alloc] init];
+    col.title = @"";
+    col.identifier = @"TitleColumn";
+    col.width = _table.enclosingScrollView.bounds.size.width - _table.rowHeight;
+    [_table addTableColumn:col];
+    
+    [sv addSubview:_table];
+}
 - (void)writeToDefaults
 {
     NSUserDefaults* userDefaults = [NSUserDefaults standardUserDefaults];
@@ -257,7 +274,7 @@
     return menu;
 }
 
-- (NSView*)tableView:(NSTableView*)tableView viewForTableColumn:(NSTableColumn *)tableColumn row:(NSInteger)row
+- (nullable NSView*)tableView:(NSTableView*)tableView viewForTableColumn:(nullable NSTableColumn *)tableColumn row:(NSInteger)row
 {
     const int kTitleViewTag = 1;
     const int kArtistViewTag = 2;
@@ -340,8 +357,8 @@
         }
         // Placeholder initially - we may need to resolve the data (unlikely for a tracklist,
         // very likely for a playlist).
-        iv.image = [NSImage resizedImage:[NSImage imageNamed:@"UnknownSong"]
-                                    size:iv.frame.size];
+        iv.image = [NSImage resizedImageWithData:[MediaMetaData defaultArtworkData]
+                                            size:iv.frame.size];
 
         __weak NSView *weakView = result;
         __weak NSTableView *weakTable = tableView;

@@ -41,8 +41,10 @@
 #import "MusicAuthenticationController.h"
 #import "EnergyDetector.h"
 #import "SymbolButton.h"
-
+#import "TotalIdentificationController.h"
 #import "WaveViewController.h"
+#import "ActivityViewController.h"
+#import "ActivityManager.h"
 
 @class BeatLayerDelegate;
 @class WaveLayerDelegate;
@@ -132,13 +134,17 @@ os_log_t pointsOfInterest;
 @property (strong, nonatomic) ControlPanelController* controlPanelController;
 @property (strong, nonatomic) MusicAuthenticationController* authenticator;
 
+@property (strong, nonatomic) TotalIdentificationController* totalIdentificationController;
+
 @property (strong, nonatomic) NSPopover* popOver;
 
 @property (strong, nonatomic) NSWindowController* infoWindowController;
 @property (strong, nonatomic) NSWindowController* identifyWindowController;
 @property (strong, nonatomic) NSWindowController* aboutWindowController;
+@property (strong, nonatomic) NSWindowController* activityWindowController;
 
 @property (strong, nonatomic) NSViewController* aboutViewController;
+@property (strong, nonatomic) NSViewController* activityViewController;
 
 @property (strong, nonatomic) WaveViewController* scrollingWaveViewController;
 @property (strong, nonatomic) WaveViewController* totalWaveViewController;
@@ -152,6 +158,7 @@ os_log_t pointsOfInterest;
 
 @property (strong, nonatomic) NSButton* identifyToolbarButton;
 @property (strong, nonatomic) NSButton* playlistToolbarButton;
+@property (strong, nonatomic) NSButton* totalToolbarButton;
 
 @property (strong, nonatomic) NSTableView* songsTable;
 @property (strong, nonatomic) NSTableView* genreTable;
@@ -172,6 +179,8 @@ os_log_t pointsOfInterest;
 
 @property (strong, nonatomic) NSTabViewItem* playlistTabViewItem;
 @property (strong, nonatomic) NSTabViewItem* tracklistTabViewItem;
+
+@property (strong, nonatomic) ActivityToken* decoderToken;
 
 @end
 
@@ -307,7 +316,7 @@ os_log_t pointsOfInterest;
 #pragma mark Toolbar delegate
 
 static const NSString* kPlaylistToolbarIdentifier = @"Playlist";
-static const NSString* kIdentifyToolbarIdentifier = @"Identify";
+static const NSString* kIdentifyToolbarIdentifier = @"Live Identify";
 
 - (NSArray*)toolbarDefaultItemIdentifiers:(NSToolbar*)toolbar
 {
@@ -347,7 +356,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     } else if (itemIdentifier == kIdentifyToolbarIdentifier) {
         item = [[NSToolbarItem alloc] initWithItemIdentifier:itemIdentifier];
         image = [NSImage imageWithSystemSymbolName:@"waveform.and.magnifyingglass"
-                               accessibilityDescription:@"identify"];
+                               accessibilityDescription:@"live identify"];
     } else {
         assert(NO);
     }
@@ -364,7 +373,6 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     } else if (itemIdentifier == kIdentifyToolbarIdentifier) {
         _identifyToolbarButton = button;
         button.action = @selector(showIdentifier:);
-        button.enabled = !_audioController.paused;
     }
 
     [item setView:button];
@@ -640,7 +648,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
         scopeViewHeight = kMinScopeHeight;
     }
     const NSAutoresizingMaskOptions kViewFullySizeable = NSViewHeightSizable | NSViewWidthSizable;
-    
+
     // Status Line.
     _songsCount = [[NSTextField alloc] initWithFrame:NSMakeRect(self.window.contentView.bounds.origin.x,
                                                                 self.window.contentView.bounds.origin.y,
@@ -755,35 +763,20 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     _listsTabView.tabViewType = NSNoTabsNoBorder;
     _listsTabView.autoresizingMask = kViewFullySizeable;
 
-    NSScrollView* sv = [[NSScrollView alloc] initWithFrame:_listsTabView.bounds];
-//    sv.backgroundColor = [NSColor blueColor];
-    sv.hasVerticalScroller = YES;
-    sv.autoresizingMask = kViewFullySizeable;
-    sv.drawsBackground = NO;
-
     // Playlist
-    NSTableView* playlistTable = [[NSTableView alloc] initWithFrame:NSZeroRect];
-    NSViewController* vc = [NSViewController new];
-    _playlistTabViewItem = [NSTabViewItem tabViewItemWithViewController:vc];
+    _playlist = [PlaylistController new];
+    _playlist.delegate = self;
+    _playlistTabViewItem = [NSTabViewItem tabViewItemWithViewController:_playlist];
     _playlistTabViewItem.view.frame = _listsTabView.bounds;
     [_playlistTabViewItem setLabel:@"playlist"];
-    sv.documentView = playlistTable;
-    [_playlistTabViewItem.view addSubview:sv];
     [_listsTabView addTabViewItem:_playlistTabViewItem];
 
-    sv = [[NSScrollView alloc] initWithFrame:_listsTabView.bounds];
-    sv.hasVerticalScroller = YES;
-    sv.autoresizingMask = kViewFullySizeable;
-    sv.drawsBackground = NO;
-
     // Tracklist
-    NSTableView* tracklistTable = [[NSTableView alloc] initWithFrame:NSZeroRect];
-    vc = [NSViewController new];
-    _tracklistTabViewItem = [NSTabViewItem tabViewItemWithViewController:vc];
+    _tracklist = [TracklistController new];
+    _tracklist.delegate = self;
+    _tracklistTabViewItem = [NSTabViewItem tabViewItemWithViewController:_tracklist];
     _tracklistTabViewItem.view.frame = _listsTabView.bounds;
     [_tracklistTabViewItem setLabel:@"tracklist"];
-    sv.documentView = tracklistTable;
-    [_tracklistTabViewItem.view addSubview:sv];
     [_listsTabView addTabViewItem:_tracklistTabViewItem];
 
     [_effectBelowPlaylist addSubview:_listsTabView];
@@ -852,10 +845,10 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     _browserColumnSplitView.identifier = @"HorizontalSplittersID";
     _browserColumnSplitView.dividerStyle = NSSplitViewDividerStyleThin;
     
-    sv = [[NSScrollView alloc] initWithFrame:NSMakeRect(  0.0,
-                                                          0.0,
-                                                          selectorTableViewWidth,
-                                                          selectorTableViewHeight)];
+    NSScrollView* sv = [[NSScrollView alloc] initWithFrame:NSMakeRect(  0.0,
+                                                                      0.0,
+                                                                      selectorTableViewWidth,
+                                                                      selectorTableViewHeight)];
     sv.hasVerticalScroller = YES;
     sv.autoresizingMask = kViewFullySizeable;
     sv.drawsBackground = NO;
@@ -1202,12 +1195,6 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     _trackLoadProgress.autoresizingMask =  NSViewNotSizable | NSViewMinXMargin | NSViewMaxXMargin| NSViewMinYMargin | NSViewMaxYMargin;
     
     [self.window.contentView addSubview:_trackLoadProgress];
-    
-    _playlist = [[PlaylistController alloc] initWithPlaylistTable:playlistTable
-                                                         delegate:self];
-
-    _tracklist = [[TracklistController alloc] initWithTracklistTable:tracklistTable
-                                                            delegate:self];
 }
 
 - (void)windowDidLoad
@@ -1592,7 +1579,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     [self loadProgress:_controlPanelController.autoplayProgress state:LoadStateStopped value:0.0];
     
     _controlPanelController.playPause.state = active ? NSControlStateValueOn : NSControlStateValueOff;
-    _identifyToolbarButton.enabled = active ? YES : NO;
+    //_identifyToolbarButton.enabled = active ? YES : NO;
 }
 
 - (void)showInfoForMetas:(NSArray*)metas
@@ -1624,6 +1611,31 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
 - (void)listsSwitched:(id)sender
 {
     [_listsTabView selectTabViewItemAtIndex:[sender selectedSegment]];
+}
+
+- (void)showActivity:(id)sender
+{
+    NSPanel* window = nil;
+    
+    if (_activityWindowController == nil) {
+        self.activityWindowController = [NSWindowController new];
+    }
+    if (_activityViewController == nil) {
+        self.activityViewController = [[ActivityViewController alloc] init];
+        [_activityViewController view];
+        NSPanel* panel = [NSPanel windowWithContentViewController:_activityViewController];
+        window = panel;
+        window.styleMask &= ~(NSWindowStyleMaskResizable | NSWindowStyleMaskMiniaturizable);
+        window.titleVisibility = NSWindowTitleHidden;
+        window.movableByWindowBackground = YES;
+        window.titlebarAppearsTransparent = YES;
+        window.level = NSFloatingWindowLevel;
+        _activityWindowController.window = window;
+    } else {
+        window = (NSPanel*)self.activityWindowController.window;
+    }
+    [window setFloatingPanel:YES];
+    [window makeKeyAndOrderFront:nil];
 }
 
 - (void)showPlaylist:(id)sender
@@ -1682,11 +1694,40 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     [window makeKeyAndOrderFront:nil];
 }
 
+- (NSURL*)currentDetectionSourceLocation
+{
+    return _meta.location;
+}
+
 - (void)addTrackToTracklist:(TimedMediaMetaData*)track
 {
     [_tracklist addTrack:track];
     [_totalWaveViewController reloadTracklist];
     [_scrollingWaveViewController reloadTracklist];
+}
+
+- (void)startTrackDetection:(id)sender
+{
+    WaveWindowController* __weak weakSelf = self;
+    
+    _totalIdentificationController = [[TotalIdentificationController alloc] initWithSample:_audioController.sample];
+    _totalIdentificationController.referenceArtist = _meta.artist;
+#ifdef DEBUG
+    _totalIdentificationController.debugScoring = YES;
+#endif
+    [_totalIdentificationController detectTracklistWithCallback:^(BOOL done, NSError* error, NSArray<TimedMediaMetaData*>* tracks){
+        //NSLog(@"%d coming back from the detection: %@", done, tracks);
+        
+        WaveWindowController* strongSelf = weakSelf;
+        if (!done) {
+            NSLog(@"detection failed with: %@", error);
+            return;
+        }
+        
+        [strongSelf->_tracklist addTracks:tracks];
+        [strongSelf->_totalWaveViewController reloadTracklist];
+        [strongSelf->_scrollingWaveViewController reloadTracklist];
+    }];
 }
 
 - (void)showIdentifier:(id)sender
@@ -1726,6 +1767,8 @@ static const NSString* kIdentifyToolbarIdentifier = @"Identify";
     } else {
         window = (NSPanel*)_identifyWindowController.window;
     }
+    [_iffy setCurrentIdentificationSource:_meta.location];
+
     [window setFloatingPanel:YES];
     [window makeKeyAndOrderFront:nil];
 }
@@ -2079,8 +2122,14 @@ typedef struct {
 
     _loaderState = LoaderStateMeta;
     WaveWindowController* __weak weakSelf = self;
+    
+    ActivityToken* token = [[ActivityManager shared] beginActivityWithTitle:@"Parsing Metadata"
+                                                                     detail:@"loading core metadata"
+                                                                cancellable:NO
+                                                              cancelHandler:nil];
 
     [_metaController loadAsyncWithPath:context.path callback:^(MediaMetaData* meta){
+        [[ActivityManager shared] updateActivity:token progress:-1.0 detail:@"metadata loaded"];
         if (meta != nil) {
             LoaderContext c = context;
             c.meta = meta;
@@ -2093,16 +2142,20 @@ typedef struct {
                     if (!completed) {
                         NSLog(@"tracklist recovery failed: %@", error);
                     }
+                    [[ActivityManager shared] updateActivity:token progress:-1.0 detail:@"tracklist loaded"];
                     [weakSelf metaLoadedWithContext:c];
+                    [[ActivityManager shared] completeActivity:token];
                 }];
             } else {
                 [weakSelf metaLoadedWithContext:c];
+                [[ActivityManager shared] completeActivity:token];
             }
         } else {
             NSLog(@"never finished the meta loading");
             LoaderContext c = context;
             c.meta = nil;
             [weakSelf metaLoadedWithContext:c];
+            [[ActivityManager shared] completeActivity:token];
         }
     }];
 }
@@ -2264,7 +2317,7 @@ typedef struct {
     [_audioController decodeAsyncWithSample:_sample callback:^(BOOL decodeFinished){
         if (decodeFinished) {
             [weakSelf sampleDecoded];
-       } else {
+        } else {
             NSLog(@"never finished the decoding");
         }
     }];
@@ -2294,7 +2347,7 @@ typedef struct {
     if (_loaderState == LoaderStateAborted) {
         return;
     }
-    
+
     [self loadProgress:_controlPanelController.beatProgress
                  state:LoadStateInit
                  value:0.0];
@@ -2412,7 +2465,10 @@ typedef struct {
     _controlPanelController.meta = meta;
     // Update browser controller to show current song.
     _browser.currentMeta = meta;
-    
+
+    [_iffy setCurrentIdentificationSource:meta.location];
+
+    // Update the media player item in the info bar (top right).
     [self setNowPlayingWithMeta:meta];
 
     _scrollingWaveViewController.trackList = meta.trackList;

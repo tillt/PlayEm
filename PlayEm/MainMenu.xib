@@ -88,10 +88,16 @@
                                 </connections>
                             </menuItem>
                             <menuItem isSeparatorItem="YES" id="dgq-hZ-iAt"/>
-                            <menuItem title="Export Tracklist..." id="RoW-bR-O5g">
+                            <menuItem title="Detect Tracklist" id="RoW-bR-O5g" userLabel="Detect Tracklist">
                                 <modifierMask key="keyEquivalentModifierMask"/>
                                 <connections>
-                                    <action selector="exportTracklist:" target="-1" id="bYa-gH-ZvC"/>
+                                    <action selector="startTrackDetection:" target="-1" id="RTn-Xo-NNh"/>
+                                </connections>
+                            </menuItem>
+                            <menuItem title="Export Tracklist..." id="tJp-ce-Iox">
+                                <modifierMask key="keyEquivalentModifierMask"/>
+                                <connections>
+                                    <action selector="exportTracklist:" target="-1" id="Gma-vS-T7K"/>
                                 </connections>
                             </menuItem>
                             <menuItem isSeparatorItem="YES" id="OSS-gS-GqR"/>
@@ -419,6 +425,13 @@
                                 </connections>
                             </menuItem>
                             <menuItem isSeparatorItem="YES" id="eu3-7i-yIM"/>
+                            <menuItem title="Activity" id="Tg2-rB-gts">
+                                <modifierMask key="keyEquivalentModifierMask"/>
+                                <connections>
+                                    <action selector="showActivity:" target="-1" id="ZK8-mz-BaE"/>
+                                </connections>
+                            </menuItem>
+                            <menuItem isSeparatorItem="YES" id="vnJ-qL-XYw"/>
                             <menuItem title="Bring All to Front" id="LE2-aR-0XJ">
                                 <modifierMask key="keyEquivalentModifierMask"/>
                                 <connections>

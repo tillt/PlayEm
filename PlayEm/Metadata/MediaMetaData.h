@@ -114,6 +114,8 @@ extern NSString* const kMediaMetaDataMapTypeNumber;
 + (MediaMetaData*)mediaMetaDataWithITLibMediaItem:(ITLibMediaItem*)item error:(NSError**)error;
 + (MediaMetaData*)mediaMetaDataWithSHMatchedMediaItem:(SHMatchedMediaItem*)item error:(NSError**)error;
 
++ (NSString*)mimeTypeForArtworkFormat:(ITLibArtworkFormat)format;
+
 
 + (NSDictionary<NSString*, NSDictionary*>*)mediaMetaKeyMap;
 + (NSArray<NSString*>*)mediaMetaKeys;
@@ -121,6 +123,8 @@ extern NSString* const kMediaMetaDataMapTypeNumber;
 
 + (NSString*)mimeTypeForArtworkFormat:(ITLibArtworkFormat)formatNumber;
 + (ITLibArtworkFormat)artworkFormatForData:(NSData*)data;
+
++ (NSData*)defaultArtworkData;
 
 - (BOOL)isEqualToMediaMetaData:(MediaMetaData*)other;
 - (BOOL)isEqualToMediaMetaData:(MediaMetaData*)other atKey:key;

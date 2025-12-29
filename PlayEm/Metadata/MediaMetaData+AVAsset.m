@@ -19,9 +19,9 @@
 #import "AVMetadataItem+THAdditions.h"
 
 #import <CoreMedia/CMTime.h>
-
 #import "../NSError+BetterError.h"
 
+#import "NSString+Sanitized.h"
 #import "TemporaryFiles.h"
 
 @implementation MediaMetaData(AVAsset)
@@ -147,17 +147,17 @@
         if ([[item keyString] isEqualToString:@"TYER"] || [[item keyString] isEqualToString:@"@day"]  || [[item keyString] isEqualToString:@"TDRL"] ) {
             self.year = [NSNumber numberWithInt:[(NSString*)[item value] intValue]];
         } else if ([[item keyString] isEqualToString:@"@gen"]) {
-            self.genre = (NSString*)[item value];
+            self.genre = [(NSString*)[item value] sanitizedMetadataString];
         } else if ([[item keyString] isEqualToString:@"tmpo"]) {
             self.tempo = [NSNumber numberWithInt:[(NSString*)[item value] intValue]];
         } else if ([[item keyString] isEqualToString:@"aART"]) {
-            self.albumArtist = (NSString*)[item value];
+            self.albumArtist = [(NSString*)[item value] sanitizedMetadataString];
         } else if ([[item keyString] isEqualToString:@"@cmt"]) {
-            self.comment = (NSString*)[item value];
+            self.comment = [(NSString*)[item value] sanitizedMetadataString];
         } else if ([[item keyString] isEqualToString:@"@wrt"]) {
-            self.composer = (NSString*)[item value];
+            self.composer = [(NSString*)[item value] sanitizedMetadataString];
         } else if ([[item keyString] isEqualToString:@"@lyr"]) {
-            self.lyrics = (NSString*)[item value];
+            self.lyrics = [(NSString*)[item value] sanitizedMetadataString];
         } else if ([[item keyString] isEqualToString:@"cpil"]) {
             self.compilation = [NSNumber numberWithBool:[(NSString*)[item value] boolValue]];
         } else if ([[item keyString] isEqualToString:@"trkn"]) {
@@ -181,7 +181,7 @@
         if (item.extraAttributes != nil && [item.extraAttributes objectForKey:@"dataType"] == nil) {
             if ([item.extraAttributes objectForKey:@"HREF"]) {
                 self.appleLocation = [NSURL URLWithString:[item.extraAttributes objectForKey:@"HREF"]];
-                self.title = (NSString*)[item value];
+                self.title = [(NSString*)[item value] sanitizedMetadataString];
             } else {
                 NSLog(@"skip titles meant for extras - skipping \"%@\" for  %@", [item value], [item extraAttributes]);
             }
@@ -189,9 +189,9 @@
             self.title = (NSString*)[item value];
         }
     } else if ([[item commonKey] isEqualToString:@"artist"]) {
-        self.artist = (NSString*)[item value];
+        self.artist = [(NSString*)[item value] sanitizedMetadataString];
     } else if ([[item commonKey] isEqualToString:@"albumName"]) {
-        self.album = (NSString*)[item value];
+        self.album = [(NSString*)[item value] sanitizedMetadataString];
     } else if ([[item commonKey] isEqualToString:@"type"]) {
         NSData* data = item.dataValue;
         NSAssert(data.length >= 2, @"unexpected genre encoding");
@@ -227,8 +227,6 @@
     }
     return YES;
 }
-
-//- (void)readChapterMarksFromAVAsset:(AVAsset*)asset callback:(void (^)(BOOL, NSError*))callback
 
 - (void)readChaperMarksFromMP4FileWithCallback:(void (^)(BOOL, NSError*))callback
 {

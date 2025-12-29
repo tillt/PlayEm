@@ -18,7 +18,7 @@
 #import "MediaMetaData+JPEGTool.h"
 #import "TimedMediaMetaData.h"
 #import "JPEGTool.h"
-
+#import "NSString+Sanitized.h"
 #include "ChapterForge/chapterforge.hpp"
 
 static NSString* kTrackListTitleArtistGlue = @" - ";
@@ -219,7 +219,7 @@ void populateChapters(TrackList* tl,
                             } else {
                                 item = [NSMutableDictionary dictionary];
                             }
-                            item[key] = s;
+                            item[key] = [s sanitizedMetadataString];
                             chapteredMetadata[start] = item;
                         }
                     } else {

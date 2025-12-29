@@ -740,8 +740,8 @@ const CGFloat kMarkerHandleWidth = 6.0f;
         
         // Placeholder initially - we may need to resolve the data (unlikely for a tracklist,
         // very likely for a playlist).
-        imageLayer.contents = [NSImage resizedImage:[NSImage imageNamed:@"UnknownSong"]
-                                               size:imageLayer.frame.size];
+        imageLayer.contents = [NSImage resizedImageWithData:[MediaMetaData defaultArtworkData]
+                                                       size:imageLayer.frame.size];
         __weak CALayer* weakLayer = imageLayer;
         
         void (^applyImage)(NSData*) = ^(NSData*data) {
@@ -1429,7 +1429,20 @@ const CGFloat kMarkerHandleWidth = 6.0f;
     if (!_tracking) {
         _draggingLayer = nil;
         unsigned long long newFrame = (_visualSample.sample.frames * location.x ) / self.view.frame.size.width;
-        [_delegate seekToFrame:newFrame];
+        // Command-Key pressed?
+        if ((event.modifierFlags & NSEventModifierFlagDeviceIndependentFlagsMask) == NSEventModifierFlagCommand) {
+            CALayer* background = [self sublayerForLocation:location layers:wv.markLayer.sublayers];
+            if (background != nil) {
+                NSNumber* frameOffset = [background valueForKey:kFrameOffsetLayerKey];
+                assert(frameOffset);
+                // Seek to start of track.
+                [_delegate seekToFrame:[frameOffset unsignedLongLongValue]];
+                [self reflectionWithLayer:background forwards:YES];
+            }
+        } else {
+            // Seek to point.
+            [_delegate seekToFrame:newFrame];
+        }
     } else {
         CALayer* background = [self sublayerForLocation:location layers:wv.markLayer.sublayers];
         if (background != nil && _draggingLayer != background) {
@@ -1520,6 +1533,8 @@ const CGFloat kMarkerHandleWidth = 6.0f;
 {
     if (self.view.enclosingScrollView != nil) {
         _followTime = YES;
+        [self updateHeadPosition];
+        [self updateTiles];
     } else {
         WaveView* wv = (WaveView*)self.view;
         NSPoint locationInWindow = [event locationInWindow];
@@ -1528,12 +1543,25 @@ const CGFloat kMarkerHandleWidth = 6.0f;
         if (background != nil) {
             NSNumber* frameOffset = [background valueForKey:kFrameOffsetLayerKey];
             assert(frameOffset);
-            [_delegate seekToFrame:[frameOffset unsignedLongLongValue]];
-            [self reflectionWithLayer:background forwards:YES];
+            
+            TimedMediaMetaData* track = [_trackList trackAtFrameNumber:frameOffset];
+            
+            NSMenu* menu = [[NSMenu alloc] initWithTitle:@""];
+            NSMenuItem* item = [menu addItemWithTitle:@"Open in Apple Music"
+                                               action:@selector(musicURLClickedWithTrack:)
+                                        keyEquivalent:@""];
+            item.representedObject = track;
+
+            NSPoint mouseLocation = [NSEvent mouseLocation];
+            [menu popUpMenuPositioningItem:menu.itemArray[0]
+                                atLocation:NSMakePoint(mouseLocation.x - 12.0f, mouseLocation.y + 12.0f)
+                                    inView:nil];
+            
+            // FIXME: PUT MENU HERE!!!
+            //[_delegate seekToFrame:[frameOffset unsignedLongLongValue]];
+            //[self reflectionWithLayer:background forwards:YES];
         }
     }
-    [self updateHeadPosition];
-    [self updateTiles];
 }
 
 #pragma mark - Scroll View Notifications

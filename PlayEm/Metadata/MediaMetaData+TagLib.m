@@ -332,7 +332,10 @@
              ITLibArtworkFormatPICT = 8
              */
             if (self.artwork != nil) {
-                unsigned int imageFormat = [self.artworkFormat intValue];
+                ITLibArtworkFormat imageFormat = [self.artworkFormat intValue];
+                if (imageFormat == ITLibArtworkFormatNone) {
+                    imageFormat = [MediaMetaData artworkFormatForData:self.artwork];
+                }
                 NSString* mimeType = [MediaMetaData mimeTypeForArtworkFormat:imageFormat];
                 NSAssert(mimeType != nil, @"no mime type known for this picture format %d", imageFormat);
                 const char* m = [mimeType cStringUsingEncoding:NSUTF8StringEncoding];

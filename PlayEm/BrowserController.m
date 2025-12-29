@@ -29,6 +29,8 @@
 #import "NSString+BeautifulPast.h"
 #import "NSURL+WithoutParameters.h"
 
+#import "ActivityManager.h"
+
 NSString* const kSongsColTrackNumber = @"TrackCell";
 NSString* const kSongsColTitle = @"TitleCell";
 NSString* const kSongsColArtist = @"ArtistCell";
@@ -419,6 +421,8 @@ NSString* const kSongsColGenre = @"GenreCell";
 
 - (void)loadITunesLibrary
 {
+    ActivityToken* libraryToken = [[ActivityManager shared] beginActivityWithTitle:@"Loading Music Library" detail:@"" cancellable:NO cancelHandler:nil];
+    
     NSError *error = nil;
     [_delegate loadLibraryState:LoadStateInit value:0.0];
     _library = [ITLibrary libraryWithAPIVersion:@"1.0" options:ITLibInitOptionLazyLoadData error:&error];
@@ -496,6 +500,7 @@ NSString* const kSongsColGenre = @"GenreCell";
             [weakSelf reloadTableView:weakSelf.songsTable];
             
             [weakSelf setNowPlayingWithMeta:self->_lazyUpdatedMeta];
+            [[ActivityManager shared] completeActivity:libraryToken];
         });
     });
 }
@@ -1432,9 +1437,7 @@ NSString* const kSongsColGenre = @"GenreCell";
     return YES;
 }
 
-- (NSString*)tableView:(NSTableView*)tableView
-typeSelectStringForTableColumn:(NSTableColumn*)tableColumn
-                    row:(NSInteger)row
+- (NSString*)tableView:(NSTableView*)tableView typeSelectStringForTableColumn:(NSTableColumn*)tableColumn row:(NSInteger)row
 {
     return [self stringValueForRow:row tableColumn:tableColumn tableView:tableView];
 }
@@ -1528,7 +1531,7 @@ typeSelectStringForTableColumn:(NSTableColumn*)tableColumn
     }
 }
 
-- (NSTableRowView*)tableView:(NSTableView*)tableView rowViewForRow:(NSInteger)row
+- (nullable NSTableRowView*)tableView:(NSTableView*)tableView rowViewForRow:(NSInteger)row
 {
     static NSString* const kRowIdentifier = @"PlayEmTableRow";
 
@@ -1544,8 +1547,8 @@ typeSelectStringForTableColumn:(NSTableColumn*)tableColumn
     return rowView;
 }
   
-- (NSView*)tableView:(NSTableView*)tableView 
-  viewForTableColumn:(NSTableColumn*)tableColumn
+- (nullable NSView*)tableView:(NSTableView*)tableView 
+  viewForTableColumn:(nullable NSTableColumn*)tableColumn
                  row:(NSInteger)row
 {
     switch(tableView.tag) {

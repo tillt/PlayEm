@@ -20,45 +20,82 @@ const CGFloat kTimeHeight = 22.0;
 const CGFloat kTotalRowHeight = 52.0 + kTimeHeight;
 
 NSString * const kTracklistControllerChangedActiveTrackNotification = @"TracklistControllerChangedActiveTrackNotification";
+static const NSAutoresizingMaskOptions kViewFullySizeable = NSViewHeightSizable | NSViewWidthSizable;
 
 @interface TracklistController()
-@property (nonatomic, weak) NSTableView* table;
+@property (nonatomic, strong) NSTableView* table;
 @property (assign, nonatomic) NSUInteger currentTrackIndex;
+@property (strong, nonatomic) NSButton* detectButton;
 @end
 
+// FIXME: This should be a viewcontroller.
 @implementation TracklistController
 {
 }
 
-- (id)initWithTracklistTable:(NSTableView*)tableView
-                    delegate:(id<TracklistControllerDelegate>)delegate
+- (id)init
 {
     self = [super init];
     if (self) {
-        _delegate = delegate;
-        _table = tableView;
-        _table.dataSource = self;
-        _table.delegate = self;
-        _table.doubleAction = @selector(tracklistDoubleClickedRow:);
-        _table.menu = [self menu];
-
-        const NSAutoresizingMaskOptions kViewFullySizeable = NSViewHeightSizable | NSViewWidthSizable;
-
-        _table.backgroundColor = [NSColor clearColor];
-        _table.autoresizingMask = kViewFullySizeable;
-        _table.headerView = nil;
-        _table.rowHeight = kTotalRowHeight;
-        _table.allowsMultipleSelection = YES;
-        _table.intercellSpacing = NSMakeSize(0.0, 0.0);
-        
-        NSTableColumn* col = [[NSTableColumn alloc] init];
-        col.title = @"";
-        col.identifier = @"Column";
-        col.width = _table.enclosingScrollView.bounds.size.width;
-        [_table addTableColumn:col];
+        _currentTrackIndex = 0;
     }
     return self;
 }
+
+- (void)loadView
+{
+    NSLog(@"-[TrackListController loadView]");
+    self.view = [[NSView alloc] initWithFrame:NSZeroRect];
+    self.view.autoresizingMask = NSViewWidthSizable | NSViewHeightSizable;
+    
+    NSScrollView* sv = [[NSScrollView alloc] initWithFrame:self.view.bounds];
+    sv.hasVerticalScroller = YES;
+    sv.autoresizingMask = kViewFullySizeable;
+    sv.drawsBackground = NO;
+    
+    [self.view addSubview:sv];
+    
+    // Tracklist
+    _table = [[NSTableView alloc] initWithFrame:sv.bounds];
+    _table.dataSource = self;
+    _table.delegate = self;
+    _table.doubleAction = @selector(tracklistDoubleClickedRow:);
+    _table.menu = [self menu];
+    _table.backgroundColor = [NSColor clearColor];
+    _table.autoresizingMask = kViewFullySizeable;
+    _table.headerView = nil;
+    _table.rowHeight = kTotalRowHeight;
+    _table.allowsMultipleSelection = YES;
+    _table.intercellSpacing = NSMakeSize(0.0, 0.0);
+    
+    NSTableColumn* col = [[NSTableColumn alloc] init];
+    col.title = @"";
+    col.identifier = @"Column";
+    col.width = _table.enclosingScrollView.bounds.size.width;
+    [_table addTableColumn:col];
+    
+    sv.documentView = _table;
+    
+    _detectButton = [NSButton buttonWithTitle:@"Detect Tracklist" target:nil action:@selector(startTrackDetection:)];
+    [self.view addSubview:_detectButton];
+}
+
+- (void)viewDidLayout
+{
+    [super viewDidLayout];
+    NSRect buttonRect = NSMakeRect(floor((self.view.bounds.size.width - _detectButton.frame.size.width) / 2.0),
+                                   floor((self.view.bounds.size.height - _detectButton.frame.size.height) / 2.0),
+                                   _detectButton.frame.size.width,
+                                   _detectButton.frame.size.height);
+    _detectButton.frame = buttonRect;
+}
+
+- (void)viewWillAppear
+{
+    [super viewWillAppear];
+    
+    _detectButton.hidden =  _current.trackList.tracks.count > 0;
+ }
 
 - (NSInteger)numberOfRowsInTableView:(NSTableView*)tableView
 {
@@ -147,6 +184,30 @@ NSString * const kTracklistControllerChangedActiveTrackNotification = @"Tracklis
     if (!done) {
         NSLog(@"failed to write tracklist: %@", error);
     }
+    _detectButton.hidden =  _current.trackList.tracks.count > 0;
+}
+
+- (void)musicURLClickedWithTrack:(id)sender
+{
+    NSMenuItem* item = sender;
+    TimedMediaMetaData* track = item.representedObject;
+    NSURL* musicURL = track.meta.appleLocation;
+    if (musicURL == nil) {
+        NSLog(@"no URL to show");
+        return;
+    }
+    // For making sure this wont open Music.app we fetch the
+    // default app for URLs.
+    // With that we explicitly call the browser for opening the
+    // URL. That way we get things displayed even in cases where
+    // Music.app does not show iCloud.Music.
+    NSURL* appURL = [[NSWorkspace sharedWorkspace] URLForApplicationToOpenURL:musicURL];
+    NSWorkspaceOpenConfiguration* configuration = [NSWorkspaceOpenConfiguration new];
+    [[NSWorkspace sharedWorkspace] openURLs:[NSArray arrayWithObject:musicURL]
+                       withApplicationAtURL:appURL
+                              configuration:configuration
+                          completionHandler:^(NSRunningApplication* app, NSError* error){
+    }];
 }
 
 - (void)musicURLClicked:(id)sender
@@ -206,6 +267,28 @@ NSString * const kTracklistControllerChangedActiveTrackNotification = @"Tracklis
     }
 }
 
+- (void)addTracks:(NSArray<TimedMediaMetaData*>*)tracks
+{
+    //NSLog(@"adding tracks: %@", tracks);
+    for (TimedMediaMetaData* track in tracks) {
+        [_current.trackList addTrack:track];
+    }
+   
+    [_table reloadData];
+    
+    _current.frameToSeconds = ^(unsigned long long frame) {
+        return [self->_delegate secondsFromFrame:frame];
+    };
+
+    NSError* error = nil;
+    BOOL done = [_current storeTracklistWithError:&error];
+    if (!done) {
+        NSLog(@"failed to write tracklist: %@", error);
+    }
+    _detectButton.hidden =  _current.trackList.tracks.count > 0;
+
+}
+
 - (void)addTrack:(TimedMediaMetaData*)track
 {
     NSLog(@"adding track: %@", track);
@@ -235,6 +318,7 @@ NSString * const kTracklistControllerChangedActiveTrackNotification = @"Tracklis
     if (!done) {
         NSLog(@"failed to write tracklist: %@", error);
     }
+    _detectButton.hidden =  _current.trackList.tracks.count > 0;
 }
 
 - (IBAction)exportTracklist:(id)sender
@@ -340,7 +424,7 @@ NSString * const kTracklistControllerChangedActiveTrackNotification = @"Tracklis
     [_table reloadData];
 }
 
-- (NSView*)tableView:(NSTableView*)tableView viewForTableColumn:(NSTableColumn*)tableColumn row:(NSInteger)row
+- (nullable NSView*)tableView:(NSTableView*)tableView viewForTableColumn:(nullable NSTableColumn*)tableColumn row:(NSInteger)row
 {
     const int kTitleViewTag = 1;
     const int kArtistViewTag = 2;
@@ -438,8 +522,8 @@ NSString * const kTracklistControllerChangedActiveTrackNotification = @"Tracklis
     
     // Placeholder initially - we may need to resolve the data (unlikely for a tracklist,
     // very likely for a playlist).
-    iv.image = [NSImage resizedImage:[NSImage imageNamed:@"UnknownSong"]
-                                size:iv.frame.size];
+    iv.image = [NSImage resizedImageWithData:[MediaMetaData defaultArtworkData]
+                                        size:iv.frame.size];
 
     __weak NSView *weakView = result;
     __weak NSTableView *weakTable = tableView;

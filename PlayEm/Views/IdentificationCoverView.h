@@ -24,6 +24,9 @@ typedef enum : NSUInteger {
 @property (nonatomic, assign) CoverViewStyleMask style;
 @property (nonatomic, strong) CALayer* backingLayer;
 
+
+- (void)setStill:(BOOL)still animated:(BOOL)animated;
+
 - (void)startAnimating;
 - (void)stopAnimating;
 - (void)pauseAnimating;

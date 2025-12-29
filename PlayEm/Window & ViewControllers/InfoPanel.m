@@ -507,7 +507,8 @@ static const CGFloat kViewLeftMargin = 10.0f;
     // We initialize with that "UnknownSong" image but later we will get overwritten also
     // by metadata without artwork - causing an empty view - by design to be extra clear
     // in the message to the user: there is no artwork available.
-    _largeCoverView.image = [NSImage resizedImage:[NSImage imageNamed:@"UnknownSong"] size:NSMakeSize(imageWidth, imageWidth)];
+    _largeCoverView.image = [NSImage resizedImageWithData:[MediaMetaData defaultArtworkData]
+                                                     size:NSMakeSize(imageWidth, imageWidth)];
     _largeCoverView.alignment = NSViewHeightSizable | NSViewWidthSizable | NSViewMinYMargin | NSViewMaxYMargin;
     _largeCoverView.imageScaling = NSImageScaleProportionallyUpOrDown;
     _largeCoverView.frame = CGRectMake((self.view.bounds.size.width - (imageWidth + (2 * kViewLeftMargin))) / 2.0f,
@@ -592,8 +593,8 @@ static const CGFloat kViewLeftMargin = 10.0f;
     _progress.indeterminate = YES;
     [_effectBelowHeader addSubview:_progress];
 
-    _smallCoverView = [NSImageView imageViewWithImage:[NSImage resizedImage:[NSImage imageNamed:@"UnknownSong"]
-                                                                       size:NSMakeSize(imageWidth, imageWidth)]];
+    _smallCoverView = [NSImageView imageViewWithImage:[NSImage resizedImageWithData:[MediaMetaData defaultArtworkData]
+                                                                               size:NSMakeSize(imageWidth, imageWidth)]];
     _smallCoverView.alignment = NSViewHeightSizable | NSViewWidthSizable | NSViewMinYMargin | NSViewMaxYMargin;
     _smallCoverView.imageScaling = NSImageScaleProportionallyUpOrDown;
     _smallCoverView.frame = CGRectMake( kViewLeftMargin + kViewLeftMargin,

@@ -18,6 +18,7 @@
 #import "LazySample.h"
 #import "ProfilingPointsOfInterest.h"
 #import "AudioDevice.h"
+#import "ActivityManager.h"
 
 //#define support_avaudioengine   YES
 //#define support_avplayer        YES
@@ -887,8 +888,10 @@ void LogBufferContents(const uint8_t *buffer, size_t length)
     __block BOOL done = NO;
     __weak __block dispatch_block_t weakBlock;
 
+    ActivityToken* decoderToken = [[ActivityManager shared] beginActivityWithTitle:@"Decoding Sample" detail:@"" cancellable:NO cancelHandler:nil];
+
     dispatch_block_t block = dispatch_block_create(DISPATCH_BLOCK_NO_QOS_CLASS, ^{
-        done = [weakSelf decode:sample cancelTest:^{
+        done = [weakSelf decode:sample token:decoderToken cancelTest:^{
             return dispatch_block_testcancel(weakBlock) != 0 ? YES : NO;
         }];
     });
@@ -903,12 +906,17 @@ void LogBufferContents(const uint8_t *buffer, size_t length)
     // Dispatch a callback on the main thread once decoding is done.
     dispatch_block_notify(_decodeOperation, dispatch_get_main_queue(), ^{
         NSLog(@"decoder is done - we are back on the main thread - run the callback block with %d", done);
+        [[ActivityManager shared] completeActivity:decoderToken];
         callback(done);
     });
 }
 
-- (BOOL)decode:(LazySample*)encodedSample cancelTest:(BOOL (^)(void))cancelTest
+- (BOOL)decode:(LazySample*)encodedSample token:(ActivityToken*)token cancelTest:(BOOL (^)(void))cancelTest
 {
+    [[ActivityManager shared] updateActivity:token
+                                    progress:0.0
+                                      detail:@"initializing engine"];
+
     NSLog(@"decoding sample %@...", encodedSample);
     AVAudioEngine* engine = [[AVAudioEngine alloc] init];
 
@@ -951,8 +959,13 @@ void LogBufferContents(const uint8_t *buffer, size_t length)
     unsigned long long pageIndex = 0;
     
     BOOL ret = YES;
-
+    
     while (engine.manualRenderingSampleTime < encodedSample.source.length) {
+        double progress = (double)engine.manualRenderingSampleTime / encodedSample.source.length;
+        [[ActivityManager shared] updateActivity:token
+                                        progress:progress
+                                          detail:@"decoding compressed audio data"];
+
         if (cancelTest()) {
             ret = NO;
             NSLog(@"...decoding aborted!!!");
@@ -998,6 +1011,9 @@ void LogBufferContents(const uint8_t *buffer, size_t length)
                 break;
         }
     };
+    [[ActivityManager shared] updateActivity:token
+                                    progress:1.0
+                                      detail:@"decoding audio done"];
     NSLog(@"...decoding done");
     [player stop];
     [engine stop];

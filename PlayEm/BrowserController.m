@@ -74,13 +74,15 @@ NSString* const kSongsColGenre = @"GenreCell";
 
 @implementation BrowserController
 {
-    bool _updatingGenres;
-    bool _updatingArtists;
-    bool _updatingAlbums;
-    bool _updatingTempos;
-    bool _updatingKeys;
-    bool _updatingRatings;
-    bool _updatingTags;
+    BOOL _updatingGenres;
+    BOOL _updatingArtists;
+    BOOL _updatingAlbums;
+    BOOL _updatingTempos;
+    BOOL _updatingKeys;
+    BOOL _updatingRatings;
+    BOOL _updatingTags;
+    
+    BOOL _reloadingLibrary;
     
     MediaMetaData* _lazyUpdatedMeta;
 }
@@ -109,6 +111,7 @@ NSString* const kSongsColGenre = @"GenreCell";
         _updatingKeys = NO;
         _updatingRatings = NO;
         _updatingTags = NO;
+        _reloadingLibrary = NO;
 
         _genres = [NSMutableArray array];
         _artists = [NSMutableArray array];
@@ -374,15 +377,25 @@ NSString* const kSongsColGenre = @"GenreCell";
     self.filteredItems = filtered;
 }
 
-- (NSMutableArray*)cacheFromiTunesLibrary:(ITLibrary*)library
+- (NSMutableArray*)cacheFromiTunesLibrary:(ITLibrary*)library token:(ActivityToken*)token
 {
     NSMutableArray<MediaMetaData*>* cache = [NSMutableArray new];
     
     NSLog(@"iTunes returned %ld items", library.allMediaItems.count);
-
+    
     size_t skippedCloudItems = 0;
     size_t skippedAAXFiles = 0;
+    size_t processCounter = 0;
+    size_t total = library.allMediaItems.count;
+    
     for (ITLibMediaItem* d in library.allMediaItems) {
+        double progress = (double)processCounter / total;
+        processCounter++;
+        // Lets throttle our state updates -- be a good boy.
+        if (processCounter % 10 == 0) {
+            [[ActivityManager shared] updateActivity:token progress:progress detail:@"identifying playable entries"];
+        }
+
         // We cannot support cloud based items, unfortunately.
         if (d.cloud) {
             skippedCloudItems++;
@@ -396,6 +409,9 @@ NSString* const kSongsColGenre = @"GenreCell";
         MediaMetaData* m = [MediaMetaData mediaMetaDataWithITLibMediaItem:d error:nil];
         [cache addObject:m];
     }
+    [[ActivityManager shared] updateActivity:token
+                                    progress:1.0
+                                      detail:[NSString stringWithFormat:@"accepted %ld of %ld entries", cache.count, total]];
 
     NSLog(@"%ld cloud based items ignored", skippedCloudItems);
     NSLog(@"%ld encrypted audiobooks ignored", skippedAAXFiles);
@@ -421,10 +437,16 @@ NSString* const kSongsColGenre = @"GenreCell";
 
 - (void)loadITunesLibrary
 {
-    ActivityToken* libraryToken = [[ActivityManager shared] beginActivityWithTitle:@"Loading Music Library" detail:@"" cancellable:NO cancelHandler:nil];
+    if (_reloadingLibrary) {
+        NSLog(@"patience, young padawan - loading already");
+    }
+    ActivityToken* libraryToken = [[ActivityManager shared] beginActivityWithTitle:@"Loading Music Library"
+                                                                            detail:@""
+                                                                       cancellable:NO
+                                                                     cancelHandler:nil];
     
     NSError *error = nil;
-    [_delegate loadLibraryState:LoadStateInit value:0.0];
+    [[ActivityManager shared] updateActivity:libraryToken progress:0.00 detail:@"locating Music library"];
     _library = [ITLibrary libraryWithAPIVersion:@"1.0" options:ITLibInitOptionLazyLoadData error:&error];
     if (!_library) {
         NSLog(@"Failed accessing iTunes Library: %@", error);
@@ -455,52 +477,61 @@ NSString* const kSongsColGenre = @"GenreCell";
     
     BrowserController* __weak weakSelf = self;
     
+    _reloadingLibrary = YES;
+    
     NSArray<NSSortDescriptor*>* descriptors = [_songsTable sortDescriptors];
     
     dispatch_async(_filterQueue, ^{
-        //[_delegate loadLibraryState:LoadStateStarted value:0.0];
-        
-        NSMutableArray<MediaMetaData*>* cachedLibrary = [weakSelf cacheFromiTunesLibrary:weakSelf.library];
+        BrowserController* strongSelf = weakSelf;
+
+        [[ActivityManager shared] updateActivity:libraryToken progress:0.01 detail:@"fetching Music library"];
+
+        NSMutableArray<MediaMetaData*>* cachedLibrary = [strongSelf cacheFromiTunesLibrary:strongSelf.library
+                                                                                     token:libraryToken];
         
         // Apply sorting.
-        weakSelf.filteredItems = [cachedLibrary sortedArrayUsingDescriptors:descriptors];
-        weakSelf.cachedLibrary = cachedLibrary;
+        strongSelf.filteredItems = [cachedLibrary sortedArrayUsingDescriptors:descriptors];
+        strongSelf.cachedLibrary = cachedLibrary;
         
-        [weakSelf columnsFromMediaItems:weakSelf.filteredItems
-                                 genres:weakSelf.genres
-                                artists:weakSelf.artists
-                                 albums:weakSelf.albums
-                                 tempos:weakSelf.tempos
-                                   keys:weakSelf.keys
-                                ratings:weakSelf.ratings
-                                   tags:weakSelf.tags];
+        [strongSelf columnsFromMediaItems:strongSelf.filteredItems
+                                   genres:strongSelf.genres
+                                  artists:strongSelf.artists
+                                   albums:strongSelf.albums
+                                   tempos:strongSelf.tempos
+                                     keys:strongSelf.keys
+                                  ratings:strongSelf.ratings
+                                     tags:strongSelf.tags];
         
         dispatch_sync(dispatch_get_main_queue(), ^{
-            [weakSelf reloadTableView:weakSelf.genresTable];
+            BrowserController* strongSelf = weakSelf;
+
+            [strongSelf reloadTableView:strongSelf.genresTable];
             
-            [weakSelf.delegate updateSongsCount:weakSelf.cachedLibrary.count
-                                       filtered:weakSelf.filteredItems.count];
+            [strongSelf.delegate updateSongsCount:strongSelf.cachedLibrary.count
+                                       filtered:strongSelf.filteredItems.count];
             
-            self->_updatingGenres = NO;
-            self->_updatingArtists = NO;
-            self->_updatingAlbums = NO;
-            self->_updatingTempos = NO;
-            self->_updatingKeys = NO;
-            self->_updatingRatings = NO;
-            self->_updatingTags = NO;
-            [weakSelf.genresTable selectRowIndexes:[NSIndexSet indexSetWithIndex:0]
-                              byExtendingSelection:NO];
+            strongSelf->_updatingGenres = NO;
+            strongSelf->_updatingArtists = NO;
+            strongSelf->_updatingAlbums = NO;
+            strongSelf->_updatingTempos = NO;
+            strongSelf->_updatingKeys = NO;
+            strongSelf->_updatingRatings = NO;
+            strongSelf->_updatingTags = NO;
+            [strongSelf.genresTable selectRowIndexes:[NSIndexSet indexSetWithIndex:0]
+                                byExtendingSelection:NO];
             
-            [weakSelf reloadTableView:weakSelf.albumsTable];
-            [weakSelf reloadTableView:weakSelf.artistsTable];
-            [weakSelf reloadTableView:weakSelf.temposTable];
-            [weakSelf reloadTableView:weakSelf.keysTable];
-            [weakSelf reloadTableView:weakSelf.ratingsTable];
-            [weakSelf reloadTableView:weakSelf.tagsTable];
-            [weakSelf reloadTableView:weakSelf.songsTable];
+            [strongSelf reloadTableView:strongSelf.albumsTable];
+            [strongSelf reloadTableView:strongSelf.artistsTable];
+            [strongSelf reloadTableView:strongSelf.temposTable];
+            [strongSelf reloadTableView:strongSelf.keysTable];
+            [strongSelf reloadTableView:strongSelf.ratingsTable];
+            [strongSelf reloadTableView:strongSelf.tagsTable];
+            [strongSelf reloadTableView:strongSelf.songsTable];
             
-            [weakSelf setNowPlayingWithMeta:self->_lazyUpdatedMeta];
+            [strongSelf setNowPlayingWithMeta:self->_lazyUpdatedMeta];
             [[ActivityManager shared] completeActivity:libraryToken];
+           
+            strongSelf->_reloadingLibrary = YES;
         });
     });
 }
@@ -755,10 +786,6 @@ NSString* const kSongsColGenre = @"GenreCell";
     NSMutableDictionary* filteredRatings = [NSMutableDictionary dictionary];
     NSMutableDictionary* filteredTags = [NSMutableDictionary dictionary];
 
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [self.delegate loadLibraryState:LoadStateStarted];
-    });
-
     size_t itemCount = items.count;
     size_t itemIndex = 0;
     for (MediaMetaData* d in items) {
@@ -791,10 +818,10 @@ NSString* const kSongsColGenre = @"GenreCell";
                 }
             }
         }
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [self.delegate loadLibraryState:LoadStateLoading 
-                                      value:(double)(itemIndex + 1) / (double)itemCount];
-        });
+//        dispatch_async(dispatch_get_main_queue(), ^{
+//            [self.delegate loadLibraryState:LoadStateLoading 
+//                                      value:(double)(itemIndex + 1) / (double)itemCount];
+//        });
         itemIndex++;
     }
     
@@ -840,9 +867,9 @@ NSString* const kSongsColGenre = @"GenreCell";
         [tags setArray:[[filteredTags allKeys] sortedArrayUsingSelector:@selector(localizedCaseInsensitiveCompare:)]];
         [tags insertObject:label atIndex:0];
     }
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [self.delegate loadLibraryState:LoadStateStopped];
-    });
+//    dispatch_async(dispatch_get_main_queue(), ^{
+//        [self.delegate loadLibraryState:LoadStateStopped];
+//    });
 }
 
 -(void)genresTableViewSelectionDidChange:(NSInteger)row

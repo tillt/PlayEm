@@ -35,6 +35,7 @@
 		BB3B8D9A2B86C9B7006AEFCA /* tag.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BB3B8D972B86C9B7006AEFCA /* tag.framework */; };
 		BB3B8D9B2B86C9B8006AEFCA /* tag.framework in Embed Libraries */ = {isa = PBXBuildFile; fileRef = BB3B8D972B86C9B7006AEFCA /* tag.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		BB3B8D9D2B87CC12006AEFCA /* ShazamKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BB3B8D9C2B87CC12006AEFCA /* ShazamKit.framework */; };
+		BB3D78922F043D23002C2D7E /* PhosphorChaserView.m in Sources */ = {isa = PBXBuildFile; fileRef = BB3D78912F043D23002C2D7E /* PhosphorChaserView.m */; };
 		BB46D4AC2D8DCD150090CD56 /* NSString+OccurenceCount.m in Sources */ = {isa = PBXBuildFile; fileRef = BB46D4AB2D8DCD150090CD56 /* NSString+OccurenceCount.m */; };
 		BB46D4AF2D98715B0090CD56 /* NSImage+Resize.m in Sources */ = {isa = PBXBuildFile; fileRef = BB46D4AE2D98715B0090CD56 /* NSImage+Resize.m */; };
 		BB46D4B22D99AD5E0090CD56 /* NSImage+Average.m in Sources */ = {isa = PBXBuildFile; fileRef = BB46D4B12D99AD5E0090CD56 /* NSImage+Average.m */; };
@@ -47,6 +48,7 @@
 		BB539A602D0F6D390095B8C7 /* libkeyfinder.2.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = BB539A5E2D0F6D380095B8C7 /* libkeyfinder.2.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		BB539A622D0F6E8E0095B8C7 /* libfftw3.3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = BB539A612D0F6E8E0095B8C7 /* libfftw3.3.dylib */; };
 		BB539A632D0F6E980095B8C7 /* libfftw3.3.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = BB539A612D0F6E8E0095B8C7 /* libfftw3.3.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		BB53ACTP2F10A52100CCA2D6 /* ActivityManager.m in Sources */ = {isa = PBXBuildFile; fileRef = BB53ACTO2F10A52100CCA2D6 /* ActivityManager.m */; };
 		BB577E092AA482D400046251 /* librubberband.2.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = BB577E072AA482D400046251 /* librubberband.2.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		BB577E162AA486C500046251 /* libsamplerate.0.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = BB577E152AA486C500046251 /* libsamplerate.0.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		BB5A2C232B925CD300040209 /* TextViewWithPlaceholder.m in Sources */ = {isa = PBXBuildFile; fileRef = BB5A2C222B925CD300040209 /* TextViewWithPlaceholder.m */; };
@@ -54,7 +56,6 @@
 		BB5DC1EF2EFF098A00CCA2D6 /* TotalIdentificationController.m in Sources */ = {isa = PBXBuildFile; fileRef = BB5DC1EE2EFF098A00CCA2D6 /* TotalIdentificationController.m */; };
 		BB5DC1F22F00357000CCA2D6 /* NSString+Sanitized.m in Sources */ = {isa = PBXBuildFile; fileRef = BB5DC1F12F00357000CCA2D6 /* NSString+Sanitized.m */; };
 		BB5DC1F52F00A52100CCA2D6 /* ActivityViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = BB5DC1F42F00A52100CCA2D6 /* ActivityViewController.m */; };
-		BB53ACTP2F10A52100CCA2D6 /* ActivityManager.m in Sources */ = {isa = PBXBuildFile; fileRef = BB53ACTO2F10A52100CCA2D6 /* ActivityManager.m */; };
 		BB694CA32E6BB09C00818B01 /* BloomyText.m in Sources */ = {isa = PBXBuildFile; fileRef = BB694CA22E6BB09C00818B01 /* BloomyText.m */; };
 		BB69948F2EEB316100242456 /* MediaMetaData+ChapterForge.mm in Sources */ = {isa = PBXBuildFile; fileRef = BB69948E2EEB316100242456 /* MediaMetaData+ChapterForge.mm */; };
 		BB6994942EEB370500242456 /* TrackList+ChapterForge.mm in Sources */ = {isa = PBXBuildFile; fileRef = BB6994932EEB370500242456 /* TrackList+ChapterForge.mm */; };
@@ -185,6 +186,8 @@
 		BB3B8D962B86C9B7006AEFCA /* tag_c.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = tag_c.framework; sourceTree = "<group>"; };
 		BB3B8D972B86C9B7006AEFCA /* tag.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = tag.framework; sourceTree = "<group>"; };
 		BB3B8D9C2B87CC12006AEFCA /* ShazamKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ShazamKit.framework; path = System/Library/Frameworks/ShazamKit.framework; sourceTree = SDKROOT; };
+		BB3D78902F043D23002C2D7E /* PhosphorChaserView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PhosphorChaserView.h; sourceTree = "<group>"; };
+		BB3D78912F043D23002C2D7E /* PhosphorChaserView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = PhosphorChaserView.m; sourceTree = "<group>"; };
 		BB46D4AA2D8DCD150090CD56 /* NSString+OccurenceCount.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSString+OccurenceCount.h"; sourceTree = "<group>"; };
 		BB46D4AB2D8DCD150090CD56 /* NSString+OccurenceCount.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSString+OccurenceCount.m"; sourceTree = "<group>"; };
 		BB46D4AD2D98715B0090CD56 /* NSImage+Resize.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSImage+Resize.h"; sourceTree = "<group>"; };
@@ -525,6 +528,8 @@
 				BB3926FE2C14B43E009C7B32 /* TableRowView.m */,
 				BB694CA12E6BB09C00818B01 /* BloomyText.h */,
 				BB694CA22E6BB09C00818B01 /* BloomyText.m */,
+				BB3D78902F043D23002C2D7E /* PhosphorChaserView.h */,
+				BB3D78912F043D23002C2D7E /* PhosphorChaserView.m */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -833,6 +838,7 @@
 				BB51C1E02E59C1990049355F /* WaveScrollView.m in Sources */,
 				BB5DC1EF2EFF098A00CCA2D6 /* TotalIdentificationController.m in Sources */,
 				BB0D5281244CEE22007C909F /* VisualSample.m in Sources */,
+				BB3D78922F043D23002C2D7E /* PhosphorChaserView.m in Sources */,
 				BB46D4AF2D98715B0090CD56 /* NSImage+Resize.m in Sources */,
 				BBDA2FFE2A7FCEEC0084E2B6 /* BeatTrackedSample.m in Sources */,
 				BB0BDC3A2EC014550052D363 /* WaveViewController.m in Sources */,

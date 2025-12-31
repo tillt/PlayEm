@@ -45,6 +45,7 @@
 #import "WaveViewController.h"
 #import "ActivityViewController.h"
 #import "ActivityManager.h"
+#import "PhosphorChaserView.h"
 
 @class BeatLayerDelegate;
 @class WaveLayerDelegate;
@@ -181,6 +182,8 @@ os_log_t pointsOfInterest;
 @property (strong, nonatomic) NSTabViewItem* tracklistTabViewItem;
 
 @property (strong, nonatomic) ActivityToken* decoderToken;
+@property (strong, nonatomic) PhosphorChaserView* activityChaser;
+
 
 @end
 
@@ -206,6 +209,8 @@ os_log_t pointsOfInterest;
 
     //os_signpost_interval_begin(pointsOfInterest, POISetCurrentFrame, "SetCurrentFrame");
     self.currentFrame = frame;
+    
+    [_controlPanelController tickWithTimestamp:sender.timestamp];
 
     //os_signpost_interval_end(pointsOfInterest, POISetCurrentFrame, "SetCurrentFrame");
     //os_signpost_interval_end(pointsOfInterest, POICADisplayLink, "CADisplayLink");
@@ -228,6 +233,7 @@ os_log_t pointsOfInterest;
 - (void)dealloc
 {
     [_displayLink invalidate];
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
 - (void)updateSongsCount:(size_t)songs filtered:(size_t)filtered
@@ -617,7 +623,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Live Identify";
     const CGFloat scrollingWaveViewHeight = 158.0;
 
     const CGFloat playlistFxViewWidth = 320.0f;
-    const CGFloat statusLineHeight = 14.0f;
+    const CGFloat statusLineHeight = 20.0f;
     const CGFloat searchFieldHeight = 25.0f;
     const CGFloat songsTableViewHeight = floor(totalHeight / 4.0f);
     const CGFloat selectorTableViewWidth = floor(self.window.contentView.bounds.size.width / 7.0f);
@@ -653,7 +659,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Live Identify";
     _songsCount = [[NSTextField alloc] initWithFrame:NSMakeRect(self.window.contentView.bounds.origin.x,
                                                                 self.window.contentView.bounds.origin.y,
                                                                 self.window.contentView.bounds.size.width,
-                                                                statusLineHeight)];
+                                                                statusLineHeight - 3)];
     _songsCount.font = [[Defaults sharedDefaults] smallFont];
     _songsCount.textColor = [[Defaults sharedDefaults] tertiaryLabelColor];
     _songsCount.bordered = NO;
@@ -663,6 +669,20 @@ static const NSString* kIdentifyToolbarIdentifier = @"Live Identify";
     _songsCount.translatesAutoresizingMaskIntoConstraints = YES;
     
     [self.window.contentView addSubview:_songsCount];
+    
+//    const CGFloat chaserSize = 30;
+//    // Phosphor chaser busy indicator (top-right).
+//    CGFloat chaserX = self.window.contentView.bounds.origin.x + 10.0;
+//    CGFloat chaserY =  self.window.contentView.bounds.origin.y - 4.0;
+//    _activityChaser = [[PhosphorChaserView alloc] initWithFrame:NSMakeRect(chaserX, chaserY, chaserSize, chaserSize)];
+//    _activityChaser.autoresizingMask = NSViewNotSizable;
+//    [self.window.contentView addSubview:_activityChaser];
+//    [self refreshChaserState];
+//    
+//    NSClickGestureRecognizer* recognizer = [[NSClickGestureRecognizer alloc] initWithTarget:self
+//                                                                                     action:@selector(showActivity:)];
+//    recognizer.numberOfClicksRequired = 1;
+//    [_activityChaser addGestureRecognizer:recognizer];
 
     // Below Visuals.
     CGFloat height = scopeViewHeight + scrollingWaveViewHeight + totalWaveViewHeight;
@@ -768,6 +788,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Live Identify";
     _playlist.delegate = self;
     _playlistTabViewItem = [NSTabViewItem tabViewItemWithViewController:_playlist];
     _playlistTabViewItem.view.frame = _listsTabView.bounds;
+    _playlistTabViewItem.initialFirstResponder = _playlist.view;
     [_playlistTabViewItem setLabel:@"playlist"];
     [_listsTabView addTabViewItem:_playlistTabViewItem];
 
@@ -776,6 +797,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Live Identify";
     _tracklist.delegate = self;
     _tracklistTabViewItem = [NSTabViewItem tabViewItemWithViewController:_tracklist];
     _tracklistTabViewItem.view.frame = _listsTabView.bounds;
+    _tracklistTabViewItem.initialFirstResponder = _tracklist.view;
     [_tracklistTabViewItem setLabel:@"tracklist"];
     [_listsTabView addTabViewItem:_tracklistTabViewItem];
 
@@ -1165,36 +1187,6 @@ static const NSString* kIdentifyToolbarIdentifier = @"Live Identify";
     [_horizontalSplitView addConstraint:constraint];
 
     [self.window.contentView addSubview:_horizontalSplitView];
-    
-    _progress = [[NSProgressIndicator alloc] initWithFrame:NSMakeRect((self.window.contentView.bounds.size.width - progressIndicatorWidth) / 2.0,
-                                                                      (self.window.contentView.bounds.size.height - progressIndicatorHeight) / 4.0,
-                                                                      progressIndicatorWidth,
-                                                                      progressIndicatorHeight)];
-    _progress.style = NSProgressIndicatorStyleSpinning;
-    _progress.displayedWhenStopped = NO;
-    _progress.autoresizingMask =  NSViewNotSizable | NSViewMinXMargin | NSViewMaxXMargin| NSViewMinYMargin | NSViewMaxYMargin;
-    
-    [self.window.contentView addSubview:_progress];
-    
-    _trackRenderProgress = [[NSProgressIndicator alloc] initWithFrame:NSMakeRect((self.window.contentView.bounds.size.width - progressIndicatorWidth) / 2.0,
-                                                                                 (self.window.contentView.bounds.size.height - progressIndicatorHeight) / 2.0,
-                                                                                 progressIndicatorWidth,
-                                                                                 progressIndicatorHeight)];
-    _trackRenderProgress.style = NSProgressIndicatorStyleSpinning;
-    _trackRenderProgress.displayedWhenStopped = NO;
-    _trackRenderProgress.autoresizingMask = NSViewNotSizable | NSViewMinXMargin | NSViewMaxXMargin| NSViewMinYMargin | NSViewMaxYMargin;
-    
-    [self.window.contentView addSubview:_trackRenderProgress];
-
-    _trackLoadProgress = [[NSProgressIndicator alloc] initWithFrame:NSMakeRect((self.window.contentView.bounds.size.width - progressIndicatorWidth) / 2.0,
-                                                                               (self.window.contentView.bounds.size.height - progressIndicatorHeight) / 2.0,
-                                                                               progressIndicatorWidth,
-                                                                               progressIndicatorHeight)];
-    _trackLoadProgress.style = NSProgressIndicatorStyleSpinning;
-    _trackLoadProgress.displayedWhenStopped = NO;
-    _trackLoadProgress.autoresizingMask =  NSViewNotSizable | NSViewMinXMargin | NSViewMaxXMargin| NSViewMinYMargin | NSViewMaxYMargin;
-    
-    [self.window.contentView addSubview:_trackLoadProgress];
 }
 
 - (void)windowDidLoad
@@ -1312,14 +1304,16 @@ static const NSString* kIdentifyToolbarIdentifier = @"Live Identify";
     self.window.delegate = self;
 
     [self.renderer loadMetalWithView:self.scopeView];
-    
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(someWindowWillClose:) name:@"NSWindowWillCloseNotification" object:nil];
 
+    [self setupDisplayLink];
+
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(someWindowWillClose:) name:@"NSWindowWillCloseNotification" object:nil];
+    
     NSNumber* fullscreenValue = [userDefaults objectForKey:@"fullscreen"];
     if ([fullscreenValue boolValue]) {
         [self.window toggleFullScreen:self];
     }
-    
+
     [_playlist readFromDefaults];
 }
 
@@ -1576,8 +1570,6 @@ static const NSString* kIdentifyToolbarIdentifier = @"Live Identify";
 
 - (void)setPlaybackActive:(BOOL)active
 {
-    [self loadProgress:_controlPanelController.autoplayProgress state:LoadStateStopped value:0.0];
-    
     _controlPanelController.playPause.state = active ? NSControlStateValueOn : NSControlStateValueOff;
     //_identifyToolbarButton.enabled = active ? YES : NO;
 }
@@ -1626,10 +1618,11 @@ static const NSString* kIdentifyToolbarIdentifier = @"Live Identify";
         NSPanel* panel = [NSPanel windowWithContentViewController:_activityViewController];
         window = panel;
         window.styleMask &= ~(NSWindowStyleMaskResizable | NSWindowStyleMaskMiniaturizable);
-        window.titleVisibility = NSWindowTitleHidden;
+        window.titleVisibility = NSWindowTitleVisible;
         window.movableByWindowBackground = YES;
         window.titlebarAppearsTransparent = YES;
         window.level = NSFloatingWindowLevel;
+        window.title = @"Activity";
         _activityWindowController.window = window;
     } else {
         window = (NSPanel*)self.activityWindowController.window;
@@ -1710,24 +1703,55 @@ static const NSString* kIdentifyToolbarIdentifier = @"Live Identify";
 {
     WaveWindowController* __weak weakSelf = self;
     
-    _totalIdentificationController = [[TotalIdentificationController alloc] initWithSample:_audioController.sample];
-    _totalIdentificationController.referenceArtist = _meta.artist;
-#ifdef DEBUG
-    _totalIdentificationController.debugScoring = YES;
-#endif
-    [_totalIdentificationController detectTracklistWithCallback:^(BOOL done, NSError* error, NSArray<TimedMediaMetaData*>* tracks){
-        //NSLog(@"%d coming back from the detection: %@", done, tracks);
-        
+    void (^continuation)(void) = ^(void) {
         WaveWindowController* strongSelf = weakSelf;
-        if (!done) {
-            NSLog(@"detection failed with: %@", error);
-            return;
-        }
+
+        strongSelf->_totalIdentificationController = [[TotalIdentificationController alloc] initWithSample:strongSelf->_audioController.sample];
+        strongSelf->_totalIdentificationController.referenceArtist = strongSelf->_meta.artist;
+    #ifdef DEBUG
+        strongSelf->_totalIdentificationController.debugScoring = YES;
+    #endif
         
-        [strongSelf->_tracklist addTracks:tracks];
-        [strongSelf->_totalWaveViewController reloadTracklist];
-        [strongSelf->_scrollingWaveViewController reloadTracklist];
-    }];
+        // Start the complete detection and let the tracklist-controller know that we have an
+        // ongoing activity - that way this can be reflected visually.
+        strongSelf->_tracklist.detectionToken = [strongSelf->_totalIdentificationController detectTracklistWithCallback:^(BOOL done, NSError* error, NSArray<TimedMediaMetaData*>* tracks){
+            WaveWindowController* strongSelf = weakSelf;
+            if (!done) {
+                NSLog(@"detection failed with: %@", error);
+                return;
+            }
+            
+            [strongSelf->_tracklist addTracks:tracks];
+            [strongSelf->_totalWaveViewController reloadTracklist];
+            [strongSelf->_scrollingWaveViewController reloadTracklist];
+        }];
+    };
+    
+
+    // Detect is destructive when it comes to our tracklist.
+    if (_meta.trackList.tracks.count > 0) {
+        NSAlert* alert = [[NSAlert alloc] init];
+        [alert setMessageText:@"Drop the existing Tracklist?"];
+        [alert setInformativeText:@"Tracklist will get overwritten"];
+        [alert addButtonWithTitle:@"Drop"];
+        [alert addButtonWithTitle:@"Cancel"];
+        [alert setAlertStyle:NSAlertStyleWarning];
+        
+        [alert beginSheetModalForWindow:self.window completionHandler:^(NSModalResponse returnCode) {
+            WaveWindowController* strongSelf = weakSelf;
+
+            if (returnCode == NSAlertSecondButtonReturn) {
+                NSLog(@"user decided to leave tracklist as is");
+                return;
+            }
+
+            NSLog(@"user decided to overwrite tracklist");
+            [strongSelf->_tracklist clearTracklist];
+            continuation();
+        }];
+    } else {
+        continuation();
+    }
 }
 
 - (void)showIdentifier:(id)sender
@@ -2096,9 +2120,6 @@ typedef struct {
     context.meta = meta;
 
     // FIXME: This is far too localized -- lets not update the screen whenever we change the status explicitly -- this should happen implicitly.
-    if (context.playing) {
-        [self loadProgress:_controlPanelController.autoplayProgress state:LoadStateInit value:0.0];
-    }
     
     _loaderState = LoaderStateAbortingKeyDetection;
 
@@ -2283,9 +2304,6 @@ typedef struct {
 
     [self setBPM:0.0];
 
-    [self loadTrackState:LoadStateInit value:0.0];
-    [self loadTrackState:LoadStateStopped value:0.0];
-
     _visualSample = [[VisualSample alloc] initWithSample:sample
                                           pixelPerSecond:kPixelPerSecond
                                                tileWidth:_scrollingWaveViewController.tileWidth];
@@ -2347,11 +2365,6 @@ typedef struct {
     if (_loaderState == LoaderStateAborted) {
         return;
     }
-
-    [self loadProgress:_controlPanelController.beatProgress
-                 state:LoadStateInit
-                 value:0.0];
-
     _loaderState = LoaderStateBeatDetection;
 
     _beatSample = beatsSample;
@@ -2364,9 +2377,6 @@ typedef struct {
         } else {
             NSLog(@"never finished the beat tracking");
         }
-        [self loadProgress:self.controlPanelController.beatProgress
-                     state:LoadStateStopped
-                     value:0.0];
     }];
 }
 
@@ -2396,8 +2406,6 @@ typedef struct {
         return;
     }
 
-    [self loadProgress:_controlPanelController.keyProgress state:LoadStateInit value:0.0];
-
     _loaderState = LoaderStateKeyDetection;
 
     _keySample = keySample;
@@ -2408,7 +2416,6 @@ typedef struct {
         } else {
             NSLog(@"never finished the key tracking");
         }
-        [self loadProgress:self.controlPanelController.keyProgress state:LoadStateStopped value:0.0];
     }];
 }
 
@@ -2566,59 +2573,6 @@ typedef struct {
     [self loadDocumentFromURL:[WaveWindowController encodeQueryItemsWithUrl:url frame:0LL playing:YES] meta:meta];
 }
 
-- (void)loadProgress:(NSProgressIndicator*)progress state:(LoadState)state value:(double)value
-{
-    switch(state) {
-        case LoadStateInit:
-            progress.hidden = NO;
-            progress.indeterminate = YES;
-            [progress startAnimation:self];
-            break;
-        case LoadStateStarted:
-            [progress stopAnimation:self];
-            progress.indeterminate = NO;
-            progress.doubleValue = 0.0;
-            break;
-        case LoadStateLoading:
-            progress.doubleValue = value;
-            break;
-        case LoadStateStopped:
-            progress.doubleValue = 1.0;
-            progress.hidden = YES;
-            break;
-    }
-}
-
-- (void)loadLibraryState:(LoadState)state
-{
-    [self loadLibraryState:state value:0.0];
-}
-
-- (void)loadLibraryState:(LoadState)state value:(double)value
-{
-    [self loadProgress:self.progress state:state value:value];
-}
-
-- (void)loadTrackState:(LoadState)state
-{
-    [self loadTrackState:state value:0.0];
-}
-
-- (void)loadTrackState:(LoadState)state value:(double)value
-{
-    [self loadProgress:self.trackLoadProgress state:state value:value];
-}
-
-- (void)renderTrackState:(LoadState)state
-{
-    [self renderTrackState:state value:0.0];
-}
-
-- (void)renderTrackState:(LoadState)state value:(double)value
-{
-    [self loadProgress:self.trackRenderProgress state:state value:value];
-}
-
 #pragma mark - Audio delegate
 
 - (void)startVisuals
@@ -2628,8 +2582,6 @@ typedef struct {
 
     // Start the scope renderer.
     [_renderer play:_audioController visual:_visualSample scope:_scopeView];
-
-    [self setupDisplayLink];
 }
 
 - (void)audioControllerPlaybackStarted

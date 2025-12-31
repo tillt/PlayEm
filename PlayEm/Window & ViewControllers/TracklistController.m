@@ -7,6 +7,9 @@
 //
 
 #import "TracklistController.h"
+
+#import <CoreImage/CoreImage.h>
+
 #import "../Defaults.h"
 #import "../NSImage+Resize.h"
 #import "TrackList.h"
@@ -15,6 +18,7 @@
 #import "TimedMediaMetaData.h"
 #import "MediaMetaData.h"
 #import "ImageController.h"
+#import "ActivityManager.h"
 
 const CGFloat kTimeHeight = 22.0;
 const CGFloat kTotalRowHeight = 52.0 + kTimeHeight;
@@ -26,6 +30,8 @@ static const NSAutoresizingMaskOptions kViewFullySizeable = NSViewHeightSizable 
 @property (nonatomic, strong) NSTableView* table;
 @property (assign, nonatomic) NSUInteger currentTrackIndex;
 @property (strong, nonatomic) NSButton* detectButton;
+@property (strong, nonatomic) NSTextField* detectLabel;
+@property (strong, nonatomic) NSProgressIndicator* detectProgress;
 @end
 
 // FIXME: This should be a viewcontroller.
@@ -41,6 +47,22 @@ static const NSAutoresizingMaskOptions kViewFullySizeable = NSViewHeightSizable 
     }
     return self;
 }
+
+
+- (void)dealloc
+{
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+}
+
+- (void)viewDidLoad
+{
+    [super viewDidLoad];
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(activitiesUpdated:)
+                                                 name:ActivityManagerDidUpdateNotification
+                                               object:nil];
+}
+
 
 - (void)loadView
 {
@@ -78,24 +100,82 @@ static const NSAutoresizingMaskOptions kViewFullySizeable = NSViewHeightSizable 
     
     _detectButton = [NSButton buttonWithTitle:@"Detect Tracklist" target:nil action:@selector(startTrackDetection:)];
     [self.view addSubview:_detectButton];
+    
+    _detectLabel = [NSTextField textFieldWithString:@"Tracklist Detection in Progress"];
+    _detectLabel.editable = NO;
+    _detectLabel.font = [[Defaults sharedDefaults] smallFont];
+    _detectLabel.drawsBackground = NO;
+    _detectLabel.textColor = [NSColor secondaryLabelColor];
+    _detectLabel.bordered = NO;
+    _detectLabel.cell.truncatesLastVisibleLine = YES;
+    _detectLabel.cell.lineBreakMode = NSLineBreakByTruncatingTail;
+    _detectLabel.alignment = NSTextAlignmentCenter;
+    [self.view addSubview:_detectLabel];
+
+    _detectProgress = [[NSProgressIndicator alloc] initWithFrame:NSZeroRect];
+    _detectProgress.indeterminate = NO;
+    _detectProgress.minValue = 0.0;
+    _detectProgress.maxValue = 1.0;
+    _detectProgress.style = NSProgressIndicatorStyleBar;
+    _detectProgress.controlSize = NSControlSizeMini;
+    _detectProgress.autoresizingMask =  NSViewWidthSizable;
+
+    // Create color:
+    CIColor *color = [[CIColor alloc] initWithColor:[NSColor whiteColor]];
+
+    // Create filter:
+    CIFilter *colorFilter = [CIFilter filterWithName:@"CIColorMonochrome"
+                                 withInputParameters:@{@"inputColor": color}];
+
+    // Assign to bar:
+    _detectProgress.contentFilters = @[colorFilter];
+
+    [self.view addSubview:_detectProgress];
 }
 
 - (void)viewDidLayout
 {
     [super viewDidLayout];
+    
     NSRect buttonRect = NSMakeRect(floor((self.view.bounds.size.width - _detectButton.frame.size.width) / 2.0),
                                    floor((self.view.bounds.size.height - _detectButton.frame.size.height) / 2.0),
                                    _detectButton.frame.size.width,
                                    _detectButton.frame.size.height);
     _detectButton.frame = buttonRect;
+    
+    NSRect labelRect = NSMakeRect(0.0, buttonRect.origin.y, self.view.bounds.size.width, buttonRect.size.height);
+    _detectLabel.frame = labelRect;
+    
+    CGFloat padding = 50.0;
+    NSRect progressRect = NSMakeRect(labelRect.origin.x + padding,
+                                     labelRect.origin.y - (_detectProgress.frame.size.height - 4.0),
+                                     labelRect.size.width - (2 * padding),
+                                     _detectProgress.frame.size.height);
+    _detectProgress.frame = progressRect;
 }
 
 - (void)viewWillAppear
 {
     [super viewWillAppear];
-    
-    _detectButton.hidden =  _current.trackList.tracks.count > 0;
- }
+
+    [self reflectState];
+}
+
+- (void)reflectState
+{
+    BOOL idle = _detectionToken == nil;
+    BOOL lackingTracks = _current.trackList.tracks.count == 0;
+    _detectButton.hidden = !(lackingTracks & idle);
+    _detectLabel.hidden = idle;
+    _detectProgress.hidden = idle;
+}
+
+- (void)setDetectionToken:(ActivityToken *)detectionToken
+{
+    _detectProgress.doubleValue = 0.0;
+    _detectionToken = detectionToken;
+    [self reflectState];
+}
 
 - (NSInteger)numberOfRowsInTableView:(NSTableView*)tableView
 {
@@ -162,6 +242,13 @@ static const NSAutoresizingMaskOptions kViewFullySizeable = NSViewHeightSizable 
         [trackFrames addObject:frames[self.table.clickedRow]];
     }
     return trackFrames;
+}
+
+- (void)clearTracklist
+{
+    [_current.trackList clear];
+    [_table reloadData];
+    [_delegate updatedTracks];
 }
 
 - (void)removeFromTracklist:(id)sender
@@ -604,6 +691,27 @@ static const NSAutoresizingMaskOptions kViewFullySizeable = NSViewHeightSizable 
 - (BOOL)tableView:(NSTableView*)tableView shouldSelectRow:(NSInteger)row
 {
     return YES;
+}
+
+
+#pragma mark - Notifications
+
+- (void)activitiesUpdated:(NSNotification*)note
+{
+    // Should we care?
+    if(_detectionToken == nil) {
+        return;
+    }
+    
+    // Did our token expire?
+    if (![[ActivityManager shared] isActive:_detectionToken]) {
+        self.detectionToken = nil;
+        return;
+    }
+    
+    ActivityEntry* entry = [[ActivityManager shared] activityWithToken:_detectionToken];
+    _detectProgress.doubleValue = entry.progress;
+    [_detectProgress setNeedsDisplay:YES];
 }
 
 @end

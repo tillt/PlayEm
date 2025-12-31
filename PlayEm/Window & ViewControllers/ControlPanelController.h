@@ -17,6 +17,7 @@ NS_ASSUME_NONNULL_BEGIN
 @protocol ControlPanelControllerDelegate <NSObject>
 
 - (void)showInfoForCurrentSong:(id)sender;
+- (void)showActivity:(id)sender;
 - (void)togglePause:(id)sender;
 - (void)volumeChange:(id)sender;
 - (void)tempoChange:(id)sender;
@@ -37,15 +38,12 @@ NS_ASSUME_NONNULL_BEGIN
 @property (strong, nonatomic) CIFilter* zoomBlur;
 @property (strong, nonatomic) MediaMetaData* meta;
 
-@property (strong, nonatomic) NSProgressIndicator* beatProgress;
-@property (strong, nonatomic) NSProgressIndicator* keyProgress;
-@property (strong, nonatomic) NSProgressIndicator* autoplayProgress;
-
 @property (assign, nonatomic) BOOL durationUnitTime;
 
 
 - (id)initWithDelegate:(id<ControlPanelControllerDelegate>)delegate;
 - (void)loadView;
+- (void)tickWithTimestamp:(CFTimeInterval)interval;
 
 - (void)setKey:(NSString*)key hint:(NSString*)hint;
 - (void)setKeyHidden:(BOOL)hidden;

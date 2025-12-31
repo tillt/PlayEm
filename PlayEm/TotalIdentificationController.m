@@ -12,7 +12,6 @@
 #import "Sample/LazySample.h"
 #import "Metadata/TimedMediaMetaData.h"
 #import "Metadata/ImageController.h"
-#import "Audio/AudioController.h" // for kPlaybackBufferFrames parity with live detection
 #import "ActivityManager.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -52,8 +51,8 @@ static BOOL IsUnknownTrack(TimedMediaMetaData* _Nullable t)
 @property (assign, nonatomic) double idealTrackMaxSeconds;
 @property (assign, nonatomic) double minScoreThreshold;
 @property (assign, nonatomic) double duplicateMergeWindowSeconds;
-@property (strong, nonatomic) ActivityToken* token;
 @property (strong, nonatomic) dispatch_block_t queueOperation;
+@property (strong, nonatomic) ActivityToken* token;
 @end
 
 
@@ -114,7 +113,10 @@ static BOOL IsUnknownTrack(TimedMediaMetaData* _Nullable t)
 #ifdef DEBUG_TAPPING
     FILE* fp = fopen("/tmp/debug_tap.out", "wb");
 #endif
-    // Pace offline feeding to roughly match live playback signature cadence (~4x realtime of a kPlaybackBufferFrames chunk).
+    // Pace offline feeding to roughly match live playback signature cadence x32. Anything
+    // faster appears to trash the recognition - it feels like buffers get overwritten but
+    // that is not clear, so far. Needs more investigation. Also the fact that we need to
+    // rely on sleeps is very hacky - we need proper events - maybe KVO?
     useconds_t throttleUsec = (useconds_t)(((double)_hopSize / sampleFormat.rate / 32.0) * 1000000.0);
     if (throttleUsec < 1) {
         throttleUsec = 1;
@@ -180,7 +182,7 @@ static BOOL IsUnknownTrack(TimedMediaMetaData* _Nullable t)
     return YES;
 }
 
-- (void)detectTracklistWithCallback:(nonnull void (^)(BOOL, NSError*, NSArray<TimedMediaMetaData*>*))callback
+- (ActivityToken*)detectTracklistWithCallback:(nonnull void (^)(BOOL, NSError*, NSArray<TimedMediaMetaData*>*))callback
 {
     __block BOOL done = NO;
     __weak typeof(self) weakSelf = self;
@@ -212,12 +214,9 @@ static BOOL IsUnknownTrack(TimedMediaMetaData* _Nullable t)
         [weakSelf scheduleCompletionCheckIsTimeout:NO];
     });
     dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0), _queueOperation);
-//    dispatch_block_notify(_queueOperation, dispatch_get_main_queue(), ^{
-//        [[ActivityManager shared] completeActivity:_token];
-//        callback(done, nil, _i);
-//    });
 
     NSLog(@"starting track list detection");
+    return _token;
 }
 
 - (void)abortWithCallback:(void (^)(void))callback
@@ -272,6 +271,35 @@ static BOOL IsUnknownTrack(TimedMediaMetaData* _Nullable t)
     return (unsigned long long)(start + frames);
 }
 
+//
+// Adaptive Confidence Blending
+//
+//    Collect hits: Accumulate Shazam matches into TimedMediaMetaData items (frame, meta, optional endFrame). Require support ≥ 2
+//    per normalized key (artist — title) before keeping a candidate; otherwise drop.
+//
+//    Aggregate & build tracks: For each key, track earliest frame, latest frame, support count, and representative metadata. Create
+//    track objects with frame, endFrame, support/confidence.
+//
+//    Sort by start frame.
+//
+//    Score each track:
+//      Base = support count (no cap).
+//      Duration estimate: metadata duration if present; else span frame→endFrame; else gap to next track; else to sample end. If
+//                         support≥2 and duration < ideal min, clamp up to the ideal min.
+//      Duration weight:   ideal window 4–12 min → 1.6× boost; <3 min heavy penalty; short (<4 min) quadratic falloff; long penalty with 0.15 floor.
+//      Producer bonus:    if referenceArtist appears in artist/title, ×3.
+//
+//    Set score and confidence to the final value.
+//
+//    Merge near-duplicates: Within 90 s, if titles/artists match/overlap, keep the higher score.
+//
+//    Overlap resolution: Walk in time order; if spans overlap, keep higher score. Real tracks always beat “unknown” placeholders.
+//
+//    Gap fill (unknowns): For gaps between kept tracks, if there are ≥3 unknown hits spanning ≥60 s (and under the ideal max), synthesize an
+//                         “Unknown” track covering that span, score it via the same duration heuristic, and reinsert.
+//
+//    Short/low drop (late): After all above, drop items with score ≤ 5 and duration < 90 s.
+//
 - (NSArray<TimedMediaMetaData*>*)refineTracklist
 {
     NSArray<TimedMediaMetaData*>* input = nil;
@@ -342,7 +370,7 @@ static BOOL IsUnknownTrack(TimedMediaMetaData* _Nullable t)
     }
 
     // Static support threshold to keep logic simple.
-    NSInteger dynamicMinSupport = 1;
+    NSInteger dynamicMinSupport = 2;
 
     NSMutableArray<TimedMediaMetaData*>* result = [NSMutableArray array];
     for (NSString* key in agg) {

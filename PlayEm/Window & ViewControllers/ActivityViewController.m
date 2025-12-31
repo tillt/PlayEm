@@ -7,9 +7,11 @@
 //
 
 #import "ActivityViewController.h"
+
+#import <QuartzCore/QuartzCore.h>
+
 #import "ActivityManager.h"
 #import "Defaults.h"
-#import <QuartzCore/QuartzCore.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -121,6 +123,10 @@ static const BOOL kActivityDebugLogging = NO;
 
 @end
 
+
+// While neat in isolation, this doesnt play well with the table view animations. It appears
+// the table-view reload animations totally trash all timing - even if done carefully (not
+// globally as in `reloadData`).
 @interface ArcSpinnerView : NSView
 @property (nonatomic, assign) BOOL spinning;
 @property (nonatomic, assign) BOOL wasIndeterminate;
@@ -144,6 +150,7 @@ static const BOOL kActivityDebugLogging = NO;
         background.strokeColor = NSColor.tertiaryLabelColor.CGColor;
         background.frame = self.bounds;
         background.autoresizingMask = kCALayerWidthSizable | kCALayerHeightSizable;
+        background.speed = 1.0;
         [self.layer addSublayer:background];
 
         _arcLayer = [CAShapeLayer layer];
@@ -151,6 +158,7 @@ static const BOOL kActivityDebugLogging = NO;
         _arcLayer.fillColor = NSColor.clearColor.CGColor;
         _arcLayer.strokeColor = NSColor.whiteColor.CGColor;
         _arcLayer.lineCap = kCALineCapRound;
+        _arcLayer.speed = 1.0;
         [self.layer addSublayer:_arcLayer];
         [self updatePath];
     }
@@ -189,6 +197,8 @@ static const BOOL kActivityDebugLogging = NO;
 {
     _spinning = spinning;
     if (spinning) {
+        // Ensure a clean slate so timing isn’t compounded when views are reused/relayed out.
+        [_arcLayer removeAllAnimations];
         if ([_arcLayer animationForKey:@"spin"] == nil) {
             CABasicAnimation* spin = [CABasicAnimation animationWithKeyPath:@"transform.rotation.z"];
             spin.fromValue = @(0);
@@ -196,6 +206,7 @@ static const BOOL kActivityDebugLogging = NO;
             spin.duration = 1.0;
             spin.repeatCount = HUGE_VALF;
             spin.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionLinear];
+            spin.beginTime = CACurrentMediaTime();
             [_arcLayer addAnimation:spin forKey:@"spin"];
 
             CAKeyframeAnimation* head = [CAKeyframeAnimation animationWithKeyPath:@"strokeStart"];
@@ -207,6 +218,7 @@ static const BOOL kActivityDebugLogging = NO;
                 [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut],
                 [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut]
             ];
+            head.beginTime = CACurrentMediaTime();
             [_arcLayer addAnimation:head forKey:@"head"];
 
             CAKeyframeAnimation* tail = [CAKeyframeAnimation animationWithKeyPath:@"strokeEnd"];
@@ -218,6 +230,7 @@ static const BOOL kActivityDebugLogging = NO;
                 [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut],
                 [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut]
             ];
+            tail.beginTime = CACurrentMediaTime();
             [_arcLayer addAnimation:tail forKey:@"tail"];
         }
         _arcLayer.strokeStart = 0.0;
@@ -225,15 +238,6 @@ static const BOOL kActivityDebugLogging = NO;
     } else {
         [_arcLayer removeAllAnimations];
     }
-}
-
-- (void)animateCompletionWithDuration:(CFTimeInterval)duration completion:(dispatch_block_t)completion
-{
-    // Completion animation removed; snap to full.
-    [_arcLayer removeAllAnimations];
-    _arcLayer.strokeStart = 0.0;
-    _arcLayer.strokeEnd = 1.0;
-    if (completion) { completion(); }
 }
 
 @end
@@ -408,8 +412,18 @@ static const BOOL kActivityDebugLogging = NO;
         const CGFloat cancelSize = 20.0;
         const CGFloat cancelY = round((tableView.rowHeight - cancelSize) / 2.0);
         const CGFloat cancelX = round((tableColumn.width - cancelSize) / 2.0);
-        NSButton* cancelButton = [NSButton buttonWithTitle:@"X" target:self action:@selector(cancelButtonPressed:)];
-        cancelButton.bezelStyle = NSBezelStyleTexturedRounded;
+        NSButton* cancelButton = [NSButton buttonWithTitle:@"" target:self action:@selector(cancelButtonPressed:)];
+
+        NSImageSymbolConfiguration* baseConfig = [NSImageSymbolConfiguration configurationWithPointSize:18 weight:NSFontWeightBold];
+        NSImageSymbolConfiguration* palette = [NSImageSymbolConfiguration configurationWithPaletteColors:@[[NSColor labelColor], [NSColor tertiaryLabelColor]]];
+        NSImageSymbolConfiguration* config = [baseConfig configurationByApplyingConfiguration:palette];
+
+        NSImage* closeImage = [NSImage imageWithSystemSymbolName:@"xmark.circle.fill" accessibilityDescription:@"Cancel"];
+        closeImage = [closeImage imageWithSymbolConfiguration:config];
+
+        cancelButton.image = closeImage;
+        cancelButton.imagePosition = NSImageOnly;
+        cancelButton.bezelStyle = NSBezelStyleToolbar;
         cancelButton.controlSize = NSControlSizeSmall;
         cancelButton.identifier = kCancelButtonViewIdentifier;
         // Fire on mouse-down so frequent table reloads can’t eat the click before mouse-up.
@@ -480,13 +494,13 @@ static const BOOL kActivityDebugLogging = NO;
         if (removes.count > 0) {
             // Slide out (to the right) with a light fade so disappearing rows are visually obvious.
             [self.table removeRowsAtIndexes:removes
-                               withAnimation:(NSTableViewAnimationSlideRight | NSTableViewAnimationEffectFade)];
+                               withAnimation:(NSTableViewAnimationEffectFade)];
             if (kActivityDebugLogging) {
                 NSLog(@"[ActivityVC] remove rows: %@", removes);
             }
         }
         if (inserts.count > 0) {
-            [self.table insertRowsAtIndexes:inserts withAnimation:NSTableViewAnimationSlideUp];
+            [self.table insertRowsAtIndexes:inserts withAnimation:NSTableViewAnimationEffectFade];
             if (kActivityDebugLogging) {
                 NSLog(@"[ActivityVC] insert rows: %@", inserts);
             }
@@ -504,7 +518,6 @@ static const BOOL kActivityDebugLogging = NO;
     circle.tokenUUID = entry.token.uuid;
 
     BOOL indeterminate = (entry.progress < 0.0 && !entry.completed);
-    NSUUID* tokenUUID = entry.token.uuid;
 
     spinner.hidden = !indeterminate;
     circle.hidden = indeterminate;
@@ -516,66 +529,6 @@ static const BOOL kActivityDebugLogging = NO;
         spinner.spinning = NO;
         spinner.wasIndeterminate = NO;
         [circle setProgress:entry.completed ? 1.0 : entry.progress animated:sameToken];
-    }
-}
-
-- (void)refreshVisibleRowsAnimated:(BOOL)animated
-{
-    NSRange visible = [self.table rowsInRect:self.table.visibleRect];
-    for (NSInteger row = (NSInteger)visible.location; row < (NSInteger)(visible.location + visible.length); row++) {
-        if (row < 0 || (NSUInteger)row >= [ActivityManager shared].activities.count) {
-            continue;
-        }
-        ActivityEntry* entry = [ActivityManager shared].activities[(NSUInteger)row];
-
-        NSView* titleView = [self.table viewAtColumn:0 row:row makeIfNecessary:NO];
-        if (titleView) {
-            NSTextField* titleField = (NSTextField*)[self subviewWithIdentifier:@"title" inView:titleView matchingClass:[NSTextField class]];
-            NSTextField* detailField = (NSTextField*)[self subviewWithIdentifier:@"detail" inView:titleView matchingClass:[NSTextField class]];
-            if (titleField && detailField) {
-                if (animated) {
-                    titleField.alphaValue = 0.0;
-                    detailField.alphaValue = 0.0;
-                }
-                titleField.stringValue = entry.title;
-                detailField.stringValue = entry.detail ?: (entry.completed ? @"Done" : @"");
-                if (animated) {
-                    [[titleField animator] setAlphaValue:1.0];
-                    [[detailField animator] setAlphaValue:1.0];
-                }
-            }
-        }
-
-        NSView* progressView = [self.table viewAtColumn:1 row:row makeIfNecessary:NO];
-        if (progressView) {
-            ArcSpinnerView* spinner = (ArcSpinnerView*)[self subviewWithIdentifier:@"spinner" inView:progressView matchingClass:[ArcSpinnerView class]];
-            CircleProgressView* circle = (CircleProgressView*)[self subviewWithIdentifier:@"circle" inView:progressView matchingClass:[CircleProgressView class]];
-            if (spinner && circle) {
-                if (animated) {
-                    progressView.alphaValue = 0.0;
-                }
-                [self configureProgressIndicatorSpinner:spinner circle:circle entry:entry];
-                if (animated) {
-                    [[progressView animator] setAlphaValue:1.0];
-                }
-            }
-        }
-
-        NSView* cancelView = [self.table viewAtColumn:2 row:row makeIfNecessary:NO];
-        if (cancelView) {
-            NSButton* button = (NSButton*)[self subviewWithIdentifier:kCancelButtonViewIdentifier inView:cancelView matchingClass:[NSButton class]];
-            if (button) {
-                if (animated) {
-                    button.alphaValue = 0.0;
-                }
-                button.tag = row;
-                button.enabled = entry.cancellable;
-                button.hidden = !entry.cancellable;
-                if (animated) {
-                    [[button animator] setAlphaValue:1.0];
-                }
-            }
-        }
     }
 }
 

@@ -14,6 +14,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @class TimedMediaMetaData;
 @class AudioController;
+@class ActivityToken;
 
 extern NSString * const kTracklistControllerChangedActiveTrackNotification;
 
@@ -35,16 +36,17 @@ extern NSString * const kTracklistControllerChangedActiveTrackNotification;
 @property (nonatomic, weak) MediaMetaData* current;
 @property (nonatomic, assign) unsigned long long currentFrame;
 @property (nonatomic, readonly, nullable) TimedMediaMetaData* currentTrack;
+@property (nonatomic, strong, nullable) ActivityToken* detectionToken;
 
 - (id)init;
 
 - (void)addTrack:(TimedMediaMetaData*)track;
 - (void)addTracks:(NSArray<TimedMediaMetaData*>*)tracks;
-
 - (void)moveTrackAtFrame:(unsigned long long)oldFrame frame:(unsigned long long)newFrame;
 
 - (NSMenu*)menu;
 - (IBAction)exportTracklist:(id)sender;
+- (void)clearTracklist;
 
 @end
 

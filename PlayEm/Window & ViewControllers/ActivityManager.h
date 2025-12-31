@@ -50,6 +50,13 @@ extern NSNotificationName const ActivityManagerDidUpdateNotification;
 
 - (void)requestCancel:(ActivityToken*)token;
 
+- (BOOL)isActive:(ActivityToken*)token;
+
+- (ActivityEntry*)activityWithToken:(ActivityToken*)token;
+
+// Returns YES when at least one activity is still in progress (completed == NO).
+- (BOOL)hasOngoingActivity;
+
 @end
 
 NS_ASSUME_NONNULL_END

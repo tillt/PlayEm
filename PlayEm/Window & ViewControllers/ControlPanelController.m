@@ -18,6 +18,8 @@
 #import "BeatEvent.h"
 #import "../Views/SymbolButton.h"
 #import "NSImage+Resize.h"
+#import "PhosphorChaserView.h"
+#import "ActivityManager.h"
 
 NSString * const kBPMDefault = @"";
 NSString * const kKeyDefault = @"";
@@ -41,7 +43,7 @@ extern NSString * const kPlaybackStatePlaying;
 @property (strong, nonatomic) ScrollingTextView* albumArtistView;
 
 @property (strong, nonatomic) IdentificationCoverView* coverButton;
-
+@property (strong, nonatomic) PhosphorChaserView* activityChaser;
 @property (weak, nonatomic) id<ControlPanelControllerDelegate> delegate;
 @end
 
@@ -61,8 +63,18 @@ extern NSString * const kPlaybackStatePlaying;
                                                  selector:@selector(beatEffect:)
                                                      name:kBeatTrackedSampleBeatNotification
                                                    object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self
+                                                 selector:@selector(activitiesUpdated:)
+                                                     name:ActivityManagerDidUpdateNotification
+                                                   object:nil];
+
     }
     return self;
+}
+
+- (void)dealloc
+{
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
 - (void)AudioControllerPlaybackStateChange:(NSNotification*)notification
@@ -88,6 +100,24 @@ extern NSString * const kPlaybackStatePlaying;
 - (void)toggleProgressUnit:(id)sender
 {
     _durationUnitTime = !_durationUnitTime;
+}
+
+- (void)activitiesUpdated:(NSNotification*)note
+{
+    [self refreshChaserState];
+}
+
+- (void)refreshChaserState
+{
+    dispatch_async(dispatch_get_main_queue(), ^{
+        BOOL busy = [[ActivityManager shared] hasOngoingActivity];
+        self.activityChaser.active = busy;
+    });
+}
+
+- (void)tickWithTimestamp:(CFTimeInterval)interval
+{
+    [_activityChaser tickWithTimestamp:interval];
 }
 
 - (void)loadView
@@ -197,7 +227,7 @@ extern NSString * const kPlaybackStatePlaying;
     layer.masksToBounds = NO;
     layer.mask = [CAShapeLayer MaskLayerFromRect:layer.bounds];
     [_albumArtistView.layer addSublayer:layer];
-    
+
     _playPause = [[SymbolButton alloc] initWithFrame:CGRectMake(_titleView.frame.origin.x + scrollingTextViewWidth + 64.0f,
                                                                 playPauseButtonY,
                                                                 playPauseButtonWidth + 8.0,
@@ -211,14 +241,18 @@ extern NSString * const kPlaybackStatePlaying;
     _playPause.action = @selector(togglePause:);
     [self.view addSubview:_playPause];
 
-    _autoplayProgress = [[NSProgressIndicator alloc] initWithFrame:NSMakeRect(_titleView.frame.origin.x + scrollingTextViewWidth + 54.0f,
-                                                                              _playPause.frame.origin.y + bpmLabelHeight - 14.0,
-                                                                              20.0,
-                                                                              20.0)];
-    _autoplayProgress.style = NSProgressIndicatorStyleSpinning;
-    _autoplayProgress.displayedWhenStopped = NO;
-    _autoplayProgress.autoresizingMask =  NSViewNotSizable | NSViewMinXMargin | NSViewMaxXMargin| NSViewMinYMargin | NSViewMaxYMargin;
-    [self.view addSubview:_autoplayProgress];
+    const CGFloat chaserSize = 46;
+    // Phosphor chaser busy indicator (top-right).
+    CGFloat chaserX = _playPause.frame.origin.x - chaserSize + 6.0;
+    CGFloat chaserY =  loopButtonY + 8.0 - ((chaserSize / 2.0));
+    _activityChaser = [[PhosphorChaserView alloc] initWithFrame:NSMakeRect(chaserX, chaserY, chaserSize, chaserSize)];
+    _activityChaser.autoresizingMask = NSViewNotSizable;
+    [self.view addSubview:_activityChaser];
+    [self refreshChaserState];
+
+    recognizer = [[NSClickGestureRecognizer alloc] initWithTarget:_delegate action:@selector(showActivity:)];
+    recognizer.numberOfClicksRequired = 1;
+    [_activityChaser addGestureRecognizer:recognizer];
 
     _loop = [[SymbolButton alloc] initWithFrame:NSMakeRect(_playPause.frame.origin.x + _playPause.frame.size.width - 8.0,
                                                            loopButtonY,
@@ -232,6 +266,7 @@ extern NSString * const kPlaybackStatePlaying;
 
     _loop.state = NSControlStateValueOff;
     [self.view addSubview:_loop];
+    
 
     _time = [NSTextField textFieldWithString:@"--:--:--"];
     _time.bordered = NO;
@@ -398,15 +433,6 @@ extern NSString * const kPlaybackStatePlaying;
                             bpmLabelHeight);
     [self.view addSubview:_keyField];
 
-    _keyProgress = [[NSProgressIndicator alloc] initWithFrame:NSMakeRect(_keyField.frame.origin.x + 42.0,
-                                                                         _keyField.frame.origin.y + 4.0,
-                                                                          14.0,
-                                                                          14.0)];
-    _keyProgress.style = NSProgressIndicatorStyleSpinning;
-    _keyProgress.displayedWhenStopped = NO;
-    _keyProgress.autoresizingMask =  NSViewNotSizable | NSViewMinXMargin | NSViewMaxXMargin| NSViewMinYMargin | NSViewMaxYMargin;
-    [self.view addSubview:_keyProgress];
-
     _beatIndicator = [NSTextField textFieldWithString:@"􀀁"];
     _beatIndicator.bordered = NO;
     _beatIndicator.textColor = [[Defaults sharedDefaults] lightFakeBeamColor];;
@@ -431,15 +457,6 @@ extern NSString * const kPlaybackStatePlaying;
     layer.masksToBounds = NO;
     layer.mask = [CAShapeLayer MaskLayerFromRect:layer.bounds];
     [_beatIndicator.layer addSublayer:layer];
-    
-    _beatProgress = [[NSProgressIndicator alloc] initWithFrame:NSMakeRect(_beatIndicator.frame.origin.x + 58.0,
-                                                                          _playPause.frame.origin.y + bpmLabelHeight + 13.0,
-                                                                          14.0,
-                                                                          14.0)];
-    _beatProgress.style = NSProgressIndicatorStyleSpinning;
-    _beatProgress.displayedWhenStopped = NO;
-    _beatProgress.autoresizingMask =  NSViewNotSizable | NSViewMinXMargin | NSViewMaxXMargin| NSViewMinYMargin | NSViewMaxYMargin;
-    [self.view addSubview:_beatProgress];
     
     _bpm = [NSTextField textFieldWithString:kBPMDefault];
     _bpm.bordered = NO;
@@ -608,4 +625,3 @@ extern NSString * const kPlaybackStatePlaying;
 }
 
 @end
-

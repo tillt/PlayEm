@@ -12,13 +12,14 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @class LazySample;
+@class ActivityToken;
 @class TimedMediaMetaData;
 
 @interface TotalIdentificationController : NSObject<SHSessionDelegate>
 
 - (id)initWithSample:(LazySample*)sample;
 
-- (void)detectTracklistWithCallback:(nonnull void (^)(BOOL, NSError*, NSArray<TimedMediaMetaData*>*))callback;
+- (ActivityToken*)detectTracklistWithCallback:(nonnull void (^)(BOOL, NSError*, NSArray<TimedMediaMetaData*>*))callback;
 - (void)abortWithCallback:(void (^)(void))callback;
 
 // Optional reference artist (e.g., mix/producer) to boost matching tracks.

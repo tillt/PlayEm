@@ -131,7 +131,7 @@
     // Glue code - writing our tracklist into the ChapterForge structures.
     populateChapters(self.trackList, textChapters, urlChapters, imageChapters, self.frameToSeconds);
 
-    chapterforge::set_log_verbosity(chapterforge::LogVerbosity::Debug);
+    chapterforge::set_log_verbosity(chapterforge::LogVerbosity::Info);
     auto status = chapterforge::mux_file_to_m4a(input,
                                                 textChapters,
                                                 urlChapters,

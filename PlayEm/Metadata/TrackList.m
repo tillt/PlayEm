@@ -167,6 +167,11 @@
     return YES;
 }
 
+- (void)clear
+{
+    _trackMap = [NSMutableDictionary dictionary];
+}
+
 - (void)addTrack:(TimedMediaMetaData*)track
 {
     [_trackMap setObject:track forKey:track.frame];

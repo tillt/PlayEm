@@ -82,6 +82,12 @@ static const NSAutoresizingMaskOptions kViewFullySizeable = NSViewHeightSizable 
     
     [sv addSubview:_table];
 }
+
+- (void)viewDidLoad
+{
+    [super viewDidLoad];
+}
+
 - (void)writeToDefaults
 {
     NSUserDefaults* userDefaults = [NSUserDefaults standardUserDefaults];

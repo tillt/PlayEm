@@ -43,8 +43,6 @@ extern NSString* const kSongsColGenre;
 - (BOOL)playing;
 - (void)closeFilter;
 - (void)browseSelectedUrl:(NSURL*)url meta:(MediaMetaData*)meta;
-- (void)loadLibraryState:(LoadState)state;
-- (void)loadLibraryState:(LoadState)state value:(double)value;
 - (void)addToPlaylistNext:(MediaMetaData*)meta;
 - (void)addToPlaylistLater:(MediaMetaData*)meta;
 - (void)updateSongsCount:(size_t)songs filtered:(size_t)filtered;

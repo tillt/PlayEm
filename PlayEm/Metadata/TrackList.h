@@ -41,6 +41,7 @@ typedef NSString* _Nonnull (^FrameToString)(unsigned long long frame);
 - (TimedMediaMetaData*)trackAtFrameNumber:(NSNumber*)frame;
 - (NSArray<TimedMediaMetaData*>*)tracks;
 - (NSArray<NSNumber*>*)frames;
+- (void)clear;
 
 - (unsigned long long)firstTrackFrame:(TrackListIterator *_Nonnull*_Nullable)iterator;
 - (unsigned long long)nextTrackFrame:(nonnull TrackListIterator *)iterator;

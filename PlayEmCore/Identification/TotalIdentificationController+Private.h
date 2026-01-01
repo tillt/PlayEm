@@ -28,10 +28,10 @@ NS_ASSUME_NONNULL_BEGIN
     NSUInteger _matchResponseCount;
     BOOL _finishedFeeding;
     BOOL _completionSent;
+    BOOL _debugScoring;
     void (^_completionHandler)(BOOL, NSError* _Nullable, NSArray<TimedMediaMetaData*>* _Nullable);
     NSMutableArray<NSNumber*>* _pendingMatchOffsets;
     unsigned long long _totalFrameCursor;
-    dispatch_queue_t _feedQueue;
     NSMutableDictionary<NSString*, NSNumber*>* _lastMatchFrameByID;
     unsigned long long _minMatchSpacingFrames;
     double _idealTrackMinSeconds;
@@ -39,6 +39,7 @@ NS_ASSUME_NONNULL_BEGIN
     double _minScoreThreshold;
     double _duplicateMergeWindowSeconds;
     dispatch_block_t _queueOperation;
+    NSString* _referenceArtist;
     ActivityToken* _token;
 }
 @property (strong, nonatomic) SHSession* session;
@@ -56,7 +57,6 @@ NS_ASSUME_NONNULL_BEGIN
 @property (copy, nonatomic) void (^completionHandler)(BOOL, NSError* _Nullable, NSArray<TimedMediaMetaData*>* _Nullable);
 @property (strong, nonatomic) NSMutableArray<NSNumber*>* pendingMatchOffsets;
 @property (assign, nonatomic) unsigned long long totalFrameCursor;
-@property (strong, nonatomic) dispatch_queue_t feedQueue;
 @property (strong, nonatomic) NSMutableDictionary<NSString*, NSNumber*>* lastMatchFrameByID;
 @property (assign, nonatomic) unsigned long long minMatchSpacingFrames;
 @property (assign, nonatomic) double idealTrackMinSeconds;

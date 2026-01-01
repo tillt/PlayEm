@@ -23,12 +23,12 @@ NS_ASSUME_NONNULL_BEGIN
 - (BOOL)detectTracklist
 {
     NSLog(@"detectTracklist");
-    self->_session = [[SHSession alloc] init];
-    self->_session.delegate = self;
+    _session = [[SHSession alloc] init];
+    _session.delegate = self;
 
-    SampleFormat sampleFormat = self->_sample.sampleFormat;
+    SampleFormat sampleFormat = _sample.sampleFormat;
 
-    AVAudioFrameCount matchWindowFrameCount = self->_hopSize;
+    AVAudioFrameCount matchWindowFrameCount = _hopSize;
     AVAudioChannelLayout* layout = [[AVAudioChannelLayout alloc] initWithLayoutTag:kAudioChannelLayoutTag_Mono];
     AVAudioFormat* format = [[AVAudioFormat alloc] initWithCommonFormat:AVAudioPCMFormatFloat32
                                                              sampleRate:sampleFormat.rate
@@ -37,10 +37,10 @@ NS_ASSUME_NONNULL_BEGIN
 
     AVAudioPCMBuffer* stream = [[AVAudioPCMBuffer alloc] initWithPCMFormat:format frameCapacity:matchWindowFrameCount];
 
-    float* data[self->_sample.sampleFormat.channels];
-    const int channels = self->_sample.sampleFormat.channels;
+    float* data[_sample.sampleFormat.channels];
+    const int channels = _sample.sampleFormat.channels;
     for (int channel = 0; channel < channels; channel++) {
-        data[channel] = (float*)((NSMutableData*)self->_sampleBuffers[channel]).bytes;
+        data[channel] = (float*)((NSMutableData*)_sampleBuffers[channel]).bytes;
     }
 
 #ifdef DEBUG_TAPPING
@@ -56,35 +56,35 @@ NS_ASSUME_NONNULL_BEGIN
     }
 
     // Here we go, all the way through our entire sample.
-    while (self->_totalFrameCursor < self->_sample.frames) {
-        if (dispatch_block_testcancel(self.queueOperation) != 0) {
+    while (_totalFrameCursor < _sample.frames) {
+        if (dispatch_block_testcancel(_queueOperation) != 0) {
             NSLog(@"aborted track detection");
             return NO;
         }
-        double progress = (double)self->_totalFrameCursor / self->_sample.frames;
-        [[ActivityManager shared] updateActivity:self->_token progress:progress];
+        double progress = (double)_totalFrameCursor / _sample.frames;
+        [[ActivityManager shared] updateActivity:_token progress:progress];
 
         unsigned long long sourceWindowFrameCount = MIN(matchWindowFrameCount,
-                                                        self->_sample.frames - self->_totalFrameCursor);
+                                                        _sample.frames - _totalFrameCursor);
         // This may block for a loooooong time!
-        unsigned long long received = [self->_sample rawSampleFromFrameOffset:self->_totalFrameCursor
+        unsigned long long received = [_sample rawSampleFromFrameOffset:_totalFrameCursor
                                                                        frames:sourceWindowFrameCount
                                                                       outputs:data];
 
         unsigned long int sourceFrameIndex = 0;
         while(sourceFrameIndex < received) {
-            if (dispatch_block_testcancel(self.queueOperation) != 0) {
+            if (dispatch_block_testcancel(_queueOperation) != 0) {
                 NSLog(@"aborted track detection");
                 return NO;
             }
 
-            const unsigned long int inputWindowFrameCount = MIN(matchWindowFrameCount, self->_sample.frames - (self->_totalFrameCursor + sourceFrameIndex));
+            const unsigned long int inputWindowFrameCount = MIN(matchWindowFrameCount, _sample.frames - (_totalFrameCursor + sourceFrameIndex));
 
             [stream setFrameLength:(unsigned int)inputWindowFrameCount];
             // TODO: Yikes, this is a total nono -- we are writing to a read-only pointer!
             float* outputBuffer = stream.floatChannelData[0];
 
-            unsigned long long chunkStartFrame = self->_totalFrameCursor + sourceFrameIndex;
+            unsigned long long chunkStartFrame = _totalFrameCursor + sourceFrameIndex;
             for (unsigned long int outputFrameIndex = 0; outputFrameIndex < inputWindowFrameCount; outputFrameIndex++) {
                 double s = 0.0;
                 for (int channel = 0; channel < sampleFormat.channels; channel++) {
@@ -95,23 +95,23 @@ NS_ASSUME_NONNULL_BEGIN
                 outputBuffer[outputFrameIndex] = s;
                 sourceFrameIndex++;
             }
-            self->_sessionFrameOffset = chunkStartFrame;
+            _sessionFrameOffset = chunkStartFrame;
             NSNumber* offset = [NSNumber numberWithUnsignedLongLong:chunkStartFrame];
-            @synchronized (self) {
-                [self->_pendingMatchOffsets addObject:offset];
-            }
+            dispatch_sync(_identifyQueue, ^{
+                [_pendingMatchOffsets addObject:offset];
+            });
 
             AVAudioTime* time = [AVAudioTime timeWithSampleTime:chunkStartFrame atRate:sampleFormat.rate];
-            self->_matchRequestCount += 1;
+            _matchRequestCount += 1;
 
-            [self->_session matchStreamingBuffer:stream atTime:time];
+            [_session matchStreamingBuffer:stream atTime:time];
 
             // Light pacing so callbacks have a chance to arrive; ~16x realtime.
             usleep(throttleUsec);
         };
-        self->_totalFrameCursor += received;
+        _totalFrameCursor += received;
     };
-    self->_finishedFeeding = YES;
+    _finishedFeeding = YES;
     return YES;
 }
 
@@ -119,20 +119,20 @@ NS_ASSUME_NONNULL_BEGIN
 {
     __weak typeof(self) weakSelf = self;
 
-    self->_completionHandler = [callback copy];
-    [self->_identifieds removeAllObjects];
-    self->_matchRequestCount = 0;
-    self->_matchResponseCount = 0;
-    self->_finishedFeeding = NO;
-    self->_completionSent = NO;
-    self->_totalFrameCursor = 0;
-    [self->_pendingMatchOffsets removeAllObjects];
+    _completionHandler = [callback copy];
+    [_identifieds removeAllObjects];
+    _matchRequestCount = 0;
+    _matchResponseCount = 0;
+    _finishedFeeding = NO;
+    _completionSent = NO;
+    _totalFrameCursor = 0;
+    [_pendingMatchOffsets removeAllObjects];
 
     _token = [[ActivityManager shared] beginActivityWithTitle:@"Tracklist Detection" detail:nil cancellable:YES cancelHandler:^{
         [weakSelf abortWithCallback:^{
-            [[ActivityManager shared] updateActivity:self->_token detail:@"aborted"];
-            [[ActivityManager shared] completeActivity:self->_token];
-            self->_completionHandler(NO, nil, nil);
+            [[ActivityManager shared] updateActivity:_token detail:@"aborted"];
+            [[ActivityManager shared] completeActivity:_token];
+            _completionHandler(NO, nil, nil);
         }];
     }];
 
@@ -206,27 +206,21 @@ NS_ASSUME_NONNULL_BEGIN
 {
     __weak TotalIdentificationController* weakSelf = self;
 
+    NSLog(@"%s", __PRETTY_FUNCTION__);
+
     dispatch_async(_identifyQueue, ^{
         TotalIdentificationController* strongSelf = weakSelf;
         if (strongSelf == nil) {
             return;
         }
         NSNumber* offset = nil;
-        @synchronized (strongSelf) {
-            if (strongSelf->_pendingMatchOffsets.count > 0) {
-                offset = strongSelf->_pendingMatchOffsets.firstObject;
-                [strongSelf->_pendingMatchOffsets removeObjectAtIndex:0];
-            }
+        if (strongSelf->_pendingMatchOffsets.count > 0) {
+            offset = strongSelf->_pendingMatchOffsets.firstObject;
+            [strongSelf->_pendingMatchOffsets removeObjectAtIndex:0];
         }
         if (offset == nil) {
             offset = [NSNumber numberWithUnsignedLongLong:strongSelf->_sessionFrameOffset];
         }
-
-        NSLog(@"%s %@ - %@", __PRETTY_FUNCTION__, match.mediaItems[0].artist, match.mediaItems[0].title);
-        unsigned long long frame = offset.unsignedLongLongValue;
-        double seconds = (double)frame / self->_sample.sampleFormat.rate;
-        NSLog(@"[DelegateFrame] frame=%llu time=%.3fs %@ - %@", frame, seconds, match.mediaItems.firstObject.artist, match.mediaItems.firstObject.title);
-                
         TimedMediaMetaData* track = [[TimedMediaMetaData alloc] initWithMatchedMediaItem:match.mediaItems[0] frame:offset];
 
         NSString* msg = [NSString stringWithFormat:@"%@ - %@", track.meta.artist, track.meta.title];
@@ -264,11 +258,9 @@ NS_ASSUME_NONNULL_BEGIN
         TotalIdentificationController* strongSelf = weakSelf;
         if (strongSelf != nil) {
             NSNumber* offset = nil;
-            @synchronized (strongSelf) {
-                if (strongSelf->_pendingMatchOffsets.count > 0) {
-                    offset = strongSelf->_pendingMatchOffsets.firstObject;
-                    [strongSelf->_pendingMatchOffsets removeObjectAtIndex:0];
-                }
+            if (strongSelf->_pendingMatchOffsets.count > 0) {
+                offset = strongSelf->_pendingMatchOffsets.firstObject;
+                [strongSelf->_pendingMatchOffsets removeObjectAtIndex:0];
             }
             if (offset == nil) {
                 offset = [NSNumber numberWithUnsignedLongLong:strongSelf->_sessionFrameOffset];

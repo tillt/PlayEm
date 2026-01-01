@@ -115,10 +115,7 @@ typedef NSArray<TimedMediaMetaData*>* _Nonnull (^TracklistFilterBlock)(NSArray<T
 //
 - (NSArray<TimedMediaMetaData*>*)refineTracklist
 {
-    NSArray<TimedMediaMetaData*>* input = nil;
-    @synchronized (self) {
-        input = [_identifieds copy];
-    }
+    NSArray<TimedMediaMetaData*>* input = [_identifieds copy];
 
     if (input.count == 0) {
         return @[];
@@ -175,7 +172,7 @@ typedef NSArray<TimedMediaMetaData*>* _Nonnull (^TracklistFilterBlock)(NSArray<T
 
 - (void)logTracklist:(NSArray<TimedMediaMetaData*>*)tracks tag:(NSString*)tag includeDuration:(BOOL)includeDuration
 {
-    if (!self.debugScoring) {
+    if (!_debugScoring) {
         return;
     }
     for (TimedMediaMetaData* t in tracks) {
@@ -381,7 +378,7 @@ typedef NSArray<TimedMediaMetaData*>* _Nonnull (^TracklistFilterBlock)(NSArray<T
             if ([self isSimilarTrack:current other:other]) {
                 TimedMediaMetaData* winner = current.score.doubleValue >= other.score.doubleValue ? current : other;
                 TimedMediaMetaData* loser = (winner == current) ? other : current;
-                if (self.debugScoring) {
+                if (_debugScoring) {
                     NSLog(@"[Score] merging similar tracks at frames %@/%@ -> keeping %@ %@ (score %.3f) dropping %@ %@ (score %.3f)",
                           current.frame, other.frame,
                           winner.meta.artist ?: @"", winner.meta.title ?: @"", winner.score.doubleValue,
@@ -468,7 +465,7 @@ typedef NSArray<TimedMediaMetaData*>* _Nonnull (^TracklistFilterBlock)(NSArray<T
         double s = current.score != nil ? current.score.doubleValue : 0.0;
         const double shortCutoffSeconds = 90.0; // ~1.5 minutes
         if (s < _minScoreThreshold && durationSeconds > 0.0 && durationSeconds < shortCutoffSeconds) {
-            if (self.debugScoring) {
+            if (_debugScoring) {
                 NSLog(@"[Score] dropping low-score short candidate at frame %@ (duration %.2fs score %.3f)", current.frame, durationSeconds, s);
             }
             continue;
@@ -479,7 +476,7 @@ typedef NSArray<TimedMediaMetaData*>* _Nonnull (^TracklistFilterBlock)(NSArray<T
         const double minNonUnknownScore = 0.05; // never keep non-unknowns with near-zero score
         double keepThreshold = MAX(minNonUnknownScore, _minScoreThreshold);
         if (!isUnknown && s <= keepThreshold) {
-            if (self.debugScoring) {
+            if (_debugScoring) {
                 NSLog(@"[Score] dropping zero/near-zero score candidate at frame %@ (score %.3f)", current.frame, s);
             }
             continue;
@@ -533,7 +530,7 @@ typedef NSArray<TimedMediaMetaData*>* _Nonnull (^TracklistFilterBlock)(NSArray<T
     double score = base * durationScore;
 
     // Producer/artist bonus: if the reference artist appears in the detected artist or title, boost strongly.
-    NSString* refArtist = self.referenceArtist;
+    NSString* refArtist = _referenceArtist;
     if (refArtist.length > 0) {
         NSString* (^norm)(NSString*) = ^NSString* (NSString* s) {
             if (s == nil) {
@@ -551,7 +548,7 @@ typedef NSArray<TimedMediaMetaData*>* _Nonnull (^TracklistFilterBlock)(NSArray<T
         }
     }
 
-    if (self.debugScoring) {
+    if (_debugScoring) {
         NSInteger support = track.supportCount != nil ? track.supportCount.integerValue : 0;
         NSLog(@"[ScoreDetail] frame:%@ support:%ld base:%.3f duration:%.2fs durationScore:%.3f ref:%@ final:%.3f",
               track.frame,

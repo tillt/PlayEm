@@ -38,7 +38,6 @@ NS_ASSUME_NONNULL_BEGIN
         _hopSize = (AVAudioFrameCount)4096 * 256;
         _identifieds = [NSMutableArray array];
         _identifyQueue = dispatch_queue_create("com.playem.identification.queue", DISPATCH_QUEUE_SERIAL);
-        _feedQueue = dispatch_queue_create("com.playem.identification.feed", DISPATCH_QUEUE_SERIAL);
 
         NSMutableArray* buffers = [NSMutableArray array];
         for (int channel = 0; channel < sample.sampleFormat.channels; channel++) {

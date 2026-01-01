@@ -709,7 +709,7 @@ static uint64_t HashAudioSlice(float* const* channels,
             [strongSelf->_pendingMatchOffsets removeObjectAtIndex:0];
         }
         if (offset == nil) {
-            offset = [NSNumber numberWithUnsignedLongLong:strongSelf.sessionFrameOffset];
+            offset = [NSNumber numberWithUnsignedLongLong:strongSelf->_sessionFrameOffset];
         }
         NSNumber* startTime = strongSelf->_requestStartTimeByOffset[offset];
         if (startTime != nil) {
@@ -797,6 +797,7 @@ static uint64_t HashAudioSlice(float* const* channels,
                 return;
             }
 <<<<<<< HEAD
+<<<<<<< HEAD
             [strongSelf->_identifieds addObjectsFromArray:tracks];
             unsigned long long next = strongSelf->_matchResponseCount + 1;
             strongSelf->_matchResponseCount = MIN(next, strongSelf->_matchRequestCount);
@@ -805,6 +806,11 @@ static uint64_t HashAudioSlice(float* const* channels,
             unsigned long long next = strongSelf.matchResponseCount + 1;
             strongSelf.matchResponseCount = MIN(next, strongSelf.matchRequestCount);
 >>>>>>> b9ddc0c (chore: cleanup)
+=======
+            [strongSelf->_identifieds addObject:track];
+            unsigned long long next = strongSelf->_matchResponseCount + 1;
+            strongSelf->_matchResponseCount = MIN(next, strongSelf->_matchRequestCount);
+>>>>>>> f91fb78 (chore: cleanup)
             [strongSelf checkForCompletion];
         });
     });
@@ -827,7 +833,7 @@ static uint64_t HashAudioSlice(float* const* channels,
                 [strongSelf->_pendingMatchOffsets removeObjectAtIndex:0];
             }
             if (offset == nil) {
-                offset = [NSNumber numberWithUnsignedLongLong:strongSelf.sessionFrameOffset];
+                offset = [NSNumber numberWithUnsignedLongLong:strongSelf->_sessionFrameOffset];
             }
             NSNumber* startTime = strongSelf->_requestStartTimeByOffset[offset];
             if (startTime != nil) {
@@ -860,13 +866,17 @@ static uint64_t HashAudioSlice(float* const* channels,
                       track.meta.title ?: @"");
             }
 
-            [[ActivityManager shared] updateActivity:strongSelf.token detail:track.meta.title];
+            [[ActivityManager shared] updateActivity:strongSelf->_token detail:track.meta.title];
 
+<<<<<<< HEAD
             NSUserDefaults* defaults = [NSUserDefaults standardUserDefaults];
             BOOL excludeUnknown = [defaults boolForKey:@"ExcludeUnknownInputs"];
             if (!excludeUnknown) {
                 [strongSelf->_identifieds addObject:track];
             }
+=======
+            [strongSelf->_identifieds addObject:track];
+>>>>>>> f91fb78 (chore: cleanup)
             unsigned long long next = strongSelf->_matchResponseCount + 1;
             strongSelf->_matchResponseCount = MIN(next, strongSelf->_matchRequestCount);
             [strongSelf checkForCompletion];

@@ -709,7 +709,7 @@ static uint64_t HashAudioSlice(float* const* channels,
             [strongSelf->_pendingMatchOffsets removeObjectAtIndex:0];
         }
         if (offset == nil) {
-            offset = [NSNumber numberWithUnsignedLongLong:strongSelf->_sessionFrameOffset];
+            offset = [NSNumber numberWithUnsignedLongLong:strongSelf.sessionFrameOffset];
         }
         NSNumber* startTime = strongSelf->_requestStartTimeByOffset[offset];
         if (startTime != nil) {
@@ -796,9 +796,15 @@ static uint64_t HashAudioSlice(float* const* channels,
             if (strongSelf == nil) {
                 return;
             }
+<<<<<<< HEAD
             [strongSelf->_identifieds addObjectsFromArray:tracks];
             unsigned long long next = strongSelf->_matchResponseCount + 1;
             strongSelf->_matchResponseCount = MIN(next, strongSelf->_matchRequestCount);
+=======
+            [strongSelf.identifieds addObject:track];
+            unsigned long long next = strongSelf.matchResponseCount + 1;
+            strongSelf.matchResponseCount = MIN(next, strongSelf.matchRequestCount);
+>>>>>>> b9ddc0c (chore: cleanup)
             [strongSelf checkForCompletion];
         });
     });
@@ -821,7 +827,7 @@ static uint64_t HashAudioSlice(float* const* channels,
                 [strongSelf->_pendingMatchOffsets removeObjectAtIndex:0];
             }
             if (offset == nil) {
-                offset = [NSNumber numberWithUnsignedLongLong:strongSelf->_sessionFrameOffset];
+                offset = [NSNumber numberWithUnsignedLongLong:strongSelf.sessionFrameOffset];
             }
             NSNumber* startTime = strongSelf->_requestStartTimeByOffset[offset];
             if (startTime != nil) {
@@ -854,7 +860,7 @@ static uint64_t HashAudioSlice(float* const* channels,
                       track.meta.title ?: @"");
             }
 
-            [[ActivityManager shared] updateActivity:strongSelf->_token detail:track.meta.title];
+            [[ActivityManager shared] updateActivity:strongSelf.token detail:track.meta.title];
 
             NSUserDefaults* defaults = [NSUserDefaults standardUserDefaults];
             BOOL excludeUnknown = [defaults boolForKey:@"ExcludeUnknownInputs"];

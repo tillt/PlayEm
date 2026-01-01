@@ -458,9 +458,12 @@ typedef NSArray<TimedMediaMetaData*>* _Nonnull (^TracklistFilterBlock)(NSArray<T
         double s = [self scoreForTrack:current nextTrack:next];
         current.score = @(s);
         current.confidence = @(s);
+<<<<<<< HEAD
         if (current.score == nil) {
             missingScore += 1;
         }
+=======
+>>>>>>> b9ddc0c (chore: cleanup)
         if (_debugScoring) {
             NSString* title = current.meta.title ?: @"";
             NSString* artist = current.meta.artist ?: @"";

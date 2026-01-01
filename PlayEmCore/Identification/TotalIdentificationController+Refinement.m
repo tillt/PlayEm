@@ -145,6 +145,13 @@ typedef NSArray<TimedMediaMetaData*>* _Nonnull (^TracklistFilterBlock)(NSArray<T
         // Estimate duration from frame gap.
         double frameGap = (double)(next.frame.unsignedLongLongValue - track.frame.unsignedLongLongValue);
         durationSeconds = frameGap / sampleRate;
+<<<<<<< HEAD
+=======
+    } else if (track.frame != nil && sampleRate > 0.0) {
+        // Fallback: time from this frame to the end of the sample.
+        double frameGap = (double)(self->_sample.frames - track.frame.unsignedLongLongValue);
+        durationSeconds = frameGap / sampleRate;
+>>>>>>> 8c7122b (test: adds cli for improving our refinement in  tight loop -- will likely go away later)
     }
     return durationSeconds;
 }
@@ -259,6 +266,9 @@ typedef NSArray<TimedMediaMetaData*>* _Nonnull (^TracklistFilterBlock)(NSArray<T
         }],
         [TracklistFilterSpec specWithName:@"score" block:^NSArray<TimedMediaMetaData*>*(NSArray<TimedMediaMetaData*>* tracks, NSArray<TimedMediaMetaData*>* rawInput) {
             return [self scoreTracks:tracks];
+        }],
+        [TracklistFilterSpec specWithName:@"pruneLowEvidence" block:^NSArray<TimedMediaMetaData*>*(NSArray<TimedMediaMetaData*>* tracks, NSArray<TimedMediaMetaData*>* rawInput) {
+            return [self pruneLowEvidenceTracks:tracks];
         }],
         [TracklistFilterSpec specWithName:@"mergeDuplicates" block:^NSArray<TimedMediaMetaData*>*(NSArray<TimedMediaMetaData*>* tracks, NSArray<TimedMediaMetaData*>* rawInput) {
             return [self mergeDuplicateTracks:tracks];
@@ -490,13 +500,19 @@ typedef NSArray<TimedMediaMetaData*>* _Nonnull (^TracklistFilterBlock)(NSArray<T
 
 - (NSArray<TimedMediaMetaData*>*)pruneLowEvidenceTracks:(NSArray<TimedMediaMetaData*>*)tracks
 {
-    // Early pruning of low-evidence outliers: single hits that are extremely low score.
+    // Early pruning of low-evidence outliers: single hits that are either
+    // extremely low score or unrealistically long.
+    const double extremelyLongSeconds = _idealTrackMaxSeconds * 2.0; // ~24 minutes
     return [tracks filteredArrayUsingPredicate:[NSPredicate predicateWithBlock:^BOOL(TimedMediaMetaData *t, NSDictionary<NSString *,id> *bindings) {
         double s = t.score != nil ? t.score.doubleValue : 0.0;
-
-        // Drop anything below the configured score floor unless it has repeat support.
         NSInteger support = t.supportCount != nil ? t.supportCount.integerValue : 0;
-        if (s < self->_minScoreThreshold && support < 2) { return NO; }
+        double durationSeconds = [self estimatedDurationForTrack:t nextTrack:nil];
+
+        // Drop anything below the configured score floor.
+        if (s < self->_minScoreThreshold) { return NO; }
+
+        // For single-hit candidates, still discard absurdly long spans (likely noise).
+        if (support <= 1 && durationSeconds > extremelyLongSeconds) { return NO; }
         return YES;
     }]];
 }

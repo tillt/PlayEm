@@ -140,7 +140,7 @@
 
 - (NSData* _Nullable)visualsFromOrigin:(size_t)origin
 {
-    os_signpost_interval_begin(pointsOfInterest, POIVisualsFromOrigin, "VisualsFromOrigin");
+    //os_signpost_interval_begin(pointsOfInterest, POIVisualsFromOrigin, "VisualsFromOrigin");
     
     size_t pageIndex = origin / _tileWidth;
 
@@ -149,18 +149,18 @@
     IndexedBlockOperation* operation = [_operations objectForKey:pageNumber];
 
     if (operation == nil) {
-        os_signpost_interval_end(pointsOfInterest, POIVisualsFromOrigin, "VisualsFromOrigin", "unknown");
+        //os_signpost_interval_end(pointsOfInterest, POIVisualsFromOrigin, "VisualsFromOrigin", "unknown");
         return nil;
     }
 
     if (!operation.isFinished) {
-        os_signpost_interval_end(pointsOfInterest, POIVisualsFromOrigin, "VisualsFromOrigin", "unfinished");
+        //os_signpost_interval_end(pointsOfInterest, POIVisualsFromOrigin, "VisualsFromOrigin", "unfinished");
         return nil;
     }
 
     [_operations removeObjectForKey:pageNumber];
 
-    os_signpost_interval_end(pointsOfInterest, POIVisualsFromOrigin, "VisualsFromOrigin", "normal");
+    //os_signpost_interval_end(pointsOfInterest, POIVisualsFromOrigin, "VisualsFromOrigin", "normal");
 
     return operation.data;
 }
@@ -201,12 +201,12 @@
 
 - (void)prepareVisualsFromOrigin:(size_t)origin pairs:(size_t)pairsCount window:(size_t)window total:(size_t)totalWidth callback:(nonnull void (^)(void))callback
 {
-    os_signpost_interval_begin(pointsOfInterest, POIPrepareVisualsFromOrigin, "PrepareVisualsFromOrigin");
+    //os_signpost_interval_begin(pointsOfInterest, POIPrepareVisualsFromOrigin, "PrepareVisualsFromOrigin");
     
     [self garbageCollectOperationsOutsideOfWindow:window width:totalWidth];
     [self runOperationWithOrigin:origin pairs:pairsCount callback:callback];
     
-    os_signpost_interval_end(pointsOfInterest, POIPrepareVisualsFromOrigin, "PrepareVisualsFromOrigin");
+    //os_signpost_interval_end(pointsOfInterest, POIPrepareVisualsFromOrigin, "PrepareVisualsFromOrigin");
 }
 
 // TODO(tillt): Generalize this to reuse for both, the quick-render as well as the

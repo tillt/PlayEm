@@ -11,7 +11,7 @@
 #import <CoreImage/CoreImage.h>
 #import <CoreImage/CIFilterBuiltins.h>
 
-#import "../Sample/BeatEvent.h"
+#import "Sample/BeatEvent.h"
 #import "CAShapeLayer+Path.h"
 #import "CALayer+PauseAnimations.h"
 #import "../Defaults.h"

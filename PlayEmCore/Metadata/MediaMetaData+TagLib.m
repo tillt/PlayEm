@@ -6,7 +6,7 @@
 //  Copyright © 2024 Till Toenshoff. All rights reserved.
 //
 
-#include "tag_c.framework/Headers/tag_c.h"
+#include "tag_c.h"
 
 #import <Foundation/Foundation.h>
 #import <AppKit/AppKit.h>

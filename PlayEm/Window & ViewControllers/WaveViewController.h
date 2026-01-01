@@ -9,7 +9,7 @@
 #import <Foundation/Foundation.h>
 #import <Cocoa/Cocoa.h>
 #import <QuartzCore/QuartzCore.h>
-#import "../Sample/BeatEvent.h"
+#import "Sample/BeatEvent.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

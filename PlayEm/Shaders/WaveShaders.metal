@@ -12,7 +12,7 @@
 
 #import "../ShaderTypes.h"
 #import "../WaveShaderTypes.h"
-#import "../Sample/VisualPair.h"
+#import "../../PlayEmCore/Sample/VisualPair.h"
 
 using namespace metal;
 
@@ -290,4 +290,3 @@ vertex ColorInOut waveVertexShader(constant WaveUniforms&  uniforms          [[ 
      };
 }
 */
-

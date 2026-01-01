@@ -98,7 +98,7 @@ AVAudioFramePosition currentFrame(AudioContext* context)
         return 0;
     }
     
-    os_signpost_interval_begin(pointsOfInterest, POIGetCurrentFrame, "GetCurrentFrame");
+    //os_signpost_interval_begin(pointsOfInterest, POIGetCurrentFrame, "GetCurrentFrame");
 
  //   AudioQueueTimelineRef timeLine;
     //OSStatus res = AudioQueueCreateTimeline(queue, &timeLine);
@@ -118,11 +118,11 @@ AVAudioFramePosition currentFrame(AudioContext* context)
     //AudioQueueDisposeTimeline(queue, timeLine);
 
     if (res) {
-        os_signpost_interval_end(pointsOfInterest, POIGetCurrentFrame, "GetCurrentFrame", "failed");
+        //os_signpost_interval_end(pointsOfInterest, POIGetCurrentFrame, "GetCurrentFrame", "failed");
         return 0;
     }
     if (timeStamp.mSampleTime < 0) {
-        os_signpost_interval_end(pointsOfInterest, POIGetCurrentFrame, "GetCurrentFrame", "negative");
+        //os_signpost_interval_end(pointsOfInterest, POIGetCurrentFrame, "GetCurrentFrame", "negative");
         return 0;
     }
 //    assert(!discontinued);
@@ -131,7 +131,7 @@ AVAudioFramePosition currentFrame(AudioContext* context)
 //        os_signpost_interval_end(pointsOfInterest, POIGetCurrentFrame, "GetCurrentFrame", "discontinued");
 //        return context->nextFrame - context->stream.latencyFrames;
 //    }
-    os_signpost_interval_end(pointsOfInterest, POIGetCurrentFrame, "GetCurrentFrame", "done");
+    //os_signpost_interval_end(pointsOfInterest, POIGetCurrentFrame, "GetCurrentFrame", "done");
 
     return MIN(context->stream.seekFrame + timeStamp.mSampleTime, context->sample.frames - 1);
 }
@@ -218,7 +218,7 @@ void propertyCallbackIsRunning (void* user_data,
 #ifdef support_audioqueueplayback
 void bufferCallback(void* user_data, AudioQueueRef queue, AudioQueueBufferRef buffer)
 {
-    os_signpost_interval_begin(pointsOfInterest, POIAudioBufferCallback, "AudioBufferCallback");
+    //os_signpost_interval_begin(pointsOfInterest, POIAudioBufferCallback, "AudioBufferCallback");
     
     assert(user_data);
     AudioContext* context = (AudioContext*)user_data;
@@ -249,7 +249,7 @@ void bufferCallback(void* user_data, AudioQueueRef queue, AudioQueueBufferRef bu
         // Play this buffer again...
         AudioQueueEnqueueBuffer(queue, buffer, 0, NULL);
     }
-    os_signpost_interval_end(pointsOfInterest, POIAudioBufferCallback, "AudioBufferCallback");
+    //os_signpost_interval_end(pointsOfInterest, POIAudioBufferCallback, "AudioBufferCallback");
 }
 #endif
 

@@ -13,8 +13,8 @@
 #import "../Defaults.h"
 #import "../NSImage+Resize.h"
 #import "TrackList.h"
-#import "../Audio/AudioController.h"
-#import "../Sample/LazySample.h"
+#import "Audio/AudioController.h"
+#import "Sample/LazySample.h"
 #import "TimedMediaMetaData.h"
 #import "MediaMetaData.h"
 #import "ImageController.h"
@@ -642,32 +642,38 @@ static const NSAutoresizingMaskOptions kViewFullySizeable = NSViewHeightSizable 
         }
     }
     
-    NSString* title = nil;
     NSTextField* tf = [result viewWithTag:kTitleViewTag];
     tf.textColor = titleColor;
-    title = track.meta.title;
+    NSString* title = track.meta.title;
     if (title == nil) {
         title = @"";
     }
     [tf setStringValue:title];
 
-    NSString* artist = nil;
     tf = [result viewWithTag:kArtistViewTag];
     tf.textColor = artistColor;
-    artist = track.meta.artist;
+    NSString* artist = track.meta.artist;
     if (artist == nil) {
         artist = @"";
     }
     [tf setStringValue:artist];
 
-    NSString* time = nil;
     tf = [result viewWithTag:kTimeViewTag];
     tf.textColor = titleColor;
-    time = [_delegate stringFromFrame:frame];
+    NSString* time = [_delegate stringFromFrame:frame];
     if (time == nil) {
         time = @"";
     }
-    [tf setStringValue:time];
+
+    NSString* confidence = nil;
+    if (track.confidence == nil) {
+        confidence = @"unknown";
+    } else {
+        confidence = [track.confidence stringValue];
+    }
+    
+    NSString* output = [NSString stringWithFormat:@"%@, confidence %@", time, confidence];
+    [tf setStringValue:output];
 
     return result;
 }

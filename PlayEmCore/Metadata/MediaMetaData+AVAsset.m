@@ -19,7 +19,7 @@
 #import "AVMetadataItem+THAdditions.h"
 
 #import <CoreMedia/CMTime.h>
-#import "../NSError+BetterError.h"
+//#import "../NSError+BetterError.h"
 
 #import "NSString+Sanitized.h"
 #import "TemporaryFiles.h"

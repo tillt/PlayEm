@@ -33,6 +33,11 @@
 
 - (BOOL)application:(NSApplication*)sender openFile:(NSString*)filename
 {
+    // Avoid auto-opening files when running under tests.
+    if ([NSProcessInfo processInfo].environment[@"XCTestConfigurationFilePath"] != nil) {
+        return NO;
+    }
+
     NSURL* url = [NSURL fileURLWithPath:filename];
     url = [WaveWindowController encodeQueryItemsWithUrl:url frame:0LL playing:YES];
     return [[self waveController] loadDocumentFromURL:url meta:nil];
@@ -40,6 +45,11 @@
 
 - (void)application:(NSApplication*)application openURLs:(NSArray<NSURL*>*)urls
 {
+    // Avoid auto-opening files when running under tests.
+    if ([NSProcessInfo processInfo].environment[@"XCTestConfigurationFilePath"] != nil) {
+        return;
+    }
+
     NSURL* url = [WaveWindowController encodeQueryItemsWithUrl:urls[0]
                                                          frame:0LL
                                                        playing:YES];
@@ -48,6 +58,12 @@
 
 - (void)applicationDidFinishLaunching:(NSNotification*)aNotification
 {
+    // When running under XCTest we keep the UI hidden to avoid popping windows or a dock icon during headless tests.
+    if ([[NSProcessInfo processInfo].environment objectForKey:@"XCTestConfigurationFilePath"] != nil) {
+        [NSApp setActivationPolicy:NSApplicationActivationPolicyAccessory];
+        return;
+    }
+
     [[[self waveController] window] makeKeyAndOrderFront:self];
 
     NSUserDefaults* userDefaults = [NSUserDefaults standardUserDefaults];

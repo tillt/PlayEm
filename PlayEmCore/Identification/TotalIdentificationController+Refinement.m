@@ -1,18 +1,16 @@
 //
-//  TotalIdentificationController.m
+//  TotalIdentificationController+Refinement.m
 //  PlayEm
 //
 //  Created by Till Toenshoff on 12/26/25.
 //  Copyright © 2025 Till Toenshoff. All rights reserved.
 //
 
-#import "TotalIdentificationController.h"
-#import <ShazamKit/ShazamKit.h>
+#import "TotalIdentificationController+Private.h"
+#import "TotalIdentificationController+Refinement.h"
 
-#import "Sample/LazySample.h"
-#import "Metadata/TimedMediaMetaData.h"
-#import "Metadata/ImageController.h"
-#import "ActivityManager.h"
+#import "../Sample/LazySample.h"
+#import "../Metadata/TimedMediaMetaData.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -26,211 +24,26 @@ static BOOL IsUnknownTrack(TimedMediaMetaData* _Nullable t)
     return titleUnknown && artistUnknown;
 }
 
-@interface TotalIdentificationController()
-@property (strong, nonatomic) SHSession* session;
-@property (assign, nonatomic) unsigned long long sessionFrame;
-@property (strong, nonatomic) dispatch_queue_t identifyQueue;
-@property (strong, nonatomic) NSMutableArray<TimedMediaMetaData*>* identifieds;
-@property (strong, nonatomic) LazySample* sample;
-@property (assign, nonatomic) AVAudioFrameCount hopSize;
-@property (strong, nonatomic) NSArray<NSData*>* sampleBuffers;
-@property (assign, nonatomic) unsigned long long sessionFrameOffset;
-@property (assign, nonatomic) NSUInteger matchRequestCount;
-@property (assign, nonatomic) NSUInteger matchResponseCount;
-@property (assign, nonatomic) BOOL finishedFeeding;
-@property (assign, nonatomic) BOOL completionSent;
-@property (assign, nonatomic) NSTimeInterval completionGraceSeconds;
-@property (copy, nonatomic) void (^completionHandler)(BOOL, NSError* _Nullable, NSArray<TimedMediaMetaData*>* _Nullable);
-@property (strong, nonatomic) dispatch_block_t completionDeadlineBlock;
-@property (strong, nonatomic) NSMutableArray<NSNumber*>* pendingMatchOffsets;
-@property (assign, nonatomic) unsigned long long totalFrameCursor;
-@property (strong, nonatomic) dispatch_queue_t feedQueue;
-@property (strong, nonatomic) NSMutableDictionary<NSString*, NSNumber*>* lastMatchFrameByID;
-@property (assign, nonatomic) unsigned long long minMatchSpacingFrames;
-@property (assign, nonatomic) double idealTrackMinSeconds;
-@property (assign, nonatomic) double idealTrackMaxSeconds;
-@property (assign, nonatomic) double minScoreThreshold;
-@property (assign, nonatomic) double duplicateMergeWindowSeconds;
-@property (strong, nonatomic) dispatch_block_t queueOperation;
-@property (strong, nonatomic) ActivityToken* token;
+typedef NSArray<TimedMediaMetaData*>* _Nonnull (^TracklistFilterBlock)(NSArray<TimedMediaMetaData*>* _Nonnull tracks,
+                                                                       NSArray<TimedMediaMetaData*>* _Nonnull rawInput);
+
+@interface TracklistFilterSpec : NSObject
+@property (copy, nonatomic) NSString* name;
+@property (copy, nonatomic) TracklistFilterBlock block;
++ (instancetype)specWithName:(NSString*)name block:(TracklistFilterBlock)block;
 @end
 
-
-@implementation TotalIdentificationController
-
-- (id)initWithSample:(LazySample*)sample
+@implementation TracklistFilterSpec
++ (instancetype)specWithName:(NSString*)name block:(TracklistFilterBlock)block
 {
-    self = [super init];
-    if (self) {
-        _sample = sample;
-        // Use a larger hop size for offline detection to reduce Shazam request count (~2s chunks).
-        _hopSize = (AVAudioFrameCount)4096 * 256;
-        _identifieds = [NSMutableArray array];
-        _completionGraceSeconds = 0.1; // give Shazam callbacks room after feeding
-        _identifyQueue = dispatch_queue_create("com.playem.identification.queue", DISPATCH_QUEUE_SERIAL);
-        _feedQueue = dispatch_queue_create("com.playem.identification.feed", DISPATCH_QUEUE_SERIAL);
-
-        NSMutableArray* buffers = [NSMutableArray array];
-        for (int channel = 0; channel < sample.sampleFormat.channels; channel++) {
-            NSMutableData* buffer = [NSMutableData dataWithCapacity:_hopSize * _sample.frameSize];
-            [buffers addObject:buffer];
-        }
-        _sampleBuffers = buffers;
-        _pendingMatchOffsets = [NSMutableArray array];
-        _lastMatchFrameByID = [NSMutableDictionary dictionary];
-        _idealTrackMinSeconds = 4.0 * 60.0;
-        _idealTrackMaxSeconds = 12.0 * 60.0;
-        _minScoreThreshold = 0.2;
-        _duplicateMergeWindowSeconds = 90.0;
-        _debugScoring = NO;
-        _referenceArtist = nil;
-    }
-    return self;
+    TracklistFilterSpec* spec = [TracklistFilterSpec new];
+    spec.name = name;
+    spec.block = block;
+    return spec;
 }
+@end
 
-- (BOOL)detectTracklist
-{
-    self->_session = [[SHSession alloc] init];
-    self->_session.delegate = self;
-
-    SampleFormat sampleFormat = self->_sample.sampleFormat;
-
-    AVAudioFrameCount matchWindowFrameCount = self->_hopSize;
-    AVAudioChannelLayout* layout = [[AVAudioChannelLayout alloc] initWithLayoutTag:kAudioChannelLayoutTag_Mono];
-    AVAudioFormat* format = [[AVAudioFormat alloc] initWithCommonFormat:AVAudioPCMFormatFloat32
-                                                             sampleRate:sampleFormat.rate
-                                                            interleaved:NO
-                                                          channelLayout:layout];
-    
-    AVAudioPCMBuffer* stream = [[AVAudioPCMBuffer alloc] initWithPCMFormat:format frameCapacity:matchWindowFrameCount];
-    
-    float* data[self->_sample.sampleFormat.channels];
-    const int channels = self->_sample.sampleFormat.channels;
-    for (int channel = 0; channel < channels; channel++) {
-        data[channel] = (float*)((NSMutableData*)self->_sampleBuffers[channel]).bytes;
-    }
-
-#ifdef DEBUG_TAPPING
-    FILE* fp = fopen("/tmp/debug_tap.out", "wb");
-#endif
-    // Pace offline feeding to roughly match live playback signature cadence x32. Anything
-    // faster appears to trash the recognition - it feels like buffers get overwritten but
-    // that is not clear, so far. Needs more investigation. Also the fact that we need to
-    // rely on sleeps is very hacky - we need proper events - maybe KVO?
-    useconds_t throttleUsec = (useconds_t)(((double)_hopSize / sampleFormat.rate / 32.0) * 1000000.0);
-    if (throttleUsec < 1) {
-        throttleUsec = 1;
-    }
-
-    // Here we go, all the way through our entire sample.
-    while (self->_totalFrameCursor < self->_sample.frames) {
-        if (dispatch_block_testcancel(self.queueOperation) != 0) {
-            NSLog(@"aborted track detection");
-            return NO;
-        }
-        double progress = (double)self->_totalFrameCursor / self->_sample.frames;
-        [[ActivityManager shared] updateActivity:self->_token progress:progress];
-        
-        unsigned long long sourceWindowFrameCount = MIN(matchWindowFrameCount,
-                                                        self->_sample.frames - self->_totalFrameCursor);
-        // This may block for a loooooong time!
-        unsigned long long received = [self->_sample rawSampleFromFrameOffset:self->_totalFrameCursor
-                                                                       frames:sourceWindowFrameCount
-                                                                      outputs:data];
-        
-        unsigned long int sourceFrameIndex = 0;
-        while(sourceFrameIndex < received) {
-            if (dispatch_block_testcancel(self.queueOperation) != 0) {
-                NSLog(@"aborted track detection");
-                return NO;
-            }
-            
-            const unsigned long int inputWindowFrameCount = MIN(matchWindowFrameCount, self->_sample.frames - (self->_totalFrameCursor + sourceFrameIndex));
-            
-            [stream setFrameLength:(unsigned int)inputWindowFrameCount];
-            // TODO: Yikes, this is a total nono -- we are writing to a read-only pointer!
-            float* outputBuffer = stream.floatChannelData[0];
-            
-            unsigned long long chunkStartFrame = self->_totalFrameCursor + sourceFrameIndex;
-            for (unsigned long int outputFrameIndex = 0; outputFrameIndex < inputWindowFrameCount; outputFrameIndex++) {
-                double s = 0.0;
-                for (int channel = 0; channel < sampleFormat.channels; channel++) {
-                    s += data[channel][sourceFrameIndex];
-                }
-                s /= (float)sampleFormat.channels;
-                
-                outputBuffer[outputFrameIndex] = s;
-                sourceFrameIndex++;
-            }
-            self->_sessionFrameOffset = chunkStartFrame;
-            NSNumber* offset = [NSNumber numberWithUnsignedLongLong:chunkStartFrame];
-            @synchronized (self) {
-                [self->_pendingMatchOffsets addObject:offset];
-            }
-
-            AVAudioTime* time = [AVAudioTime timeWithSampleTime:chunkStartFrame atRate:sampleFormat.rate];
-            self->_matchRequestCount += 1;
-
-            [self->_session matchStreamingBuffer:stream atTime:time];
-
-            // Light pacing so callbacks have a chance to arrive; ~16x realtime.
-            usleep(throttleUsec);
-        };
-        self->_totalFrameCursor += received;
-    };
-    self->_finishedFeeding = YES;
-    return YES;
-}
-
-- (ActivityToken*)detectTracklistWithCallback:(nonnull void (^)(BOOL, NSError*, NSArray<TimedMediaMetaData*>*))callback
-{
-    __block BOOL done = NO;
-    __weak typeof(self) weakSelf = self;
-    
-    self->_completionHandler = [callback copy];
-    [self->_identifieds removeAllObjects];
-    self->_matchRequestCount = 0;
-    self->_matchResponseCount = 0;
-    self->_finishedFeeding = NO;
-    self->_completionSent = NO;
-    self->_totalFrameCursor = 0;
-    [self->_pendingMatchOffsets removeAllObjects];
-
-    if (self->_completionDeadlineBlock) {
-        dispatch_block_cancel(self->_completionDeadlineBlock);
-        self->_completionDeadlineBlock = nil;
-    }
-
-    _token = [[ActivityManager shared] beginActivityWithTitle:@"Tracklist Detection" detail:nil cancellable:YES cancelHandler:^{
-        [weakSelf abortWithCallback:^{
-            [[ActivityManager shared] updateActivity:self->_token detail:@"aborted"];
-            [[ActivityManager shared] completeActivity:self->_token];
-            self->_completionHandler(NO, nil, nil);
-        }];
-    }];
-
-    _queueOperation = dispatch_block_create(DISPATCH_BLOCK_NO_QOS_CLASS, ^{
-        done = [weakSelf detectTracklist];
-        [weakSelf scheduleCompletionCheckIsTimeout:NO];
-    });
-    dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0), _queueOperation);
-
-    NSLog(@"starting track list detection");
-    return _token;
-}
-
-- (void)abortWithCallback:(void (^)(void))callback
-{
-    NSLog(@"abort of track detection ongoing..");
-    if (_queueOperation != NULL) {
-        dispatch_block_cancel(_queueOperation);
-        dispatch_block_notify(_queueOperation, dispatch_get_main_queue(), ^{
-            callback();
-        });
-    } else {
-        callback();
-    }
-}
+@implementation TotalIdentificationController (Refinement)
 
 - (double)estimatedDurationForTrack:(TimedMediaMetaData*)track nextTrack:(TimedMediaMetaData* _Nullable)next
 {
@@ -311,6 +124,85 @@ static BOOL IsUnknownTrack(TimedMediaMetaData* _Nullable t)
         return @[];
     }
 
+    [self logTracklist:input tag:@"Input" includeDuration:NO];
+
+    NSArray<TimedMediaMetaData*>* result = [self applyTracklistFiltersToInput:input];
+
+    [self logTracklist:result tag:@"Final" includeDuration:YES];
+
+    return result;
+}
+
+- (NSArray<TimedMediaMetaData*>*)applyTracklistFiltersToInput:(NSArray<TimedMediaMetaData*>*)input
+{
+    NSArray<TimedMediaMetaData*>* current = input;
+    NSArray<TracklistFilterSpec*>* pipeline = [self refinementPipeline];
+    for (TracklistFilterSpec* spec in pipeline) {
+        current = spec.block(current, input) ?: @[];
+        if (current.count == 0) {
+            break;
+        }
+    }
+    return current ?: @[];
+}
+
+- (NSArray<TracklistFilterSpec*>*)refinementPipeline
+{
+    return @[
+        [TracklistFilterSpec specWithName:@"aggregate" block:^NSArray<TimedMediaMetaData*>*(NSArray<TimedMediaMetaData*>* tracks, NSArray<TimedMediaMetaData*>* rawInput) {
+            return [self aggregateIdentifieds:rawInput];
+        }],
+        [TracklistFilterSpec specWithName:@"score" block:^NSArray<TimedMediaMetaData*>*(NSArray<TimedMediaMetaData*>* tracks, NSArray<TimedMediaMetaData*>* rawInput) {
+            return [self scoreTracks:tracks];
+        }],
+        [TracklistFilterSpec specWithName:@"pruneLowEvidence" block:^NSArray<TimedMediaMetaData*>*(NSArray<TimedMediaMetaData*>* tracks, NSArray<TimedMediaMetaData*>* rawInput) {
+            return [self pruneLowEvidenceTracks:tracks];
+        }],
+        [TracklistFilterSpec specWithName:@"mergeDuplicates" block:^NSArray<TimedMediaMetaData*>*(NSArray<TimedMediaMetaData*>* tracks, NSArray<TimedMediaMetaData*>* rawInput) {
+            return [self mergeDuplicateTracks:tracks];
+        }],
+        [TracklistFilterSpec specWithName:@"resolveOverlaps" block:^NSArray<TimedMediaMetaData*>*(NSArray<TimedMediaMetaData*>* tracks, NSArray<TimedMediaMetaData*>* rawInput) {
+            return [self resolveOverlapsInTracks:tracks];
+        }],
+        [TracklistFilterSpec specWithName:@"fillUnknownGaps" block:^NSArray<TimedMediaMetaData*>*(NSArray<TimedMediaMetaData*>* tracks, NSArray<TimedMediaMetaData*>* rawInput) {
+            return [self fillGapsWithUnknownsIn:tracks rawInput:rawInput];
+        }],
+        [TracklistFilterSpec specWithName:@"finalFilter" block:^NSArray<TimedMediaMetaData*>*(NSArray<TimedMediaMetaData*>* tracks, NSArray<TimedMediaMetaData*>* rawInput) {
+            return [self applyFinalTrackFilters:tracks];
+        }],
+    ];
+}
+
+- (void)logTracklist:(NSArray<TimedMediaMetaData*>*)tracks tag:(NSString*)tag includeDuration:(BOOL)includeDuration
+{
+    if (!self.debugScoring) {
+        return;
+    }
+    for (TimedMediaMetaData* t in tracks) {
+        if (includeDuration) {
+            double durationSeconds = [self estimatedDurationForTrack:t nextTrack:nil];
+            NSLog(@"[%@] frame:%@ artist:%@ title:%@ duration:%.2fs score:%.3f confidence:%@",
+                  tag,
+                  t.frame,
+                  t.meta.artist ?: @"",
+                  t.meta.title ?: @"",
+                  durationSeconds,
+                  t.score.doubleValue,
+                  t.confidence);
+        } else {
+            NSLog(@"[%@] frame:%@ artist:%@ title:%@ score:%.3f confidence:%@",
+                  tag,
+                  t.frame,
+                  t.meta.artist ?: @"",
+                  t.meta.title ?: @"",
+                  t.score.doubleValue,
+                  t.confidence);
+        }
+    }
+}
+
+- (NSArray<TimedMediaMetaData*>*)aggregateIdentifieds:(NSArray<TimedMediaMetaData*>*)input
+{
     NSString* (^normKey)(TimedMediaMetaData*) = ^NSString* (TimedMediaMetaData* t) {
         NSString* artist = t.meta.artist ?: @"";
         NSString* title = t.meta.title ?: @"";
@@ -322,7 +214,6 @@ static BOOL IsUnknownTrack(TimedMediaMetaData* _Nullable t)
 
     // Aggregate earliest frame and highest-confidence representative per normalized key.
     NSMutableDictionary<NSString*, NSMutableDictionary*>* agg = [NSMutableDictionary dictionary];
-    NSInteger maxSupportObserved = 0;
     for (TimedMediaMetaData* t in input) {
         if (t.meta.title.length == 0 || t.frame == nil) {
             continue;
@@ -359,18 +250,15 @@ static BOOL IsUnknownTrack(TimedMediaMetaData* _Nullable t)
                 entry[@"lastFrame"] = t.frame;
             }
         }
-
-        if ([entry[@"count"] integerValue] > maxSupportObserved) {
-            maxSupportObserved = [entry[@"count"] integerValue];
-        }
     }
 
     if (agg.count == 0) {
         return @[];
     }
 
-    // Static support threshold to keep logic simple.
-    NSInteger dynamicMinSupport = 2;
+    // Static support threshold to keep logic simple. Allow single hits to be considered so
+    // refinement can lean on duration/producer heuristics instead of discarding them early.
+    NSInteger dynamicMinSupport = 1;
 
     NSMutableArray<TimedMediaMetaData*>* result = [NSMutableArray array];
     for (NSString* key in agg) {
@@ -424,25 +312,31 @@ static BOOL IsUnknownTrack(TimedMediaMetaData* _Nullable t)
         }
     }
 
-    [result sortUsingComparator:^NSComparisonResult(TimedMediaMetaData* a, TimedMediaMetaData* b) {
+    return result;
+}
+
+- (NSArray<TimedMediaMetaData*>*)scoreTracks:(NSArray<TimedMediaMetaData*>*)tracks
+{
+    NSMutableArray<TimedMediaMetaData*>* sorted = [tracks mutableCopy];
+    [sorted sortUsingComparator:^NSComparisonResult(TimedMediaMetaData* a, TimedMediaMetaData* b) {
         return [a.frame compare:b.frame];
     }];
 
     // After sorting, recompute duration/producer-based scores using neighbors and reflect into confidence.
-    for (NSUInteger i = 0; i < result.count; i++) {
-        TimedMediaMetaData* current = result[i];
+    for (NSUInteger i = 0; i < sorted.count; i++) {
+        TimedMediaMetaData* current = sorted[i];
         // Find the next track with a strictly greater frame to estimate duration.
         TimedMediaMetaData* next = nil;
-        for (NSUInteger j = i + 1; j < result.count; j++) {
-            if (result[j].frame.unsignedLongLongValue > current.frame.unsignedLongLongValue) {
-                next = result[j];
+        for (NSUInteger j = i + 1; j < sorted.count; j++) {
+            if (sorted[j].frame.unsignedLongLongValue > current.frame.unsignedLongLongValue) {
+                next = sorted[j];
                 break;
             }
         }
         double s = [self scoreForTrack:current nextTrack:next];
         current.score = @(s);
         current.confidence = @(s);
-        if (_debugScoring) {
+        if (self.debugScoring) {
             NSString* title = current.meta.title ?: @"";
             NSString* artist = current.meta.artist ?: @"";
             double durationSeconds = [self estimatedDurationForTrack:current nextTrack:next];
@@ -450,24 +344,44 @@ static BOOL IsUnknownTrack(TimedMediaMetaData* _Nullable t)
         }
     }
 
+    return sorted;
+}
+
+- (NSArray<TimedMediaMetaData*>*)pruneLowEvidenceTracks:(NSArray<TimedMediaMetaData*>*)tracks
+{
+    // Early pruning of low-evidence outliers: single hits that are either
+    // extremely low score or unrealistically long.
+    const double extremelyLongSeconds = _idealTrackMaxSeconds * 2.0; // ~24 minutes
+    return [tracks filteredArrayUsingPredicate:[NSPredicate predicateWithBlock:^BOOL(TimedMediaMetaData *t, NSDictionary<NSString *,id> *bindings) {
+        double s = t.score != nil ? t.score.doubleValue : 0.0;
+        NSInteger support = t.supportCount != nil ? t.supportCount.integerValue : 0;
+        double durationSeconds = [self estimatedDurationForTrack:t nextTrack:nil];
+
+        // Drop anything below the configured score floor.
+        if (s < self->_minScoreThreshold) { return NO; }
+
+        // For single-hit candidates, still discard absurdly long spans (likely noise).
+        if (support <= 1 && durationSeconds > extremelyLongSeconds) { return NO; }
+        return YES;
+    }]];
+}
+
+- (NSArray<TimedMediaMetaData*>*)mergeDuplicateTracks:(NSArray<TimedMediaMetaData*>*)tracks
+{
     // Merge near-duplicates (same/related track within a small time window), keeping the higher-scoring one.
     double windowFrames = _duplicateMergeWindowSeconds * (double)self->_sample.sampleFormat.rate;
     NSMutableArray<TimedMediaMetaData*>* pruned = [NSMutableArray array];
-    for (NSUInteger i = 0; i < result.count; i++) {
-        TimedMediaMetaData* current = result[i];
-        BOOL merged = NO;
-        for (NSUInteger j = i + 1; j < result.count; j++) {
-            TimedMediaMetaData* other = result[j];
+    for (NSUInteger i = 0; i < tracks.count; i++) {
+        TimedMediaMetaData* current = tracks[i];
+        for (NSUInteger j = i + 1; j < tracks.count; j++) {
+            TimedMediaMetaData* other = tracks[j];
             if (other.frame.unsignedLongLongValue - current.frame.unsignedLongLongValue > windowFrames) {
                 break;
             }
             if ([self isSimilarTrack:current other:other]) {
                 TimedMediaMetaData* winner = current.score.doubleValue >= other.score.doubleValue ? current : other;
                 TimedMediaMetaData* loser = (winner == current) ? other : current;
-                if (winner == other) {
-                    merged = YES;
-                }
-                if (_debugScoring) {
+                if (self.debugScoring) {
                     NSLog(@"[Score] merging similar tracks at frames %@/%@ -> keeping %@ %@ (score %.3f) dropping %@ %@ (score %.3f)",
                           current.frame, other.frame,
                           winner.meta.artist ?: @"", winner.meta.title ?: @"", winner.score.doubleValue,
@@ -480,8 +394,11 @@ static BOOL IsUnknownTrack(TimedMediaMetaData* _Nullable t)
         [pruned addObject:current];
     }
 
-    result = pruned;
+    return pruned;
+}
 
+- (NSArray<TimedMediaMetaData*>*)resolveOverlapsInTracks:(NSArray<TimedMediaMetaData*>*)tracks
+{
     // Enforce a simple non-overlap rule: walk in frame order and keep the higher-scoring
     // track when two spans would overlap. We always favor the higher score, regardless
     // of order, so strong tracks push out weaker overlapping candidates. Duration is
@@ -490,9 +407,9 @@ static BOOL IsUnknownTrack(TimedMediaMetaData* _Nullable t)
     TimedMediaMetaData* lastKept = nil;
     unsigned long long lastEnd = 0;
     double lastScore = 0.0;
-    for (NSUInteger i = 0; i < result.count; i++) {
-        TimedMediaMetaData* current = result[i];
-        TimedMediaMetaData* lookahead = (i + 1 < result.count) ? result[i + 1] : nil;
+    for (NSUInteger i = 0; i < tracks.count; i++) {
+        TimedMediaMetaData* current = tracks[i];
+        TimedMediaMetaData* lookahead = (i + 1 < tracks.count) ? tracks[i + 1] : nil;
         unsigned long long start = current.frame != nil ? current.frame.unsignedLongLongValue : 0;
         unsigned long long end = [self estimatedEndFrameForTrack:current nextTrack:lookahead];
         double score = current.score != nil ? current.score.doubleValue : 0.0;
@@ -537,45 +454,41 @@ static BOOL IsUnknownTrack(TimedMediaMetaData* _Nullable t)
         }
     }
 
-    result = nonOverlapping;
+    return nonOverlapping;
+}
 
-    // Fill gaps with sustained "unknown" detections (high repetition) without letting them displace real tracks.
-    result = [self fillGapsWithUnknownsIn:result rawInput:input];
-
+- (NSArray<TimedMediaMetaData*>*)applyFinalTrackFilters:(NSArray<TimedMediaMetaData*>*)tracks
+{
     // Apply the short/low filter late, after overlaps and gap fill.
     NSMutableArray<TimedMediaMetaData*>* filtered = [NSMutableArray array];
-    for (NSUInteger i = 0; i < result.count; i++) {
-        TimedMediaMetaData* current = result[i];
-        TimedMediaMetaData* next = (i + 1 < result.count) ? result[i + 1] : nil;
+    for (NSUInteger i = 0; i < tracks.count; i++) {
+        TimedMediaMetaData* current = tracks[i];
+        TimedMediaMetaData* next = (i + 1 < tracks.count) ? tracks[i + 1] : nil;
         double durationSeconds = [self estimatedDurationForTrack:current nextTrack:next];
         double s = current.score != nil ? current.score.doubleValue : 0.0;
         const double shortCutoffSeconds = 90.0; // ~1.5 minutes
-        if (s <= 5.0 && durationSeconds > 0.0 && durationSeconds < shortCutoffSeconds) {
-            if (_debugScoring) {
+        if (s < _minScoreThreshold && durationSeconds > 0.0 && durationSeconds < shortCutoffSeconds) {
+            if (self.debugScoring) {
                 NSLog(@"[Score] dropping low-score short candidate at frame %@ (duration %.2fs score %.3f)", current.frame, durationSeconds, s);
             }
             continue;
         }
+
+        // If a candidate made it this far but still has no meaningful score, drop it unless it is an "unknown" gap filler.
+        BOOL isUnknown = IsUnknownTrack(current);
+        const double minNonUnknownScore = 0.05; // never keep non-unknowns with near-zero score
+        double keepThreshold = MAX(minNonUnknownScore, _minScoreThreshold);
+        if (!isUnknown && s <= keepThreshold) {
+            if (self.debugScoring) {
+                NSLog(@"[Score] dropping zero/near-zero score candidate at frame %@ (score %.3f)", current.frame, s);
+            }
+            continue;
+        }
+
         [filtered addObject:current];
     }
 
-    result = filtered;
-
-    // Emit final kept list when debugging so we can see what survived all passes.
-    if (_debugScoring) {
-        for (TimedMediaMetaData* t in result) {
-            double durationSeconds = [self estimatedDurationForTrack:t nextTrack:nil];
-            NSLog(@"[Final] frame:%@ artist:%@ title:%@ duration:%.2fs score:%.3f confidence:%@",
-                  t.frame,
-                  t.meta.artist ?: @"",
-                  t.meta.title ?: @"",
-                  durationSeconds,
-                  t.score.doubleValue,
-                  t.confidence);
-        }
-    }
-
-    return result;
+    return filtered;
 }
 
 - (double)scoreForTrack:(TimedMediaMetaData*)track nextTrack:(TimedMediaMetaData* _Nullable)next
@@ -585,7 +498,10 @@ static BOOL IsUnknownTrack(TimedMediaMetaData* _Nullable t)
     // can dominate and push out unlikely, short-lived candidates.
     double base = 1.0;
     if (track.supportCount != nil) {
-        base = track.supportCount.doubleValue;
+        // Dampen runaway scores from many repeated hits: sqrt keeps a bonus but
+        // prevents very chatty segments from dwarfing everything else.
+        double s = MAX(1.0, track.supportCount.doubleValue);
+        base = MIN(8.0, 1.0 + sqrt(s) * 2.0); // ranges from ~3 (1 hit) up to 8
     } else if (track.confidence != nil) {
         base = track.confidence.doubleValue;
     }
@@ -593,29 +509,21 @@ static BOOL IsUnknownTrack(TimedMediaMetaData* _Nullable t)
     // Duration heuristic: prefer 4–8 minutes. Estimate duration from metadata if present, otherwise from spacing to next track.
     double durationSeconds = [self estimatedDurationForTrack:track nextTrack:next];
 
-    // If Shazam hit the same key multiple times, treat it as a “real” track and
-    // avoid brutal short-gap penalties by clamping the inferred duration up to
-    // at least the ideal minimum. This assumes repeated detections are likely
-    // correct and thus the song is probably a normal length, even if the next
-    // match arrives quickly.
-    if (track.supportCount != nil && track.supportCount.integerValue >= 2 && durationSeconds > 0.0 && durationSeconds < _idealTrackMinSeconds) {
-        durationSeconds = _idealTrackMinSeconds;
-    }
-
     double durationScore = 1.0;
     if (durationSeconds <= 0.0) {
-        // Unknown duration: penalize.
-        durationScore = 0.05;
+        // Unknown duration: give a modest score so single hits are not discarded outright.
+        durationScore = 0.30;
+    } else if (durationSeconds < 90.0) {
+        // Very short (<1.5min): soften the penalty but keep it clearly below ideal.
+        double ratio = durationSeconds / _idealTrackMinSeconds; // tiny number
+        durationScore = MAX(0.30, 0.30 + 0.70 * ratio);
     } else if (durationSeconds >= _idealTrackMinSeconds && durationSeconds <= _idealTrackMaxSeconds) {
         // Ideal window: strongly reward a solid, full-length track.
         durationScore = 1.60;
-    } else if (durationSeconds < 180.0) {
-        // Very short (<3min): heavily penalize.
-        durationScore = 0.01;
     } else if (durationSeconds < _idealTrackMinSeconds) {
-        // Short: steeper quadratic falloff; floor at 0.05.
+        // Short: gentler quadratic falloff; floor at 0.30.
         double ratio = durationSeconds / _idealTrackMinSeconds; // 0..1
-        durationScore = MAX(0.05, 0.8 * ratio * ratio);
+        durationScore = MAX(0.30, 0.8 * ratio * ratio);
     } else {
         // Penalize long tracks; make the penalty a bit stronger, floor at 0.15.
         double ratio = _idealTrackMaxSeconds / durationSeconds;
@@ -641,6 +549,18 @@ static BOOL IsUnknownTrack(TimedMediaMetaData* _Nullable t)
             // strong boost when the producer/artist name is present
             score *= 3.0;
         }
+    }
+
+    if (self.debugScoring) {
+        NSInteger support = track.supportCount != nil ? track.supportCount.integerValue : 0;
+        NSLog(@"[ScoreDetail] frame:%@ support:%ld base:%.3f duration:%.2fs durationScore:%.3f ref:%@ final:%.3f",
+              track.frame,
+              (long)support,
+              base,
+              durationSeconds,
+              durationScore,
+              (refArtist.length > 0 ? @"yes" : @"no"),
+              score);
     }
 
     return score;
@@ -752,150 +672,6 @@ static BOOL IsUnknownTrack(TimedMediaMetaData* _Nullable t)
                          ([titleA containsString:titleB] || [titleB containsString:titleA]));
 
     return artistMatch || titleOverlap;
-}
-
-- (void)fireCompletion
-{
-    if (_completionSent) {
-        return;
-    }
-    _completionSent = YES;
-    if (_completionDeadlineBlock) {
-        dispatch_block_cancel(_completionDeadlineBlock);
-        _completionDeadlineBlock = nil;
-    }
-    
-    NSLog(@"firing completion after %lu requests / %lu responses (finishedFeeding=%d)",
-          (unsigned long)_matchRequestCount,
-          (unsigned long)_matchResponseCount,
-          _finishedFeeding);
-
-    [[ActivityManager shared] updateActivity:_token detail:@"refining tracklist"];
-    NSArray<TimedMediaMetaData*>* refined = [self refineTracklist];
-
-    [[ActivityManager shared] updateActivity:_token detail:@"refinement done"];
-    [[ActivityManager shared] completeActivity:_token];
-
-    if (_completionHandler) {
-        __weak typeof(self) weakSelf = self;
-        dispatch_async(dispatch_get_main_queue(), ^{
-            TotalIdentificationController* strongSelf = weakSelf;
-            if (strongSelf == nil) {
-                NSLog(@"lost myself");
-                return;
-            }
-            strongSelf->_completionHandler(YES, nil, refined);
-        });
-    }
-}
-
-- (void)resetCompletionDeadline
-{
-    if (_completionSent || !_finishedFeeding) {
-        return;
-    }
-    if (_completionDeadlineBlock) {
-        dispatch_block_cancel(_completionDeadlineBlock);
-        _completionDeadlineBlock = nil;
-    }
-    __weak typeof(self) weakSelf = self;
-    dispatch_block_t block = dispatch_block_create(0, ^{
-        [weakSelf scheduleCompletionCheckIsTimeout:YES];
-    });
-    _completionDeadlineBlock = block;
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(_completionGraceSeconds * NSEC_PER_SEC)),
-                   _identifyQueue,
-                   block);
-}
-
-- (void)scheduleCompletionCheckIsTimeout:(BOOL)isTimeout
-{
-    if (_completionSent) {
-        return;
-    }
-    BOOL haveAllResponses = _finishedFeeding && (_matchResponseCount >= _matchRequestCount);
-    if (haveAllResponses || isTimeout) {
-        [self fireCompletion];
-        return;
-    }
-    [self resetCompletionDeadline];
-}
-
-#pragma mark - Shazam Delegate
-
-- (void)session:(SHSession*)session didFindMatch:(SHMatch*)match
-{
-    __weak TotalIdentificationController* weakSelf = self;
-
-    dispatch_async(_identifyQueue, ^{
-        TotalIdentificationController* strongSelf = weakSelf;
-        if (strongSelf == nil) {
-            return;
-        }
-        NSNumber* offset = nil;
-        @synchronized (strongSelf) {
-            if (strongSelf->_pendingMatchOffsets.count > 0) {
-                offset = strongSelf->_pendingMatchOffsets.firstObject;
-                [strongSelf->_pendingMatchOffsets removeObjectAtIndex:0];
-            }
-        }
-        if (offset == nil) {
-            offset = [NSNumber numberWithUnsignedLongLong:strongSelf->_sessionFrameOffset];
-        }
-        TimedMediaMetaData* track = [[TimedMediaMetaData alloc] initWithMatchedMediaItem:match.mediaItems[0] frame:offset];
-        
-        NSString* msg = [NSString stringWithFormat:@"%@ - %@", track.meta.artist, track.meta.title];
-        [[ActivityManager shared] updateActivity:strongSelf->_token detail:msg];
-        
-        void (^continuation)(void) = ^(void) {
-            TotalIdentificationController* strongSelf = weakSelf;
-            if (strongSelf == nil) {
-                return;
-            }
-            [strongSelf->_identifieds addObject:track];
-            unsigned long long next = strongSelf->_matchResponseCount + 1;
-            strongSelf->_matchResponseCount = MIN(next, strongSelf->_matchRequestCount);
-            [strongSelf scheduleCompletionCheckIsTimeout:NO];
-        };
-
-        if (track.meta.artworkLocation != nil) {
-            [[ImageController shared] resolveDataForURL:track.meta.artworkLocation callback:^(NSData* data){
-                track.meta.artwork = data;
-                continuation();
-            }];
-        } else {
-            continuation();
-        }
-    });
-}
-
-- (void)session:(SHSession *)session didNotFindMatchForSignature:(SHSignature *)signature error:(nullable NSError *)error
-{
-    __weak TotalIdentificationController* weakSelf = self;
-
-    dispatch_async(_identifyQueue, ^{
-        TotalIdentificationController* strongSelf = weakSelf;
-        if (strongSelf != nil) {
-            NSNumber* offset = nil;
-            @synchronized (strongSelf) {
-                if (strongSelf->_pendingMatchOffsets.count > 0) {
-                    offset = strongSelf->_pendingMatchOffsets.firstObject;
-                    [strongSelf->_pendingMatchOffsets removeObjectAtIndex:0];
-                }
-            }
-            if (offset == nil) {
-                offset = [NSNumber numberWithUnsignedLongLong:strongSelf->_sessionFrameOffset];
-            }
-            TimedMediaMetaData* track = [TimedMediaMetaData unknownTrackAtFrame:offset];
-
-            [[ActivityManager shared] updateActivity:strongSelf->_token detail:track.meta.title];
-
-            [strongSelf->_identifieds addObject:track];
-            unsigned long long next = strongSelf->_matchResponseCount + 1;
-            strongSelf->_matchResponseCount = MIN(next, strongSelf->_matchRequestCount);
-            [strongSelf scheduleCompletionCheckIsTimeout:NO];
-        }
-    });
 }
 
 @end

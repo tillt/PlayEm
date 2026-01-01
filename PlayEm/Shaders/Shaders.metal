@@ -11,7 +11,7 @@
 
 #import "../ShaderTypes.h"
 #import "../ScopeShaderTypes.h"
-#import "../Sample/VisualPair.h"
+#import "../../PlayEmCore/Sample/VisualPair.h"
 
 using namespace metal;
 

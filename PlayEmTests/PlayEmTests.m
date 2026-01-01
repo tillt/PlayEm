@@ -8,6 +8,7 @@
 
 #import <XCTest/XCTest.h>
 
+<<<<<<< HEAD
 #import "Sample/LazySample.h"
 #import "Audio/AudioController.h"
 #import "TotalIdentificationController.h"
@@ -18,12 +19,15 @@
 - (NSDictionary<NSString *, NSNumber *> *)testing_metrics;
 @end
 
+=======
+>>>>>>> 8ed3a1b (chore: splitting out into core and ui, adding tests)
 @interface PlayEmTests : XCTestCase
 
 @end
 
 @implementation PlayEmTests
 
+<<<<<<< HEAD
 // Golden reference list for the fixture (artist, title).
 - (NSArray<NSDictionary<NSString*, NSString*> *> *)goldenTracks
 {
@@ -217,6 +221,8 @@ static BOOL IsUnknownTrack(TimedMediaMetaData *track)
     return sample;
 }
 
+=======
+>>>>>>> 8ed3a1b (chore: splitting out into core and ui, adding tests)
 - (void)setUp {
     // Put setup code here. This method is called before the invocation of each test method in the class.
 }
@@ -225,6 +231,7 @@ static BOOL IsUnknownTrack(TimedMediaMetaData *track)
     // Put teardown code here. This method is called after the invocation of each test method in the class.
 }
 
+<<<<<<< HEAD
 - (void)testDetectionRunsOnFixture
 {
     LazySample *sample = [self loadFixtureSampleNamed:@"/Users/till/Development/PlayEm/PlayEmTests/test_set_patrice.m4a"
@@ -558,6 +565,18 @@ static BOOL IsUnknownTrack(TimedMediaMetaData *track)
         [out writeToFile:path atomically:YES encoding:NSUTF8StringEncoding error:nil];
         NSLog(@"[PlayEmTests] Wrote summary to %@", path);
     }
+=======
+- (void)testExample {
+    // This is an example of a functional test case.
+    // Use XCTAssert and related functions to verify your tests produce the correct results.
+}
+
+- (void)testPerformanceExample {
+    // This is an example of a performance test case.
+    [self measureBlock:^{
+        // Put the code you want to measure the time of here.
+    }];
+>>>>>>> 8ed3a1b (chore: splitting out into core and ui, adding tests)
 }
 
 @end

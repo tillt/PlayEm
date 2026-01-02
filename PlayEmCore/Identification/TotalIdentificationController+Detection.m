@@ -696,6 +696,8 @@ static uint64_t HashAudioSlice(float* const* channels,
 {
     __weak TotalIdentificationController* weakSelf = self;
 
+    NSLog(@"%s %@ - %@", __PRETTY_FUNCTION__, match.mediaItems[0].artist, match.mediaItems[0].title);
+    
     dispatch_async(_identifyQueue, ^{
         TotalIdentificationController* strongSelf = weakSelf;
         if (strongSelf == nil) {

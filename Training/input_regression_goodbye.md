@@ -4,6 +4,9 @@
 - Final objc output: `Training/patrice-baumel-halo-goodbye_final_objc_oldcode_20260102.txt`
 - Note: produced on old branch (pre-[Shazam] tag); input may be post-processed.
 
+## Observation
+- Old-code input capture consistently includes one additional golden (9/19 vs 8/19 in current Shazam logs), missing only `Cosmjn — Cosmo Acids` on the Shazam path.
+
 # Input Regression — Goodbye
 
 ## Seeded baseline (old good)
@@ -42,6 +45,10 @@
 - Eval output: `Training/patrice-baumel-halo-goodbye_eval_objc_shazam_retry2_20260102.txt`
 - Refined 21, Matched 10, Precision 0.476, Recall 0.526
 
+## 2026-01-02 Old-branch raw Shazam capture (with slice hashes)
+- Raw Shazam log: `Training/patrice-baumel-halo-goodbye_shazamraw_main_20260102.txt`
+- Note: contains `[ShazamRaw] run:<uuid> slice:<hash> frame:<n>` lines for slice-level comparison.
+
 ## Baseline eval (old good)
 - Eval output: `Training/patrice-baumel-halo-goodbye_eval_py_baseline.txt`
 - Refined 19, Matched 14, Precision 0.737, Recall 0.737
@@ -50,3 +57,8 @@
 - Precision/recall dropped (0.737 → 0.526).
 - False positives increased: baseline 5 vs new 9.
 - Missed goldens increased: baseline 5 vs new 9.
+
+## Recall regression - likely drivers
+- Raw input coverage is lower on the Shazam path: old-code input shows 9/19 goldens vs 8/19 on Shazam logs; the missing golden is `Cosmjn — Cosmo Acids`, which caps achievable recall before refinement.
+- Refinement still drops some goldens that are present in raw input (baseline vs new has different candidates around that span), so part of the recall loss is post-input.
+- Net: recall regression appears to be a mix of input loss (missing Cosmjn) and refiner behavior; not explained by refinement alone.

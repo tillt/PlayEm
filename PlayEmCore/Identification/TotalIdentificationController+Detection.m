@@ -123,6 +123,27 @@ static BOOL AppendSignatureBuffer(SHSignatureGenerator* generator,
     return NO;
 }
 
+static uint64_t HashAudioSlice(float* const* channels,
+                               uint32_t channelCount,
+                               AVAudioFrameCount frames)
+{
+    const uint64_t kOffsetBasis = 1469598103934665603ULL;
+    const uint64_t kPrime = 1099511628211ULL;
+    uint64_t hash = kOffsetBasis;
+    if (channels == NULL || frames == 0 || channelCount == 0) {
+        return hash;
+    }
+    size_t byteCount = (size_t)frames * sizeof(float);
+    for (uint32_t channel = 0; channel < channelCount; channel++) {
+        const uint8_t* bytes = (const uint8_t*)channels[channel];
+        for (size_t i = 0; i < byteCount; i++) {
+            hash ^= bytes[i];
+            hash *= kPrime;
+        }
+    }
+    return hash;
+}
+
 @implementation TotalIdentificationController (Detection)
 
 - (BOOL)detectTracklistStreaming
@@ -144,6 +165,7 @@ static BOOL AppendSignatureBuffer(SHSignatureGenerator* generator,
 
     float* data[_sample.sampleFormat.channels];
     const int channels = _sample.sampleFormat.channels;
+    uint64_t lastSliceHash = 0;
     for (int channel = 0; channel < channels; channel++) {
         data[channel] = (float*)((NSMutableData*)_sampleBuffers[channel]).bytes;
     }
@@ -212,6 +234,9 @@ static BOOL AppendSignatureBuffer(SHSignatureGenerator* generator,
                 outputBuffer[outputFrameIndex] = s;
                 sourceFrameIndex++;
             }
+            lastSliceHash = HashAudioSlice(stream.floatChannelData,
+                                           (uint32_t)stream.format.channelCount,
+                                           inputWindowFrameCount);
 
             _sessionFrameOffset = chunkStartFrame;
             NSNumber* offset = [NSNumber numberWithUnsignedLongLong:chunkStartFrame];
@@ -222,6 +247,7 @@ static BOOL AppendSignatureBuffer(SHSignatureGenerator* generator,
                     _maxInFlightCount = _inFlightCount;
                 }
                 _requestStartTimeByOffset[offset] = @(CFAbsoluteTimeGetCurrent());
+                _requestSliceHashByOffset[offset] = [NSString stringWithFormat:@"%016llx", lastSliceHash];
             });
             _matchRequestCount += 1;
 
@@ -290,6 +316,7 @@ static BOOL AppendSignatureBuffer(SHSignatureGenerator* generator,
     double accumulatedSeconds = 0.0;
     unsigned long long signatureStartFrame = 0;
     unsigned long long signatureLocalFrame = 0;
+    uint64_t lastSliceHash = 0;
     defaults = [NSUserDefaults standardUserDefaults];
     BOOL useNilTime = ![defaults boolForKey:@"UseSignatureTimes"];
 
@@ -365,6 +392,9 @@ static BOOL AppendSignatureBuffer(SHSignatureGenerator* generator,
                 outputRight[outputFrameIndex] = right;
                 sourceFrameIndex++;
             }
+            lastSliceHash = HashAudioSlice(stream.floatChannelData,
+                                           (uint32_t)stream.format.channelCount,
+                                           inputWindowFrameCount);
             if (accumulatedSeconds == 0.0) {
                 signatureStartFrame = chunkStartFrame;
                 signatureLocalFrame = 0;
@@ -411,6 +441,7 @@ static BOOL AppendSignatureBuffer(SHSignatureGenerator* generator,
                         _maxInFlightCount = _inFlightCount;
                     }
                     _requestStartTimeByOffset[offset] = @(CFAbsoluteTimeGetCurrent());
+                    _requestSliceHashByOffset[offset] = [NSString stringWithFormat:@"%016llx", lastSliceHash];
                 });
                 _matchRequestCount += 1;
                 [_session matchSignature:signature];
@@ -433,6 +464,7 @@ static BOOL AppendSignatureBuffer(SHSignatureGenerator* generator,
                     _maxInFlightCount = _inFlightCount;
                 }
                 _requestStartTimeByOffset[offset] = @(CFAbsoluteTimeGetCurrent());
+                _requestSliceHashByOffset[offset] = [NSString stringWithFormat:@"%016llx", lastSliceHash];
             });
             _matchRequestCount += 1;
             [_session matchSignature:signature];
@@ -685,6 +717,13 @@ static BOOL AppendSignatureBuffer(SHSignatureGenerator* generator,
             strongSelf->_responseLatencyMax = MAX(strongSelf->_responseLatencyMax, latency);
             [strongSelf->_requestStartTimeByOffset removeObjectForKey:offset];
         }
+        NSString* sliceHash = strongSelf->_requestSliceHashByOffset[offset];
+        if (sliceHash != nil) {
+            [strongSelf->_requestSliceHashByOffset removeObjectForKey:offset];
+        } else {
+            sliceHash = @"-";
+        }
+        NSString* runID = strongSelf->_shazamRunID ?: @"-";
         if (strongSelf->_inFlightCount > 0) {
             strongSelf->_inFlightCount -= 1;
         }
@@ -694,6 +733,14 @@ static BOOL AppendSignatureBuffer(SHSignatureGenerator* generator,
         NSArray<SHMatchedMediaItem*>* items = match.mediaItems;
         if (items.count == 0) {
             TimedMediaMetaData* track = [TimedMediaMetaData unknownTrackAtFrame:offset];
+            if (strongSelf->_debugScoring) {
+                NSLog(@"[ShazamRaw] run:%@ slice:%@ frame:%llu artist:%@ title:%@ score:0.000 confidence:1",
+                      runID,
+                      sliceHash,
+                      offset.unsignedLongLongValue,
+                      track.meta.artist ?: @"",
+                      track.meta.title ?: @"");
+            }
             [[ActivityManager shared] updateActivity:strongSelf->_token detail:track.meta.title];
             NSUserDefaults* defaults = [NSUserDefaults standardUserDefaults];
             BOOL excludeUnknown = [defaults boolForKey:@"ExcludeUnknownInputs"];
@@ -710,6 +757,16 @@ static BOOL AppendSignatureBuffer(SHSignatureGenerator* generator,
         for (SHMatchedMediaItem* item in items) {
             TimedMediaMetaData* track = [[TimedMediaMetaData alloc] initWithMatchedMediaItem:item frame:offset];
             [tracks addObject:track];
+        }
+        if (strongSelf->_debugScoring) {
+            for (TimedMediaMetaData* track in tracks) {
+                NSLog(@"[ShazamRaw] run:%@ slice:%@ frame:%llu artist:%@ title:%@ score:0.000 confidence:1",
+                      runID,
+                      sliceHash,
+                      offset.unsignedLongLongValue,
+                      track.meta.artist ?: @"",
+                      track.meta.title ?: @"");
+            }
         }
         if (strongSelf->_firstMatchFrame == ULLONG_MAX) {
             strongSelf->_firstMatchFrame = offset.unsignedLongLongValue;
@@ -772,6 +829,13 @@ static BOOL AppendSignatureBuffer(SHSignatureGenerator* generator,
                 strongSelf->_responseLatencyMax = MAX(strongSelf->_responseLatencyMax, latency);
                 [strongSelf->_requestStartTimeByOffset removeObjectForKey:offset];
             }
+            NSString* sliceHash = strongSelf->_requestSliceHashByOffset[offset];
+            if (sliceHash != nil) {
+                [strongSelf->_requestSliceHashByOffset removeObjectForKey:offset];
+            } else {
+                sliceHash = @"-";
+            }
+            NSString* runID = strongSelf->_shazamRunID ?: @"-";
             if (strongSelf->_inFlightCount > 0) {
                 strongSelf->_inFlightCount -= 1;
             }
@@ -779,6 +843,14 @@ static BOOL AppendSignatureBuffer(SHSignatureGenerator* generator,
                 dispatch_semaphore_signal(strongSelf->_matchInFlightSemaphore);
             }
             TimedMediaMetaData* track = [TimedMediaMetaData unknownTrackAtFrame:offset];
+            if (strongSelf->_debugScoring) {
+                NSLog(@"[ShazamRaw] run:%@ slice:%@ frame:%llu artist:%@ title:%@ score:0.000 confidence:1",
+                      runID,
+                      sliceHash,
+                      offset.unsignedLongLongValue,
+                      track.meta.artist ?: @"",
+                      track.meta.title ?: @"");
+            }
 
             [[ActivityManager shared] updateActivity:strongSelf->_token detail:track.meta.title];
 

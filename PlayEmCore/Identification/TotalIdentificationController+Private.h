@@ -34,6 +34,8 @@ NS_ASSUME_NONNULL_BEGIN
     double _responseLatencyMin;
     double _responseLatencyMax;
     NSMutableDictionary<NSNumber*, NSNumber*>* _requestStartTimeByOffset;
+    NSMutableDictionary<NSNumber*, NSString*>* _requestSliceHashByOffset;
+    NSString* _shazamRunID;
     unsigned long long _firstMatchFrame;
     NSMutableArray<NSNumber*>* _matchFrames;
     double _lastProgressLogged;

@@ -93,6 +93,8 @@ NS_ASSUME_NONNULL_BEGIN
         _pendingMatchOffsets = [NSMutableArray array];
         _lastMatchFrameByID = [NSMutableDictionary dictionary];
         _requestStartTimeByOffset = [NSMutableDictionary dictionary];
+        _requestSliceHashByOffset = [NSMutableDictionary dictionary];
+        _shazamRunID = [[NSUUID UUID] UUIDString];
         _firstMatchFrame = ULLONG_MAX;
         _matchFrames = [NSMutableArray array];
         _lastProgressLogged = -1.0;

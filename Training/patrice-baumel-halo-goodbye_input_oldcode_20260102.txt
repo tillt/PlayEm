@@ -1,0 +1,525 @@
+[Input] frame:0 artist:YOTTO title:Seat 11 score:0.000 confidence:1
+[Input] frame:0 artist:YOTTO title:Seat 11 score:0.000 confidence:1
+[Input] frame:1048576 artist:YOTTO title:Seat 11 score:0.000 confidence:1
+[Input] frame:1048576 artist:Sultan + Shepard & Rinzen title:Before The Storm score:0.000 confidence:1
+[Input] frame:2097152 artist:Tinlicker & Solomon Grey title:Choir To The Wild score:0.000 confidence:1
+[Input] frame:2097152 artist:Full Trunk & Ninet Tayeb title:נגנב ממך score:0.000 confidence:1
+[Input] frame:3145728 artist:Nicolas Croll title:Hypermixolydian score:0.000 confidence:1
+[Input] frame:3145728 artist:YOTTO title:Seat 11 score:0.000 confidence:1
+[Input] frame:4194304 artist:YOTTO title:Seat 11 score:0.000 confidence:1
+[Input] frame:4194304 artist:YOTTO title:Seat 11 score:0.000 confidence:1
+[Input] frame:5242880 artist:YOTTO title:Seat 11 score:0.000 confidence:1
+[Input] frame:5242880 artist:Mark Alow title:Trip To The Lonely Planet score:0.000 confidence:1
+[Input] frame:6291456 artist:Mark Alow title:Trip To The Lonely Planet score:0.000 confidence:1
+[Input] frame:6291456 artist:Alan Walker title:Faded (Jack Cooper Bootleg) score:0.000 confidence:1
+[Input] frame:7340032 artist:YOTTO title:Seat 11 score:0.000 confidence:1
+[Input] frame:7340032 artist:Tigerskin & Alfa State title:Slippery Roads (Pablo Bolivar Remix) score:0.000 confidence:1
+[Input] frame:8388608 artist:Tigerskin & Alfa State title:Slippery Roads (Pablo Bolivar Remix) score:0.000 confidence:1
+[Input] frame:8388608 artist:Tigerskin & Alfa State title:Slippery Roads (Pablo Bolivar Remix) score:0.000 confidence:1
+[Input] frame:9437184 artist:Tigerskin & Alfa State title:Slippery Roads (Pablo Bolivar Remix) score:0.000 confidence:1
+[Input] frame:9437184 artist:DOU12E title:Heartbeat score:0.000 confidence:1
+[Input] frame:10485760 artist:Tigerskin & Alfa State title:Slippery Roads (Pablo Bolivar Remix) score:0.000 confidence:1
+[Input] frame:10485760 artist:Tigerskin & Alfa State title:Slippery Roads (Pablo Bolivar Remix) score:0.000 confidence:1
+[Input] frame:11534336 artist:Tigerskin & Alfa State title:Slippery Roads (Pablo Bolivar Remix) score:0.000 confidence:1
+[Input] frame:11534336 artist:Filatov & Karas title:Чилить score:0.000 confidence:1
+[Input] frame:12582912 artist:HUGEL, BLOND:ISH & Nfasis title:Tra Tra score:0.000 confidence:1
+[Input] frame:12582912 artist:Miklós Spányi & Silbermann title:Toccata and Fugue In D Minor, BWV 565 score:0.000 confidence:1
+[Input] frame:13631488 artist:Tigerskin & Alfa State title:Slippery Roads (Pablo Bolivar Remix) score:0.000 confidence:1
+[Input] frame:13631488 artist:Tigerskin & Alfa State title:Slippery Roads (Pablo Bolivar Remix) score:0.000 confidence:1
+[Input] frame:14680064 artist:Tigerskin & Alfa State title:Slippery Roads (Pablo Bolivar Remix) score:0.000 confidence:1
+[Input] frame:14680064 artist:Tigerskin & Alfa State title:Slippery Roads (Pablo Bolivar Remix) score:0.000 confidence:1
+[Input] frame:15728640 artist:Tigerskin & Alfa State title:Slippery Roads (Pablo Bolivar Remix) score:0.000 confidence:1
+[Input] frame:15728640 artist:Tigerskin & Alfa State title:Slippery Roads (Pablo Bolivar Remix) score:0.000 confidence:1
+[Input] frame:16777216 artist:Tigerskin & Alfa State title:Slippery Roads (Pablo Bolivar Remix) score:0.000 confidence:1
+[Input] frame:16777216 artist:Tigerskin & Alfa State title:Slippery Roads (Pablo Bolivar Remix) score:0.000 confidence:1
+[Input] frame:17825792 artist:Patrice Bäumel title:Surge score:0.000 confidence:1
+[Input] frame:17825792 artist:苏名哲 title:治愈者风景 (变速版) score:0.000 confidence:1
+[Input] frame:18874368 artist:Tigerskin & Alfa State title:Slippery Roads (Pablo Bolivar Remix) score:0.000 confidence:1
+[Input] frame:18874368 artist:Andy Compton title:That Acid Track score:0.000 confidence:1
+[Input] frame:19922944 artist:Andy Compton title:That Acid Track score:0.000 confidence:1
+[Input] frame:19922944 artist:Andy Compton title:That Acid Track score:0.000 confidence:1
+[Input] frame:20971520 artist:Andy Compton title:That Acid Track score:0.000 confidence:1
+[Input] frame:20971520 artist:Andy Compton title:That Acid Track score:0.000 confidence:1
+[Input] frame:22020096 artist:Andy Compton title:That Acid Track score:0.000 confidence:1
+[Input] frame:22020096 artist:Andy Compton title:That Acid Track score:0.000 confidence:1
+[Input] frame:23068672 artist:X-Press 2 title:Say What! (London Underground Mix) score:0.000 confidence:1
+[Input] frame:23068672 artist:X-Press 2 title:Say What! (London Underground Mix) score:0.000 confidence:1
+[Input] frame:24117248 artist:BLR & Rave & Crave title:Taj score:0.000 confidence:1
+[Input] frame:24117248 artist:Saktu title:Muted Glow (Extended Mix) score:0.000 confidence:1
+[Input] frame:25165824 artist:Saktu title:Muted Glow (Extended Mix) score:0.000 confidence:1
+[Input] frame:25165824 artist:Saktu title:Muted Glow (Extended Mix) score:0.000 confidence:1
+[Input] frame:26214400 artist:Saktu title:Muted Glow (Extended Mix) score:0.000 confidence:1
+[Input] frame:26214400 artist:Saktu title:Muted Glow (Extended Mix) score:0.000 confidence:1
+[Input] frame:27262976 artist:X-Press 2 title:Say What! (London Underground Mix) score:0.000 confidence:1
+[Input] frame:27262976 artist:Andy Compton title:That Acid Track score:0.000 confidence:1
+[Input] frame:28311552 artist:Andy Compton title:That Acid Track score:0.000 confidence:1
+[Input] frame:28311552 artist:Andy Compton title:That Acid Track score:0.000 confidence:1
+[Input] frame:29360128 artist:Gigi D'Agostino title:Bla Bla Bla score:0.000 confidence:1
+[Input] frame:29360128 artist:Lorenzo Silvano title:Undertrack score:0.000 confidence:1
+[Input] frame:30408704 artist:Gigi D'Agostino title:Bla Bla Bla score:0.000 confidence:1
+[Input] frame:30408704 artist:Andy Compton title:That Acid Track score:0.000 confidence:1
+[Input] frame:31457280 artist:Marc Molina title:More Than Physical (Manuel Palmitesta Remix) score:0.000 confidence:1
+[Input] frame:31457280 artist:Matt Sassari title:Give It to Me score:0.000 confidence:1
+[Input] frame:32505856 artist:Dosem & Prok & Fitch title:Doors score:0.000 confidence:1
+[Input] frame:32505856 artist:Maae title:Descartes score:0.000 confidence:1
+[Input] frame:33554432 artist:Dosem & Prok & Fitch title:Doors score:0.000 confidence:1
+[Input] frame:33554432 artist:Marcos Barrios, Len Mora & Joaquin Postigo title:Tribaile (Len Mora & Joaquin Postigo) score:0.000 confidence:1
+[Input] frame:34603008 artist:Giovanni Molinaro title:Otoponoz (Improved Mix) score:0.000 confidence:1
+[Input] frame:34603008 artist:Fragma title:Toca Me (Inpetto 2008 Mix) score:0.000 confidence:1
+[Input] frame:35651584 artist:Dosem & Prok & Fitch title:Doors score:0.000 confidence:1
+[Input] frame:35651584 artist:Chymamusique title:Lost in Words (Main Saxed Mix) score:0.000 confidence:1
+[Input] frame:36700160 artist:RÜFÜS DU SOL title:Innerbloom score:0.000 confidence:1
+[Input] frame:36700160 artist:Paperclip People title:Throw (Slam's RTM Remix) score:0.000 confidence:1
+[Input] frame:37748736 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:37748736 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:38797312 artist:Chymamusique title:Lost in Words (Main Saxed Mix) score:0.000 confidence:1
+[Input] frame:38797312 artist:Chymamusique title:Lost in Words (Main Saxed Mix) score:0.000 confidence:1
+[Input] frame:39845888 artist:Chymamusique title:Lost in Words (Main Saxed Mix) score:0.000 confidence:1
+[Input] frame:39845888 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:40894464 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:40894464 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:41943040 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:41943040 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:42991616 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:42991616 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:44040192 artist:Ministers De La Funk title:Believe (feat. Jocelyn Brown) [Ministers Club Mix] score:0.000 confidence:1
+[Input] frame:44040192 artist:Chymamusique title:Lost in Words (Main Saxed Mix) score:0.000 confidence:1
+[Input] frame:45088768 artist:Fragma title:Toca's Miracle (2008 Inpetto Extended Mix) score:0.000 confidence:1
+[Input] frame:45088768 artist:Fragma title:Toca's Miracle (2008 Inpetto Extended Mix) score:0.000 confidence:1
+[Input] frame:46137344 artist:Boris Brejcha title:I Want You (feat. Ginger) score:0.000 confidence:1
+[Input] frame:46137344 artist:Dale Howard title:Rogue Keys score:0.000 confidence:1
+[Input] frame:47185920 artist:The Return title:New Day score:0.000 confidence:1
+[Input] frame:47185920 artist:The Return title:New Day score:0.000 confidence:1
+[Input] frame:48234496 artist:The Return title:New Day score:0.000 confidence:1
+[Input] frame:48234496 artist:Alan Cerra & Gai Barone title:End of the Line (Gai Barone Remix) score:0.000 confidence:1
+[Input] frame:49283072 artist:Alan Cerra & Gai Barone title:End of the Line (Gai Barone Remix) score:0.000 confidence:1
+[Input] frame:49283072 artist:Alan Cerra & Gai Barone title:End of the Line (Gai Barone Remix) score:0.000 confidence:1
+[Input] frame:50331648 artist:Alan Cerra & Gai Barone title:End of the Line (Gai Barone Remix) score:0.000 confidence:1
+[Input] frame:50331648 artist:Alan Cerra & Gai Barone title:End of the Line (Gai Barone Remix) score:0.000 confidence:1
+[Input] frame:51380224 artist:Alan Cerra & Gai Barone title:End of the Line (Gai Barone Remix) score:0.000 confidence:1
+[Input] frame:51380224 artist:Alan Cerra & Gai Barone title:End of the Line (Gai Barone Remix) score:0.000 confidence:1
+[Input] frame:52428800 artist:Alan Cerra & Gai Barone title:End of the Line (Gai Barone Remix) score:0.000 confidence:1
+[Input] frame:52428800 artist:Alan Cerra & Gai Barone title:End of the Line (Gai Barone Remix) score:0.000 confidence:1
+[Input] frame:53477376 artist:Alan Cerra & Gai Barone title:End of the Line (Gai Barone Remix) score:0.000 confidence:1
+[Input] frame:53477376 artist:The Return title:New Day score:0.000 confidence:1
+[Input] frame:54525952 artist:Dale Howard title:Rogue Keys score:0.000 confidence:1
+[Input] frame:54525952 artist:Alan Cerra & Gai Barone title:End of the Line (Gai Barone Remix) score:0.000 confidence:1
+[Input] frame:55574528 artist:Alex Dolby title:Sintesi (Original) score:0.000 confidence:1
+[Input] frame:55574528 artist:Alan Cerra & Gai Barone title:End of the Line (Gai Barone Remix) score:0.000 confidence:1
+[Input] frame:56623104 artist:Alan Cerra & Gai Barone title:End of the Line (Gai Barone Remix) score:0.000 confidence:1
+[Input] frame:56623104 artist:Culture Shock & TEED title:Back In Time (LSB Remix) score:0.000 confidence:1
+[Input] frame:57671680 artist:Alan Cerra & Gai Barone title:End of the Line (Gai Barone Remix) score:0.000 confidence:1
+[Input] frame:57671680 artist:Ricky Sinz title:Riders score:0.000 confidence:1
+[Input] frame:58720256 artist:Laura D'Agostino title:Balsamo (Frederic Stunkel Remix) score:0.000 confidence:1
+[Input] frame:58720256 artist:Oliver Dollar title:Granulated Soul score:0.000 confidence:1
+[Input] frame:59768832 artist:Oliver Dollar title:Granulated Soul score:0.000 confidence:1
+[Input] frame:59768832 artist:Biscits title:Wait A Minute score:0.000 confidence:1
+[Input] frame:60817408 artist:Tinlicker & Robert Miles title:Children score:0.000 confidence:1
+[Input] frame:60817408 artist:LOGGANN title:Polygons score:0.000 confidence:1
+[Input] frame:61865984 artist:Dark Roast Specialist title:Art vs Science (Dark) score:0.000 confidence:1
+[Input] frame:61865984 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:62914560 artist:G_$harp title:Broker score:0.000 confidence:1
+[Input] frame:62914560 artist:Virasco title:REM Losing My Religion VIRASCO edit score:0.000 confidence:1
+[Input] frame:63963136 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:63963136 artist:Savas Pascalidis title:Shot In the Dark score:0.000 confidence:1
+[Input] frame:65011712 artist:Twilo title:Dawn 2 Dusk score:0.000 confidence:1
+[Input] frame:65011712 artist:WhoMadeWho title:Silence & Secrets (Adriatique Remix) score:0.000 confidence:1
+[Input] frame:66060288 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:66060288 artist:Thomas Schumacher & Victor Ruiz title:Apollo score:0.000 confidence:1
+[Input] frame:67108864 artist:Sven Dohse title:You're Welcome score:0.000 confidence:1
+[Input] frame:67108864 artist:G_$harp title:Broker score:0.000 confidence:1
+[Input] frame:68157440 artist:Savas Pascalidis title:Shot In the Dark score:0.000 confidence:1
+[Input] frame:68157440 artist:Savas Pascalidis title:Shot In the Dark score:0.000 confidence:1
+[Input] frame:69206016 artist:Savas Pascalidis title:Shot In the Dark score:0.000 confidence:1
+[Input] frame:69206016 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:70254592 artist:2hz title:Modest (Remastered) score:0.000 confidence:1
+[Input] frame:70254592 artist:Lucifer title:Breath score:0.000 confidence:1
+[Input] frame:71303168 artist:Wigbert title:Balance score:0.000 confidence:1
+[Input] frame:71303168 artist:2Pole title:Hyperion score:0.000 confidence:1
+[Input] frame:72351744 artist:Henri (BR) title:Otherside (Extended Mix) score:0.000 confidence:1
+[Input] frame:72351744 artist:G_$harp title:Broker score:0.000 confidence:1
+[Input] frame:73400320 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:73400320 artist:Edward Botero title:No Man No Cry score:0.000 confidence:1
+[Input] frame:74448896 artist:Wehbba title:Backlash score:0.000 confidence:1
+[Input] frame:74448896 artist:Alvaro Albarran title:Tubah - Single score:0.000 confidence:1
+[Input] frame:75497472 artist:Panos Pissitelis & Junior Mi title:Freaky score:0.000 confidence:1
+[Input] frame:75497472 artist:Oliver Dollar title:Granulated Soul score:0.000 confidence:1
+[Input] frame:76546048 artist:Munfell Muzik title:Eny score:0.000 confidence:1
+[Input] frame:76546048 artist:Loud Luxury title:Body (feat. brando) [Chus & Ceballos Extended Remix] score:0.000 confidence:1
+[Input] frame:77594624 artist:Floating Points title:Del Oro score:0.000 confidence:1
+[Input] frame:77594624 artist:Eddie Amador title:House Music (Robosonic Remix) score:0.000 confidence:1
+[Input] frame:78643200 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:78643200 artist:CamelPhat & Elderbrook title:Cola (Mousse T.'s Glitterbox Mix) score:0.000 confidence:1
+[Input] frame:79691776 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:80740352 artist:Dave Storm title:Happy Endz (Deep Inc Remix) score:0.000 confidence:1
+[Input] frame:80740352 artist:Munfell Muzik title:Eny score:0.000 confidence:1
+[Input] frame:81788928 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:81788928 artist:Marc Molina title:More Than Physical (Manuel Palmitesta Remix) score:0.000 confidence:1
+[Input] frame:82837504 artist:Faithless title:Insomnia (Monster Mix) score:0.000 confidence:1
+[Input] frame:82837504 artist:Victor Garde title:Feel Your Touch (Extended Mix) score:0.000 confidence:1
+[Input] frame:83886080 artist:RÜFÜS DU SOL title:Innerbloom score:0.000 confidence:1
+[Input] frame:83886080 artist:Tom Santa title:Rainfall (Praise You) score:0.000 confidence:1
+[Input] frame:84934656 artist:Faithless title:Insomnia (Monster Mix) score:0.000 confidence:1
+[Input] frame:84934656 artist:Kanzler & Wischnewski title:El Mariachi score:0.000 confidence:1
+[Input] frame:85983232 artist:Royal Gigolos title:California Dreamin' (Tek House Single) score:0.000 confidence:1
+[Input] frame:85983232 artist:RÜFÜS DU SOL title:Innerbloom score:0.000 confidence:1
+[Input] frame:87031808 artist:Allen (Italy) & Filix title:Dusty Palace score:0.000 confidence:1
+[Input] frame:87031808 artist:Savas Pascalidis title:Shot In the Dark score:0.000 confidence:1
+[Input] frame:88080384 artist:Jack5on title:No War score:0.000 confidence:1
+[Input] frame:88080384 artist:Guy J title:Alive Again - Single score:0.000 confidence:1
+[Input] frame:89128960 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:89128960 artist:Munfell Muzik title:Eny score:0.000 confidence:1
+[Input] frame:90177536 artist:John Summit title:Deep End score:0.000 confidence:1
+[Input] frame:90177536 artist:Allen (Italy) & Filix title:Dusty Palace score:0.000 confidence:1
+[Input] frame:91226112 artist:Activa title:Liquefaction (Under Sun Remix) score:0.000 confidence:1
+[Input] frame:91226112 artist:Mumbaata title:Non - Alkaline score:0.000 confidence:1
+[Input] frame:92274688 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:92274688 artist:Tom Santa title:Rainfall (Praise You) score:0.000 confidence:1
+[Input] frame:93323264 artist:RÜFÜS DU SOL title:Innerbloom score:0.000 confidence:1
+[Input] frame:93323264 artist:Jaydee title:Plastic Dreams score:0.000 confidence:1
+[Input] frame:94371840 artist:Faithless title:Insomnia (Monster Mix) score:0.000 confidence:1
+[Input] frame:95420416 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:95420416 artist:RÜFÜS DU SOL title:Innerbloom score:0.000 confidence:1
+[Input] frame:96468992 artist:Brian Harden title:Tour De Chi score:0.000 confidence:1
+[Input] frame:96468992 artist:Kanzler & Wischnewski title:El Mariachi score:0.000 confidence:1
+[Input] frame:97517568 artist:Vlada Asanin & Joe Red title:Losing You score:0.000 confidence:1
+[Input] frame:97517568 artist:Vlada Asanin & Joe Red title:Losing You score:0.000 confidence:1
+[Input] frame:98566144 artist:Uto Karem title:Body Move score:0.000 confidence:1
+[Input] frame:98566144 artist:Alex Albrecht title:The Arboretum score:0.000 confidence:1
+[Input] frame:99614720 artist:Ohmme title:Excess (Original Mix) score:0.000 confidence:1
+[Input] frame:99614720 artist:Lane 8 title:Loving You (feat. Lulu James) [Solee Remix] score:0.000 confidence:1
+[Input] frame:100663296 artist:Uto Karem title:Body Move score:0.000 confidence:1
+[Input] frame:100663296 artist:Alex Albrecht title:The Arboretum score:0.000 confidence:1
+[Input] frame:101711872 artist:Alex Albrecht title:The Arboretum score:0.000 confidence:1
+[Input] frame:101711872 artist:Alex Albrecht title:The Arboretum score:0.000 confidence:1
+[Input] frame:102760448 artist:Alex Albrecht title:The Arboretum score:0.000 confidence:1
+[Input] frame:102760448 artist:Alex Albrecht title:The Arboretum score:0.000 confidence:1
+[Input] frame:103809024 artist:Alex Albrecht title:The Arboretum score:0.000 confidence:1
+[Input] frame:103809024 artist:Alex Albrecht title:The Arboretum score:0.000 confidence:1
+[Input] frame:104857600 artist:Alex Albrecht title:The Arboretum score:0.000 confidence:1
+[Input] frame:104857600 artist:Alex Albrecht title:The Arboretum score:0.000 confidence:1
+[Input] frame:105906176 artist:Alex Albrecht title:The Arboretum score:0.000 confidence:1
+[Input] frame:105906176 artist:Alex Albrecht title:The Arboretum score:0.000 confidence:1
+[Input] frame:106954752 artist:Alex Albrecht title:The Arboretum score:0.000 confidence:1
+[Input] frame:106954752 artist:Alex Albrecht title:The Arboretum score:0.000 confidence:1
+[Input] frame:108003328 artist:Alex Albrecht title:The Arboretum score:0.000 confidence:1
+[Input] frame:108003328 artist:Alex Albrecht title:The Arboretum score:0.000 confidence:1
+[Input] frame:109051904 artist:Alex Albrecht title:The Arboretum score:0.000 confidence:1
+[Input] frame:109051904 artist:Davide Mazzilli title:The Beat score:0.000 confidence:1
+[Input] frame:110100480 artist:Steve Forrest title:Freed from Desire (Paul Simon Mix) score:0.000 confidence:1
+[Input] frame:110100480 artist:Bobby D'Ambrosio & Michelle Weeks title:The Day (Alaia & Gallo Remix) score:0.000 confidence:1
+[Input] frame:111149056 artist:Calvin Harris & Disciples title:How Deep Is Your Love (Disciples & Unorthodox Remix) score:0.000 confidence:1
+[Input] frame:111149056 artist:HUGEL, Merk & Kremont & Lirico En La Casa title:Marianela (Qué Pasa) score:0.000 confidence:1
+[Input] frame:112197632 artist:Au/Ra & CamelPhat title:Panic Room score:0.000 confidence:1
+[Input] frame:112197632 artist:Jax Jones & MNEK title:Where Did You Go? score:0.000 confidence:1
+[Input] frame:113246208 artist:Jax Jones & MNEK title:Where Did You Go? score:0.000 confidence:1
+[Input] frame:113246208 artist:Pete Heller's Big Love title:Big Love (David Penn Extended Remix) score:0.000 confidence:1
+[Input] frame:114294784 artist:Ron Hall & The MuthaFunkaz title:The Way You Love Me (feat. Marc Evans) score:0.000 confidence:1
+[Input] frame:114294784 artist:Blaze & Bicep title:Lovelee Dae (Bicep Remix) score:0.000 confidence:1
+[Input] frame:115343360 artist:The DangerFeel Newbies title:What Am I Here for? (Ndatl Vocal - Danny Krivit Edit) score:0.000 confidence:1
+[Input] frame:115343360 artist:Jax Jones & MNEK title:Where Did You Go? score:0.000 confidence:1
+[Input] frame:116391936 artist:Pitbull title:Hotel Room Service score:0.000 confidence:1
+[Input] frame:116391936 artist:CamelPhat & Elderbrook title:Cola score:0.000 confidence:1
+[Input] frame:117440512 artist:Simon from Deep Divas vs Corona title:The Rhythm of the Night (Club Mix) score:0.000 confidence:1
+[Input] frame:117440512 artist:Simon from Deep Divas vs Corona title:The Rhythm of the Night (Club Mix) score:0.000 confidence:1
+[Input] frame:118489088 artist:Andrea Frisina title:Faith (Dedicated Mix) score:0.000 confidence:1
+[Input] frame:118489088 artist:Jerome Isma-Ae title:Baharat (Ruben Karapetyan Remix) score:0.000 confidence:1
+[Input] frame:119537664 artist:Corona title:Try Me Out score:0.000 confidence:1
+[Input] frame:119537664 artist:Corona title:Try Me Out score:0.000 confidence:1
+[Input] frame:120586240 artist:Jax Jones & MNEK title:Where Did You Go? score:0.000 confidence:1
+[Input] frame:120586240 artist:Faithless title:Insomnia (Monster Mix) score:0.000 confidence:1
+[Input] frame:121634816 artist:Jax Jones & MNEK title:Where Did You Go? score:0.000 confidence:1
+[Input] frame:121634816 artist:Jax Jones & MNEK title:Where Did You Go? score:0.000 confidence:1
+[Input] frame:122683392 artist:Ultra Naté, Amber & Jocelyn Enriquez title:If You Could Read My Mind score:0.000 confidence:1
+[Input] frame:122683392 artist:Blaze & Bicep title:Lovelee Dae (Bicep Remix) score:0.000 confidence:1
+[Input] frame:123731968 artist:Blaze & Bicep title:Lovelee Dae (Bicep Remix) score:0.000 confidence:1
+[Input] frame:124780544 artist:Blaze & Bicep title:Lovelee Dae (Bicep Remix) score:0.000 confidence:1
+[Input] frame:124780544 artist:Blaze & Bicep title:Lovelee Dae (Bicep Remix) score:0.000 confidence:1
+[Input] frame:125829120 artist:SolyMar & Megamen title:All I Need score:0.000 confidence:1
+[Input] frame:125829120 artist:SolyMar & Megamen title:All I Need score:0.000 confidence:1
+[Input] frame:126877696 artist:Cosmjn title:Cosmo Acids score:0.000 confidence:1
+[Input] frame:126877696 artist:Paul Kardos title:Clamorous Space score:0.000 confidence:1
+[Input] frame:127926272 artist:Edmondson title:Masquerade score:0.000 confidence:1
+[Input] frame:127926272 artist:Nightcrawlers title:Push the Feeling On (T. Tommy Victor Perez & Vicente Ferrer Remix) score:0.000 confidence:1
+[Input] frame:128974848 artist:The Golden Boy title:Blah Blah Shake score:0.000 confidence:1
+[Input] frame:128974848 artist:Daily title:Kalavalier score:0.000 confidence:1
+[Input] frame:130023424 artist:Nightcrawlers title:Push the Feeling On (T. Tommy Victor Perez & Vicente Ferrer Remix) score:0.000 confidence:1
+[Input] frame:130023424 artist:Nightcrawlers title:Push the Feeling On (T. Tommy Victor Perez & Vicente Ferrer Remix) score:0.000 confidence:1
+[Input] frame:131072000 artist:Antoine Clamaran title:Do the Funk (Do The Funk Dub) score:0.000 confidence:1
+[Input] frame:131072000 artist:Edmondson title:Masquerade score:0.000 confidence:1
+[Input] frame:132120576 artist:Greg Beato title:Pma score:0.000 confidence:1
+[Input] frame:132120576 artist:Edmondson title:Masquerade score:0.000 confidence:1
+[Input] frame:133169152 artist:Edmondson title:Masquerade score:0.000 confidence:1
+[Input] frame:133169152 artist:Antoine Clamaran title:Do the Funk (Do The Funk Dub) score:0.000 confidence:1
+[Input] frame:134217728 artist:Claudio Topputo & Fabrizio Maselli title:My Hands (Santi Fernandez) score:0.000 confidence:1
+[Input] frame:134217728 artist:Lane 8 title:Loving You (feat. Lulu James) [Solee Remix] score:0.000 confidence:1
+[Input] frame:135266304 artist:Lane 8 title:Loving You (feat. Lulu James) [Solee Remix] score:0.000 confidence:1
+[Input] frame:135266304 artist:Nana K & Ben Champell title:Rapid Zone (Albird Remix) score:0.000 confidence:1
+[Input] frame:136314880 artist:Edmondson title:Masquerade score:0.000 confidence:1
+[Input] frame:136314880 artist:Lane 8 title:Loving You (feat. Lulu James) [Solee Remix] score:0.000 confidence:1
+[Input] frame:137363456 artist:Edmondson title:Masquerade score:0.000 confidence:1
+[Input] frame:137363456 artist:P.Theo Flury title:Fuga In G Minor, BWV 578 score:0.000 confidence:1
+[Input] frame:138412032 artist:Edmondson title:Masquerade score:0.000 confidence:1
+[Input] frame:138412032 artist:Stereoheadz title:DJs Make You Move score:0.000 confidence:1
+[Input] frame:139460608 artist:Edmondson title:Masquerade score:0.000 confidence:1
+[Input] frame:139460608 artist:Bob Sinclar title:World, Hold On (feat. Steve Edwards) [Club Mix] score:0.000 confidence:1
+[Input] frame:140509184 artist:Slove & David Shaw and the Beat title:Special Places (Damon Jee Remix) score:0.000 confidence:1
+[Input] frame:140509184 artist:Paul C & Paolo Martini title:Klong (Max Chapman & Apollo 84 Remix) score:0.000 confidence:1
+[Input] frame:141557760 artist:Christian Baez & Adrian Oblanca title:Pandora score:0.000 confidence:1
+[Input] frame:141557760 artist:Christian Smith title:Traction (Paride Saraceni Remix) score:0.000 confidence:1
+[Input] frame:142606336 artist:Slove & David Shaw and the Beat title:Special Places (Damon Jee Remix) score:0.000 confidence:1
+[Input] frame:142606336 artist:Slove & David Shaw and the Beat title:Special Places (Damon Jee Remix) score:0.000 confidence:1
+[Input] frame:143654912 artist:Slove & David Shaw and the Beat title:Special Places (Damon Jee Remix) score:0.000 confidence:1
+[Input] frame:143654912 artist:Slove & David Shaw and the Beat title:Special Places (Damon Jee Remix) score:0.000 confidence:1
+[Input] frame:144703488 artist:Slove & David Shaw and the Beat title:Special Places (Damon Jee Remix) score:0.000 confidence:1
+[Input] frame:144703488 artist:Slove & David Shaw and the Beat title:Special Places (Damon Jee Remix) score:0.000 confidence:1
+[Input] frame:145752064 artist:Slove & David Shaw and the Beat title:Special Places (Damon Jee Remix) score:0.000 confidence:1
+[Input] frame:145752064 artist:Slove & David Shaw and the Beat title:Special Places (Damon Jee Remix) score:0.000 confidence:1
+[Input] frame:146800640 artist:Slove & David Shaw and the Beat title:Special Places (Damon Jee Remix) score:0.000 confidence:1
+[Input] frame:146800640 artist:Slove & David Shaw and the Beat title:Special Places (Damon Jee Remix) score:0.000 confidence:1
+[Input] frame:147849216 artist:Slove & David Shaw and the Beat title:Special Places (Damon Jee Remix) score:0.000 confidence:1
+[Input] frame:147849216 artist:Slove & David Shaw and the Beat title:Special Places (Damon Jee Remix) score:0.000 confidence:1
+[Input] frame:148897792 artist:Slove & David Shaw and the Beat title:Special Places (Damon Jee Remix) score:0.000 confidence:1
+[Input] frame:148897792 artist:MATADOR & ARTBAT title:Apollo 11 score:0.000 confidence:1
+[Input] frame:149946368 artist:Slove & David Shaw and the Beat title:Special Places (Damon Jee Remix) score:0.000 confidence:1
+[Input] frame:149946368 artist:Slove & David Shaw and the Beat title:Special Places (Damon Jee Remix) score:0.000 confidence:1
+[Input] frame:150994944 artist:Slove & David Shaw and the Beat title:Special Places (Damon Jee Remix) score:0.000 confidence:1
+[Input] frame:150994944 artist:Slove & David Shaw and the Beat title:Special Places (Damon Jee Remix) score:0.000 confidence:1
+[Input] frame:152043520 artist:Slove & David Shaw and the Beat title:Special Places (Damon Jee Remix) score:0.000 confidence:1
+[Input] frame:152043520 artist:Slove & David Shaw and the Beat title:Special Places (Damon Jee Remix) score:0.000 confidence:1
+[Input] frame:153092096 artist:Christian Thomas title:Wake (Far Out Remix) score:0.000 confidence:1
+[Input] frame:153092096 artist:Slove & David Shaw and the Beat title:Special Places (Damon Jee Remix) score:0.000 confidence:1
+[Input] frame:154140672 artist:Vincent Casanova title:Hold Me score:0.000 confidence:1
+[Input] frame:155189248 artist:Inland Knights title:Deep In score:0.000 confidence:1
+[Input] frame:155189248 artist:Inland Knights title:Deep In score:0.000 confidence:1
+[Input] frame:156237824 artist:Inland Knights title:Deep In score:0.000 confidence:1
+[Input] frame:156237824 artist:Vincent Casanova title:Hold Me score:0.000 confidence:1
+[Input] frame:157286400 artist:Fatboy Slim & Fedde Le Grand title:Praise You 2009 (F.L.G. Remix) score:0.000 confidence:1
+[Input] frame:157286400 artist:Blackwood title:Ride On the Rhythm (Alex Natale Remix) score:0.000 confidence:1
+[Input] frame:158334976 artist:Inland Knights title:Deep In score:0.000 confidence:1
+[Input] frame:158334976 artist:Vincent Casanova title:Hold Me score:0.000 confidence:1
+[Input] frame:159383552 artist:Vincent Casanova title:Hold Me score:0.000 confidence:1
+[Input] frame:159383552 artist:Vincent Casanova title:Hold Me score:0.000 confidence:1
+[Input] frame:160432128 artist:Vincent Casanova title:Hold Me score:0.000 confidence:1
+[Input] frame:160432128 artist:Vincent Casanova title:Hold Me score:0.000 confidence:1
+[Input] frame:161480704 artist:Vincent Casanova title:Hold Me score:0.000 confidence:1
+[Input] frame:161480704 artist:Paquito Salazar title:Malfunction score:0.000 confidence:1
+[Input] frame:162529280 artist:Supershy title:Happy Music score:0.000 confidence:1
+[Input] frame:162529280 artist:Supershy title:Happy Music score:0.000 confidence:1
+[Input] frame:163577856 artist:Desta Cullen title:Dream score:0.000 confidence:1
+[Input] frame:163577856 artist:Inland Knights title:Deep In score:0.000 confidence:1
+[Input] frame:164626432 artist:Lexuspi title:M.A.T.B Love score:0.000 confidence:1
+[Input] frame:164626432 artist:Bryan Matthz title:Fly Over the Woods score:0.000 confidence:1
+[Input] frame:165675008 artist:Vincent Casanova title:Hold Me score:0.000 confidence:1
+[Input] frame:165675008 artist:Inland Knights title:Deep In score:0.000 confidence:1
+[Input] frame:166723584 artist:Inland Knights title:Deep In score:0.000 confidence:1
+[Input] frame:166723584 artist:Vincent Casanova title:Hold Me score:0.000 confidence:1
+[Input] frame:167772160 artist:Green Velvet title:La La Land score:0.000 confidence:1
+[Input] frame:167772160 artist:Green Velvet title:La La Land score:0.000 confidence:1
+[Input] frame:168820736 artist:Nick Curly title:Go score:0.000 confidence:1
+[Input] frame:168820736 artist:Nick Curly title:Go score:0.000 confidence:1
+[Input] frame:169869312 artist:Nick Curly title:Go score:0.000 confidence:1
+[Input] frame:169869312 artist:DJ Maphorisa & Shimza title:Makhe (feat. Moonchild Sanelly) score:0.000 confidence:1
+[Input] frame:170917888 artist:Yves Larock title:Rise Up score:0.000 confidence:1
+[Input] frame:170917888 artist:Boris Brejcha title:On His Way score:0.000 confidence:1
+[Input] frame:171966464 artist:Nick Curly title:Go score:0.000 confidence:1
+[Input] frame:171966464 artist:Yves Larock title:Rise Up score:0.000 confidence:1
+[Input] frame:173015040 artist:Yves Larock title:Rise Up score:0.000 confidence:1
+[Input] frame:173015040 artist:Boom! title:Messed Up score:0.000 confidence:1
+[Input] frame:174063616 artist:Arnaud Rebotini title:777 (Ascii Disko Remix) score:0.000 confidence:1
+[Input] frame:174063616 artist:Ida Corr title:Let Me Think About It score:0.000 confidence:1
+[Input] frame:175112192 artist:Nick Curly title:Go score:0.000 confidence:1
+[Input] frame:175112192 artist:Nick Curly title:Go score:0.000 confidence:1
+[Input] frame:176160768 artist:Tinlicker & Robert Miles title:Children (Extended Mix) score:0.000 confidence:1
+[Input] frame:176160768 artist:The Bucketheads title:The Bomb! (These Sound Fall Into My Mind) [Radio Edit] score:0.000 confidence:1
+[Input] frame:177209344 artist:Arnaud Rebotini title:777 (Ascii Disko Remix) score:0.000 confidence:1
+[Input] frame:177209344 artist:Boom! title:Messed Up score:0.000 confidence:1
+[Input] frame:178257920 artist:Alex O'Rion title:Blackout score:0.000 confidence:1
+[Input] frame:178257920 artist:Alex O'Rion title:Blackout score:0.000 confidence:1
+[Input] frame:179306496 artist:Alex O'Rion title:Blackout score:0.000 confidence:1
+[Input] frame:179306496 artist:Niereich & Xhei title:Acid Rain score:0.000 confidence:1
+[Input] frame:180355072 artist:Bob Sinclar title:World, Hold On (feat. Steve Edwards) [Club Mix] score:0.000 confidence:1
+[Input] frame:180355072 artist:Alex O'Rion title:Blackout score:0.000 confidence:1
+[Input] frame:181403648 artist:Alex O'Rion title:Blackout score:0.000 confidence:1
+[Input] frame:181403648 artist:Alex O'Rion title:Blackout score:0.000 confidence:1
+[Input] frame:182452224 artist:Diego Costa title:Synesthesia score:0.000 confidence:1
+[Input] frame:182452224 artist:Dance Spirit & Adisyn title:Portal From Mars score:0.000 confidence:1
+[Input] frame:183500800 artist:Alex O'Rion title:Blackout score:0.000 confidence:1
+[Input] frame:183500800 artist:The Poison Control Centre title:Avior score:0.000 confidence:1
+[Input] frame:184549376 artist:Alex O'Rion title:Blackout score:0.000 confidence:1
+[Input] frame:184549376 artist:deadmau5 & Kaskade title:I Remember (Vocal Mix) score:0.000 confidence:1
+[Input] frame:185597952 artist:Alex O'Rion title:Blackout score:0.000 confidence:1
+[Input] frame:185597952 artist:Alex O'Rion title:Blackout score:0.000 confidence:1
+[Input] frame:186646528 artist:Robin S. title:Show Me Love score:0.000 confidence:1
+[Input] frame:186646528 artist:Max Styler & Kyle Walker title:Give It Up (Extended Mix) score:0.000 confidence:1
+[Input] frame:187695104 artist:Max Styler & Kyle Walker title:Give It Up (Extended Mix) score:0.000 confidence:1
+[Input] frame:187695104 artist:Alex O'Rion title:Blackout score:0.000 confidence:1
+[Input] frame:188743680 artist:Alex O'Rion title:Blackout score:0.000 confidence:1
+[Input] frame:188743680 artist:Alex O'Rion title:Blackout score:0.000 confidence:1
+[Input] frame:189792256 artist:Alex O'Rion title:Blackout score:0.000 confidence:1
+[Input] frame:189792256 artist:Alex O'Rion title:Blackout score:0.000 confidence:1
+[Input] frame:190840832 artist:Alex O'Rion title:Blackout score:0.000 confidence:1
+[Input] frame:190840832 artist:Alex O'Rion title:Blackout score:0.000 confidence:1
+[Input] frame:191889408 artist:Alex O'Rion title:Blackout score:0.000 confidence:1
+[Input] frame:191889408 artist:Dirty Vegas title:Days Go By score:0.000 confidence:1
+[Input] frame:192937984 artist:Alex O'Rion title:Blackout score:0.000 confidence:1
+[Input] frame:192937984 artist:Alex O'Rion title:Blackout score:0.000 confidence:1
+[Input] frame:193986560 artist:Nightcrawlers title:Push the Feeling On (T. Tommy Victor Perez & Vicente Ferrer Remix) score:0.000 confidence:1
+[Input] frame:193986560 artist:Nightcrawlers title:Push the Feeling On (T. Tommy Victor Perez & Vicente Ferrer Remix) score:0.000 confidence:1
+[Input] frame:195035136 artist:deadmau5 & Kaskade title:I Remember (Vocal Mix) score:0.000 confidence:1
+[Input] frame:195035136 artist:Alex O'Rion title:Blackout score:0.000 confidence:1
+[Input] frame:196083712 artist:Alex O'Rion title:Blackout score:0.000 confidence:1
+[Input] frame:196083712 artist:Alex O'Rion title:Blackout score:0.000 confidence:1
+[Input] frame:197132288 artist:Alex O'Rion title:Blackout score:0.000 confidence:1
+[Input] frame:197132288 artist:Alex O'Rion title:Blackout score:0.000 confidence:1
+[Input] frame:198180864 artist:Alex O'Rion title:Blackout score:0.000 confidence:1
+[Input] frame:198180864 artist:Alex O'Rion title:Blackout score:0.000 confidence:1
+[Input] frame:199229440 artist:Oliver Dollar title:Doin' Ya Thang score:0.000 confidence:1
+[Input] frame:199229440 artist:Alex O'Rion title:Blackout score:0.000 confidence:1
+[Input] frame:200278016 artist:Alex O'Rion title:Blackout score:0.000 confidence:1
+[Input] frame:200278016 artist:Alex O'Rion title:Blackout score:0.000 confidence:1
+[Input] frame:201326592 artist:F.Sonik title:Simplon score:0.000 confidence:1
+[Input] frame:201326592 artist:Alex O'Rion title:Blackout score:0.000 confidence:1
+[Input] frame:202375168 artist:Alex O'Rion title:Blackout score:0.000 confidence:1
+[Input] frame:202375168 artist:Alex O'Rion title:Blackout score:0.000 confidence:1
+[Input] frame:203423744 artist:Alex O'Rion title:Blackout score:0.000 confidence:1
+[Input] frame:203423744 artist:Alex O'Rion title:Blackout score:0.000 confidence:1
+[Input] frame:204472320 artist:F.Sonik title:Simplon score:0.000 confidence:1
+[Input] frame:204472320 artist:Alex O'Rion title:Blackout score:0.000 confidence:1
+[Input] frame:205520896 artist:Alex O'Rion title:Blackout score:0.000 confidence:1
+[Input] frame:205520896 artist:Alex O'Rion title:Blackout score:0.000 confidence:1
+[Input] frame:206569472 artist:Alex O'Rion title:Blackout score:0.000 confidence:1
+[Input] frame:206569472 artist:Alex O'Rion title:Blackout score:0.000 confidence:1
+[Input] frame:207618048 artist:Alex O'Rion title:Blackout score:0.000 confidence:1
+[Input] frame:207618048 artist:Guliver title:Calypso (Claudio PRC Remix) score:0.000 confidence:1
+[Input] frame:208666624 artist:Guliver title:Calypso (Claudio PRC Remix) score:0.000 confidence:1
+[Input] frame:208666624 artist:Oliver Dollar title:Doin' Ya Thang score:0.000 confidence:1
+[Input] frame:209715200 artist:Dantiez Saunderson title:The Harp (feat. LaRae Starr) [Beckwith Extended Remix] score:0.000 confidence:1
+[Input] frame:209715200 artist:Mike Griego title:Back In Trance score:0.000 confidence:1
+[Input] frame:210763776 artist:Mike Griego title:Back In Trance score:0.000 confidence:1
+[Input] frame:210763776 artist:49ers title:Touch Me 2010 (Original Sexualversion) score:0.000 confidence:1
+[Input] frame:211812352 artist:Purple Disco Machine & The Magician title:All My Life (Extended) score:0.000 confidence:1
+[Input] frame:211812352 artist:Benny Benassi & The Biz title:Satisfaction (Justus Remix) score:0.000 confidence:1
+[Input] frame:212860928 artist:Martin Angrisano (ARG) title:Fiesta En El Guetto score:0.000 confidence:1
+[Input] frame:213909504 artist:Mike Griego title:Back In Trance score:0.000 confidence:1
+[Input] frame:213909504 artist:Punknown title:Fall in Luv score:0.000 confidence:1
+[Input] frame:214958080 artist:Gigi D'Agostino title:Bla Bla Bla score:0.000 confidence:1
+[Input] frame:214958080 artist:Andrea Frisina & Irregular Synth title:Dub City score:0.000 confidence:1
+[Input] frame:216006656 artist:Gigi D'Agostino title:Bla Bla Bla score:0.000 confidence:1
+[Input] frame:216006656 artist:Rozalla title:Everybody's Free (To Feel Good) score:0.000 confidence:1
+[Input] frame:217055232 artist:Gigi D'Agostino title:Bla Bla Bla score:0.000 confidence:1
+[Input] frame:217055232 artist:Dario G title:Sunchyme score:0.000 confidence:1
+[Input] frame:218103808 artist:Eelke Kleijn title:Transmission (Joris Voorn Remix) score:0.000 confidence:1
+[Input] frame:218103808 artist:Purple Disco Machine & The Magician title:All My Life (Extended) score:0.000 confidence:1
+[Input] frame:219152384 artist:Andrea Frisina & Irregular Synth title:Dub City score:0.000 confidence:1
+[Input] frame:219152384 artist:Gigi D'Agostino title:Bla Bla Bla score:0.000 confidence:1
+[Input] frame:220200960 artist:2 Eivissa title:Oh La La La (Radio Mix) score:0.000 confidence:1
+[Input] frame:220200960 artist:DJ Motion title:We Merge score:0.000 confidence:1
+[Input] frame:221249536 artist:Tiësto title:Love Comes Again score:0.000 confidence:1
+[Input] frame:221249536 artist:Roula title:Lick It score:0.000 confidence:1
+[Input] frame:222298112 artist:The Strings ITA title:Border Line score:0.000 confidence:1
+[Input] frame:222298112 artist:Mike Griego title:Back In Trance score:0.000 confidence:1
+[Input] frame:223346688 artist:Mike Griego title:Back In Trance score:0.000 confidence:1
+[Input] frame:223346688 artist:DJ Motion title:We Merge score:0.000 confidence:1
+[Input] frame:224395264 artist:DEADWALKMAN title:Rhythm 11 score:0.000 confidence:1
+[Input] frame:224395264 artist:Mike Griego title:Back In Trance score:0.000 confidence:1
+[Input] frame:225443840 artist:Mike Griego title:Back In Trance score:0.000 confidence:1
+[Input] frame:225443840 artist:Mike Griego title:Back In Trance score:0.000 confidence:1
+[Input] frame:226492416 artist:Mike Griego title:Back In Trance score:0.000 confidence:1
+[Input] frame:226492416 artist:Mike Griego title:Back In Trance score:0.000 confidence:1
+[Input] frame:227540992 artist:Takaki Matsuda title:Tell Me score:0.000 confidence:1
+[Input] frame:227540992 artist:Mike Griego title:Back In Trance score:0.000 confidence:1
+[Input] frame:228589568 artist:Mike Griego title:Back In Trance score:0.000 confidence:1
+[Input] frame:228589568 artist:Terrace title:Magic O score:0.000 confidence:1
+[Input] frame:229638144 artist:O-Zone title:Dragostea Din Tei (Nectar Remix) score:0.000 confidence:1
+[Input] frame:229638144 artist:Rozalla title:Everybody's Free (To Feel Good) score:0.000 confidence:1
+[Input] frame:230686720 artist:Gigi D'Agostino title:Bla Bla Bla score:0.000 confidence:1
+[Input] frame:230686720 artist:Gigi D'Agostino title:Bla Bla Bla score:0.000 confidence:1
+[Input] frame:231735296 artist:Dario G title:Sunchyme score:0.000 confidence:1
+[Input] frame:231735296 artist:Gigi D'Agostino title:Bla Bla Bla score:0.000 confidence:1
+[Input] frame:232783872 artist:Antoine Clamaran title:Do the Funk (Do The Funk Dub) score:0.000 confidence:1
+[Input] frame:232783872 artist:2 Eivissa title:Oh La La La (Radio Mix) score:0.000 confidence:1
+[Input] frame:233832448 artist:Gigi D'Agostino title:Bla Bla Bla score:0.000 confidence:1
+[Input] frame:233832448 artist:Gigi D'Agostino title:Bla Bla Bla score:0.000 confidence:1
+[Input] frame:234881024 artist:C.J. Bolland title:Sugar Is Sweeter (Armand Van Helden's Drum 'n' Bass Mix) score:0.000 confidence:1
+[Input] frame:234881024 artist:Duke title:So In Love With You (Full Intention 12" Mix) [Mixed] score:0.000 confidence:1
+[Input] frame:235929600 artist:HI-LO, Space 92 & Oliver Heldens title:Mercury score:0.000 confidence:1
+[Input] frame:235929600 artist:BLR & Rave & Crave title:Taj score:0.000 confidence:1
+[Input] frame:236978176 artist:HI-LO, Space 92 & Oliver Heldens title:Mercury score:0.000 confidence:1
+[Input] frame:236978176 artist:BLR & Rave & Crave title:Taj score:0.000 confidence:1
+[Input] frame:238026752 artist:Jack Back title:Survivor score:0.000 confidence:1
+[Input] frame:238026752 artist:Eddie Amador title:House Music (Robosonic Remix) score:0.000 confidence:1
+[Input] frame:239075328 artist:Eli & Fur title:Parfume (Dosem Remix) score:0.000 confidence:1
+[Input] frame:239075328 artist:Sante title:Sunset Blvd score:0.000 confidence:1
+[Input] frame:240123904 artist:Eli & Fur title:Parfume (Dosem Remix) score:0.000 confidence:1
+[Input] frame:240123904 artist:Eli & Fur title:Parfume (Dosem Remix) score:0.000 confidence:1
+[Input] frame:241172480 artist:Eli & Fur title:Parfume (Dosem Remix) score:0.000 confidence:1
+[Input] frame:241172480 artist:Eli & Fur title:Parfume (Dosem Remix) score:0.000 confidence:1
+[Input] frame:242221056 artist:HI-LO, Space 92 & Oliver Heldens title:Mercury score:0.000 confidence:1
+[Input] frame:242221056 artist:Eitan Reiter title:Eat You (Patrice Bäumel Remix) score:0.000 confidence:1
+[Input] frame:243269632 artist:Eitan Reiter title:Eat You (Patrice Bäumel Remix) score:0.000 confidence:1
+[Input] frame:243269632 artist:Eitan Reiter title:Eat You (Patrice Bäumel Remix) score:0.000 confidence:1
+[Input] frame:244318208 artist:Eitan Reiter title:Eat You (Patrice Bäumel Remix) score:0.000 confidence:1
+[Input] frame:244318208 artist:F.Sonik title:Simplon score:0.000 confidence:1
+[Input] frame:245366784 artist:EDRDO title:Sins score:0.000 confidence:1
+[Input] frame:245366784 artist:Eitan Reiter title:Eat You (Patrice Bäumel Remix) score:0.000 confidence:1
+[Input] frame:246415360 artist:Eitan Reiter title:Eat You (Patrice Bäumel Remix) score:0.000 confidence:1
+[Input] frame:246415360 artist:Eitan Reiter title:Eat You (Patrice Bäumel Remix) score:0.000 confidence:1
+[Input] frame:247463936 artist:Eitan Reiter title:Eat You (Patrice Bäumel Remix) score:0.000 confidence:1
+[Input] frame:247463936 artist:Eitan Reiter title:Eat You (Patrice Bäumel Remix) score:0.000 confidence:1
+[Input] frame:248512512 artist:Eitan Reiter title:Eat You (Patrice Bäumel Remix) score:0.000 confidence:1
+[Input] frame:248512512 artist:Eitan Reiter title:Eat You (Patrice Bäumel Remix) score:0.000 confidence:1
+[Input] frame:249561088 artist:Eitan Reiter title:Eat You (Patrice Bäumel Remix) score:0.000 confidence:1
+[Input] frame:249561088 artist:Eitan Reiter title:Eat You (Patrice Bäumel Remix) score:0.000 confidence:1
+[Input] frame:250609664 artist:Eitan Reiter title:Eat You (Patrice Bäumel Remix) score:0.000 confidence:1
+[Input] frame:250609664 artist:Eitan Reiter title:Eat You (Patrice Bäumel Remix) score:0.000 confidence:1
+[Input] frame:251658240 artist:Eitan Reiter title:Eat You (Patrice Bäumel Remix) score:0.000 confidence:1
+[Input] frame:251658240 artist:Eitan Reiter title:Eat You (Patrice Bäumel Remix) score:0.000 confidence:1
+[Input] frame:252706816 artist:Eitan Reiter title:Eat You (Patrice Bäumel Remix) score:0.000 confidence:1
+[Input] frame:252706816 artist:Kamasutra title:Kamasutra Express (Train Version) score:0.000 confidence:1
+[Input] frame:253755392 artist:Ricky Sinz title:Riders score:0.000 confidence:1
+[Input] frame:253755392 artist:Marc Molina title:More Than Physical (Manuel Palmitesta Remix) score:0.000 confidence:1
+[Input] frame:254803968 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:254803968 artist:Eitan Reiter title:Eat You (Patrice Bäumel Remix) score:0.000 confidence:1
+[Input] frame:255852544 artist:Eitan Reiter title:Eat You (Patrice Bäumel Remix) score:0.000 confidence:1
+[Input] frame:255852544 artist:Dance Spirit & Adisyn title:Portal From Mars score:0.000 confidence:1
+[Input] frame:256901120 artist:John Summit title:Make Me Feel (Extended Mix) score:0.000 confidence:1
+[Input] frame:256901120 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:257949696 artist:Ohmme title:Little Helper 341-5 score:0.000 confidence:1
+[Input] frame:257949696 artist:Marcos Barrios, Len Mora & Joaquin Postigo title:Tribaile (Len Mora & Joaquin Postigo) score:0.000 confidence:1
+[Input] frame:258998272 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:260046848 artist:Sean & Dee title:Game Of Thrones Theme (Reinterpretation Mix) score:0.000 confidence:1
+[Input] frame:260046848 artist:RudeBoyz title:Mercedes Song (feat. TD Snax) score:0.000 confidence:1
+[Input] frame:261095424 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:262144000 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:262144000 artist:Maae title:The Man score:0.000 confidence:1
+[Input] frame:263192576 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:264241152 artist:Moreno & Prieto & Sortech title:300 Cash score:0.000 confidence:1
+[Input] frame:264241152 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:265289728 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:265289728 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:266338304 artist:Steve Aguirre title:Take It score:0.000 confidence:1
+[Input] frame:266338304 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:267386880 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:267386880 artist:DJ Davion, Bull Beats & Manu Rg title:It Goes Like Nanana (House) [Remix] score:0.000 confidence:1
+[Input] frame:268435456 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:268435456 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:269484032 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:269484032 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:270532608 artist:Wa Wu We title:What's Left? (Ambient Mix) score:0.000 confidence:1
+[Input] frame:270532608 artist:Wa Wu We title:What's Left? (Ambient Mix) score:0.000 confidence:1
+[Input] frame:271581184 artist:Wa Wu We title:What's Left? (Ambient Mix) score:0.000 confidence:1
+[Input] frame:271581184 artist:Wa Wu We title:What's Left? (Ambient Mix) score:0.000 confidence:1
+[Input] frame:272629760 artist:Wa Wu We title:What's Left? (Ambient Mix) score:0.000 confidence:1
+[Input] frame:272629760 artist:Wa Wu We title:What's Left? (Ambient Mix) score:0.000 confidence:1
+[Input] frame:273678336 artist:Wa Wu We title:What's Left? (Ambient Mix) score:0.000 confidence:1
+[Input] frame:273678336 artist:Wa Wu We title:What's Left? (Ambient Mix) score:0.000 confidence:1
+[Input] frame:274726912 artist:Wa Wu We title:What's Left? (Ambient Mix) score:0.000 confidence:1
+[Input] frame:274726912 artist:Wa Wu We title:What's Left? (Ambient Mix) score:0.000 confidence:1
+[Input] frame:275775488 artist:Wa Wu We title:What's Left? (Ambient Mix) score:0.000 confidence:1
+[Input] frame:275775488 artist:Oliver Smith title:Inside (Abgt265) [Mixed] score:0.000 confidence:1
+[Input] frame:276824064 artist:Wa Wu We title:What's Left? (Ambient Mix) score:0.000 confidence:1
+[Input] frame:276824064 artist:Wa Wu We title:What's Left? (Ambient Mix) score:0.000 confidence:1
+[Input] frame:277872640 artist:Wa Wu We title:What's Left? (Ambient Mix) score:0.000 confidence:1
+[Input] frame:277872640 artist:Wa Wu We title:What's Left? (Ambient Mix) score:0.000 confidence:1
+[Input] frame:278921216 artist:Wa Wu We title:What's Left? (Ambient Mix) score:0.000 confidence:1

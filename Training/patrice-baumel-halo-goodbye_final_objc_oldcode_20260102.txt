@@ -1,0 +1,38 @@
+[Final] frame:0 artist:YOTTO title:Seat 11 duration:166.44s score:2.561 confidence:2.561269509436658
+[Final] frame:7340032 artist:Tigerskin & Alfa State title:Slippery Roads (Pablo Bolivar Remix) duration:261.55s score:12.800 confidence:12.8
+[Final] frame:18874368 artist:Andy Compton title:That Acid Track duration:261.55s score:12.213 confidence:12.21319932913728
+[Final] frame:32505856 artist:Dosem & Prok & Fitch title:Doors duration:71.33s score:2.268 confidence:2.267990368508526
+[Final] frame:35651584 artist:Chymamusique title:Lost in Words (Main Saxed Mix) duration:190.22s score:2.750 confidence:2.749963971935866
+[Final] frame:45088768 artist:Fragma title:Toca's Miracle (2008 Inpetto Extended Mix) duration:5323.85s score:1.414 confidence:1.414030571336414
+[Final] frame:48234496 artist:Alan Cerra & Gai Barone title:End of the Line (Gai Barone Remix) duration:214.00s score:5.088 confidence:5.088211521939933
+[Final] frame:63963136 artist:Savas Pascalidis title:Shot In the Dark duration:523.10s score:8.755 confidence:8.755417527999327
+[Final] frame:87031808 artist:Allen (Italy) & Filix title:Dusty Palace duration:71.33s score:1.945 confidence:1.945035439161528
+[Final] frame:97517568 artist:Vlada Asanin & Joe Red title:Losing You duration:4134.98s score:1.414 confidence:1.414030571336414
+[Final] frame:98566144 artist:Alex Albrecht title:The Arboretum duration:237.77s score:6.282 confidence:6.281742619678931
+[Final] frame:114294784 artist:Blaze & Bicep title:Lovelee Dae (Bicep Remix) duration:237.77s score:4.297 confidence:4.296818706149791
+[Final] frame:125829120 artist:SolyMar & Megamen title:All I Need duration:3493.00s score:1.414 confidence:1.414030571336414
+[Final] frame:127926272 artist:Edmondson title:Masquerade duration:261.55s score:10.651 confidence:10.65096679918781
+[Final] frame:140509184 artist:Slove & David Shaw and the Beat title:Special Places (Damon Jee Remix) duration:285.33s score:12.800 confidence:12.8
+[Final] frame:154140672 artist:Vincent Casanova title:Hold Me duration:285.33s score:11.719 confidence:11.71928851253882
+[Final] frame:167772160 artist:Green Velvet title:La La Land duration:2541.91s score:1.414 confidence:1.414030571336414
+[Final] frame:170917888 artist:Yves Larock title:Rise Up duration:47.55s score:1.958 confidence:1.958403740519459
+[Final] frame:174063616 artist:Arnaud Rebotini title:777 (Ascii Disko Remix) duration:71.33s score:1.945 confidence:1.945035439161528
+[Final] frame:178257920 artist:Alex O'Rion title:Blackout duration:665.76s score:12.800 confidence:12.8
+[Final] frame:207618048 artist:Guliver title:Calypso (Claudio PRC Remix) duration:23.78s score:1.414 confidence:1.414030571336414
+[Final] frame:209715200 artist:Mike Griego title:Back In Trance duration:427.99s score:12.685 confidence:12.68512516844081
+[Final] frame:228589568 artist:Terrace title:Magic O duration:1162.83s score:1.108 confidence:1.108050793650794
+[Final] frame:229638144 artist:O-Zone title:Dragostea Din Tei (Nectar Remix) duration:1139.05s score:0.900 confidence:0.8999999999999999
+[Final] frame:234881024 artist:C.J. Bolland title:Sugar Is Sweeter (Armand Van Helden's Drum 'n' Bass Mix) duration:1020.17s score:1.108 confidence:1.108050793650794
+[Final] frame:234881024 artist:Duke title:So In Love With You (Full Intention 12" Mix) [Mixed] duration:1020.17s score:1.108 confidence:1.108050793650794
+[Final] frame:239075328 artist:Sante title:Sunset Blvd duration:925.06s score:1.524 confidence:1.524152380952381
+[Final] frame:239075328 artist:Eli & Fur title:Parfume (Dosem Remix) duration:47.55s score:2.401 confidence:2.400628938768345
+[Final] frame:242221056 artist:Eitan Reiter title:Eat You (Patrice Bäumel Remix) duration:309.10s score:38.400 confidence:38.40000000000001
+[Final] frame:256901120 artist:John Summit title:Make Me Feel (Extended Mix) duration:520.85s score:1.108 confidence:1.108050793650794
+[Final] frame:257949696 artist:Ohmme title:Little Helper 341-5 duration:497.07s score:1.316 confidence:1.316101587301587
+[Final] frame:260046848 artist:Sean & Dee title:Game Of Thrones Theme (Reinterpretation Mix) duration:449.51s score:1.316 confidence:1.316101587301587
+[Final] frame:260046848 artist:RudeBoyz title:Mercedes Song (feat. TD Snax) duration:449.51s score:1.316 confidence:1.316101587301587
+[Final] frame:262144000 artist:Maae title:The Man duration:401.96s score:1.316 confidence:1.316101587301587
+[Final] frame:264241152 artist:Moreno & Prieto & Sortech title:300 Cash duration:354.40s score:1.316 confidence:1.316101587301587
+[Final] frame:266338304 artist:Steve Aguirre title:Take It duration:306.85s score:1.108 confidence:1.108050793650794
+[Final] frame:267386880 artist:DJ Davion, Bull Beats & Manu Rg title:It Goes Like Nanana (House) [Remix] duration:283.07s score:1.524 confidence:1.524152380952381
+[Final] frame:270532608 artist:Wa Wu We title:What's Left? (Ambient Mix) duration:190.22s score:4.020 confidence:4.020315276594515

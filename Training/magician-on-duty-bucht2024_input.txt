@@ -1,0 +1,574 @@
+[Input] frame:0 artist:Sebastian Riegl title:Glamorous Daytime Private Beach Ambience, Pt. 6 score:0.000 confidence:1
+[Input] frame:0 artist:Sebastian Riegl title:Glamorous Daytime Private Beach Ambience, Pt. 6 score:0.000 confidence:1
+[Input] frame:1048576 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:1048576 artist:Raimon Lasdoulours title:VAGUES Romantiques score:0.000 confidence:1
+[Input] frame:2097152 artist:Raimon Lasdoulours title:VAGUES Romantiques score:0.000 confidence:1
+[Input] frame:2097152 artist:Mellow Rouge title:Nighttime Wave Sounds score:0.000 confidence:1
+[Input] frame:3145728 artist:Dimi Mechero title:Let's Go score:0.000 confidence:1
+[Input] frame:3145728 artist:Dimi Mechero title:Let's Go score:0.000 confidence:1
+[Input] frame:4194304 artist:Alexey Romeo title:Set Me Free (SKLV Remix) score:0.000 confidence:1
+[Input] frame:4194304 artist:Dimi Mechero title:Let's Go score:0.000 confidence:1
+[Input] frame:5242880 artist:Starsailor title:Four To the Floor (Thin White Duke Mix) score:0.000 confidence:1
+[Input] frame:5242880 artist:Luvee & Belks title:Lovely (Remix) score:0.000 confidence:1
+[Input] frame:6291456 artist:Dimi Mechero title:Let's Go score:0.000 confidence:1
+[Input] frame:6291456 artist:Dimi Mechero title:Let's Go score:0.000 confidence:1
+[Input] frame:7340032 artist:Dimi Mechero title:Let's Go score:0.000 confidence:1
+[Input] frame:7340032 artist:Dimi Mechero title:Let's Go score:0.000 confidence:1
+[Input] frame:8388608 artist:Dimi Mechero title:Let's Go score:0.000 confidence:1
+[Input] frame:8388608 artist:Luxury SA title:Crazy Vibez score:0.000 confidence:1
+[Input] frame:9437184 artist:Dimi Mechero title:Let's Go score:0.000 confidence:1
+[Input] frame:9437184 artist:Dimi Mechero title:Let's Go score:0.000 confidence:1
+[Input] frame:10485760 artist:Dimi Mechero title:Let's Go score:0.000 confidence:1
+[Input] frame:10485760 artist:Dimi Mechero title:Let's Go score:0.000 confidence:1
+[Input] frame:11534336 artist:Dimi Mechero title:Let's Go score:0.000 confidence:1
+[Input] frame:11534336 artist:Dimi Mechero title:Let's Go score:0.000 confidence:1
+[Input] frame:12582912 artist:Dimi Mechero title:Let's Go score:0.000 confidence:1
+[Input] frame:12582912 artist:Dimi Mechero title:Let's Go score:0.000 confidence:1
+[Input] frame:13631488 artist:Dimi Mechero title:Let's Go score:0.000 confidence:1
+[Input] frame:13631488 artist:Dimi Mechero title:Let's Go score:0.000 confidence:1
+[Input] frame:14680064 artist:Dimi Mechero title:Let's Go score:0.000 confidence:1
+[Input] frame:14680064 artist:Dimi Mechero title:Let's Go score:0.000 confidence:1
+[Input] frame:15728640 artist:Dimi Mechero title:Let's Go score:0.000 confidence:1
+[Input] frame:15728640 artist:Era title:Ameno (The Scientist Remix) score:0.000 confidence:1
+[Input] frame:16777216 artist:Dimi Mechero title:Let's Go score:0.000 confidence:1
+[Input] frame:16777216 artist:Mario Pompeiani title:La Rondine score:0.000 confidence:1
+[Input] frame:17825792 artist:Noir & Haze title:Around (Solomun Vox) score:0.000 confidence:1
+[Input] frame:17825792 artist:Dimi Mechero title:Let's Go score:0.000 confidence:1
+[Input] frame:18874368 artist:No Hopes & Max Freeze title:We Play House score:0.000 confidence:1
+[Input] frame:18874368 artist:No Hopes & Max Freeze title:We Play House score:0.000 confidence:1
+[Input] frame:19922944 artist:No Hopes & Max Freeze title:We Play House score:0.000 confidence:1
+[Input] frame:19922944 artist:No Hopes & Max Freeze title:We Play House score:0.000 confidence:1
+[Input] frame:20971520 artist:No Hopes & Max Freeze title:We Play House score:0.000 confidence:1
+[Input] frame:20971520 artist:No Hopes & Max Freeze title:We Play House score:0.000 confidence:1
+[Input] frame:22020096 artist:No Hopes & Max Freeze title:We Play House score:0.000 confidence:1
+[Input] frame:22020096 artist:No Hopes & Max Freeze title:We Play House score:0.000 confidence:1
+[Input] frame:23068672 artist:No Hopes & Max Freeze title:We Play House score:0.000 confidence:1
+[Input] frame:23068672 artist:No Hopes & Max Freeze title:We Play House score:0.000 confidence:1
+[Input] frame:24117248 artist:No Hopes & Max Freeze title:We Play House score:0.000 confidence:1
+[Input] frame:24117248 artist:No Hopes & Max Freeze title:We Play House score:0.000 confidence:1
+[Input] frame:25165824 artist:Evropa title:Alpenpass score:0.000 confidence:1
+[Input] frame:25165824 artist:No Hopes & Max Freeze title:We Play House score:0.000 confidence:1
+[Input] frame:26214400 artist:No Hopes & Max Freeze title:We Play House score:0.000 confidence:1
+[Input] frame:26214400 artist:No Hopes & Max Freeze title:We Play House score:0.000 confidence:1
+[Input] frame:27262976 artist:No Hopes & Max Freeze title:We Play House score:0.000 confidence:1
+[Input] frame:27262976 artist:No Hopes & Max Freeze title:We Play House score:0.000 confidence:1
+[Input] frame:28311552 artist:No Hopes & Max Freeze title:We Play House score:0.000 confidence:1
+[Input] frame:28311552 artist:No Hopes & Max Freeze title:We Play House score:0.000 confidence:1
+[Input] frame:29360128 artist:No Hopes & Max Freeze title:We Play House score:0.000 confidence:1
+[Input] frame:29360128 artist:Evropa title:Alpenpass score:0.000 confidence:1
+[Input] frame:30408704 artist:No Hopes & Max Freeze title:We Play House score:0.000 confidence:1
+[Input] frame:30408704 artist:Hippocoon title:Music Sounds Better With You (Rework) score:0.000 confidence:1
+[Input] frame:31457280 artist:Dantiez Saunderson title:The Harp (feat. LaRae Starr) [Beckwith Extended Remix] score:0.000 confidence:1
+[Input] frame:31457280 artist:Max Bassilio title:Good Time score:0.000 confidence:1
+[Input] frame:32505856 artist:Max Bassilio title:Good Time score:0.000 confidence:1
+[Input] frame:32505856 artist:Lane 8 title:Loving You (feat. Lulu James) [Solee Remix] score:0.000 confidence:1
+[Input] frame:33554432 artist:Max Bassilio title:Good Time score:0.000 confidence:1
+[Input] frame:33554432 artist:Max Bassilio title:Good Time score:0.000 confidence:1
+[Input] frame:34603008 artist:Hippocoon title:Music Sounds Better With You (Rework) score:0.000 confidence:1
+[Input] frame:34603008 artist:Mark Knight & René Amesz title:All 4 Love (feat. Tasty Lopez) score:0.000 confidence:1
+[Input] frame:35651584 artist:Max Bassilio title:Good Time score:0.000 confidence:1
+[Input] frame:35651584 artist:Max Bassilio title:Good Time score:0.000 confidence:1
+[Input] frame:36700160 artist:Max Bassilio title:Good Time score:0.000 confidence:1
+[Input] frame:36700160 artist:Max Bassilio title:Good Time score:0.000 confidence:1
+[Input] frame:37748736 artist:Max Bassilio title:Good Time score:0.000 confidence:1
+[Input] frame:37748736 artist:Max Bassilio title:Good Time score:0.000 confidence:1
+[Input] frame:38797312 artist:Max Bassilio title:Good Time score:0.000 confidence:1
+[Input] frame:38797312 artist:Tony Romera, ASDEK & Karina Ramage title:All I Know (Edit) score:0.000 confidence:1
+[Input] frame:39845888 artist:F.Sonik title:Simplon score:0.000 confidence:1
+[Input] frame:39845888 artist:Max Bassilio title:Good Time score:0.000 confidence:1
+[Input] frame:40894464 artist:Lane 8 title:Loving You (feat. Lulu James) [Solee Remix] score:0.000 confidence:1
+[Input] frame:40894464 artist:Tinlicker title:Need You (feat. Thomas Oliver) score:0.000 confidence:1
+[Input] frame:41943040 artist:Max Bassilio title:Good Time score:0.000 confidence:1
+[Input] frame:41943040 artist:Paperclip People title:Throw (Slam's RTM Remix) score:0.000 confidence:1
+[Input] frame:42991616 artist:Monolink title:Return to Oz (ARTBAT Remix) score:0.000 confidence:1
+[Input] frame:42991616 artist:Satyaloka title:Prosecco score:0.000 confidence:1
+[Input] frame:44040192 artist:FISHER title:Yeah the Girls (feat. MERYLL) score:0.000 confidence:1
+[Input] frame:44040192 artist:Giovanni Molinaro title:Otoponoz (Improved Mix) score:0.000 confidence:1
+[Input] frame:45088768 artist:Munfell Muzik title:Eny score:0.000 confidence:1
+[Input] frame:45088768 artist:Township Rebellion title:Ramses score:0.000 confidence:1
+[Input] frame:46137344 artist:Satyaloka title:Prosecco score:0.000 confidence:1
+[Input] frame:46137344 artist:Satyaloka title:Prosecco score:0.000 confidence:1
+[Input] frame:47185920 artist:Satyaloka title:Prosecco score:0.000 confidence:1
+[Input] frame:47185920 artist:Satyaloka title:Prosecco score:0.000 confidence:1
+[Input] frame:48234496 artist:Satyaloka title:Prosecco score:0.000 confidence:1
+[Input] frame:48234496 artist:Satyaloka title:Prosecco score:0.000 confidence:1
+[Input] frame:49283072 artist:Satyaloka title:Prosecco score:0.000 confidence:1
+[Input] frame:49283072 artist:Satyaloka title:Prosecco score:0.000 confidence:1
+[Input] frame:50331648 artist:Satyaloka title:Prosecco score:0.000 confidence:1
+[Input] frame:50331648 artist:Satyaloka title:Prosecco score:0.000 confidence:1
+[Input] frame:51380224 artist:Satyaloka title:Prosecco score:0.000 confidence:1
+[Input] frame:52428800 artist:Satyaloka title:Prosecco score:0.000 confidence:1
+[Input] frame:52428800 artist:Satyaloka title:Prosecco score:0.000 confidence:1
+[Input] frame:53477376 artist:Satyaloka title:Prosecco score:0.000 confidence:1
+[Input] frame:53477376 artist:Satyaloka title:Prosecco score:0.000 confidence:1
+[Input] frame:54525952 artist:Satyaloka title:Prosecco score:0.000 confidence:1
+[Input] frame:54525952 artist:Satyaloka title:Prosecco score:0.000 confidence:1
+[Input] frame:55574528 artist:Satyaloka title:Prosecco score:0.000 confidence:1
+[Input] frame:55574528 artist:Satyaloka title:Prosecco score:0.000 confidence:1
+[Input] frame:56623104 artist:Satyaloka title:Prosecco score:0.000 confidence:1
+[Input] frame:56623104 artist:Gaetano C & DePandis title:Saw score:0.000 confidence:1
+[Input] frame:57671680 artist:Gaetano C & DePandis title:Saw score:0.000 confidence:1
+[Input] frame:57671680 artist:Pyx Lax, Pissi & Frankie LLuc title:Epapses Agapi Na Thimizis (Remix) score:0.000 confidence:1
+[Input] frame:58720256 artist:Technasia title:I Am Somebody score:0.000 confidence:1
+[Input] frame:58720256 artist:Martin Solveig title:Everybody score:0.000 confidence:1
+[Input] frame:59768832 artist:Alex Dolby title:Sintesi (Original) score:0.000 confidence:1
+[Input] frame:59768832 artist:Pitbull title:Fireball (feat. John Ryan) score:0.000 confidence:1
+[Input] frame:60817408 artist:I Promised Mom title:It's Like This score:0.000 confidence:1
+[Input] frame:60817408 artist:I Promised Mom title:It's Like This score:0.000 confidence:1
+[Input] frame:61865984 artist:Sak Noel title:Loca People score:0.000 confidence:1
+[Input] frame:61865984 artist:Oxia title:Domino (Rework) score:0.000 confidence:1
+[Input] frame:62914560 artist:Alejandro Castelli title:Peru score:0.000 confidence:1
+[Input] frame:62914560 artist:Faithless title:Insomnia score:0.000 confidence:1
+[Input] frame:63963136 artist:Alejandro Castelli title:Peru score:0.000 confidence:1
+[Input] frame:63963136 artist:I Promised Mom title:It's Like This score:0.000 confidence:1
+[Input] frame:65011712 artist:I Promised Mom title:It's Like This score:0.000 confidence:1
+[Input] frame:65011712 artist:I Promised Mom title:It's Like This score:0.000 confidence:1
+[Input] frame:66060288 artist:Tchami title:Adieu score:0.000 confidence:1
+[Input] frame:66060288 artist:Christian Smith title:Traction (Paride Saraceni Remix) score:0.000 confidence:1
+[Input] frame:67108864 artist:I Promised Mom title:It's Like This score:0.000 confidence:1
+[Input] frame:67108864 artist:Hurts & Purple Disco Machine title:Wonderful Life '25 (Extended) score:0.000 confidence:1
+[Input] frame:68157440 artist:DjVakay title:Detente score:0.000 confidence:1
+[Input] frame:68157440 artist:I Promised Mom title:It's Like This score:0.000 confidence:1
+[Input] frame:69206016 artist:I Promised Mom title:It's Like This score:0.000 confidence:1
+[Input] frame:69206016 artist:The Golden Boy title:Blah Blah Shake score:0.000 confidence:1
+[Input] frame:70254592 artist:I Promised Mom title:It's Like This score:0.000 confidence:1
+[Input] frame:70254592 artist:Mobb Deep & Nick Morgan title:Shook Ones, Pt. III score:0.000 confidence:1
+[Input] frame:71303168 artist:I Promised Mom title:It's Like This score:0.000 confidence:1
+[Input] frame:71303168 artist:Prince & The Revolution title:Erotic City (Make Love Not War Erotic City Come Alive) [Original 12" Version] score:0.000 confidence:1
+[Input] frame:72351744 artist:Malandra Jr. title:No Brains score:0.000 confidence:1
+[Input] frame:72351744 artist:Julien Jabre title:War (Eltonnick Remix) [Mixed] score:0.000 confidence:1
+[Input] frame:73400320 artist:Oliv Olivers & Roslav title:Révolution score:0.000 confidence:1
+[Input] frame:73400320 artist:Gusto title:Disco's Revenge (Mole Hole Dirty Mix) score:0.000 confidence:1
+[Input] frame:74448896 artist:Claptone title:No Eyes (feat. JAW) score:0.000 confidence:1
+[Input] frame:74448896 artist:Malandra Jr. title:No Brains score:0.000 confidence:1
+[Input] frame:75497472 artist:Malandra Jr. title:No Brains score:0.000 confidence:1
+[Input] frame:75497472 artist:Malandra Jr. title:No Brains score:0.000 confidence:1
+[Input] frame:76546048 artist:Eelke Kleijn title:Transmission (Armin Van Buuren Remix) score:0.000 confidence:1
+[Input] frame:76546048 artist:Claptone title:No Eyes (feat. JAW) score:0.000 confidence:1
+[Input] frame:77594624 artist:Claptone title:No Eyes (feat. JAW) score:0.000 confidence:1
+[Input] frame:77594624 artist:Claptone title:No Eyes (feat. JAW) score:0.000 confidence:1
+[Input] frame:78643200 artist:Cybordelics title:Adventures of Dama (feat. James Davis) [Bodo Felusch-Gimme a Beat Mix] score:0.000 confidence:1
+[Input] frame:78643200 artist:Malandra Jr. title:No Brains score:0.000 confidence:1
+[Input] frame:79691776 artist:Malandra Jr. title:No Brains score:0.000 confidence:1
+[Input] frame:79691776 artist:Gasho & Maxi Raffone title:Good News (Original) score:0.000 confidence:1
+[Input] frame:80740352 artist:Malandra Jr. title:No Brains score:0.000 confidence:1
+[Input] frame:80740352 artist:Lorenzo Silvano title:Undertrack score:0.000 confidence:1
+[Input] frame:81788928 artist:Daily title:Kalavalier score:0.000 confidence:1
+[Input] frame:81788928 artist:Malandra Jr. title:No Brains score:0.000 confidence:1
+[Input] frame:82837504 artist:Nick & Danny Chatelain title:Morocco's Festival (Pepo Ellectrica Remix) score:0.000 confidence:1
+[Input] frame:82837504 artist:Dependant Crypts title:Kamatayan score:0.000 confidence:1
+[Input] frame:83886080 artist:Pavel Petrov title:Ayahuasca score:0.000 confidence:1
+[Input] frame:83886080 artist:Jonny Calypso title:Teenager 2K15 score:0.000 confidence:1
+[Input] frame:84934656 artist:Sweely title:Around score:0.000 confidence:1
+[Input] frame:84934656 artist:Pavel Petrov title:Ayahuasca score:0.000 confidence:1
+[Input] frame:85983232 artist:Lane 8 title:Loving You (feat. Lulu James) [Solee Remix] score:0.000 confidence:1
+[Input] frame:85983232 artist:Pavel Petrov title:Ayahuasca score:0.000 confidence:1
+[Input] frame:87031808 artist:Nana K & Ben Champell title:Rapid Zone (Albird Remix) score:0.000 confidence:1
+[Input] frame:87031808 artist:Pavel Petrov title:Ayahuasca score:0.000 confidence:1
+[Input] frame:88080384 artist:Pavel Petrov title:Ayahuasca score:0.000 confidence:1
+[Input] frame:88080384 artist:Amine Edge & DANCE & Blaze (Kevin Hedge) title:Lovelee Dae score:0.000 confidence:1
+[Input] frame:89128960 artist:Samim title:Heater (Tube & Berger Remix) score:0.000 confidence:1
+[Input] frame:89128960 artist:Madame title:IL BENE NEL MALE score:0.000 confidence:1
+[Input] frame:90177536 artist:Samim title:Heater (Tube & Berger Remix) score:0.000 confidence:1
+[Input] frame:90177536 artist:Madame title:IL BENE NEL MALE score:0.000 confidence:1
+[Input] frame:91226112 artist:Blaze & Bicep title:Lovelee Dae (Bicep Remix) score:0.000 confidence:1
+[Input] frame:91226112 artist:Lane 8 title:Loving You (feat. Lulu James) [Solee Remix] score:0.000 confidence:1
+[Input] frame:92274688 artist:Madness Ba title:Anywhere score:0.000 confidence:1
+[Input] frame:92274688 artist:Gorgon City title:Imagination (feat. Katy Menditta) [Weiss Remix] score:0.000 confidence:1
+[Input] frame:93323264 artist:Pavel Petrov title:Ayahuasca score:0.000 confidence:1
+[Input] frame:93323264 artist:Blaze & Bicep title:Lovelee Dae (Bicep Remix) score:0.000 confidence:1
+[Input] frame:94371840 artist:Pavel Petrov title:Ayahuasca score:0.000 confidence:1
+[Input] frame:94371840 artist:Pavel Petrov title:Ayahuasca score:0.000 confidence:1
+[Input] frame:95420416 artist:Madame title:IL BENE NEL MALE score:0.000 confidence:1
+[Input] frame:95420416 artist:Samim title:Heater (Tube & Berger Remix) score:0.000 confidence:1
+[Input] frame:96468992 artist:Gorgon City title:Imagination (feat. Katy Menditta) [Weiss Remix] score:0.000 confidence:1
+[Input] frame:96468992 artist:Robin S. title:Show Me Love score:0.000 confidence:1
+[Input] frame:97517568 artist:Robin S. title:Show Me Love score:0.000 confidence:1
+[Input] frame:97517568 artist:Lego title:Ritmo De Verdad score:0.000 confidence:1
+[Input] frame:98566144 artist:Eric Sneo title:Organon score:0.000 confidence:1
+[Input] frame:98566144 artist:Gussy title:Take It All score:0.000 confidence:1
+[Input] frame:99614720 artist:Dimi Mechero title:Senze score:0.000 confidence:1
+[Input] frame:99614720 artist:Dimi Mechero title:Senze score:0.000 confidence:1
+[Input] frame:100663296 artist:Dimi Mechero title:Senze score:0.000 confidence:1
+[Input] frame:100663296 artist:Dimi Mechero title:Senze score:0.000 confidence:1
+[Input] frame:101711872 artist:Dimi Mechero title:Senze score:0.000 confidence:1
+[Input] frame:101711872 artist:Simon Doty title:Vision of Confluence (Sevendoors Remix) score:0.000 confidence:1
+[Input] frame:102760448 artist:Dimi Mechero title:Senze score:0.000 confidence:1
+[Input] frame:102760448 artist:Paul Kalkbrenner title:No Goodbye score:0.000 confidence:1
+[Input] frame:103809024 artist:Dimi Mechero title:Senze score:0.000 confidence:1
+[Input] frame:103809024 artist:DVBBS & Borgeous title:Tsunami (Jump) [feat. Tinie Tempah] score:0.000 confidence:1
+[Input] frame:104857600 artist:Jericho Ismael title:Vibe (Nikola Dejic Remix) score:0.000 confidence:1
+[Input] frame:104857600 artist:Fernando Olaya title:Stereophonik (Original Mix) score:0.000 confidence:1
+[Input] frame:105906176 artist:Dimi Mechero title:Senze score:0.000 confidence:1
+[Input] frame:105906176 artist:Dimi Mechero title:Senze score:0.000 confidence:1
+[Input] frame:106954752 artist:Dimi Mechero title:Senze score:0.000 confidence:1
+[Input] frame:106954752 artist:Jericho Ismael title:Vibe (Nikola Dejic Remix) score:0.000 confidence:1
+[Input] frame:108003328 artist:Dimi Mechero title:Senze score:0.000 confidence:1
+[Input] frame:108003328 artist:DimaY title:Ocean of Love (Original Mix) score:0.000 confidence:1
+[Input] frame:109051904 artist:Morgan Page title:The Longest Road (feat. Lissie) [Deadmau5 Remix] [Mixed] score:0.000 confidence:1
+[Input] frame:109051904 artist:DVBBS & Borgeous title:Tsunami (Jump) [feat. Tinie Tempah] score:0.000 confidence:1
+[Input] frame:110100480 artist:Fragma title:Toca's Miracle (2008 Inpetto Extended Mix) score:0.000 confidence:1
+[Input] frame:110100480 artist:Dimi Mechero title:Senze score:0.000 confidence:1
+[Input] frame:111149056 artist:Dimi Mechero title:Senze score:0.000 confidence:1
+[Input] frame:111149056 artist:Dimi Mechero title:Senze score:0.000 confidence:1
+[Input] frame:112197632 artist:Dimi Mechero title:Senze score:0.000 confidence:1
+[Input] frame:112197632 artist:Dimi Mechero title:Senze score:0.000 confidence:1
+[Input] frame:113246208 artist:Adam Hofer & Disscut title:Discovery (Radio Edit) score:0.000 confidence:1
+[Input] frame:113246208 artist:Ale F title:Xperience score:0.000 confidence:1
+[Input] frame:114294784 artist:Adam Hofer & Disscut title:Discovery (Radio Edit) score:0.000 confidence:1
+[Input] frame:114294784 artist:Ale F title:Xperience score:0.000 confidence:1
+[Input] frame:115343360 artist:Sian & David LeSal title:Black T-Shirt score:0.000 confidence:1
+[Input] frame:115343360 artist:Venetic title:Neverless score:0.000 confidence:1
+[Input] frame:116391936 artist:Bulat title:Karimu score:0.000 confidence:1
+[Input] frame:116391936 artist:Sian & David LeSal title:Black T-Shirt score:0.000 confidence:1
+[Input] frame:117440512 artist:Sian & David LeSal title:Black T-Shirt score:0.000 confidence:1
+[Input] frame:117440512 artist:Sian & David LeSal title:Black T-Shirt score:0.000 confidence:1
+[Input] frame:118489088 artist:Sian & David LeSal title:Black T-Shirt score:0.000 confidence:1
+[Input] frame:118489088 artist:Sian & David LeSal title:Black T-Shirt score:0.000 confidence:1
+[Input] frame:119537664 artist:Ale F title:Xperience score:0.000 confidence:1
+[Input] frame:119537664 artist:DJ Spektur title:This Sound score:0.000 confidence:1
+[Input] frame:120586240 artist:voxmind music title:اخفى الهوا score:0.000 confidence:1
+[Input] frame:120586240 artist:Ale F title:Xperience score:0.000 confidence:1
+[Input] frame:121634816 artist:Ale F title:Xperience score:0.000 confidence:1
+[Input] frame:121634816 artist:DJ Spektur title:This Sound score:0.000 confidence:1
+[Input] frame:122683392 artist:Sian & David LeSal title:Black T-Shirt score:0.000 confidence:1
+[Input] frame:122683392 artist:GeeCee & MNX title:Ain't Nobody score:0.000 confidence:1
+[Input] frame:123731968 artist:Sian & David LeSal title:Black T-Shirt score:0.000 confidence:1
+[Input] frame:123731968 artist:Christian Nielsen title:Know You Better score:0.000 confidence:1
+[Input] frame:124780544 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:125829120 artist:Daft Punk title:Revolution 909 score:0.000 confidence:1
+[Input] frame:126877696 artist:Alan Walker & Ava Max title:Alone, Pt. II score:0.000 confidence:1
+[Input] frame:127926272 artist:Crazibiza & House of Prayers title:Ain't No Sunshine (House of Prayers Poolside Edit) score:0.000 confidence:1
+[Input] frame:128974848 artist:illusionize title:My Body (feat. Y&M) score:0.000 confidence:1
+[Input] frame:130023424 artist:illusionize title:My Body (feat. Y&M) score:0.000 confidence:1
+[Input] frame:131072000 artist:Daft Punk title:Revolution 909 score:0.000 confidence:1
+[Input] frame:132120576 artist:Daft Punk title:Revolution 909 score:0.000 confidence:1
+[Input] frame:133169152 artist:The Shapeshifters title:Lola's Theme score:0.000 confidence:1
+[Input] frame:134217728 artist:Kungs title:Clap Your Hands (Robin Schulz Remix) score:0.000 confidence:1
+[Input] frame:135266304 artist:Kungs title:Clap Your Hands (Robin Schulz Remix) score:0.000 confidence:1
+[Input] frame:136314880 artist:Kungs title:Clap Your Hands (Robin Schulz Remix) score:0.000 confidence:1
+[Input] frame:137363456 artist:Kungs title:Clap Your Hands (Robin Schulz Remix) score:0.000 confidence:1
+[Input] frame:138412032 artist:Veerus title:Phase score:0.000 confidence:1
+[Input] frame:139460608 artist:Bobby D'Ambrosio & Michelle Weeks title:The Day (Alaia & Gallo Remix) score:0.000 confidence:1
+[Input] frame:140509184 artist:Felix Jaehn & The Stickmen Project title:Rain In Ibiza (feat. Calum Scott) score:0.000 confidence:1
+[Input] frame:141557760 artist:Mr. Belt & Wezol, Nicola Fasano & Steve Forest title:New Millenium (feat. Topazz) [Extended Mix] score:0.000 confidence:1
+[Input] frame:142606336 artist:Calvin Harris & Dua Lipa title:One Kiss score:0.000 confidence:1
+[Input] frame:143654912 artist:Bobby D'Ambrosio & Michelle Weeks title:The Day (Alaia & Gallo Remix) score:0.000 confidence:1
+[Input] frame:144703488 artist:Calvin Harris & Dua Lipa title:One Kiss score:0.000 confidence:1
+[Input] frame:145752064 artist:Felix Jaehn & The Stickmen Project title:Rain In Ibiza (feat. Calum Scott) score:0.000 confidence:1
+[Input] frame:146800640 artist:Au/Ra & CamelPhat title:Panic Room score:0.000 confidence:1
+[Input] frame:147849216 artist:Milk & Sugar & Simon Harris title:Bass (How Low Can You Go) [Milk & Sugar vs. Simon Harris] score:0.000 confidence:1
+[Input] frame:148897792 artist:Eelke Kleijn title:Space Disco score:0.000 confidence:1
+[Input] frame:149946368 artist:Dennis Cruz & DJ Chus title:The Sun (Drums Mix) score:0.000 confidence:1
+[Input] frame:150994944 artist:Milk & Sugar & Simon Harris title:Bass (How Low Can You Go) [Milk & Sugar vs. Simon Harris] score:0.000 confidence:1
+[Input] frame:152043520 artist:Milk & Sugar & Simon Harris title:Bass (How Low Can You Go) [Milk & Sugar vs. Simon Harris] score:0.000 confidence:1
+[Input] frame:153092096 artist:Au/Ra & CamelPhat title:Panic Room score:0.000 confidence:1
+[Input] frame:153092096 artist:Bobby D'Ambrosio & Michelle Weeks title:The Day (Alaia & Gallo Remix) score:0.000 confidence:1
+[Input] frame:154140672 artist:Bobby D'Ambrosio & Michelle Weeks title:The Day (Alaia & Gallo Remix) score:0.000 confidence:1
+[Input] frame:154140672 artist:Mr. Belt & Wezol, Nicola Fasano & Steve Forest title:New Millenium (feat. Topazz) [Extended Mix] score:0.000 confidence:1
+[Input] frame:155189248 artist:Boris Brejcha title:Never Look Back score:0.000 confidence:1
+[Input] frame:155189248 artist:Andy Compton title:That Acid Track score:0.000 confidence:1
+[Input] frame:156237824 artist:Nana K & Ben Champell title:Rapid Zone (Albird Remix) score:0.000 confidence:1
+[Input] frame:156237824 artist:Puka title:Sexy! score:0.000 confidence:1
+[Input] frame:157286400 artist:Puka title:Sexy! score:0.000 confidence:1
+[Input] frame:157286400 artist:TWENTY SIX & Tayson Kryss title:Buscando Money score:0.000 confidence:1
+[Input] frame:158334976 artist:Andre Volodin & Karina Smirnova title:Cage (Ad Brown Dub Mix) score:0.000 confidence:1
+[Input] frame:158334976 artist:Tony Romera, ASDEK & Karina Ramage title:All I Know (Edit) score:0.000 confidence:1
+[Input] frame:159383552 artist:Dantiez Saunderson title:The Harp (feat. LaRae Starr) [Beckwith Extended Remix] score:0.000 confidence:1
+[Input] frame:159383552 artist:CamelPhat & Elderbrook title:Cola (Mousse T.'s Glitterbox Mix) score:0.000 confidence:1
+[Input] frame:160432128 artist:Seeb title:Breathe (feat. Neev) score:0.000 confidence:1
+[Input] frame:160432128 artist:Minimax title:Bam Bam (Original Mix) score:0.000 confidence:1
+[Input] frame:161480704 artist:Josef Lupo title:Lumiere (Josef Lupo's "Always 12" Mix) score:0.000 confidence:1
+[Input] frame:161480704 artist:Josef Lupo title:Lumiere (Josef Lupo's "Always 12" Mix) score:0.000 confidence:1
+[Input] frame:162529280 artist:Puka title:Sexy! score:0.000 confidence:1
+[Input] frame:162529280 artist:Van Pain title:Ibiza 2015 Summer Opening DJ-Mix score:0.000 confidence:1
+[Input] frame:163577856 artist:Puka title:Sexy! score:0.000 confidence:1
+[Input] frame:163577856 artist:Puka title:Sexy! score:0.000 confidence:1
+[Input] frame:164626432 artist:Puka title:Sexy! score:0.000 confidence:1
+[Input] frame:164626432 artist:AVAION & oskar med k title:Can't find you score:0.000 confidence:1
+[Input] frame:165675008 artist:MEDUZA & DEL-30 title:Sparks (feat. Mali-Koa) [Extended Mix] score:0.000 confidence:1
+[Input] frame:165675008 artist:Tony Romera, ASDEK & Karina Ramage title:All I Know (Edit) score:0.000 confidence:1
+[Input] frame:166723584 artist:Seeb title:Breathe (feat. Neev) score:0.000 confidence:1
+[Input] frame:166723584 artist:Erre title:Always the Same Eyes (Andres Luque Remix) score:0.000 confidence:1
+[Input] frame:167772160 artist:Tony Romera, ASDEK & Karina Ramage title:All I Know (Edit) score:0.000 confidence:1
+[Input] frame:167772160 artist:Liza Meier title:Lied Tonight score:0.000 confidence:1
+[Input] frame:168820736 artist:Liza Meier title:Lied Tonight score:0.000 confidence:1
+[Input] frame:168820736 artist:Sjaak title:Trompetisto score:0.000 confidence:1
+[Input] frame:169869312 artist:Laera title:Acid Is Underground score:0.000 confidence:1
+[Input] frame:169869312 artist:Liza Meier title:Lied Tonight score:0.000 confidence:1
+[Input] frame:170917888 artist:Liza Meier title:Lied Tonight score:0.000 confidence:1
+[Input] frame:170917888 artist:Liza Meier title:Lied Tonight score:0.000 confidence:1
+[Input] frame:171966464 artist:Liza Meier title:Lied Tonight score:0.000 confidence:1
+[Input] frame:171966464 artist:Liza Meier title:Lied Tonight score:0.000 confidence:1
+[Input] frame:173015040 artist:Liza Meier title:Lied Tonight score:0.000 confidence:1
+[Input] frame:173015040 artist:Liza Meier title:Lied Tonight score:0.000 confidence:1
+[Input] frame:174063616 artist:Liza Meier title:Lied Tonight score:0.000 confidence:1
+[Input] frame:174063616 artist:Liza Meier title:Lied Tonight score:0.000 confidence:1
+[Input] frame:175112192 artist:Ricky Gaddi title:Renaissance score:0.000 confidence:1
+[Input] frame:175112192 artist:Liza Meier title:Lied Tonight score:0.000 confidence:1
+[Input] frame:176160768 artist:Liza Meier title:Lied Tonight score:0.000 confidence:1
+[Input] frame:176160768 artist:Liza Meier title:Lied Tonight score:0.000 confidence:1
+[Input] frame:177209344 artist:Liza Meier title:Lied Tonight score:0.000 confidence:1
+[Input] frame:177209344 artist:Liza Meier title:Lied Tonight score:0.000 confidence:1
+[Input] frame:178257920 artist:Liza Meier title:Lied Tonight score:0.000 confidence:1
+[Input] frame:178257920 artist:Liza Meier title:Lied Tonight score:0.000 confidence:1
+[Input] frame:179306496 artist:Liza Meier title:Lied Tonight score:0.000 confidence:1
+[Input] frame:179306496 artist:Liza Meier title:Lied Tonight score:0.000 confidence:1
+[Input] frame:180355072 artist:Liza Meier title:Lied Tonight score:0.000 confidence:1
+[Input] frame:180355072 artist:Liza Meier title:Lied Tonight score:0.000 confidence:1
+[Input] frame:181403648 artist:Liza Meier title:Lied Tonight score:0.000 confidence:1
+[Input] frame:181403648 artist:Yamagucci & DvirNuns title:First Choice score:0.000 confidence:1
+[Input] frame:182452224 artist:Yamagucci & DvirNuns title:First Choice score:0.000 confidence:1
+[Input] frame:182452224 artist:Yamagucci & DvirNuns title:First Choice score:0.000 confidence:1
+[Input] frame:183500800 artist:Yamagucci & DvirNuns title:First Choice score:0.000 confidence:1
+[Input] frame:183500800 artist:Yamagucci & DvirNuns title:First Choice score:0.000 confidence:1
+[Input] frame:184549376 artist:Yamagucci & DvirNuns title:First Choice score:0.000 confidence:1
+[Input] frame:184549376 artist:Yamagucci & DvirNuns title:First Choice score:0.000 confidence:1
+[Input] frame:185597952 artist:Purple Disco Machine title:Playbox score:0.000 confidence:1
+[Input] frame:185597952 artist:Yamagucci & DvirNuns title:First Choice score:0.000 confidence:1
+[Input] frame:186646528 artist:Yamagucci & DvirNuns title:First Choice score:0.000 confidence:1
+[Input] frame:186646528 artist:Purple Disco Machine title:Playbox score:0.000 confidence:1
+[Input] frame:187695104 artist:Yamagucci & DvirNuns title:First Choice score:0.000 confidence:1
+[Input] frame:187695104 artist:Yamagucci & DvirNuns title:First Choice score:0.000 confidence:1
+[Input] frame:188743680 artist:Yamagucci & DvirNuns title:First Choice score:0.000 confidence:1
+[Input] frame:188743680 artist:Yamagucci & DvirNuns title:First Choice score:0.000 confidence:1
+[Input] frame:189792256 artist:Yamagucci & DvirNuns title:First Choice score:0.000 confidence:1
+[Input] frame:189792256 artist:Yamagucci & DvirNuns title:First Choice score:0.000 confidence:1
+[Input] frame:190840832 artist:Yamagucci & DvirNuns title:First Choice score:0.000 confidence:1
+[Input] frame:190840832 artist:Yamagucci & DvirNuns title:First Choice score:0.000 confidence:1
+[Input] frame:191889408 artist:Yamagucci & DvirNuns title:First Choice score:0.000 confidence:1
+[Input] frame:191889408 artist:Yamagucci & DvirNuns title:First Choice score:0.000 confidence:1
+[Input] frame:192937984 artist:Yamagucci & DvirNuns title:First Choice score:0.000 confidence:1
+[Input] frame:192937984 artist:Yamagucci & DvirNuns title:First Choice score:0.000 confidence:1
+[Input] frame:193986560 artist:CamelPhat & Elderbrook title:Cola score:0.000 confidence:1
+[Input] frame:193986560 artist:Avon Stringer & Jesse Rose title:Pressure score:0.000 confidence:1
+[Input] frame:195035136 artist:Cristoph & FEMME title:Alone score:0.000 confidence:1
+[Input] frame:195035136 artist:Zak Rush title:Freefall score:0.000 confidence:1
+[Input] frame:196083712 artist:Veljko Jovic & Forniva title:Costa Blanca score:0.000 confidence:1
+[Input] frame:196083712 artist:Veljko Jovic & Forniva title:Costa Blanca score:0.000 confidence:1
+[Input] frame:197132288 artist:Eric Prydz title:Niton (The Reason) score:0.000 confidence:1
+[Input] frame:197132288 artist:Guy Gerber title:What To Do (Dor Danino Remix) score:0.000 confidence:1
+[Input] frame:198180864 artist:Sasha Roshalle title:Exit score:0.000 confidence:1
+[Input] frame:198180864 artist:KREAM & Millean. title:What You've Done To Me (feat. Bemendé) score:0.000 confidence:1
+[Input] frame:199229440 artist:South Bloom title:Let Me in (Volen Sentir Secret Technique) score:0.000 confidence:1
+[Input] frame:199229440 artist:Marcos Barrios, Len Mora & Joaquin Postigo title:Tribaile (Len Mora & Joaquin Postigo) score:0.000 confidence:1
+[Input] frame:200278016 artist:Veljko Jovic & Forniva title:Costa Blanca score:0.000 confidence:1
+[Input] frame:200278016 artist:Tomash Kofa title:FZV score:0.000 confidence:1
+[Input] frame:201326592 artist:Tomash Kofa title:FZV score:0.000 confidence:1
+[Input] frame:201326592 artist:Sasha Roshalle title:Exit score:0.000 confidence:1
+[Input] frame:202375168 artist:Veljko Jovic & Forniva title:Costa Blanca score:0.000 confidence:1
+[Input] frame:202375168 artist:Veljko Jovic & Forniva title:Costa Blanca score:0.000 confidence:1
+[Input] frame:203423744 artist:Veljko Jovic & Forniva title:Costa Blanca score:0.000 confidence:1
+[Input] frame:203423744 artist:Veljko Jovic & Forniva title:Costa Blanca score:0.000 confidence:1
+[Input] frame:204472320 artist:Veljko Jovic & Forniva title:Costa Blanca score:0.000 confidence:1
+[Input] frame:204472320 artist:moonbooter title:sequenzer 9 (dark night studio mix) score:0.000 confidence:1
+[Input] frame:205520896 artist:Distruction Boyz title:Uyibambe (feat. DJ Tira & Cruel Boyz) score:0.000 confidence:1
+[Input] frame:205520896 artist:Veljko Jovic & Forniva title:Costa Blanca score:0.000 confidence:1
+[Input] frame:206569472 artist:Veljko Jovic & Forniva title:Costa Blanca score:0.000 confidence:1
+[Input] frame:206569472 artist:Veljko Jovic & Forniva title:Costa Blanca score:0.000 confidence:1
+[Input] frame:207618048 artist:ATB, Topic & A7S title:Your Love (9PM) score:0.000 confidence:1
+[Input] frame:207618048 artist:Veljko Jovic & Forniva title:Costa Blanca score:0.000 confidence:1
+[Input] frame:208666624 artist:Veljko Jovic & Forniva title:Costa Blanca score:0.000 confidence:1
+[Input] frame:208666624 artist:Madonna title:Hung Up (SDP Extended Vocal) score:0.000 confidence:1
+[Input] frame:209715200 artist:Sascha Muller title:Three score:0.000 confidence:1
+[Input] frame:209715200 artist:DiTi Dee Jay title:Touch the Sky (Feat. KiKi) score:0.000 confidence:1
+[Input] frame:210763776 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:210763776 artist:Dance Spirit & Adisyn title:Portal From Mars score:0.000 confidence:1
+[Input] frame:211812352 artist:Elio Riso & Lucio Spain title:Breaking Minds score:0.000 confidence:1
+[Input] frame:211812352 artist:Elio Riso & Lucio Spain title:Breaking Minds score:0.000 confidence:1
+[Input] frame:212860928 artist:Elio Riso & Lucio Spain title:Breaking Minds score:0.000 confidence:1
+[Input] frame:212860928 artist:The Return title:New Day score:0.000 confidence:1
+[Input] frame:213909504 artist:Josh Wink title:Higher State of Consciousness (Adana Twins Remix Two) score:0.000 confidence:1
+[Input] frame:213909504 artist:Josh Wink title:Higher State of Consciousness (Adana Twins Remix Two) score:0.000 confidence:1
+[Input] frame:214958080 artist:Josh Wink title:Higher State of Consciousness (Adana Twins Remix Two) score:0.000 confidence:1
+[Input] frame:214958080 artist:Josh Wink title:Higher State of Consciousness (Adana Twins Remix Two) score:0.000 confidence:1
+[Input] frame:216006656 artist:Josh Wink title:Higher State of Consciousness (Adana Twins Remix Two) score:0.000 confidence:1
+[Input] frame:216006656 artist:Josh Wink title:Higher State of Consciousness (Adana Twins Remix Two) score:0.000 confidence:1
+[Input] frame:217055232 artist:Patrice Bäumel title:Roar (Adana Twins Remix) score:0.000 confidence:1
+[Input] frame:217055232 artist:Patrice Bäumel title:Roar (Adana Twins Remix) score:0.000 confidence:1
+[Input] frame:218103808 artist:Josh Wink title:Higher State of Consciousness (Adana Twins Remix Two) score:0.000 confidence:1
+[Input] frame:218103808 artist:Josh Wink title:Higher State of Consciousness (Adana Twins Remix Two) score:0.000 confidence:1
+[Input] frame:219152384 artist:Josh Wink title:Higher State of Consciousness (Adana Twins Remix Two) score:0.000 confidence:1
+[Input] frame:219152384 artist:Josh Wink title:Higher State of Consciousness (Adana Twins Remix Two) score:0.000 confidence:1
+[Input] frame:220200960 artist:Josh Wink title:Higher State of Consciousness (Adana Twins Remix Two) score:0.000 confidence:1
+[Input] frame:220200960 artist:Josh Wink title:Higher State of Consciousness (Adana Twins Remix Two) score:0.000 confidence:1
+[Input] frame:221249536 artist:Josh Wink title:Higher State of Consciousness (Adana Twins Remix Two) score:0.000 confidence:1
+[Input] frame:221249536 artist:Josh Wink title:Higher State of Consciousness (Adana Twins Remix Two) score:0.000 confidence:1
+[Input] frame:222298112 artist:Josh Wink title:Higher State of Consciousness (Adana Twins Remix Two) score:0.000 confidence:1
+[Input] frame:222298112 artist:Mister DJ title:Winner of All score:0.000 confidence:1
+[Input] frame:223346688 artist:Patrice Bäumel title:Roar (Adana Twins Remix) score:0.000 confidence:1
+[Input] frame:223346688 artist:Patrice Bäumel title:Roar (Adana Twins Remix) score:0.000 confidence:1
+[Input] frame:224395264 artist:The Return title:New Day score:0.000 confidence:1
+[Input] frame:224395264 artist:Josh Wink title:Higher State of Consciousness (Adana Twins Remix Two) score:0.000 confidence:1
+[Input] frame:225443840 artist:Josh Wink title:Higher State of Consciousness (Adana Twins Remix Two) score:0.000 confidence:1
+[Input] frame:225443840 artist:MoM & Leonor title:Break da System Re-Shape score:0.000 confidence:1
+[Input] frame:226492416 artist:MoM & Leonor title:Break da System Re-Shape score:0.000 confidence:1
+[Input] frame:226492416 artist:MoM & Leonor title:Break da System Re-Shape score:0.000 confidence:1
+[Input] frame:227540992 artist:MoM & Leonor title:Break da System Re-Shape score:0.000 confidence:1
+[Input] frame:227540992 artist:MoM & Leonor title:Break da System Re-Shape score:0.000 confidence:1
+[Input] frame:228589568 artist:MoM & Leonor title:Break da System Re-Shape score:0.000 confidence:1
+[Input] frame:228589568 artist:MoM & Leonor title:Break da System Re-Shape score:0.000 confidence:1
+[Input] frame:229638144 artist:MoM & Leonor title:Break da System Re-Shape score:0.000 confidence:1
+[Input] frame:229638144 artist:MoM & Leonor title:Break da System Re-Shape score:0.000 confidence:1
+[Input] frame:230686720 artist:MoM & Leonor title:Break da System Re-Shape score:0.000 confidence:1
+[Input] frame:230686720 artist:MoM & Leonor title:Break da System Re-Shape score:0.000 confidence:1
+[Input] frame:231735296 artist:MoM & Leonor title:Break da System Re-Shape score:0.000 confidence:1
+[Input] frame:231735296 artist:MoM & Leonor title:Break da System Re-Shape score:0.000 confidence:1
+[Input] frame:232783872 artist:MoM & Leonor title:Break da System Re-Shape score:0.000 confidence:1
+[Input] frame:232783872 artist:MoM & Leonor title:Break da System Re-Shape score:0.000 confidence:1
+[Input] frame:233832448 artist:MoM & Leonor title:Break da System Re-Shape score:0.000 confidence:1
+[Input] frame:233832448 artist:MoM & Leonor title:Break da System Re-Shape score:0.000 confidence:1
+[Input] frame:234881024 artist:MoM & Leonor title:Break da System Re-Shape score:0.000 confidence:1
+[Input] frame:234881024 artist:MoM & Leonor title:Break da System Re-Shape score:0.000 confidence:1
+[Input] frame:235929600 artist:MoM & Leonor title:Break da System Re-Shape score:0.000 confidence:1
+[Input] frame:235929600 artist:MoM & Leonor title:Break da System Re-Shape score:0.000 confidence:1
+[Input] frame:236978176 artist:Sucree title:Follow Up (Extended Mix) score:0.000 confidence:1
+[Input] frame:236978176 artist:Fabio Orru title:I'm Nothing (Ivanshee Remix) score:0.000 confidence:1
+[Input] frame:238026752 artist:MoM & Leonor title:Break da System Re-Shape score:0.000 confidence:1
+[Input] frame:238026752 artist:MoM & Leonor title:Break da System Re-Shape score:0.000 confidence:1
+[Input] frame:239075328 artist:MoM & Leonor title:Break da System Re-Shape score:0.000 confidence:1
+[Input] frame:239075328 artist:MoM & Leonor title:Break da System Re-Shape score:0.000 confidence:1
+[Input] frame:240123904 artist:MoM & Leonor title:Break da System Re-Shape score:0.000 confidence:1
+[Input] frame:240123904 artist:MoM & Leonor title:Break da System Re-Shape score:0.000 confidence:1
+[Input] frame:241172480 artist:MoM & Leonor title:Break da System Re-Shape score:0.000 confidence:1
+[Input] frame:241172480 artist:MoM & Leonor title:Break da System Re-Shape score:0.000 confidence:1
+[Input] frame:242221056 artist:MoM & Leonor title:Break da System Re-Shape score:0.000 confidence:1
+[Input] frame:242221056 artist:Bamo & Rainy Payne title:Color Blind (Rocco Rodamaal Remix) score:0.000 confidence:1
+[Input] frame:243269632 artist:Bamo & Rainy Payne title:Color Blind (Rocco Rodamaal Remix) score:0.000 confidence:1
+[Input] frame:243269632 artist:Deetron title:Photon score:0.000 confidence:1
+[Input] frame:244318208 artist:Respect Dj Fizzy title:ZinoSeyiVibez score:0.000 confidence:1
+[Input] frame:244318208 artist:Oliver Handsome title:E4 (feat. Sons of Sounds Duo) score:0.000 confidence:1
+[Input] frame:245366784 artist:deadmau5 title:Ameonna score:0.000 confidence:1
+[Input] frame:245366784 artist:House Victimz title:Amen for 8 Years Prayer (Emo Boys Tribute 2014) score:0.000 confidence:1
+[Input] frame:246415360 artist:MoM & Leonor title:Break da System Re-Shape score:0.000 confidence:1
+[Input] frame:246415360 artist:Bamo & Rainy Payne title:Color Blind (Rocco Rodamaal Remix) score:0.000 confidence:1
+[Input] frame:247463936 artist:MoM & Leonor title:Break da System Re-Shape score:0.000 confidence:1
+[Input] frame:247463936 artist:Zedd title:Clarity (Extended Mix) [feat. Foxes] score:0.000 confidence:1
+[Input] frame:248512512 artist:Zedd title:Clarity (Extended Mix) [feat. Foxes] score:0.000 confidence:1
+[Input] frame:248512512 artist:Hardwell title:Spaceman score:0.000 confidence:1
+[Input] frame:249561088 artist:Hardwell title:Spaceman score:0.000 confidence:1
+[Input] frame:249561088 artist:Sven Dohse title:You're Welcome score:0.000 confidence:1
+[Input] frame:250609664 artist:Joy Marquez title:Bak Back score:0.000 confidence:1
+[Input] frame:250609664 artist:ANMA title:Back to Old School (Extendet Mix) score:0.000 confidence:1
+[Input] frame:251658240 artist:Batti Seven title:Celestia score:0.000 confidence:1
+[Input] frame:251658240 artist:David Guetta title:Play Hard (feat. Ne-Yo & Akon) [Extended] score:0.000 confidence:1
+[Input] frame:252706816 artist:Zedd title:Clarity (Extended Mix) [feat. Foxes] score:0.000 confidence:1
+[Input] frame:252706816 artist:Batti Seven title:Celestia score:0.000 confidence:1
+[Input] frame:253755392 artist:BENOBLE title:Rinse and repeat 5 score:0.000 confidence:1
+[Input] frame:253755392 artist:Deetron title:Photon score:0.000 confidence:1
+[Input] frame:254803968 artist:Vakabular title:Back To OLDSQL score:0.000 confidence:1
+[Input] frame:254803968 artist:Joy Marquez title:Bak Back score:0.000 confidence:1
+[Input] frame:255852544 artist:ANMA title:Back to Old School (Extendet Mix) score:0.000 confidence:1
+[Input] frame:255852544 artist:ANMA title:Back to Old School (Extendet Mix) score:0.000 confidence:1
+[Input] frame:256901120 artist:Limahl title:Never Ending Story (Dub Mix 12") score:0.000 confidence:1
+[Input] frame:256901120 artist:Chilled But Progressive title:Sweet Dreams (Sven & Olav Remix) score:0.000 confidence:1
+[Input] frame:257949696 artist:Gabriel Marchisio title:More Days on Week score:0.000 confidence:1
+[Input] frame:257949696 artist:ANMA title:Back to Old School (Extendet Mix) score:0.000 confidence:1
+[Input] frame:258998272 artist:Gabriel Marchisio title:More Days on Week score:0.000 confidence:1
+[Input] frame:258998272 artist:ANMA title:Back to Old School (Extendet Mix) score:0.000 confidence:1
+[Input] frame:260046848 artist:Julio Navas & David Amo title:Thank U score:0.000 confidence:1
+[Input] frame:260046848 artist:Hardwell title:Spaceman score:0.000 confidence:1
+[Input] frame:261095424 artist:Hardwell title:Spaceman score:0.000 confidence:1
+[Input] frame:261095424 artist:Audio Junkies title:Synchronize score:0.000 confidence:1
+[Input] frame:262144000 artist:Groove Village title:Laser Tag score:0.000 confidence:1
+[Input] frame:262144000 artist:Audio Junkies title:Synchronize score:0.000 confidence:1
+[Input] frame:263192576 artist:Black Coffee title:We Dance Again (feat. Nakhane) score:0.000 confidence:1
+[Input] frame:263192576 artist:Easy Groove & Alejandro R title:Andromeda score:0.000 confidence:1
+[Input] frame:264241152 artist:Audio Junkies title:Synchronize score:0.000 confidence:1
+[Input] frame:264241152 artist:Bad Eye title:Impact score:0.000 confidence:1
+[Input] frame:265289728 artist:Audio Junkies title:Synchronize score:0.000 confidence:1
+[Input] frame:265289728 artist:Audio Junkies title:Synchronize score:0.000 confidence:1
+[Input] frame:266338304 artist:Audio Junkies title:Synchronize score:0.000 confidence:1
+[Input] frame:266338304 artist:Audio Junkies title:Synchronize score:0.000 confidence:1
+[Input] frame:267386880 artist:Pacifica title:6:34 Am score:0.000 confidence:1
+[Input] frame:267386880 artist:Audio Junkies title:Synchronize score:0.000 confidence:1
+[Input] frame:268435456 artist:Audio Junkies title:Synchronize score:0.000 confidence:1
+[Input] frame:268435456 artist:Audio Junkies title:Synchronize score:0.000 confidence:1
+[Input] frame:269484032 artist:Trey Mvx title:Natural State score:0.000 confidence:1
+[Input] frame:269484032 artist:Audio Junkies title:Synchronize score:0.000 confidence:1
+[Input] frame:270532608 artist:Deetron title:Photon score:0.000 confidence:1
+[Input] frame:270532608 artist:Audio Junkies title:Synchronize score:0.000 confidence:1
+[Input] frame:271581184 artist:Audio Junkies title:Synchronize score:0.000 confidence:1
+[Input] frame:272629760 artist:Audio Junkies title:Synchronize score:0.000 confidence:1
+[Input] frame:272629760 artist:Audio Junkies title:Synchronize score:0.000 confidence:1
+[Input] frame:273678336 artist:Audio Junkies title:Synchronize score:0.000 confidence:1
+[Input] frame:273678336 artist:Noissier title:Isolate score:0.000 confidence:1
+[Input] frame:274726912 artist:Noissier title:Isolate score:0.000 confidence:1
+[Input] frame:274726912 artist:Noissier title:Isolate score:0.000 confidence:1
+[Input] frame:275775488 artist:Noissier title:Isolate score:0.000 confidence:1
+[Input] frame:275775488 artist:Hidden Empire title:Morjim at Night score:0.000 confidence:1
+[Input] frame:276824064 artist:Noissier title:Isolate score:0.000 confidence:1
+[Input] frame:276824064 artist:Tobias Schulz title:Ah Johnny score:0.000 confidence:1
+[Input] frame:277872640 artist:Noissier title:Isolate score:0.000 confidence:1
+[Input] frame:277872640 artist:Hidden Empire title:Morjim at Night score:0.000 confidence:1
+[Input] frame:278921216 artist:Noissier title:Isolate score:0.000 confidence:1
+[Input] frame:279969792 artist:Noissier title:Isolate score:0.000 confidence:1
+[Input] frame:279969792 artist:Noissier title:Isolate score:0.000 confidence:1
+[Input] frame:281018368 artist:Noissier title:Isolate score:0.000 confidence:1
+[Input] frame:281018368 artist:Noissier title:Isolate score:0.000 confidence:1
+[Input] frame:282066944 artist:Noissier title:Isolate score:0.000 confidence:1
+[Input] frame:283115520 artist:Hidden Empire title:Morjim at Night score:0.000 confidence:1
+[Input] frame:283115520 artist:Matthias Tanzmann title:Keep On (2015 Version) score:0.000 confidence:1
+[Input] frame:284164096 artist:Sebastian Ingrosso title:Kidsos score:0.000 confidence:1
+[Input] frame:284164096 artist:Alex Barrera title:Top score:0.000 confidence:1
+[Input] frame:285212672 artist:Noissier title:Isolate score:0.000 confidence:1
+[Input] frame:285212672 artist:Noissier title:Isolate score:0.000 confidence:1
+[Input] frame:286261248 artist:Noissier title:Isolate score:0.000 confidence:1
+[Input] frame:286261248 artist:Noissier title:Isolate score:0.000 confidence:1
+[Input] frame:287309824 artist:Noissier title:Isolate score:0.000 confidence:1
+[Input] frame:287309824 artist:Noissier title:Isolate score:0.000 confidence:1
+[Input] frame:288358400 artist:Kostha & Elio Kenza title:Shoes (Original Stick) score:0.000 confidence:1
+[Input] frame:288358400 artist:Noissier title:Isolate score:0.000 confidence:1
+[Input] frame:289406976 artist:Vakabular & RIKO & GUGGA title:Algorithms score:0.000 confidence:1
+[Input] frame:289406976 artist:Joey Negro & The Sunburst Band title:Journey To The Sun (Dennis Ferrer Remix) score:0.000 confidence:1
+[Input] frame:290455552 artist:Diplo & SIDEPIECE title:On My Mind score:0.000 confidence:1
+[Input] frame:290455552 artist:Diplo & SIDEPIECE title:On My Mind score:0.000 confidence:1
+[Input] frame:291504128 artist:Vakabular & RIKO & GUGGA title:Algorithms score:0.000 confidence:1
+[Input] frame:291504128 artist:Peppou title:Beliefs (Patryk Molinari Remix) score:0.000 confidence:1
+[Input] frame:292552704 artist:Vakabular & RIKO & GUGGA title:Algorithms score:0.000 confidence:1
+[Input] frame:292552704 artist:Vakabular & RIKO & GUGGA title:Algorithms score:0.000 confidence:1
+[Input] frame:293601280 artist:Vakabular & RIKO & GUGGA title:Algorithms score:0.000 confidence:1
+[Input] frame:293601280 artist:Vakabular & RIKO & GUGGA title:Algorithms score:0.000 confidence:1
+[Input] frame:294649856 artist:Vakabular & RIKO & GUGGA title:Algorithms score:0.000 confidence:1
+[Input] frame:294649856 artist:Vakabular & RIKO & GUGGA title:Algorithms score:0.000 confidence:1
+[Input] frame:295698432 artist:Vakabular & RIKO & GUGGA title:Algorithms score:0.000 confidence:1
+[Input] frame:295698432 artist:Vakabular & RIKO & GUGGA title:Algorithms score:0.000 confidence:1
+[Input] frame:296747008 artist:Biscits title:Wait A Minute score:0.000 confidence:1
+[Input] frame:296747008 artist:Marcapasos title:Blow Job (Club Mix) score:0.000 confidence:1
+[Input] frame:297795584 artist:Vakabular & RIKO & GUGGA title:Algorithms score:0.000 confidence:1
+[Input] frame:297795584 artist:Vanilla Ace title:Commotion score:0.000 confidence:1
+[Input] frame:298844160 artist:Vakabular & RIKO & GUGGA title:Algorithms score:0.000 confidence:1
+[Input] frame:298844160 artist:Tanya Louise title:Deep in You (Rob's Vibey Dub) score:0.000 confidence:1
+[Input] frame:299892736 artist:CamelPhat & Elderbrook title:Cola score:0.000 confidence:1
+[Input] frame:299892736 artist:Robin S. title:Show Me Love score:0.000 confidence:1
+[Input] frame:300941312 artist:Bob Marley title:Sun Is Shining (Extended Club Mix) score:0.000 confidence:1
+[Input] frame:300941312 artist:John Summit & HAYLA title:Where You Are score:0.000 confidence:1
+[Input] frame:301989888 artist:Vladis Cue title:La Musica (No Hopes Remix) score:0.000 confidence:1
+[Input] frame:301989888 artist:Vladis Cue title:La Musica (No Hopes Remix) score:0.000 confidence:1
+[Input] frame:303038464 artist:Vladis Cue title:La Musica (No Hopes Remix) score:0.000 confidence:1
+[Input] frame:303038464 artist:Vladis Cue title:La Musica (No Hopes Remix) score:0.000 confidence:1
+[Input] frame:304087040 artist:Mario West title:Sound score:0.000 confidence:1
+[Input] frame:304087040 artist:Supadelics title:Freak Out (Original Club Mix) score:0.000 confidence:1
+[Input] frame:305135616 artist:Vladis Cue title:La Musica (No Hopes Remix) score:0.000 confidence:1
+[Input] frame:305135616 artist:FORSBY title:Red Tape score:0.000 confidence:1
+[Input] frame:306184192 artist:Vladis Cue title:La Musica (No Hopes Remix) score:0.000 confidence:1
+[Input] frame:306184192 artist:Vladis Cue title:La Musica (No Hopes Remix) score:0.000 confidence:1
+[Input] frame:307232768 artist:Big Avenue title:So Many Days (The Nycer Remix) score:0.000 confidence:1
+[Input] frame:307232768 artist:Caicedo title:The Start (Original Mix) score:0.000 confidence:1
+[Input] frame:308281344 artist:Gregory S. title:Mind Games score:0.000 confidence:1
+[Input] frame:308281344 artist:Cliff Wedge title:Go Go Yellow Screen (Radio Edit) score:0.000 confidence:1
+[Input] frame:309329920 artist:Foals title:Late Night (Solomun Remix) score:0.000 confidence:1
+[Input] frame:309329920 artist:Stephan V. Star title:Black Waters score:0.000 confidence:1
+[Input] frame:310378496 artist:Lana Del Rey title:Video Games (Adrian Lux & Blende Remix) score:0.000 confidence:1
+[Input] frame:310378496 artist:Fragma title:Toca's Miracle (2008 Inpetto Extended Mix) score:0.000 confidence:1
+[Input] frame:311427072 artist:Vladis Cue title:La Musica (No Hopes Remix) score:0.000 confidence:1
+[Input] frame:311427072 artist:Pretty Pink title:Gazer (Extended Mix) score:0.000 confidence:1
+[Input] frame:312475648 artist:Vladis Cue title:La Musica (No Hopes Remix) score:0.000 confidence:1
+[Input] frame:312475648 artist:Maurizio Palmacci title:Robot score:0.000 confidence:1
+[Input] frame:313524224 artist:Vladis Cue title:La Musica (No Hopes Remix) score:0.000 confidence:1
+[Input] frame:313524224 artist:No Hopes title:Eins Zwei Polizei (Extended Mix) score:0.000 confidence:1
+[Input] frame:314572800 artist:Moby title:Wait for Me (Jean Elan Remix) score:0.000 confidence:1
+[Input] frame:314572800 artist:No Hopes title:Eins Zwei Polizei (Extended Mix) score:0.000 confidence:1
+[Input] frame:315621376 artist:No Hopes title:Eins Zwei Polizei (Extended Mix) score:0.000 confidence:1
+[Input] frame:315621376 artist:No Hopes title:Eins Zwei Polizei (Extended Mix) score:0.000 confidence:1
+[Input] frame:316669952 artist:No Hopes title:Eins Zwei Polizei (Extended Mix) score:0.000 confidence:1

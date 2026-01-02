@@ -1,0 +1,109 @@
+[ScoreDetail] frame:0 support:6 base:10.798 duration:72.00s durationScore:0.760 ref:yes final:9.243
+[ScoreDetail] frame:2646000 support:20 base:14.000 duration:324.00s durationScore:1.200 ref:yes final:15.680
+[ScoreDetail] frame:17992800 support:2 base:6.657 duration:36.00s durationScore:0.680 ref:yes final:5.379
+[ScoreDetail] frame:20109600 support:15 base:14.000 duration:204.00s durationScore:1.200 ref:yes final:15.680
+[ScoreDetail] frame:20638800 support:2 base:6.657 duration:12.00s durationScore:0.627 ref:yes final:5.166
+[ScoreDetail] frame:29635200 support:19 base:14.000 duration:276.00s durationScore:1.200 ref:yes final:15.680
+[ScoreDetail] frame:42865200 support:2 base:6.657 duration:96.00s durationScore:0.600 ref:yes final:5.059
+[ScoreDetail] frame:43394400 support:16 base:14.000 duration:408.00s durationScore:1.200 ref:yes final:15.680
+[ScoreDetail] frame:49215600 support:6 base:10.798 duration:72.00s durationScore:0.760 ref:yes final:9.243
+[ScoreDetail] frame:52920000 support:2 base:6.657 duration:24.00s durationScore:0.653 ref:yes final:5.272
+[ScoreDetail] frame:59799600 support:2 base:6.657 duration:48.00s durationScore:0.707 ref:yes final:5.485
+[ScoreDetail] frame:67208400 support:11 base:14.000 duration:168.00s durationScore:0.784 ref:yes final:12.186
+[ScoreDetail] frame:73558800 support:25 base:14.000 duration:516.00s durationScore:1.200 ref:yes final:15.680
+[ScoreDetail] frame:86259600 support:16 base:14.000 duration:444.00s durationScore:1.200 ref:yes final:15.680
+[ScoreDetail] frame:87318000 support:11 base:14.000 duration:336.00s durationScore:1.200 ref:yes final:15.680
+[ScoreDetail] frame:97372800 support:3 base:7.928 duration:312.00s durationScore:1.200 ref:yes final:8.880
+[ScoreDetail] frame:106369200 support:2 base:6.657 duration:12.00s durationScore:0.627 ref:yes final:5.166
+[ScoreDetail] frame:107956800 support:3 base:7.928 duration:120.00s durationScore:0.600 ref:yes final:6.025
+[ScoreDetail] frame:108486000 support:3 base:7.928 duration:96.00s durationScore:0.600 ref:yes final:6.025
+[ScoreDetail] frame:113778000 support:18 base:14.000 duration:384.00s durationScore:1.200 ref:yes final:15.680
+[ScoreDetail] frame:128595600 support:2 base:6.657 duration:24.00s durationScore:0.653 ref:yes final:5.272
+[ScoreDetail] frame:131241600 support:15 base:14.000 duration:240.00s durationScore:1.200 ref:yes final:15.680
+[ScoreDetail] frame:136004400 support:2 base:6.657 duration:12.00s durationScore:0.627 ref:yes final:5.166
+[ScoreDetail] frame:141296400 support:3 base:7.928 duration:48.00s durationScore:0.707 ref:yes final:6.533
+[ScoreDetail] frame:143942400 support:13 base:14.000 duration:144.00s durationScore:0.600 ref:yes final:10.640
+[ScoreDetail] frame:150822000 support:20 base:14.000 duration:252.00s durationScore:1.200 ref:yes final:15.680
+[ScoreDetail] frame:162464400 support:16 base:14.000 duration:492.00s durationScore:1.200 ref:yes final:15.680
+[ScoreDetail] frame:163522800 support:2 base:6.657 duration:12.00s durationScore:0.627 ref:yes final:5.166
+[ScoreDetail] frame:165110400 support:2 base:6.657 duration:24.00s durationScore:0.653 ref:yes final:5.272
+[ScoreDetail] frame:167756400 support:3 base:7.928 duration:180.00s durationScore:1.200 ref:yes final:8.880
+[ScoreDetail] frame:176752800 support:7 base:11.583 duration:144.00s durationScore:0.600 ref:yes final:8.803
+[ScoreDetail] frame:183632400 support:8 base:12.314 duration:180.00s durationScore:1.200 ref:yes final:13.791
+[ScoreDetail] frame:186278400 support:5 base:9.944 duration:132.00s durationScore:0.600 ref:yes final:7.558
+[ScoreDetail] frame:193158000 support:10 base:13.649 duration:132.00s durationScore:0.600 ref:yes final:10.373
+[ScoreDetail] frame:198450000 support:4 base:9.000 duration:204.00s durationScore:1.200 ref:yes final:10.080
+[ScoreDetail] frame:199508400 support:8 base:12.314 duration:84.00s durationScore:0.787 ref:yes final:10.738
+[ScoreDetail] frame:204800400 support:2 base:6.657 duration:12.00s durationScore:0.627 ref:yes final:5.166
+[ScoreDetail] frame:206917200 support:3 base:7.928 duration:48.00s durationScore:0.707 ref:yes final:6.533
+[ScoreDetail] frame:209563200 support:16 base:14.000 duration:180.00s durationScore:1.200 ref:yes final:15.680
+[ScoreDetail] frame:218559600 support:15 base:14.000 duration:468.00s durationScore:1.200 ref:yes final:15.680
+[ScoreDetail] frame:223322400 support:2 base:6.657 duration:156.00s durationScore:0.676 ref:yes final:5.363
+[ScoreDetail] frame:223851600 support:9 base:13.000 duration:108.00s durationScore:0.600 ref:yes final:29.640
+[ScoreDetail] frame:231789600 support:3 base:7.928 duration:180.00s durationScore:1.200 ref:yes final:8.880
+[ScoreDetail] frame:234964800 support:2 base:6.657 duration:24.00s durationScore:0.653 ref:yes final:5.272
+[ScoreDetail] frame:240786000 support:11 base:14.000 duration:132.00s durationScore:0.600 ref:yes final:10.640
+[ScoreDetail] frame:247136400 support:18 base:14.000 duration:324.00s durationScore:1.200 ref:yes final:15.680
+[ScoreDetail] frame:251370000 support:3 base:7.928 duration:72.00s durationScore:0.760 ref:yes final:6.787
+[ScoreDetail] frame:255074400 support:2 base:6.657 duration:84.00s durationScore:0.787 ref:yes final:5.805
+[ScoreDetail] frame:261954000 support:11 base:14.000 duration:144.00s durationScore:0.600 ref:yes final:10.640
+[Refine] filter:score out:49
+[Refine] filter:mergeDuplicates in:49
+[Refine] filter:mergeDuplicates out:49
+[Refine] filter:resolveOverlaps in:49
+[Refine] overlap: replacing unknown at 0 with Priori Winged (Priori Rezone) (score 15.680)
+[Refine] overlap: keeping GMJ & Matter Metanoia (15.680 >= 5.166), dropping Lucius Young Tiempo (Mondragon Remix)
+[Refine] overlap: replacing Marcapasos Blow Job (Club Mix) with Shouse Love Tonight (15.680 > 5.059)
+[Refine] overlap: changeover blocked for Alex O'Rion Echium (support 6 < 7)
+[Refine] overlap: changeover blocked for Makebo & Volen Sentir Alchemist (support 2 < 7)
+[Refine] overlap: changeover blocked for Masters At Work To Be in Love (MAW '99 Mix) [feat. India] (support 2 < 7)
+[Refine] overlap: changeover Downliners Sekt Balt Shakt I -> Peter Van Hoesen Swerve Damiao (support 25 >= 5)
+[Refine] overlap: changeover Peter Van Hoesen Swerve Damiao -> Dj Akira Prophets Tribe Why Listen Music (Paul Hamilton Rmx) (support 16 >= 10)
+[Refine] overlap: keeping Dj Akira Prophets Tribe Why Listen Music (Paul Hamilton Rmx) (15.680 >= 15.680), dropping Not Dead Yet Night Horn (Paul Hamilton Remix)
+[Refine] overlap: changeover blocked for Zo We Are On the Move (Joey Negro Revival Mix) [feat. Erro & Phonte] (support 3 < 7)
+[Refine] overlap: keeping Marcos Barrios, Len Mora & Joaquin Postigo Tribaile (Len Mora & Joaquin Postigo) (6.025 >= 6.025), dropping Daniel Madlung & Johannes Retschke Foursday
+[Refine] overlap: changeover blocked for Tim Green Minds (support 2 < 8)
+[Refine] overlap: changeover blocked for Gangbangers Looking at the Sky (support 2 < 6)
+[Refine] overlap: changeover blocked for Cappo & Mondragon Outlaw (support 3 < 6)
+[Refine] overlap: keeping Guy Gerber Jupiter Blues (15.680 >= 5.166), dropping Dirty Secretz Eternity (Edit)
+[Refine] overlap: keeping Guy Gerber Jupiter Blues (15.680 >= 5.272), dropping Sounom & Sagou Everyday Moments (Kamilo Sanclemente Remix)
+[Refine] overlap: changeover blocked for Munir Amastha Can You Feel the Night (One Opinion Remix) [feat. Sauli Harper] (support 3 < 7)
+[Refine] overlap: changeover Guy Gerber Jupiter Blues -> Sam Paganini Rave (support 7 >= 7)
+[Refine] overlap: keeping Galcher Lustwerk Liberty, Oh! (13.791 >= 7.558), dropping Jens Zimmermann X11
+[Refine] overlap: changeover Joachim Spieth Trails -> Sian Let Yourself (support 4 >= 4)
+[Refine] overlap: replacing Sian Let Yourself with Burial New Love (10.738 > 10.080)
+[Refine] overlap: changeover blocked for Wigbert Balance (support 2 < 6)
+[Refine] overlap: changeover Marc Molina More Than Physical (Manuel Palmitesta Remix) -> Patrice Bäumel The Cave (support 9 >= 6)
+[Refine] overlap: keeping Maae Descartes (8.880 >= 5.272), dropping Joey Negro & The Sunburst Band Journey To The Sun (Dennis Ferrer Remix)
+[Refine] overlap: changeover blocked for Cybordelics Adventures of Dama (feat. James Davis) [Bodo Felusch-Gimme a Beat Mix] (support 3 < 8)
+[Refine] overlap: changeover blocked for Aux WoMdantso My Take (support 2 < 8)
+[Refine] filter:resolveOverlaps out:23
+[Refine] filter:finalFilter in:23
+[Score] dropping sparse hit at frame 17992800 (avgGap 36.00s support 2)
+[Score] dropping sparse hit at frame 107956800 (avgGap 60.00s support 3)
+[Score] dropping sparse hit at frame 231789600 (avgGap 90.00s support 3)
+[Refine] filter:finalFilter out:20
+[Refine] filter:intervalSchedule in:20
+[Refine] filter:intervalSchedule out:20
+[Refine] filter:dedupe in:20
+[Refine] filter:dedupe out:20
+[Final] frame:2646000 artist:Priori title:Winged (Priori Rezone) duration:324.00s score:15.680 confidence:15.68
+[Final] frame:20109600 artist:GMJ & Matter title:Metanoia duration:204.00s score:15.680 confidence:15.68
+[Final] frame:29635200 artist:Ranj Kaler title:Last Sunset (feat. ASYN) [Gai Barone Dub] duration:276.00s score:15.680 confidence:15.68
+[Final] frame:43394400 artist:Shouse title:Love Tonight duration:408.00s score:15.680 confidence:15.68
+[Final] frame:86259600 artist:Dj Akira Prophets Tribe title:Why Listen Music (Paul Hamilton Rmx) duration:444.00s score:15.680 confidence:15.68
+[Final] frame:106369200 artist:Sinan Arsan title:Halycon (Paul Hamilton Rmx) duration:12.00s score:5.166 confidence:5.165718897606086
+[Final] frame:113778000 artist:Minilogue title:Blessed duration:384.00s score:15.680 confidence:15.68
+[Final] frame:131241600 artist:Dactilar title:Los Ojancanos duration:240.00s score:15.680 confidence:15.68
+[Final] frame:143942400 artist:Subconscious Tales title:Why duration:144.00s score:10.640 confidence:10.64
+[Final] frame:150822000 artist:Calibre title:Thought Fields duration:252.00s score:15.680 confidence:15.68
+[Final] frame:176752800 artist:Sam Paganini title:Rave duration:144.00s score:8.803 confidence:8.803083985636356
+[Final] frame:183632400 artist:Galcher Lustwerk title:Liberty, Oh! duration:180.00s score:13.791 confidence:13.79135351886293
+[Final] frame:199508400 artist:Burial title:New Love duration:84.00s score:10.738 confidence:10.73755381111471
+[Final] frame:204800400 artist:HOSH & 1979 title:Midnight (The Hanging Tree) [feat. Jalja] duration:12.00s score:5.166 confidence:5.165718897606086
+[Final] frame:206917200 artist:Ion Ludwig title:Classilion duration:48.00s score:6.533 confidence:6.532839461747018
+[Final] frame:209563200 artist:Bohdan title:Tungsten (Deepbass Remix) duration:180.00s score:15.680 confidence:15.68
+[Final] frame:223851600 artist:Patrice Bäumel title:The Cave duration:108.00s score:29.640 confidence:29.64
+[Final] frame:240786000 artist:Ness title:In the Meanderings of Shibuya duration:132.00s score:10.640 confidence:10.64
+[Final] frame:247136400 artist:Markus Guentner title:Crystal Castle (Original Mix) duration:324.00s score:15.680 confidence:15.68
+[Final] frame:261954000 artist:Blackbelt Andersen title:Åpenbaring (Original Mix) duration:144.00s score:10.640 confidence:10.64

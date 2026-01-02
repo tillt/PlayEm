@@ -41,6 +41,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)addLazyPageIndex:(unsigned long long)pageIndex
                 channels:(NSArray<NSData*>*)channels;
+- (void)markDecodingComplete;
 
 @end
 

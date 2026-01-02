@@ -25,6 +25,7 @@ NS_ASSUME_NONNULL_BEGIN
 // Optional reference artist (e.g., mix/producer) to boost matching tracks.
 @property (copy, nonatomic, nullable) NSString* referenceArtist;
 @property (assign, nonatomic) BOOL debugScoring;
+@property (assign, nonatomic) BOOL skipRefinement;
 
 @end
 

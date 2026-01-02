@@ -1,0 +1,535 @@
+[Input] frame:0 artist:Citizen Kain, Alexandros Djkevingr & Greg Ignatovich title:Caliph of Baghdad score:0.000 confidence:1
+[Input] frame:0 artist:Citizen Kain, Alexandros Djkevingr & Greg Ignatovich title:Caliph of Baghdad score:0.000 confidence:1
+[Input] frame:1048576 artist:Citizen Kain, Alexandros Djkevingr & Greg Ignatovich title:Caliph of Baghdad score:0.000 confidence:1
+[Input] frame:1048576 artist:Citizen Kain, Alexandros Djkevingr & Greg Ignatovich title:Caliph of Baghdad score:0.000 confidence:1
+[Input] frame:2097152 artist:Citizen Kain, Alexandros Djkevingr & Greg Ignatovich title:Caliph of Baghdad score:0.000 confidence:1
+[Input] frame:2097152 artist:Citizen Kain, Alexandros Djkevingr & Greg Ignatovich title:Caliph of Baghdad score:0.000 confidence:1
+[Input] frame:3145728 artist:Citizen Kain, Alexandros Djkevingr & Greg Ignatovich title:Caliph of Baghdad score:0.000 confidence:1
+[Input] frame:3145728 artist:Citizen Kain, Alexandros Djkevingr & Greg Ignatovich title:Caliph of Baghdad score:0.000 confidence:1
+[Input] frame:4194304 artist:Citizen Kain, Alexandros Djkevingr & Greg Ignatovich title:Caliph of Baghdad score:0.000 confidence:1
+[Input] frame:4194304 artist:Citizen Kain, Alexandros Djkevingr & Greg Ignatovich title:Caliph of Baghdad score:0.000 confidence:1
+[Input] frame:5242880 artist:Citizen Kain, Alexandros Djkevingr & Greg Ignatovich title:Caliph of Baghdad score:0.000 confidence:1
+[Input] frame:5242880 artist:Citizen Kain, Alexandros Djkevingr & Greg Ignatovich title:Caliph of Baghdad score:0.000 confidence:1
+[Input] frame:6291456 artist:Citizen Kain, Alexandros Djkevingr & Greg Ignatovich title:Caliph of Baghdad score:0.000 confidence:1
+[Input] frame:6291456 artist:Citizen Kain, Alexandros Djkevingr & Greg Ignatovich title:Caliph of Baghdad score:0.000 confidence:1
+[Input] frame:7340032 artist:Citizen Kain, Alexandros Djkevingr & Greg Ignatovich title:Caliph of Baghdad score:0.000 confidence:1
+[Input] frame:7340032 artist:Citizen Kain, Alexandros Djkevingr & Greg Ignatovich title:Caliph of Baghdad score:0.000 confidence:1
+[Input] frame:8388608 artist:Citizen Kain, Alexandros Djkevingr & Greg Ignatovich title:Caliph of Baghdad score:0.000 confidence:1
+[Input] frame:8388608 artist:Citizen Kain, Alexandros Djkevingr & Greg Ignatovich title:Caliph of Baghdad score:0.000 confidence:1
+[Input] frame:9437184 artist:Citizen Kain, Alexandros Djkevingr & Greg Ignatovich title:Caliph of Baghdad score:0.000 confidence:1
+[Input] frame:9437184 artist:Citizen Kain, Alexandros Djkevingr & Greg Ignatovich title:Caliph of Baghdad score:0.000 confidence:1
+[Input] frame:10485760 artist:Citizen Kain, Alexandros Djkevingr & Greg Ignatovich title:Caliph of Baghdad score:0.000 confidence:1
+[Input] frame:10485760 artist:Citizen Kain, Alexandros Djkevingr & Greg Ignatovich title:Caliph of Baghdad score:0.000 confidence:1
+[Input] frame:11534336 artist:Citizen Kain, Alexandros Djkevingr & Greg Ignatovich title:Caliph of Baghdad score:0.000 confidence:1
+[Input] frame:11534336 artist:Citizen Kain, Alexandros Djkevingr & Greg Ignatovich title:Caliph of Baghdad score:0.000 confidence:1
+[Input] frame:12582912 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:13631488 artist:Citizen Kain title:Drag score:0.000 confidence:1
+[Input] frame:14680064 artist:Citizen Kain title:Drag score:0.000 confidence:1
+[Input] frame:15728640 artist:Citizen Kain title:Drag score:0.000 confidence:1
+[Input] frame:16777216 artist:Citizen Kain title:Drag score:0.000 confidence:1
+[Input] frame:17825792 artist:Citizen Kain title:Drag score:0.000 confidence:1
+[Input] frame:18874368 artist:Citizen Kain title:Eon score:0.000 confidence:1
+[Input] frame:19922944 artist:Citizen Kain title:Eon score:0.000 confidence:1
+[Input] frame:20971520 artist:Citizen Kain title:Eon score:0.000 confidence:1
+[Input] frame:22020096 artist:Citizen Kain title:Eon score:0.000 confidence:1
+[Input] frame:23068672 artist:Citizen Kain title:Eon score:0.000 confidence:1
+[Input] frame:24117248 artist:Citizen Kain title:Eon score:0.000 confidence:1
+[Input] frame:25165824 artist:Citizen Kain title:Eon score:0.000 confidence:1
+[Input] frame:26214400 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:27262976 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:28311552 artist:Marc Gickel title:Taichhousai score:0.000 confidence:1
+[Input] frame:29360128 artist:Eelke Kleijn title:Transmission (Joris Voorn Remix) score:0.000 confidence:1
+[Input] frame:30408704 artist:Eelke Kleijn title:Transmission (Joris Voorn Remix) score:0.000 confidence:1
+[Input] frame:31457280 artist:Eelke Kleijn title:Transmission (Joris Voorn Remix) score:0.000 confidence:1
+[Input] frame:32505856 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:33554432 artist:Freemasons & Sophie Ellis-Bextor title:Heartbreak (Make Me A Dancer) score:0.000 confidence:1
+[Input] frame:34603008 artist:Eelke Kleijn title:Transmission (Joris Voorn Remix) score:0.000 confidence:1
+[Input] frame:35651584 artist:Eelke Kleijn title:Transmission (Joris Voorn Remix) score:0.000 confidence:1
+[Input] frame:36700160 artist:Eelke Kleijn title:Transmission (Joris Voorn Remix) score:0.000 confidence:1
+[Input] frame:37748736 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:38797312 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:39845888 artist:Eelke Kleijn title:Transmission (Joris Voorn Remix) score:0.000 confidence:1
+[Input] frame:40894464 artist:Eelke Kleijn title:Transmission (Joris Voorn Remix) score:0.000 confidence:1
+[Input] frame:41943040 artist:Eelke Kleijn title:Transmission (Joris Voorn Remix) score:0.000 confidence:1
+[Input] frame:42991616 artist:Eelke Kleijn title:Transmission (Joris Voorn Remix) score:0.000 confidence:1
+[Input] frame:44040192 artist:Freemasons & Sophie Ellis-Bextor title:Heartbreak (Make Me A Dancer) score:0.000 confidence:1
+[Input] frame:45088768 artist:Eelke Kleijn title:Transmission (Joris Voorn Remix) score:0.000 confidence:1
+[Input] frame:46137344 artist:Joachim Pastor title:Mountain score:0.000 confidence:1
+[Input] frame:47185920 artist:Eelke Kleijn title:Transmission (Joris Voorn Remix) score:0.000 confidence:1
+[Input] frame:48234496 artist:Freemasons & Sophie Ellis-Bextor title:Heartbreak (Make Me A Dancer) score:0.000 confidence:1
+[Input] frame:49283072 artist:Freemasons & Sophie Ellis-Bextor title:Heartbreak (Make Me A Dancer) score:0.000 confidence:1
+[Input] frame:50331648 artist:Eelke Kleijn title:Transmission (Joris Voorn Remix) score:0.000 confidence:1
+[Input] frame:51380224 artist:Sable Sheep title:Lobotomize score:0.000 confidence:1
+[Input] frame:52428800 artist:Pretty Pink title:Gazer (Extended Mix) score:0.000 confidence:1
+[Input] frame:53477376 artist:Taylor Swift title:Love Story (J Stax Club Mix) score:0.000 confidence:1
+[Input] frame:54525952 artist:Sable Sheep title:Lobotomize score:0.000 confidence:1
+[Input] frame:55574528 artist:Paul Ant title:Impultion (Jssst Remix) score:0.000 confidence:1
+[Input] frame:56623104 artist:Sable Sheep title:Lobotomize score:0.000 confidence:1
+[Input] frame:57671680 artist:Sable Sheep title:Lobotomize score:0.000 confidence:1
+[Input] frame:58720256 artist:Adriatique, Marino Canal & Delhia de France title:Home score:0.000 confidence:1
+[Input] frame:59768832 artist:Adriatique, Marino Canal & Delhia de France title:Home score:0.000 confidence:1
+[Input] frame:60817408 artist:Adriatique, Marino Canal & Delhia de France title:Home score:0.000 confidence:1
+[Input] frame:61865984 artist:Bob Ray title:Odissey (Extended Mix) score:0.000 confidence:1
+[Input] frame:62914560 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:63963136 artist:Adriatique, Marino Canal & Delhia de France title:Home score:0.000 confidence:1
+[Input] frame:65011712 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:66060288 artist:Adriatique, Marino Canal & Delhia de France title:Home score:0.000 confidence:1
+[Input] frame:67108864 artist:Adriatique, Marino Canal & Delhia de France title:Home score:0.000 confidence:1
+[Input] frame:68157440 artist:Adriatique, Marino Canal & Delhia de France title:Home score:0.000 confidence:1
+[Input] frame:69206016 artist:Marcos Barrios, Len Mora & Joaquin Postigo title:Tribaile (Len Mora & Joaquin Postigo) score:0.000 confidence:1
+[Input] frame:69206016 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:70254592 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:70254592 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:71303168 artist:Masahiro Nishibata title:Tide On (Nemphirex Remix) score:0.000 confidence:1
+[Input] frame:71303168 artist:Adriatique, Marino Canal & Delhia de France title:Home score:0.000 confidence:1
+[Input] frame:72351744 artist:Adriatique, Marino Canal & Delhia de France title:Home score:0.000 confidence:1
+[Input] frame:72351744 artist:Adriatique, Marino Canal & Delhia de France title:Home score:0.000 confidence:1
+[Input] frame:73400320 artist:Adriatique, Marino Canal & Delhia de France title:Home score:0.000 confidence:1
+[Input] frame:73400320 artist:Adriatique, Marino Canal & Delhia de France title:Home score:0.000 confidence:1
+[Input] frame:74448896 artist:Adriatique, Marino Canal & Delhia de France title:Home score:0.000 confidence:1
+[Input] frame:74448896 artist:Citizen Kain & DJ AroZe title:Vice Versa score:0.000 confidence:1
+[Input] frame:75497472 artist:Citizen Kain & DJ AroZe title:Vice Versa score:0.000 confidence:1
+[Input] frame:75497472 artist:Citizen Kain & DJ AroZe title:Vice Versa score:0.000 confidence:1
+[Input] frame:76546048 artist:Citizen Kain & DJ AroZe title:Vice Versa score:0.000 confidence:1
+[Input] frame:76546048 artist:Swedish House Mafia, The Weeknd & Moojo title:Moth To A Flame (Moojo Remix) score:0.000 confidence:1
+[Input] frame:77594624 artist:Citizen Kain & DJ AroZe title:Vice Versa score:0.000 confidence:1
+[Input] frame:77594624 artist:Mfs Observatory title:Y1 score:0.000 confidence:1
+[Input] frame:78643200 artist:Citizen Kain & DJ AroZe title:Vice Versa score:0.000 confidence:1
+[Input] frame:78643200 artist:Citizen Kain & DJ AroZe title:Vice Versa score:0.000 confidence:1
+[Input] frame:79691776 artist:Citizen Kain & DJ AroZe title:Vice Versa score:0.000 confidence:1
+[Input] frame:79691776 artist:Alexandra Stan title:Mr. Saxobeat (Extended Version) score:0.000 confidence:1
+[Input] frame:80740352 artist:Mfs Observatory title:Y1 score:0.000 confidence:1
+[Input] frame:80740352 artist:Dakar title:Walk 4 Me score:0.000 confidence:1
+[Input] frame:81788928 artist:Citizen Kain & DJ AroZe title:Vice Versa score:0.000 confidence:1
+[Input] frame:81788928 artist:Citizen Kain & DJ AroZe title:Vice Versa score:0.000 confidence:1
+[Input] frame:82837504 artist:Citizen Kain & DJ AroZe title:Vice Versa score:0.000 confidence:1
+[Input] frame:82837504 artist:Citizen Kain & DJ AroZe title:Vice Versa score:0.000 confidence:1
+[Input] frame:83886080 artist:Citizen Kain & DJ AroZe title:Vice Versa score:0.000 confidence:1
+[Input] frame:83886080 artist:Citizen Kain & DJ AroZe title:Vice Versa score:0.000 confidence:1
+[Input] frame:84934656 artist:Citizen Kain & DJ AroZe title:Vice Versa score:0.000 confidence:1
+[Input] frame:84934656 artist:Citizen Kain & DJ AroZe title:Vice Versa score:0.000 confidence:1
+[Input] frame:85983232 artist:Citizen Kain & DJ AroZe title:Vice Versa score:0.000 confidence:1
+[Input] frame:85983232 artist:Citizen Kain & DJ AroZe title:Vice Versa score:0.000 confidence:1
+[Input] frame:87031808 artist:Citizen Kain & DJ AroZe title:Vice Versa score:0.000 confidence:1
+[Input] frame:87031808 artist:Citizen Kain & DJ AroZe title:Vice Versa score:0.000 confidence:1
+[Input] frame:88080384 artist:Citizen Kain & DJ AroZe title:Vice Versa score:0.000 confidence:1
+[Input] frame:88080384 artist:Citizen Kain & DJ AroZe title:Vice Versa score:0.000 confidence:1
+[Input] frame:89128960 artist:Citizen Kain & DJ AroZe title:Vice Versa score:0.000 confidence:1
+[Input] frame:89128960 artist:Citizen Kain & DJ AroZe title:Vice Versa score:0.000 confidence:1
+[Input] frame:90177536 artist:Citizen Kain & DJ AroZe title:Vice Versa score:0.000 confidence:1
+[Input] frame:90177536 artist:Camishe & Max Oazo title:Stand by Me (The Distance & Igi Remix) score:0.000 confidence:1
+[Input] frame:91226112 artist:Citizen Kain title:Moments (feat. Kaps) [Extended Mix] score:0.000 confidence:1
+[Input] frame:91226112 artist:Citizen Kain title:Moments (feat. Kaps) [Extended Mix] score:0.000 confidence:1
+[Input] frame:92274688 artist:Citizen Kain title:Moments (feat. Kaps) [Extended Mix] score:0.000 confidence:1
+[Input] frame:92274688 artist:Citizen Kain title:Moments (feat. Kaps) [Extended Mix] score:0.000 confidence:1
+[Input] frame:93323264 artist:Citizen Kain title:Moments (feat. Kaps) [Extended Mix] score:0.000 confidence:1
+[Input] frame:94371840 artist:Citizen Kain title:Moments (feat. Kaps) [Extended Mix] score:0.000 confidence:1
+[Input] frame:94371840 artist:Citizen Kain title:Moments (feat. Kaps) [Extended Mix] score:0.000 confidence:1
+[Input] frame:95420416 artist:Citizen Kain title:Moments (feat. Kaps) [Extended Mix] score:0.000 confidence:1
+[Input] frame:95420416 artist:Citizen Kain title:Moments (feat. Kaps) [Extended Mix] score:0.000 confidence:1
+[Input] frame:96468992 artist:Citizen Kain title:Moments (feat. Kaps) [Extended Mix] score:0.000 confidence:1
+[Input] frame:96468992 artist:Citizen Kain title:Moments (feat. Kaps) [Extended Mix] score:0.000 confidence:1
+[Input] frame:97517568 artist:Citizen Kain title:Moments (feat. Kaps) [Extended Mix] score:0.000 confidence:1
+[Input] frame:97517568 artist:Citizen Kain title:Moments (feat. Kaps) [Extended Mix] score:0.000 confidence:1
+[Input] frame:98566144 artist:Citizen Kain title:Moments (feat. Kaps) [Extended Mix] score:0.000 confidence:1
+[Input] frame:99614720 artist:Citizen Kain title:Moments (feat. Kaps) [Extended Mix] score:0.000 confidence:1
+[Input] frame:99614720 artist:Citizen Kain title:Moments (feat. Kaps) [Extended Mix] score:0.000 confidence:1
+[Input] frame:100663296 artist:Citizen Kain title:Moments (feat. Kaps) [Extended Mix] score:0.000 confidence:1
+[Input] frame:100663296 artist:Citizen Kain title:Moments (feat. Kaps) [Extended Mix] score:0.000 confidence:1
+[Input] frame:101711872 artist:Citizen Kain title:Moments (feat. Kaps) [Extended Mix] score:0.000 confidence:1
+[Input] frame:101711872 artist:Citizen Kain title:Moments (feat. Kaps) [Extended Mix] score:0.000 confidence:1
+[Input] frame:102760448 artist:Citizen Kain title:Moments (feat. Kaps) [Extended Mix] score:0.000 confidence:1
+[Input] frame:102760448 artist:Citizen Kain title:Moments (feat. Kaps) [Extended Mix] score:0.000 confidence:1
+[Input] frame:103809024 artist:Citizen Kain title:Moments (feat. Kaps) [Extended Mix] score:0.000 confidence:1
+[Input] frame:103809024 artist:Citizen Kain, Aaron Suiss & Cari Golden title:Innocent score:0.000 confidence:1
+[Input] frame:104857600 artist:Citizen Kain, Aaron Suiss & Cari Golden title:Innocent score:0.000 confidence:1
+[Input] frame:104857600 artist:Citizen Kain, Aaron Suiss & Cari Golden title:Innocent score:0.000 confidence:1
+[Input] frame:105906176 artist:Citizen Kain, Aaron Suiss & Cari Golden title:Innocent score:0.000 confidence:1
+[Input] frame:105906176 artist:Citizen Kain, Aaron Suiss & Cari Golden title:Innocent score:0.000 confidence:1
+[Input] frame:106954752 artist:Citizen Kain, Aaron Suiss & Cari Golden title:Innocent score:0.000 confidence:1
+[Input] frame:106954752 artist:Citizen Kain, Aaron Suiss & Cari Golden title:Innocent score:0.000 confidence:1
+[Input] frame:108003328 artist:Citizen Kain, Aaron Suiss & Cari Golden title:Innocent score:0.000 confidence:1
+[Input] frame:108003328 artist:Citizen Kain, Aaron Suiss & Cari Golden title:Innocent score:0.000 confidence:1
+[Input] frame:109051904 artist:Citizen Kain, Aaron Suiss & Cari Golden title:Innocent score:0.000 confidence:1
+[Input] frame:109051904 artist:Citizen Kain, Aaron Suiss & Cari Golden title:Innocent score:0.000 confidence:1
+[Input] frame:110100480 artist:Citizen Kain, Aaron Suiss & Cari Golden title:Innocent score:0.000 confidence:1
+[Input] frame:110100480 artist:Citizen Kain, Aaron Suiss & Cari Golden title:Innocent score:0.000 confidence:1
+[Input] frame:111149056 artist:Citizen Kain, Aaron Suiss & Cari Golden title:Innocent score:0.000 confidence:1
+[Input] frame:111149056 artist:Citizen Kain, Aaron Suiss & Cari Golden title:Innocent score:0.000 confidence:1
+[Input] frame:112197632 artist:Citizen Kain, Aaron Suiss & Cari Golden title:Innocent score:0.000 confidence:1
+[Input] frame:112197632 artist:Citizen Kain, Aaron Suiss & Cari Golden title:Innocent score:0.000 confidence:1
+[Input] frame:113246208 artist:Citizen Kain, Aaron Suiss & Cari Golden title:Innocent score:0.000 confidence:1
+[Input] frame:113246208 artist:Citizen Kain, Aaron Suiss & Cari Golden title:Innocent score:0.000 confidence:1
+[Input] frame:114294784 artist:Citizen Kain, Aaron Suiss & Cari Golden title:Innocent score:0.000 confidence:1
+[Input] frame:114294784 artist:Citizen Kain, Aaron Suiss & Cari Golden title:Innocent score:0.000 confidence:1
+[Input] frame:115343360 artist:Citizen Kain, Aaron Suiss & Cari Golden title:Innocent score:0.000 confidence:1
+[Input] frame:115343360 artist:Tenko title:Sending Code score:0.000 confidence:1
+[Input] frame:116391936 artist:Inland Knights title:Deep In score:0.000 confidence:1
+[Input] frame:116391936 artist:Citizen Kain, Aaron Suiss & Cari Golden title:Innocent score:0.000 confidence:1
+[Input] frame:117440512 artist:Luca Lozano & Mr. Ho title:Different Circles (Nicson Remix) score:0.000 confidence:1
+[Input] frame:117440512 artist:DJ Vibe title:The Underground score:0.000 confidence:1
+[Input] frame:118489088 artist:Citizen Kain, Lazarusman & Aaron Suiss title:Reset score:0.000 confidence:1
+[Input] frame:118489088 artist:Alex Dolby title:Sintesi (Original) score:0.000 confidence:1
+[Input] frame:119537664 artist:Chris Drifter title:Flashback (Matt Time Remix) score:0.000 confidence:1
+[Input] frame:119537664 artist:Madness Ba title:Anywhere score:0.000 confidence:1
+[Input] frame:120586240 artist:Madness Ba title:Anywhere score:0.000 confidence:1
+[Input] frame:120586240 artist:Gorgon City & DRAMA title:You've Done Enough (John Summit Extended Mix) score:0.000 confidence:1
+[Input] frame:121634816 artist:Steve Smooth title:I'm Not Sorry (feat. Krystal Malik) [Steve Smooth & Kalendr Remix] score:0.000 confidence:1
+[Input] frame:121634816 artist:Takaki Matsuda title:Tell Me score:0.000 confidence:1
+[Input] frame:122683392 artist:Citizen Kain, Lazarusman & Aaron Suiss title:Reset score:0.000 confidence:1
+[Input] frame:122683392 artist:Citizen Kain, Lazarusman & Aaron Suiss title:Reset score:0.000 confidence:1
+[Input] frame:123731968 artist:Citizen Kain, Lazarusman & Aaron Suiss title:Reset score:0.000 confidence:1
+[Input] frame:123731968 artist:Citizen Kain, Lazarusman & Aaron Suiss title:Reset score:0.000 confidence:1
+[Input] frame:124780544 artist:Citizen Kain, Lazarusman & Aaron Suiss title:Reset score:0.000 confidence:1
+[Input] frame:124780544 artist:Citizen Kain, Lazarusman & Aaron Suiss title:Reset score:0.000 confidence:1
+[Input] frame:125829120 artist:Citizen Kain, Lazarusman & Aaron Suiss title:Reset score:0.000 confidence:1
+[Input] frame:125829120 artist:Citizen Kain, Lazarusman & Aaron Suiss title:Reset score:0.000 confidence:1
+[Input] frame:126877696 artist:Citizen Kain, Lazarusman & Aaron Suiss title:Reset score:0.000 confidence:1
+[Input] frame:126877696 artist:Citizen Kain, Lazarusman & Aaron Suiss title:Reset score:0.000 confidence:1
+[Input] frame:127926272 artist:Citizen Kain, Lazarusman & Aaron Suiss title:Reset score:0.000 confidence:1
+[Input] frame:127926272 artist:Citizen Kain, Lazarusman & Aaron Suiss title:Reset score:0.000 confidence:1
+[Input] frame:128974848 artist:Citizen Kain, Lazarusman & Aaron Suiss title:Reset score:0.000 confidence:1
+[Input] frame:128974848 artist:Citizen Kain, Lazarusman & Aaron Suiss title:Reset score:0.000 confidence:1
+[Input] frame:130023424 artist:Ill-Boy Phil & Mehrklang title:1982 score:0.000 confidence:1
+[Input] frame:130023424 artist:Citizen Kain, Lazarusman & Aaron Suiss title:Reset score:0.000 confidence:1
+[Input] frame:131072000 artist:Citizen Kain, Lazarusman & Aaron Suiss title:Reset score:0.000 confidence:1
+[Input] frame:131072000 artist:Citizen Kain, Lazarusman & Aaron Suiss title:Reset score:0.000 confidence:1
+[Input] frame:132120576 artist:Citizen Kain, Lazarusman & Aaron Suiss title:Reset score:0.000 confidence:1
+[Input] frame:132120576 artist:Citizen Kain, Lazarusman & Aaron Suiss title:Reset score:0.000 confidence:1
+[Input] frame:133169152 artist:Citizen Kain, Lazarusman & Aaron Suiss title:Reset score:0.000 confidence:1
+[Input] frame:133169152 artist:Alexandra Stan title:Mr. Saxobeat (Extended Version) score:0.000 confidence:1
+[Input] frame:134217728 artist:Aphex Twin title:Pulsewidth score:0.000 confidence:1
+[Input] frame:134217728 artist:Tiësto & The Chainsmokers title:Split (Only U) score:0.000 confidence:1
+[Input] frame:135266304 artist:Citizen Kain & Aaron Suiss title:Colors score:0.000 confidence:1
+[Input] frame:135266304 artist:Citizen Kain & Aaron Suiss title:Colors score:0.000 confidence:1
+[Input] frame:136314880 artist:Citizen Kain & Aaron Suiss title:Colors score:0.000 confidence:1
+[Input] frame:136314880 artist:Citizen Kain & Aaron Suiss title:Colors score:0.000 confidence:1
+[Input] frame:137363456 artist:Citizen Kain & Aaron Suiss title:Colors score:0.000 confidence:1
+[Input] frame:137363456 artist:Maae title:Descartes score:0.000 confidence:1
+[Input] frame:138412032 artist:Citizen Kain & Aaron Suiss title:Colors score:0.000 confidence:1
+[Input] frame:138412032 artist:Citizen Kain & Aaron Suiss title:Colors score:0.000 confidence:1
+[Input] frame:139460608 artist:Citizen Kain & Aaron Suiss title:Colors score:0.000 confidence:1
+[Input] frame:139460608 artist:Citizen Kain & Aaron Suiss title:Colors score:0.000 confidence:1
+[Input] frame:140509184 artist:Citizen Kain & Aaron Suiss title:Colors score:0.000 confidence:1
+[Input] frame:140509184 artist:Citizen Kain & Aaron Suiss title:Colors score:0.000 confidence:1
+[Input] frame:141557760 artist:Citizen Kain & Aaron Suiss title:Colors score:0.000 confidence:1
+[Input] frame:141557760 artist:Citizen Kain & Aaron Suiss title:Colors score:0.000 confidence:1
+[Input] frame:142606336 artist:Citizen Kain & Aaron Suiss title:Colors score:0.000 confidence:1
+[Input] frame:142606336 artist:Citizen Kain & Aaron Suiss title:Colors score:0.000 confidence:1
+[Input] frame:143654912 artist:Citizen Kain & Aaron Suiss title:Colors score:0.000 confidence:1
+[Input] frame:143654912 artist:Barberio & Echo Daft title:Watoto (Extended Mix) score:0.000 confidence:1
+[Input] frame:144703488 artist:Citizen Kain & Aaron Suiss title:Colors score:0.000 confidence:1
+[Input] frame:144703488 artist:Lynnic & ItsArius title:Self Control (feat. Lilly) [Extended Mix] score:0.000 confidence:1
+[Input] frame:145752064 artist:Dr. Alban title:Sing Hallelujah! score:0.000 confidence:1
+[Input] frame:145752064 artist:Gino Soccio title:Dancer score:0.000 confidence:1
+[Input] frame:146800640 artist:Citizen Kain & DJ AroZe title:Us score:0.000 confidence:1
+[Input] frame:146800640 artist:Citizen Kain & DJ AroZe title:Us score:0.000 confidence:1
+[Input] frame:147849216 artist:Citizen Kain & DJ AroZe title:Us score:0.000 confidence:1
+[Input] frame:147849216 artist:Citizen Kain & DJ AroZe title:Us score:0.000 confidence:1
+[Input] frame:148897792 artist:Bob Sinclar title:World, Hold On (feat. Steve Edwards) [Club Mix] score:0.000 confidence:1
+[Input] frame:148897792 artist:Citizen Kain & DJ AroZe title:Us score:0.000 confidence:1
+[Input] frame:149946368 artist:Citizen Kain & DJ AroZe title:Us score:0.000 confidence:1
+[Input] frame:149946368 artist:Citizen Kain & DJ AroZe title:Us score:0.000 confidence:1
+[Input] frame:150994944 artist:Citizen Kain & DJ AroZe title:Us score:0.000 confidence:1
+[Input] frame:150994944 artist:Citizen Kain & DJ AroZe title:Us score:0.000 confidence:1
+[Input] frame:152043520 artist:Citizen Kain & DJ AroZe title:Us score:0.000 confidence:1
+[Input] frame:152043520 artist:Citizen Kain & DJ AroZe title:Us score:0.000 confidence:1
+[Input] frame:153092096 artist:Citizen Kain & DJ AroZe title:Us score:0.000 confidence:1
+[Input] frame:153092096 artist:Citizen Kain & DJ AroZe title:Us score:0.000 confidence:1
+[Input] frame:154140672 artist:Hackler & Kuch title:Special K score:0.000 confidence:1
+[Input] frame:154140672 artist:Citizen Kain & DJ AroZe title:Us score:0.000 confidence:1
+[Input] frame:155189248 artist:Citizen Kain & DJ AroZe title:Us score:0.000 confidence:1
+[Input] frame:155189248 artist:Citizen Kain & DJ AroZe title:Us score:0.000 confidence:1
+[Input] frame:156237824 artist:Citizen Kain & DJ AroZe title:Us score:0.000 confidence:1
+[Input] frame:156237824 artist:Citizen Kain & DJ AroZe title:Us score:0.000 confidence:1
+[Input] frame:157286400 artist:Citizen Kain & DJ AroZe title:Us score:0.000 confidence:1
+[Input] frame:157286400 artist:Citizen Kain & DJ AroZe title:Us score:0.000 confidence:1
+[Input] frame:158334976 artist:Citizen Kain & DJ AroZe title:Us score:0.000 confidence:1
+[Input] frame:158334976 artist:Citizen Kain & DJ AroZe title:Us score:0.000 confidence:1
+[Input] frame:159383552 artist:Citizen Kain & DJ AroZe title:Us score:0.000 confidence:1
+[Input] frame:159383552 artist:Riva Starr title:Feel It score:0.000 confidence:1
+[Input] frame:160432128 artist:Riva Starr title:Feel It score:0.000 confidence:1
+[Input] frame:160432128 artist:Enzo Siffredi title:Sometimes score:0.000 confidence:1
+[Input] frame:161480704 artist:Fatboy Slim & Fedde Le Grand title:Praise You 2009 (F.L.G. Remix) score:0.000 confidence:1
+[Input] frame:161480704 artist:Benny Benassi, Zamna Soundsystem & Andro (IT) title:Satisfaction (feat. The Biz) [Remix] score:0.000 confidence:1
+[Input] frame:162529280 artist:Topic & A7S title:Kernkraft 400 (A Better Day) score:0.000 confidence:1
+[Input] frame:162529280 artist:Topic & A7S title:Kernkraft 400 (A Better Day) score:0.000 confidence:1
+[Input] frame:163577856 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:163577856 artist:Zombie Nation title:Kernkraft 400 (DJ Gius Mix) score:0.000 confidence:1
+[Input] frame:164626432 artist:Topic & A7S title:Kernkraft 400 (A Better Day) score:0.000 confidence:1
+[Input] frame:164626432 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:165675008 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:165675008 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:166723584 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:166723584 artist:Ekkohaus title:64 Bars score:0.000 confidence:1
+[Input] frame:167772160 artist:2hz title:Modest (Remastered) score:0.000 confidence:1
+[Input] frame:167772160 artist:Topic & A7S title:Kernkraft 400 (A Better Day) score:0.000 confidence:1
+[Input] frame:168820736 artist:Adrian Ivan title:No One Else (Deep Mix) score:0.000 confidence:1
+[Input] frame:168820736 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:169869312 artist:Topic & A7S title:Kernkraft 400 (A Better Day) score:0.000 confidence:1
+[Input] frame:169869312 artist:Topic & A7S title:Kernkraft 400 (A Better Day) score:0.000 confidence:1
+[Input] frame:170917888 artist:Paul Lock title:Say This score:0.000 confidence:1
+[Input] frame:170917888 artist:The Blackout Allstars, Sheila E., Tito Puente, Dave Valentin, Grover Washington, Paquito D'Rivera, Ray Barretto & Tito Nieves title:I Like It (Like That) [Radio Mix] score:0.000 confidence:1
+[Input] frame:171966464 artist:Alan Braxe & Fred Falke title:Intro score:0.000 confidence:1
+[Input] frame:171966464 artist:Christian Smith title:Traction (Paride Saraceni Remix) score:0.000 confidence:1
+[Input] frame:173015040 artist:Black Hawks of Panama title:Wrapped score:0.000 confidence:1
+[Input] frame:173015040 artist:Purple Disco Machine title:Playbox score:0.000 confidence:1
+[Input] frame:174063616 artist:Purple Disco Machine title:Playbox score:0.000 confidence:1
+[Input] frame:174063616 artist:Gehringer title:Full Moon score:0.000 confidence:1
+[Input] frame:175112192 artist:Purple Disco Machine title:Playbox score:0.000 confidence:1
+[Input] frame:175112192 artist:Thomas Schumacher & Victor Ruiz title:Apollo score:0.000 confidence:1
+[Input] frame:176160768 artist:Armin van Buuren & AVIRA title:Sirius score:0.000 confidence:1
+[Input] frame:176160768 artist:Purple Disco Machine title:Playbox score:0.000 confidence:1
+[Input] frame:177209344 artist:Purple Disco Machine title:Playbox score:0.000 confidence:1
+[Input] frame:177209344 artist:Purple Disco Machine title:Playbox score:0.000 confidence:1
+[Input] frame:178257920 artist:Paul Kalkbrenner title:Feed Your Head score:0.000 confidence:1
+[Input] frame:178257920 artist:Paul Keeley title:A Sort of Homecoming (Michael Cassette Remix) score:0.000 confidence:1
+[Input] frame:179306496 artist:Giorgio Moroder title:Chase score:0.000 confidence:1
+[Input] frame:179306496 artist:Europe title:The Final Countdown score:0.000 confidence:1
+[Input] frame:180355072 artist:Calvin Harris title:I Need Your Love (feat. Ellie Goulding) score:0.000 confidence:1
+[Input] frame:180355072 artist:Calvin Harris title:I Need Your Love (feat. Ellie Goulding) score:0.000 confidence:1
+[Input] frame:181403648 artist:Lipps, Inc. title:Funkytown score:0.000 confidence:1
+[Input] frame:181403648 artist:The Brothers Johnson title:Strawberry Letter 23 score:0.000 confidence:1
+[Input] frame:182452224 artist:Purple Disco Machine title:Playbox score:0.000 confidence:1
+[Input] frame:182452224 artist:Purple Disco Machine title:Playbox score:0.000 confidence:1
+[Input] frame:183500800 artist:Purple Disco Machine title:Playbox score:0.000 confidence:1
+[Input] frame:183500800 artist:Purple Disco Machine title:Playbox score:0.000 confidence:1
+[Input] frame:184549376 artist:Purple Disco Machine title:Playbox score:0.000 confidence:1
+[Input] frame:184549376 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:185597952 artist:Martin Solveig title:Everybody score:0.000 confidence:1
+[Input] frame:185597952 artist:Depeche Mode title:Personal Jesus (Tolex Remix) score:0.000 confidence:1
+[Input] frame:186646528 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:186646528 artist:Raphael Siqueira title:Personal Jesus score:0.000 confidence:1
+[Input] frame:187695104 artist:Depeche Mode title:Personal Jesus (Igor Frank Remix) score:0.000 confidence:1
+[Input] frame:187695104 artist:Depeche Mode title:Personal Jesus (Religare & Brannco Bootleg) score:0.000 confidence:1
+[Input] frame:188743680 artist:Le Salt title:Personal Silence (Remix) score:0.000 confidence:1
+[Input] frame:188743680 artist:Kryoman title:Faith (Radio Edit) score:0.000 confidence:1
+[Input] frame:189792256 artist:Depeche Mode title:Personal Jesus score:0.000 confidence:1
+[Input] frame:189792256 artist:Christian Krauter title:Elozias Dance (feat. Shelly Thunder, Chemical Brothers & Shawn Lee) score:0.000 confidence:1
+[Input] frame:190840832 artist:FIGUEROA title:Personal Jesus score:0.000 confidence:1
+[Input] frame:190840832 artist:Kryoman title:Faith (Radio Edit) score:0.000 confidence:1
+[Input] frame:191889408 artist:Kryoman title:Faith (Radio Edit) score:0.000 confidence:1
+[Input] frame:191889408 artist:Kryoman title:Faith (Radio Edit) score:0.000 confidence:1
+[Input] frame:192937984 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:193986560 artist:Block & Crown title:Personal Jesus score:0.000 confidence:1
+[Input] frame:193986560 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:195035136 artist:Matt Star title:Almond score:0.000 confidence:1
+[Input] frame:195035136 artist:Aero Manyelo title:Kesi De score:0.000 confidence:1
+[Input] frame:196083712 artist:Hans Wunder title:Я твой Ангел score:0.000 confidence:1
+[Input] frame:196083712 artist:2hz title:Modest (Remastered) score:0.000 confidence:1
+[Input] frame:197132288 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:197132288 artist:Linear Straight title:Light Speed score:0.000 confidence:1
+[Input] frame:198180864 artist:Calvin Harris title:I Need Your Love (feat. Ellie Goulding) score:0.000 confidence:1
+[Input] frame:198180864 artist:Calvin Harris title:I Need Your Love (feat. Ellie Goulding) score:0.000 confidence:1
+[Input] frame:199229440 artist:WhoMadeWho title:Silence & Secrets (Adriatique Remix) score:0.000 confidence:1
+[Input] frame:199229440 artist:Jay Hardway title:Paradigm score:0.000 confidence:1
+[Input] frame:200278016 artist:SEREBRO title:Отпусти меня score:0.000 confidence:1
+[Input] frame:200278016 artist:Calvin Harris title:I Need Your Love (feat. Ellie Goulding) score:0.000 confidence:1
+[Input] frame:201326592 artist:Stefan Johannes Bleicher title:Ciacona in D Major (from the Hexachordum Apollinis 1699) score:0.000 confidence:1
+[Input] frame:201326592 artist:Jay Hardway title:Paradigm score:0.000 confidence:1
+[Input] frame:202375168 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:202375168 artist:Gehringer title:Full Moon score:0.000 confidence:1
+[Input] frame:203423744 artist:Petar Dundov title:Around One score:0.000 confidence:1
+[Input] frame:203423744 artist:Ultrademon title:Bend score:0.000 confidence:1
+[Input] frame:204472320 artist:Calvin Harris title:I Need Your Love (feat. Ellie Goulding) score:0.000 confidence:1
+[Input] frame:204472320 artist:Calvin Harris title:I Need Your Love (feat. Ellie Goulding) score:0.000 confidence:1
+[Input] frame:205520896 artist:Calvin Harris title:I Need Your Love (feat. Ellie Goulding) score:0.000 confidence:1
+[Input] frame:205520896 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:206569472 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:206569472 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:207618048 artist:Citizen Kain title:Ricochet score:0.000 confidence:1
+[Input] frame:207618048 artist:Citizen Kain title:Ricochet score:0.000 confidence:1
+[Input] frame:208666624 artist:BaDi title:Fruity Land score:0.000 confidence:1
+[Input] frame:208666624 artist:Citizen Kain title:Ricochet score:0.000 confidence:1
+[Input] frame:209715200 artist:Citizen Kain title:Ricochet score:0.000 confidence:1
+[Input] frame:209715200 artist:Citizen Kain title:Ricochet score:0.000 confidence:1
+[Input] frame:210763776 artist:Steve Rachmad & Ignacio title:Virton Upgraded score:0.000 confidence:1
+[Input] frame:210763776 artist:The DangerFeel Newbies title:What Am I Here for? (Ndatl Vocal - Danny Krivit Edit) score:0.000 confidence:1
+[Input] frame:211812352 artist:Floating Points title:Del Oro score:0.000 confidence:1
+[Input] frame:211812352 artist:Citizen Kain title:Ricochet score:0.000 confidence:1
+[Input] frame:212860928 artist:Paperclip People title:Throw (Slam's RTM Remix) score:0.000 confidence:1
+[Input] frame:212860928 artist:Citizen Kain title:Ricochet score:0.000 confidence:1
+[Input] frame:213909504 artist:Citizen Kain title:Ricochet score:0.000 confidence:1
+[Input] frame:213909504 artist:Citizen Kain title:Ricochet score:0.000 confidence:1
+[Input] frame:214958080 artist:Citizen Kain title:Ricochet score:0.000 confidence:1
+[Input] frame:214958080 artist:Joel Corry title:Head & Heart (feat. MNEK) [Vintage Culture & Fancy Inc Remix] score:0.000 confidence:1
+[Input] frame:216006656 artist:Tinlicker & Robert Miles title:Children score:0.000 confidence:1
+[Input] frame:216006656 artist:Citizen Kain title:Ricochet score:0.000 confidence:1
+[Input] frame:217055232 artist:Citizen Kain title:Ricochet score:0.000 confidence:1
+[Input] frame:217055232 artist:Citizen Kain title:Ricochet score:0.000 confidence:1
+[Input] frame:218103808 artist:Citizen Kain title:Ricochet score:0.000 confidence:1
+[Input] frame:218103808 artist:Citizen Kain title:Ricochet score:0.000 confidence:1
+[Input] frame:219152384 artist:Citizen Kain title:Ricochet score:0.000 confidence:1
+[Input] frame:219152384 artist:Citizen Kain title:Ricochet score:0.000 confidence:1
+[Input] frame:220200960 artist:Aero Manyelo title:Kesi De score:0.000 confidence:1
+[Input] frame:220200960 artist:Citizen Kain title:Ricochet score:0.000 confidence:1
+[Input] frame:221249536 artist:Onur Zhang title:Make Luv score:0.000 confidence:1
+[Input] frame:221249536 artist:Citizen Kain title:Ricochet score:0.000 confidence:1
+[Input] frame:222298112 artist:F.Sonik title:Simplon score:0.000 confidence:1
+[Input] frame:222298112 artist:J.D. title:Choose Life score:0.000 confidence:1
+[Input] frame:223346688 artist:Citizen Kain title:Stories score:0.000 confidence:1
+[Input] frame:223346688 artist:Citizen Kain title:Stories score:0.000 confidence:1
+[Input] frame:224395264 artist:Citizen Kain title:Stories score:0.000 confidence:1
+[Input] frame:224395264 artist:Citizen Kain title:Stories score:0.000 confidence:1
+[Input] frame:225443840 artist:Citizen Kain title:Stories score:0.000 confidence:1
+[Input] frame:225443840 artist:Citizen Kain title:Stories score:0.000 confidence:1
+[Input] frame:226492416 artist:Steve Rachmad & Ignacio title:Virton Upgraded score:0.000 confidence:1
+[Input] frame:226492416 artist:Citizen Kain title:Stories score:0.000 confidence:1
+[Input] frame:227540992 artist:Citizen Kain title:Stories score:0.000 confidence:1
+[Input] frame:227540992 artist:Citizen Kain title:Stories score:0.000 confidence:1
+[Input] frame:228589568 artist:Citizen Kain title:Stories score:0.000 confidence:1
+[Input] frame:228589568 artist:The Who title:Baba O'Riley score:0.000 confidence:1
+[Input] frame:229638144 artist:Citizen Kain title:Stories score:0.000 confidence:1
+[Input] frame:229638144 artist:Citizen Kain title:Stories score:0.000 confidence:1
+[Input] frame:230686720 artist:Citizen Kain title:Stories score:0.000 confidence:1
+[Input] frame:230686720 artist:Citizen Kain title:Stories score:0.000 confidence:1
+[Input] frame:231735296 artist:Citizen Kain title:Stories score:0.000 confidence:1
+[Input] frame:231735296 artist:Citizen Kain title:Stories score:0.000 confidence:1
+[Input] frame:232783872 artist:Tinlicker & Robert Miles title:Children score:0.000 confidence:1
+[Input] frame:232783872 artist:Paul Kalkbrenner title:Feed Your Head score:0.000 confidence:1
+[Input] frame:233832448 artist:Armin van Buuren title:Dayglow (feat. Stuart Crichton) score:0.000 confidence:1
+[Input] frame:233832448 artist:Emmanuel Top title:Genesis score:0.000 confidence:1
+[Input] frame:234881024 artist:London Grammar title:Hell to the Liars (Kölsch Remix) score:0.000 confidence:1
+[Input] frame:234881024 artist:Tinlicker & Robert Miles title:Children score:0.000 confidence:1
+[Input] frame:235929600 artist:Tinlicker & Robert Miles title:Children score:0.000 confidence:1
+[Input] frame:235929600 artist:Paul Kalkbrenner title:Feed Your Head score:0.000 confidence:1
+[Input] frame:236978176 artist:Tinlicker & Robert Miles title:Children score:0.000 confidence:1
+[Input] frame:236978176 artist:Claptone & Mylo title:Drop the Pressure score:0.000 confidence:1
+[Input] frame:238026752 artist:Claptone & Mylo title:Drop the Pressure score:0.000 confidence:1
+[Input] frame:238026752 artist:Andrea Frisina & Irregular Synth title:Dub City score:0.000 confidence:1
+[Input] frame:239075328 artist:Noir & Olivier Giacomotto title:Blackrays (feat. Hendrik Burkhard) [Kiko & Citizen Kain Remix] score:0.000 confidence:1
+[Input] frame:239075328 artist:Noir & Olivier Giacomotto title:Blackrays (feat. Hendrik Burkhard) [Kiko & Citizen Kain Remix] score:0.000 confidence:1
+[Input] frame:240123904 artist:Noir & Olivier Giacomotto title:Blackrays (feat. Hendrik Burkhard) [Kiko & Citizen Kain Remix] score:0.000 confidence:1
+[Input] frame:240123904 artist:Noir & Olivier Giacomotto title:Blackrays (feat. Hendrik Burkhard) [Kiko & Citizen Kain Remix] score:0.000 confidence:1
+[Input] frame:241172480 artist:Noir & Olivier Giacomotto title:Blackrays (feat. Hendrik Burkhard) [Kiko & Citizen Kain Remix] score:0.000 confidence:1
+[Input] frame:241172480 artist:Alex Castelli title:Enjoy (Ottomix) score:0.000 confidence:1
+[Input] frame:242221056 artist:Noir & Olivier Giacomotto title:Blackrays (feat. Hendrik Burkhard) [Kiko & Citizen Kain Remix] score:0.000 confidence:1
+[Input] frame:242221056 artist:Alex Castelli title:Enjoy (Ottomix) score:0.000 confidence:1
+[Input] frame:243269632 artist:Noir & Olivier Giacomotto title:Blackrays (feat. Hendrik Burkhard) [Kiko & Citizen Kain Remix] score:0.000 confidence:1
+[Input] frame:243269632 artist:Noir & Olivier Giacomotto title:Blackrays (feat. Hendrik Burkhard) [Kiko & Citizen Kain Remix] score:0.000 confidence:1
+[Input] frame:244318208 artist:Noir & Olivier Giacomotto title:Blackrays (feat. Hendrik Burkhard) [Kiko & Citizen Kain Remix] score:0.000 confidence:1
+[Input] frame:244318208 artist:Ali Bakgor title:In a Dream (Extended) score:0.000 confidence:1
+[Input] frame:245366784 artist:Noir & Olivier Giacomotto title:Blackrays (feat. Hendrik Burkhard) [Kiko & Citizen Kain Remix] score:0.000 confidence:1
+[Input] frame:245366784 artist:Noir & Olivier Giacomotto title:Blackrays (feat. Hendrik Burkhard) [Kiko & Citizen Kain Remix] score:0.000 confidence:1
+[Input] frame:246415360 artist:Tripmastaz title:Mr Ohh score:0.000 confidence:1
+[Input] frame:246415360 artist:Tinlicker & Robert Miles title:Children score:0.000 confidence:1
+[Input] frame:247463936 artist:Tinlicker & Robert Miles title:Children score:0.000 confidence:1
+[Input] frame:247463936 artist:Tinlicker & Robert Miles title:Children score:0.000 confidence:1
+[Input] frame:248512512 artist:Tinlicker & Robert Miles title:Children score:0.000 confidence:1
+[Input] frame:248512512 artist:Tinlicker & Robert Miles title:Children score:0.000 confidence:1
+[Input] frame:249561088 artist:Tinlicker & Robert Miles title:Children score:0.000 confidence:1
+[Input] frame:249561088 artist:Gianni Romano & Emanuele Esposito title:It's Not Right (feat. Helen Tesfazghi) score:0.000 confidence:1
+[Input] frame:250609664 artist:Tinlicker & Robert Miles title:Children score:0.000 confidence:1
+[Input] frame:250609664 artist:Noir & Olivier Giacomotto title:Blackrays (feat. Hendrik Burkhard) [Kiko & Citizen Kain Remix] score:0.000 confidence:1
+[Input] frame:251658240 artist:HOSH & 1979 title:Midnight (The Hanging Tree) [feat. Jalja] score:0.000 confidence:1
+[Input] frame:251658240 artist:HOSH & 1979 title:Midnight (The Hanging Tree) [feat. Jalja] score:0.000 confidence:1
+[Input] frame:252706816 artist:HOSH & 1979 title:Midnight (The Hanging Tree) [feat. Jalja] score:0.000 confidence:1
+[Input] frame:252706816 artist:Noir & Olivier Giacomotto title:Blackrays (feat. Hendrik Burkhard) [Kiko & Citizen Kain Remix] score:0.000 confidence:1
+[Input] frame:253755392 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:253755392 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:254803968 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:254803968 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:255852544 artist:Dj Izibizo title:Ancient Dream score:0.000 confidence:1
+[Input] frame:256901120 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:255852544 artist:Zhenya Karma title:My Hard Is Say score:0.000 confidence:1
+[Input] frame:256901120 artist:Zhenya Karma title:My Hard Is Say score:0.000 confidence:1
+[Input] frame:257949696 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:257949696 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:258998272 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:258998272 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:260046848 artist:Dualogic title:Sunshine Down (Original Mix) score:0.000 confidence:1
+[Input] frame:260046848 artist:Samvel T title:Sunrise score:0.000 confidence:1
+[Input] frame:261095424 artist:Andrew Bayer title:If You Loop It, They Will Come score:0.000 confidence:1
+[Input] frame:261095424 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:262144000 artist:Zhenya Karma title:My Hard Is Say score:0.000 confidence:1
+[Input] frame:262144000 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:263192576 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:263192576 artist:Samvel T title:Sunrise score:0.000 confidence:1
+[Input] frame:264241152 artist:Samvel T title:Sunrise score:0.000 confidence:1
+[Input] frame:264241152 artist:Samvel T title:Sunrise score:0.000 confidence:1
+[Input] frame:265289728 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:265289728 artist:Holly Rey title:Deeper score:0.000 confidence:1
+[Input] frame:266338304 artist:Citizen Kain title:Sandy Ground score:0.000 confidence:1
+[Input] frame:266338304 artist:Citizen Kain title:Sandy Ground score:0.000 confidence:1
+[Input] frame:267386880 artist:Citizen Kain title:Sandy Ground score:0.000 confidence:1
+[Input] frame:267386880 artist:Citizen Kain title:Sandy Ground score:0.000 confidence:1
+[Input] frame:268435456 artist:Citizen Kain title:Sandy Ground score:0.000 confidence:1
+[Input] frame:268435456 artist:Tiga & Boys Noize title:100 (Johnny Aux Remix) [Mixed] score:0.000 confidence:1
+[Input] frame:269484032 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:269484032 artist:Citizen Kain title:Sandy Ground score:0.000 confidence:1
+[Input] frame:270532608 artist:Citizen Kain title:Sandy Ground score:0.000 confidence:1
+[Input] frame:270532608 artist:Citizen Kain title:Sandy Ground score:0.000 confidence:1
+[Input] frame:271581184 artist:David Glass title:In My Heart score:0.000 confidence:1
+[Input] frame:271581184 artist:Citizen Kain title:Sandy Ground score:0.000 confidence:1
+[Input] frame:272629760 artist:Citizen Kain title:Sandy Ground score:0.000 confidence:1
+[Input] frame:272629760 artist:Citizen Kain title:Sandy Ground score:0.000 confidence:1
+[Input] frame:273678336 artist:DJ Amadeus title:Berlin (feat. Mario Sebastian) [Swab & Joey Mova Remix] score:0.000 confidence:1
+[Input] frame:273678336 artist:Citizen Kain title:Sandy Ground score:0.000 confidence:1
+[Input] frame:274726912 artist:Citizen Kain title:Sandy Ground score:0.000 confidence:1
+[Input] frame:274726912 artist:Citizen Kain title:Sandy Ground score:0.000 confidence:1
+[Input] frame:275775488 artist:Citizen Kain title:Sandy Ground score:0.000 confidence:1
+[Input] frame:275775488 artist:Citizen Kain title:Sandy Ground score:0.000 confidence:1
+[Input] frame:276824064 artist:Citizen Kain title:Sandy Ground score:0.000 confidence:1
+[Input] frame:276824064 artist:Citizen Kain title:Sandy Ground score:0.000 confidence:1
+[Input] frame:277872640 artist:Citizen Kain title:Sandy Ground score:0.000 confidence:1
+[Input] frame:277872640 artist:Citizen Kain title:Sandy Ground score:0.000 confidence:1
+[Input] frame:278921216 artist:Citizen Kain title:Sandy Ground score:0.000 confidence:1
+[Input] frame:278921216 artist:Citizen Kain title:Silent Species score:0.000 confidence:1
+[Input] frame:279969792 artist:Citizen Kain title:Silent Species score:0.000 confidence:1
+[Input] frame:279969792 artist:Citizen Kain title:Silent Species score:0.000 confidence:1
+[Input] frame:281018368 artist:Citizen Kain title:Silent Species score:0.000 confidence:1
+[Input] frame:281018368 artist:Citizen Kain title:Silent Species score:0.000 confidence:1
+[Input] frame:282066944 artist:Citizen Kain title:Silent Species score:0.000 confidence:1
+[Input] frame:282066944 artist:Citizen Kain title:Silent Species score:0.000 confidence:1
+[Input] frame:283115520 artist:Billie Eilish title:CHIHIRO score:0.000 confidence:1
+[Input] frame:283115520 artist:Céline Dion title:Adeste Fideles (O Come All Ye Faithful) score:0.000 confidence:1
+[Input] frame:284164096 artist:Daft Punk title:Contact score:0.000 confidence:1
+[Input] frame:284164096 artist:Citizen Kain title:Silent Species score:0.000 confidence:1
+[Input] frame:285212672 artist:Geil title:Ambigue score:0.000 confidence:1
+[Input] frame:285212672 artist:Geil title:Ambigue score:0.000 confidence:1
+[Input] frame:286261248 artist:Citizen Kain title:Silent Species score:0.000 confidence:1
+[Input] frame:286261248 artist:Alta Consigna title:Culpable Tú score:0.000 confidence:1
+[Input] frame:287309824 artist:Eric Prydz & Empire Of The Sun title:We Are Mirage score:0.000 confidence:1
+[Input] frame:287309824 artist:Activa title:Daydream score:0.000 confidence:1
+[Input] frame:288358400 artist:Citizen Kain title:Silent Species score:0.000 confidence:1
+[Input] frame:288358400 artist:Citizen Kain title:Silent Species score:0.000 confidence:1
+[Input] frame:289406976 artist:Le Matos title:Montrose score:0.000 confidence:1
+[Input] frame:289406976 artist:Citizen Kain title:Silent Species score:0.000 confidence:1
+[Input] frame:290455552 artist:Citizen Kain title:Silent Species score:0.000 confidence:1
+[Input] frame:290455552 artist:Citizen Kain title:Silent Species score:0.000 confidence:1
+[Input] frame:291504128 artist:Citizen Kain title:Silent Species score:0.000 confidence:1
+[Input] frame:291504128 artist:Martik C title:For You score:0.000 confidence:1
+[Input] frame:292552704 artist:Munir Amastha title:Can You Feel the Night (One Opinion Remix) [feat. Sauli Harper] score:0.000 confidence:1
+[Input] frame:292552704 artist:Citizen Kain title:Silent Species score:0.000 confidence:1
+[Input] frame:293601280 artist:Citizen Kain title:Your Heart (feat. Eleonora) score:0.000 confidence:1
+[Input] frame:293601280 artist:Faithless title:Insomnia score:0.000 confidence:1
+[Input] frame:294649856 artist:Citizen Kain title:Your Heart (feat. Eleonora) score:0.000 confidence:1
+[Input] frame:294649856 artist:Milk & Sugar title:Canto del Pilón (feat. María Marquez) score:0.000 confidence:1
+[Input] frame:295698432 artist:Oliver Dollar title:Doin' Ya Thang score:0.000 confidence:1
+[Input] frame:295698432 artist:Sable Sheep title:Lobotomize score:0.000 confidence:1
+[Input] frame:296747008 artist:Citizen Kain title:Your Heart (feat. Eleonora) score:0.000 confidence:1
+[Input] frame:296747008 artist:Citizen Kain title:Your Heart (feat. Eleonora) score:0.000 confidence:1
+[Input] frame:297795584 artist:Citizen Kain title:Your Heart (feat. Eleonora) score:0.000 confidence:1
+[Input] frame:297795584 artist:Citizen Kain title:Your Heart (feat. Eleonora) score:0.000 confidence:1
+[Input] frame:298844160 artist:Citizen Kain title:Your Heart (feat. Eleonora) score:0.000 confidence:1
+[Input] frame:298844160 artist:Citizen Kain title:Your Heart (feat. Eleonora) score:0.000 confidence:1
+[Input] frame:299892736 artist:Citizen Kain title:Your Heart (feat. Eleonora) score:0.000 confidence:1
+[Input] frame:299892736 artist:Citizen Kain title:Your Heart (feat. Eleonora) score:0.000 confidence:1
+[Input] frame:300941312 artist:Citizen Kain title:Your Heart (feat. Eleonora) score:0.000 confidence:1
+[Input] frame:300941312 artist:Citizen Kain title:Your Heart (feat. Eleonora) score:0.000 confidence:1
+[Input] frame:301989888 artist:Citizen Kain title:Your Heart (feat. Eleonora) score:0.000 confidence:1
+[Input] frame:301989888 artist:Citizen Kain title:Your Heart (feat. Eleonora) score:0.000 confidence:1
+[Input] frame:303038464 artist:Citizen Kain title:Your Heart (feat. Eleonora) score:0.000 confidence:1
+[Input] frame:303038464 artist:Citizen Kain title:Your Heart (feat. Eleonora) score:0.000 confidence:1
+[Input] frame:304087040 artist:Citizen Kain title:Your Heart (feat. Eleonora) score:0.000 confidence:1
+[Input] frame:304087040 artist:D.R, Giacomo Bisciarri & Mutehead title:Slave score:0.000 confidence:1
+[Input] frame:305135616 artist:Daft Punk title:Contact score:0.000 confidence:1
+[Input] frame:305135616 artist:Parra for Cuva & Anna Naklab title:Swept Away score:0.000 confidence:1
+[Input] frame:306184192 artist:Purple Disco Machine & The Magician title:All My Life (Extended) score:0.000 confidence:1
+[Input] frame:306184192 artist:Takaki Matsuda title:Tell Me score:0.000 confidence:1
+[Input] frame:307232768 artist:Daily title:Kalavalier score:0.000 confidence:1
+[Input] frame:307232768 artist:Takaki Matsuda title:Tell Me score:0.000 confidence:1
+[Input] frame:308281344 artist:Paul Lock title:Say This score:0.000 confidence:1
+[Input] frame:308281344 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:309329920 artist:Citizen Kain title:Your Heart (feat. Eleonora) score:0.000 confidence:1
+[Input] frame:309329920 artist: title:unknown score:0.000 confidence:(null)

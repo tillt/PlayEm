@@ -1,0 +1,23 @@
+[Final] frame:3145728 artist:Priori title:Winged (Priori Rezone) score:6.528 support:3
+[Final] frame:10485760 artist:GMJ & Matter title:Metanoia score:15.680 support:14
+[Final] frame:29360128 artist:Ranj Kaler title:Last Sunset (feat. ASYN) [Gai Barone Dub] score:15.680 support:18
+[Final] frame:49283072 artist:Alex O'Rion title:Echium score:9.905 support:7
+[Final] frame:67108864 artist:Downliners Sekt title:Balt Shakt I score:10.640 support:11
+[Final] frame:73400320 artist:Peter Van Hoesen title:Swerve Damiao score:9.905 support:7
+[Final] frame:78643200 artist:Dj Akira Prophets Tribe title:Why Listen Music (Paul Hamilton Rmx) score:15.680 support:12
+[Final] frame:115343360 artist:Minilogue title:Blessed score:15.680 support:21
+[Final] frame:131072000 artist:Dactilar title:Los Ojancanos score:15.680 support:19
+[Final] frame:144703488 artist:Subconscious Tales title:Why score:10.640 support:13
+[Final] frame:150994944 artist:Calibre title:Thought Fields score:9.880 support:9
+[Final] frame:158334976 artist:Guy Gerber title:Jupiter Blues score:9.981 support:7
+[Final] frame:166723584 artist:Munir Amastha title:Can You Feel the Night (One Opinion Remix) [feat. Sauli Harper] score:5.270 support:2
+[Final] frame:180355072 artist:Marc Marzenit title:Perron (Wehbba Remix) score:5.270 support:2
+[Final] frame:186646528 artist:Jens Zimmermann title:X11 score:9.358 support:8
+[Final] frame:193986560 artist:Joachim Spieth title:Trails score:9.880 support:9
+[Final] frame:199229440 artist:Burial title:New Love score:5.270 support:2
+[Final] frame:201326592 artist:Bohdan title:Tungsten (Deepbass Remix) score:8.206 support:6
+[Final] frame:220200960 artist:Patrice Bäumel title:The Cave score:13.791 support:8
+[Final] frame:241172480 artist:Ness title:In the Meanderings of Shibuya score:10.640 support:12
+[Final] frame:247463936 artist:Markus Guentner title:Crystal Castle (Original Mix) score:8.206 support:6
+[Final] frame:253755392 artist:Blackbelt Andersen title:Åpenbaring (Original Mix) score:6.528 support:3
+[CLI] Refined 22 tracks

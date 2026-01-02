@@ -940,6 +940,7 @@ void LogBufferContents(const uint8_t *buffer, size_t length)
     NSLog(@"starting engine...");
     if (![engine startAndReturnError:&error]) {
         NSLog(@"startAndReturnError failed: %@\n", error);
+        [encodedSample markDecodingComplete];
         return NO;
     }
 
@@ -1005,6 +1006,7 @@ void LogBufferContents(const uint8_t *buffer, size_t length)
                 break;
             case AVAudioEngineManualRenderingStatusError:
                 NSLog(@"renderOffline failed: %@\n", error);
+                [encodedSample markDecodingComplete];
                 return NO;
             case AVAudioEngineManualRenderingStatusCannotDoInCurrentContext:
                 NSLog(@"somehow one round failed, lets retry\n");
@@ -1022,6 +1024,7 @@ void LogBufferContents(const uint8_t *buffer, size_t length)
     NSLog(@"old engine freed - exiting decoder");
     // Debug output to `/tmp/dumpedLazySample.raw`
     // [sample dumpToFile];
+    [encodedSample markDecodingComplete];
     return ret;
 }
 

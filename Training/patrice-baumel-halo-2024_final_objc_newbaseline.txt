@@ -1,0 +1,10 @@
+[Final] frame:0 artist: title:unknown duration:88.89s score:12.299 confidence:12.29920507936508
+[Final] frame:16035840 artist:GMJ & Matter title:Metanoia duration:298.98s score:15.680 confidence:15.68
+[Final] frame:29577216 artist:Ranj Kaler title:Last Sunset (feat. ASYN) [Gai Barone Dub] duration:323.22s score:15.680 confidence:15.68
+[Final] frame:44187648 artist:Alex O'Rion title:Echium duration:476.75s score:15.680 confidence:15.68
+[Final] frame:127930368 artist:Rick Marshall title:Don't Stop duration:8.08s score:5.131 confidence:5.130930569765837
+[Final] frame:151805952 artist:Calibre title:Thought Fields duration:242.42s score:15.680 confidence:15.68
+[Final] frame:162852864 artist:Guy Gerber title:Jupiter Blues duration:468.67s score:15.680 confidence:15.68
+[Final] frame:199913472 artist:Burial title:New Love duration:96.97s score:10.640 confidence:10.64
+[Final] frame:220225536 artist:Patrice Bäumel title:The Cave duration:492.91s score:47.040 confidence:47.03999999999999
+[Final] frame:248377344 artist:Markus Guentner title:Crystal Castle (Original Mix) duration:315.14s score:15.680 confidence:15.68

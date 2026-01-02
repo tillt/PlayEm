@@ -85,7 +85,6 @@
 		BBC2AF772B8DE2780077EB5E /* NSError+BetterError.m in Sources */ = {isa = PBXBuildFile; fileRef = BBC2AF762B8DE2770077EB5E /* NSError+BetterError.m */; };
 		BBC2AF7A2B8DF0960077EB5E /* NSAlert+BetterError.m in Sources */ = {isa = PBXBuildFile; fileRef = BBC2AF792B8DF0960077EB5E /* NSAlert+BetterError.m */; };
 		BBC2AF7D2B8FD97C0077EB5E /* MusicAuthenticationController.m in Sources */ = {isa = PBXBuildFile; fileRef = BBC2AF7C2B8FD97C0077EB5E /* MusicAuthenticationController.m */; };
-		BBC2AF7F2B8FDB140077EB5E /* StoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BBC2AF7E2B8FDB140077EB5E /* StoreKit.framework */; };
 		BBC43B7028D28CDD00CD1080 /* InfoPanel.m in Sources */ = {isa = PBXBuildFile; fileRef = BBC43B6F28D28CDD00CD1080 /* InfoPanel.m */; };
 		BBC76D912CCD9D6A00772DD2 /* IdentificationCoverView.m in Sources */ = {isa = PBXBuildFile; fileRef = BBC76D902CCD9D6A00772DD2 /* IdentificationCoverView.m */; };
 		BBCB80112F05F44A005F2C5E /* ShazamKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BB3B8D9C2B87CC12006AEFCA /* ShazamKit.framework */; };
@@ -123,6 +122,13 @@
 			remoteInfo = PlayEmCore;
 		};
 		BB57DE552F05D614008FFBD1 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = BBD24D552432948800DC2A81 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = BB57DE432F05D614008FFBD1;
+			remoteInfo = PlayEmCore;
+		};
+		BBDBBCDE2F06DAD300ACC632 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = BBD24D552432948800DC2A81 /* Project object */;
 			proxyType = 1;
@@ -280,7 +286,6 @@
 		BBC2AF792B8DF0960077EB5E /* NSAlert+BetterError.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSAlert+BetterError.m"; sourceTree = "<group>"; };
 		BBC2AF7B2B8FD97C0077EB5E /* MusicAuthenticationController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MusicAuthenticationController.h; sourceTree = "<group>"; };
 		BBC2AF7C2B8FD97C0077EB5E /* MusicAuthenticationController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MusicAuthenticationController.m; sourceTree = "<group>"; };
-		BBC2AF7E2B8FDB140077EB5E /* StoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = StoreKit.framework; path = System/Library/Frameworks/StoreKit.framework; sourceTree = SDKROOT; };
 		BBC43B6E28D28CDD00CD1080 /* InfoPanel.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = InfoPanel.h; sourceTree = "<group>"; };
 		BBC43B6F28D28CDD00CD1080 /* InfoPanel.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = InfoPanel.m; sourceTree = "<group>"; };
 		BBC76D8F2CCD9D6A00772DD2 /* IdentificationCoverView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IdentificationCoverView.h; sourceTree = "<group>"; };
@@ -328,13 +333,6 @@
 			);
 			target = BB57DE432F05D614008FFBD1 /* PlayEmCore */;
 		};
-		BB57DFEE2F05DADD008FFBD1 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				PlayEmTests.m,
-			);
-			target = BB0632552F05C76700A3381E /* PlayEmTests */;
-		};
 		BB57E0232F05E7D6008FFBD1 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
@@ -345,7 +343,7 @@
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		BB0632572F05C76800A3381E /* PlayEmTests */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (BB57DFEE2F05DADD008FFBD1 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = PlayEmTests; sourceTree = "<group>"; };
+		BB0632572F05C76800A3381E /* PlayEmTests */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = PlayEmTests; sourceTree = "<group>"; };
 		BB57DE452F05D614008FFBD1 /* PlayEmCore */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (BB57E0232F05E7D6008FFBD1 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, BB57DE5D2F05D614008FFBD1 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = PlayEmCore; sourceTree = "<group>"; };
 		BB57DE522F05D614008FFBD1 /* PlayEmCoreTests */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = PlayEmCoreTests; sourceTree = "<group>"; };
 		BBDBBC2A2F062ED200ACC632 /* PlayEmRefineCLI */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = PlayEmRefineCLI; sourceTree = "<group>"; };
@@ -391,7 +389,6 @@
 			files = (
 				BB6994962EEF5BDA00242456 /* VideoToolbox.framework in Frameworks */,
 				BB19A3772C5FAE0C00E5B4D2 /* CoreWLAN.framework in Frameworks */,
-				BBC2AF7F2B8FDB140077EB5E /* StoreKit.framework in Frameworks */,
 				BB1614BA2AACB0DF00F6C5E6 /* libaubio.5.dylib in Frameworks */,
 				BB9C77E72A8D618700A138BE /* CoreImage.framework in Frameworks */,
 				BB57DE572F05D614008FFBD1 /* PlayEmCore.framework in Frameworks */,
@@ -442,7 +439,6 @@
 				BB6994952EEF5BDA00242456 /* VideoToolbox.framework */,
 				BBBBF94C2EF34F01001035DA /* ChapterForge.framework */,
 				BB19A3762C5FAE0C00E5B4D2 /* CoreWLAN.framework */,
-				BBC2AF7E2B8FDB140077EB5E /* StoreKit.framework */,
 				BB3B8D9C2B87CC12006AEFCA /* ShazamKit.framework */,
 				BB3B8D962B86C9B7006AEFCA /* tag_c.framework */,
 				BB3B8D972B86C9B7006AEFCA /* tag.framework */,
@@ -774,6 +770,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				BBDBBCDF2F06DAD300ACC632 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				BBDBBC2A2F062ED200ACC632 /* PlayEmRefineCLI */,
@@ -997,6 +994,11 @@
 			target = BB57DE432F05D614008FFBD1 /* PlayEmCore */;
 			targetProxy = BB57DE552F05D614008FFBD1 /* PBXContainerItemProxy */;
 		};
+		BBDBBCDF2F06DAD300ACC632 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = BB57DE432F05D614008FFBD1 /* PlayEmCore */;
+			targetProxy = BBDBBCDE2F06DAD300ACC632 /* PBXContainerItemProxy */;
+		};
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
@@ -1005,7 +1007,7 @@
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
-				CODE_SIGN_STYLE = Manual;
+				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = YK4D72U3YW;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
@@ -1122,6 +1124,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEFINES_MODULE = YES;
 				DEVELOPMENT_TEAM = YK4D72U3YW;
+				"DEVELOPMENT_TEAM[sdk=macosx*]" = "";
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
@@ -1374,6 +1377,7 @@
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = YK4D72U3YW;
 				ENABLE_HARDENED_RUNTIME = YES;
+				EXCLUDED_SOURCE_FILE_NAMES = AudioController.mm;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)",
@@ -1429,6 +1433,7 @@
 				DEVELOPMENT_TEAM = YK4D72U3YW;
 				"DEVELOPMENT_TEAM[sdk=macosx*]" = "";
 				ENABLE_HARDENED_RUNTIME = YES;
+				EXCLUDED_SOURCE_FILE_NAMES = AudioController.mm;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)",
@@ -1471,11 +1476,9 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
-				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
 				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = "";
-				"DEVELOPMENT_TEAM[sdk=macosx*]" = "";
-				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_HARDENED_RUNTIME = NO;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
@@ -1490,10 +1493,8 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
-				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
 				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = "";
-				"DEVELOPMENT_TEAM[sdk=macosx*]" = "";
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu17;

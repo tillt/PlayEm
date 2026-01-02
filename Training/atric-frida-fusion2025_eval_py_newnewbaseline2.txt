@@ -1,0 +1,37 @@
+Mode: strict
+Refined: 35  Golden: 40
+Matched: 23  Precision: 0.657  Recall: 0.575
+SoftMatched: 28  SoftPrecision: 0.800  SoftRecall: 0.700
+
+False positives:
+- Arta - Differently (Extended Mix)
+- Distant Sun - Machine lernt
+- Sandy B - Make the World Go Round (Deep Dish Radio Edit)
+- The Poison Control Centre - Avior
+- Giovanni Molinaro - Otoponoz (Improved Mix)
+-  - unknown
+- No Hopes & Max Freeze - Punk (VIP Mix)
+- Sanoi & Kon Faber - Kein Stress (feat. Vokalmatador) [Extended Mix]
+- Rhythm&Soul - 1998
+- Pavel Petrov - Bitter Sweet (feat. Akiki)
+- Juan Hansen - My Own Game (Oliver Koletzki Remix)
+- Under Sanctions & Romanovich - Colours (Extended Mix)
+
+Missed golden:
+- Atric & Frida Darko - Fusion Intro
+- Arta (Ru) - Differently
+- Kyle Watson, Aurelia Ray - Bottom of the Rave (Extended Mix)
+- DONT BLINK - THE LAZER
+- ArtSky & Kinky Sound - Rover [unreleased]
+- INNDRIVE - Make You Say
+- Aaron King - Bounce
+- DJ Dan, Matthew Anthony, Hot N Bothered - Hot N Bothered (WHOWHENWHY Remix)
+- David Keno, Dalson - Paris Syndrom
+- Flave Edit - Chior Of Young Believers [unreleased]
+- No Hopes, Max Freeze - Punk [unreleased]
+- MT - Sanoi & Kon Faber (feat. Victor Moreno) - Kein Stress [unreleased]
+- @vakabular - Kandelaki [unreleased]
+- Pavel Petrov feat. Akiki - Bitter Sweet [unreleased]
+- Juan Hansen - My Own Game (Original Mix)
+- Romanovich, Under Sanctions - Colours
+- Atric & Frida Darko - Montags nicht Fusion Special [unreleased]

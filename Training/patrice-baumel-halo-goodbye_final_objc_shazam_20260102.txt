@@ -1,0 +1,150 @@
+[Refine] filter:aggregate in:528
+[Refine] aggregate: keys:217 kept:62 minSupport:2
+[Refine] aggregate: key:yotto seat 11 missing
+[Refine] aggregate: key:supershy - happy music count:3 frame:161935200
+[Refine] aggregate: key:saktu - muted glow extended mix count:4 frame:24872400
+[Refine] aggregate: key:oliver smith - inside abgt265 mixed count:1 frame:276242400
+[Refine] aggregate: key:julian wassermann - sol count:1 frame:73029600
+[Refine] aggregate: key: - unknown count:25 frame:37573200
+[Refine] aggregate: key:majestic boney m - rasputin count:1 frame:39160800
+[Refine] aggregate: key:tigerskin alfa state - slippery roads pablo bolivar remix count:12 frame:8467200
+[Refine] aggregate: key:fragma - toca me inpetto 2008 mix count:2 frame:34927200
+[Refine] filter:aggregate nilScore:62
+[Refine] filter:aggregate out:62
+[Refine] filter:score in:62
+[ScoreDetail] frame:0 support:9 base:13.000 duration:168.00s durationScore:0.784 ref:yes final:11.315
+[ScoreDetail] frame:5821200 support:2 base:6.657 duration:12.00s durationScore:0.627 ref:yes final:5.166
+[ScoreDetail] frame:8467200 support:12 base:14.000 duration:228.00s durationScore:1.200 ref:yes final:15.680
+[ScoreDetail] frame:19051200 support:6 base:10.798 duration:204.00s durationScore:1.200 ref:yes final:12.094
+[ScoreDetail] frame:19580400 support:8 base:12.314 duration:240.00s durationScore:1.200 ref:yes final:13.791
+[ScoreDetail] frame:24872400 support:4 base:9.000 duration:36.00s durationScore:0.680 ref:yes final:7.272
+[ScoreDetail] frame:31222800 support:2 base:6.657 duration:72.00s durationScore:0.760 ref:yes final:5.698
+[ScoreDetail] frame:33339600 support:2 base:6.657 duration:12.00s durationScore:0.627 ref:yes final:5.166
+[ScoreDetail] frame:34927200 support:2 base:6.657 duration:12.00s durationScore:0.627 ref:yes final:5.166
+[ScoreDetail] frame:35985600 support:5 base:9.944 duration:84.00s durationScore:0.787 ref:yes final:8.671
+[ScoreDetail] frame:37573200 support:9 base:13.000 duration:132.00s durationScore:0.600 ref:yes final:9.880
+[ScoreDetail] frame:44452800 support:2 base:6.657 duration:24.00s durationScore:0.653 ref:yes final:5.272
+[ScoreDetail] frame:44982000 support:5 base:9.944 duration:360.00s durationScore:1.200 ref:yes final:11.138
+[ScoreDetail] frame:48686400 support:2 base:6.657 duration:120.00s durationScore:0.600 ref:yes final:5.059
+[ScoreDetail] frame:49215600 support:13 base:14.000 duration:192.00s durationScore:1.200 ref:yes final:15.680
+[ScoreDetail] frame:61387200 support:2 base:6.657 duration:84.00s durationScore:0.787 ref:yes final:17.414
+[ScoreDetail] frame:62974800 support:2 base:6.657 duration:24.00s durationScore:0.653 ref:yes final:5.272
+[ScoreDetail] frame:64562400 support:6 base:10.798 duration:120.00s durationScore:0.600 ref:yes final:8.206
+[ScoreDetail] frame:69325200 support:2 base:6.657 duration:24.00s durationScore:0.653 ref:yes final:5.272
+[ScoreDetail] frame:70912800 support:2 base:6.657 duration:96.00s durationScore:0.600 ref:yes final:5.059
+[ScoreDetail] frame:73558800 support:6 base:10.798 duration:396.00s durationScore:1.200 ref:yes final:12.094
+[ScoreDetail] frame:74617200 support:2 base:6.657 duration:24.00s durationScore:0.653 ref:yes final:5.272
+[ScoreDetail] frame:80967600 support:3 base:7.928 duration:264.00s durationScore:1.200 ref:yes final:8.880
+[ScoreDetail] frame:81496800 support:5 base:9.944 duration:336.00s durationScore:1.200 ref:yes final:11.138
+[ScoreDetail] frame:85201200 support:3 base:7.928 duration:204.00s durationScore:1.200 ref:yes final:8.880
+[ScoreDetail] frame:94726800 support:2 base:6.657 duration:72.00s durationScore:0.760 ref:yes final:5.698
+[ScoreDetail] frame:95256000 support:2 base:6.657 duration:96.00s durationScore:0.600 ref:yes final:5.059
+[ScoreDetail] frame:101606400 support:15 base:14.000 duration:168.00s durationScore:0.784 ref:yes final:12.186
+[ScoreDetail] frame:111661200 support:2 base:6.657 duration:12.00s durationScore:0.627 ref:yes final:5.166
+[ScoreDetail] frame:112719600 support:7 base:11.583 duration:252.00s durationScore:1.200 ref:yes final:12.973
+[ScoreDetail] frame:113248800 support:5 base:9.944 duration:252.00s durationScore:1.200 ref:yes final:11.138
+[ScoreDetail] frame:116424000 support:2 base:6.657 duration:72.00s durationScore:0.760 ref:yes final:5.698
+[ScoreDetail] frame:120128400 support:2 base:6.657 duration:48.00s durationScore:0.707 ref:yes final:5.485
+[ScoreDetail] frame:128066400 support:3 base:7.928 duration:60.00s durationScore:0.733 ref:yes final:6.660
+[ScoreDetail] frame:129654000 support:2 base:6.657 duration:12.00s durationScore:0.627 ref:yes final:5.166
+[ScoreDetail] frame:131241600 support:4 base:9.000 duration:60.00s durationScore:0.733 ref:yes final:7.560
+[ScoreDetail] frame:134416800 support:4 base:9.000 duration:96.00s durationScore:0.600 ref:yes final:6.840
+[ScoreDetail] frame:134946000 support:2 base:6.657 duration:12.00s durationScore:0.627 ref:yes final:5.166
+[ScoreDetail] frame:136004400 support:2 base:6.657 duration:108.00s durationScore:0.600 ref:yes final:5.059
+[ScoreDetail] frame:140238000 support:19 base:14.000 duration:264.00s durationScore:1.200 ref:yes final:15.680
+[ScoreDetail] frame:153997200 support:9 base:13.000 duration:312.00s durationScore:1.200 ref:yes final:14.560
+[ScoreDetail] frame:155055600 support:11 base:14.000 duration:264.00s durationScore:1.200 ref:yes final:15.680
+[ScoreDetail] frame:161935200 support:3 base:7.928 duration:36.00s durationScore:0.680 ref:yes final:6.406
+[ScoreDetail] frame:168814800 support:7 base:11.583 duration:180.00s durationScore:1.200 ref:yes final:12.973
+[ScoreDetail] frame:170931600 support:3 base:7.928 duration:144.00s durationScore:0.600 ref:yes final:6.025
+[ScoreDetail] frame:171990000 support:2 base:6.657 duration:24.00s durationScore:0.653 ref:yes final:5.272
+[ScoreDetail] frame:173577600 support:2 base:6.657 duration:96.00s durationScore:0.600 ref:yes final:5.059
+[ScoreDetail] frame:178340400 support:36 base:14.000 duration:660.00s durationScore:0.818 ref:yes final:12.473
+[ScoreDetail] frame:179928000 support:2 base:6.657 duration:24.00s durationScore:0.653 ref:yes final:5.272
+[ScoreDetail] frame:195804000 support:3 base:7.928 duration:300.00s durationScore:1.200 ref:yes final:8.880
+[ScoreDetail] frame:207975600 support:2 base:6.657 duration:12.00s durationScore:0.627 ref:yes final:5.166
+[ScoreDetail] frame:210092400 support:11 base:14.000 duration:408.00s durationScore:1.200 ref:yes final:15.680
+[ScoreDetail] frame:215384400 support:11 base:14.000 duration:432.00s durationScore:1.200 ref:yes final:15.680
+[ScoreDetail] frame:233377200 support:2 base:6.657 duration:72.00s durationScore:0.760 ref:yes final:5.698
+[ScoreDetail] frame:237081600 support:2 base:6.657 duration:144.00s durationScore:0.600 ref:yes final:5.059
+[ScoreDetail] frame:237610800 support:5 base:9.944 duration:108.00s durationScore:0.600 ref:yes final:7.558
+[ScoreDetail] frame:239727600 support:19 base:14.000 duration:372.00s durationScore:1.200 ref:yes final:47.040
+[ScoreDetail] frame:243961200 support:2 base:6.657 duration:24.00s durationScore:0.653 ref:yes final:5.272
+[ScoreDetail] frame:254545200 support:9 base:13.000 duration:348.00s durationScore:1.200 ref:yes final:14.560
+[ScoreDetail] frame:257191200 support:3 base:7.928 duration:252.00s durationScore:1.200 ref:yes final:8.880
+[ScoreDetail] frame:262483200 support:2 base:6.657 duration:36.00s durationScore:0.680 ref:yes final:5.379
+[ScoreDetail] frame:270421200 support:15 base:14.000 duration:192.00s durationScore:1.200 ref:yes final:15.680
+[Refine] filter:score out:62
+[Refine] filter:mergeDuplicates in:62
+[Score] merging similar tracks at frames 111661200/113248800 -> keeping Blaze & Bicep Lovelee Dae (Bicep Remix) (score 11.138) dropping Amine Edge & DANCE & Blaze (Kevin Hedge) Lovelee Dae (score 5.166)
+[Refine] filter:mergeDuplicates out:62
+[Refine] filter:resolveOverlaps in:62
+[Refine] overlap: changeover blocked for Mark Alow Trip To The Lonely Planet (support 2 < 4)
+[Refine] overlap: replacing X-Press 2 Say What! (London Underground Mix) with Andy Compton That Acid Track (13.791 > 12.094)
+[Refine] overlap: changeover Andy Compton That Acid Track -> Saktu Muted Glow (Extended Mix) (support 4 >= 4)
+[Refine] overlap: keeping Dosem & Prok & Fitch Doors (5.698 >= 5.166), dropping The Ones Flawless (ATOC Re-Remix)
+[Refine] overlap: keeping Chymamusique Lost in Words (Main Saxed Mix), dropping unknown at 37573200
+[Refine] overlap: replacing Paperclip People Throw (Slam's RTM Remix) with Floating Points Del Oro (11.138 > 5.272)
+[Refine] overlap: keeping Floating Points Del Oro (11.138 >= 5.059), dropping Dale Howard Rogue Keys
+[Refine] overlap: changeover Floating Points Del Oro -> Alan Cerra & Gai Barone End of the Line (Gai Barone Remix) (support 13 >= 2)
+[Refine] overlap: keeping Patrice Bäumel Serpent (17.414 >= 5.272), dropping M&d Substance Sounds I Never Hear (Original Mix)
+[Refine] overlap: keeping Patrice Bäumel Serpent (17.414 >= 8.206), dropping Savas Pascalidis Shot In the Dark
+[Refine] overlap: keeping Alvaro Albarran Tubah - Single, dropping unknown at 73558800
+[Refine] overlap: replacing Alvaro Albarran Tubah - Single with Panos Pissitelis & Junior Mi Freaky (5.272 > 5.059)
+[Refine] overlap: replacing Julio Navas & David Amo Thank U with Munfell Muzik Eny (11.138 > 8.880)
+[Refine] overlap: keeping Munfell Muzik Eny (11.138 >= 8.880), dropping RÜFÜS DU SOL Innerbloom
+[Refine] overlap: changeover Munfell Muzik Eny -> Vlada Asanin & Joe Red Losing You (support 2 >= 2)
+[Refine] overlap: keeping Vlada Asanin & Joe Red Losing You (5.698 >= 5.059), dropping Kidoo C'mon
+[Refine] overlap: replacing Blaze & Bicep Lovelee Dae (Bicep Remix) with Jax Jones & MNEK Where Did You Go? (12.973 > 11.138)
+[Refine] overlap: keeping Jax Jones & MNEK Where Did You Go? (12.973 >= 11.138), dropping Blaze & Bicep Lovelee Dae (Bicep Remix)
+[Refine] overlap: keeping Jax Jones & MNEK Where Did You Go? (12.973 >= 5.698), dropping Corona Try Me Out
+[Refine] overlap: changeover blocked for Faithless Insomnia (Monster Mix) (support 2 < 3)
+[Refine] overlap: keeping Nightcrawlers Push the Feeling On (T. Tommy Victor Perez & Vicente Ferrer Remix) (6.660 >= 5.166), dropping New Order Blue Monday
+[Refine] overlap: keeping Edmondson Masquerade (6.840 >= 5.166), dropping Lane 8 Loving You (feat. Lulu James) [Solee Remix]
+[Refine] overlap: keeping Edmondson Masquerade (6.840 >= 5.059), dropping Nana K & Ben Champell Rapid Zone (Albird Remix)
+[Refine] overlap: replacing Vincent Casanova Hold Me with Inland Knights Deep In (15.680 > 14.560)
+[Refine] overlap: changeover blocked for Supershy Happy Music (support 3 < 5)
+[Refine] overlap: keeping Nick Curly Go (12.973 >= 6.025), dropping Yves Larock Rise Up
+[Refine] overlap: keeping Nick Curly Go (12.973 >= 5.272), dropping Ezel You Got Worked (feat. Mateo Senolia) [Casamena Stripped Remix]
+[Refine] overlap: changeover blocked for Boom! Messed Up (support 2 < 3)
+[Refine] overlap: keeping Alex O'Rion Blackout (12.473 >= 5.272), dropping Eduardo Alvarado Cerveza Especial
+[Refine] overlap: changeover blocked for Oliver Dollar Doin' Ya Thang (support 3 < 15)
+[Refine] overlap: changeover Mike Griego Back In Trance -> Gigi D'Agostino Bla Bla Bla (support 11 >= 5)
+[Refine] overlap: changeover blocked for BLR & Rave & Crave Taj (support 2 < 5)
+[Refine] overlap: replacing Syke 'n' Sugarstarr Ticket 2 Ride (Remastered) with Eli & Fur Parfume (Dosem Remix) (7.558 > 5.059)
+[Refine] overlap: replacing Eli & Fur Parfume (Dosem Remix) with Eitan Reiter Eat You (Patrice Bäumel Remix) (47.040 > 7.558)
+[Refine] overlap: changeover blocked for F.Sonik Simplon (support 2 < 8)
+[Refine] overlap: keeping Eitan Reiter Eat You (Patrice Bäumel Remix), dropping unknown at 254545200
+[Refine] overlap: changeover Redeyes Long Ago -> South Bloom Let Me in (Volen Sentir Secret Technique) (support 2 >= 2)
+[Refine] filter:resolveOverlaps out:25
+[Refine] filter:finalFilter in:25
+[Score] dropping sparse hit at frame 31222800 (avgGap 72.00s support 2)
+[Score] dropping sparse hit at frame 61387200 (avgGap 84.00s support 2)
+[Score] dropping sparse hit at frame 94726800 (avgGap 72.00s support 2)
+[Score] dropping sparse hit at frame 112719600 (avgGap 42.00s support 7)
+[Score] dropping sparse hit at frame 134416800 (avgGap 32.00s support 4)
+[Score] dropping sparse hit at frame 262483200 (avgGap 36.00s support 2)
+[Refine] filter:finalFilter out:19
+[Refine] filter:intervalSchedule in:19
+[Refine] filter:intervalSchedule out:19
+[Refine] filter:dedupe in:19
+[Refine] filter:dedupe out:19
+[Final] frame:0 artist:YOTTO title:Seat 11 duration:168.00s score:11.315 confidence:11.3152
+[Final] frame:8467200 artist:Tigerskin & Alfa State title:Slippery Roads (Pablo Bolivar Remix) duration:228.00s score:15.680 confidence:15.68
+[Final] frame:24872400 artist:Saktu title:Muted Glow (Extended Mix) duration:36.00s score:7.272 confidence:7.271999999999999
+[Final] frame:34927200 artist:Fragma title:Toca Me (Inpetto 2008 Mix) duration:12.00s score:5.166 confidence:5.165718897606086
+[Final] frame:35985600 artist:Chymamusique title:Lost in Words (Main Saxed Mix) duration:84.00s score:8.671 confidence:8.671405105519266
+[Final] frame:49215600 artist:Alan Cerra & Gai Barone title:End of the Line (Gai Barone Remix) duration:192.00s score:15.680 confidence:15.68
+[Final] frame:69325200 artist:2hz title:Modest (Remastered) duration:24.00s score:5.272 confidence:5.272228565597966
+[Final] frame:74617200 artist:Panos Pissitelis & Junior Mi title:Freaky duration:24.00s score:5.272 confidence:5.272228565597966
+[Final] frame:101606400 artist:Alex Albrecht title:The Arboretum duration:168.00s score:12.186 confidence:12.1856
+[Final] frame:128066400 artist:Nightcrawlers title:Push the Feeling On (T. Tommy Victor Perez & Vicente Ferrer Remix) duration:60.00s score:6.660 confidence:6.659690713431427
+[Final] frame:131241600 artist:Greg Beato title:Pma duration:60.00s score:7.560 confidence:7.56
+[Final] frame:140238000 artist:Slove & David Shaw and the Beat title:Special Places (Damon Jee Remix) duration:264.00s score:15.680 confidence:15.68
+[Final] frame:155055600 artist:Inland Knights title:Deep In duration:264.00s score:15.680 confidence:15.68
+[Final] frame:168814800 artist:Nick Curly title:Go duration:180.00s score:12.973 confidence:12.97296587356936
+[Final] frame:178340400 artist:Alex O'Rion title:Blackout duration:660.00s score:12.473 confidence:12.47272727272727
+[Final] frame:207975600 artist:Guliver title:Calypso (Claudio PRC Remix) duration:12.00s score:5.166 confidence:5.165718897606086
+[Final] frame:215384400 artist:Gigi D'Agostino title:Bla Bla Bla duration:432.00s score:15.680 confidence:15.68
+[Final] frame:239727600 artist:Eitan Reiter title:Eat You (Patrice Bäumel Remix) duration:372.00s score:47.040 confidence:47.03999999999999
+[Final] frame:270421200 artist:Wa Wu We title:What's Left? (Ambient Mix) duration:192.00s score:15.680 confidence:15.68

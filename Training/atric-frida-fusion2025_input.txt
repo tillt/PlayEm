@@ -1,0 +1,1114 @@
+[Input] frame:0 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:358280 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:716560 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:1074840 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:1433120 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:1791400 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:2149680 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:2507960 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:2866240 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:3224520 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:3582800 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:3941080 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:4299360 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:4657640 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:5015920 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:5374200 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:5732480 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:6090760 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:6449040 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:6807320 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:7165600 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:7523880 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:7882160 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:8240440 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:8598720 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:8957000 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:9315280 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:9673560 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:10031840 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:10390120 artist:Atric & Frida Darko title:Elevate score:0.000 confidence:1
+[Input] frame:10748400 artist:Atric & Frida Darko title:Elevate score:0.000 confidence:1
+[Input] frame:11106680 artist:Atric & Frida Darko title:Elevate score:0.000 confidence:1
+[Input] frame:11464960 artist:Atric & Frida Darko title:Elevate score:0.000 confidence:1
+[Input] frame:11823240 artist:Atric & Frida Darko title:Elevate score:0.000 confidence:1
+[Input] frame:12181520 artist:Atric & Frida Darko title:Elevate score:0.000 confidence:1
+[Input] frame:12539800 artist:Atric & Frida Darko title:Elevate score:0.000 confidence:1
+[Input] frame:12898080 artist:Atric & Frida Darko title:Elevate score:0.000 confidence:1
+[Input] frame:13256360 artist:Atric & Frida Darko title:Elevate score:0.000 confidence:1
+[Input] frame:13614640 artist:Atric & Frida Darko title:Elevate score:0.000 confidence:1
+[Input] frame:13972920 artist:Atric & Frida Darko title:Elevate score:0.000 confidence:1
+[Input] frame:14331200 artist:Atric & Frida Darko title:Elevate score:0.000 confidence:1
+[Input] frame:14689480 artist:Atric & Frida Darko title:Elevate score:0.000 confidence:1
+[Input] frame:15047760 artist:Atric & Frida Darko title:Elevate score:0.000 confidence:1
+[Input] frame:15406040 artist:Atric & Frida Darko title:Elevate score:0.000 confidence:1
+[Input] frame:15764320 artist:Atric & Frida Darko title:Elevate score:0.000 confidence:1
+[Input] frame:16122600 artist:Atric & Frida Darko title:Elevate score:0.000 confidence:1
+[Input] frame:16480880 artist:Atric & Frida Darko title:Elevate score:0.000 confidence:1
+[Input] frame:16839160 artist:Atric & Frida Darko title:Elevate score:0.000 confidence:1
+[Input] frame:17197440 artist:Atric & Frida Darko title:Elevate score:0.000 confidence:1
+[Input] frame:17555720 artist:Atric & Frida Darko title:Elevate score:0.000 confidence:1
+[Input] frame:17914000 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:18272280 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:18630560 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:18988840 artist:Arta title:Differently (Extended Mix) score:0.000 confidence:1
+[Input] frame:19347120 artist:Arta title:Differently (Extended Mix) score:0.000 confidence:1
+[Input] frame:19705400 artist:Arta title:Differently (Extended Mix) score:0.000 confidence:1
+[Input] frame:20063680 artist:Arta title:Differently (Extended Mix) score:0.000 confidence:1
+[Input] frame:20421960 artist:Arta title:Differently (Extended Mix) score:0.000 confidence:1
+[Input] frame:20780240 artist:Arta title:Differently (Extended Mix) score:0.000 confidence:1
+[Input] frame:21138520 artist:Arta title:Differently (Extended Mix) score:0.000 confidence:1
+[Input] frame:21496800 artist:Arta title:Differently (Extended Mix) score:0.000 confidence:1
+[Input] frame:21855080 artist:Arta title:Differently (Extended Mix) score:0.000 confidence:1
+[Input] frame:22213360 artist:Arta title:Differently (Extended Mix) score:0.000 confidence:1
+[Input] frame:22571640 artist:Arta title:Differently (Extended Mix) score:0.000 confidence:1
+[Input] frame:22929920 artist:Arta title:Differently (Extended Mix) score:0.000 confidence:1
+[Input] frame:23288200 artist:Arta title:Differently (Extended Mix) score:0.000 confidence:1
+[Input] frame:23646480 artist:Arta title:Differently (Extended Mix) score:0.000 confidence:1
+[Input] frame:24004760 artist:Arta title:Differently (Extended Mix) score:0.000 confidence:1
+[Input] frame:24363040 artist:Arta title:Differently (Extended Mix) score:0.000 confidence:1
+[Input] frame:24721320 artist:Arta title:Differently (Extended Mix) score:0.000 confidence:1
+[Input] frame:25079600 artist:Arta title:Differently (Extended Mix) score:0.000 confidence:1
+[Input] frame:25437880 artist:Arta title:Differently (Extended Mix) score:0.000 confidence:1
+[Input] frame:25796160 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:26154440 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:26512720 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:26871000 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:27229280 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:27587560 artist:Vakabular & Fab Massimo title:It's Yours (Extended) score:0.000 confidence:1
+[Input] frame:27945840 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:28304120 artist:Vakabular & Fab Massimo title:It's Yours (Extended) score:0.000 confidence:1
+[Input] frame:28662400 artist:Vakabular & Fab Massimo title:It's Yours (Extended) score:0.000 confidence:1
+[Input] frame:29020680 artist:Vakabular & Fab Massimo title:It's Yours (Extended) score:0.000 confidence:1
+[Input] frame:29378960 artist:Vakabular & Fab Massimo title:It's Yours (Extended) score:0.000 confidence:1
+[Input] frame:29737240 artist:Vakabular & Fab Massimo title:It's Yours (Extended) score:0.000 confidence:1
+[Input] frame:30095520 artist:Vakabular & Fab Massimo title:It's Yours (Extended) score:0.000 confidence:1
+[Input] frame:30453800 artist:Vakabular & Fab Massimo title:It's Yours (Extended) score:0.000 confidence:1
+[Input] frame:30812080 artist:Vakabular & Fab Massimo title:It's Yours (Extended) score:0.000 confidence:1
+[Input] frame:31170360 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:31528640 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:31886920 artist:Vakabular & Fab Massimo title:It's Yours (Extended) score:0.000 confidence:1
+[Input] frame:32245200 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:32603480 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:32961760 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:33320040 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:33678320 artist:Vakabular & Fab Massimo title:It's Yours (Extended) score:0.000 confidence:1
+[Input] frame:34036600 artist:Vakabular & Fab Massimo title:It's Yours (Extended) score:0.000 confidence:1
+[Input] frame:34394880 artist:Jan Kost title:Get Dumb score:0.000 confidence:1
+[Input] frame:34753160 artist:Block & Crown & Chris Marina title:U Know Wazzup score:0.000 confidence:1
+[Input] frame:35111440 artist:Vakabular & Fab Massimo title:It's Yours (Extended) score:0.000 confidence:1
+[Input] frame:35469720 artist:Vakabular & Fab Massimo title:It's Yours (Extended) score:0.000 confidence:1
+[Input] frame:35828000 artist:Vakabular & Fab Massimo title:It's Yours (Extended) score:0.000 confidence:1
+[Input] frame:36186280 artist:Vakabular & Fab Massimo title:It's Yours (Extended) score:0.000 confidence:1
+[Input] frame:36544560 artist:Vakabular & Fab Massimo title:It's Yours (Extended) score:0.000 confidence:1
+[Input] frame:36902840 artist:Hidden Empire title:Cali's Sun score:0.000 confidence:1
+[Input] frame:37261120 artist:Hidden Empire title:Cali's Sun score:0.000 confidence:1
+[Input] frame:37619400 artist:Hidden Empire title:Cali's Sun score:0.000 confidence:1
+[Input] frame:37977680 artist:Hidden Empire title:Cali's Sun score:0.000 confidence:1
+[Input] frame:38335960 artist:Hidden Empire title:Cali's Sun score:0.000 confidence:1
+[Input] frame:38694240 artist:Hidden Empire title:Cali's Sun score:0.000 confidence:1
+[Input] frame:39052520 artist:Hidden Empire title:Cali's Sun score:0.000 confidence:1
+[Input] frame:39410800 artist:Hidden Empire title:Cali's Sun score:0.000 confidence:1
+[Input] frame:39769080 artist:Hidden Empire title:Cali's Sun score:0.000 confidence:1
+[Input] frame:40127360 artist:Hidden Empire title:Cali's Sun score:0.000 confidence:1
+[Input] frame:40485640 artist:Hidden Empire title:Cali's Sun score:0.000 confidence:1
+[Input] frame:40843920 artist:Hidden Empire title:Cali's Sun score:0.000 confidence:1
+[Input] frame:41202200 artist:Hidden Empire title:Cali's Sun score:0.000 confidence:1
+[Input] frame:41560480 artist:Hidden Empire title:Cali's Sun score:0.000 confidence:1
+[Input] frame:41918760 artist:Hidden Empire title:Cali's Sun score:0.000 confidence:1
+[Input] frame:42277040 artist:Hidden Empire title:Cali's Sun score:0.000 confidence:1
+[Input] frame:42635320 artist:Hidden Empire title:Cali's Sun score:0.000 confidence:1
+[Input] frame:42993600 artist:Hidden Empire title:Cali's Sun score:0.000 confidence:1
+[Input] frame:43351880 artist:Hidden Empire title:Cali's Sun score:0.000 confidence:1
+[Input] frame:43710160 artist:Hidden Empire title:Cali's Sun score:0.000 confidence:1
+[Input] frame:44068440 artist:Hidden Empire title:Cali's Sun score:0.000 confidence:1
+[Input] frame:44426720 artist:Hidden Empire title:Cali's Sun score:0.000 confidence:1
+[Input] frame:44785000 artist:Hidden Empire title:Cali's Sun score:0.000 confidence:1
+[Input] frame:45143280 artist:Hidden Empire title:Cali's Sun score:0.000 confidence:1
+[Input] frame:45501560 artist:Hidden Empire title:Cali's Sun score:0.000 confidence:1
+[Input] frame:45859840 artist:Hidden Empire title:Cali's Sun score:0.000 confidence:1
+[Input] frame:46218120 artist:Hidden Empire title:Cali's Sun score:0.000 confidence:1
+[Input] frame:46576400 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:46934680 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:47292960 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:47651240 artist:Atric title:Supervision score:0.000 confidence:1
+[Input] frame:48009520 artist:Atric title:Supervision score:0.000 confidence:1
+[Input] frame:48367800 artist:Atric title:Supervision score:0.000 confidence:1
+[Input] frame:48726080 artist:Atric title:Supervision score:0.000 confidence:1
+[Input] frame:49084360 artist:Atric title:Supervision score:0.000 confidence:1
+[Input] frame:49442640 artist:Atric title:Supervision score:0.000 confidence:1
+[Input] frame:49800920 artist:Atric title:Supervision score:0.000 confidence:1
+[Input] frame:50159200 artist:Atric title:Supervision score:0.000 confidence:1
+[Input] frame:50517480 artist:Atric title:Supervision score:0.000 confidence:1
+[Input] frame:50875760 artist:Atric title:Supervision score:0.000 confidence:1
+[Input] frame:51234040 artist:Atric title:Supervision score:0.000 confidence:1
+[Input] frame:51592320 artist:Atric title:Supervision score:0.000 confidence:1
+[Input] frame:51950600 artist:Atric title:Supervision score:0.000 confidence:1
+[Input] frame:52308880 artist:Atric title:Supervision score:0.000 confidence:1
+[Input] frame:52667160 artist:Atric title:Supervision score:0.000 confidence:1
+[Input] frame:53025440 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:53383720 artist:Atric title:Supervision score:0.000 confidence:1
+[Input] frame:53742000 artist:Atric title:Supervision score:0.000 confidence:1
+[Input] frame:54100280 artist:Atric title:Supervision score:0.000 confidence:1
+[Input] frame:54458560 artist:Atric title:Supervision score:0.000 confidence:1
+[Input] frame:54816840 artist:Atric title:Supervision score:0.000 confidence:1
+[Input] frame:55175120 artist:Atric title:Supervision score:0.000 confidence:1
+[Input] frame:55533400 artist:Atric title:Supervision score:0.000 confidence:1
+[Input] frame:55891680 artist:Atric title:Supervision score:0.000 confidence:1
+[Input] frame:56249960 artist:Atric title:Supervision score:0.000 confidence:1
+[Input] frame:56608240 artist:Atric title:Supervision score:0.000 confidence:1
+[Input] frame:56966520 artist:Atric title:Supervision score:0.000 confidence:1
+[Input] frame:57324800 artist:Atric title:Supervision score:0.000 confidence:1
+[Input] frame:57683080 artist:Atric title:Supervision score:0.000 confidence:1
+[Input] frame:58041360 artist:Atric title:Supervision score:0.000 confidence:1
+[Input] frame:58399640 artist:Habitatt title:Fly with Me (Extended Mix) score:0.000 confidence:1
+[Input] frame:58757920 artist:Habitatt title:Fly with Me (Extended Mix) score:0.000 confidence:1
+[Input] frame:59116200 artist:Habitatt title:Fly with Me (Extended Mix) score:0.000 confidence:1
+[Input] frame:59474480 artist:Habitatt title:Fly with Me (Extended Mix) score:0.000 confidence:1
+[Input] frame:59832760 artist:Habitatt title:Fly with Me (Extended Mix) score:0.000 confidence:1
+[Input] frame:60191040 artist:Habitatt title:Fly with Me (Extended Mix) score:0.000 confidence:1
+[Input] frame:60549320 artist:Habitatt title:Fly with Me (Extended Mix) score:0.000 confidence:1
+[Input] frame:60907600 artist:Habitatt title:Fly with Me (Extended Mix) score:0.000 confidence:1
+[Input] frame:61265880 artist:Habitatt title:Fly with Me (Extended Mix) score:0.000 confidence:1
+[Input] frame:61624160 artist:Habitatt title:Fly with Me (Extended Mix) score:0.000 confidence:1
+[Input] frame:61982440 artist:Habitatt title:Fly with Me (Extended Mix) score:0.000 confidence:1
+[Input] frame:62340720 artist:Habitatt title:Fly with Me (Extended Mix) score:0.000 confidence:1
+[Input] frame:62699000 artist:Habitatt title:Fly with Me (Extended Mix) score:0.000 confidence:1
+[Input] frame:63057280 artist:Habitatt title:Fly with Me (Extended Mix) score:0.000 confidence:1
+[Input] frame:63415560 artist:Habitatt title:Fly with Me (Extended Mix) score:0.000 confidence:1
+[Input] frame:63773840 artist:Habitatt title:Fly with Me (Extended Mix) score:0.000 confidence:1
+[Input] frame:64132120 artist:Habitatt title:Fly with Me (Extended Mix) score:0.000 confidence:1
+[Input] frame:64490400 artist:Habitatt title:Fly with Me (Extended Mix) score:0.000 confidence:1
+[Input] frame:64848680 artist:Habitatt title:Fly with Me (Extended Mix) score:0.000 confidence:1
+[Input] frame:65206960 artist:Habitatt title:Fly with Me (Extended Mix) score:0.000 confidence:1
+[Input] frame:65565240 artist:Habitatt title:Fly with Me (Extended Mix) score:0.000 confidence:1
+[Input] frame:65923520 artist:Habitatt title:Fly with Me (Extended Mix) score:0.000 confidence:1
+[Input] frame:66281800 artist:Oliver Koletzki & Frida Darko title:Space Base score:0.000 confidence:1
+[Input] frame:66640080 artist:Oliver Koletzki & Frida Darko title:Space Base score:0.000 confidence:1
+[Input] frame:66998360 artist:Oliver Koletzki & Frida Darko title:Space Base score:0.000 confidence:1
+[Input] frame:67356640 artist:Oliver Koletzki & Frida Darko title:Space Base score:0.000 confidence:1
+[Input] frame:67714920 artist:Oliver Koletzki & Frida Darko title:Space Base score:0.000 confidence:1
+[Input] frame:68073200 artist:Oliver Koletzki & Frida Darko title:Space Base score:0.000 confidence:1
+[Input] frame:68431480 artist:Oliver Koletzki & Frida Darko title:Space Base score:0.000 confidence:1
+[Input] frame:68789760 artist:Oliver Koletzki & Frida Darko title:Space Base score:0.000 confidence:1
+[Input] frame:69148040 artist:Dave Anthony title:She Don't Know (feat. Richard Anthony Davis) [Manoo Remix] score:0.000 confidence:1
+[Input] frame:69506320 artist:Oliver Koletzki & Frida Darko title:Space Base score:0.000 confidence:1
+[Input] frame:69864600 artist:Selma title:Sympathie score:0.000 confidence:1
+[Input] frame:70222880 artist:Dave Anthony title:She Don't Know (feat. Richard Anthony Davis) [Manoo Remix] score:0.000 confidence:1
+[Input] frame:70581160 artist:Oliver Koletzki & Frida Darko title:Space Base score:0.000 confidence:1
+[Input] frame:70939440 artist:Oliver Koletzki & Frida Darko title:Space Base score:0.000 confidence:1
+[Input] frame:71297720 artist:Oliver Koletzki & Frida Darko title:Space Base score:0.000 confidence:1
+[Input] frame:71656000 artist:Mousse T. & Hot 'n' Juicy title:Horny '98 (Extended Mix) [Mixed] [Mixed] score:0.000 confidence:1
+[Input] frame:72014280 artist:Oliver Koletzki & Frida Darko title:Space Base score:0.000 confidence:1
+[Input] frame:72372560 artist:Oliver Koletzki & Frida Darko title:Space Base score:0.000 confidence:1
+[Input] frame:72730840 artist:Oliver Koletzki & Frida Darko title:Space Base score:0.000 confidence:1
+[Input] frame:73089120 artist:Selma title:Sympathie score:0.000 confidence:1
+[Input] frame:73447400 artist:Oliver Koletzki & Frida Darko title:Space Base score:0.000 confidence:1
+[Input] frame:73805680 artist:Oliver Koletzki & Frida Darko title:Space Base score:0.000 confidence:1
+[Input] frame:74163960 artist:Oliver Koletzki & Frida Darko title:Space Base score:0.000 confidence:1
+[Input] frame:74522240 artist:Ricky Gaddi title:Renaissance score:0.000 confidence:1
+[Input] frame:74880520 artist:Oliver Koletzki & Frida Darko title:Space Base score:0.000 confidence:1
+[Input] frame:75238800 artist:Argento title:Red Light score:0.000 confidence:1
+[Input] frame:75597080 artist:Dave Anthony title:She Don't Know (feat. Richard Anthony Davis) [Manoo Remix] score:0.000 confidence:1
+[Input] frame:75955360 artist:Dave Anthony title:She Don't Know (feat. Richard Anthony Davis) [Manoo Remix] score:0.000 confidence:1
+[Input] frame:76313640 artist:Elio Riso & Lucio Spain title:Breaking Minds score:0.000 confidence:1
+[Input] frame:76671920 artist:Ricky Gaddi title:Renaissance score:0.000 confidence:1
+[Input] frame:77030200 artist:Oliver Koletzki & Frida Darko title:Space Base score:0.000 confidence:1
+[Input] frame:77388480 artist:Oliver Koletzki & Frida Darko title:Space Base score:0.000 confidence:1
+[Input] frame:77746760 artist:Oliver Koletzki & Frida Darko title:Space Base score:0.000 confidence:1
+[Input] frame:78105040 artist:Oliver Koletzki & Frida Darko title:Space Base score:0.000 confidence:1
+[Input] frame:78463320 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:78821600 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:79179880 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:79538160 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:79896440 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:80254720 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:80613000 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:80971280 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:81329560 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:81687840 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:82046120 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:82404400 artist:Blake Jarrell & Jeff Varisco title:Almonaster (Bass Stem) score:0.000 confidence:1
+[Input] frame:82762680 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:83120960 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:83479240 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:83837520 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:84195800 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:84554080 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:84912360 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:85270640 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:85628920 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:85987200 artist:NUAH & flave.uc title:Get Shit Done score:0.000 confidence:1
+[Input] frame:86345480 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:86703760 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:87062040 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:87420320 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:87778600 artist:Atric title:Flawless score:0.000 confidence:1
+[Input] frame:88136880 artist:Atric title:Flawless score:0.000 confidence:1
+[Input] frame:88495160 artist:Atric title:Flawless score:0.000 confidence:1
+[Input] frame:88853440 artist:Atric title:Flawless score:0.000 confidence:1
+[Input] frame:89211720 artist:Atric title:Flawless score:0.000 confidence:1
+[Input] frame:89570000 artist:Atric title:Flawless score:0.000 confidence:1
+[Input] frame:89928280 artist:Atric title:Flawless score:0.000 confidence:1
+[Input] frame:90286560 artist:Atric title:Flawless score:0.000 confidence:1
+[Input] frame:90644840 artist:Atric title:Flawless score:0.000 confidence:1
+[Input] frame:91003120 artist:Atric title:Flawless score:0.000 confidence:1
+[Input] frame:91361400 artist:Atric title:Flawless score:0.000 confidence:1
+[Input] frame:91719680 artist:Atric title:Flawless score:0.000 confidence:1
+[Input] frame:92077960 artist:Atric title:Flawless score:0.000 confidence:1
+[Input] frame:92436240 artist:Atric title:Flawless score:0.000 confidence:1
+[Input] frame:92794520 artist:Atric title:Flawless score:0.000 confidence:1
+[Input] frame:93152800 artist:Atric title:Flawless score:0.000 confidence:1
+[Input] frame:93511080 artist:Atric title:Flawless score:0.000 confidence:1
+[Input] frame:93869360 artist:Atric title:Flawless score:0.000 confidence:1
+[Input] frame:94227640 artist:Atric title:Flawless score:0.000 confidence:1
+[Input] frame:94585920 artist:Atric title:Flawless score:0.000 confidence:1
+[Input] frame:94944200 artist:Atric title:Flawless score:0.000 confidence:1
+[Input] frame:95302480 artist:Atric title:Flawless score:0.000 confidence:1
+[Input] frame:95660760 artist:Atric title:Flawless score:0.000 confidence:1
+[Input] frame:96019040 artist:Atric title:Flawless score:0.000 confidence:1
+[Input] frame:96377320 artist:Atric title:Flawless score:0.000 confidence:1
+[Input] frame:96735600 artist:Atric title:Flawless score:0.000 confidence:1
+[Input] frame:97093880 artist:Atric title:Flawless score:0.000 confidence:1
+[Input] frame:97452160 artist:Atric title:Flawless score:0.000 confidence:1
+[Input] frame:97810440 artist:Atric title:Flawless score:0.000 confidence:1
+[Input] frame:98168720 artist:Atric title:Flawless score:0.000 confidence:1
+[Input] frame:98527000 artist:Atric title:Flawless score:0.000 confidence:1
+[Input] frame:98885280 artist:Atric title:Flawless score:0.000 confidence:1
+[Input] frame:99243560 artist:Atric title:Flawless score:0.000 confidence:1
+[Input] frame:99601840 artist:Atric title:Flawless score:0.000 confidence:1
+[Input] frame:99960120 artist:Atric title:Flawless score:0.000 confidence:1
+[Input] frame:100318400 artist:Hidden Empire title:Ocean Beach score:0.000 confidence:1
+[Input] frame:100676680 artist:Hidden Empire title:Ocean Beach score:0.000 confidence:1
+[Input] frame:101034960 artist:Hidden Empire title:Ocean Beach score:0.000 confidence:1
+[Input] frame:101393240 artist:Hidden Empire title:Ocean Beach score:0.000 confidence:1
+[Input] frame:101751520 artist:Hidden Empire title:Ocean Beach score:0.000 confidence:1
+[Input] frame:102109800 artist:Hidden Empire title:Ocean Beach score:0.000 confidence:1
+[Input] frame:102468080 artist:Hidden Empire title:Ocean Beach score:0.000 confidence:1
+[Input] frame:102826360 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:103184640 artist:Hidden Empire title:Ocean Beach score:0.000 confidence:1
+[Input] frame:103542920 artist:Hidden Empire title:Ocean Beach score:0.000 confidence:1
+[Input] frame:103901200 artist:Hidden Empire title:Ocean Beach score:0.000 confidence:1
+[Input] frame:104259480 artist:Hidden Empire title:Ocean Beach score:0.000 confidence:1
+[Input] frame:104617760 artist:Hidden Empire title:Ocean Beach score:0.000 confidence:1
+[Input] frame:104976040 artist:Hidden Empire title:Ocean Beach score:0.000 confidence:1
+[Input] frame:105334320 artist:Hidden Empire title:Ocean Beach score:0.000 confidence:1
+[Input] frame:105692600 artist:Hidden Empire title:Ocean Beach score:0.000 confidence:1
+[Input] frame:106050880 artist:Hidden Empire title:Ocean Beach score:0.000 confidence:1
+[Input] frame:106409160 artist:jenghizkhan title:The New Medusa score:0.000 confidence:1
+[Input] frame:106767440 artist:Hidden Empire title:Ocean Beach score:0.000 confidence:1
+[Input] frame:107125720 artist:Hidden Empire title:Ocean Beach score:0.000 confidence:1
+[Input] frame:107484000 artist:Hidden Empire title:Ocean Beach score:0.000 confidence:1
+[Input] frame:107842280 artist:Hidden Empire title:Ocean Beach score:0.000 confidence:1
+[Input] frame:108200560 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:108558840 artist:Hidden Empire title:Ocean Beach score:0.000 confidence:1
+[Input] frame:108917120 artist:Hidden Empire title:Ocean Beach score:0.000 confidence:1
+[Input] frame:109275400 artist:Hidden Empire title:Ocean Beach score:0.000 confidence:1
+[Input] frame:109633680 artist:Hidden Empire title:Ocean Beach score:0.000 confidence:1
+[Input] frame:109991960 artist:Hidden Empire title:Ocean Beach score:0.000 confidence:1
+[Input] frame:110350240 artist:Hidden Empire title:Ocean Beach score:0.000 confidence:1
+[Input] frame:110708520 artist:Vakabular title:Now You See score:0.000 confidence:1
+[Input] frame:111066800 artist:Vakabular title:Now You See score:0.000 confidence:1
+[Input] frame:111425080 artist:Vakabular title:Now You See score:0.000 confidence:1
+[Input] frame:111783360 artist:Vakabular title:Now You See score:0.000 confidence:1
+[Input] frame:112141640 artist:Vakabular title:Now You See score:0.000 confidence:1
+[Input] frame:112499920 artist:Vakabular title:Now You See score:0.000 confidence:1
+[Input] frame:112858200 artist:Vakabular title:Now You See score:0.000 confidence:1
+[Input] frame:113216480 artist:Vakabular title:Now You See score:0.000 confidence:1
+[Input] frame:113574760 artist:Vakabular title:Now You See score:0.000 confidence:1
+[Input] frame:113933040 artist:Vakabular title:Now You See score:0.000 confidence:1
+[Input] frame:114291320 artist:Chaluz title:Life score:0.000 confidence:1
+[Input] frame:114649600 artist:Vakabular title:Now You See score:0.000 confidence:1
+[Input] frame:115007880 artist:Vakabular title:Now You See score:0.000 confidence:1
+[Input] frame:115366160 artist:Vakabular title:Now You See score:0.000 confidence:1
+[Input] frame:115724440 artist:Vakabular title:Now You See score:0.000 confidence:1
+[Input] frame:116082720 artist:Vakabular title:Now You See score:0.000 confidence:1
+[Input] frame:116441000 artist:Vakabular title:Now You See score:0.000 confidence:1
+[Input] frame:116799280 artist:Vakabular title:Now You See score:0.000 confidence:1
+[Input] frame:117157560 artist:Vakabular title:Now You See score:0.000 confidence:1
+[Input] frame:117515840 artist:Vakabular title:Now You See score:0.000 confidence:1
+[Input] frame:117874120 artist:Vakabular title:Now You See score:0.000 confidence:1
+[Input] frame:118232400 artist:Vakabular title:Now You See score:0.000 confidence:1
+[Input] frame:118590680 artist:Vakabular title:Now You See score:0.000 confidence:1
+[Input] frame:118948960 artist:Vakabular title:Now You See score:0.000 confidence:1
+[Input] frame:119307240 artist:Vakabular title:Now You See score:0.000 confidence:1
+[Input] frame:119665520 artist:Vakabular title:Now You See score:0.000 confidence:1
+[Input] frame:120023800 artist:Vakabular title:Now You See score:0.000 confidence:1
+[Input] frame:120382080 artist:Vakabular title:Now You See score:0.000 confidence:1
+[Input] frame:120740360 artist:Vakabular title:Now You See score:0.000 confidence:1
+[Input] frame:121098640 artist:Kevin Holdeen title:Singularity score:0.000 confidence:1
+[Input] frame:121456920 artist:Vakabular title:Now You See score:0.000 confidence:1
+[Input] frame:121815200 artist:Vakabular title:Now You See score:0.000 confidence:1
+[Input] frame:122173480 artist:Vakabular title:Now You See score:0.000 confidence:1
+[Input] frame:122531760 artist:Vakabular title:Now You See score:0.000 confidence:1
+[Input] frame:122890040 artist:Vakabular title:Now You See score:0.000 confidence:1
+[Input] frame:123248320 artist:Vakabular title:Now You See score:0.000 confidence:1
+[Input] frame:123606600 artist:Vakabular title:Now You See score:0.000 confidence:1
+[Input] frame:123964880 artist:Kyle Watson & Aurelia Ray title:Bottom of the Rave score:0.000 confidence:1
+[Input] frame:124323160 artist:Kyle Watson & Aurelia Ray title:Bottom of the Rave score:0.000 confidence:1
+[Input] frame:124681440 artist:Kyle Watson & Aurelia Ray title:Bottom of the Rave score:0.000 confidence:1
+[Input] frame:125039720 artist:Kyle Watson & Aurelia Ray title:Bottom of the Rave score:0.000 confidence:1
+[Input] frame:125398000 artist:Morsy & John Spinosa title:Never Stop (Radio Edit) score:0.000 confidence:1
+[Input] frame:125756280 artist:NYMA title:Joy (xmx) score:0.000 confidence:1
+[Input] frame:126114560 artist:Kyle Watson & Aurelia Ray title:Bottom of the Rave score:0.000 confidence:1
+[Input] frame:126472840 artist:Kyle Watson & Aurelia Ray title:Bottom of the Rave score:0.000 confidence:1
+[Input] frame:126831120 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:127189400 artist:Kyle Watson & Aurelia Ray title:Bottom of the Rave score:0.000 confidence:1
+[Input] frame:127547680 artist:Kyle Watson & Aurelia Ray title:Bottom of the Rave score:0.000 confidence:1
+[Input] frame:127905960 artist:Kyle Watson & Aurelia Ray title:Bottom of the Rave score:0.000 confidence:1
+[Input] frame:128264240 artist:Kyle Watson & Aurelia Ray title:Bottom of the Rave score:0.000 confidence:1
+[Input] frame:128622520 artist:Kyle Watson & Aurelia Ray title:Bottom of the Rave score:0.000 confidence:1
+[Input] frame:128980800 artist:Kyle Watson & Aurelia Ray title:Bottom of the Rave score:0.000 confidence:1
+[Input] frame:129339080 artist:Kyle Watson & Aurelia Ray title:Bottom of the Rave score:0.000 confidence:1
+[Input] frame:129697360 artist:Kyle Watson & Aurelia Ray title:Bottom of the Rave score:0.000 confidence:1
+[Input] frame:130055640 artist:Kyle Watson & Aurelia Ray title:Bottom of the Rave score:0.000 confidence:1
+[Input] frame:130413920 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:130772200 artist:Richie Hawtin title:No Way Back score:0.000 confidence:1
+[Input] frame:131130480 artist:Kyle Watson & Aurelia Ray title:Bottom of the Rave score:0.000 confidence:1
+[Input] frame:131488760 artist:Kyle Watson & Aurelia Ray title:Bottom of the Rave score:0.000 confidence:1
+[Input] frame:131847040 artist:Morsy & John Spinosa title:Never Stop (Radio Edit) score:0.000 confidence:1
+[Input] frame:132205320 artist:Mark Knight & Prok & Fitch title:Into My Life score:0.000 confidence:1
+[Input] frame:132563600 artist:Distant Sun title:Machine lernt score:0.000 confidence:1
+[Input] frame:132921880 artist:Matt Gray title:2 Point Five (Gabriel Slick Remix) score:0.000 confidence:1
+[Input] frame:133280160 artist:Marcos Salas title:Obreros score:0.000 confidence:1
+[Input] frame:133638440 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:133996720 artist:Atric title:Reset Me score:0.000 confidence:1
+[Input] frame:134355000 artist:Atric title:Reset Me score:0.000 confidence:1
+[Input] frame:134713280 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:135071560 artist:Atric title:Reset Me score:0.000 confidence:1
+[Input] frame:135429840 artist:Atric title:Reset Me score:0.000 confidence:1
+[Input] frame:135788120 artist:Atric title:Reset Me score:0.000 confidence:1
+[Input] frame:136146400 artist:Atric title:Reset Me score:0.000 confidence:1
+[Input] frame:136504680 artist:Atric title:Reset Me score:0.000 confidence:1
+[Input] frame:136862960 artist:Atric title:Reset Me score:0.000 confidence:1
+[Input] frame:137221240 artist:Atric title:Reset Me score:0.000 confidence:1
+[Input] frame:137579520 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:137937800 artist:Atric title:Reset Me score:0.000 confidence:1
+[Input] frame:138296080 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:138654360 artist:Atric title:Reset Me score:0.000 confidence:1
+[Input] frame:139012640 artist:Atric title:Reset Me score:0.000 confidence:1
+[Input] frame:139370920 artist:Atric title:Reset Me score:0.000 confidence:1
+[Input] frame:139729200 artist:Atric title:Reset Me score:0.000 confidence:1
+[Input] frame:140087480 artist:Atric title:Reset Me score:0.000 confidence:1
+[Input] frame:140445760 artist:Atric title:Reset Me score:0.000 confidence:1
+[Input] frame:140804040 artist:Atric title:Reset Me score:0.000 confidence:1
+[Input] frame:141162320 artist:Atric title:Reset Me score:0.000 confidence:1
+[Input] frame:141520600 artist:Atric title:Reset Me score:0.000 confidence:1
+[Input] frame:141878880 artist:Atric title:Reset Me score:0.000 confidence:1
+[Input] frame:142237160 artist:Atric title:Reset Me score:0.000 confidence:1
+[Input] frame:142595440 artist:Atric title:Reset Me score:0.000 confidence:1
+[Input] frame:142953720 artist:Atric title:Reset Me score:0.000 confidence:1
+[Input] frame:143312000 artist:Atric title:Reset Me score:0.000 confidence:1
+[Input] frame:143670280 artist:Atric title:Reset Me score:0.000 confidence:1
+[Input] frame:144028560 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:144386840 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:144745120 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:145103400 artist:Atric & Frida Darko title:Hush (Extended Mix) score:0.000 confidence:1
+[Input] frame:145461680 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:145819960 artist:Atric & Frida Darko title:Hush (Extended Mix) score:0.000 confidence:1
+[Input] frame:146178240 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:146536520 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:146894800 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:147253080 artist:Atric & Frida Darko title:Hush score:0.000 confidence:1
+[Input] frame:147611360 artist:Atric & Frida Darko title:Hush score:0.000 confidence:1
+[Input] frame:147969640 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:148327920 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:148686200 artist:Atric & Frida Darko title:Hush score:0.000 confidence:1
+[Input] frame:149044480 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:149402760 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:149761040 artist:Chris Alot title:Paradise score:0.000 confidence:1
+[Input] frame:150119320 artist:Atric & Frida Darko title:Hush (Extended Mix) score:0.000 confidence:1
+[Input] frame:150477600 artist:Atric & Frida Darko title:Hush score:0.000 confidence:1
+[Input] frame:150835880 artist:Atric & Frida Darko title:Hush (Extended Mix) score:0.000 confidence:1
+[Input] frame:151194160 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:151552440 artist:Atric & Frida Darko title:Hush score:0.000 confidence:1
+[Input] frame:151910720 artist:Atric & Frida Darko title:Hush score:0.000 confidence:1
+[Input] frame:152269000 artist:Atric & Frida Darko title:Hush score:0.000 confidence:1
+[Input] frame:152627280 artist:Atric & Frida Darko title:Hush score:0.000 confidence:1
+[Input] frame:152985560 artist:Epic Rap Battles title:Cursed By The Oracle score:0.000 confidence:1
+[Input] frame:153343840 artist:Atric & Frida Darko title:Hush score:0.000 confidence:1
+[Input] frame:153702120 artist:Atric & Frida Darko title:Hush score:0.000 confidence:1
+[Input] frame:154060400 artist:Atric & Frida Darko title:Hush score:0.000 confidence:1
+[Input] frame:154418680 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:154776960 artist:Romain Dary title:Trust Me score:0.000 confidence:1
+[Input] frame:155135240 artist:Romain Dary title:Trust Me score:0.000 confidence:1
+[Input] frame:155493520 artist:Romain Dary title:Trust Me score:0.000 confidence:1
+[Input] frame:155851800 artist:Romain Dary title:Trust Me score:0.000 confidence:1
+[Input] frame:156210080 artist:Romain Dary title:Trust Me score:0.000 confidence:1
+[Input] frame:156568360 artist:Romain Dary title:Trust Me score:0.000 confidence:1
+[Input] frame:156926640 artist:Romain Dary title:Trust Me score:0.000 confidence:1
+[Input] frame:157284920 artist:Romain Dary title:Trust Me score:0.000 confidence:1
+[Input] frame:157643200 artist:Romain Dary title:Trust Me score:0.000 confidence:1
+[Input] frame:158001480 artist:Romain Dary title:Trust Me score:0.000 confidence:1
+[Input] frame:158359760 artist:Romain Dary title:Trust Me score:0.000 confidence:1
+[Input] frame:158718040 artist:Romain Dary title:Trust Me score:0.000 confidence:1
+[Input] frame:159076320 artist:Romain Dary title:Trust Me score:0.000 confidence:1
+[Input] frame:159434600 artist:Romain Dary title:Trust Me score:0.000 confidence:1
+[Input] frame:159792880 artist:Romain Dary title:Trust Me score:0.000 confidence:1
+[Input] frame:160151160 artist:Romain Dary title:Trust Me score:0.000 confidence:1
+[Input] frame:160509440 artist:Romain Dary title:Trust Me score:0.000 confidence:1
+[Input] frame:160867720 artist:Romain Dary title:Trust Me score:0.000 confidence:1
+[Input] frame:161226000 artist:Romain Dary title:Trust Me score:0.000 confidence:1
+[Input] frame:161584280 artist:Romain Dary title:Trust Me score:0.000 confidence:1
+[Input] frame:161942560 artist:Romain Dary title:Trust Me score:0.000 confidence:1
+[Input] frame:162300840 artist:Romain Dary title:Trust Me score:0.000 confidence:1
+[Input] frame:162659120 artist:Romain Dary title:Trust Me score:0.000 confidence:1
+[Input] frame:163017400 artist:Romain Dary title:Trust Me score:0.000 confidence:1
+[Input] frame:163375680 artist:Romain Dary title:Trust Me score:0.000 confidence:1
+[Input] frame:163733960 artist:Romain Dary title:Trust Me score:0.000 confidence:1
+[Input] frame:164092240 artist:J.Fur title:Danger! score:0.000 confidence:1
+[Input] frame:164450520 artist:J.Fur title:Danger! score:0.000 confidence:1
+[Input] frame:164808800 artist:Nenad Antic title:The 2nd (Original Mix) score:0.000 confidence:1
+[Input] frame:165167080 artist:Morgan Page title:The Longest Road (feat. Lissie) [Deadmau5 Remix] [Mixed] score:0.000 confidence:1
+[Input] frame:165525360 artist:LIT killah, Tiago PZK, Maria Becerra, Duki, Emilia, Rusherking, Big One & FMK title:Los del Espacio score:0.000 confidence:1
+[Input] frame:165883640 artist:Morgan Page title:The Longest Road (feat. Lissie) [Deadmau5 Remix] [Mixed] score:0.000 confidence:1
+[Input] frame:166241920 artist:CJ Peeton title:Weird Nature (Original Mix) score:0.000 confidence:1
+[Input] frame:166600200 artist:J.Fur title:Danger! score:0.000 confidence:1
+[Input] frame:166958480 artist:J.Fur title:Danger! score:0.000 confidence:1
+[Input] frame:167316760 artist:J.Fur title:Danger! score:0.000 confidence:1
+[Input] frame:167675040 artist:J.Fur title:Danger! score:0.000 confidence:1
+[Input] frame:168033320 artist:J.Fur title:Danger! score:0.000 confidence:1
+[Input] frame:168391600 artist:J.Fur title:Danger! score:0.000 confidence:1
+[Input] frame:168749880 artist:J.Fur title:Danger! score:0.000 confidence:1
+[Input] frame:169108160 artist:J.Fur title:Danger! score:0.000 confidence:1
+[Input] frame:169466440 artist:J.Fur title:Danger! score:0.000 confidence:1
+[Input] frame:169824720 artist:J.Fur title:Danger! score:0.000 confidence:1
+[Input] frame:170183000 artist:J.Fur title:Danger! score:0.000 confidence:1
+[Input] frame:170541280 artist:Gunnar Haslam title:Meter by Me, Sybil score:0.000 confidence:1
+[Input] frame:170899560 artist:Armin van Buuren title:Dayglow (feat. Stuart Crichton) score:0.000 confidence:1
+[Input] frame:171257840 artist:NuFects title:Perseverance (Ignacio Sanchez Remix) score:0.000 confidence:1
+[Input] frame:171616120 artist:J.Fur title:Danger! score:0.000 confidence:1
+[Input] frame:171974400 artist:J.Fur title:Danger! score:0.000 confidence:1
+[Input] frame:172332680 artist:J.Fur title:Danger! score:0.000 confidence:1
+[Input] frame:172690960 artist:J.Fur title:Danger! score:0.000 confidence:1
+[Input] frame:173049240 artist:J.Fur title:Danger! score:0.000 confidence:1
+[Input] frame:173407520 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:173765800 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:174124080 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:174482360 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:174840640 artist:Waitz title:Looking for You score:0.000 confidence:1
+[Input] frame:175198920 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:175557200 artist:Waitz title:Looking for You score:0.000 confidence:1
+[Input] frame:175915480 artist:Waitz title:Looking for You score:0.000 confidence:1
+[Input] frame:176273760 artist:Waitz title:Looking for You score:0.000 confidence:1
+[Input] frame:176632040 artist:Waitz title:Looking for You score:0.000 confidence:1
+[Input] frame:176990320 artist:Deflee, Far & Nittmann title:Never Ever (Extended Mix) score:0.000 confidence:1
+[Input] frame:177348600 artist:Waitz title:Looking for You score:0.000 confidence:1
+[Input] frame:177706880 artist:Waitz title:Looking for You score:0.000 confidence:1
+[Input] frame:178065160 artist:Waitz title:Looking for You score:0.000 confidence:1
+[Input] frame:178423440 artist:Waitz title:Looking for You score:0.000 confidence:1
+[Input] frame:178781720 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:179140000 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:179498280 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:179856560 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:180214840 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:180573120 artist:Deflee, Far & Nittmann title:Never Ever (Extended Mix) score:0.000 confidence:1
+[Input] frame:180931400 artist:Deflee, Far & Nittmann title:Never Ever (Extended Mix) score:0.000 confidence:1
+[Input] frame:181289680 artist:Waitz title:Looking for You score:0.000 confidence:1
+[Input] frame:181647960 artist:Waitz title:Looking for You score:0.000 confidence:1
+[Input] frame:182006240 artist:Aleh Team title:Looking for You (Extended Mix) score:0.000 confidence:1
+[Input] frame:182364520 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:182722800 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:183081080 artist:Waitz title:Looking for You score:0.000 confidence:1
+[Input] frame:183439360 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:183797640 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:184155920 artist:DONT BLINK title:THE LAZER score:0.000 confidence:1
+[Input] frame:184514200 artist:DONT BLINK title:THE LAZER score:0.000 confidence:1
+[Input] frame:184872480 artist:DONT BLINK title:THE LAZER score:0.000 confidence:1
+[Input] frame:185230760 artist:DONT BLINK title:THE LAZER score:0.000 confidence:1
+[Input] frame:185589040 artist:DONT BLINK title:THE LAZER score:0.000 confidence:1
+[Input] frame:185947320 artist:DONT BLINK title:THE LAZER score:0.000 confidence:1
+[Input] frame:186305600 artist:DONT BLINK title:THE LAZER score:0.000 confidence:1
+[Input] frame:186663880 artist:DONT BLINK title:THE LAZER score:0.000 confidence:1
+[Input] frame:187022160 artist:DONT BLINK title:THE LAZER score:0.000 confidence:1
+[Input] frame:187380440 artist:DONT BLINK title:THE LAZER score:0.000 confidence:1
+[Input] frame:187738720 artist:DONT BLINK title:THE LAZER score:0.000 confidence:1
+[Input] frame:188097000 artist:DONT BLINK title:THE LAZER score:0.000 confidence:1
+[Input] frame:188455280 artist:DONT BLINK title:THE LAZER score:0.000 confidence:1
+[Input] frame:188813560 artist:DONT BLINK title:THE LAZER score:0.000 confidence:1
+[Input] frame:189171840 artist:DONT BLINK title:THE LAZER score:0.000 confidence:1
+[Input] frame:189530120 artist:DONT BLINK title:THE LAZER score:0.000 confidence:1
+[Input] frame:189888400 artist:DONT BLINK title:THE LAZER score:0.000 confidence:1
+[Input] frame:190246680 artist:DONT BLINK title:THE LAZER score:0.000 confidence:1
+[Input] frame:190604960 artist:DONT BLINK title:THE LAZER score:0.000 confidence:1
+[Input] frame:190963240 artist:DONT BLINK title:THE LAZER score:0.000 confidence:1
+[Input] frame:191321520 artist:DONT BLINK title:THE LAZER score:0.000 confidence:1
+[Input] frame:191679800 artist:Artsky & Kinky Sound title:Rover (Extended Mix) score:0.000 confidence:1
+[Input] frame:192038080 artist:Artsky & Kinky Sound title:Rover (Extended Mix) score:0.000 confidence:1
+[Input] frame:192396360 artist:Artsky & Kinky Sound title:Rover score:0.000 confidence:1
+[Input] frame:192754640 artist:Artsky & Kinky Sound title:Rover score:0.000 confidence:1
+[Input] frame:193112920 artist:Commander Tom title:Are Am Eye? score:0.000 confidence:1
+[Input] frame:193471200 artist:Etienne de Crécy title:Follow (feat. Kilo Kish) score:0.000 confidence:1
+[Input] frame:193829480 artist:Artsky & Kinky Sound title:Rover score:0.000 confidence:1
+[Input] frame:194187760 artist:Anton Dhouran title:The Isle of Dawn (APM001 Remix) score:0.000 confidence:1
+[Input] frame:194546040 artist:FORSBY title:Red Tape score:0.000 confidence:1
+[Input] frame:194904320 artist:ADD Project title:F# 128 Synth score:0.000 confidence:1
+[Input] frame:195262600 artist:ADD Project title:F# 128 Synth score:0.000 confidence:1
+[Input] frame:195620880 artist:ADD Project title:F# 128 Synth score:0.000 confidence:1
+[Input] frame:195979160 artist:Artsky & Kinky Sound title:Rover (Extended Mix) score:0.000 confidence:1
+[Input] frame:196337440 artist:Artsky & Kinky Sound title:Rover (Extended Mix) score:0.000 confidence:1
+[Input] frame:196695720 artist:Artsky & Kinky Sound title:Rover (Extended Mix) score:0.000 confidence:1
+[Input] frame:197054000 artist:Artsky & Kinky Sound title:Rover score:0.000 confidence:1
+[Input] frame:197412280 artist:Artsky & Kinky Sound title:Rover (Extended Mix) score:0.000 confidence:1
+[Input] frame:197770560 artist:Artsky & Kinky Sound title:Rover (Extended Mix) score:0.000 confidence:1
+[Input] frame:198128840 artist:SIR-J title:DIMENSIONAL CASCADE score:0.000 confidence:1
+[Input] frame:198487120 artist:Krischmann & Klingenberg title:North Point (David Christoph Remix) score:0.000 confidence:1
+[Input] frame:198845400 artist:Darbinyan title:Canyon score:0.000 confidence:1
+[Input] frame:199203680 artist:Artsky & Kinky Sound title:Rover (Extended Mix) score:0.000 confidence:1
+[Input] frame:199561960 artist:ADD Project title:F# 128 Synth score:0.000 confidence:1
+[Input] frame:199920240 artist:FORSBY title:Red Tape score:0.000 confidence:1
+[Input] frame:200278520 artist:Navon title:Albi 303 score:0.000 confidence:1
+[Input] frame:200636800 artist:Gregory S. title:Mind Games score:0.000 confidence:1
+[Input] frame:200995080 artist:ADD Project title:F# 128 Synth score:0.000 confidence:1
+[Input] frame:201353360 artist:ADD Project title:F# 128 Synth score:0.000 confidence:1
+[Input] frame:201711640 artist:ADD Project title:F# 128 Synth score:0.000 confidence:1
+[Input] frame:202069920 artist:Artsky & Kinky Sound title:Rover (Extended Mix) score:0.000 confidence:1
+[Input] frame:202428200 artist:Atric title:Solus score:0.000 confidence:1
+[Input] frame:202786480 artist:Atric title:Solus score:0.000 confidence:1
+[Input] frame:203144760 artist:Atric title:Solus score:0.000 confidence:1
+[Input] frame:203503040 artist:Atric title:Solus score:0.000 confidence:1
+[Input] frame:203861320 artist:Atric title:Solus score:0.000 confidence:1
+[Input] frame:204219600 artist:Atric title:Solus score:0.000 confidence:1
+[Input] frame:204577880 artist:Atric title:Solus score:0.000 confidence:1
+[Input] frame:204936160 artist:Atric title:Solus score:0.000 confidence:1
+[Input] frame:205294440 artist:Atric title:Solus score:0.000 confidence:1
+[Input] frame:205652720 artist:Atric title:Solus score:0.000 confidence:1
+[Input] frame:206011000 artist:Atric title:Solus score:0.000 confidence:1
+[Input] frame:206369280 artist:Atric title:Solus score:0.000 confidence:1
+[Input] frame:206727560 artist:Atric title:Solus score:0.000 confidence:1
+[Input] frame:207085840 artist:Atric title:Solus score:0.000 confidence:1
+[Input] frame:207444120 artist:Atric title:Solus score:0.000 confidence:1
+[Input] frame:207802400 artist:Atric title:Solus score:0.000 confidence:1
+[Input] frame:208160680 artist:Atric title:Solus score:0.000 confidence:1
+[Input] frame:208518960 artist:Atric title:Solus score:0.000 confidence:1
+[Input] frame:208877240 artist:Atric title:Solus score:0.000 confidence:1
+[Input] frame:209235520 artist:Atric title:Solus score:0.000 confidence:1
+[Input] frame:209593800 artist:Atric title:Solus score:0.000 confidence:1
+[Input] frame:209952080 artist:Atric title:Solus score:0.000 confidence:1
+[Input] frame:210310360 artist:Atric title:Solus score:0.000 confidence:1
+[Input] frame:210668640 artist:Atric title:Solus score:0.000 confidence:1
+[Input] frame:211026920 artist:Atric title:Solus score:0.000 confidence:1
+[Input] frame:211385200 artist:Atric title:Solus score:0.000 confidence:1
+[Input] frame:211743480 artist:Atric title:Solus score:0.000 confidence:1
+[Input] frame:212101760 artist:Atric title:Solus score:0.000 confidence:1
+[Input] frame:212460040 artist:Atric title:Solus score:0.000 confidence:1
+[Input] frame:212818320 artist:Atric title:Solus score:0.000 confidence:1
+[Input] frame:213176600 artist:Atric title:Solus score:0.000 confidence:1
+[Input] frame:213534880 artist:Atric title:Solus score:0.000 confidence:1
+[Input] frame:213893160 artist:Atric title:Solus score:0.000 confidence:1
+[Input] frame:214251440 artist:Atric title:Solus score:0.000 confidence:1
+[Input] frame:214609720 artist:Atric title:Solus score:0.000 confidence:1
+[Input] frame:214968000 artist:Westend title:Freaky Time score:0.000 confidence:1
+[Input] frame:215326280 artist:Westend title:Freaky Time score:0.000 confidence:1
+[Input] frame:215684560 artist:Westend title:Freaky Time score:0.000 confidence:1
+[Input] frame:216042840 artist:Westend title:Freaky Time score:0.000 confidence:1
+[Input] frame:216401120 artist:Westend title:Freaky Time score:0.000 confidence:1
+[Input] frame:216759400 artist:Westend title:Freaky Time score:0.000 confidence:1
+[Input] frame:217117680 artist:Westend title:Freaky Time score:0.000 confidence:1
+[Input] frame:217475960 artist:Fragma title:Toca's Miracle (2008 Inpetto Extended Mix) score:0.000 confidence:1
+[Input] frame:217834240 artist:Westend title:Freaky Time score:0.000 confidence:1
+[Input] frame:218192520 artist:Westend title:Freaky Time score:0.000 confidence:1
+[Input] frame:218550800 artist:Westend title:Freaky Time score:0.000 confidence:1
+[Input] frame:218909080 artist:Westend title:Freaky Time score:0.000 confidence:1
+[Input] frame:219267360 artist:Westend title:Freaky Time score:0.000 confidence:1
+[Input] frame:219625640 artist:Westend title:Freaky Time score:0.000 confidence:1
+[Input] frame:219983920 artist:Westend title:Freaky Time score:0.000 confidence:1
+[Input] frame:220342200 artist:Westend title:Freaky Time score:0.000 confidence:1
+[Input] frame:220700480 artist:Westend title:Freaky Time score:0.000 confidence:1
+[Input] frame:221058760 artist:Westend title:Freaky Time score:0.000 confidence:1
+[Input] frame:221417040 artist:Westend title:Freaky Time score:0.000 confidence:1
+[Input] frame:221775320 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:222133600 artist:INNDRIVE title:Make You Say score:0.000 confidence:1
+[Input] frame:222491880 artist:INNDRIVE title:Make You Say score:0.000 confidence:1
+[Input] frame:222850160 artist:INNDRIVE title:Make You Say score:0.000 confidence:1
+[Input] frame:223208440 artist:INNDRIVE title:Make You Say score:0.000 confidence:1
+[Input] frame:223566720 artist:INNDRIVE title:Make You Say score:0.000 confidence:1
+[Input] frame:223925000 artist:INNDRIVE title:Make You Say score:0.000 confidence:1
+[Input] frame:224283280 artist:INNDRIVE title:Make You Say score:0.000 confidence:1
+[Input] frame:224641560 artist:INNDRIVE title:Make You Say score:0.000 confidence:1
+[Input] frame:224999840 artist:INNDRIVE title:Make You Say score:0.000 confidence:1
+[Input] frame:225358120 artist:INNDRIVE title:Make You Say score:0.000 confidence:1
+[Input] frame:225716400 artist:INNDRIVE title:Make You Say score:0.000 confidence:1
+[Input] frame:226074680 artist:Tassilo Hagström title:Berlin score:0.000 confidence:1
+[Input] frame:226432960 artist:The Goooniez title:A****Loch (Dabruck & Klein Remix) score:0.000 confidence:1
+[Input] frame:226791240 artist:INNDRIVE title:Make You Say score:0.000 confidence:1
+[Input] frame:227149520 artist:INNDRIVE title:Make You Say score:0.000 confidence:1
+[Input] frame:227507800 artist:INNDRIVE title:Make You Say score:0.000 confidence:1
+[Input] frame:227866080 artist:INNDRIVE title:Make You Say score:0.000 confidence:1
+[Input] frame:228224360 artist:INNDRIVE title:Make You Say score:0.000 confidence:1
+[Input] frame:228582640 artist:INNDRIVE title:Make You Say score:0.000 confidence:1
+[Input] frame:228940920 artist:INNDRIVE title:Make You Say score:0.000 confidence:1
+[Input] frame:229299200 artist:INNDRIVE title:Make You Say score:0.000 confidence:1
+[Input] frame:229657480 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:230015760 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:230374040 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:230732320 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:231090600 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:231448880 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:231807160 artist:Kolombo & Pysh title:Straight From the Heart (Deflee Remix) score:0.000 confidence:1
+[Input] frame:232165440 artist:Kolombo & Pysh title:Straight From the Heart (Deflee Remix) score:0.000 confidence:1
+[Input] frame:232523720 artist:Kolombo & Pysh title:Straight From the Heart (Deflee Remix) score:0.000 confidence:1
+[Input] frame:232882000 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:233240280 artist:Kolombo & Pysh title:Straight From the Heart (Deflee Remix) score:0.000 confidence:1
+[Input] frame:233598560 artist:Kolombo & Pysh title:Straight From the Heart (Deflee Remix) score:0.000 confidence:1
+[Input] frame:233956840 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:234315120 artist:Kolombo & Pysh title:Straight From the Heart (Deflee Remix) score:0.000 confidence:1
+[Input] frame:234673400 artist:Kolombo & Pysh title:Straight From the Heart (Deflee Remix) score:0.000 confidence:1
+[Input] frame:235031680 artist:Kolombo & Pysh title:Straight From the Heart (Deflee Remix) score:0.000 confidence:1
+[Input] frame:235389960 artist:Kolombo & Pysh title:Straight From the Heart (Deflee Remix) score:0.000 confidence:1
+[Input] frame:235748240 artist:Kolombo & Pysh title:Straight From the Heart (Deflee Remix) score:0.000 confidence:1
+[Input] frame:236106520 artist:Kolombo & Pysh title:Straight From the Heart (Deflee Remix) score:0.000 confidence:1
+[Input] frame:236464800 artist:Kolombo & Pysh title:Straight From the Heart (Deflee Remix) score:0.000 confidence:1
+[Input] frame:236823080 artist:Kolombo & Pysh title:Straight From the Heart (Deflee Remix) score:0.000 confidence:1
+[Input] frame:237181360 artist:Kolombo & Pysh title:Straight From the Heart (Deflee Remix) score:0.000 confidence:1
+[Input] frame:237539640 artist:Kolombo & Pysh title:Straight From the Heart (Deflee Remix) score:0.000 confidence:1
+[Input] frame:237897920 artist:Kolombo & Pysh title:Straight From the Heart (Deflee Remix) score:0.000 confidence:1
+[Input] frame:238256200 artist:Kolombo & Pysh title:Straight From the Heart (Deflee Remix) score:0.000 confidence:1
+[Input] frame:238614480 artist:Kolombo & Pysh title:Straight From the Heart (Deflee Remix) score:0.000 confidence:1
+[Input] frame:238972760 artist:NightFunk title:Space Buddies score:0.000 confidence:1
+[Input] frame:239331040 artist:NightFunk title:Space Buddies score:0.000 confidence:1
+[Input] frame:239689320 artist:NightFunk title:Space Buddies score:0.000 confidence:1
+[Input] frame:240047600 artist:NightFunk title:Space Buddies score:0.000 confidence:1
+[Input] frame:240405880 artist:NightFunk title:Space Buddies score:0.000 confidence:1
+[Input] frame:240764160 artist:NightFunk title:Space Buddies score:0.000 confidence:1
+[Input] frame:241122440 artist:NightFunk title:Space Buddies score:0.000 confidence:1
+[Input] frame:241480720 artist:NightFunk title:Space Buddies score:0.000 confidence:1
+[Input] frame:241839000 artist:NightFunk title:Space Buddies score:0.000 confidence:1
+[Input] frame:242197280 artist:NightFunk title:Space Buddies score:0.000 confidence:1
+[Input] frame:242555560 artist:NightFunk title:Space Buddies score:0.000 confidence:1
+[Input] frame:242913840 artist:NightFunk title:Space Buddies score:0.000 confidence:1
+[Input] frame:243272120 artist:NightFunk title:Space Buddies score:0.000 confidence:1
+[Input] frame:243630400 artist:NightFunk title:Space Buddies score:0.000 confidence:1
+[Input] frame:243988680 artist:NightFunk title:Space Buddies score:0.000 confidence:1
+[Input] frame:244346960 artist:NightFunk title:Space Buddies score:0.000 confidence:1
+[Input] frame:244705240 artist:NightFunk title:Space Buddies score:0.000 confidence:1
+[Input] frame:245063520 artist:NightFunk title:Space Buddies score:0.000 confidence:1
+[Input] frame:245421800 artist:NightFunk title:Space Buddies score:0.000 confidence:1
+[Input] frame:245780080 artist:NightFunk title:Space Buddies score:0.000 confidence:1
+[Input] frame:246138360 artist:NightFunk title:Space Buddies score:0.000 confidence:1
+[Input] frame:246496640 artist:NightFunk title:Space Buddies score:0.000 confidence:1
+[Input] frame:246854920 artist:NightFunk title:Space Buddies score:0.000 confidence:1
+[Input] frame:247213200 artist:NightFunk title:Space Buddies score:0.000 confidence:1
+[Input] frame:247571480 artist:NightFunk title:Space Buddies score:0.000 confidence:1
+[Input] frame:247929760 artist:NightFunk title:Space Buddies score:0.000 confidence:1
+[Input] frame:248288040 artist:NightFunk title:Space Buddies score:0.000 confidence:1
+[Input] frame:248646320 artist:NightFunk title:Space Buddies score:0.000 confidence:1
+[Input] frame:249004600 artist:NightFunk title:Space Buddies score:0.000 confidence:1
+[Input] frame:249362880 artist:NightFunk title:Space Buddies score:0.000 confidence:1
+[Input] frame:249721160 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:250079440 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:250437720 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:250796000 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:251154280 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:251512560 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:251870840 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:252229120 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:252587400 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:252945680 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:253303960 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:253662240 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:254020520 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:254378800 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:254737080 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:255095360 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:255453640 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:255811920 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:256170200 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:256528480 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:256886760 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:257245040 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:257603320 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:257961600 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:258319880 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:258678160 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:259036440 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:259394720 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:259753000 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:260111280 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:260469560 artist:Confused & Rowtech title:Trip score:0.000 confidence:1
+[Input] frame:260827840 artist:Confused & Rowtech title:Trip score:0.000 confidence:1
+[Input] frame:261186120 artist:Confused & Rowtech title:Trip score:0.000 confidence:1
+[Input] frame:261544400 artist:Confused & Rowtech title:Trip score:0.000 confidence:1
+[Input] frame:261902680 artist:Confused & Rowtech title:Trip score:0.000 confidence:1
+[Input] frame:262260960 artist:Confused & Rowtech title:Trip score:0.000 confidence:1
+[Input] frame:262619240 artist:Confused & Rowtech title:Trip score:0.000 confidence:1
+[Input] frame:262977520 artist:Confused & Rowtech title:Trip score:0.000 confidence:1
+[Input] frame:263335800 artist:Confused & Rowtech title:Trip score:0.000 confidence:1
+[Input] frame:263694080 artist:Confused & Rowtech title:Trip score:0.000 confidence:1
+[Input] frame:264052360 artist:Confused & Rowtech title:Trip score:0.000 confidence:1
+[Input] frame:264410640 artist:Confused & Rowtech title:Trip score:0.000 confidence:1
+[Input] frame:264768920 artist:Confused & Rowtech title:Trip score:0.000 confidence:1
+[Input] frame:265127200 artist:Confused & Rowtech title:Trip score:0.000 confidence:1
+[Input] frame:265485480 artist:Confused & Rowtech title:Trip score:0.000 confidence:1
+[Input] frame:265843760 artist:Confused & Rowtech title:Trip score:0.000 confidence:1
+[Input] frame:266202040 artist:Confused & Rowtech title:Trip score:0.000 confidence:1
+[Input] frame:266560320 artist:Confused & Rowtech title:Trip score:0.000 confidence:1
+[Input] frame:266918600 artist:Confused & Rowtech title:Trip score:0.000 confidence:1
+[Input] frame:267276880 artist:Confused & Rowtech title:Trip score:0.000 confidence:1
+[Input] frame:267635160 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:267993440 artist:Moontalk title:Like This (feat. SEÏTOU) score:0.000 confidence:1
+[Input] frame:268351720 artist:Moontalk title:Like This (feat. SEÏTOU) score:0.000 confidence:1
+[Input] frame:268710000 artist:Moontalk title:Like This (feat. SEÏTOU) score:0.000 confidence:1
+[Input] frame:269068280 artist:Moontalk title:Like This (feat. SEÏTOU) score:0.000 confidence:1
+[Input] frame:269426560 artist:Moontalk title:Like This (feat. SEÏTOU) score:0.000 confidence:1
+[Input] frame:269784840 artist:Moontalk title:Like This (feat. SEÏTOU) score:0.000 confidence:1
+[Input] frame:270143120 artist:Moontalk title:Like This (feat. SEÏTOU) score:0.000 confidence:1
+[Input] frame:270501400 artist:Moontalk title:Like This (feat. SEÏTOU) score:0.000 confidence:1
+[Input] frame:270859680 artist:Moontalk title:Like This (feat. SEÏTOU) score:0.000 confidence:1
+[Input] frame:271217960 artist:Moontalk title:Like This (feat. SEÏTOU) score:0.000 confidence:1
+[Input] frame:271576240 artist:Moontalk title:Like This (feat. SEÏTOU) score:0.000 confidence:1
+[Input] frame:271934520 artist:Moontalk title:Like This (feat. SEÏTOU) score:0.000 confidence:1
+[Input] frame:272292800 artist:Moontalk title:Like This (feat. SEÏTOU) score:0.000 confidence:1
+[Input] frame:272651080 artist:Moontalk title:Like This (feat. SEÏTOU) score:0.000 confidence:1
+[Input] frame:273009360 artist:Moontalk title:Like This (feat. SEÏTOU) score:0.000 confidence:1
+[Input] frame:273367640 artist:Moontalk title:Like This (feat. SEÏTOU) score:0.000 confidence:1
+[Input] frame:273725920 artist:Moontalk title:Like This (feat. SEÏTOU) score:0.000 confidence:1
+[Input] frame:274084200 artist:Moontalk title:Like This (feat. SEÏTOU) score:0.000 confidence:1
+[Input] frame:274442480 artist:Moontalk title:Like This (feat. SEÏTOU) score:0.000 confidence:1
+[Input] frame:274800760 artist:Moontalk title:Like This (feat. SEÏTOU) score:0.000 confidence:1
+[Input] frame:275159040 artist:Moontalk title:Like This (feat. SEÏTOU) score:0.000 confidence:1
+[Input] frame:275517320 artist:Moontalk title:Like This (feat. SEÏTOU) score:0.000 confidence:1
+[Input] frame:275875600 artist:Moontalk title:Like This (feat. SEÏTOU) score:0.000 confidence:1
+[Input] frame:276233880 artist:Moontalk title:Like This (feat. SEÏTOU) score:0.000 confidence:1
+[Input] frame:276592160 artist:Moontalk title:Like This (feat. SEÏTOU) score:0.000 confidence:1
+[Input] frame:276950440 artist:Moontalk title:Like This (feat. SEÏTOU) score:0.000 confidence:1
+[Input] frame:277308720 artist:Moontalk title:Like This (feat. SEÏTOU) score:0.000 confidence:1
+[Input] frame:277667000 artist:Moontalk title:Like This (feat. SEÏTOU) score:0.000 confidence:1
+[Input] frame:278025280 artist:Moontalk title:Like This (feat. SEÏTOU) score:0.000 confidence:1
+[Input] frame:278383560 artist:Moontalk title:Like This (feat. SEÏTOU) score:0.000 confidence:1
+[Input] frame:278741840 artist:Moontalk title:Like This (feat. SEÏTOU) score:0.000 confidence:1
+[Input] frame:279100120 artist:Moontalk title:Like This (feat. SEÏTOU) score:0.000 confidence:1
+[Input] frame:279458400 artist:Moontalk title:Like This (feat. SEÏTOU) score:0.000 confidence:1
+[Input] frame:279816680 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:280174960 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:280533240 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:280891520 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:281249800 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:281608080 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:281966360 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:282324640 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:282682920 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:283041200 artist:Ruben Karapetyan title:The Ways (ULF001) score:0.000 confidence:1
+[Input] frame:283399480 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:283757760 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:284116040 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:284474320 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:284832600 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:285190880 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:285549160 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:285907440 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:286265720 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:286624000 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:286982280 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:287340560 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:287698840 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:288057120 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:288415400 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:288773680 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:289131960 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:289490240 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:289848520 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:290206800 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:290565080 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:290923360 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:291281640 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:291639920 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:291998200 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:292356480 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:292714760 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:293073040 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:293431320 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:293789600 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:294147880 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:294506160 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:294864440 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:295222720 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:295581000 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:295939280 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:296297560 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:296655840 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:297014120 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:297372400 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:297730680 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:298088960 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:298447240 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:298805520 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:299163800 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:299522080 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:299880360 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:300238640 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:300596920 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:300955200 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:301313480 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:301671760 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:302030040 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:302388320 artist:moonbooter title:sequenzer 9 (dark night studio mix) score:0.000 confidence:1
+[Input] frame:302746600 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:303104880 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:303463160 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:303821440 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:304179720 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:304538000 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:304896280 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:305254560 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:305612840 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:305971120 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:306329400 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:306687680 artist:Oliver Koletzki title:Weirdo score:0.000 confidence:1
+[Input] frame:307045960 artist:Oliver Koletzki title:Weirdo score:0.000 confidence:1
+[Input] frame:307404240 artist:Oliver Koletzki title:Weirdo score:0.000 confidence:1
+[Input] frame:307762520 artist:Oliver Koletzki title:Weirdo score:0.000 confidence:1
+[Input] frame:308120800 artist:Oliver Koletzki title:Weirdo score:0.000 confidence:1
+[Input] frame:308479080 artist:Kemal Vatansever & Yigitoglu title:Brain Storming score:0.000 confidence:1
+[Input] frame:308837360 artist:Oliver Koletzki title:Weirdo score:0.000 confidence:1
+[Input] frame:309195640 artist:Oliver Koletzki title:Weirdo score:0.000 confidence:1
+[Input] frame:309553920 artist:Oliver Koletzki title:Weirdo score:0.000 confidence:1
+[Input] frame:309912200 artist:Oliver Koletzki title:Weirdo score:0.000 confidence:1
+[Input] frame:310270480 artist:Oliver Koletzki title:Weirdo score:0.000 confidence:1
+[Input] frame:310628760 artist:Oliver Koletzki title:Weirdo score:0.000 confidence:1
+[Input] frame:310987040 artist:Oliver Koletzki title:Weirdo score:0.000 confidence:1
+[Input] frame:311345320 artist:Oliver Koletzki title:Weirdo score:0.000 confidence:1
+[Input] frame:311703600 artist:Kemal Vatansever & Yigitoglu title:Brain Storming score:0.000 confidence:1
+[Input] frame:312061880 artist:Oliver Koletzki title:Weirdo score:0.000 confidence:1
+[Input] frame:312420160 artist:Oliver Koletzki title:Weirdo score:0.000 confidence:1
+[Input] frame:312778440 artist:Oliver Koletzki title:Weirdo score:0.000 confidence:1
+[Input] frame:313136720 artist:Oliver Koletzki title:Weirdo score:0.000 confidence:1
+[Input] frame:313495000 artist:Oliver Koletzki title:Weirdo score:0.000 confidence:1
+[Input] frame:313853280 artist:Oliver Koletzki title:Weirdo score:0.000 confidence:1
+[Input] frame:314211560 artist:Jean-Michel Jarre & Tangerine Dream title:Zero Gravity (Above and Beyond Remix) score:0.000 confidence:1
+[Input] frame:314569840 artist:Oliver Koletzki title:Weirdo score:0.000 confidence:1
+[Input] frame:314928120 artist:Oliver Koletzki title:Weirdo score:0.000 confidence:1
+[Input] frame:315286400 artist:Oliver Koletzki title:Weirdo score:0.000 confidence:1
+[Input] frame:315644680 artist:Oliver Koletzki title:Weirdo score:0.000 confidence:1
+[Input] frame:316002960 artist:Oliver Koletzki title:Weirdo score:0.000 confidence:1
+[Input] frame:316361240 artist:Oliver Koletzki title:Weirdo score:0.000 confidence:1
+[Input] frame:316719520 artist:Oliver Koletzki title:Weirdo score:0.000 confidence:1
+[Input] frame:317077800 artist:Oliver Koletzki title:Weirdo score:0.000 confidence:1
+[Input] frame:317436080 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:317794360 artist:No Hopes & Max Freeze title:Punk (VIP Mix) score:0.000 confidence:1
+[Input] frame:318152640 artist:No Hopes & Max Freeze title:Punk (VIP Mix) score:0.000 confidence:1
+[Input] frame:318510920 artist:No Hopes & Max Freeze title:Punk (VIP Mix) score:0.000 confidence:1
+[Input] frame:318869200 artist:No Hopes & Max Freeze title:Punk (VIP Mix) score:0.000 confidence:1
+[Input] frame:319227480 artist:No Hopes & Max Freeze title:Punk (VIP Mix) score:0.000 confidence:1
+[Input] frame:319585760 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:319944040 artist:No Hopes & Max Freeze title:Punk (VIP Mix) score:0.000 confidence:1
+[Input] frame:320302320 artist:No Hopes & Max Freeze title:Punk (VIP Mix) score:0.000 confidence:1
+[Input] frame:320660600 artist:No Hopes & Max Freeze title:Punk (VIP Mix) score:0.000 confidence:1
+[Input] frame:321018880 artist:No Hopes & Max Freeze title:Punk (VIP Mix) score:0.000 confidence:1
+[Input] frame:321377160 artist:No Hopes & Max Freeze title:Punk (VIP Mix) score:0.000 confidence:1
+[Input] frame:321735440 artist:No Hopes & Max Freeze title:Punk (VIP Mix) score:0.000 confidence:1
+[Input] frame:322093720 artist:No Hopes & Max Freeze title:Punk (VIP Mix) score:0.000 confidence:1
+[Input] frame:322452000 artist:No Hopes & Max Freeze title:Punk (VIP Mix) score:0.000 confidence:1
+[Input] frame:322810280 artist:No Hopes & Max Freeze title:Punk (VIP Mix) score:0.000 confidence:1
+[Input] frame:323168560 artist:No Hopes & Max Freeze title:Punk (VIP Mix) score:0.000 confidence:1
+[Input] frame:323526840 artist:No Hopes & Max Freeze title:Punk (VIP Mix) score:0.000 confidence:1
+[Input] frame:323885120 artist:No Hopes & Max Freeze title:Punk (VIP Mix) score:0.000 confidence:1
+[Input] frame:324243400 artist:No Hopes & Max Freeze title:Punk (VIP Mix) score:0.000 confidence:1
+[Input] frame:324601680 artist:No Hopes & Max Freeze title:Punk (VIP Mix) score:0.000 confidence:1
+[Input] frame:324959960 artist:No Hopes & Max Freeze title:Punk (VIP Mix) score:0.000 confidence:1
+[Input] frame:325318240 artist:No Hopes & Max Freeze title:Punk (VIP Mix) score:0.000 confidence:1
+[Input] frame:325676520 artist:No Hopes & Max Freeze title:Punk (VIP Mix) score:0.000 confidence:1
+[Input] frame:326034800 artist:No Hopes & Max Freeze title:Punk (VIP Mix) score:0.000 confidence:1
+[Input] frame:326393080 artist:No Hopes & Max Freeze title:Punk (VIP Mix) score:0.000 confidence:1
+[Input] frame:326751360 artist:No Hopes & Max Freeze title:Punk (VIP Mix) score:0.000 confidence:1
+[Input] frame:327109640 artist:No Hopes & Max Freeze title:Punk (VIP Mix) score:0.000 confidence:1
+[Input] frame:327467920 artist:No Hopes & Max Freeze title:Punk (VIP Mix) score:0.000 confidence:1
+[Input] frame:327826200 artist:Imad & Dennis Louvra title:Pjanoo score:0.000 confidence:1
+[Input] frame:328184480 artist:No Hopes & Max Freeze title:Punk (VIP Mix) score:0.000 confidence:1
+[Input] frame:328542760 artist:No Hopes & Max Freeze title:Punk (VIP Mix) score:0.000 confidence:1
+[Input] frame:328901040 artist:Imad & Dennis Louvra title:Pjanoo score:0.000 confidence:1
+[Input] frame:329259320 artist:Imad & Dennis Louvra title:Pjanoo score:0.000 confidence:1
+[Input] frame:329617600 artist:Imad & Dennis Louvra title:Pjanoo score:0.000 confidence:1
+[Input] frame:329975880 artist:Imad & Dennis Louvra title:Pjanoo score:0.000 confidence:1
+[Input] frame:330334160 artist:Imad & Dennis Louvra title:Pjanoo score:0.000 confidence:1
+[Input] frame:330692440 artist:Eric Prydz title:Pjanoo (Radio Edit) score:0.000 confidence:1
+[Input] frame:331050720 artist:Imad & Dennis Louvra title:Pjanoo score:0.000 confidence:1
+[Input] frame:331409000 artist:Imad & Dennis Louvra title:Pjanoo score:0.000 confidence:1
+[Input] frame:331767280 artist:Imad & Dennis Louvra title:Pjanoo score:0.000 confidence:1
+[Input] frame:332125560 artist:Imad & Dennis Louvra title:Pjanoo score:0.000 confidence:1
+[Input] frame:332483840 artist:Imad & Dennis Louvra title:Pjanoo score:0.000 confidence:1
+[Input] frame:332842120 artist:Eric Prydz title:Pjanoo (Club Mix) score:0.000 confidence:1
+[Input] frame:333200400 artist:Imad & Dennis Louvra title:Pjanoo score:0.000 confidence:1
+[Input] frame:333558680 artist:Imad & Dennis Louvra title:Pjanoo score:0.000 confidence:1
+[Input] frame:333916960 artist:Imad & Dennis Louvra title:Pjanoo score:0.000 confidence:1
+[Input] frame:334275240 artist:Imad & Dennis Louvra title:Pjanoo score:0.000 confidence:1
+[Input] frame:334633520 artist:Imad & Dennis Louvra title:Pjanoo score:0.000 confidence:1
+[Input] frame:334991800 artist:Eric Prydz title:Pjanoo (Radio Edit) score:0.000 confidence:1
+[Input] frame:335350080 artist:Eric Prydz title:Pjanoo (Club Mix) score:0.000 confidence:1
+[Input] frame:335708360 artist:Eric Prydz title:Pjanoo (Radio Edit) score:0.000 confidence:1
+[Input] frame:336066640 artist:Imad & Dennis Louvra title:Pjanoo score:0.000 confidence:1
+[Input] frame:336424920 artist:Imad & Dennis Louvra title:Pjanoo score:0.000 confidence:1
+[Input] frame:336783200 artist:Eric Prydz title:Pjanoo (Club Mix) score:0.000 confidence:1
+[Input] frame:337141480 artist:Eric Prydz title:Pjanoo (Club Mix) score:0.000 confidence:1
+[Input] frame:337499760 artist:Eric Prydz title:Pjanno (James Bluck 2020 Remix) score:0.000 confidence:1
+[Input] frame:337858040 artist:Imad & Dennis Louvra title:Pjanoo score:0.000 confidence:1
+[Input] frame:338216320 artist:Imad & Dennis Louvra title:Pjanoo score:0.000 confidence:1
+[Input] frame:338574600 artist:Sanoi & Kon Faber title:Kein Stress (feat. Vokalmatador) [Extended Mix] score:0.000 confidence:1
+[Input] frame:338932880 artist:Sanoi & Kon Faber title:Kein Stress (feat. Vokalmatador) [Extended Mix] score:0.000 confidence:1
+[Input] frame:339291160 artist:Sanoi & Kon Faber title:Kein Stress (feat. Vokalmatador) [Extended Mix] score:0.000 confidence:1
+[Input] frame:339649440 artist:Sanoi & Kon Faber title:Kein Stress (feat. Vokalmatador) [Extended Mix] score:0.000 confidence:1
+[Input] frame:340007720 artist:Sanoi & Kon Faber title:Kein Stress (feat. Vokalmatador) [Extended Mix] score:0.000 confidence:1
+[Input] frame:340366000 artist:Sanoi & Kon Faber title:Kein Stress (feat. Vokalmatador) [Extended Mix] score:0.000 confidence:1
+[Input] frame:340724280 artist:Sanoi & Kon Faber title:Kein Stress (feat. Vokalmatador) [Extended Mix] score:0.000 confidence:1
+[Input] frame:341082560 artist:Sanoi & Kon Faber title:Kein Stress (feat. Vokalmatador) [Extended Mix] score:0.000 confidence:1
+[Input] frame:341440840 artist:Sanoi & Kon Faber title:Kein Stress (feat. Vokalmatador) [Extended Mix] score:0.000 confidence:1
+[Input] frame:341799120 artist:Sanoi & Kon Faber title:Kein Stress (feat. Vokalmatador) [Extended Mix] score:0.000 confidence:1
+[Input] frame:342157400 artist:Sanoi & Kon Faber title:Kein Stress (feat. Vokalmatador) [Extended Mix] score:0.000 confidence:1
+[Input] frame:342515680 artist:Sanoi & Kon Faber title:Kein Stress (feat. Vokalmatador) [Extended Mix] score:0.000 confidence:1
+[Input] frame:342873960 artist:Sanoi & Kon Faber title:Kein Stress (feat. Vokalmatador) [Extended Mix] score:0.000 confidence:1
+[Input] frame:343232240 artist:Sanoi & Kon Faber title:Kein Stress (feat. Vokalmatador) [Extended Mix] score:0.000 confidence:1
+[Input] frame:343590520 artist:Sanoi & Kon Faber title:Kein Stress (feat. Vokalmatador) [Extended Mix] score:0.000 confidence:1
+[Input] frame:343948800 artist:Sanoi & Kon Faber title:Kein Stress (feat. Vokalmatador) [Extended Mix] score:0.000 confidence:1
+[Input] frame:344307080 artist:Sanoi & Kon Faber title:Kein Stress (feat. Vokalmatador) [Extended Mix] score:0.000 confidence:1
+[Input] frame:344665360 artist:Sanoi & Kon Faber title:Kein Stress (feat. Vokalmatador) [Extended Mix] score:0.000 confidence:1
+[Input] frame:345023640 artist:Sanoi & Kon Faber title:Kein Stress (feat. Vokalmatador) [Extended Mix] score:0.000 confidence:1
+[Input] frame:345381920 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:345740200 artist:Sanoi & Kon Faber title:Kein Stress (feat. Vokalmatador) [Extended Mix] score:0.000 confidence:1
+[Input] frame:346098480 artist:Sanoi & Kon Faber title:Kein Stress (feat. Vokalmatador) [Extended Mix] score:0.000 confidence:1
+[Input] frame:346456760 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:346815040 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:347173320 artist:Sanoi & Kon Faber title:Kein Stress (feat. Vokalmatador) [Extended Mix] score:0.000 confidence:1
+[Input] frame:347531600 artist:Sanoi & Kon Faber title:Kein Stress (feat. Vokalmatador) [Extended Mix] score:0.000 confidence:1
+[Input] frame:347889880 artist:Sanoi & Kon Faber title:Kein Stress (feat. Vokalmatador) [Extended Mix] score:0.000 confidence:1
+[Input] frame:348248160 artist:Sanoi & Kon Faber title:Kein Stress (feat. Vokalmatador) [Extended Mix] score:0.000 confidence:1
+[Input] frame:348606440 artist:Sanoi & Kon Faber title:Kein Stress (feat. Vokalmatador) [Extended Mix] score:0.000 confidence:1
+[Input] frame:348964720 artist:Sanoi & Kon Faber title:Kein Stress (feat. Vokalmatador) [Extended Mix] score:0.000 confidence:1
+[Input] frame:349323000 artist:Sanoi & Kon Faber title:Kein Stress (feat. Vokalmatador) [Extended Mix] score:0.000 confidence:1
+[Input] frame:349681280 artist:Sanoi & Kon Faber title:Kein Stress (feat. Vokalmatador) [Extended Mix] score:0.000 confidence:1
+[Input] frame:350039560 artist:Sanoi & Kon Faber title:Kein Stress (feat. Vokalmatador) [Extended Mix] score:0.000 confidence:1
+[Input] frame:350397840 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:350756120 artist:Vakabular title:Kandelaki score:0.000 confidence:1
+[Input] frame:351114400 artist:Vakabular title:Kandelaki score:0.000 confidence:1
+[Input] frame:351472680 artist:Vakabular title:Kandelaki score:0.000 confidence:1
+[Input] frame:351830960 artist:Vakabular title:Kandelaki score:0.000 confidence:1
+[Input] frame:352189240 artist:Vakabular title:Kandelaki score:0.000 confidence:1
+[Input] frame:352547520 artist:Vakabular title:Kandelaki score:0.000 confidence:1
+[Input] frame:352905800 artist:Vakabular title:Kandelaki score:0.000 confidence:1
+[Input] frame:353264080 artist:Vakabular title:Kandelaki score:0.000 confidence:1
+[Input] frame:353622360 artist:Vakabular title:Kandelaki score:0.000 confidence:1
+[Input] frame:353980640 artist:Vakabular title:Kandelaki score:0.000 confidence:1
+[Input] frame:354338920 artist:Vakabular title:Kandelaki score:0.000 confidence:1
+[Input] frame:354697200 artist:Vakabular title:Kandelaki score:0.000 confidence:1
+[Input] frame:355055480 artist:Vakabular title:Kandelaki score:0.000 confidence:1
+[Input] frame:355413760 artist:Vakabular title:Kandelaki score:0.000 confidence:1
+[Input] frame:355772040 artist:Vakabular title:Kandelaki score:0.000 confidence:1
+[Input] frame:356130320 artist:Vakabular title:Kandelaki score:0.000 confidence:1
+[Input] frame:356488600 artist:Vakabular title:Kandelaki score:0.000 confidence:1
+[Input] frame:356846880 artist:Vakabular title:Kandelaki score:0.000 confidence:1
+[Input] frame:357205160 artist:Vakabular title:Kandelaki score:0.000 confidence:1
+[Input] frame:357563440 artist:Vakabular title:Kandelaki score:0.000 confidence:1
+[Input] frame:357921720 artist:Vakabular title:Kandelaki score:0.000 confidence:1
+[Input] frame:358280000 artist:Vakabular title:Kandelaki score:0.000 confidence:1
+[Input] frame:358638280 artist:Pavel Petrov title:Bitter Sweet (feat. Akiki) score:0.000 confidence:1
+[Input] frame:358996560 artist:Pavel Petrov title:Bitter Sweet (feat. Akiki) score:0.000 confidence:1
+[Input] frame:359354840 artist:Pavel Petrov title:Bitter Sweet (feat. Akiki) score:0.000 confidence:1
+[Input] frame:359713120 artist:Pavel Petrov title:Bitter Sweet (feat. Akiki) score:0.000 confidence:1
+[Input] frame:360071400 artist:Pavel Petrov title:Bitter Sweet (feat. Akiki) score:0.000 confidence:1
+[Input] frame:360429680 artist:Pavel Petrov title:Bitter Sweet (feat. Akiki) score:0.000 confidence:1
+[Input] frame:360787960 artist:Pavel Petrov title:Bitter Sweet (feat. Akiki) score:0.000 confidence:1
+[Input] frame:361146240 artist:Pavel Petrov title:Bitter Sweet (feat. Akiki) score:0.000 confidence:1
+[Input] frame:361504520 artist:Pavel Petrov title:Bitter Sweet (feat. Akiki) score:0.000 confidence:1
+[Input] frame:361862800 artist:Pavel Petrov title:Bitter Sweet (feat. Akiki) score:0.000 confidence:1
+[Input] frame:362221080 artist:Pavel Petrov title:Bitter Sweet (feat. Akiki) score:0.000 confidence:1
+[Input] frame:362579360 artist:Pavel Petrov title:Bitter Sweet (feat. Akiki) score:0.000 confidence:1
+[Input] frame:362937640 artist:Pavel Petrov title:Bitter Sweet (feat. Akiki) score:0.000 confidence:1
+[Input] frame:363295920 artist:Tv.Out title:0303Am score:0.000 confidence:1
+[Input] frame:363654200 artist:Pavel Petrov title:Bitter Sweet (feat. Akiki) score:0.000 confidence:1
+[Input] frame:364012480 artist:Pavel Petrov title:Bitter Sweet (feat. Akiki) score:0.000 confidence:1
+[Input] frame:364370760 artist:Pavel Petrov title:Bitter Sweet (feat. Akiki) score:0.000 confidence:1
+[Input] frame:364729040 artist:Pavel Petrov title:Bitter Sweet (feat. Akiki) score:0.000 confidence:1
+[Input] frame:365087320 artist:Pavel Petrov title:Bitter Sweet (feat. Akiki) score:0.000 confidence:1
+[Input] frame:365445600 artist:Pavel Petrov title:Bitter Sweet (feat. Akiki) score:0.000 confidence:1
+[Input] frame:365803880 artist:Pavel Petrov title:Bitter Sweet (feat. Akiki) score:0.000 confidence:1
+[Input] frame:366162160 artist:Pavel Petrov title:Bitter Sweet (feat. Akiki) score:0.000 confidence:1
+[Input] frame:366520440 artist:Pavel Petrov title:Bitter Sweet (feat. Akiki) score:0.000 confidence:1
+[Input] frame:366878720 artist:Pavel Petrov title:Bitter Sweet (feat. Akiki) score:0.000 confidence:1
+[Input] frame:367237000 artist:Pavel Petrov title:Bitter Sweet (feat. Akiki) score:0.000 confidence:1
+[Input] frame:367595280 artist:Yeah Yeah Yeahs title:Heads Will Roll (Discotech Remix) [Mixed] score:0.000 confidence:1
+[Input] frame:367953560 artist:Morsy & John Spinosa title:Never Stop (Radio Edit) score:0.000 confidence:1
+[Input] frame:368311840 artist:Morsy & John Spinosa title:Never Stop (Radio Edit) score:0.000 confidence:1
+[Input] frame:368670120 artist:Pavel Petrov title:Bitter Sweet (feat. Akiki) score:0.000 confidence:1
+[Input] frame:369028400 artist:Santos Garcia title:MI GENTE score:0.000 confidence:1
+[Input] frame:369386680 artist:Pavel Petrov title:Bitter Sweet (feat. Akiki) score:0.000 confidence:1
+[Input] frame:369744960 artist:Pavel Petrov title:Bitter Sweet (feat. Akiki) score:0.000 confidence:1
+[Input] frame:370103240 artist:Juan Hansen title:My Own Game score:0.000 confidence:1
+[Input] frame:370461520 artist:Juan Hansen title:My Own Game score:0.000 confidence:1
+[Input] frame:370819800 artist:Juan Hansen title:My Own Game score:0.000 confidence:1
+[Input] frame:371178080 artist:Juan Hansen title:My Own Game score:0.000 confidence:1
+[Input] frame:371536360 artist:Juan Hansen title:My Own Game score:0.000 confidence:1
+[Input] frame:371894640 artist:Juan Hansen title:My Own Game score:0.000 confidence:1
+[Input] frame:372252920 artist:Juan Hansen title:My Own Game score:0.000 confidence:1
+[Input] frame:372611200 artist:Juan Hansen title:My Own Game score:0.000 confidence:1
+[Input] frame:372969480 artist:Juan Hansen title:My Own Game score:0.000 confidence:1
+[Input] frame:373327760 artist:Juan Hansen title:My Own Game score:0.000 confidence:1
+[Input] frame:373686040 artist:Juan Hansen title:My Own Game score:0.000 confidence:1
+[Input] frame:374044320 artist:Juan Hansen title:My Own Game score:0.000 confidence:1
+[Input] frame:374402600 artist:Juan Hansen title:My Own Game score:0.000 confidence:1
+[Input] frame:374760880 artist:Juan Hansen title:My Own Game (Oliver Koletzki Remix) score:0.000 confidence:1
+[Input] frame:375119160 artist:Juan Hansen title:My Own Game (Oliver Koletzki Remix) score:0.000 confidence:1
+[Input] frame:375477440 artist:Juan Hansen title:My Own Game (Oliver Koletzki Remix) score:0.000 confidence:1
+[Input] frame:375835720 artist:Juan Hansen title:My Own Game (Oliver Koletzki Remix) score:0.000 confidence:1
+[Input] frame:376194000 artist:Juan Hansen title:My Own Game score:0.000 confidence:1
+[Input] frame:376552280 artist:Juan Hansen title:My Own Game (Oliver Koletzki Remix) score:0.000 confidence:1
+[Input] frame:376910560 artist:Juan Hansen title:My Own Game (Oliver Koletzki Remix) score:0.000 confidence:1
+[Input] frame:377268840 artist:Juan Hansen title:My Own Game (Oliver Koletzki Remix) score:0.000 confidence:1
+[Input] frame:377627120 artist:Juan Hansen title:My Own Game (Oliver Koletzki Remix) score:0.000 confidence:1
+[Input] frame:377985400 artist:Juan Hansen title:My Own Game score:0.000 confidence:1
+[Input] frame:378343680 artist:Under Sanctions & Romanovich title:Colours (Extended Mix) score:0.000 confidence:1
+[Input] frame:378701960 artist:Under Sanctions & Romanovich title:Colours (Extended Mix) score:0.000 confidence:1
+[Input] frame:379060240 artist:Under Sanctions & Romanovich title:Colours (Extended Mix) score:0.000 confidence:1
+[Input] frame:379418520 artist:Under Sanctions & Romanovich title:Colours (Extended Mix) score:0.000 confidence:1
+[Input] frame:379776800 artist:Under Sanctions & Romanovich title:Colours (Extended Mix) score:0.000 confidence:1
+[Input] frame:380135080 artist:Under Sanctions & Romanovich title:Colours (Extended Mix) score:0.000 confidence:1
+[Input] frame:380493360 artist:Under Sanctions & Romanovich title:Colours (Extended Mix) score:0.000 confidence:1
+[Input] frame:380851640 artist:Under Sanctions & Romanovich title:Colours (Extended Mix) score:0.000 confidence:1
+[Input] frame:381209920 artist:Under Sanctions & Romanovich title:Colours (Extended Mix) score:0.000 confidence:1
+[Input] frame:381568200 artist:Under Sanctions & Romanovich title:Colours (Extended Mix) score:0.000 confidence:1
+[Input] frame:381926480 artist:Under Sanctions & Romanovich title:Colours (Extended Mix) score:0.000 confidence:1
+[Input] frame:382284760 artist:Under Sanctions & Romanovich title:Colours (Extended Mix) score:0.000 confidence:1
+[Input] frame:382643040 artist:Under Sanctions & Romanovich title:Colours (Extended Mix) score:0.000 confidence:1
+[Input] frame:383001320 artist:Under Sanctions & Romanovich title:Colours (Extended Mix) score:0.000 confidence:1
+[Input] frame:383359600 artist:Caissa title:Reflections score:0.000 confidence:1
+[Input] frame:383717880 artist:Nihil Young & Less Hate title:Visions score:0.000 confidence:1
+[Input] frame:384076160 artist:Under Sanctions & Romanovich title:Colours (Extended Mix) score:0.000 confidence:1
+[Input] frame:384434440 artist:Fernando Olaya title:Stereophonik score:0.000 confidence:1
+[Input] frame:384792720 artist:Under Sanctions & Romanovich title:Colours (Extended Mix) score:0.000 confidence:1
+[Input] frame:385151000 artist:Under Sanctions & Romanovich title:Colours (Extended Mix) score:0.000 confidence:1
+[Input] frame:385509280 artist:Under Sanctions & Romanovich title:Colours (Extended Mix) score:0.000 confidence:1
+[Input] frame:385867560 artist:Under Sanctions & Romanovich title:Colours (Extended Mix) score:0.000 confidence:1
+[Input] frame:386225840 artist:Under Sanctions & Romanovich title:Colours (Extended Mix) score:0.000 confidence:1
+[Input] frame:386584120 artist:Under Sanctions & Romanovich title:Colours (Extended Mix) score:0.000 confidence:1
+[Input] frame:386942400 artist:Under Sanctions & Romanovich title:Colours (Extended Mix) score:0.000 confidence:1
+[Input] frame:387300680 artist:Under Sanctions & Romanovich title:Colours (Extended Mix) score:0.000 confidence:1
+[Input] frame:387658960 artist:Under Sanctions & Romanovich title:Colours (Extended Mix) score:0.000 confidence:1
+[Input] frame:388017240 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:388375520 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:388733800 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:389092080 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:389450360 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:389808640 artist:Danum & Paul Haro title:Bass Tribe score:0.000 confidence:1
+[Input] frame:390166920 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:390525200 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:390883480 artist:Paul Haro & Danum title:Mama Say score:0.000 confidence:1
+[Input] frame:391241760 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:391600040 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:391958320 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:392316600 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:392674880 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:393033160 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:393391440 artist:Dosem & Prok & Fitch title:Doors score:0.000 confidence:1
+[Input] frame:393749720 artist:Dosem & Prok & Fitch title:Doors score:0.000 confidence:1
+[Input] frame:394108000 artist:Dosem & Prok & Fitch title:Doors score:0.000 confidence:1
+[Input] frame:394466280 artist:Dosem & Prok & Fitch title:Doors score:0.000 confidence:1
+[Input] frame:394824560 artist:Dosem & Prok & Fitch title:Doors score:0.000 confidence:1
+[Input] frame:395182840 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:395541120 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:395899400 artist:Paul Haro & Danum title:Mama Say score:0.000 confidence:1
+[Input] frame:396257680 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:396615960 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:396974240 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:397332520 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:397690800 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:398049080 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:398407360 artist: title:unknown score:0.000 confidence:(null)
+[Input] frame:398765640 artist: title:unknown score:0.000 confidence:(null)

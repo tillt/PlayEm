@@ -1,0 +1,9 @@
+sample=/Users/till/Development/PlayEm/PlayEmTests/test_set_patrice.m4a
+windows=6
+runs_per_window=1
+hop_override_frames=1048576
+use_streaming_match=1
+downmix_to_mono=1
+exclude_unknown_inputs=1
+total_runs=1
+run window=6.00 duration=37.25 hits_per_min=4.69 matched=3 unexpected=49 latency_avg=0.290

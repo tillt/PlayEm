@@ -1,0 +1,30 @@
+Mode: strict
+Refined: 34  Golden: 40
+Matched: 26  Precision: 0.765  Recall: 0.650
+SoftMatched: 31  SoftPrecision: 0.912  SoftRecall: 0.775
+
+False positives:
+- Arta - Differently (Extended Mix)
+-  - unknown
+- Artsky & Kinky Sound - Rover (Extended Mix)
+- Sanoi & Kon Faber - Kein Stress (feat. Vokalmatador) [Extended Mix]
+- Pavel Petrov - Bitter Sweet (feat. Akiki)
+- Juan Hansen - My Own Game (Oliver Koletzki Remix)
+- Under Sanctions & Romanovich - Colours (Extended Mix)
+- Dosem & Prok & Fitch - Doors
+
+Missed golden:
+- Atric & Frida Darko - Fusion Intro
+- Arta (Ru) - Differently
+- Flave, NUAH - Get Shit Done [unreleased]
+- ArtSky & Kinky Sound - Rover [unreleased]
+- Aaron King - Bounce
+- DJ Dan, Matthew Anthony, Hot N Bothered - Hot N Bothered (WHOWHENWHY Remix)
+- David Keno, Dalson - Paris Syndrom
+- Flave Edit - Chior Of Young Believers [unreleased]
+- No Hopes, Max Freeze - Punk [unreleased]
+- MT - Sanoi & Kon Faber (feat. Victor Moreno) - Kein Stress [unreleased]
+- Pavel Petrov feat. Akiki - Bitter Sweet [unreleased]
+- Juan Hansen - My Own Game (Original Mix)
+- Romanovich, Under Sanctions - Colours
+- Atric & Frida Darko - Montags nicht Fusion Special [unreleased]

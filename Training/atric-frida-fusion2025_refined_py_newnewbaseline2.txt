@@ -1,0 +1,36 @@
+[Final] frame:10334208 artist:Atric & Frida Darko title:Elevate score:12.319 support:22
+[Final] frame:18530304 artist:Arta title:Differently (Extended Mix) score:12.319 support:19
+[Final] frame:26370048 artist:Vakabular & Fab Massimo title:It's Yours (Extended) score:14.560 support:9
+[Final] frame:37060608 artist:Hidden Empire title:Cali's Sun score:15.680 support:26
+[Final] frame:46682112 artist:Atric title:Supervision score:15.680 support:31
+[Final] frame:58798080 artist:Habitatt title:Fly with Me (Extended Mix) score:11.100 support:19
+[Final] frame:67350528 artist:Oliver Koletzki & Frida Darko title:Space Base score:15.680 support:14
+[Final] frame:83386368 artist:NUAH & flave.uc title:Get Shit Done score:6.623 support:3
+[Final] frame:87662592 artist:Atric title:Flawless score:15.680 support:35
+[Final] frame:100491264 artist:Hidden Empire title:Ocean Beach score:15.680 support:25
+[Final] frame:115101696 artist:Vakabular title:Now You See score:10.640 support:11
+[Final] frame:131850240 artist:Distant Sun title:Machine lernt score:6.453 support:3
+[Final] frame:135057408 artist:Atric title:Reset Me score:10.859 support:9
+[Final] frame:147173376 artist:Atric & Frida Darko title:Hush score:11.100 support:15
+[Final] frame:154656768 artist:Romain Dary title:Trust Me score:15.680 support:26
+[Final] frame:164278272 artist:J.Fur title:Danger! score:15.680 support:16
+[Final] frame:174612480 artist:Waitz title:Looking for You score:15.680 support:22
+[Final] frame:202407936 artist:Atric title:Solus score:15.680 support:30
+[Final] frame:214523904 artist:Westend title:Freaky Time score:11.100 support:19
+[Final] frame:221650944 artist:Sandy B title:Make the World Go Round (Deep Dish Radio Edit) score:7.228 support:4
+[Final] frame:223789056 artist:The Poison Control Centre title:Avior score:10.640 support:12
+[Final] frame:231628800 artist:Kolombo & Pysh title:Straight From the Heart (Deflee Remix) score:11.694 support:19
+[Final] frame:239112192 artist:NightFunk title:Space Buddies score:15.680 support:24
+[Final] frame:255860736 artist:Giovanni Molinaro title:Otoponoz (Improved Mix) score:5.203 support:2
+[Final] frame:260136960 artist:Confused & Rowtech title:Trip score:10.640 support:18
+[Final] frame:267620352 artist:Moontalk title:Like This (feat. SEÏTOU) score:15.680 support:11
+[Final] frame:280092672 artist: title:unknown score:15.680 support:68
+[Final] frame:306462720 artist:Oliver Koletzki title:Weirdo score:15.680 support:29
+[Final] frame:317865984 artist:No Hopes & Max Freeze title:Punk (VIP Mix) score:15.680 support:31
+[Final] frame:328912896 artist:Imad & Dennis Louvra title:Pjanoo score:15.680 support:24
+[Final] frame:338534400 artist:Sanoi & Kon Faber title:Kein Stress (feat. Vokalmatador) [Extended Mix] score:15.680 support:33
+[Final] frame:351363072 artist:Rhythm&Soul title:1998 score:11.439 support:9
+[Final] frame:359559168 artist:Pavel Petrov title:Bitter Sweet (feat. Akiki) score:12.974 support:16
+[Final] frame:369893376 artist:Juan Hansen title:My Own Game (Oliver Koletzki Remix) score:12.319 support:11
+[Final] frame:378445824 artist:Under Sanctions & Romanovich title:Colours (Extended Mix) score:15.680 support:23
+[CLI] Refined 35 tracks

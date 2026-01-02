@@ -1,0 +1,35 @@
+[Final] frame:10390120 artist:Atric & Frida Darko title:Elevate score:11.760 support:21
+[Final] frame:18988840 artist:Arta title:Differently (Extended Mix) score:10.640 support:19
+[Final] frame:27587560 artist:Vakabular & Fab Massimo title:It's Yours (Extended) score:15.680 support:17
+[Final] frame:36902840 artist:Hidden Empire title:Cali's Sun score:15.680 support:27
+[Final] frame:47651240 artist:Atric title:Supervision score:15.680 support:29
+[Final] frame:58399640 artist:Habitatt title:Fly with Me (Extended Mix) score:12.392 support:22
+[Final] frame:66281800 artist:Oliver Koletzki & Frida Darko title:Space Base score:15.680 support:23
+[Final] frame:78463320 artist: title:unknown score:15.680 support:24
+[Final] frame:87778600 artist:Atric title:Flawless score:15.680 support:35
+[Final] frame:100318400 artist:Hidden Empire title:Ocean Beach score:15.680 support:26
+[Final] frame:110708520 artist:Vakabular title:Now You See score:15.680 support:35
+[Final] frame:123964880 artist:Kyle Watson & Aurelia Ray title:Bottom of the Rave score:12.392 support:17
+[Final] frame:133996720 artist:Atric title:Reset Me score:15.680 support:25
+[Final] frame:147253080 artist:Atric & Frida Darko title:Hush score:11.160 support:11
+[Final] frame:154776960 artist:Romain Dary title:Trust Me score:15.680 support:26
+[Final] frame:164092240 artist:J.Fur title:Danger! score:15.680 support:18
+[Final] frame:174840640 artist:Waitz title:Looking for You score:15.680 support:12
+[Final] frame:184155920 artist:DONT BLINK title:THE LAZER score:11.760 support:21
+[Final] frame:191679800 artist:Artsky & Kinky Sound title:Rover (Extended Mix) score:14.560 support:9
+[Final] frame:202428200 artist:Atric title:Solus score:15.680 support:35
+[Final] frame:214968000 artist:Westend title:Freaky Time score:10.640 support:18
+[Final] frame:222133600 artist:INNDRIVE title:Make You Say score:11.760 support:19
+[Final] frame:231807160 artist:Kolombo & Pysh title:Straight From the Heart (Deflee Remix) score:11.160 support:18
+[Final] frame:238972760 artist:NightFunk title:Space Buddies score:15.680 support:30
+[Final] frame:260469560 artist:Confused & Rowtech title:Trip score:11.160 support:20
+[Final] frame:267993440 artist:Moontalk title:Like This (feat. SEÏTOU) score:15.680 support:33
+[Final] frame:306687680 artist:Oliver Koletzki title:Weirdo score:15.680 support:27
+[Final] frame:327826200 artist:Imad & Dennis Louvra title:Pjanoo score:15.680 support:20
+[Final] frame:338574600 artist:Sanoi & Kon Faber title:Kein Stress (feat. Vokalmatador) [Extended Mix] score:15.680 support:30
+[Final] frame:350756120 artist:Vakabular title:Kandelaki score:12.392 support:22
+[Final] frame:358638280 artist:Pavel Petrov title:Bitter Sweet (feat. Akiki) score:15.680 support:27
+[Final] frame:374760880 artist:Juan Hansen title:My Own Game (Oliver Koletzki Remix) score:10.426 support:8
+[Final] frame:378343680 artist:Under Sanctions & Romanovich title:Colours (Extended Mix) score:15.680 support:24
+[Final] frame:393391440 artist:Dosem & Prok & Fitch title:Doors score:7.989 support:5
+[CLI] Refined 34 tracks

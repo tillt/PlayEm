@@ -206,8 +206,6 @@ NS_ASSUME_NONNULL_BEGIN
 {
     __weak TotalIdentificationController* weakSelf = self;
 
-    NSLog(@"%s %@ - %@", __PRETTY_FUNCTION__, match.mediaItems[0].artist, match.mediaItems[0].title);
-
     dispatch_async(_identifyQueue, ^{
         TotalIdentificationController* strongSelf = weakSelf;
         if (strongSelf == nil) {
@@ -223,6 +221,12 @@ NS_ASSUME_NONNULL_BEGIN
         if (offset == nil) {
             offset = [NSNumber numberWithUnsignedLongLong:strongSelf->_sessionFrameOffset];
         }
+
+        NSLog(@"%s %@ - %@", __PRETTY_FUNCTION__, match.mediaItems[0].artist, match.mediaItems[0].title);
+        unsigned long long frame = offset.unsignedLongLongValue;
+        double seconds = (double)frame / self->_sample.sampleFormat.rate;
+        NSLog(@"[DelegateFrame] frame=%llu time=%.3fs %@ - %@", frame, seconds, match.mediaItems.firstObject.artist, match.mediaItems.firstObject.title);
+                
         TimedMediaMetaData* track = [[TimedMediaMetaData alloc] initWithMatchedMediaItem:match.mediaItems[0] frame:offset];
 
         NSString* msg = [NSString stringWithFormat:@"%@ - %@", track.meta.artist, track.meta.title];

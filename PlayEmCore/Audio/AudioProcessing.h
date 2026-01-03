@@ -24,6 +24,7 @@ void destroyFFT(FFTSetup setup);
 void performFFT(FFTSetup fft, float* data, size_t numberOfFrames, float* frequencyData);
 
 void performMel(vDSP_DFT_Setup dct, float* values, int sampleCount, float* melData);
+void melScaleFFT(float* frequencyData);
 
 float* initLogMap(void);
 void destroyLogMap(float* map);

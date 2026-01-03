@@ -8,15 +8,16 @@
 
 #import <Foundation/Foundation.h>
 #import <simd/simd.h>
+#include <stdlib.h>
 #import "AudioProcessing.h"
 
 const size_t kScaledFrequencyDataLength = 256;
 const size_t kFrequencyDataLength = kScaledFrequencyDataLength * 4;
 
-/// The number of mel filter banks. UNUSED ATM!
-static const int kFilterBankCount = 40;
+/// The number of mel filter banks. Align with the downsampled visual spectrum.
+static const int kFilterBankCount = (int)kScaledFrequencyDataLength;
 
-static const float kFFTHighestFrequencyScaleFactor = 50.0f;
+static const float kFFTHighestFrequencyScaleFactor = 20.0f;
 
 // This is wrong but beautiful. It should be times 4. As a result, we only see
 // half the frequency band - that is, only the lower 11khz.
@@ -64,14 +65,14 @@ void destroyLogMap(float* map)
 float* initLogMap(void)
 {
     float* map = malloc(sizeof(float) * kFrequencyDataLength);
-    /*
-                  /  x - x0                                \
-          y = 10^|  ------- * (log(y1) - log(y0)) + log(y0) |
-                  \ x1 - x0                                /
-     */
-    for (int i=0; i < kFrequencyDataLength;i++) {
-        float fraction = (float)((kFrequencyDataLength-1) - i) / kFrequencyDataLength;
-        map[i] = (kScaledFrequencyDataLength-1) - powf(10.0f, fraction * log10f(kScaledFrequencyDataLength));
+    // Map each linear FFT bin onto a fractional logarithmic bin index in the compressed spectrum.
+    // For visuals, use a mild easing to keep lows present without overemphasizing highs.
+    const float targetBins = (float)(kScaledFrequencyDataLength - 1);
+    const float gamma = 0.95f; // <1 slightly lifts the lower bins
+    for (int i = 0; i < kFrequencyDataLength; i++) {
+        float fraction = (float)i / (float)(kFrequencyDataLength - 1); // 0..1 across linear bins
+        float eased = powf(fraction, gamma);
+        map[i] = targetBins * eased;
     }
     return map;
 }
@@ -188,8 +189,6 @@ void performFFT(FFTSetup fft, float* data, size_t numberOfFrames, float* frequen
     vDSP_vsdiv(frequencyData, 1, &scale, frequencyData, 1, kFrequencyDataLength);
     // Get the power of the values by sqrt(A[n]**2 + A[n]**2).
     vDSP_vdist(frequencyData, 1, frequencyData, 1, frequencyData, 1, kFrequencyDataLength);
-    // Multiply the whole thing by our visual scaling vector.
-    vDSP_vmul(frequencyData, 1, scaleVector, 1, frequencyData, 1, kFrequencyDataLength);
 }
 
 // Scales the linear frequency domain over into a logarithmic one. Or at least something
@@ -216,8 +215,8 @@ void logscaleFFT(float* map, float* frequencyData)
     for (int i=0; i < kFrequencyDataLength;i++) {
         double preComma;
         const double postComma = modf(map[i], &preComma);
-        const unsigned int leftIndex = preComma;
-        const unsigned int rightIndex =  leftIndex + 1;
+        const unsigned int leftIndex = (unsigned int)MIN(preComma, (double)(kScaledFrequencyDataLength - 1));
+        const unsigned int rightIndex =  MIN(leftIndex + 1, kScaledFrequencyDataLength);
         const double rightFragment = postComma;
         const double leftFragment = 1.0f - rightFragment;
         buffer[leftIndex] += frequencyData[i] * leftFragment;
@@ -233,19 +232,8 @@ void logscaleFFT(float* map, float* frequencyData)
         if (counters[i] > 0.0f) {
             buffer[i] /= counters[i];
         }
-        if (buffer[i] > 0.09) {
-            buffer[i] += (float)i / ((float)kScaledFrequencyDataLength * 10.0);
-            /*
-            x = 0.2 (high frequency)
-            x = 0.0 (low frequency)
-             
-             kScaledFrequencyDataLength = 0.2
-               = 0.2
-            */
-            
-            
-        }
-        //buffer[i] = buffer[i] * buffer[i];
+        // Gentle visual companding to lift quieter bins for display without changing dynamics too much.
+        buffer[i] = powf(buffer[i], 0.8f);
     }
     memcpy(frequencyData, buffer, kScaledFrequencyDataLength * sizeof(float));
 }
@@ -356,7 +344,7 @@ void performMel(vDSP_DFT_Setup dct, float* values, int sampleCount, float* melDa
 {
     const int signalCount = 1;
     const int sgemmResultCount = signalCount * kFilterBankCount;
-    const float one[] = { 20000.0f };
+    const float one[] = { 1.0f };
 
     // A matrix of `filterBankCount` rows and `sampleCount` that contains the triangular overlapping
     // windows for each mel frequency.
@@ -365,45 +353,26 @@ void performMel(vDSP_DFT_Setup dct, float* values, int sampleCount, float* melDa
         filterBank = makeFilterBank(NSMakeRange(20.0f, 19980.0f), sampleCount, kFilterBankCount);
     }
     
-    static COMPLEX* complexData = NULL;
-    if (complexData == NULL) {
-        complexData = malloc(sampleCount * sizeof(COMPLEX));
-    }
-
     static float* frequencyData = NULL;
     if (frequencyData == NULL) {
-        frequencyData = malloc(sampleCount * sizeof(float));
+        int err = posix_memalign((void**)&frequencyData, 64, sampleCount * sizeof(float));
+        assert(err == 0 && frequencyData != NULL);
     }
 
     performDFT(dct, values, sampleCount, frequencyData);
     
     vDSP_vabs(frequencyData, 1, frequencyData, 1, sampleCount);
     
-//    cblas_sgemm(CblasRowMajor,
-//                CblasTrans,
-//                CblasTrans,
-//                Int32(MelSpectrogram.signalCount),
-//                Int32(MelSpectrogram.filterBankCount),
-//                Int32(MelSpectrogram.sampleCount),
-//                1,
-//                frequencyDomainValuesPtr.baseAddress,
-//                Int32(MelSpectrogram.signalCount),
-//                filterBank.baseAddress,
-//                Int32(MelSpectrogram.sampleCount),
-//                0,
-//                sgemmResult.baseAddress,
-//                Int32(MelSpectrogram.filterBankCount))
-    
     // Multiply two matrices...
     cblas_sgemm(CblasRowMajor,
-                CblasTrans,
+                CblasNoTrans,
                 CblasTrans,
                 signalCount,
                 kFilterBankCount,
                 sampleCount,
                 1,
                 frequencyData,
-                signalCount,
+                sampleCount,
                 filterBank,
                 sampleCount,
                 0,
@@ -418,9 +387,65 @@ void performMel(vDSP_DFT_Setup dct, float* values, int sampleCount, float* melDa
                 sgemmResultCount,
                 0);
 
-    float max = sqrtf(sampleCount);
-
-    for (int i=0; i < kFilterBankCount; i++) {
-        melData[i] = sqrtf(melData[i] / max);
+    // Normalize to 0..1 for visual use.
+    float max = 0.0f;
+    vDSP_maxv(melData, 1, &max, kFilterBankCount);
+    if (max > 0.0f) {
+        float scale = 1.0f / max;
+        vDSP_vsmul(melData, 1, &scale, melData, 1, kFilterBankCount);
     }
+}
+
+// Convert linear FFT magnitudes into mel-spaced bins of length kScaledFrequencyDataLength in-place.
+void melScaleFFT(float* frequencyData)
+{
+    static float* filterBank = NULL;
+    static float* melBuffer = NULL;
+    if (filterBank == NULL) {
+        filterBank = makeFilterBank(NSMakeRange(20.0f, 19980.0f), (int)kFrequencyDataLength, kFilterBankCount);
+    }
+    if (melBuffer == NULL) {
+        int err = posix_memalign((void**)&melBuffer, 64, sizeof(float) * kFilterBankCount);
+        assert(err == 0 && melBuffer != NULL);
+    }
+
+    // Ensure magnitudes are non-negative.
+    vDSP_vabs(frequencyData, 1, frequencyData, 1, kFrequencyDataLength);
+
+    // Use max as the reference so scaling is cheap and responsive.
+    float maxMagnitude = 0.0f;
+    vDSP_maxv(frequencyData, 1, &maxMagnitude, kFrequencyDataLength);
+    float ref = maxMagnitude;
+    // Gate very quiet frames to avoid showing activity when nearly silent.
+    const float gate = 0.03f;
+    if (ref < gate) {
+        memset(frequencyData, 0, sizeof(float) * kFilterBankCount);
+        return;
+    }
+
+    cblas_sgemm(CblasRowMajor,
+                CblasNoTrans,
+                CblasTrans,
+                1,
+                kFilterBankCount,
+                (int)kFrequencyDataLength,
+                1.0f,
+                frequencyData,
+                (int)kFrequencyDataLength,
+                filterBank,
+                (int)kFrequencyDataLength,
+                0.0f,
+                melBuffer,
+                kFilterBankCount);
+
+    float scale = 1.0f / ref;
+    const float maxScale = 3.0f; // cap boost so low-volume frames don't explode
+    if (scale > maxScale) {
+        scale = maxScale;
+    }
+    vDSP_vsmul(melBuffer, 1, &scale, frequencyData, 1, kFilterBankCount);
+    // Prevent runaway values; clamp to [0, 1] for visuals.
+    float zero = 0.0f;
+    float one = 1.0f;
+    //vDSP_vclip(frequencyData, 1, &zero, &one, frequencyData, 1, kFilterBankCount);
 }

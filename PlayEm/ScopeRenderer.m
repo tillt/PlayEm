@@ -680,9 +680,8 @@ static const double kLevelDecreaseValue = 0.042;
     void* frequencyBufferAddress = ((uint8_t *)self->_frequencyUniformBuffer.contents) + frequencyBufferOffset;
 
     performFFT(self->_fftSetup, window, kWindowSamples, frequencyBufferAddress);
-    logscaleFFT(self->_logMap, frequencyBufferAddress);
-    
-//            performMel(_dctSetup, window, kWindowSamples, frequencyBufferAddress);
+    melScaleFFT(frequencyBufferAddress);
+    //performMel(_dctSetup, window, kWindowSamples, frequencyBufferAddress);
 
     size_t previousAttemptAt = -1;
     while (bestPositiveStreakLength == 0) {

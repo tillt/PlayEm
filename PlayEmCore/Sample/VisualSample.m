@@ -120,14 +120,10 @@
 {
     NSLog(@"aborting all operations for %@ ...", _calculations_queue);
     NSArray* keys = [_operations allKeys];
-    //NSMutableArray<IndexedBlockOperation*>* killem = [NSMutableArray array];
     
     for (id key in keys) {
         IndexedBlockOperation* operation = [_operations objectForKey:key];
-        //[killem addObject:operation];
-        //if (!operation.isFinished) {
         [operation cancel];
-        //}
     }
     for (id key in keys) {
         IndexedBlockOperation* operation = [_operations objectForKey:key];
@@ -136,7 +132,6 @@
 
     [_operations removeAllObjects];
 }
-
 
 - (NSData* _Nullable)visualsFromOrigin:(size_t)origin
 {

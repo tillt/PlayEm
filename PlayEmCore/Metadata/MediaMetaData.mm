@@ -128,7 +128,7 @@ NSString* const kMediaMetaDataMapTypeNumber = @"number";
 
 + (MediaMetaData*)mediaMetaDataWithURL:(NSURL*)url error:(NSError**)error
 {
-    MediaMetaData* meta = [[MediaMetaData alloc] init];
+    MediaMetaData* meta = [MediaMetaData new];
     meta.location = [[url filePathURL] URLWithoutParameters];
     if (![meta readFromFileWithError:error]) {
         return nil;
@@ -138,7 +138,7 @@ NSString* const kMediaMetaDataMapTypeNumber = @"number";
 
 + (MediaMetaData*)mediaMetaDataWithURL:(NSURL*)url asset:(AVAsset*)asset error:(NSError**)error
 {
-    MediaMetaData* meta = [[MediaMetaData alloc] init];
+    MediaMetaData* meta = [MediaMetaData new];
     meta.location = [url URLWithoutParameters];
     if (![meta readFromAVAsset:asset error:error]) {
         return nil;
@@ -156,7 +156,7 @@ NSString* const kMediaMetaDataMapTypeNumber = @"number";
 ///
 + (MediaMetaData*)mediaMetaDataWithITLibMediaItem:(ITLibMediaItem*)item error:(NSError**)error
 {
-    MediaMetaData* meta = [[MediaMetaData alloc] init];
+    MediaMetaData* meta = [MediaMetaData new];
     meta.shadow = item;
     meta.key = @"";
     return meta;
@@ -172,7 +172,7 @@ NSString* const kMediaMetaDataMapTypeNumber = @"number";
 ///
 + (MediaMetaData*)mediaMetaDataWithSHMatchedMediaItem:(SHMatchedMediaItem*)item error:(NSError**)error
 {
-    MediaMetaData* meta = [[MediaMetaData alloc] init];
+    MediaMetaData* meta = [MediaMetaData new];
 
     meta.title = [item.title sanitizedMetadataString];
     meta.artist = [item.artist sanitizedMetadataString];
@@ -183,6 +183,13 @@ NSString* const kMediaMetaDataMapTypeNumber = @"number";
     return meta;
 }
 
++ (MediaMetaData*)emptyMediaDataWithURL:(NSURL*)url
+{
+    MediaMetaData* meta = [MediaMetaData new];
+    meta.location = [NSURL fileURLWithPath:url.path];
+    meta.title = [[meta.location lastPathComponent] stringByDeletingPathExtension];
+    return meta;
+}
 
 + (NSDictionary<NSString*, NSDictionary*>*)mediaMetaKeyMap
 {

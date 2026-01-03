@@ -98,7 +98,9 @@ static const NSAutoresizingMaskOptions kViewFullySizeable = NSViewHeightSizable 
     
     sv.documentView = _table;
     
-    _detectButton = [NSButton buttonWithTitle:@"Detect Tracklist" target:nil action:@selector(startTrackDetection:)];
+    _detectButton = [NSButton buttonWithTitle:@"Detect Tracklist"
+                                       target:nil
+                                       action:@selector(startTrackDetection:)];
     [self.view addSubview:_detectButton];
     
     _detectLabel = [NSTextField textFieldWithString:@"Tracklist Detection in Progress"];
@@ -226,6 +228,7 @@ static const NSAutoresizingMaskOptions kViewFullySizeable = NSViewHeightSizable 
 - (void)setCurrent:(MediaMetaData*)meta
 {
     _current = meta;
+    [self reflectState];
     [_table reloadData];
 }
 
@@ -262,9 +265,7 @@ static const NSAutoresizingMaskOptions kViewFullySizeable = NSViewHeightSizable 
     [_table reloadData];
     [_delegate updatedTracks];
     
-    _current.frameToSeconds = ^(unsigned long long frame) {
-        return [self->_delegate secondsFromFrame:frame];
-    };
+    _current.frameToSeconds = [self frameToSecondsBlock];
     
     NSError* error = nil;
     BOOL done = [_current storeTracklistWithError:&error];
@@ -294,6 +295,9 @@ static const NSAutoresizingMaskOptions kViewFullySizeable = NSViewHeightSizable 
                        withApplicationAtURL:appURL
                               configuration:configuration
                           completionHandler:^(NSRunningApplication* app, NSError* error){
+        if (error) {
+            NSLog(@"failed to open musicURL %@: %@", musicURL, error);
+        }
     }];
 }
 
@@ -319,6 +323,9 @@ static const NSAutoresizingMaskOptions kViewFullySizeable = NSViewHeightSizable 
                        withApplicationAtURL:appURL
                               configuration:configuration
                           completionHandler:^(NSRunningApplication* app, NSError* error){
+        if (error) {
+            NSLog(@"failed to open musicURL %@: %@", musicURL, error);
+        }
     }];
 }
 
@@ -343,9 +350,7 @@ static const NSAutoresizingMaskOptions kViewFullySizeable = NSViewHeightSizable 
 
     [_table scrollRowToVisible:index];
 
-    _current.frameToSeconds = ^(unsigned long long frame) {
-        return [self->_delegate secondsFromFrame:frame];
-    };
+    _current.frameToSeconds = [self frameToSecondsBlock];
     
     NSError* error = nil;
     BOOL done = [_current storeTracklistWithError:&error];
@@ -363,9 +368,7 @@ static const NSAutoresizingMaskOptions kViewFullySizeable = NSViewHeightSizable 
    
     [_table reloadData];
     
-    _current.frameToSeconds = ^(unsigned long long frame) {
-        return [self->_delegate secondsFromFrame:frame];
-    };
+    _current.frameToSeconds = [self frameToSecondsBlock];
 
     NSError* error = nil;
     BOOL done = [_current storeTracklistWithError:&error];
@@ -396,9 +399,7 @@ static const NSAutoresizingMaskOptions kViewFullySizeable = NSViewHeightSizable 
 
     [_table scrollRowToVisible:index];
     
-    _current.frameToSeconds = ^(unsigned long long frame) {
-        return [self->_delegate secondsFromFrame:frame];
-    };
+    _current.frameToSeconds = [self frameToSecondsBlock];
 
     NSError* error = nil;
     BOOL done = [_current storeTracklistWithError:&error];
@@ -423,6 +424,20 @@ static const NSAutoresizingMaskOptions kViewFullySizeable = NSViewHeightSizable 
             NSLog(@"failed to write tracklist: %@", error);
         }
     }
+}
+
+#pragma mark - Helpers
+
+- (FrameToSeconds)frameToSecondsBlock
+{
+    __weak typeof(self) weakSelf = self;
+    return ^double (unsigned long long frame) {
+        TracklistController* strongSelf = weakSelf;
+        if (!strongSelf) {
+            return 0.0;
+        }
+        return [strongSelf.delegate secondsFromFrame:frame];
+    };
 }
 
 - (IBAction)copyTracklist:(id)sender

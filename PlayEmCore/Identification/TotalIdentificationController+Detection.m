@@ -17,7 +17,6 @@
 #import "../ActivityManager.h"
 #import <float.h>
 #import <limits.h>
-#import <objc/runtime.h>
 #import <math.h>
 
 NS_ASSUME_NONNULL_BEGIN
@@ -26,101 +25,20 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)logTracklist:(NSArray<TimedMediaMetaData*>*)tracks tag:(NSString*)tag includeDuration:(BOOL)includeDuration;
 @end
 
-struct AppendSpec {
-    const char* name;
-    BOOL hasTime;
-    BOOL hasError;
-};
-
-static const struct AppendSpec kAppendSpecs[] = {
-    {"appendBuffer:atTime:error:", YES, YES},
-    {"appendBuffer:error:", NO, YES},
-    {"appendBuffer:atTime:", YES, NO},
-    {"appendBuffer:", NO, NO},
-    {"appendAudioPCMBuffer:atTime:error:", YES, YES},
-    {"appendAudioPCMBuffer:error:", NO, YES},
-    {"appendAudioPCMBuffer:atTime:", YES, NO},
-    {"appendAudioPCMBuffer:", NO, NO},
-    {"appendAudioBuffer:atTime:error:", YES, YES},
-    {"appendAudioBuffer:error:", NO, YES},
-    {"appendAudioBuffer:atTime:", YES, NO},
-    {"appendAudioBuffer:", NO, NO},
-};
-
 static BOOL AppendSignatureBuffer(SHSignatureGenerator* generator,
                                   AVAudioPCMBuffer* buffer,
                                   AVAudioTime* time,
                                   NSError** errorOut)
 {
-    static BOOL loggedSelectors = NO;
-    static BOOL loggedSuccessSelector = NO;
     if (generator == nil) {
         NSLog(@"[Detect] SHSignatureGenerator unavailable (nil instance)");
         return NO;
     }
-
-    BOOL (^attempt)(BOOL useTime) = ^BOOL(BOOL useTime) {
-        for (size_t i = 0; i < sizeof(kAppendSpecs) / sizeof(kAppendSpecs[0]); i++) {
-            if (kAppendSpecs[i].hasTime && !useTime) {
-                continue;
-            }
-            SEL sel = NSSelectorFromString([NSString stringWithUTF8String:kAppendSpecs[i].name]);
-            NSMethodSignature* sig = [generator methodSignatureForSelector:sel];
-            if (sig == nil) {
-                continue;
-            }
-            NSInvocation* invocation = [NSInvocation invocationWithMethodSignature:sig];
-            [invocation setSelector:sel];
-            [invocation setTarget:generator];
-
-            NSInteger argIndex = 2;
-            [invocation setArgument:&buffer atIndex:argIndex++];
-            if (kAppendSpecs[i].hasTime) {
-                [invocation setArgument:&time atIndex:argIndex++];
-            }
-            if (kAppendSpecs[i].hasError) {
-                [invocation setArgument:&errorOut atIndex:argIndex++];
-            }
-            [invocation invoke];
-
-            if (sig.methodReturnLength == 0) {
-            if (!loggedSuccessSelector) {
-                loggedSuccessSelector = YES;
-            }
-                return YES;
-            }
-            BOOL ok = YES;
-            [invocation getReturnValue:&ok];
-        if (ok && !loggedSuccessSelector) {
-            loggedSuccessSelector = YES;
-        }
-            if (!ok && errorOut != NULL) {
-                NSLog(@"[Detect] signature append returned NO for selector %s error=%@", kAppendSpecs[i].name, *errorOut);
-            }
-            return ok;
-        }
-        return NO;
-    };
-
-    if (attempt(YES)) {
-        return YES;
+    BOOL ok = [generator appendBuffer:buffer atTime:time error:errorOut];
+    if (!ok && errorOut != NULL) {
+        NSLog(@"[Detect] signature append returned NO error=%@", *errorOut);
     }
-
-    if (!loggedSelectors) {
-        loggedSelectors = YES;
-        unsigned int methodCount = 0;
-        Method* methods = class_copyMethodList([generator class], &methodCount);
-        NSMutableArray<NSString*>* names = [NSMutableArray arrayWithCapacity:methodCount];
-        for (unsigned int i = 0; i < methodCount; i++) {
-            SEL sel = method_getName(methods[i]);
-            if (sel != NULL) {
-                [names addObject:NSStringFromSelector(sel)];
-            }
-        }
-        free(methods);
-        NSLog(@"[Detect] no append selector found on SHSignatureGenerator (methods=%@)", names);
-    }
-    return NO;
+    return ok;
 }
 
 static uint64_t HashAudioSlice(float* const* channels,

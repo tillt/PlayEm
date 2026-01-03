@@ -23,8 +23,10 @@
 @property (nonatomic) CGFloat decayFactor;
 @property (nonatomic) BOOL animating;
 @property (nonatomic) BOOL stopping;
+@property (nonatomic) BOOL disappearing;
 @property (nonatomic) CFAbsoluteTime stopStart;
 @property (nonatomic) NSTimeInterval stopDuration;
+@property (nonatomic) NSTimeInterval disappearDuration;
 @property (nonatomic) NSTimeInterval fadeOutDuration;
 @property (nonatomic) NSUInteger stopGeneration;
 @property (nonatomic) CFAbsoluteTime startTime;
@@ -49,12 +51,14 @@
         self.accessibilityLabel = @"Background activity indicator";
 
         _period = 1.0;
-        _decayFactor = 0.95;        // how much of the tail persists each frame
-        _externallyDriven = NO;
+        _decayFactor = 0.93;        // how much of the tail persists each frame
         _stopping = NO;
+        _disappearing = NO;
+        
         _stopDuration = 2.0;
         _fadeOutDuration = 0.3;
         _stopGeneration = 0;
+        _disappearDuration = 1.0;
         _startRampDuration = 0.7;
         _radiusRampDuration = 0.7;
     }
@@ -76,13 +80,13 @@
 {
     CGRect b = self.bounds;
     if (b.size.width <= 0 || b.size.height <= 0) return;
-    if (!self.ciContext) {
-        self.ciContext = [CIContext contextWithOptions:@{kCIContextUseSoftwareRenderer: @NO}];
+    if (!_ciContext) {
+        _ciContext = [CIContext contextWithOptions:@{kCIContextUseSoftwareRenderer: @NO}];
     }
     CGRect extent = b;
-    if (!self.accumulator || !CGRectEqualToRect(self.accumulator.extent, extent)) {
-        self.accumulator = [CIImageAccumulator imageAccumulatorWithExtent:extent format:kCIFormatARGB8];
-        [self.accumulator setImage:[CIImage imageWithColor:[[CIColor alloc] initWithRed:0 green:0 blue:0 alpha:0]]];
+    if (!_accumulator || !CGRectEqualToRect(_accumulator.extent, extent)) {
+        _accumulator = [CIImageAccumulator imageAccumulatorWithExtent:extent format:kCIFormatARGB8];
+        [_accumulator setImage:[CIImage imageWithColor:[[CIColor alloc] initWithRed:0 green:0 blue:0 alpha:0]]];
     }
 }
 
@@ -100,16 +104,17 @@
 - (void)startAnimating
 {
     // Invalidate any pending stop/hide callbacks.
-    self.stopGeneration++;
+    _stopGeneration++;
     [self layoutSubtreeIfNeeded];
 
-    [self.accumulator setImage:[CIImage imageWithColor:[[CIColor alloc] initWithRed:0 green:0 blue:0 alpha:0]]];
+    [_accumulator setImage:[CIImage imageWithColor:[[CIColor alloc] initWithRed:0 green:0 blue:0 alpha:0]]];
 
-    self.animating = YES;
-    self.lastTick = 0;
-    self.stopping = NO;
-    self.startTime = CFAbsoluteTimeGetCurrent();
-    self.angle = (CGFloat)-M_PI_2; // start at 12 o'clock
+    _animating = YES;
+    _lastTick = 0;
+    _stopping = NO;
+    _disappearing = NO;
+    _startTime = CFAbsoluteTimeGetCurrent();
+    _angle = (CGFloat)-M_PI_2; // start at 12 o'clock
     if (self.hidden || self.alphaValue < 1.0) {
         self.hidden = NO;
         [NSAnimationContext runAnimationGroup:^(NSAnimationContext *context) {
@@ -122,44 +127,52 @@
 - (void)stopAnimating
 {
     // Slow down over stopDuration, then fade quickly.
-    if (self.stopping || !self.animating) {
+    if (_stopping || !_animating) {
         return;
     }
-    self.stopping = YES;
-    self.stopStart = CFAbsoluteTimeGetCurrent();
-    NSUInteger generation = ++self.stopGeneration;
+    _stopping = YES;
+    _stopStart = CFAbsoluteTimeGetCurrent();
+    NSUInteger generation = ++_stopGeneration;
 
-    NSTimeInterval delay = self.stopDuration;
+    NSTimeInterval delay = _stopDuration;
+
+    __weak PhosphorChaserView* weakSelf = self;
+
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delay * NSEC_PER_SEC)),
                    dispatch_get_main_queue(), ^{
-        if (generation != self.stopGeneration) {
+        PhosphorChaserView* strongSelf = weakSelf;
+        if (strongSelf == nil) {
+            return;
+        }
+        if (generation != strongSelf.stopGeneration) {
             return; // superseded by a new start/stop cycle
         }
+
         [NSAnimationContext runAnimationGroup:^(NSAnimationContext* context) {
-            context.duration = self.fadeOutDuration;
-            self.animator.alphaValue = 0.0;
+            context.duration = strongSelf.fadeOutDuration;
+            strongSelf.animator.alphaValue = 0.0;
         } completionHandler:^{
-            if (generation != self.stopGeneration) {
+            if (generation != strongSelf.stopGeneration) {
                 return;
             }
-            self.animating = NO;
-            self.stopping = NO;
-            self.hidden = YES;
+            strongSelf.animating = NO;
+            strongSelf.stopping = NO;
+            strongSelf.hidden = YES;
         }];
     });
 }
 
 - (void)tickWithTimestamp:(CFTimeInterval)timestamp
 {
-    if (!self.animating) {
+    if (!_animating) {
         return;
     }
-    if (self.lastTick == 0) {
-        self.lastTick = timestamp;
+    if (_lastTick == 0) {
+        _lastTick = timestamp;
         return;
     }
-    CFTimeInterval dt = timestamp - self.lastTick;
-    self.lastTick = timestamp;
+    CFTimeInterval dt = timestamp - _lastTick;
+    _lastTick = timestamp;
     if (dt <= 0) {
         return;
     }
@@ -170,44 +183,44 @@
 {
     [self rebuildAccumulatorIfNeeded];
 
-    if (!self.accumulator || !self.ciContext) {
+    if (!_accumulator || !_ciContext) {
         return;
     }
 
     // Advance angle clockwise based on period.
-    CGFloat omega = (CGFloat)(2 * M_PI / MAX(self.period, 0.1));
+    CGFloat omega = (CGFloat)(2 * M_PI / MAX(_period, 0.1));
     CFTimeInterval now = CFAbsoluteTimeGetCurrent();
     // Ramp up speed after start.
     CGFloat rampScale = 1.0;
-    if (self.startTime > 0) {
-        CGFloat rampT = (CGFloat)((now - self.startTime) / MAX(self.startRampDuration, 0.001));
+    if (_startTime > 0) {
+        CGFloat rampT = (CGFloat)((now - _startTime) / MAX(_startRampDuration, 0.001));
         rampT = MIN(1.0, MAX(0.0, rampT));
         // smoothstep easing for a gentle ease-in to speed
         rampScale = rampT * rampT * (3.0f - 2.0f * rampT);
         if (rampT >= 1.0f) {
-            self.startTime = 0; // done ramping
+            _startTime = 0; // done ramping
         }
     }
     omega *= rampScale;
-    if (self.stopping) {
-        CGFloat t = (CGFloat)((now - self.stopStart) / MAX(self.stopDuration, 0.001));
+    if (_stopping) {
+        CGFloat t = (CGFloat)((now - _stopStart) / MAX(_stopDuration, 0.001));
         CGFloat speedScale = MAX(0.0, 1.0 - t);
         omega *= speedScale;
     }
-    self.angle += omega * dt;
+    _angle += omega * dt;
 
     CGRect b = self.bounds;
     // Radius ramp in/out: grow from small start, shrink on stop.
     CGFloat radiusScale = 1.0;
-    if (self.startTime > 0 || rampScale < 1.0) {
-        CGFloat rt = (CGFloat)((now - self.startTime) / MAX(self.radiusRampDuration, 0.001));
+    if (_startTime > 0 || rampScale < 1.0) {
+        CGFloat rt = (CGFloat)((now - _startTime) / MAX(_radiusRampDuration, 0.001));
         rt = MIN(1.0f, MAX(0.0f, rt));
         // use same smoothstep easing for radius growth
         CGFloat eased = rt * rt * (3.0f - 2.0f * rt);
         radiusScale *= (0.25f + 0.75f * eased);
     }
-    if (self.stopping) {
-        CGFloat t = (CGFloat)((now - self.stopStart) / MAX(self.stopDuration, 0.001));
+    if (_stopping) {
+        CGFloat t = (CGFloat)((now - _stopStart) / MAX(_stopDuration, 0.001));
         CGFloat shrink = MAX(0.25f, 1.0f - MIN(1.0f, t));
         radiusScale *= shrink;
     }
@@ -218,15 +231,15 @@
     // Use a single base radius so circle and eight share the same envelope.
     CGFloat r = MIN(inset.size.width, inset.size.height) * 0.2;
 
-    CGPoint headPos = CGPointMake(insetCenter.x + r * 0.85 * cos(self.angle),
-                                  insetCenter.y + r * 0.85 * sin(self.angle));
+    CGPoint headPos = CGPointMake(insetCenter.x + r * 0.85 * cos(_angle),
+                                  insetCenter.y + r * 0.85 * sin(_angle));
     insetCenter = CGPointMake(CGRectGetMidX(b), CGRectGetMidY(b));
     headPos.x = insetCenter.x + (headPos.x - insetCenter.x) * radiusScale;
     headPos.y = insetCenter.y + (headPos.y - insetCenter.y) * radiusScale;
     // Core Image is unflipped; convert y so the dot is placed correctly.
     CGPoint headPosCI = CGPointMake(headPos.x, b.size.height - headPos.y);
 
-    CIImage* prev = self.accumulator.image;
+    CIImage* prev = _accumulator.image;
 
     // Decay the previous image to create smear fade.
     CIFilter* decay = [CIFilter filterWithName:@"CIColorMatrix"];
@@ -234,7 +247,7 @@
     [decay setValue:[CIVector vectorWithX:1 Y:0 Z:0 W:0] forKey:@"inputRVector"];
     [decay setValue:[CIVector vectorWithX:0 Y:1 Z:0 W:0] forKey:@"inputGVector"];
     [decay setValue:[CIVector vectorWithX:0 Y:0 Z:1 W:0] forKey:@"inputBVector"];
-    [decay setValue:[CIVector vectorWithX:0 Y:0 Z:0 W:self.decayFactor] forKey:@"inputAVector"];
+    [decay setValue:[CIVector vectorWithX:0 Y:0 Z:0 W:_decayFactor] forKey:@"inputAVector"];
     [decay setValue:[CIVector vectorWithX:0 Y:0 Z:0 W:0] forKey:@"inputBiasVector"];
     [decay setValue:prev forKey:kCIInputImageKey];
     CIImage *decayed = decay.outputImage;
@@ -276,11 +289,18 @@
     CIImage *tailTinted = tint.outputImage;
 
     // Store ONLY the tail in the accumulator (no bloom/head replication).
-    tailTinted = [tailTinted imageByCroppingToRect:self.accumulator.extent];
-    [self.accumulator setImage:tailTinted];
+    tailTinted = [tailTinted imageByCroppingToRect:_accumulator.extent];
+    [_accumulator setImage:tailTinted];
 
     // Reinforce the head so it stays bright yellow at the tip (display only).
     CGFloat headSpotSize = 4.0;
+    
+    if (_stopping) {
+        CGFloat t = (CGFloat)((now - _stopStart) / MAX(_stopDuration, 0.001));
+        CGFloat shrink = MAX(0.25f, 1.0f - MIN(1.0f, t));
+        radiusScale *= shrink;
+    }
+
     CIFilter* headSpotGradient = [CIFilter filterWithName:@"CIRadialGradient" keysAndValues:
                                     @"inputCenter", [CIVector vectorWithX:headPosCI.x Y:headPosCI.y],
                                     @"inputRadius0", @(headSpotSize),
@@ -304,7 +324,7 @@
     // Render to layer contents.
     // Render only the visible bounds.
     displayImage = [displayImage imageByCroppingToRect:b];
-    CGImageRef cg = [self.ciContext createCGImage:displayImage fromRect:b];
+    CGImageRef cg = [_ciContext createCGImage:displayImage fromRect:b];
     self.layer.contents = (__bridge id)cg;
     if (cg) {
         CGImageRelease(cg);

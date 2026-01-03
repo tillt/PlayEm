@@ -61,7 +61,6 @@
 		BB57E0272F05E903008FFBD1 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BBA507DE2443E66800AABCF7 /* AVFoundation.framework */; };
 		BB5A2C232B925CD300040209 /* TextViewWithPlaceholder.m in Sources */ = {isa = PBXBuildFile; fileRef = BB5A2C222B925CD300040209 /* TextViewWithPlaceholder.m */; };
 		BB5A4D9128FC5C2B003A733C /* NSBezierPath+CGPath.m in Sources */ = {isa = PBXBuildFile; fileRef = BB5A4D9028FC5C2B003A733C /* NSBezierPath+CGPath.m */; };
-		BB5DC1F22F00357000CCA2D6 /* NSString+Sanitized.m in Sources */ = {isa = PBXBuildFile; fileRef = BB5DC1F12F00357000CCA2D6 /* NSString+Sanitized.m */; };
 		BB5DC1F52F00A52100CCA2D6 /* ActivityViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = BB5DC1F42F00A52100CCA2D6 /* ActivityViewController.m */; };
 		BB694CA32E6BB09C00818B01 /* BloomyText.m in Sources */ = {isa = PBXBuildFile; fileRef = BB694CA22E6BB09C00818B01 /* BloomyText.m */; };
 		BB6994962EEF5BDA00242456 /* VideoToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BB6994952EEF5BDA00242456 /* VideoToolbox.framework */; };
@@ -242,8 +241,6 @@
 		BB5A2C222B925CD300040209 /* TextViewWithPlaceholder.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TextViewWithPlaceholder.m; sourceTree = "<group>"; };
 		BB5A4D8F28FC5C2B003A733C /* NSBezierPath+CGPath.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSBezierPath+CGPath.h"; sourceTree = "<group>"; };
 		BB5A4D9028FC5C2B003A733C /* NSBezierPath+CGPath.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSBezierPath+CGPath.m"; sourceTree = "<group>"; };
-		BB5DC1F02F00357000CCA2D6 /* NSString+Sanitized.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSString+Sanitized.h"; sourceTree = "<group>"; };
-		BB5DC1F12F00357000CCA2D6 /* NSString+Sanitized.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSString+Sanitized.m"; sourceTree = "<group>"; };
 		BB5DC1F32F00A52100CCA2D6 /* ActivityViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ActivityViewController.h; sourceTree = "<group>"; };
 		BB5DC1F42F00A52100CCA2D6 /* ActivityViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ActivityViewController.m; sourceTree = "<group>"; };
 		BB694CA12E6BB09C00818B01 /* BloomyText.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BloomyText.h; sourceTree = "<group>"; };
@@ -497,15 +494,6 @@
 			path = ci_scripts;
 			sourceTree = "<group>";
 		};
-		BBC2AF4F2B8A90870077EB5E /* Metadata */ = {
-			isa = PBXGroup;
-			children = (
-				BB5DC1F02F00357000CCA2D6 /* NSString+Sanitized.h */,
-				BB5DC1F12F00357000CCA2D6 /* NSString+Sanitized.m */,
-			);
-			path = Metadata;
-			sourceTree = "<group>";
-		};
 		BBC8B32D293C47D900F5D38E /* Views */ = {
 			isa = PBXGroup;
 			children = (
@@ -570,7 +558,6 @@
 		BBD24D5F2432948800DC2A81 /* PlayEm */ = {
 			isa = PBXGroup;
 			children = (
-				BBC2AF4F2B8A90870077EB5E /* Metadata */,
 				BBDB1B412B644E8F00A953F7 /* Controls */,
 				BBC8B32D293C47D900F5D38E /* Views */,
 				BBA456DE293948D70062D470 /* Window & ViewControllers */,
@@ -972,7 +959,6 @@
 				BBE2846D246765BD00BE9D7F /* Shaders.metal in Sources */,
 				BB5DC1F52F00A52100CCA2D6 /* ActivityViewController.m in Sources */,
 				BB097A0C2921B1E500D33E44 /* ScrollingTextView.m in Sources */,
-				BB5DC1F22F00357000CCA2D6 /* NSString+Sanitized.m in Sources */,
 				BB5A2C232B925CD300040209 /* TextViewWithPlaceholder.m in Sources */,
 				BBD24D622432948800DC2A81 /* AppDelegate.m in Sources */,
 				BBAD7D55262B973C00089ACC /* ScopeView.m in Sources */,

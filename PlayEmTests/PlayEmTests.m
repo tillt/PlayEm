@@ -227,13 +227,11 @@ static BOOL IsUnknownTrack(TimedMediaMetaData *track)
 
 - (void)testDetectionRunsOnFixture
 {
-    LazySample *sample = [self loadFixtureSampleNamed:@"/Users/till/Development/PlayEm/PlayEmTests/test_set_patrice.m4a"
-                                            extension:nil];
+    LazySample *sample = [self loadFixtureSampleNamed:@"test_set_patrice" extension:@"mp3"];
 
     NSLog(@"[PlayEmTests] Loaded sample %@ (duration %.1fs)", sample.source.url.path, sample.duration);
 
     AudioController* audioController = [AudioController new];
-
     XCTestExpectation *expectDecodeFinish = [self expectationWithDescription:@"decoding finished"];
 
     [audioController decodeAsyncWithSample:sample callback:^(BOOL decodeFinished){
@@ -241,10 +239,11 @@ static BOOL IsUnknownTrack(TimedMediaMetaData *track)
             [expectDecodeFinish fulfill];
         }
     }];
+    NSLog(@"[PlayEmTests] Decoding sample %@", sample.source.url.path);
 
     [self waitForExpectations:@[expectDecodeFinish] timeout:30.0];
 
-    NSLog(@"[PlayEmTests] Decoded sample %@", sample.source.url.path);
+    NSLog(@"[PlayEmTests] Sample decoded");
 
     const char *jitterEnv = getenv("PLAYEM_JITTER_RUNS");
     NSUInteger runCount = 1;

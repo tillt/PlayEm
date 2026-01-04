@@ -14,11 +14,15 @@ NS_ASSUME_NONNULL_BEGIN
 
 /*!
  @brief Returns a normalized metadata string with common mojibake repaired.
- @discussion Normalizes case, whitespace, non-breaking spaces, and fixes common Latin1/CP1252
-             mojibake sequences while bounding work on pathological inputs. If the string already
-             looks clean, it is returned with minimal changes. Heuristics focus on Latin/CP1252,
-             with additional marker checks and a UTF-16 fallback; non-Latin scripts are left
-             untouched unless obvious mojibake markers are detected.
+ @discussion Processing pipeline:
+             - Normalize (precompose, collapse whitespace/NBSP, trim, bound length).
+             - Generate candidate recodes via CP1252/MacRoman (single/double/triple mis-decodes)
+               and pick the lowest mojibake-score candidate; non-Latin scripts pass through.
+             - Replace mojibake sequences using a generated Latin-1 map (no hand-coded literals).
+             - Strip lingering mojibake markers if present, then re-normalize.
+             Irreversible mangles (e.g. where bytes map to multiple accents) return the
+             mechanically derived character; we do not inject bias. Optional verbose logging
+             is gated at compile time with DEBUG_SANITIZER.
  @return A sanitized string suitable for display or comparison.
  */
 - (NSString*)sanitizedMetadataString;

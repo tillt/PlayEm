@@ -23,3 +23,8 @@
 - Shazam “Cosmjn” variability: not a confirmed regression. Short clip (`Training/short_with_cosmjn.mp3`, log `Training/new_showing_it.txt`) shows Cosmjn in delegate/`[ShazamRaw]`/final; long run (`Training/shazamraw_goodbye_newcode_20260102.txt`) shows no Cosmjn in raw around the same window, with different returned tracks. Treat as context‑dependent recognition variability; re‑investigate only if recurrence grows.
 - Repro artifact: archived old main app at `Training/PlayEm_OldMain.zip` for regression comparisons.
 - Logs archived at `Training/archive_20260102/` (old app short runs, new code short/long runs, long processed runs, misc noise tests, and raw Shazam captures).
+
+- TODO: Add sanitizer cleanup checklist (remove debug flags, temporary maps, unused helpers) after feature work; ensure future sessions log leftovers automatically.
+- TODO: Apply the cleanup checklist whenever switching areas: normalize logging flags, delete temporary maps/helpers, prune dead code/tests, and note any leftovers explicitly in BACKLOG.md before moving on.
+- Note: Town Joker/Niconé mojibake is irreversible; we chose the mechanical decode (è). If future bias is desired (“exit for heroes”), decide on a heuristic/override or diacritic-stripping fallback before changing expectations.
+- TODO: When modifying sanitizer logic, update the header doc to reflect the current pipeline and logging flags (DEBUG_SANITIZER) before moving on.

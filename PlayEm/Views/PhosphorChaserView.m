@@ -32,6 +32,8 @@
 @property (nonatomic) CFAbsoluteTime startTime;
 @property (nonatomic) NSTimeInterval startRampDuration;
 @property (nonatomic) NSTimeInterval radiusRampDuration;
+@property (nonatomic) CFAbsoluteTime disappearStart;
+@property (nonatomic) BOOL disappearComplete;
 @end
 
 @implementation PhosphorChaserView
@@ -58,9 +60,11 @@
         _stopDuration = 2.0;
         _fadeOutDuration = 0.3;
         _stopGeneration = 0;
-        _disappearDuration = 1.0;
+        _disappearDuration = 0.7;
         _startRampDuration = 0.7;
         _radiusRampDuration = 0.7;
+        _disappearStart = 0;
+        _disappearComplete = NO;
     }
     return self;
 }
@@ -113,6 +117,8 @@
     _lastTick = 0;
     _stopping = NO;
     _disappearing = NO;
+    _disappearStart = 0;
+    _disappearComplete = NO;
     _startTime = CFAbsoluteTimeGetCurrent();
     _angle = (CGFloat)-M_PI_2; // start at 12 o'clock
     if (self.hidden || self.alphaValue < 1.0) {
@@ -134,7 +140,7 @@
     _stopStart = CFAbsoluteTimeGetCurrent();
     NSUInteger generation = ++_stopGeneration;
 
-    NSTimeInterval delay = _stopDuration;
+    NSTimeInterval delay = _stopDuration + _disappearDuration;
 
     __weak PhosphorChaserView* weakSelf = self;
 
@@ -204,8 +210,16 @@
     omega *= rampScale;
     if (_stopping) {
         CGFloat t = (CGFloat)((now - _stopStart) / MAX(_stopDuration, 0.001));
-        CGFloat speedScale = MAX(0.0, 1.0 - t);
+        // Smoothstep easing for a gentler slow-down.
+        CGFloat eased = 1.0f - (t * t * (3.0f - 2.0f * t));
+        CGFloat speedScale = MAX(0.0, eased);
         omega *= speedScale;
+        // When fully stopped, trigger disappear phase.
+        if (!_disappearing && t >= 1.0f) {
+            _disappearing = YES;
+            _disappearStart = now;
+            _disappearComplete = NO;
+        }
     }
     _angle += omega * dt;
 
@@ -221,8 +235,43 @@
     }
     if (_stopping) {
         CGFloat t = (CGFloat)((now - _stopStart) / MAX(_stopDuration, 0.001));
-        CGFloat shrink = MAX(0.25f, 1.0f - MIN(1.0f, t));
+        // Use the same smooth easing shape as speed to allow full collapse to zero.
+        CGFloat eased = 1.0f - (t * t * (3.0f - 2.0f * t));
+        CGFloat shrink = MAX(0.0f, eased);
         radiusScale *= shrink;
+    }
+    CGFloat disappearScale = 1.0f;
+    if (_disappearing) {
+        CGFloat dtDisappear = (CGFloat)((now - _disappearStart) / MAX(_disappearDuration, 0.001));
+        disappearScale = MAX(0.0f, 1.0f - MIN(1.0f, dtDisappear));
+        if (dtDisappear >= 1.0f) {
+            _disappearing = NO;
+            _disappearComplete = YES;
+        }
+    } else if (_disappearComplete) {
+        disappearScale = 0.0f;
+        if (_accumulator) {
+            CIImage* clearImage = [CIImage imageWithColor:[[CIColor alloc] initWithRed:0 green:0 blue:0 alpha:0]];
+            clearImage = [clearImage imageByCroppingToRect:_accumulator.extent];
+            [_accumulator setImage:clearImage];
+        }
+        self.layer.contents = nil;
+        _animating = NO;
+        self.hidden = YES;
+        return;
+    }
+
+    if (disappearScale <= 0.01f) {
+        // Fully shrunken: ensure nothing renders.
+        if (_accumulator) {
+            CIImage* clearImage = [CIImage imageWithColor:[[CIColor alloc] initWithRed:0 green:0 blue:0 alpha:0]];
+            clearImage = [clearImage imageByCroppingToRect:_accumulator.extent];
+            [_accumulator setImage:clearImage];
+        }
+        self.layer.contents = nil;
+        _animating = NO;
+        self.hidden = YES;
+        return;
     }
 
     CGFloat margin = 4.0;
@@ -255,7 +304,7 @@
     // Draw the head as a blurred radial gradient cropped to a small rect.
     CGColorRef beam = [[Defaults sharedDefaults] lightFakeBeamColor].CGColor;
     CIColor *beamCI = [[CIColor alloc] initWithCGColor:beam];
-    CGFloat dotRadius = 1.2;
+    CGFloat dotRadius = MAX(0.0f, 1.2f * disappearScale);
     CIFilter *head = [CIFilter filterWithName:@"CIRadialGradient"
                                 keysAndValues:
                             @"inputCenter", [CIVector vectorWithX:headPosCI.x Y:headPosCI.y],
@@ -293,7 +342,7 @@
     [_accumulator setImage:tailTinted];
 
     // Reinforce the head so it stays bright yellow at the tip (display only).
-    CGFloat headSpotSize = 4.0;
+    CGFloat headSpotSize = MAX(0.0f, 4.0f * disappearScale);
     
     if (_stopping) {
         CGFloat t = (CGFloat)((now - _stopStart) / MAX(_stopDuration, 0.001));
@@ -313,6 +362,7 @@
                                  headSpotSize,
                                  headSpotSize);
     CIImage *headSpot = [headSpotGradient.outputImage imageByCroppingToRect:headRect];
+    // Keep bloom presence even as the dot shrinks; do not scale bloom parameters.
     headSpot = [headSpot imageByApplyingFilter:@"CIBloom" withInputParameters:@{@"inputRadius": @3.0, @"inputIntensity": @1.0}];
 
     CIFilter *headOver = [CIFilter filterWithName:@"CISourceOverCompositing"];

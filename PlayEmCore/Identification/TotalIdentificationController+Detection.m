@@ -88,12 +88,6 @@ static uint64_t HashAudioSlice(float* const* channels,
         data[channel] = (float*)((NSMutableData*)_sampleBuffers[channel]).bytes;
     }
 
-    // Pace offline feeding to roughly match live playback signature cadence x32.
-    useconds_t throttleUsec = (useconds_t)(((double)_hopSize / sampleFormat.rate / 32.0) * 1000000.0);
-    if (throttleUsec < 1) {
-        throttleUsec = 1;
-    }
-
     // Here we go, all the way through our entire sample.
     while (_totalFrameCursor < _sample.frames) {
         if (dispatch_block_testcancel(_queueOperation) != 0) {
@@ -171,9 +165,6 @@ static uint64_t HashAudioSlice(float* const* channels,
 
             AVAudioTime* time = [AVAudioTime timeWithSampleTime:chunkStartFrame atRate:sampleFormat.rate];
             [_session matchStreamingBuffer:stream atTime:time];
-
-            // Light pacing so callbacks have a chance to arrive; ~32x realtime.
-            usleep(throttleUsec);
         };
         _totalFrameCursor += received;
     };
@@ -341,7 +332,7 @@ static uint64_t HashAudioSlice(float* const* channels,
             BOOL shouldMatch = (accumulatedSeconds >= targetSignatureSeconds) ||
                                (accumulatedSeconds >= maxSignatureSeconds);
             if (shouldMatch) {
-                SHSignature* signature = generator.signature;
+                SHSignature* signature = [generator signature];
                 if (signature == nil) {
                     NSLog(@"[Detect] signature generation failed offset=%llu", signatureStartFrame);
                     generator = [[SHSignatureGenerator alloc] init];
@@ -349,9 +340,11 @@ static uint64_t HashAudioSlice(float* const* channels,
                     signatureLocalFrame = 0;
                     continue;
                 }
+
                 dispatch_semaphore_wait(_matchInFlightSemaphore, DISPATCH_TIME_FOREVER);
                 _sessionFrameOffset = signatureStartFrame;
                 NSNumber* offset = [NSNumber numberWithUnsignedLongLong:signatureStartFrame];
+
                 dispatch_sync(_identifyQueue, ^{
                     [_pendingMatchOffsets addObject:offset];
                     _inFlightCount += 1;
@@ -417,9 +410,13 @@ static uint64_t HashAudioSlice(float* const* channels,
 
     _token = [[ActivityManager shared] beginActivityWithTitle:@"Tracklist Detection" detail:nil cancellable:YES cancelHandler:^{
         [weakSelf abortWithCallback:^{
-            [[ActivityManager shared] updateActivity:_token detail:@"aborted"];
-            [[ActivityManager shared] completeActivity:_token];
-            _completionHandler(NO, nil, nil);
+            TotalIdentificationController* strongSelf = weakSelf;
+            if (strongSelf == nil) {
+                return;
+            }
+            [[ActivityManager shared] updateActivity:strongSelf->_token detail:@"aborted"];
+            [[ActivityManager shared] completeActivity:strongSelf->_token];
+            strongSelf->_completionHandler(NO, nil, nil);
         }];
     }];
 
@@ -614,8 +611,6 @@ static uint64_t HashAudioSlice(float* const* channels,
 {
     __weak TotalIdentificationController* weakSelf = self;
 
-    NSLog(@"%s %@ - %@", __PRETTY_FUNCTION__, match.mediaItems[0].artist, match.mediaItems[0].title);
-    
     dispatch_async(_identifyQueue, ^{
         TotalIdentificationController* strongSelf = weakSelf;
         if (strongSelf == nil) {
@@ -643,7 +638,6 @@ static uint64_t HashAudioSlice(float* const* channels,
         } else {
             sliceHash = @"-";
         }
-        NSString* runID = strongSelf->_shazamRunID ?: @"-";
         if (strongSelf->_inFlightCount > 0) {
             strongSelf->_inFlightCount -= 1;
         }
@@ -653,15 +647,18 @@ static uint64_t HashAudioSlice(float* const* channels,
         NSArray<SHMatchedMediaItem*>* items = match.mediaItems;
         if (items.count == 0) {
             TimedMediaMetaData* track = [TimedMediaMetaData unknownTrackAtFrame:offset];
-            if (strongSelf->_debugScoring) {
-                NSLog(@"[ShazamRaw] run:%@ slice:%@ frame:%llu artist:%@ title:%@ score:0.000 confidence:1",
-                      runID,
-                      sliceHash,
-                      offset.unsignedLongLongValue,
-                      track.meta.artist ?: @"",
-                      track.meta.title ?: @"");
-            }
-            [[ActivityManager shared] updateActivity:strongSelf->_token detail:track.meta.title];
+//            NSString* runID = strongSelf->_shazamRunID ?: @"-";
+//            if (strongSelf->_debugScoring) {
+//                NSLog(@"[ShazamRaw] run:%@ slice:%@ frame:%llu artist:%@ title:%@ score:0.000 confidence:1",
+//                      runID,
+//                      sliceHash,
+//                      offset.unsignedLongLongValue,
+//                      track.meta.artist ?: @"",
+//                      track.meta.title ?: @"");
+//            }
+            [[ActivityManager shared] updateActivity:strongSelf->_token
+                                              detail:[NSString stringWithFormat:@"Maybe: %@",track.meta.title]];
+
             NSUserDefaults* defaults = [NSUserDefaults standardUserDefaults];
             BOOL excludeUnknown = [defaults boolForKey:@"ExcludeUnknownInputs"];
             if (!excludeUnknown) {
@@ -677,26 +674,23 @@ static uint64_t HashAudioSlice(float* const* channels,
         for (SHMatchedMediaItem* item in items) {
             TimedMediaMetaData* track = [[TimedMediaMetaData alloc] initWithMatchedMediaItem:item frame:offset];
             [tracks addObject:track];
+            [[ActivityManager shared] updateActivity:strongSelf->_token
+                                              detail:[NSString stringWithFormat:@"Maybe: %@",track.meta.title]];
         }
-        if (strongSelf->_debugScoring) {
-            for (TimedMediaMetaData* track in tracks) {
-                NSLog(@"[ShazamRaw] run:%@ slice:%@ frame:%llu artist:%@ title:%@ score:0.000 confidence:1",
-                      runID,
-                      sliceHash,
-                      offset.unsignedLongLongValue,
-                      track.meta.artist ?: @"",
-                      track.meta.title ?: @"");
-            }
-        }
+//        if (strongSelf->_debugScoring) {
+//            for (TimedMediaMetaData* track in tracks) {
+//                NSLog(@"[ShazamRaw] run:%@ slice:%@ frame:%llu artist:%@ title:%@ score:0.000 confidence:1",
+//                      runID,
+//                      sliceHash,
+//                      offset.unsignedLongLongValue,
+//                      track.meta.artist ?: @"",
+//                      track.meta.title ?: @"");
+//            }
+//        }
         if (strongSelf->_firstMatchFrame == ULLONG_MAX) {
             strongSelf->_firstMatchFrame = offset.unsignedLongLongValue;
         }
         [strongSelf->_matchFrames addObject:offset];
-        TimedMediaMetaData* topTrack = tracks.firstObject;
-        if (topTrack != nil) {
-            NSString* msg = [NSString stringWithFormat:@"%@ - %@", topTrack.meta.artist, topTrack.meta.title];
-            [[ActivityManager shared] updateActivity:strongSelf->_token detail:msg];
-        }
 
         dispatch_group_t artworkGroup = dispatch_group_create();
         for (TimedMediaMetaData* track in tracks) {
@@ -755,7 +749,6 @@ static uint64_t HashAudioSlice(float* const* channels,
             } else {
                 sliceHash = @"-";
             }
-            NSString* runID = strongSelf->_shazamRunID ?: @"-";
             if (strongSelf->_inFlightCount > 0) {
                 strongSelf->_inFlightCount -= 1;
             }
@@ -763,16 +756,18 @@ static uint64_t HashAudioSlice(float* const* channels,
                 dispatch_semaphore_signal(strongSelf->_matchInFlightSemaphore);
             }
             TimedMediaMetaData* track = [TimedMediaMetaData unknownTrackAtFrame:offset];
-            if (strongSelf->_debugScoring) {
-                NSLog(@"[ShazamRaw] run:%@ slice:%@ frame:%llu artist:%@ title:%@ score:0.000 confidence:1",
-                      runID,
-                      sliceHash,
-                      offset.unsignedLongLongValue,
-                      track.meta.artist ?: @"",
-                      track.meta.title ?: @"");
-            }
-
-            [[ActivityManager shared] updateActivity:strongSelf->_token detail:track.meta.title];
+//            NSString* runID = strongSelf->_shazamRunID ?: @"-";
+//            if (strongSelf->_debugScoring) {
+//                NSLog(@"[ShazamRaw] run:%@ slice:%@ frame:%llu artist:%@ title:%@ score:0.000 confidence:1",
+//                      runID,
+//                      sliceHash,
+//                      offset.unsignedLongLongValue,
+//                      track.meta.artist ?: @"",
+//                      track.meta.title ?: @"");
+//            }
+  
+            [[ActivityManager shared] updateActivity:strongSelf->_token
+                                              detail:[NSString stringWithFormat:@"Maybe: %@",track.meta.title]];
 
             NSUserDefaults* defaults = [NSUserDefaults standardUserDefaults];
             BOOL excludeUnknown = [defaults boolForKey:@"ExcludeUnknownInputs"];

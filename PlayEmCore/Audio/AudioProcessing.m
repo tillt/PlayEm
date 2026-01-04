@@ -9,6 +9,8 @@
 #import <Foundation/Foundation.h>
 #import <simd/simd.h>
 #include <stdlib.h>
+#include <math.h>
+#include <float.h>
 #import "AudioProcessing.h"
 
 const size_t kScaledFrequencyDataLength = 256;
@@ -23,11 +25,71 @@ static const float kFFTHighestFrequencyScaleFactor = 20.0f;
 // half the frequency band - that is, only the lower 11khz.
 const size_t kWindowSamples = kFrequencyDataLength * 4;
 
+typedef struct {
+    float* data;
+    size_t size;
+} APWindowCache;
+
+static APWindowCache gHanningCache = { NULL, 0 };
+static APWindowCache gHammingCache = { NULL, 0 };
+static APWindowCache gBlackmanCache = { NULL, 0 };
+
+static void freeWindowCache(APWindowCache* cache)
+{
+    if (cache->data) {
+        free(cache->data);
+        cache->data = NULL;
+        cache->size = 0;
+    }
+}
+
+static float* windowBufferForType(APWindowType type, size_t numberOfFrames)
+{
+    APWindowCache* cache = NULL;
+    void (*generator)(float*, vDSP_Length, int) = NULL;
+
+    switch (type) {
+        case APWindowTypeHanning:
+            cache = &gHanningCache;
+            generator = vDSP_hann_window;
+            break;
+        case APWindowTypeHamming:
+            cache = &gHammingCache;
+            generator = vDSP_hamm_window;
+            break;
+        case APWindowTypeBlackman:
+            cache = &gBlackmanCache;
+            generator = vDSP_blkman_window;
+            break;
+        case APWindowTypeNone:
+        default:
+            return NULL;
+    }
+
+    if (cache->size != numberOfFrames) {
+        freeWindowCache(cache);
+        cache->data = (float*)malloc(sizeof(float) * numberOfFrames);
+        cache->size = numberOfFrames;
+        generator(cache->data, numberOfFrames, 0);
+    }
+    return cache->data;
+}
+
+static void clearWindowCaches(void)
+{
+    freeWindowCache(&gHanningCache);
+    freeWindowCache(&gHammingCache);
+    freeWindowCache(&gBlackmanCache);
+}
+
 double logVolume(const double input)
 {
     // Use a logarithmic scale as that is much closer to what we perceive. Neatly fake
     // ourselves into the slope.
     double absoluteValue = fabs(input);
+    if (absoluteValue < DBL_EPSILON) {
+        return 0.0;
+    }
     double sign = input / absoluteValue;
     
     return sign * (log10(10.0 + (absoluteValue * 100.0f)) - 1.0f);
@@ -35,8 +97,9 @@ double logVolume(const double input)
 
 double dB(double amplitude)
 {
-    if (amplitude == 0.0)
-        amplitude += 0.0000000001;
+    if (amplitude <= 0.0) {
+        amplitude = 1e-12; // avoid -inf and log(0)
+    }
     return 20. * log10(amplitude);
 }
 
@@ -51,9 +114,15 @@ FFTSetup initFFT(void)
     return vDSP_create_fftsetup(round(log2(kWindowSamples)), kFFTRadix2);
 }
 
+static void clearFFTCache(void);
+static void clearLogscaleBuffers(void);
+
 void destroyFFT(FFTSetup setup)
 {
     vDSP_destroy_fftsetup(setup);
+    clearFFTCache();
+    clearWindowCaches();
+    clearLogscaleBuffers();
 }
 
 void destroyLogMap(float* map)
@@ -91,11 +160,7 @@ COMPLEX_SPLIT* allocComplexSplit(size_t strideLength)
 
 void performDFT(vDSP_DFT_Setup dct, float* data, size_t numberOfFrames, float* frequencyData)
 {
-    static float* hanningWindow = NULL;
-    if (hanningWindow == NULL) {
-        hanningWindow = (float*)malloc(sizeof(float) * numberOfFrames);
-        vDSP_hann_window(hanningWindow, numberOfFrames, vDSP_HANN_DENORM);
-    }
+    float* hanningWindow = windowBufferForType(APWindowTypeHanning, numberOfFrames);
  
     vDSP_vmul(data, 1,
               hanningWindow, 1,
@@ -105,85 +170,75 @@ void performDFT(vDSP_DFT_Setup dct, float* data, size_t numberOfFrames, float* f
     vDSP_DCT_Execute(dct, data, frequencyData);
 }
 
-typedef void(^windowingFunction)(int numberOfFrames, float* data);
+typedef struct {
+    COMPLEX_SPLIT* output;
+    COMPLEX_SPLIT* computeBuffer;
+    float* scaleVector;
+    size_t framesOver2;
+} APFFTCache;
 
-static windowingFunction kNoWindowingBlock = ^(int numberOfFrames, float* data){};
-
-static windowingFunction kHanningBlock = ^(int numberOfFrames, float* data){
-    static float* window = NULL;
-    if (window == NULL) {
-        window = (float*)malloc(sizeof(float) * numberOfFrames);
-        vDSP_hann_window(window, numberOfFrames, vDSP_HANN_DENORM);
-    }
-    // Apply hanning window function vector.
-    vDSP_vmul(data, 1,
-              window, 1,
-              data, 1,
-              numberOfFrames);
-};
-
-static windowingFunction kHammingBlock = ^(int numberOfFrames, float* data){
-    static float* window = NULL;
-    if (window == NULL) {
-        window = (float*)malloc(sizeof(float) * numberOfFrames);
-        vDSP_hamm_window(window, numberOfFrames, 0);
-    }
-    // Apply hamming window function vector.
-    vDSP_vmul(data, 1,
-              window, 1,
-              data, 1,
-              numberOfFrames);
-};
-
-static windowingFunction kBlackmanBlock = ^(int numberOfFrames, float* data){
-    static float* window = NULL;
-    if (window == NULL) {
-        window = (float*)malloc(sizeof(float) * numberOfFrames);
-        vDSP_blkman_window(window, numberOfFrames, 0);
-    }
-    // Apply blackman window function vector.
-    vDSP_vmul(data, 1,
-              window, 1,
-              data, 1,
-              numberOfFrames);
-};
-
-void performFFT(FFTSetup fft, float* data, size_t numberOfFrames, float* frequencyData)
+static void freeComplexSplit(COMPLEX_SPLIT* split)
 {
-    const windowingFunction windowing = kBlackmanBlock;
+    if (!split) return;
+    free(split->realp);
+    free(split->imagp);
+    free(split);
+}
 
+static APFFTCache* fftCache(void)
+{
+    static APFFTCache cache = { NULL, NULL, NULL, 0 };
+    return &cache;
+}
+
+static void clearFFTCache(void)
+{
+    APFFTCache* cache = fftCache();
+    freeComplexSplit(cache->output);
+    freeComplexSplit(cache->computeBuffer);
+    if (cache->scaleVector) {
+        free(cache->scaleVector);
+    }
+    cache->output = NULL;
+    cache->computeBuffer = NULL;
+    cache->scaleVector = NULL;
+    cache->framesOver2 = 0;
+}
+
+void performFFT(FFTSetup fft, float* data, size_t numberOfFrames, float* frequencyData, APWindowType windowType)
+{
     const size_t framesOver2 = numberOfFrames / 2;
     const int bufferLog2 = round(log2(numberOfFrames));
+    NSCAssert((1 << bufferLog2) == numberOfFrames, @"numberOfFrames must be power of two");
 
-    // Apply windowing function.
-    windowing((int)numberOfFrames, data);
+    // Apply windowing function if requested.
+    float* window = windowBufferForType(windowType, numberOfFrames);
+    if (window) {
+        vDSP_vmul(data, 1,
+                  window, 1,
+                  data, 1,
+                  numberOfFrames);
+    }
   
-    static COMPLEX_SPLIT* output = NULL;
-    static COMPLEX_SPLIT* computeBuffer = NULL;
-    static float* scaleVector = NULL;
-
-    if (output == NULL) {
-        // Altivec's functions rely on 16-byte aligned memory locations. We use `malloc` here to make
-        // sure the buffers fit that limit.
-        // FIXME: Turns out a regular NSData allocation would do the same.
-        output = allocComplexSplit(framesOver2);
-        computeBuffer = allocComplexSplit(framesOver2);
-        scaleVector = malloc(framesOver2 * sizeof(float));
-        
-        for (int i=0; i < framesOver2;i++) {
-            // Linear sweep over 1 to higest frequency scale factor - we might actually
-            // want to use a different curve -- not sure.
-            const float factor = 1.0 + (((float)i / (float)framesOver2) * (kFFTHighestFrequencyScaleFactor - 1.0f));
-            scaleVector[i] = factor;
+    APFFTCache* cache = fftCache();
+    if (cache->framesOver2 != framesOver2) {
+        clearFFTCache();
+        cache->output = allocComplexSplit(framesOver2);
+        cache->computeBuffer = allocComplexSplit(framesOver2);
+        cache->scaleVector = malloc(framesOver2 * sizeof(float));
+        cache->framesOver2 = framesOver2;
+        for (size_t i = 0; i < framesOver2; i++) {
+            const float factor = 1.0f + (((float)i / (float)framesOver2) * (kFFTHighestFrequencyScaleFactor - 1.0f));
+            cache->scaleVector[i] = factor;
         }
     }
 
     // Put all of the even numbered elements into out.real and odd numbered into out.imag.
-    vDSP_ctoz((COMPLEX*)data, 2, output, 1, framesOver2);
+    vDSP_ctoz((COMPLEX*)data, 2, cache->output, 1, framesOver2);
     // For best possible speed, we are using the buffered variant of that FFT calculation.
-    vDSP_fft_zript(fft, output, 1, computeBuffer, bufferLog2, kFFTDirection_Forward);
+    vDSP_fft_zript(fft, cache->output, 1, cache->computeBuffer, bufferLog2, kFFTDirection_Forward);
     // Take the absolute value of the output.
-    vDSP_zvabs(output, 1, frequencyData, 1, kFrequencyDataLength);
+    vDSP_zvabs(cache->output, 1, frequencyData, 1, kFrequencyDataLength);
     // Scale the FFT data.
     float scale = framesOver2 / 2.0f;
     vDSP_vsdiv(frequencyData, 1, &scale, frequencyData, 1, kFrequencyDataLength);
@@ -193,10 +248,40 @@ void performFFT(FFTSetup fft, float* data, size_t numberOfFrames, float* frequen
 
 // Scales the linear frequency domain over into a logarithmic one. Or at least something
 // close to that.
+static float* gLogscaleCounters = NULL;
+static float* gLogscaleBuffer = NULL;
+static size_t gLogscaleSize = 0;
+
+static void ensureLogscaleBuffers(void)
+{
+    const size_t needed = kScaledFrequencyDataLength + 1;
+    if (gLogscaleSize == needed) {
+        return;
+    }
+    free(gLogscaleCounters);
+    free(gLogscaleBuffer);
+    gLogscaleCounters = (float*)calloc(needed, sizeof(float));
+    gLogscaleBuffer = (float*)calloc(needed, sizeof(float));
+    gLogscaleSize = needed;
+}
+
+static void clearLogscaleBuffers(void)
+{
+    free(gLogscaleCounters);
+    free(gLogscaleBuffer);
+    gLogscaleCounters = NULL;
+    gLogscaleBuffer = NULL;
+    gLogscaleSize = 0;
+}
+
 void logscaleFFT(float* map, float* frequencyData)
 {
-    float counters[kScaledFrequencyDataLength+1] = { 0.0f };
-    float buffer[kScaledFrequencyDataLength+1] = { 0.0f };
+    ensureLogscaleBuffers();
+    if (!gLogscaleCounters || !gLogscaleBuffer) {
+        return;
+    }
+    memset(gLogscaleCounters, 0, gLogscaleSize * sizeof(float));
+    memset(gLogscaleBuffer, 0, gLogscaleSize * sizeof(float));
  
  
     // FIXME: This doesnt seem to result in a homogenous distribution!
@@ -219,23 +304,23 @@ void logscaleFFT(float* map, float* frequencyData)
         const unsigned int rightIndex =  MIN(leftIndex + 1, (const unsigned int)kScaledFrequencyDataLength);
         const double rightFragment = postComma;
         const double leftFragment = 1.0f - rightFragment;
-        buffer[leftIndex] += frequencyData[i] * leftFragment;
-        counters[leftIndex] += leftFragment;
-        buffer[rightIndex] += frequencyData[i] * rightFragment;
-        counters[rightIndex] += rightFragment;
+        gLogscaleBuffer[leftIndex] += frequencyData[i] * leftFragment;
+        gLogscaleCounters[leftIndex] += leftFragment;
+        gLogscaleBuffer[rightIndex] += frequencyData[i] * rightFragment;
+        gLogscaleCounters[rightIndex] += rightFragment;
     }
-    buffer[kScaledFrequencyDataLength-1] += buffer[kScaledFrequencyDataLength];
-    counters[kScaledFrequencyDataLength-1] += counters[kScaledFrequencyDataLength];
+    gLogscaleBuffer[kScaledFrequencyDataLength-1] += gLogscaleBuffer[kScaledFrequencyDataLength];
+    gLogscaleCounters[kScaledFrequencyDataLength-1] += gLogscaleCounters[kScaledFrequencyDataLength];
     
     // Normalize values.
     for (int i=0; i < kScaledFrequencyDataLength;i++) {
-        if (counters[i] > 0.0f) {
-            buffer[i] /= counters[i];
+        if (gLogscaleCounters[i] > 0.0f) {
+            gLogscaleBuffer[i] /= gLogscaleCounters[i];
         }
         // Gentle visual companding to lift quieter bins for display without changing dynamics too much.
-        buffer[i] = powf(buffer[i], 0.8f);
+        gLogscaleBuffer[i] = powf(gLogscaleBuffer[i], 0.8f);
     }
-    memcpy(frequencyData, buffer, kScaledFrequencyDataLength * sizeof(float));
+    memcpy(frequencyData, gLogscaleBuffer, kScaledFrequencyDataLength * sizeof(float));
 }
 
 float hz2mel(float frequency)
@@ -315,6 +400,45 @@ float* makeFilterBank(NSRange frequencyRange, int sampleCount, int filterBankCou
     return filterBank;
 }
 
+// Variant that biases center frequencies toward the top end (biasExp < 1.0 increases high-frequency density).
+static float* makeBiasedFilterBank(NSRange frequencyRange, int sampleCount, int filterBankCount, float biasExp)
+{
+    NSMutableArray<NSNumber*>* centers = [NSMutableArray arrayWithCapacity:filterBankCount];
+    double minHz = frequencyRange.location;
+    double maxHz = frequencyRange.location + frequencyRange.length;
+    double span = maxHz - minHz;
+    for (int i = 0; i < filterBankCount; i++) {
+        double t = (filterBankCount == 1) ? 0.0 : (double)i / (double)(filterBankCount - 1);
+        double biased = pow(t, biasExp);
+        double hz = minHz + biased * span;
+        int bin = (int)((hz / maxHz) * (double)sampleCount);
+        centers[i] = @(bin);
+    }
+
+    int capacity = sampleCount * filterBankCount;
+    float* filterBank = calloc(capacity, sizeof(float));
+
+    float baseValue = 1.0f;
+    float endValue = 0.0f;
+    for (int i = 0; i < filterBankCount; i++) {
+        int row = i * sampleCount;
+        int startFrequency = centers[MAX(0, i - 1)].intValue;
+        int centerFrequency = centers[i].intValue;
+        int endFrequency = (i + 1) < filterBankCount ? centers[i + 1].intValue : (sampleCount - 1);
+
+        float attackWidth = centerFrequency - startFrequency + 1;
+        float decayWidth = endFrequency - centerFrequency + 1;
+
+        if (attackWidth > 0) {
+            vDSP_vgen(&endValue, &baseValue, &filterBank[row + startFrequency], 1, (vDSP_Length)attackWidth);
+        }
+        if (decayWidth > 0) {
+            vDSP_vgen(&baseValue, &endValue, &filterBank[row + centerFrequency], 1, (vDSP_Length)decayWidth);
+        }
+    }
+    return filterBank;
+}
+
 /// Process a frame of raw audio data:
 ///
 /// 1. Perform a forward DFT on the time-domain values.
@@ -340,62 +464,6 @@ float* makeFilterBank(NSRange frequencyRange, int sampleCount, int filterBankCou
 ///     (2 * 0.5 + 3 * 0.5) = 2.5,
 ///     (3 * 0.5 + 4 * 0.5) = 3.5 ]
 /// ```
-void performMel(vDSP_DFT_Setup dct, float* values, int sampleCount, float* melData)
-{
-    const int signalCount = 1;
-    const int sgemmResultCount = signalCount * kFilterBankCount;
-    const float one[] = { 1.0f };
-
-    // A matrix of `filterBankCount` rows and `sampleCount` that contains the triangular overlapping
-    // windows for each mel frequency.
-    static float* filterBank = NULL;
-    if (filterBank == NULL) {
-        filterBank = makeFilterBank(NSMakeRange(20.0f, 19980.0f), sampleCount, kFilterBankCount);
-    }
-    
-    static float* frequencyData = NULL;
-    if (frequencyData == NULL) {
-        int err = posix_memalign((void**)&frequencyData, 64, sampleCount * sizeof(float));
-        assert(err == 0 && frequencyData != NULL);
-    }
-
-    performDFT(dct, values, sampleCount, frequencyData);
-    
-    vDSP_vabs(frequencyData, 1, frequencyData, 1, sampleCount);
-    
-    // Multiply two matrices: (1 x sampleCount) * (sampleCount x kFilterBankCount) -> (1 x kFilterBankCount).
-    cblas_sgemm(CblasRowMajor,
-                CblasNoTrans,
-                CblasTrans,
-                signalCount,
-                kFilterBankCount,
-                sampleCount,
-                1,
-                frequencyData,
-                sampleCount,
-                filterBank,
-                sampleCount,
-                0,
-                melData,
-                kFilterBankCount);
-
-    vDSP_vdbcon(melData,
-                1,
-                one,
-                melData,
-                1,
-                sgemmResultCount,
-                0);
-
-    // Normalize to 0..1 for visual use.
-    float max = 0.0f;
-    vDSP_maxv(melData, 1, &max, kFilterBankCount);
-    if (max > 0.0f) {
-        float scale = 1.0f / max;
-        vDSP_vsmul(melData, 1, &scale, melData, 1, kFilterBankCount);
-    }
-}
-
 // Convert linear FFT magnitudes into mel-spaced bins of length kScaledFrequencyDataLength in-place.
 void melScaleFFT(float* frequencyData)
 {

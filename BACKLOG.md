@@ -28,3 +28,5 @@
 - TODO: Apply the cleanup checklist whenever switching areas: normalize logging flags, delete temporary maps/helpers, prune dead code/tests, and note any leftovers explicitly in BACKLOG.md before moving on.
 - Note: Town Joker/Niconé mojibake is irreversible; we chose the mechanical decode (è). If future bias is desired (“exit for heroes”), decide on a heuristic/override or diacritic-stripping fallback before changing expectations.
 - TODO: When modifying sanitizer logic, update the header doc to reflect the current pipeline and logging flags (DEBUG_SANITIZER) before moving on.
+
+- TODO: FFT visualizer performance—explore a branch to keep the “lower-half” look but reduce FFT cost (smaller FFT plus controlled remap) without affecting visuals; current code still uses the larger FFT and discards the top band.

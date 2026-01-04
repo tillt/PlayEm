@@ -39,7 +39,6 @@ NSNotificationName const ActivityManagerDidUpdateNotification = @"ActivityManage
 
 @interface ActivityRecord : ActivityEntry
 @property (nonatomic, copy, nullable) dispatch_block_t cancelHandler;
-@property (nonatomic, assign) BOOL completed;
 @property (nonatomic, assign) CFAbsoluteTime completedAt;
 @end
 
@@ -230,16 +229,25 @@ NSNotificationName const ActivityManagerDidUpdateNotification = @"ActivityManage
 
 - (BOOL)isActive:(ActivityToken*)token
 {
-    [self activityWithToken:token];
     if (![token isKindOfClass:[ActivityToken class]]) {
         return NO;
     }
-    NSInteger index = [self indexOfToken:token];
-    if (index == NSNotFound) {
-        return NO;
+    __block BOOL active = NO;
+    void (^readBlock)(void) = ^{
+        NSInteger index = [self indexOfToken:token];
+        if (index == NSNotFound) {
+            active = NO;
+            return;
+        }
+        ActivityRecord* record = self.records[(NSUInteger)index];
+        active = !record.completed;
+    };
+    if ([NSThread isMainThread]) {
+        readBlock();
+    } else {
+        dispatch_sync(dispatch_get_main_queue(), readBlock);
     }
-    ActivityRecord* record = self.records[(NSUInteger)index];
-    return !record.completed;
+    return active;
 }
 
 - (ActivityEntry*)activityWithToken:(ActivityToken*)token
@@ -247,11 +255,19 @@ NSNotificationName const ActivityManagerDidUpdateNotification = @"ActivityManage
     if (![token isKindOfClass:[ActivityToken class]]) {
         return nil;
     }
-    NSInteger index = [self indexOfToken:token];
-    if (index == NSNotFound) {
-        return nil;
+    __block ActivityEntry* entry = nil;
+    void (^readBlock)(void) = ^{
+        NSInteger index = [self indexOfToken:token];
+        if (index != NSNotFound && (NSUInteger)index < self.records.count) {
+            entry = self.records[(NSUInteger)index];
+        }
+    };
+    if ([NSThread isMainThread]) {
+        readBlock();
+    } else {
+        dispatch_sync(dispatch_get_main_queue(), readBlock);
     }
-    return self.activities[(NSUInteger)index];
+    return entry;
 }
 
 - (BOOL)hasOngoingActivity
@@ -300,6 +316,10 @@ NSNotificationName const ActivityManagerDidUpdateNotification = @"ActivityManage
         ActivityRecord* record = self.records[(NSUInteger)index];
         if (record.cancelHandler) {
             record.cancelHandler();
+        }
+        if (!record.completed) {
+            [self markCompletedAndScheduleRemoval:record];
+            [self notifyUpdate];
         }
     });
 }

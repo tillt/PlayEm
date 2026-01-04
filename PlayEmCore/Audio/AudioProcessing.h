@@ -22,13 +22,20 @@ typedef NS_ENUM(NSInteger, APWindowType) {
     APWindowTypeBlackman
 };
 
+/*! @brief Create a DCT setup for 1D transforms over the mel filter count. */
 vDSP_DFT_Setup initDCT(void);
+
+/*! @brief Log-scale helper for waveform magnitudes. */
 double logVolume(const double input);
+
+/*! @brief Convert amplitude to decibels, clamping non-positive inputs. */
 double dB(double amplitude);
 
+/*! @brief Create/destroy FFT setup for windowed FFT operations. */
 FFTSetup initFFT(void);
 void destroyFFT(FFTSetup setup);
-void melScaleFFT(float* frequencyData);
+
+/*! @brief Convert linear FFT magnitudes into a logarithmically scaled vector. */
 float* initLogMap(void);
 void destroyLogMap(float* map);
 void logscaleFFT(float* map, float* frequencyData);

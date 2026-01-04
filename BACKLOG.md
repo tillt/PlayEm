@@ -30,3 +30,4 @@
 - TODO: When modifying sanitizer logic, update the header doc to reflect the current pipeline and logging flags (DEBUG_SANITIZER) before moving on.
 
 - TODO: FFT visualizer performance—explore a branch to keep the “lower-half” look but reduce FFT cost (smaller FFT plus controlled remap) without affecting visuals; current code still uses the larger FFT and discards the top band.
+- Process hygiene: avoid resurfacing resolved issues without justification; keep backlog/status in sync to prevent rehashing closed items.

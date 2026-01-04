@@ -9,8 +9,6 @@
 #import "ImageController.h"
 #import <AppKit/AppKit.h>
 #import <CoreImage/CoreImage.h>
-#import <iTunesLibrary/ITLibArtist.h>
-#import <iTunesLibrary/ITLibAlbum.h>
 
 @interface ImageController ()
 @property (nonatomic) NSCache<NSString*, NSImage*>* cache;
@@ -57,11 +55,15 @@
           completion:(void (^)(NSImage*image))completion
 {
     NSString *cacheKey = [NSString stringWithFormat:@"%@-%.0f", key, size];
+
     NSImage *cached = [self.cache objectForKey:cacheKey];
     if (cached != nil) {
+        // Cache hit, return the cached image.
         completion(cached);
         return;
     }
+
+    // This is a cache miss.
     
     dispatch_async(_resizingQueue, ^{
         CIImage *ci = [CIImage imageWithData:data options:@{ kCIImageApplyOrientationProperty : @YES }];
@@ -71,7 +73,13 @@
             });
             return;
         }
-        
+
+        // We are using a rather elaborate way of scaling our images. Anything else
+        // caused red-shift issues when scaling up. This is a fascinating issue I have
+        // observed on my machines since I am using macOS -- somehow that seems to be
+        // just me. I can only guess that I have a misconfigured coloring pipeline through
+        // some screwed up display profile or alike. Whatever it is, this is the way to do
+        // it without any problems. I should list the ways I have tried without success...
         CGFloat scale = size / MAX(ci.extent.size.width, ci.extent.size.height);
         CIFilter *f = [CIFilter filterWithName:@"CILanczosScaleTransform"];
         [f setValue:ci forKey:kCIInputImageKey];
@@ -115,4 +123,3 @@
 }
 
 @end
-

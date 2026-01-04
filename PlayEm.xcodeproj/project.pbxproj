@@ -903,7 +903,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				BBF0D0022F0ABC0000A1B2C1 /* PlayEmTests/TotalIdentificationControllerTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -994,11 +993,6 @@
 			isa = PBXTargetDependency;
 			target = BB57DE432F05D614008FFBD1 /* PlayEmCore */;
 			targetProxy = BB57DE4E2F05D614008FFBD1 /* PBXContainerItemProxy */;
-		};
-		BB57DE512F05D614008FFBD1 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = BBD24D5C2432948800DC2A81 /* PlayEm */;
-			targetProxy = BB57DE502F05D614008FFBD1 /* PBXContainerItemProxy */;
 		};
 		BB57DE562F05D614008FFBD1 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;

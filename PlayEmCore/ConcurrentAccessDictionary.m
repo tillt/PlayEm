@@ -21,7 +21,7 @@
     self = [super init];
     if (self) {
         _dictionary = [NSMutableDictionary dictionary];
-        _access_queue = dispatch_queue_create("tillt.playem.dictionaryaccessqueue", 
+        _access_queue = dispatch_queue_create("PlayEm.DictionaryAccessQueue",
                                               DISPATCH_QUEUE_CONCURRENT);
     }
     return self;
@@ -38,30 +38,21 @@
 
 - (void)setObject:(id)anObject forKey:(id<NSCopying>)aKey
 {
-    dispatch_barrier_async(_access_queue, ^{
+    dispatch_barrier_sync(_access_queue, ^{
         [self->_dictionary setObject:anObject forKey:aKey];
     });
 }
 
-//- (id)createObject:(Class)theType
-//{
-//    __block id obj = nil;
-//    dispatch_barrier_sync(_access_queue, ^{
-//        obj = [theType new];
-//    });
-//    return obj;
-//}
-
 - (void)removeObjectForKey:(id)aKey
 {
-    dispatch_barrier_async(_access_queue, ^{
+    dispatch_barrier_sync(_access_queue, ^{
         [self->_dictionary removeObjectForKey:aKey];
     });
 }
 
 - (void)removeAllObjects
 {
-    dispatch_barrier_async(_access_queue, ^{
+    dispatch_barrier_sync(_access_queue, ^{
         [self->_dictionary removeAllObjects];
     });
 }

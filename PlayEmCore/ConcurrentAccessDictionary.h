@@ -14,7 +14,12 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @interface ConcurrentAccessDictionary<__covariant KeyType, __covariant ObjectType> : NSObject
-
+/*!
+ @brief A simple thread-safe dictionary wrapper with synchronous write semantics.
+ @discussion Reads run synchronously on a concurrent queue. Writes and removals use barrier-sync,
+             guaranteeing write-before-read ordering (callers block until the mutation completes).
+             Stored objects themselves are not made thread-safe by this container.
+ */
 - (id _Nullable)objectForKey:(id)aKey;
 - (void)setObject:(id)anObject forKey:(id<NSCopying>)aKey;
 - (void)removeObjectForKey:(id)aKey;

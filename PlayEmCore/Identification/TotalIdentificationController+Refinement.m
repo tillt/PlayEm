@@ -145,6 +145,10 @@ typedef NSArray<TimedMediaMetaData*>* _Nonnull (^TracklistFilterBlock)(NSArray<T
         // Estimate duration from frame gap.
         double frameGap = (double)(next.frame.unsignedLongLongValue - track.frame.unsignedLongLongValue);
         durationSeconds = frameGap / sampleRate;
+    } else if (track.frame != nil && sampleRate > 0.0) {
+        // Fallback: time from this frame to the end of the sample.
+        double frameGap = (double)(self->_sample.frames - track.frame.unsignedLongLongValue);
+        durationSeconds = frameGap / sampleRate;
     }
     return durationSeconds;
 }
@@ -167,33 +171,18 @@ typedef NSArray<TimedMediaMetaData*>* _Nonnull (^TracklistFilterBlock)(NSArray<T
 }
 
 //
-// Adaptive Confidence Blending
+// Cluster‑Score‑Select (CSS) Refiner
 //
-//    Collect hits: Accumulate Shazam matches into TimedMediaMetaData items (frame, meta, optional endFrame). Require support ≥ 2
-//    per normalized key (artist — title) before keeping a candidate; otherwise drop.
-//
-//    Aggregate & build tracks: For each key, track earliest frame, latest frame, support count, and representative metadata. Create
-//    track objects with frame, endFrame, support/confidence.
-//
-//    Sort by start frame.
-//
-//    Score each track:
-//      Base = support count (no cap).
-//      Duration estimate: metadata duration if present; else span frame→endFrame; else gap to next track; else to sample end. If
-//                         support≥2 and duration < ideal min, clamp up to the ideal min.
-//      Duration weight:   ideal window 4–12 min → 1.6× boost; <3 min heavy penalty; short (<4 min) quadratic falloff; long penalty with 0.15 floor.
-//      Producer bonus:    if referenceArtist appears in artist/title, ×3.
-//
-//    Set score and confidence to the final value.
-//
-//    Merge near-duplicates: Within 90 s, if titles/artists match/overlap, keep the higher score.
-//
-//    Overlap resolution: Walk in time order; if spans overlap, keep higher score. Real tracks always beat “unknown” placeholders.
-//
-//    Gap fill (unknowns): For gaps between kept tracks, if there are ≥3 unknown hits spanning ≥60 s (and under the ideal max), synthesize an
-//                         “Unknown” track covering that span, score it via the same duration heuristic, and reinsert.
-//
-//    Short/low drop (late): After all above, drop items with score ≤ 5 and duration < 90 s.
+//    - Parse & normalize: ingest hit events, normalize artist/title for grouping.
+//    - Cluster hits: group same-track hits within small gaps (~1s); keep clusters with support ≥2.
+//    - Estimate duration: use end_frame if present, else gap to next track.
+//    - Score: base score from support; boost for sensible spans/durations with caps.
+//    - Merge near-dupes: within ~8s, merge similar artist/title candidates, keep higher score.
+//    - Resolve overlaps: weighted interval scheduling selects the best non-overlapping set using
+//      support, duration, gap quality, neighbor context, and streak factors.
+//    - Filter blend/noise: drop short, low-support tracks overshadowed by stronger neighbors.
+//    - Final sweep: remove weak/short/high-gap leftovers.
+//    - Optional gap fill: insert “unknown” placeholders into long gaps if enabled.
 //
 - (NSArray<TimedMediaMetaData*>*)refineTracklist
 {
@@ -227,6 +216,7 @@ typedef NSArray<TimedMediaMetaData*>* _Nonnull (^TracklistFilterBlock)(NSArray<T
 {
     NSArray<TimedMediaMetaData*>* current = input;
     NSArray<TracklistFilterSpec*>* pipeline = [self refinementPipeline];
+
     for (TracklistFilterSpec* spec in pipeline) {
         if (_debugScoring) {
             NSLog(@"[Refine] filter:%@ in:%lu", spec.name, (unsigned long)current.count);

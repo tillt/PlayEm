@@ -11,9 +11,6 @@
 #import <CoreServices/CoreServices.h>
 #import <CoreFoundation/CoreFoundation.h>
 #import <AudioToolbox/AudioToolbox.h>
-#import <CoreWLAN/CoreWLAN.h>
-#import <AVKit/AVKit.h>
-
 #import "AudioDevice.h"
 
 @implementation AudioDevice
@@ -46,7 +43,7 @@
     propertySize = sizeof(bufferSize);
     result = AudioObjectGetPropertyData(deviceId, &bufferSizePropertyAddress, 0, NULL, &propertySize, &bufferSize);
     if (result != noErr) {
-        NSLog(@"Failed to get latency, err: %d", result);
+        NSLog(@"Failed to get buffer size, err: %d", result);
         return 0;
     }
     
@@ -57,7 +54,7 @@
     AudioObjectGetPropertyDataSize (deviceId, &streamsPropertyAddress, 0, NULL, &streamsSize);
     if (streamsSize >= sizeof(AudioStreamID)) {
         // Get the latency of the first stream.
-        NSMutableData* streamIDs = [NSMutableData dataWithCapacity:streamsSize];
+        NSMutableData* streamIDs = [NSMutableData dataWithLength:streamsSize];
         AudioStreamID* ids = (AudioStreamID*)streamIDs.mutableBytes;
         result = AudioObjectGetPropertyData(deviceId, &streamsPropertyAddress, 0, NULL, &streamsSize, ids);
         if (result != noErr) {
@@ -101,8 +98,7 @@
         NSLog(@"Failed to get device's name, err: %d", result);
         return nil;
     }
-    NSString* name = (__bridge NSString*)nameRef;
-    CFRelease(nameRef);
+    NSString* name = (__bridge_transfer NSString*)nameRef;
     return name;
 }
 

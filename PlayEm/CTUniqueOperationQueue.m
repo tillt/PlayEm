@@ -52,16 +52,21 @@
     }
     NSString *anIdCopy = [aID copy];
     __weak NSOperation *weakOp = op;
+    __weak typeof(self) weakSelf = self;
 
     void (^realCompletionBlock)() = op.completionBlock;
     op.completionBlock = ^{
-        @synchronized(self) {
+        CTUniqueOperationQueue* strongSelf = weakSelf;
+        if (!strongSelf) {
+            return;
+        }
+        @synchronized(strongSelf) {
             // Make sure we are removing the right object, because
             // if the op was cancelled and it was replaced, we
             // don't want to remove the op that replaced it
-            NSOperation *opInQueue = [idToOp objectForKey:aID];
+            NSOperation *opInQueue = [strongSelf->idToOp objectForKey:aID];
             if (weakOp == opInQueue) {
-                [idToOp removeObjectForKey:anIdCopy];
+                [strongSelf->idToOp removeObjectForKey:anIdCopy];
             }
         }
         if (realCompletionBlock) {

@@ -61,7 +61,6 @@
 		BB57E0272F05E903008FFBD1 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BBA507DE2443E66800AABCF7 /* AVFoundation.framework */; };
 		BB5A2C232B925CD300040209 /* TextViewWithPlaceholder.m in Sources */ = {isa = PBXBuildFile; fileRef = BB5A2C222B925CD300040209 /* TextViewWithPlaceholder.m */; };
 		BB5A4D9128FC5C2B003A733C /* NSBezierPath+CGPath.m in Sources */ = {isa = PBXBuildFile; fileRef = BB5A4D9028FC5C2B003A733C /* NSBezierPath+CGPath.m */; };
-		BB5DC1F22F00357000CCA2D6 /* NSString+Sanitized.m in Sources */ = {isa = PBXBuildFile; fileRef = BB5DC1F12F00357000CCA2D6 /* NSString+Sanitized.m */; };
 		BB5DC1F52F00A52100CCA2D6 /* ActivityViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = BB5DC1F42F00A52100CCA2D6 /* ActivityViewController.m */; };
 		BB694CA32E6BB09C00818B01 /* BloomyText.m in Sources */ = {isa = PBXBuildFile; fileRef = BB694CA22E6BB09C00818B01 /* BloomyText.m */; };
 		BB6994962EEF5BDA00242456 /* VideoToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BB6994952EEF5BDA00242456 /* VideoToolbox.framework */; };
@@ -242,8 +241,6 @@
 		BB5A2C222B925CD300040209 /* TextViewWithPlaceholder.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TextViewWithPlaceholder.m; sourceTree = "<group>"; };
 		BB5A4D8F28FC5C2B003A733C /* NSBezierPath+CGPath.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSBezierPath+CGPath.h"; sourceTree = "<group>"; };
 		BB5A4D9028FC5C2B003A733C /* NSBezierPath+CGPath.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSBezierPath+CGPath.m"; sourceTree = "<group>"; };
-		BB5DC1F02F00357000CCA2D6 /* NSString+Sanitized.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSString+Sanitized.h"; sourceTree = "<group>"; };
-		BB5DC1F12F00357000CCA2D6 /* NSString+Sanitized.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSString+Sanitized.m"; sourceTree = "<group>"; };
 		BB5DC1F32F00A52100CCA2D6 /* ActivityViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ActivityViewController.h; sourceTree = "<group>"; };
 		BB5DC1F42F00A52100CCA2D6 /* ActivityViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ActivityViewController.m; sourceTree = "<group>"; };
 		BB694CA12E6BB09C00818B01 /* BloomyText.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BloomyText.h; sourceTree = "<group>"; };
@@ -315,6 +312,7 @@
 		BBE2846C246765A700BE9D7F /* Shaders.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = Shaders.metal; sourceTree = "<group>"; };
 		BBE2846E2467669500BE9D7F /* MetalKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MetalKit.framework; path = System/Library/Frameworks/MetalKit.framework; sourceTree = SDKROOT; };
 		BBECB0242D4FF33E00C6A6F3 /* LargeRastaPattern.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = LargeRastaPattern.png; sourceTree = "<group>"; };
+		BBEF94AE2F0A9CCF00295C23 /* PlayEmCoreTests.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = PlayEmCoreTests.xctestplan; sourceTree = "<group>"; };
 		BBF0D0012F0ABC0000A1B2C1 /* PlayEmCoreTests/TotalIdentificationControllerTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = PlayEmCoreTests/TotalIdentificationControllerTests.m; sourceTree = SOURCE_ROOT; };
 		BBF7982B2ADC4BAA00893533 /* NSString+BeautifulPast.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSString+BeautifulPast.h"; sourceTree = "<group>"; };
 		BBF7982C2ADC4BAA00893533 /* NSString+BeautifulPast.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSString+BeautifulPast.m"; sourceTree = "<group>"; };
@@ -497,15 +495,6 @@
 			path = ci_scripts;
 			sourceTree = "<group>";
 		};
-		BBC2AF4F2B8A90870077EB5E /* Metadata */ = {
-			isa = PBXGroup;
-			children = (
-				BB5DC1F02F00357000CCA2D6 /* NSString+Sanitized.h */,
-				BB5DC1F12F00357000CCA2D6 /* NSString+Sanitized.m */,
-			);
-			path = Metadata;
-			sourceTree = "<group>";
-		};
 		BBC8B32D293C47D900F5D38E /* Views */ = {
 			isa = PBXGroup;
 			children = (
@@ -541,6 +530,7 @@
 		BBD24D542432948800DC2A81 = {
 			isa = PBXGroup;
 			children = (
+				BBEF94AE2F0A9CCF00295C23 /* PlayEmCoreTests.xctestplan */,
 				BBAD5EF72D038D5100F664AB /* ci_scripts */,
 				BBDB1B3B2B640A5100A953F7 /* Scripts */,
 				BBD24D5F2432948800DC2A81 /* PlayEm */,
@@ -570,7 +560,6 @@
 		BBD24D5F2432948800DC2A81 /* PlayEm */ = {
 			isa = PBXGroup;
 			children = (
-				BBC2AF4F2B8A90870077EB5E /* Metadata */,
 				BBDB1B412B644E8F00A953F7 /* Controls */,
 				BBC8B32D293C47D900F5D38E /* Views */,
 				BBA456DE293948D70062D470 /* Window & ViewControllers */,
@@ -748,6 +737,7 @@
 				BBD24D5A2432948800DC2A81 /* Frameworks */,
 				BBD24D5B2432948800DC2A81 /* Resources */,
 				BB8820CA244102CD00CDB8C3 /* Embed Libraries */,
+				BB1614B32AABC7BF00F6C5E6 /* Sign Embedded Frameworks */,
 			);
 			buildRules = (
 			);
@@ -801,7 +791,6 @@
 					};
 					BB57DE4B2F05D614008FFBD1 = {
 						CreatedOnToolsVersion = 26.2;
-						TestTargetID = BBD24D5C2432948800DC2A81;
 					};
 					BBD24D5C2432948800DC2A81 = {
 						CreatedOnToolsVersion = 11.4;
@@ -890,6 +879,24 @@
 			shellPath = /bin/sh;
 			shellScript = "buildNumber=$(/usr/libexec/PlistBuddy -c \"Print CFBundleVersion\" \"${PROJECT_DIR}/${INFOPLIST_FILE}\")\nbuildNumber=$(($buildNumber + 1))\n/usr/libexec/PlistBuddy -c \"Set :CFBundleVersion $buildNumber\" \"${PROJECT_DIR}/${INFOPLIST_FILE}\"\n\n";
 		};
+		BB1614B32AABC7BF00F6C5E6 /* Sign Embedded Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Sign Embedded Frameworks";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "IDENTITY=\"Developer ID Application: Till Toenshoff (YK4D72U3YW)\"\nFW_DIR=\"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}\"\nif [ -d \"$FW_DIR\" ]; then\n  for fw in \"$FW_DIR\"/*; do\n    /usr/bin/codesign --force --options runtime --timestamp --sign \"$IDENTITY\" \"$fw\"\n    # If it has a binary inside Versions/Current, sign that explicitly too\n    if [ -d \"$fw/Versions/Current\" ]; then\n      bin=\"$fw/Versions/Current/$(basename \"$fw\" .framework)\"\n      [ -f \"$bin\" ] && /usr/bin/codesign --force --options runtime --timestamp --sign \"$IDENTITY\" \"$bin\"\n    fi\n  done\nfi\n";
+		};
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -952,7 +959,6 @@
 				BBE2846D246765BD00BE9D7F /* Shaders.metal in Sources */,
 				BB5DC1F52F00A52100CCA2D6 /* ActivityViewController.m in Sources */,
 				BB097A0C2921B1E500D33E44 /* ScrollingTextView.m in Sources */,
-				BB5DC1F22F00357000CCA2D6 /* NSString+Sanitized.m in Sources */,
 				BB5A2C232B925CD300040209 /* TextViewWithPlaceholder.m in Sources */,
 				BBD24D622432948800DC2A81 /* AppDelegate.m in Sources */,
 				BBAD7D55262B973C00089ACC /* ScopeView.m in Sources */,
@@ -1063,11 +1069,11 @@
 			buildSettings = {
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
 				CODE_SIGN_IDENTITY = "-";
-				CODE_SIGN_STYLE = Manual;
+				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
 				DEFINES_MODULE = YES;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = YK4D72U3YW;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
@@ -1103,6 +1109,7 @@
 				MARKETING_VERSION = 1.0;
 				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu17 gnu++20";
+				OTHER_CFLAGS = "-DACCELERATE_NEW_LAPACK";
 				PRODUCT_BUNDLE_IDENTIFIER = com.toenshoff.playem.PlayEmCore;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -1118,13 +1125,12 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
-				CODE_SIGN_IDENTITY = "Apple Development";
-				CODE_SIGN_STYLE = Manual;
+				CODE_SIGN_IDENTITY = "Developer ID Application";
+				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
 				DEFINES_MODULE = YES;
 				DEVELOPMENT_TEAM = YK4D72U3YW;
-				"DEVELOPMENT_TEAM[sdk=macosx*]" = "";
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
@@ -1160,6 +1166,7 @@
 				MARKETING_VERSION = 1.0;
 				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu17 gnu++20";
+				OTHER_CFLAGS = "-DACCELERATE_NEW_LAPACK";
 				PRODUCT_BUNDLE_IDENTIFIER = com.toenshoff.playem.PlayEmCore;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -1175,35 +1182,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
-				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
-				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = "-";
-				"DEVELOPMENT_TEAM[sdk=macosx*]" = YK4D72U3YW;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
-				GCC_C_LANGUAGE_STANDARD = gnu17;
-				GENERATE_INFOPLIST_FILE = YES;
-				HEADER_SEARCH_PATHS = (
-					"$(PROJECT_DIR)/PlayEm/**",
-					"$(PROJECT_DIR)/PlayEmCore/**",
-				);
-				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
-				MACOSX_DEPLOYMENT_TARGET = 15.7;
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.toenshoff.playem.PlayEmCoreTests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				STRING_CATALOG_GENERATE_SYMBOLS = NO;
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				TEST_HOST = "";
-			};
-			name = Debug;
-		};
-		BB57DE5C2F05D614008FFBD1 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
-				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
-				CODE_SIGN_STYLE = Manual;
+				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = YK4D72U3YW;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
@@ -1220,7 +1199,30 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = NO;
 				SWIFT_EMIT_LOC_STRINGS = NO;
-				TEST_HOST = "";
+			};
+			name = Debug;
+		};
+		BB57DE5C2F05D614008FFBD1 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = YK4D72U3YW;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GENERATE_INFOPLIST_FILE = YES;
+				HEADER_SEARCH_PATHS = (
+					"$(PROJECT_DIR)/PlayEm/**",
+					"$(PROJECT_DIR)/PlayEmCore/**",
+				);
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MACOSX_DEPLOYMENT_TARGET = 15.7;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.toenshoff.playem.PlayEmCoreTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_EMIT_LOC_STRINGS = NO;
 			};
 			name = Release;
 		};
@@ -1384,6 +1386,10 @@
 					"$(PROJECT_DIR)/ThirdParty",
 					"$(PROJECT_DIR)/PlayEmCore",
 				);
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
 				HEADER_SEARCH_PATHS = (
 					/usr/local/include,
 					/opt/homebrew/include,
@@ -1401,6 +1407,7 @@
 					"$(PROJECT_DIR)/ThirdParty",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 15.6;
+				OTHER_CFLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = com.toenshoff.playem;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -1440,6 +1447,7 @@
 					"$(PROJECT_DIR)/ThirdParty",
 					"$(PROJECT_DIR)/PlayEmCore",
 				);
+				GCC_PREPROCESSOR_DEFINITIONS = "";
 				HEADER_SEARCH_PATHS = (
 					/usr/local/include,
 					/opt/homebrew/include,
@@ -1458,6 +1466,7 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 15.6;
 				ONLY_ACTIVE_ARCH = NO;
+				OTHER_CFLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = com.toenshoff.playem;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";

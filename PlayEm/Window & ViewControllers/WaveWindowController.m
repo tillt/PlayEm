@@ -1705,6 +1705,9 @@ static const NSString* kIdentifyToolbarIdentifier = @"Live Identify";
     
     void (^continuation)(void) = ^(void) {
         WaveWindowController* strongSelf = weakSelf;
+        if (!strongSelf) {
+            return;
+        }
 
         strongSelf->_totalIdentificationController = [[TotalIdentificationController alloc] initWithSample:strongSelf->_audioController.sample];
         strongSelf->_totalIdentificationController.referenceArtist = strongSelf->_meta.artist;
@@ -1716,6 +1719,9 @@ static const NSString* kIdentifyToolbarIdentifier = @"Live Identify";
         // ongoing activity - that way this can be reflected visually.
         strongSelf->_tracklist.detectionToken = [strongSelf->_totalIdentificationController detectTracklistWithCallback:^(BOOL done, NSError* error, NSArray<TimedMediaMetaData*>* tracks){
             WaveWindowController* strongSelf = weakSelf;
+            if (!strongSelf) {
+                return;
+            }
             if (!done) {
                 NSLog(@"detection failed with: %@", error);
                 return;
@@ -1739,6 +1745,9 @@ static const NSString* kIdentifyToolbarIdentifier = @"Live Identify";
         
         [alert beginSheetModalForWindow:self.window completionHandler:^(NSModalResponse returnCode) {
             WaveWindowController* strongSelf = weakSelf;
+            if (!strongSelf) {
+                return;
+            }
 
             if (returnCode == NSAlertSecondButtonReturn) {
                 NSLog(@"user decided to leave tracklist as is");
@@ -2172,7 +2181,6 @@ typedef struct {
                 [[ActivityManager shared] completeActivity:token];
             }
         } else {
-            NSLog(@"never finished the meta loading");
             LoaderContext c = context;
             c.meta = nil;
             [weakSelf metaLoadedWithContext:c];
@@ -2185,13 +2193,15 @@ typedef struct {
 {
     WaveWindowController* __weak weakSelf = self;
 
-    NSError* error = nil;
-    if (context.meta != nil) {
-        [self setMeta:context.meta];
-    } else {
-        NSLog(@"!!!no meta available!!!");
+    MediaMetaData* meta = context.meta;
+    if (context.meta == nil) {
+        NSLog(@"!!!no meta available - makeing something up!!!");
+        meta = [MediaMetaData emptyMediaDataWithURL:[NSURL fileURLWithPath:context.path]];
     }
+
+    [self setMeta:meta];
     
+    NSError* error = nil;
     LazySample* lazySample = [[LazySample alloc] initWithPath:context.path error:&error];
     if (lazySample == nil) {
         if (error) {

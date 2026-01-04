@@ -451,14 +451,20 @@ const CGFloat kTableRowHeight = 52.0f;
     __weak IdentifyViewController* weakSelf = self;
     
     [_audioController startTapping:^(unsigned long long offset, float* input, unsigned int frames) {
-        if (weakSelf == nil) {
+        IdentifyViewController* strongSelf = weakSelf;
+        if (!strongSelf) {
             NSLog(@"weak reference gone");
             return;
         }
-        dispatch_async(weakSelf.identifyQueue, ^{
-            [weakSelf.stream setFrameLength:frames];
+        __weak IdentifyViewController* innerWeakSelf = strongSelf;
+        dispatch_async(strongSelf.identifyQueue, ^{
+            IdentifyViewController* innerSelf = innerWeakSelf;
+            if (!innerSelf) {
+                return;
+            }
+            [innerSelf.stream setFrameLength:frames];
             // TODO: Yikes, this is a total nono -- we are writing to a read-only pointer!
-            float* outputBuffer = weakSelf.stream.floatChannelData[0];
+            float* outputBuffer = innerSelf.stream.floatChannelData[0];
             for (int i = 0; i < frames; i++) {
                 float s = 0.0;
                 for (int channel = 0; channel < sampleFormat.channels; channel++) {
@@ -470,10 +476,10 @@ const CGFloat kTableRowHeight = 52.0f;
 #ifdef DEBUG_TAPPING
             fwrite(outputBuffer, sizeof(float), frames, fp);
 #endif
-            weakSelf.sessionFrame = offset;
+            innerSelf.sessionFrame = offset;
 
             AVAudioTime* time = [AVAudioTime timeWithSampleTime:offset atRate:sampleFormat.rate];
-            [weakSelf.session matchStreamingBuffer:self.stream atTime:time];
+            [innerSelf.session matchStreamingBuffer:innerSelf.stream atTime:time];
         });
     }];
 }
@@ -493,19 +499,25 @@ const CGFloat kTableRowHeight = 52.0f;
 
     dispatch_async(dispatch_get_main_queue(), ^{
         IdentifyViewController* strongSelf = weakSelf;
+        if (!strongSelf) {
+            return;
+        }
 
         if (match.mediaItems[0].artworkURL != nil &&
-            ![match.mediaItems[0].artworkURL.absoluteString isEqualToString:weakSelf.imageURL.absoluteString]) {
+            ![match.mediaItems[0].artworkURL.absoluteString isEqualToString:strongSelf.imageURL.absoluteString]) {
             NSLog(@"need to re/load the image as the displayed URL %@ wouldnt match the requested URL %@", strongSelf.imageURL.absoluteString, match.mediaItems[0].artworkURL.absoluteString);
             
             TimedMediaMetaData* track = [[TimedMediaMetaData alloc] initWithMatchedMediaItem:match.mediaItems[0]
-                                                                                      frame:[NSNumber numberWithUnsignedLongLong:weakSelf.sessionFrame]];
+                                                                                      frame:[NSNumber numberWithUnsignedLongLong:strongSelf.sessionFrame]];
 
             NSLog(@"track starts at frame: %@", track.frame);
 
             
             void (^continuation)(void) = ^(void) {
                 IdentifyViewController* strongSelf = weakSelf;
+                if (!strongSelf) {
+                    return;
+                }
 
                 strongSelf.imageURL = match.mediaItems[0].artworkURL;
                 [strongSelf updateCoverData:track.meta.artwork animated:YES];

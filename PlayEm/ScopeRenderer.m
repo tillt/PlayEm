@@ -679,10 +679,13 @@ static const double kLevelDecreaseValue = 0.042;
     uint32_t frequencyBufferOffset = (uint32_t)self->_alignedUFrequenciesSize * bufferIndex;
     void* frequencyBufferAddress = ((uint8_t *)self->_frequencyUniformBuffer.contents) + frequencyBufferOffset;
 
-    performFFT(self->_fftSetup, window, kWindowSamples, frequencyBufferAddress);
-    logscaleFFT(self->_logMap, frequencyBufferAddress);
-    
-//            performMel(_dctSetup, window, kWindowSamples, frequencyBufferAddress);
+    performFFT(self->_fftSetup,
+               window,
+               kWindowSamples,
+               frequencyBufferAddress,
+               APWindowTypeHanning);
+
+    melScaleFFT(frequencyBufferAddress);
 
     size_t previousAttemptAt = -1;
     while (bestPositiveStreakLength == 0) {

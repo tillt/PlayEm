@@ -371,12 +371,11 @@ void beatsContextReset(BeatsParserContext* context)
                     s += data[channel][sourceFrameIndex];
                 }
                 s /= (float)self->_sample.sampleFormat.channels;
-                //self->_aubio_input_buffer->data[inputFrameIndex] = s;
+
                 [nrg addFrame:s];
                 
                 sourceFrameIndex++;
             }
-            //NSLog(@"frame %lld, energy level %0.5f / %0.5f / %0.5f / %0.5f", iterator.currentEvent->frame, _energy.rms, _energy.peak, iterator.currentEvent->energy, iterator.currentEvent->peak);
         };
         currentEvent.energy = nrg.rms;
         currentEvent.peak = nrg.peak;

@@ -114,6 +114,8 @@ extern NSString* const kMediaMetaDataMapTypeNumber;
 + (MediaMetaData*)mediaMetaDataWithITLibMediaItem:(ITLibMediaItem*)item error:(NSError**)error;
 + (MediaMetaData*)mediaMetaDataWithSHMatchedMediaItem:(SHMatchedMediaItem*)item error:(NSError**)error;
 
++ (MediaMetaData*)emptyMediaDataWithURL:(NSURL*)url;
+
 + (NSString*)mimeTypeForArtworkFormat:(ITLibArtworkFormat)format;
 
 

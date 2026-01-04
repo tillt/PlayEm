@@ -201,16 +201,20 @@ NSString* const kSongsColGenre = @"GenreCell";
     NSString* tag = _tagsTable.selectedRow > 0 ? _tags[_tagsTable.selectedRow] : nil;
 
     dispatch_async(_filterQueue, ^{
+        BrowserController* strongSelf = weakSelf;
+        if (!strongSelf) {
+            return;
+        }
         // Apply filtering and sorting.
-        filteredItems = [[weakSelf filterMediaItems:cachedLibrary
-                                              genre:genre
-                                             artist:artist
-                                              album:album
-                                              tempo:tempo
-                                                key:key
-                                             rating:rating
-                                                tag:tag
-                                             needle:needle] sortedArrayUsingDescriptors:descriptors];
+        filteredItems = [[strongSelf filterMediaItems:cachedLibrary
+                                                genre:genre
+                                               artist:artist
+                                                album:album
+                                                tempo:tempo
+                                                  key:key
+                                               rating:rating
+                                                  tag:tag
+                                               needle:needle] sortedArrayUsingDescriptors:descriptors];
 
         // This weird construct shall assure that we only reload those columns that are
         // undetermined by a selection with a priority built in. 
@@ -226,19 +230,19 @@ NSString* const kSongsColGenre = @"GenreCell";
         NSMutableArray* destRatings = nil;
         NSMutableArray* destTags = nil;
         if (tag == nil) {
-            destTags = weakSelf.tags;
+            destTags = strongSelf.tags;
             if (rating == nil) {
-                destRatings = weakSelf.ratings;
+                destRatings = strongSelf.ratings;
                 if (key == nil) {
-                    destKeys = weakSelf.keys;
+                    destKeys = strongSelf.keys;
                     if (tempo == nil) {
-                        destTempos = weakSelf.tempos;
+                        destTempos = strongSelf.tempos;
                         if (album == nil) {
-                            destAlbums = weakSelf.albums;
+                            destAlbums = strongSelf.albums;
                             if (artist == nil) {
-                                destArtists = weakSelf.artists;
+                                destArtists = strongSelf.artists;
                                 if (genre == nil) {
-                                    destGenres = weakSelf.genres;
+                                    destGenres = strongSelf.genres;
                                 }
                             }
                         }
@@ -246,97 +250,101 @@ NSString* const kSongsColGenre = @"GenreCell";
                 }
             }
         }
-        [weakSelf columnsFromMediaItems:filteredItems
-                                 genres:destGenres
-                                artists:destArtists
-                                 albums:destAlbums
-                                 tempos:destTempos
-                                   keys:destKeys
-                                ratings:destRatings
-                                   tags:destTags];
+        [strongSelf columnsFromMediaItems:filteredItems
+                                   genres:destGenres
+                                  artists:destArtists
+                                   albums:destAlbums
+                                   tempos:destTempos
+                                     keys:destKeys
+                                  ratings:destRatings
+                                     tags:destTags];
 
         dispatch_sync(dispatch_get_main_queue(), ^{
-            weakSelf.filteredItems = filteredItems;
+            BrowserController* mainSelf = weakSelf;
+            if (!mainSelf) {
+                return;
+            }
+            mainSelf.filteredItems = filteredItems;
             
-            [weakSelf setNowPlayingWithMeta:self->_lazyUpdatedMeta];
+            [mainSelf setNowPlayingWithMeta:mainSelf->_lazyUpdatedMeta];
 
-            NSIndexSet* genreSelections = [self->_genresTable selectedRowIndexes];
-            NSIndexSet* artistSelections = [self->_artistsTable selectedRowIndexes];
-            NSIndexSet* albumSelections = [self->_albumsTable selectedRowIndexes];
-            NSIndexSet* tempoSelections = [self->_temposTable selectedRowIndexes];
-            NSIndexSet* keySelections = [self->_keysTable selectedRowIndexes];
-            NSIndexSet* ratingSelections = [self->_ratingsTable selectedRowIndexes];
-            NSIndexSet* tagSelections = [self->_tagsTable selectedRowIndexes];
-            NSIndexSet* songSelections = [self->_songsTable selectedRowIndexes];
+            NSIndexSet* genreSelections = [mainSelf->_genresTable selectedRowIndexes];
+            NSIndexSet* artistSelections = [mainSelf->_artistsTable selectedRowIndexes];
+            NSIndexSet* albumSelections = [mainSelf->_albumsTable selectedRowIndexes];
+            NSIndexSet* tempoSelections = [mainSelf->_temposTable selectedRowIndexes];
+            NSIndexSet* keySelections = [mainSelf->_keysTable selectedRowIndexes];
+            NSIndexSet* ratingSelections = [mainSelf->_ratingsTable selectedRowIndexes];
+            NSIndexSet* tagSelections = [mainSelf->_tagsTable selectedRowIndexes];
+            NSIndexSet* songSelections = [mainSelf->_songsTable selectedRowIndexes];
 
-            [weakSelf.genresTable beginUpdates];
-            [weakSelf.genresTable reloadData];
-            [weakSelf.genresTable endUpdates];
+            [mainSelf.genresTable beginUpdates];
+            [mainSelf.genresTable reloadData];
+            [mainSelf.genresTable endUpdates];
             
-            [weakSelf.albumsTable beginUpdates];
-            [weakSelf.albumsTable reloadData];
-            [weakSelf.albumsTable endUpdates];
+            [mainSelf.albumsTable beginUpdates];
+            [mainSelf.albumsTable reloadData];
+            [mainSelf.albumsTable endUpdates];
             
-            [weakSelf.artistsTable beginUpdates];
-            [weakSelf.artistsTable reloadData];
-            [weakSelf.artistsTable endUpdates];
+            [mainSelf.artistsTable beginUpdates];
+            [mainSelf.artistsTable reloadData];
+            [mainSelf.artistsTable endUpdates];
             
-            [weakSelf.temposTable beginUpdates];
-            [weakSelf.temposTable reloadData];
-            [weakSelf.temposTable endUpdates];
+            [mainSelf.temposTable beginUpdates];
+            [mainSelf.temposTable reloadData];
+            [mainSelf.temposTable endUpdates];
                         
-            [weakSelf.keysTable beginUpdates];
-            [weakSelf.keysTable reloadData];
-            [weakSelf.keysTable endUpdates];
+            [mainSelf.keysTable beginUpdates];
+            [mainSelf.keysTable reloadData];
+            [mainSelf.keysTable endUpdates];
 
-            [weakSelf.ratingsTable beginUpdates];
-            [weakSelf.ratingsTable reloadData];
-            [weakSelf.ratingsTable endUpdates];
+            [mainSelf.ratingsTable beginUpdates];
+            [mainSelf.ratingsTable reloadData];
+            [mainSelf.ratingsTable endUpdates];
 
-            [weakSelf.tagsTable beginUpdates];
-            [weakSelf.tagsTable reloadData];
-            [weakSelf.tagsTable endUpdates];
+            [mainSelf.tagsTable beginUpdates];
+            [mainSelf.tagsTable reloadData];
+            [mainSelf.tagsTable endUpdates];
 
-            [weakSelf.songsTable beginUpdates];
-            [weakSelf.songsTable reloadData];
-            [weakSelf.songsTable endUpdates];
+            [mainSelf.songsTable beginUpdates];
+            [mainSelf.songsTable reloadData];
+            [mainSelf.songsTable endUpdates];
 
-            self->_updatingGenres = YES;
-            self->_updatingArtists = YES;
-            self->_updatingAlbums = YES;
-            self->_updatingTempos = YES;
-            self->_updatingKeys = YES;
-            self->_updatingRatings = YES;
-            self->_updatingTags = YES;
+            mainSelf->_updatingGenres = YES;
+            mainSelf->_updatingArtists = YES;
+            mainSelf->_updatingAlbums = YES;
+            mainSelf->_updatingTempos = YES;
+            mainSelf->_updatingKeys = YES;
+            mainSelf->_updatingRatings = YES;
+            mainSelf->_updatingTags = YES;
 
-            [weakSelf.genresTable selectRowIndexes:genreSelections
+            [mainSelf.genresTable selectRowIndexes:genreSelections
                               byExtendingSelection:NO];
-            [weakSelf.artistsTable selectRowIndexes:artistSelections
+            [mainSelf.artistsTable selectRowIndexes:artistSelections
                               byExtendingSelection:NO];
-            [weakSelf.albumsTable selectRowIndexes:albumSelections
+            [mainSelf.albumsTable selectRowIndexes:albumSelections
                               byExtendingSelection:NO];
-            [weakSelf.temposTable selectRowIndexes:tempoSelections
+            [mainSelf.temposTable selectRowIndexes:tempoSelections
                               byExtendingSelection:NO];
-            [weakSelf.keysTable selectRowIndexes:keySelections
+            [mainSelf.keysTable selectRowIndexes:keySelections
                               byExtendingSelection:NO];
-            [weakSelf.ratingsTable selectRowIndexes:ratingSelections
+            [mainSelf.ratingsTable selectRowIndexes:ratingSelections
                               byExtendingSelection:NO];
-            [weakSelf.tagsTable selectRowIndexes:tagSelections
+            [mainSelf.tagsTable selectRowIndexes:tagSelections
                               byExtendingSelection:NO];
-            [weakSelf.songsTable selectRowIndexes:songSelections
+            [mainSelf.songsTable selectRowIndexes:songSelections
                               byExtendingSelection:NO];
             NSLog(@"selecting songs %@", songSelections);
 
-            self->_updatingGenres = NO;
-            self->_updatingArtists = NO;
-            self->_updatingAlbums = NO;
-            self->_updatingTempos = NO;
-            self->_updatingKeys = NO;
-            self->_updatingRatings = NO;
-            self->_updatingTags = NO;
+            mainSelf->_updatingGenres = NO;
+            mainSelf->_updatingArtists = NO;
+            mainSelf->_updatingAlbums = NO;
+            mainSelf->_updatingTempos = NO;
+            mainSelf->_updatingKeys = NO;
+            mainSelf->_updatingRatings = NO;
+            mainSelf->_updatingTags = NO;
             
-            [weakSelf.delegate updateSongsCount:weakSelf.cachedLibrary.count
-                                       filtered:weakSelf.filteredItems.count];
+            [mainSelf.delegate updateSongsCount:mainSelf.cachedLibrary.count
+                                       filtered:mainSelf.filteredItems.count];
         });
     });
 }
@@ -483,6 +491,9 @@ NSString* const kSongsColGenre = @"GenreCell";
     
     dispatch_async(_filterQueue, ^{
         BrowserController* strongSelf = weakSelf;
+        if (!strongSelf) {
+            return;
+        }
 
         [[ActivityManager shared] updateActivity:libraryToken progress:0.01 detail:@"fetching Music library"];
 
@@ -504,6 +515,9 @@ NSString* const kSongsColGenre = @"GenreCell";
         
         dispatch_sync(dispatch_get_main_queue(), ^{
             BrowserController* strongSelf = weakSelf;
+            if (!strongSelf) {
+                return;
+            }
 
             [strongSelf reloadTableView:strongSelf.genresTable];
             
@@ -528,7 +542,7 @@ NSString* const kSongsColGenre = @"GenreCell";
             [strongSelf reloadTableView:strongSelf.tagsTable];
             [strongSelf reloadTableView:strongSelf.songsTable];
             
-            [strongSelf setNowPlayingWithMeta:self->_lazyUpdatedMeta];
+            [strongSelf setNowPlayingWithMeta:strongSelf->_lazyUpdatedMeta];
             [[ActivityManager shared] completeActivity:libraryToken];
            
             strongSelf->_reloadingLibrary = YES;
@@ -614,20 +628,28 @@ NSString* const kSongsColGenre = @"GenreCell";
     NSArray<NSSortDescriptor*>* descriptors = [_songsTable sortDescriptors];
 
     dispatch_async(_filterQueue, ^{
-        weakSelf.filteredItems = [[weakSelf filterMediaItems:weakSelf.cachedLibrary
-                                                       genre:genre
-                                                      artist:artist
-                                                       album:album
-                                                       tempo:tempo
-                                                         key:key
-                                                      rating:rating
-                                                         tag:tag
-                                                      needle:needle] sortedArrayUsingDescriptors:descriptors];
+        BrowserController* strongSelf = weakSelf;
+        if (!strongSelf) {
+            return;
+        }
+        strongSelf.filteredItems = [[strongSelf filterMediaItems:strongSelf.cachedLibrary
+                                                           genre:genre
+                                                          artist:artist
+                                                           album:album
+                                                           tempo:tempo
+                                                             key:key
+                                                          rating:rating
+                                                             tag:tag
+                                                          needle:needle] sortedArrayUsingDescriptors:descriptors];
 
         dispatch_sync(dispatch_get_main_queue(), ^{
-            [weakSelf.songsTable beginUpdates];
-            [weakSelf.songsTable reloadData];
-            [weakSelf.songsTable endUpdates];
+            BrowserController* mainSelf = weakSelf;
+            if (!mainSelf) {
+                return;
+            }
+            [mainSelf.songsTable beginUpdates];
+            [mainSelf.songsTable reloadData];
+            [mainSelf.songsTable endUpdates];
         });
     });
 }
@@ -892,73 +914,81 @@ NSString* const kSongsColGenre = @"GenreCell";
     NSArray<NSSortDescriptor*>* descriptors = [_songsTable sortDescriptors];
 
     dispatch_async(_filterQueue, ^{
-        weakSelf.filteredItems = [[self filterMediaItems:weakSelf.cachedLibrary
-                                                   genre:genre
-                                                  artist:artist
-                                                   album:album
-                                                   tempo:tempo
-                                                     key:key
-                                                  rating:rating
-                                                     tag:tag
-                                                  needle:needle] sortedArrayUsingDescriptors:descriptors];
+        BrowserController* strongSelf = weakSelf;
+        if (!strongSelf) {
+            return;
+        }
+        strongSelf.filteredItems = [[strongSelf filterMediaItems:strongSelf.cachedLibrary
+                                                           genre:genre
+                                                          artist:artist
+                                                           album:album
+                                                           tempo:tempo
+                                                             key:key
+                                                          rating:rating
+                                                             tag:tag
+                                                          needle:needle] sortedArrayUsingDescriptors:descriptors];
         
-        [weakSelf columnsFromMediaItems:weakSelf.filteredItems
-                                 genres:nil
-                                artists:weakSelf.artists
-                                 albums:weakSelf.albums
-                                 tempos:weakSelf.tempos
-                                   keys:weakSelf.keys
-                                ratings:weakSelf.ratings
-                                   tags:weakSelf.tags];
+        [strongSelf columnsFromMediaItems:strongSelf.filteredItems
+                                   genres:nil
+                                  artists:strongSelf.artists
+                                   albums:strongSelf.albums
+                                   tempos:strongSelf.tempos
+                                     keys:strongSelf.keys
+                                  ratings:strongSelf.ratings
+                                     tags:strongSelf.tags];
 
         dispatch_sync(dispatch_get_main_queue(), ^{
-            [weakSelf.artistsTable beginUpdates];
-            [weakSelf.artistsTable reloadData];
-            [weakSelf.artistsTable endUpdates];
+            BrowserController* mainSelf = weakSelf;
+            if (!mainSelf) {
+                return;
+            }
+            [mainSelf.artistsTable beginUpdates];
+            [mainSelf.artistsTable reloadData];
+            [mainSelf.artistsTable endUpdates];
 
-            [weakSelf.albumsTable beginUpdates];
-            [weakSelf.albumsTable reloadData];
-            [weakSelf.albumsTable endUpdates];
+            [mainSelf.albumsTable beginUpdates];
+            [mainSelf.albumsTable reloadData];
+            [mainSelf.albumsTable endUpdates];
 
-            [weakSelf.temposTable beginUpdates];
-            [weakSelf.temposTable reloadData];
-            [weakSelf.temposTable endUpdates];
+            [mainSelf.temposTable beginUpdates];
+            [mainSelf.temposTable reloadData];
+            [mainSelf.temposTable endUpdates];
 
-            [weakSelf.keysTable beginUpdates];
-            [weakSelf.keysTable reloadData];
-            [weakSelf.keysTable endUpdates];
+            [mainSelf.keysTable beginUpdates];
+            [mainSelf.keysTable reloadData];
+            [mainSelf.keysTable endUpdates];
 
-            [weakSelf.ratingsTable beginUpdates];
-            [weakSelf.ratingsTable reloadData];
-            [weakSelf.ratingsTable endUpdates];
+            [mainSelf.ratingsTable beginUpdates];
+            [mainSelf.ratingsTable reloadData];
+            [mainSelf.ratingsTable endUpdates];
 
-            [weakSelf.tagsTable beginUpdates];
-            [weakSelf.tagsTable reloadData];
-            [weakSelf.tagsTable endUpdates];
+            [mainSelf.tagsTable beginUpdates];
+            [mainSelf.tagsTable reloadData];
+            [mainSelf.tagsTable endUpdates];
 
-            [weakSelf.songsTable beginUpdates];
-            [weakSelf.songsTable reloadData];
-            [weakSelf.songsTable endUpdates];
+            [mainSelf.songsTable beginUpdates];
+            [mainSelf.songsTable reloadData];
+            [mainSelf.songsTable endUpdates];
 
             NSIndexSet* zeroSet = [NSIndexSet indexSetWithIndex:0];
-            self->_updatingArtists = YES;
-            self->_updatingAlbums = YES;
-            self->_updatingTempos = YES;
-            self->_updatingKeys = YES;
-            self->_updatingRatings = YES;
-            self->_updatingTags = YES;
-            [weakSelf.artistsTable selectRowIndexes:zeroSet byExtendingSelection:NO];
-            [weakSelf.albumsTable selectRowIndexes:zeroSet byExtendingSelection:NO];
-            [weakSelf.temposTable selectRowIndexes:zeroSet byExtendingSelection:NO];
-            [weakSelf.keysTable selectRowIndexes:zeroSet byExtendingSelection:NO];
-            [weakSelf.ratingsTable selectRowIndexes:zeroSet byExtendingSelection:NO];
-            [weakSelf.tagsTable selectRowIndexes:zeroSet byExtendingSelection:NO];
-            self->_updatingArtists = NO;
-            self->_updatingAlbums = NO;
-            self->_updatingTempos = NO;
-            self->_updatingKeys = NO;
-            self->_updatingRatings = NO;
-            self->_updatingTags = NO;
+            mainSelf->_updatingArtists = YES;
+            mainSelf->_updatingAlbums = YES;
+            mainSelf->_updatingTempos = YES;
+            mainSelf->_updatingKeys = YES;
+            mainSelf->_updatingRatings = YES;
+            mainSelf->_updatingTags = YES;
+            [mainSelf.artistsTable selectRowIndexes:zeroSet byExtendingSelection:NO];
+            [mainSelf.albumsTable selectRowIndexes:zeroSet byExtendingSelection:NO];
+            [mainSelf.temposTable selectRowIndexes:zeroSet byExtendingSelection:NO];
+            [mainSelf.keysTable selectRowIndexes:zeroSet byExtendingSelection:NO];
+            [mainSelf.ratingsTable selectRowIndexes:zeroSet byExtendingSelection:NO];
+            [mainSelf.tagsTable selectRowIndexes:zeroSet byExtendingSelection:NO];
+            mainSelf->_updatingArtists = NO;
+            mainSelf->_updatingAlbums = NO;
+            mainSelf->_updatingTempos = NO;
+            mainSelf->_updatingKeys = NO;
+            mainSelf->_updatingRatings = NO;
+            mainSelf->_updatingTags = NO;
         });
     });
 }
@@ -983,66 +1013,74 @@ NSString* const kSongsColGenre = @"GenreCell";
     NSArray<NSSortDescriptor*>* descriptors = [_songsTable sortDescriptors];
 
     dispatch_async(_filterQueue, ^{
-        weakSelf.filteredItems = [[weakSelf filterMediaItems:weakSelf.cachedLibrary
-                                                      genre:genre
-                                                     artist:artist
-                                                      album:album
-                                                      tempo:tempo
-                                                        key:key
-                                                      rating:rating
-                                                         tag:tag
-                                                      needle:needle] sortedArrayUsingDescriptors:descriptors];
+        BrowserController* strongSelf = weakSelf;
+        if (!strongSelf) {
+            return;
+        }
+        strongSelf.filteredItems = [[strongSelf filterMediaItems:strongSelf.cachedLibrary
+                                                           genre:genre
+                                                          artist:artist
+                                                           album:album
+                                                           tempo:tempo
+                                                             key:key
+                                                          rating:rating
+                                                             tag:tag
+                                                          needle:needle] sortedArrayUsingDescriptors:descriptors];
     
-        [weakSelf columnsFromMediaItems:weakSelf.filteredItems
-                                 genres:nil
-                                artists:nil
-                                 albums:weakSelf.albums
-                                 tempos:weakSelf.tempos
-                                   keys:weakSelf.keys
-                                ratings:weakSelf.ratings
-                                   tags:weakSelf.tags];
+        [strongSelf columnsFromMediaItems:strongSelf.filteredItems
+                                   genres:nil
+                                  artists:nil
+                                   albums:strongSelf.albums
+                                   tempos:strongSelf.tempos
+                                     keys:strongSelf.keys
+                                  ratings:strongSelf.ratings
+                                     tags:strongSelf.tags];
 
         dispatch_sync(dispatch_get_main_queue(), ^{
-            [weakSelf.albumsTable beginUpdates];
-            [weakSelf.albumsTable reloadData];
-            [weakSelf.albumsTable endUpdates];
+            BrowserController* mainSelf = weakSelf;
+            if (!mainSelf) {
+                return;
+            }
+            [mainSelf.albumsTable beginUpdates];
+            [mainSelf.albumsTable reloadData];
+            [mainSelf.albumsTable endUpdates];
 
-            [weakSelf.temposTable beginUpdates];
-            [weakSelf.temposTable reloadData];
-            [weakSelf.temposTable endUpdates];
+            [mainSelf.temposTable beginUpdates];
+            [mainSelf.temposTable reloadData];
+            [mainSelf.temposTable endUpdates];
 
-            [weakSelf.keysTable beginUpdates];
-            [weakSelf.keysTable reloadData];
-            [weakSelf.keysTable endUpdates];
+            [mainSelf.keysTable beginUpdates];
+            [mainSelf.keysTable reloadData];
+            [mainSelf.keysTable endUpdates];
 
-            [weakSelf.ratingsTable beginUpdates];
-            [weakSelf.ratingsTable reloadData];
-            [weakSelf.ratingsTable endUpdates];
+            [mainSelf.ratingsTable beginUpdates];
+            [mainSelf.ratingsTable reloadData];
+            [mainSelf.ratingsTable endUpdates];
 
-            [weakSelf.tagsTable beginUpdates];
-            [weakSelf.tagsTable reloadData];
-            [weakSelf.tagsTable endUpdates];
+            [mainSelf.tagsTable beginUpdates];
+            [mainSelf.tagsTable reloadData];
+            [mainSelf.tagsTable endUpdates];
 
-            [weakSelf.songsTable beginUpdates];
-            [weakSelf.songsTable reloadData];
-            [weakSelf.songsTable endUpdates];
+            [mainSelf.songsTable beginUpdates];
+            [mainSelf.songsTable reloadData];
+            [mainSelf.songsTable endUpdates];
 
             NSIndexSet* zeroSet = [NSIndexSet indexSetWithIndex:0];
-            self->_updatingAlbums = YES;
-            self->_updatingTempos = YES;
-            self->_updatingKeys = YES;
-            self->_updatingRatings = YES;
-            self->_updatingTags = YES;
-            [weakSelf.albumsTable selectRowIndexes:zeroSet byExtendingSelection:NO];
-            [weakSelf.temposTable selectRowIndexes:zeroSet byExtendingSelection:NO];
-            [weakSelf.keysTable selectRowIndexes:zeroSet byExtendingSelection:NO];
-            [weakSelf.ratingsTable selectRowIndexes:zeroSet byExtendingSelection:NO];
-            [weakSelf.tagsTable selectRowIndexes:zeroSet byExtendingSelection:NO];
-            self->_updatingAlbums = NO;
-            self->_updatingTempos = NO;
-            self->_updatingKeys = NO;
-            self->_updatingRatings = NO;
-            self->_updatingTags = NO;
+            mainSelf->_updatingAlbums = YES;
+            mainSelf->_updatingTempos = YES;
+            mainSelf->_updatingKeys = YES;
+            mainSelf->_updatingRatings = YES;
+            mainSelf->_updatingTags = YES;
+            [mainSelf.albumsTable selectRowIndexes:zeroSet byExtendingSelection:NO];
+            [mainSelf.temposTable selectRowIndexes:zeroSet byExtendingSelection:NO];
+            [mainSelf.keysTable selectRowIndexes:zeroSet byExtendingSelection:NO];
+            [mainSelf.ratingsTable selectRowIndexes:zeroSet byExtendingSelection:NO];
+            [mainSelf.tagsTable selectRowIndexes:zeroSet byExtendingSelection:NO];
+            mainSelf->_updatingAlbums = NO;
+            mainSelf->_updatingTempos = NO;
+            mainSelf->_updatingKeys = NO;
+            mainSelf->_updatingRatings = NO;
+            mainSelf->_updatingTags = NO;
         });
     });
 }
@@ -1066,59 +1104,67 @@ NSString* const kSongsColGenre = @"GenreCell";
     NSArray<NSSortDescriptor*>* descriptors = [_songsTable sortDescriptors];
 
     dispatch_async(_filterQueue, ^{
-        weakSelf.filteredItems = [[weakSelf filterMediaItems:weakSelf.cachedLibrary
-                                                       genre:genre
-                                                      artist:artist
-                                                       album:album
-                                                       tempo:tempo
-                                                         key:key
-                                                      rating:rating
-                                                         tag:tag
-                                                      needle:needle] sortedArrayUsingDescriptors:descriptors];
+        BrowserController* strongSelf = weakSelf;
+        if (!strongSelf) {
+            return;
+        }
+        strongSelf.filteredItems = [[strongSelf filterMediaItems:strongSelf.cachedLibrary
+                                                           genre:genre
+                                                          artist:artist
+                                                           album:album
+                                                           tempo:tempo
+                                                             key:key
+                                                          rating:rating
+                                                             tag:tag
+                                                          needle:needle] sortedArrayUsingDescriptors:descriptors];
 
-        [weakSelf columnsFromMediaItems:weakSelf.filteredItems
-                                 genres:nil
-                                artists:nil
-                                 albums:nil
-                                 tempos:weakSelf.tempos
-                                   keys:weakSelf.keys
-                                ratings:weakSelf.ratings
-                                   tags:weakSelf.tags];
+        [strongSelf columnsFromMediaItems:strongSelf.filteredItems
+                                   genres:nil
+                                  artists:nil
+                                   albums:nil
+                                   tempos:strongSelf.tempos
+                                     keys:strongSelf.keys
+                                  ratings:strongSelf.ratings
+                                     tags:strongSelf.tags];
 
         dispatch_sync(dispatch_get_main_queue(), ^{
-            [weakSelf.temposTable beginUpdates];
-            [weakSelf.temposTable reloadData];
-            [weakSelf.temposTable endUpdates];
+            BrowserController* mainSelf = weakSelf;
+            if (!mainSelf) {
+                return;
+            }
+            [mainSelf.temposTable beginUpdates];
+            [mainSelf.temposTable reloadData];
+            [mainSelf.temposTable endUpdates];
 
-            [weakSelf.keysTable beginUpdates];
-            [weakSelf.keysTable reloadData];
-            [weakSelf.keysTable endUpdates];
+            [mainSelf.keysTable beginUpdates];
+            [mainSelf.keysTable reloadData];
+            [mainSelf.keysTable endUpdates];
 
-            [weakSelf.ratingsTable beginUpdates];
-            [weakSelf.ratingsTable reloadData];
-            [weakSelf.ratingsTable endUpdates];
+            [mainSelf.ratingsTable beginUpdates];
+            [mainSelf.ratingsTable reloadData];
+            [mainSelf.ratingsTable endUpdates];
 
-            [weakSelf.tagsTable beginUpdates];
-            [weakSelf.tagsTable reloadData];
-            [weakSelf.tagsTable endUpdates];
+            [mainSelf.tagsTable beginUpdates];
+            [mainSelf.tagsTable reloadData];
+            [mainSelf.tagsTable endUpdates];
 
-            [weakSelf.songsTable beginUpdates];
-            [weakSelf.songsTable reloadData];
-            [weakSelf.songsTable endUpdates];
+            [mainSelf.songsTable beginUpdates];
+            [mainSelf.songsTable reloadData];
+            [mainSelf.songsTable endUpdates];
 
             NSIndexSet* zeroSet = [NSIndexSet indexSetWithIndex:0];
-            self->_updatingTempos = YES;
-            self->_updatingKeys = YES;
-            self->_updatingRatings = YES;
-            self->_updatingTags = YES;
-            [weakSelf.temposTable selectRowIndexes:zeroSet byExtendingSelection:NO];
-            [weakSelf.keysTable selectRowIndexes:zeroSet byExtendingSelection:NO];
-            [weakSelf.ratingsTable selectRowIndexes:zeroSet byExtendingSelection:NO];
-            [weakSelf.tagsTable selectRowIndexes:zeroSet byExtendingSelection:NO];
-            self->_updatingTempos = NO;
-            self->_updatingKeys = NO;
-            self->_updatingRatings = NO;
-            self->_updatingTags = NO;
+            mainSelf->_updatingTempos = YES;
+            mainSelf->_updatingKeys = YES;
+            mainSelf->_updatingRatings = YES;
+            mainSelf->_updatingTags = YES;
+            [mainSelf.temposTable selectRowIndexes:zeroSet byExtendingSelection:NO];
+            [mainSelf.keysTable selectRowIndexes:zeroSet byExtendingSelection:NO];
+            [mainSelf.ratingsTable selectRowIndexes:zeroSet byExtendingSelection:NO];
+            [mainSelf.tagsTable selectRowIndexes:zeroSet byExtendingSelection:NO];
+            mainSelf->_updatingTempos = NO;
+            mainSelf->_updatingKeys = NO;
+            mainSelf->_updatingRatings = NO;
+            mainSelf->_updatingTags = NO;
         });
     });
 }
@@ -1141,53 +1187,61 @@ NSString* const kSongsColGenre = @"GenreCell";
     NSArray<NSSortDescriptor*>* descriptors = [_songsTable sortDescriptors];
 
     dispatch_async(_filterQueue, ^{
-        weakSelf.filteredItems = [[weakSelf filterMediaItems:weakSelf.cachedLibrary
-                                                       genre:genre
-                                                      artist:artist
-                                                       album:album
-                                                       tempo:tempo
-                                                         key:key
-                                                      rating:rating
-                                                         tag:tag
-                                                      needle:needle] sortedArrayUsingDescriptors:descriptors];
+        BrowserController* strongSelf = weakSelf;
+        if (!strongSelf) {
+            return;
+        }
+        strongSelf.filteredItems = [[strongSelf filterMediaItems:strongSelf.cachedLibrary
+                                                           genre:genre
+                                                          artist:artist
+                                                           album:album
+                                                           tempo:tempo
+                                                             key:key
+                                                          rating:rating
+                                                             tag:tag
+                                                          needle:needle] sortedArrayUsingDescriptors:descriptors];
 
-        [weakSelf columnsFromMediaItems:weakSelf.filteredItems
-                                 genres:nil
-                                artists:nil
-                                 albums:nil
-                                 tempos:nil
-                                   keys:weakSelf.keys
-                                ratings:weakSelf.ratings
-                                   tags:weakSelf.tags];
+        [strongSelf columnsFromMediaItems:strongSelf.filteredItems
+                                   genres:nil
+                                  artists:nil
+                                   albums:nil
+                                   tempos:nil
+                                     keys:strongSelf.keys
+                                  ratings:strongSelf.ratings
+                                     tags:strongSelf.tags];
 
         dispatch_sync(dispatch_get_main_queue(), ^{
-            [weakSelf.keysTable beginUpdates];
-            [weakSelf.keysTable reloadData];
-            [weakSelf.keysTable endUpdates];
+            BrowserController* mainSelf = weakSelf;
+            if (!mainSelf) {
+                return;
+            }
+            [mainSelf.keysTable beginUpdates];
+            [mainSelf.keysTable reloadData];
+            [mainSelf.keysTable endUpdates];
 
-            [weakSelf.ratingsTable beginUpdates];
-            [weakSelf.ratingsTable reloadData];
-            [weakSelf.ratingsTable endUpdates];
+            [mainSelf.ratingsTable beginUpdates];
+            [mainSelf.ratingsTable reloadData];
+            [mainSelf.ratingsTable endUpdates];
 
-            [weakSelf.tagsTable beginUpdates];
-            [weakSelf.tagsTable reloadData];
-            [weakSelf.tagsTable endUpdates];
+            [mainSelf.tagsTable beginUpdates];
+            [mainSelf.tagsTable reloadData];
+            [mainSelf.tagsTable endUpdates];
 
-            [weakSelf.songsTable beginUpdates];
-            [weakSelf.songsTable reloadData];
-            [weakSelf.songsTable endUpdates];
+            [mainSelf.songsTable beginUpdates];
+            [mainSelf.songsTable reloadData];
+            [mainSelf.songsTable endUpdates];
 
             NSIndexSet* zeroSet = [NSIndexSet indexSetWithIndex:0];
             
-            self->_updatingKeys = YES;
-            self->_updatingRatings = YES;
-            self->_updatingTags = YES;
-            [weakSelf.keysTable selectRowIndexes:zeroSet byExtendingSelection:NO];
-            [weakSelf.ratingsTable selectRowIndexes:zeroSet byExtendingSelection:NO];
-            [weakSelf.tagsTable selectRowIndexes:zeroSet byExtendingSelection:NO];
-            self->_updatingKeys = NO;
-            self->_updatingRatings = NO;
-            self->_updatingTags = NO;
+            mainSelf->_updatingKeys = YES;
+            mainSelf->_updatingRatings = YES;
+            mainSelf->_updatingTags = YES;
+            [mainSelf.keysTable selectRowIndexes:zeroSet byExtendingSelection:NO];
+            [mainSelf.ratingsTable selectRowIndexes:zeroSet byExtendingSelection:NO];
+            [mainSelf.tagsTable selectRowIndexes:zeroSet byExtendingSelection:NO];
+            mainSelf->_updatingKeys = NO;
+            mainSelf->_updatingRatings = NO;
+            mainSelf->_updatingTags = NO;
         });
     });
     return;
@@ -1211,37 +1265,45 @@ NSString* const kSongsColGenre = @"GenreCell";
     NSArray<NSSortDescriptor*>* descriptors = [_songsTable sortDescriptors];
 
     dispatch_async(_filterQueue, ^{
-        weakSelf.filteredItems = [[weakSelf filterMediaItems:weakSelf.cachedLibrary
-                                                       genre:genre
-                                                      artist:artist
-                                                       album:album
-                                                       tempo:tempo
-                                                         key:key
-                                                      rating:rating
-                                                         tag:tag
-                                                      needle:needle] sortedArrayUsingDescriptors:descriptors];
+        BrowserController* strongSelf = weakSelf;
+        if (!strongSelf) {
+            return;
+        }
+        strongSelf.filteredItems = [[strongSelf filterMediaItems:strongSelf.cachedLibrary
+                                                           genre:genre
+                                                          artist:artist
+                                                           album:album
+                                                           tempo:tempo
+                                                             key:key
+                                                          rating:rating
+                                                             tag:tag
+                                                          needle:needle] sortedArrayUsingDescriptors:descriptors];
 
         dispatch_sync(dispatch_get_main_queue(), ^{
-            [weakSelf.ratingsTable beginUpdates];
-            [weakSelf.ratingsTable reloadData];
-            [weakSelf.ratingsTable endUpdates];
+            BrowserController* mainSelf = weakSelf;
+            if (!mainSelf) {
+                return;
+            }
+            [mainSelf.ratingsTable beginUpdates];
+            [mainSelf.ratingsTable reloadData];
+            [mainSelf.ratingsTable endUpdates];
 
-            [weakSelf.tagsTable beginUpdates];
-            [weakSelf.tagsTable reloadData];
-            [weakSelf.tagsTable endUpdates];
+            [mainSelf.tagsTable beginUpdates];
+            [mainSelf.tagsTable reloadData];
+            [mainSelf.tagsTable endUpdates];
 
-            [weakSelf.songsTable beginUpdates];
-            [weakSelf.songsTable reloadData];
-            [weakSelf.songsTable endUpdates];
+            [mainSelf.songsTable beginUpdates];
+            [mainSelf.songsTable reloadData];
+            [mainSelf.songsTable endUpdates];
 
             NSIndexSet* zeroSet = [NSIndexSet indexSetWithIndex:0];
             
-            self->_updatingRatings = YES;
-            self->_updatingTags = YES;
-            [weakSelf.ratingsTable selectRowIndexes:zeroSet byExtendingSelection:NO];
-            [weakSelf.tagsTable selectRowIndexes:zeroSet byExtendingSelection:NO];
-            self->_updatingRatings = NO;
-            self->_updatingTags = NO;
+            mainSelf->_updatingRatings = YES;
+            mainSelf->_updatingTags = YES;
+            [mainSelf.ratingsTable selectRowIndexes:zeroSet byExtendingSelection:NO];
+            [mainSelf.tagsTable selectRowIndexes:zeroSet byExtendingSelection:NO];
+            mainSelf->_updatingRatings = NO;
+            mainSelf->_updatingTags = NO;
         });
     });
 }
@@ -1264,30 +1326,38 @@ NSString* const kSongsColGenre = @"GenreCell";
     NSArray<NSSortDescriptor*>* descriptors = [_songsTable sortDescriptors];
 
     dispatch_async(_filterQueue, ^{
-        weakSelf.filteredItems = [[weakSelf filterMediaItems:weakSelf.cachedLibrary
-                                                       genre:genre
-                                                      artist:artist
-                                                       album:album
-                                                       tempo:tempo
-                                                         key:key
-                                                      rating:rating
-                                                         tag:tag
-                                                      needle:needle] sortedArrayUsingDescriptors:descriptors];
+        BrowserController* strongSelf = weakSelf;
+        if (!strongSelf) {
+            return;
+        }
+        strongSelf.filteredItems = [[strongSelf filterMediaItems:strongSelf.cachedLibrary
+                                                           genre:genre
+                                                          artist:artist
+                                                           album:album
+                                                           tempo:tempo
+                                                             key:key
+                                                          rating:rating
+                                                             tag:tag
+                                                          needle:needle] sortedArrayUsingDescriptors:descriptors];
 
         dispatch_sync(dispatch_get_main_queue(), ^{
-            [weakSelf.tagsTable beginUpdates];
-            [weakSelf.tagsTable reloadData];
-            [weakSelf.tagsTable endUpdates];
+            BrowserController* mainSelf = weakSelf;
+            if (!mainSelf) {
+                return;
+            }
+            [mainSelf.tagsTable beginUpdates];
+            [mainSelf.tagsTable reloadData];
+            [mainSelf.tagsTable endUpdates];
 
-            [weakSelf.songsTable beginUpdates];
-            [weakSelf.songsTable reloadData];
-            [weakSelf.songsTable endUpdates];
+            [mainSelf.songsTable beginUpdates];
+            [mainSelf.songsTable reloadData];
+            [mainSelf.songsTable endUpdates];
 
             NSIndexSet* zeroSet = [NSIndexSet indexSetWithIndex:0];
             
-            self->_updatingTags = YES;
-            [weakSelf.tagsTable selectRowIndexes:zeroSet byExtendingSelection:NO];
-            self->_updatingTags = NO;
+            mainSelf->_updatingTags = YES;
+            [mainSelf.tagsTable selectRowIndexes:zeroSet byExtendingSelection:NO];
+            mainSelf->_updatingTags = NO;
         });
     });
 }
@@ -1310,20 +1380,28 @@ NSString* const kSongsColGenre = @"GenreCell";
     NSArray<NSSortDescriptor*>* descriptors = [_songsTable sortDescriptors];
 
     dispatch_async(_filterQueue, ^{
-        weakSelf.filteredItems = [[weakSelf filterMediaItems:weakSelf.cachedLibrary
-                                                       genre:genre
-                                                      artist:artist
-                                                       album:album
-                                                       tempo:tempo
-                                                         key:key
-                                                      rating:rating
-                                                         tag:tag
-                                                      needle:needle] sortedArrayUsingDescriptors:descriptors];
+        BrowserController* strongSelf = weakSelf;
+        if (!strongSelf) {
+            return;
+        }
+        strongSelf.filteredItems = [[strongSelf filterMediaItems:strongSelf.cachedLibrary
+                                                           genre:genre
+                                                          artist:artist
+                                                           album:album
+                                                           tempo:tempo
+                                                             key:key
+                                                          rating:rating
+                                                             tag:tag
+                                                          needle:needle] sortedArrayUsingDescriptors:descriptors];
 
         dispatch_sync(dispatch_get_main_queue(), ^{
-            [weakSelf.songsTable beginUpdates];
-            [weakSelf.songsTable reloadData];
-            [weakSelf.songsTable endUpdates];
+            BrowserController* mainSelf = weakSelf;
+            if (!mainSelf) {
+                return;
+            }
+            [mainSelf.songsTable beginUpdates];
+            [mainSelf.songsTable reloadData];
+            [mainSelf.songsTable endUpdates];
         });
     });
 }

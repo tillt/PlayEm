@@ -56,25 +56,13 @@ typedef struct {
     BOOL                        paused;
 } AudioContext;
 
-/*
-@interface AudioContext ()
-{
-}
-
-@property (weak, nonatomic) LazySample* sample;
-@property (assign, nonatomic) AudioOutputStream stream;
-@property (assign, nonatomic) TapBlock tapBlock;
-@property (assign, nonatomic) dispatch_semaphore_t semaphore;
-
-@end
-*/
-
 @interface AudioController ()
 {
     AudioContext            _context;
     float                   _tempoShift;
     double                  _outputVolume;
 }
+
 @property (strong, nonatomic) NSTimer* timer;
 #ifdef support_avaudioengine
 @property (strong, nonatomic) AVAudioEngine*              engine;
@@ -97,42 +85,17 @@ AVAudioFramePosition currentFrame(AudioContext* context)
     if (context->stream.queue == NULL) {
         return 0;
     }
-    
-    //os_signpost_interval_begin(pointsOfInterest, POIGetCurrentFrame, "GetCurrentFrame");
-
- //   AudioQueueTimelineRef timeLine;
-    //OSStatus res = AudioQueueCreateTimeline(queue, &timeLine);
-    
-//    if (res != noErr) {
-//        return 0;
-//    }
-    
     AudioTimeStamp timeStamp;
-    //Boolean discontinued;
-    
     OSStatus res = AudioQueueGetCurrentTime(context->stream.queue,
-                                           NULL,
-                                           &timeStamp,
-                                           NULL);
-
-    //AudioQueueDisposeTimeline(queue, timeLine);
-
+                                            NULL,
+                                            &timeStamp,
+                                            NULL);
     if (res) {
-        //os_signpost_interval_end(pointsOfInterest, POIGetCurrentFrame, "GetCurrentFrame", "failed");
         return 0;
     }
     if (timeStamp.mSampleTime < 0) {
-        //os_signpost_interval_end(pointsOfInterest, POIGetCurrentFrame, "GetCurrentFrame", "negative");
         return 0;
     }
-//    assert(!discontinued);
-//    if (discontinued) {
-//        NSLog(@"discontinued queue -- needs reinitializing");
-//        os_signpost_interval_end(pointsOfInterest, POIGetCurrentFrame, "GetCurrentFrame", "discontinued");
-//        return context->nextFrame - context->stream.latencyFrames;
-//    }
-    //os_signpost_interval_end(pointsOfInterest, POIGetCurrentFrame, "GetCurrentFrame", "done");
-
     return MIN(context->stream.seekFrame + timeStamp.mSampleTime, context->sample.frames - 1);
 }
 

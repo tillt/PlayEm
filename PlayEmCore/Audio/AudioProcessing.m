@@ -216,7 +216,7 @@ void logscaleFFT(float* map, float* frequencyData)
         double preComma;
         const double postComma = modf(map[i], &preComma);
         const unsigned int leftIndex = (unsigned int)MIN(preComma, (double)(kScaledFrequencyDataLength - 1));
-        const unsigned int rightIndex =  MIN(leftIndex + 1, kScaledFrequencyDataLength);
+        const unsigned int rightIndex =  MIN(leftIndex + 1, (const unsigned int)kScaledFrequencyDataLength);
         const double rightFragment = postComma;
         const double leftFragment = 1.0f - rightFragment;
         buffer[leftIndex] += frequencyData[i] * leftFragment;
@@ -363,7 +363,7 @@ void performMel(vDSP_DFT_Setup dct, float* values, int sampleCount, float* melDa
     
     vDSP_vabs(frequencyData, 1, frequencyData, 1, sampleCount);
     
-    // Multiply two matrices...
+    // Multiply two matrices: (1 x sampleCount) * (sampleCount x kFilterBankCount) -> (1 x kFilterBankCount).
     cblas_sgemm(CblasRowMajor,
                 CblasNoTrans,
                 CblasTrans,
@@ -412,17 +412,6 @@ void melScaleFFT(float* frequencyData)
     // Ensure magnitudes are non-negative.
     vDSP_vabs(frequencyData, 1, frequencyData, 1, kFrequencyDataLength);
 
-    // Use max as the reference so scaling is cheap and responsive.
-    float maxMagnitude = 0.0f;
-    vDSP_maxv(frequencyData, 1, &maxMagnitude, kFrequencyDataLength);
-    float ref = maxMagnitude;
-    // Gate very quiet frames to avoid showing activity when nearly silent.
-    const float gate = 0.03f;
-    if (ref < gate) {
-        memset(frequencyData, 0, sizeof(float) * kFilterBankCount);
-        return;
-    }
-
     cblas_sgemm(CblasRowMajor,
                 CblasNoTrans,
                 CblasTrans,
@@ -438,14 +427,14 @@ void melScaleFFT(float* frequencyData)
                 melBuffer,
                 kFilterBankCount);
 
-    float scale = 1.0f / ref;
-    const float maxScale = 3.0f; // cap boost so low-volume frames don't explode
-    if (scale > maxScale) {
-        scale = maxScale;
-    }
+    // Use RMS of the mel bins as reference so single loud bins (e.g., bass) don't suppress mids/highs.
+    float meanSquare = 0.0f;
+    vDSP_measqv(melBuffer, 1, &meanSquare, kFilterBankCount);
+    float rms = sqrtf(meanSquare);
+    const float maxScale = 2.0f;
+    float scale = MIN(1.0f / rms, 2.0);
     vDSP_vsmul(melBuffer, 1, &scale, frequencyData, 1, kFilterBankCount);
-    // Prevent runaway values; clamp to [0, 1] for visuals.
     float zero = 0.0f;
     float one = 1.0f;
-    //vDSP_vclip(frequencyData, 1, &zero, &one, frequencyData, 1, kFilterBankCount);
+    vDSP_vclip(frequencyData, 1, &zero, &one, frequencyData, 1, kFilterBankCount);
 }

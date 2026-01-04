@@ -1,0 +1,33 @@
+Source: https://soundcloud.com/patrice-baumel/patrice-baumel-halo-goodbye
+Name: Patrice Baumel HALO Goodbye 2025 Mix
+DJ: Patrice Bäumel
+File: "/Users/till/Music/Music2Go/Media.localized/Patrice Bäumel/Unknown Album/Patrice Baumel HALO Goodbye 2025 Mix.m4a"
+Input: patrice-baumel-halo-goodbye_input.txt
+Golden: patrice-baumel-halo-goodbye_golden.txt
+============
+Source: https://soundcloud.com/patrice-baumel/halo-afterparty-mix-summer-2024
+Name: HALO Afterparty Mix (Summer 2024)
+DJ: Patrice Bäumel
+File: "/Users/till/Music/Music2Go/Media.localized/Patrice Bäumel/Unknown Album/HALO Afterparty Mix (Summer 2024).m4a"
+Input: patrice-baumel-halo-2024_input.txt
+Golden: patrice-baumel-halo-2024_golden.txt
+============
+Source: https://soundcloud.com/citizen-kain/everpod001
+Name: Everpod 001⎜Citizen Kain
+DJ: Citizen Kain
+File: "/Users/till/Music/Music2Go/Media.localized/Citizen Kain/Unknown Album/Everpod 001⎜Citizen Kain.m4a"
+Input: citizen-kain-everpod_input.txt
+Golden: citizen-kain-everpod_golden.txt
+============
+Source: https://soundcloud.com/magicianonduty/magician-on-duty-bucht-der-traumer-2024-saga-stage
+Name: Bucht der Träumer 2024
+File: "/Users/till/Music/Music2Go/Media.localized/Magician On Duty/Bucht der Träumer 2024 [Saga Stage]/01 Magician On Duty @@ Bucht der Träumer 2024 [Saga Stage].mp3"
+Input: magician-on-duty-bucht2024_input.txt
+Golden: NOT_AVAILABLE_SO_FAR
+============
+Source: https://soundcloud.com/frida-darko/frida-darko-atric-tanzwuste-fusion-2025?in=at_ric/sets/frida-darko-atric-tanzwueste
+Name: Frida Darko & Atric @ Tanzwüste - Fusion Festival 2025
+DJ: Frida Darko & Atric
+File: "/Users/till/Music/Music2Go/Media.localized/Frida Darko/Unknown Album/Frida Darko & Atric @ Tanzwüste - Fusion Festival 2025.m4a"
+Input: atric-frida-fusion2025_input.txt
+Golden: atric-frida-fusion2025_golden.txt

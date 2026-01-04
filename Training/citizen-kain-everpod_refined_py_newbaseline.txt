@@ -1,0 +1,22 @@
+[Final] frame:0 artist:Citizen Kain, Alexandros Djkevingr & Greg Ignatovich title:Caliph of Baghdad score:15.680 support:43
+[Final] frame:51314688 artist:Eelke Kleijn title:Transmission (Joris Voorn Remix) score:13.791 support:8
+[Final] frame:63787008 artist:Adriatique, Marino Canal & Delhia de France title:Home score:15.680 support:19
+[Final] frame:77150208 artist: title:unknown score:0.000 support:0
+[Final] frame:90513408 artist:Citizen Kain title:Moments (feat. Kaps) [Extended Mix] score:15.680 support:37
+[Final] frame:104767488 artist:Citizen Kain, Aaron Suiss & Cari Golden title:Innocent score:15.680 support:38
+[Final] frame:118665216 artist:Citizen Kain, Lazarusman & Aaron Suiss title:Reset score:15.680 support:42
+[Final] frame:134344704 artist: title:unknown score:6.196 support:3
+[Final] frame:135413760 artist:Citizen Kain & Aaron Suiss title:Colors score:15.680 support:31
+[Final] frame:146817024 artist:Citizen Kain & DJ AroZe title:Us score:15.680 support:43
+[Final] frame:171761664 artist:Andrea Salerno title:Teleri score:5.203 support:2
+[Final] frame:179957760 artist:Giorgio Moroder title:Chase score:8.206 support:6
+[Final] frame:189222912 artist:Christian Krauter title:Elozias Dance (feat. Shelly Thunder, Chemical Brothers & Shawn Lee) score:7.325 support:4
+[Final] frame:191361024 artist:Kryoman title:Faith (Radio Edit) score:6.282 support:3
+[Final] frame:198844416 artist:Joachim Pastor title:Millenium score:5.203 support:2
+[Final] frame:204546048 artist:Esoteric Circle title:Resilience score:5.131 support:2
+[Final] frame:218621952 artist: title:unknown score:0.000 support:0
+[Final] frame:232697856 artist:Paul Kalkbrenner title:Feed Your Head score:9.486 support:6
+[Final] frame:237686784 artist:Claptone & Mylo title:Drop the Pressure score:5.131 support:2
+[Final] frame:238755840 artist:Noir & Olivier Giacomotto title:Blackrays (feat. Hendrik Burkhard) [Kiko & Citizen Kain Remix] score:15.680 support:29
+[Final] frame:293634048 artist:Citizen Kain title:Your Heart (feat. Eleonora) score:15.680 support:37
+[CLI] Refined 21 tracks

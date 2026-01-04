@@ -1,0 +1,16 @@
+Mode: strict
+Refined: 22  Golden: 24
+Matched: 19  Precision: 0.864  Recall: 0.792
+SoftMatched: 20  SoftPrecision: 0.909  SoftRecall: 0.833
+
+False positives:
+- Munir Amastha - Can You Feel the Night (One Opinion Remix) [feat. Sauli Harper]
+- Marc Marzenit - Perron (Wehbba Remix)
+- Blackbelt Andersen - Åpenbaring (Original Mix)
+
+Missed golden:
+- Luigi Tozzi - Epica del Ritorno
+- Thomas Ragsdale - An Evil Within
+- Galcher Lustwerk - Liberty, Oh!
+- Henry Saiz & Tentacle - The Prophetess (Brian Cid Remix)
+- Blackbelt Andersen - Åpenbaring

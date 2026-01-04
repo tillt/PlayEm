@@ -1,0 +1,37 @@
+[Final] frame:10334208 artist:Atric & Frida Darko title:Elevate duration:177.77s score:38.922 confidence:38.92201201653386
+[Final] frame:18530304 artist:Arta title:Differently (Extended Mix) duration:169.69s score:12.319 confidence:12.31887555047619
+[Final] frame:26370048 artist:Vakabular & Fab Massimo title:It's Yours (Extended) duration:234.34s score:14.560 confidence:14.56
+[Final] frame:37060608 artist:Hidden Empire title:Cali's Sun duration:202.01s score:15.680 confidence:15.68
+[Final] frame:46682112 artist:Atric title:Supervision duration:274.74s score:15.680 confidence:15.68
+[Final] frame:59154432 artist:Habitatt title:Fly with Me (Extended Mix) duration:145.45s score:10.640 confidence:10.64
+[Final] frame:67350528 artist:Oliver Koletzki & Frida Darko title:Space Base duration:242.42s score:47.040 confidence:47.03999999999999
+[Final] frame:83386368 artist:NUAH & flave.uc title:Get Shit Done duration:56.56s score:6.623 confidence:6.623366958187193
+[Final] frame:87662592 artist:Atric title:Flawless duration:274.74s score:15.680 confidence:15.68
+[Final] frame:100134912 artist:Hidden Empire title:Ocean Beach duration:218.17s score:15.680 confidence:15.68
+[Final] frame:115101696 artist:Vakabular title:Now You See duration:161.61s score:11.694 confidence:11.69421818637296
+[Final] frame:131850240 artist:Distant Sun title:Machine lernt duration:40.40s score:6.453 confidence:6.452529100136392
+[Final] frame:141115392 artist:Calvin Harris & Disciples title:How Deep Is Your Love (Disciples & Unorthodox Remix) duration:64.64s score:9.137 confidence:9.13715159061562
+[Final] frame:147173376 artist:Atric & Frida Darko title:Hush duration:153.53s score:33.300 confidence:33.3000957396048
+[Final] frame:154656768 artist:Romain Dary title:Trust Me duration:202.01s score:15.680 confidence:15.68
+[Final] frame:164278272 artist:J.Fur title:Danger! duration:193.93s score:15.680 confidence:15.68
+[Final] frame:174612480 artist:Waitz title:Looking for You duration:193.93s score:15.680 confidence:15.68
+[Final] frame:199557120 artist:Gregory S. title:Mind Games duration:48.48s score:8.200 confidence:8.200487682650975
+[Final] frame:202407936 artist:Atric title:Solus duration:266.66s score:15.680 confidence:15.68
+[Final] frame:214523904 artist:Westend title:Freaky Time duration:153.53s score:11.100 confidence:11.1000319132016
+[Final] frame:223789056 artist:The Poison Control Centre title:Avior duration:145.45s score:9.880 confidence:9.880000000000001
+[Final] frame:231628800 artist:Kolombo & Pysh title:Straight From the Heart (Deflee Remix) duration:161.61s score:11.694 confidence:11.69421818637296
+[Final] frame:239112192 artist:NightFunk title:Space Buddies duration:250.50s score:15.680 confidence:15.68
+[Final] frame:255860736 artist:Giovanni Molinaro title:Otoponoz (Improved Mix) duration:16.16s score:5.203 confidence:5.202651909917466
+[Final] frame:260136960 artist:Confused & Rowtech title:Trip duration:161.61s score:11.694 confidence:11.69421818637296
+[Final] frame:267620352 artist:Moontalk title:Like This (feat. SEÏTOU) duration:218.17s score:15.680 confidence:15.68
+[Final] frame:280092672 artist: title:unknown duration:589.88s score:15.680 confidence:15.68
+[Final] frame:306462720 artist:Oliver Koletzki title:Weirdo duration:250.50s score:15.680 confidence:15.68
+[Final] frame:317865984 artist:No Hopes & Max Freeze title:Punk (VIP Mix) duration:242.42s score:15.680 confidence:15.68
+[Final] frame:328912896 artist:Imad & Dennis Louvra title:Pjanoo duration:210.09s score:15.680 confidence:15.68
+[Final] frame:338534400 artist:Sanoi & Kon Faber title:Kein Stress (feat. Vokalmatador) [Extended Mix] duration:258.58s score:15.680 confidence:15.68
+[Final] frame:351363072 artist:Rhythm&Soul title:1998 duration:145.45s score:10.373 confidence:10.37332408691187
+[Final] frame:359559168 artist:Pavel Petrov title:Bitter Sweet (feat. Akiki) duration:202.01s score:15.680 confidence:15.68
+[Final] frame:369893376 artist:Juan Hansen title:My Own Game (Oliver Koletzki Remix) duration:169.69s score:12.319 confidence:12.31887555047619
+[Final] frame:378445824 artist:Under Sanctions & Romanovich title:Colours (Extended Mix) duration:218.17s score:15.680 confidence:15.68
+[Final] frame:389136384 artist:Paul Haro & Danum title:Mama Say duration:40.40s score:7.325 confidence:7.324832653061224
+[Final] frame:395194368 artist:Carlos A title:Soma duration:16.16s score:5.203 confidence:5.202651909917466

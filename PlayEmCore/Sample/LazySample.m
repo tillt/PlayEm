@@ -19,12 +19,17 @@ const size_t kMaxFramesPerBuffer = 16384;
 
 @interface LazySample ()
 
-@property (strong, nonatomic) NSCondition* tileProduced;
+@property (strong, nonatomic) dispatch_queue_t buffersQueue;
+@property (strong, nonatomic) dispatch_semaphore_t tileAvailable;
 @property (strong, nonatomic) NSMutableDictionary* buffers;
 
 @end
 
 @implementation LazySample
+{
+    atomic_bool _decodingComplete;
+    atomic_uint _waiters;
+}
 
 - (id)initWithPath:(NSString*)path error:(NSError**)error
 {
@@ -35,7 +40,8 @@ const size_t kMaxFramesPerBuffer = 16384;
         NSURL* url = [NSURL fileURLWithPath:path];
         NSAssert(url != nil, @"invalid file path: %@", path);
         _source = [[AVAudioFile alloc] initForReading:url error:error];
-        _tileProduced = [[NSCondition alloc] init];
+        _buffersQueue = dispatch_queue_create("PlayEm.LazySample.Buffers", DISPATCH_QUEUE_CONCURRENT);
+        _tileAvailable = dispatch_semaphore_create(0);
         
         if (_source == nil) {
             NSLog(@"AVAudioFile initForReading failed");
@@ -50,6 +56,8 @@ const size_t kMaxFramesPerBuffer = 16384;
         _sampleFormat.channels = format.channelCount;
         _frameSize = format.channelCount * sizeof(float);
         _buffers = [NSMutableDictionary dictionary];
+        atomic_init(&_decodingComplete, false);
+        atomic_init(&_waiters, 0);
         NSLog(@"...lazy sample %p initialized", self);
     }
     return self;
@@ -64,10 +72,10 @@ const size_t kMaxFramesPerBuffer = 16384;
 
 - (unsigned long long)decodedFrames
 {
-    NSUInteger buffers = 0;
-    [_tileProduced lock];
-    buffers = _buffers.count;
-    [_tileProduced unlock];
+    __block NSUInteger buffers = 0;
+    dispatch_sync(_buffersQueue, ^{
+        buffers = _buffers.count;
+    });
     return buffers * kMaxFramesPerBuffer;
 }
 
@@ -78,10 +86,20 @@ const size_t kMaxFramesPerBuffer = 16384;
 
 - (void)addLazyPageIndex:(unsigned long long)pageIndex channels:(NSArray<NSData*>*)channels
 {
-    [_tileProduced lock];
-    [_buffers setObject:channels forKey:[NSNumber numberWithUnsignedLongLong:pageIndex]];
-    [_tileProduced signal];
-    [_tileProduced unlock];
+    NSNumber* key = [NSNumber numberWithUnsignedLongLong:pageIndex];
+    dispatch_barrier_sync(_buffersQueue, ^{
+        _buffers[key] = channels;
+    });
+    dispatch_semaphore_signal(_tileAvailable);
+}
+
+- (void)markDecodingComplete
+{
+    atomic_store(&_decodingComplete, true);
+    unsigned int waiters = atomic_load(&_waiters);
+    for (unsigned int i = 0; i < waiters; i++) {
+        dispatch_semaphore_signal(_tileAvailable);
+    }
 }
 
 - (unsigned long long)rawSampleFromFrameOffset:(unsigned long long)offset
@@ -103,14 +121,22 @@ const size_t kMaxFramesPerBuffer = 16384;
         unsigned long long pageIndex = offset / kMaxFramesPerBuffer;
         size_t pageOffset = offset - (pageIndex * kMaxFramesPerBuffer);
 
-        NSArray* channels = nil;
-        
-        [_tileProduced lock];
-        while ((channels = [_buffers objectForKey:[NSNumber numberWithUnsignedLongLong:pageIndex]]) == nil) {
-            //NSLog(@"awaiting tile %lld\n", pageIndex);
-            [_tileProduced wait];
-        };
-        [_tileProduced unlock];
+        __block NSArray* channels = nil;
+        NSNumber* key = [NSNumber numberWithUnsignedLongLong:pageIndex];
+        while (channels == nil) {
+            dispatch_sync(_buffersQueue, ^{
+                channels = _buffers[key];
+            });
+            if (channels != nil) {
+                break;
+            }
+            if (atomic_load(&_decodingComplete)) {
+                return orderedFrames - frames;
+            }
+            atomic_fetch_add(&_waiters, 1);
+            dispatch_semaphore_wait(_tileAvailable, DISPATCH_TIME_FOREVER);
+            atomic_fetch_sub(&_waiters, 1);
+        }
 
         if (channels == nil) {
             return orderedFrames - frames;

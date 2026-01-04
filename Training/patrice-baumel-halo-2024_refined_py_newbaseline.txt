@@ -1,0 +1,11 @@
+[Final] frame:0 artist: title:unknown score:12.299 support:12
+[Final] frame:16035840 artist:GMJ & Matter title:Metanoia score:15.680 support:32
+[Final] frame:29577216 artist:Ranj Kaler title:Last Sunset (feat. ASYN) [Gai Barone Dub] score:15.680 support:40
+[Final] frame:44187648 artist:Alex O'Rion title:Echium score:15.680 support:43
+[Final] frame:127930368 artist:Rick Marshall title:Don't Stop score:5.131 support:2
+[Final] frame:151805952 artist:Calibre title:Thought Fields score:15.680 support:30
+[Final] frame:162852864 artist:Guy Gerber title:Jupiter Blues score:15.680 support:57
+[Final] frame:199913472 artist:Burial title:New Love score:10.640 support:13
+[Final] frame:220225536 artist:Patrice Bäumel title:The Cave score:15.680 support:44
+[Final] frame:248377344 artist:Markus Guentner title:Crystal Castle (Original Mix) score:15.680 support:31
+[CLI] Refined 10 tracks

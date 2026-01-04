@@ -1,0 +1,20 @@
+[Final] frame:0 artist:YOTTO title:Seat 11 score:10.611 support:8
+[Final] frame:7340032 artist:Tigerskin & Alfa State title:Slippery Roads (Pablo Bolivar Remix) score:15.680 support:15
+[Final] frame:24117248 artist:Saktu title:Muted Glow (Extended Mix) score:8.188 support:5
+[Final] frame:48234496 artist:Alan Cerra & Gai Barone title:End of the Line (Gai Barone Remix) score:15.680 support:14
+[Final] frame:58720256 artist:Oliver Dollar title:Granulated Soul score:5.270 support:2
+[Final] frame:98566144 artist:Alex Albrecht title:The Arboretum score:15.680 support:17
+[Final] frame:125829120 artist:Cosmjn title:Cosmo Acids score:5.270 support:2
+[Final] frame:127926272 artist:Edmondson title:Masquerade score:13.791 support:8
+[Final] frame:140509184 artist:Slove & David Shaw and the Beat title:Special Places (Damon Jee Remix) score:15.680 support:20
+[Final] frame:154140672 artist:Vincent Casanova title:Hold Me score:15.287 support:10
+[Final] frame:168820736 artist:Nick Curly title:Go score:8.206 support:6
+[Final] frame:178257920 artist:Alex O'Rion title:Blackout score:12.413 support:40
+[Final] frame:192937984 artist: title:unknown score:0.000 support:0
+[Final] frame:207618048 artist:Guliver title:Calypso (Claudio PRC Remix) score:5.270 support:2
+[Final] frame:209715200 artist:Mike Griego title:Back In Trance score:15.680 support:13
+[Final] frame:230686720 artist:Gigi D'Agostino title:Bla Bla Bla score:8.503 support:5
+[Final] frame:239075328 artist:Eli & Fur title:Parfume (Dosem Remix) score:8.188 support:5
+[Final] frame:242221056 artist:Eitan Reiter title:Eat You (Patrice Bäumel Remix) score:15.680 support:20
+[Final] frame:270532608 artist:Wa Wu We title:What's Left? (Ambient Mix) score:15.680 support:16
+[CLI] Refined 19 tracks

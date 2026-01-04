@@ -1,0 +1,509 @@
+[Shazam] frame:0 artist: title:unknown score:0.000 confidence:(null)
+[Shazam] frame:529200 artist: title:unknown score:0.000 confidence:(null)
+[Shazam] frame:1058400 artist: title:unknown score:0.000 confidence:(null)
+[Shazam] frame:1587600 artist: title:unknown score:0.000 confidence:(null)
+[Shazam] frame:2116800 artist: title:unknown score:0.000 confidence:(null)
+[Shazam] frame:2646000 artist:Priori title:Winged (Priori Rezone) score:0.000 confidence:1
+[Shazam] frame:3175200 artist: title:unknown score:0.000 confidence:(null)
+[Shazam] frame:3704400 artist:Priori title:Winged (Priori Rezone) score:0.000 confidence:1
+[Shazam] frame:4233600 artist:Priori title:Winged (Priori Rezone) score:0.000 confidence:1
+[Shazam] frame:4762800 artist:Priori title:Winged (Priori Rezone) score:0.000 confidence:1
+[Shazam] frame:5292000 artist:Priori title:Winged (Priori Rezone) score:0.000 confidence:1
+[Shazam] frame:5821200 artist:Priori title:Winged (Priori Rezone) score:0.000 confidence:1
+[Shazam] frame:6350400 artist:Priori title:Winged (Priori Rezone) score:0.000 confidence:1
+[Shazam] frame:6879600 artist:Priori title:Winged (Priori Rezone) score:0.000 confidence:1
+[Shazam] frame:7408800 artist:Armin van Buuren title:This Is What It Feels Like (feat. Trevor Guthrie) [W&W Remix] score:0.000 confidence:1
+[Shazam] frame:7938000 artist:DJ Fresca & Kudoskelem title:Int'Engekhoyo score:0.000 confidence:1
+[Shazam] frame:8467200 artist:Ali Bakgor title:In a Dream (Extended) score:0.000 confidence:1
+[Shazam] frame:8996400 artist:Marc Marzenit title:Perron (Wehbba Remix) score:0.000 confidence:1
+[Shazam] frame:9525600 artist:Priori title:Winged (Priori Rezone) score:0.000 confidence:1
+[Shazam] frame:10054800 artist:Priori title:Winged (Priori Rezone) score:0.000 confidence:1
+[Shazam] frame:10584000 artist:Priori title:Winged (Priori Rezone) score:0.000 confidence:1
+[Shazam] frame:11113200 artist:Priori title:Winged (Priori Rezone) score:0.000 confidence:1
+[Shazam] frame:11642400 artist:Priori title:Winged (Priori Rezone) score:0.000 confidence:1
+[Shazam] frame:12171600 artist:Priori title:Winged (Priori Rezone) score:0.000 confidence:1
+[Shazam] frame:12700800 artist:AVAION, PaulWetz & Nu Aspect title:Sleepless (feat. Yuma.) score:0.000 confidence:1
+[Shazam] frame:13230000 artist:Priori title:Winged (Priori Rezone) score:0.000 confidence:1
+[Shazam] frame:13759200 artist:Priori title:Winged (Priori Rezone) score:0.000 confidence:1
+[Shazam] frame:14288400 artist:Priori title:Winged (Priori Rezone) score:0.000 confidence:1
+[Shazam] frame:14817600 artist:Priori title:Winged (Priori Rezone) score:0.000 confidence:1
+[Shazam] frame:15346800 artist:Aaron H-Smith title:Satara (Juanito Remix) score:0.000 confidence:1
+[Shazam] frame:15876000 artist:South Bloom title:Let Me in (Volen Sentir Secret Technique) score:0.000 confidence:1
+[Shazam] frame:16405200 artist:Priori title:Winged (Priori Rezone) score:0.000 confidence:1
+[Shazam] frame:16934400 artist:Priori title:Winged (Priori Rezone) score:0.000 confidence:1
+[Shazam] frame:17463600 artist:Gaetano C & DePandis title:Saw score:0.000 confidence:1
+[Shazam] frame:17992800 artist:Julio Navas & David Amo title:Thank U score:0.000 confidence:1
+[Shazam] frame:18522000 artist:Kidoo title:C'mon score:0.000 confidence:1
+[Shazam] frame:19051200 artist:Davide Mazzilli title:The Beat score:0.000 confidence:1
+[Shazam] frame:19580400 artist:Julio Navas & David Amo title:Thank U score:0.000 confidence:1
+[Shazam] frame:20109600 artist:GMJ & Matter title:Metanoia score:0.000 confidence:1
+[Shazam] frame:20638800 artist:Lucius Young title:Tiempo (Mondragon Remix) score:0.000 confidence:1
+[Shazam] frame:21168000 artist:Lucius Young title:Tiempo (Mondragon Remix) score:0.000 confidence:1
+[Shazam] frame:21697200 artist:GMJ & Matter title:Metanoia score:0.000 confidence:1
+[Shazam] frame:22226400 artist:GMJ & Matter title:Metanoia score:0.000 confidence:1
+[Shazam] frame:22755600 artist:GMJ & Matter title:Metanoia score:0.000 confidence:1
+[Shazam] frame:23284800 artist:Gareth Stirling title:Wallop score:0.000 confidence:1
+[Shazam] frame:23814000 artist:GMJ & Matter title:Metanoia score:0.000 confidence:1
+[Shazam] frame:24343200 artist:GMJ & Matter title:Metanoia score:0.000 confidence:1
+[Shazam] frame:24872400 artist:GMJ & Matter title:Metanoia score:0.000 confidence:1
+[Shazam] frame:25401600 artist:GMJ & Matter title:Metanoia score:0.000 confidence:1
+[Shazam] frame:25930800 artist:GMJ & Matter title:Metanoia score:0.000 confidence:1
+[Shazam] frame:26460000 artist:GMJ & Matter title:Metanoia score:0.000 confidence:1
+[Shazam] frame:26989200 artist:GMJ & Matter title:Metanoia score:0.000 confidence:1
+[Shazam] frame:27518400 artist:GMJ & Matter title:Metanoia score:0.000 confidence:1
+[Shazam] frame:28047600 artist:GMJ & Matter title:Metanoia score:0.000 confidence:1
+[Shazam] frame:28576800 artist:GMJ & Matter title:Metanoia score:0.000 confidence:1
+[Shazam] frame:29106000 artist:GMJ & Matter title:Metanoia score:0.000 confidence:1
+[Shazam] frame:29635200 artist:Ranj Kaler title:Last Sunset (feat. ASYN) [Gai Barone Dub] score:0.000 confidence:1
+[Shazam] frame:30164400 artist:Ranj Kaler title:Last Sunset (feat. ASYN) [Gai Barone Dub] score:0.000 confidence:1
+[Shazam] frame:30693600 artist:Ranj Kaler title:Last Sunset (feat. ASYN) [Gai Barone Dub] score:0.000 confidence:1
+[Shazam] frame:31222800 artist:Ranj Kaler title:Last Sunset (feat. ASYN) [Gai Barone Dub] score:0.000 confidence:1
+[Shazam] frame:31752000 artist:Ranj Kaler title:Last Sunset (feat. ASYN) [Gai Barone Dub] score:0.000 confidence:1
+[Shazam] frame:32281200 artist:Ranj Kaler title:Last Sunset (feat. ASYN) [Gai Barone Dub] score:0.000 confidence:1
+[Shazam] frame:32810400 artist:Ranj Kaler title:Last Sunset (feat. ASYN) [Gai Barone Dub] score:0.000 confidence:1
+[Shazam] frame:33339600 artist:Jonny Calypso title:Teenager 2K15 score:0.000 confidence:1
+[Shazam] frame:33868800 artist:Ranj Kaler title:Last Sunset (feat. ASYN) [Gai Barone Dub] score:0.000 confidence:1
+[Shazam] frame:34398000 artist:Ranj Kaler title:Last Sunset (feat. ASYN) [Gai Barone Dub] score:0.000 confidence:1
+[Shazam] frame:34927200 artist:Ranj Kaler title:Last Sunset (feat. ASYN) [Gai Barone Dub] score:0.000 confidence:1
+[Shazam] frame:35456400 artist:Ranj Kaler title:Last Sunset (feat. ASYN) [Gai Barone Dub] score:0.000 confidence:1
+[Shazam] frame:35985600 artist:Ranj Kaler title:Last Sunset (feat. ASYN) [Gai Barone Dub] score:0.000 confidence:1
+[Shazam] frame:36514800 artist:Ranj Kaler title:Last Sunset (feat. ASYN) [Gai Barone Dub] score:0.000 confidence:1
+[Shazam] frame:37044000 artist:Ranj Kaler title:Last Sunset (feat. ASYN) [Gai Barone Dub] score:0.000 confidence:1
+[Shazam] frame:37573200 artist:Ranj Kaler title:Last Sunset (feat. ASYN) [Gai Barone Dub] score:0.000 confidence:1
+[Shazam] frame:38102400 artist:Paul Kardos title:Clamorous Space score:0.000 confidence:1
+[Shazam] frame:38631600 artist:Ranj Kaler title:Last Sunset (feat. ASYN) [Gai Barone Dub] score:0.000 confidence:1
+[Shazam] frame:39160800 artist:Ranj Kaler title:Last Sunset (feat. ASYN) [Gai Barone Dub] score:0.000 confidence:1
+[Shazam] frame:39690000 artist:Alex Stein title:Rise score:0.000 confidence:1
+[Shazam] frame:40219200 artist:Paperclip People title:Throw (Slam's RTM Remix) score:0.000 confidence:1
+[Shazam] frame:40748400 artist:Ranj Kaler title:Last Sunset (feat. ASYN) [Gai Barone Dub] score:0.000 confidence:1
+[Shazam] frame:41277600 artist:Gareth Stirling title:Wallop score:0.000 confidence:1
+[Shazam] frame:41806800 artist:Ranj Kaler title:Last Sunset (feat. ASYN) [Gai Barone Dub] score:0.000 confidence:1
+[Shazam] frame:42336000 artist:Fabio Orru title:I'm Nothing (Ivanshee Remix) score:0.000 confidence:1
+[Shazam] frame:42865200 artist:Marcapasos title:Blow Job (Club Mix) score:0.000 confidence:1
+[Shazam] frame:43394400 artist:Shouse title:Love Tonight score:0.000 confidence:1
+[Shazam] frame:43923600 artist:Macromism title:The Walk score:0.000 confidence:1
+[Shazam] frame:44452800 artist:Shouse title:Love Tonight score:0.000 confidence:1
+[Shazam] frame:44982000 artist:Shouse title:Love Tonight score:0.000 confidence:1
+[Shazam] frame:45511200 artist:Shouse title:Love Tonight score:0.000 confidence:1
+[Shazam] frame:46040400 artist:Julio Navas & David Amo title:Thank U score:0.000 confidence:1
+[Shazam] frame:46569600 artist:Makebo & Volen Sentir title:Alchemist score:0.000 confidence:1
+[Shazam] frame:47098800 artist:Shouse title:Love Tonight score:0.000 confidence:1
+[Shazam] frame:47628000 artist:Shouse title:Love Tonight score:0.000 confidence:1
+[Shazam] frame:48157200 artist:Shouse title:Love Tonight score:0.000 confidence:1
+[Shazam] frame:48686400 artist:Shouse title:Love Tonight score:0.000 confidence:1
+[Shazam] frame:49215600 artist:Alex O'Rion title:Echium score:0.000 confidence:1
+[Shazam] frame:49744800 artist:Alex O'Rion title:Echium score:0.000 confidence:1
+[Shazam] frame:50274000 artist:Alex O'Rion title:Echium score:0.000 confidence:1
+[Shazam] frame:50803200 artist:Alex O'Rion title:Echium score:0.000 confidence:1
+[Shazam] frame:51332400 artist:Alex O'Rion title:Echium score:0.000 confidence:1
+[Shazam] frame:51861600 artist:John T. Garrison title:Cruising score:0.000 confidence:1
+[Shazam] frame:52390800 artist:Alex O'Rion title:Echium score:0.000 confidence:1
+[Shazam] frame:52920000 artist:Makebo & Volen Sentir title:Alchemist score:0.000 confidence:1
+[Shazam] frame:53449200 artist:Shouse title:Love Tonight score:0.000 confidence:1
+[Shazam] frame:53978400 artist:Makebo & Volen Sentir title:Alchemist score:0.000 confidence:1
+[Shazam] frame:54507600 artist:Shouse title:Love Tonight score:0.000 confidence:1
+[Shazam] frame:55036800 artist:Shouse title:Love Tonight score:0.000 confidence:1
+[Shazam] frame:55566000 artist:Shouse title:Love Tonight score:0.000 confidence:1
+[Shazam] frame:56095200 artist:Shouse title:Love Tonight score:0.000 confidence:1
+[Shazam] frame:56624400 artist:Shouse title:Love Tonight score:0.000 confidence:1
+[Shazam] frame:57153600 artist:Bob Sinclar & Raffaella Carrà title:Far l'amore score:0.000 confidence:1
+[Shazam] frame:57682800 artist:Shouse title:Love Tonight score:0.000 confidence:1
+[Shazam] frame:58212000 artist:Monolink title:Return to Oz (ARTBAT Remix) score:0.000 confidence:1
+[Shazam] frame:58741200 artist:Shouse title:Love Tonight score:0.000 confidence:1
+[Shazam] frame:59270400 artist:DJ Gregory & Gregor Salto title:Canoa score:0.000 confidence:1
+[Shazam] frame:59799600 artist:Masters At Work title:To Be in Love (MAW '99 Mix) [feat. India] score:0.000 confidence:1
+[Shazam] frame:60328800 artist:Alok & DENNIS title:Mimosa (Now And Forever) [feat. Nyasia] score:0.000 confidence:1
+[Shazam] frame:60858000 artist:Gusto title:Disco's Revenge (Mole Hole Dirty Mix) score:0.000 confidence:1
+[Shazam] frame:61387200 artist:Fabio Orru title:I'm Nothing (Ivanshee Remix) score:0.000 confidence:1
+[Shazam] frame:61916400 artist:Masters At Work title:To Be in Love (MAW '99 Mix) [feat. India] score:0.000 confidence:1
+[Shazam] frame:62445600 artist:Ninetoes title:Finder score:0.000 confidence:1
+[Shazam] frame:62974800 artist:Dennis Ferrer title:Hey Hey (Riva Starr Paradise Garage Remix) score:0.000 confidence:1
+[Shazam] frame:63504000 artist:Mark Knight & René Amesz title:All 4 Love (feat. Tasty Lopez) score:0.000 confidence:1
+[Shazam] frame:64033200 artist:Desta Cullen title:Dream score:0.000 confidence:1
+[Shazam] frame:64562400 artist:Paperclip People title:Throw (Slam's RTM Remix) score:0.000 confidence:1
+[Shazam] frame:65091600 artist:Faithless title:Insomnia score:0.000 confidence:1
+[Shazam] frame:65620800 artist:Andy Compton title:That Acid Track score:0.000 confidence:1
+[Shazam] frame:66150000 artist:Milk & Sugar & Vaya Con Dios title:Hey (Nah Neh Nah) [Milk & Sugar Club Mix] score:0.000 confidence:1
+[Shazam] frame:66679200 artist:Tobias Schulz title:Ah Johnny score:0.000 confidence:1
+[Shazam] frame:67208400 artist:Downliners Sekt title:Balt Shakt I score:0.000 confidence:1
+[Shazam] frame:67737600 artist:Downliners Sekt title:Balt Shakt I score:0.000 confidence:1
+[Shazam] frame:68266800 artist:Luigi Tozzi title:Epica Del Ritorno (Digital Bonus) score:0.000 confidence:1
+[Shazam] frame:68796000 artist:Downliners Sekt title:Balt Shakt I score:0.000 confidence:1
+[Shazam] frame:69325200 artist:Luigi Tozzi title:Epica Del Ritorno (Digital Bonus) score:0.000 confidence:1
+[Shazam] frame:69854400 artist:Downliners Sekt title:Balt Shakt I score:0.000 confidence:1
+[Shazam] frame:70383600 artist:Downliners Sekt title:Balt Shakt I score:0.000 confidence:1
+[Shazam] frame:70912800 artist:Downliners Sekt title:Balt Shakt I score:0.000 confidence:1
+[Shazam] frame:71442000 artist:Downliners Sekt title:Balt Shakt I score:0.000 confidence:1
+[Shazam] frame:71971200 artist:Downliners Sekt title:Balt Shakt I score:0.000 confidence:1
+[Shazam] frame:72500400 artist:Downliners Sekt title:Balt Shakt I score:0.000 confidence:1
+[Shazam] frame:73029600 artist:Nematic title:Tinctura score:0.000 confidence:1
+[Shazam] frame:73558800 artist:Peter Van Hoesen title:Swerve Damiao score:0.000 confidence:1
+[Shazam] frame:74088000 artist:Peter Van Hoesen title:Swerve Damiao score:0.000 confidence:1
+[Shazam] frame:74617200 artist:Downliners Sekt title:Balt Shakt I score:0.000 confidence:1
+[Shazam] frame:75146400 artist:Peter Van Hoesen title:Swerve Damiao score:0.000 confidence:1
+[Shazam] frame:75675600 artist:Peter Van Hoesen title:Swerve Damiao score:0.000 confidence:1
+[Shazam] frame:76204800 artist:Peter Van Hoesen title:Swerve Damiao score:0.000 confidence:1
+[Shazam] frame:76734000 artist:Peter Van Hoesen title:Swerve Damiao score:0.000 confidence:1
+[Shazam] frame:77263200 artist:Peter Van Hoesen title:Swerve Damiao score:0.000 confidence:1
+[Shazam] frame:77792400 artist:Peter Van Hoesen title:Swerve Damiao score:0.000 confidence:1
+[Shazam] frame:78321600 artist:Peter Van Hoesen title:Swerve Damiao score:0.000 confidence:1
+[Shazam] frame:78850800 artist:Peter Van Hoesen title:Swerve Damiao score:0.000 confidence:1
+[Shazam] frame:79380000 artist:Peter Van Hoesen title:Swerve Damiao score:0.000 confidence:1
+[Shazam] frame:79909200 artist:Peter Van Hoesen title:Swerve Damiao score:0.000 confidence:1
+[Shazam] frame:80438400 artist:Peter Van Hoesen title:Swerve Damiao score:0.000 confidence:1
+[Shazam] frame:80967600 artist:Peter Van Hoesen title:Swerve Damiao score:0.000 confidence:1
+[Shazam] frame:81496800 artist:Peter Van Hoesen title:Swerve Damiao score:0.000 confidence:1
+[Shazam] frame:82026000 artist:Peter Van Hoesen title:Swerve Damiao score:0.000 confidence:1
+[Shazam] frame:82555200 artist:Peter Van Hoesen title:Swerve Damiao score:0.000 confidence:1
+[Shazam] frame:83084400 artist:Peter Van Hoesen title:Swerve Damiao score:0.000 confidence:1
+[Shazam] frame:83613600 artist:Peter Van Hoesen title:Swerve Damiao score:0.000 confidence:1
+[Shazam] frame:84142800 artist:Peter Van Hoesen title:Swerve Damiao score:0.000 confidence:1
+[Shazam] frame:84672000 artist:Peter Van Hoesen title:Swerve Damiao score:0.000 confidence:1
+[Shazam] frame:85201200 artist:Peter Van Hoesen title:Swerve Damiao score:0.000 confidence:1
+[Shazam] frame:85730400 artist:Peter Van Hoesen title:Swerve Damiao score:0.000 confidence:1
+[Shazam] frame:86259600 artist:Dj Akira Prophets Tribe title:Why Listen Music (Paul Hamilton Rmx) score:0.000 confidence:1
+[Shazam] frame:86788800 artist:Peter Van Hoesen title:Swerve Damiao score:0.000 confidence:1
+[Shazam] frame:87318000 artist:Not Dead Yet title:Night Horn (Paul Hamilton Remix) score:0.000 confidence:1
+[Shazam] frame:87847200 artist:Dj Akira Prophets Tribe title:Why Listen Music (Paul Hamilton Rmx) score:0.000 confidence:1
+[Shazam] frame:88376400 artist:Not Dead Yet title:Night Horn (Paul Hamilton Remix) score:0.000 confidence:1
+[Shazam] frame:88905600 artist:Dj Akira Prophets Tribe title:Why Listen Music (Paul Hamilton Rmx) score:0.000 confidence:1
+[Shazam] frame:89434800 artist:Not Dead Yet title:Night Horn (Paul Hamilton Remix) score:0.000 confidence:1
+[Shazam] frame:89964000 artist:South Bloom title:Let Me in (Volen Sentir Secret Technique) score:0.000 confidence:1
+[Shazam] frame:90493200 artist:Dj Akira Prophets Tribe title:Why Listen Music (Paul Hamilton Rmx) score:0.000 confidence:1
+[Shazam] frame:91022400 artist:Not Dead Yet title:Night Horn (Paul Hamilton Remix) score:0.000 confidence:1
+[Shazam] frame:91551600 artist:Not Dead Yet title:Night Horn (Paul Hamilton Remix) score:0.000 confidence:1
+[Shazam] frame:92080800 artist:Dj Akira Prophets Tribe title:Why Listen Music (Paul Hamilton Rmx) score:0.000 confidence:1
+[Shazam] frame:92610000 artist:Dj Akira Prophets Tribe title:Why Listen Music (Paul Hamilton Rmx) score:0.000 confidence:1
+[Shazam] frame:93139200 artist:Dj Akira Prophets Tribe title:Why Listen Music (Paul Hamilton Rmx) score:0.000 confidence:1
+[Shazam] frame:93668400 artist:Dj Akira Prophets Tribe title:Why Listen Music (Paul Hamilton Rmx) score:0.000 confidence:1
+[Shazam] frame:94197600 artist:Dj Akira Prophets Tribe title:Why Listen Music (Paul Hamilton Rmx) score:0.000 confidence:1
+[Shazam] frame:94726800 artist:Dj Akira Prophets Tribe title:Why Listen Music (Paul Hamilton Rmx) score:0.000 confidence:1
+[Shazam] frame:95256000 artist:Dj Akira Prophets Tribe title:Why Listen Music (Paul Hamilton Rmx) score:0.000 confidence:1
+[Shazam] frame:95785200 artist:Stilz title:Don't Look Back (Volkor X Remix) score:0.000 confidence:1
+[Shazam] frame:96314400 artist:Peter Van Hoesen title:Swerve Damiao score:0.000 confidence:1
+[Shazam] frame:96843600 artist:Dj Akira Prophets Tribe title:Why Listen Music (Paul Hamilton Rmx) score:0.000 confidence:1
+[Shazam] frame:97372800 artist:Dj Akira Prophets Tribe title:Why Listen Music (Paul Hamilton Rmx) score:0.000 confidence:1
+[Shazam] frame:97902000 artist:Zo title:We Are On the Move (Joey Negro Revival Mix) [feat. Erro & Phonte] score:0.000 confidence:1
+[Shazam] frame:98431200 artist:Dj Akira Prophets Tribe title:Why Listen Music (Paul Hamilton Rmx) score:0.000 confidence:1
+[Shazam] frame:98960400 artist:Not Dead Yet title:Night Horn (Paul Hamilton Remix) score:0.000 confidence:1
+[Shazam] frame:99489600 artist:Not Dead Yet title:Night Horn (Paul Hamilton Remix) score:0.000 confidence:1
+[Shazam] frame:100018800 artist:Not Dead Yet title:Night Horn (Paul Hamilton Remix) score:0.000 confidence:1
+[Shazam] frame:100548000 artist:Lello B. title:L.O.V.E (Lello B Remix) score:0.000 confidence:1
+[Shazam] frame:101077200 artist:Not Dead Yet title:Night Horn (Paul Hamilton Remix) score:0.000 confidence:1
+[Shazam] frame:101606400 artist:Zo title:We Are On the Move (Joey Negro Revival Mix) [feat. Erro & Phonte] score:0.000 confidence:1
+[Shazam] frame:102135600 artist:Vlada Asanin & Joe Red title:Losing You score:0.000 confidence:1
+[Shazam] frame:102664800 artist:Not Dead Yet title:Night Horn (Paul Hamilton Remix) score:0.000 confidence:1
+[Shazam] frame:103194000 artist:Guille Placencia & George Privatti title:What a Bam score:0.000 confidence:1
+[Shazam] frame:103723200 artist:Dj Akira Prophets Tribe title:Why Listen Music (Paul Hamilton Rmx) score:0.000 confidence:1
+[Shazam] frame:104252400 artist:Roger Sanchez title:2Gether (Antoine Clamaran Remix) score:0.000 confidence:1
+[Shazam] frame:104781600 artist:Villablanca title:One (More Time RMX) score:0.000 confidence:1
+[Shazam] frame:105310800 artist:Dj Akira Prophets Tribe title:Why Listen Music (Paul Hamilton Rmx) score:0.000 confidence:1
+[Shazam] frame:105840000 artist:Julien Jabre title:Swimming Places (Sebastian Ingrosso Re-Edit) score:0.000 confidence:1
+[Shazam] frame:106369200 artist:Dj Akira Prophets Tribe title:Why Listen Music (Paul Hamilton Rmx) score:0.000 confidence:1
+[Shazam] frame:106898400 artist:Sinan Arsan title:Halycon (Paul Hamilton Rmx) score:0.000 confidence:1
+[Shazam] frame:107427600 artist:Sinan Arsan title:Halycon (Paul Hamilton Rmx) score:0.000 confidence:1
+[Shazam] frame:107956800 artist:Madness Ba title:Anywhere score:0.000 confidence:1
+[Shazam] frame:108486000 artist:Marcos Barrios, Len Mora & Joaquin Postigo title:Tribaile (Len Mora & Joaquin Postigo) score:0.000 confidence:1
+[Shazam] frame:109015200 artist:Daniel Madlung & Johannes Retschke title:Foursday score:0.000 confidence:1
+[Shazam] frame:109544400 artist:Marcos Barrios, Len Mora & Joaquin Postigo title:Tribaile (Len Mora & Joaquin Postigo) score:0.000 confidence:1
+[Shazam] frame:110073600 artist:Dantiez Saunderson title:The Harp (feat. LaRae Starr) [Beckwith Extended Remix] score:0.000 confidence:1
+[Shazam] frame:110602800 artist:Moby title:Natural Blues (Reinier Zonneveld Homage Remix) score:0.000 confidence:1
+[Shazam] frame:111132000 artist:Lost Frequencies title:Are You with Me score:0.000 confidence:1
+[Shazam] frame:111661200 artist:Zo title:We Are On the Move (Joey Negro Revival Mix) [feat. Erro & Phonte] score:0.000 confidence:1
+[Shazam] frame:112190400 artist:Claptone title:No Eyes (feat. JAW) score:0.000 confidence:1
+[Shazam] frame:112719600 artist:Daniel Madlung & Johannes Retschke title:Foursday score:0.000 confidence:1
+[Shazam] frame:113248800 artist:Daniel Madlung & Johannes Retschke title:Foursday score:0.000 confidence:1
+[Shazam] frame:113778000 artist:Marcos Barrios, Len Mora & Joaquin Postigo title:Tribaile (Len Mora & Joaquin Postigo) score:0.000 confidence:1
+[Shazam] frame:114307200 artist:Minilogue title:Blessed score:0.000 confidence:1
+[Shazam] frame:114836400 artist:South Bloom title:Let Me in (Volen Sentir Secret Technique) score:0.000 confidence:1
+[Shazam] frame:115365600 artist:Minilogue title:Blessed score:0.000 confidence:1
+[Shazam] frame:115894800 artist:Minilogue title:Blessed score:0.000 confidence:1
+[Shazam] frame:116424000 artist:Black Hawks of Panama title:Wrapped score:0.000 confidence:1
+[Shazam] frame:116953200 artist:Minilogue title:Blessed score:0.000 confidence:1
+[Shazam] frame:117482400 artist:Vintage Culture & Rooftime title:I Will Find (Extended Mix) score:0.000 confidence:1
+[Shazam] frame:118011600 artist:Minilogue title:Blessed score:0.000 confidence:1
+[Shazam] frame:118540800 artist:Minilogue title:Blessed score:0.000 confidence:1
+[Shazam] frame:119070000 artist:Minilogue title:Blessed score:0.000 confidence:1
+[Shazam] frame:119599200 artist:Minilogue title:Blessed score:0.000 confidence:1
+[Shazam] frame:120128400 artist:Minilogue title:Blessed score:0.000 confidence:1
+[Shazam] frame:120657600 artist:Minilogue title:Blessed score:0.000 confidence:1
+[Shazam] frame:121186800 artist:Sense8 title:Mellifluous score:0.000 confidence:1
+[Shazam] frame:121716000 artist:Minilogue title:Blessed score:0.000 confidence:1
+[Shazam] frame:122245200 artist:Minemice title:Identifier score:0.000 confidence:1
+[Shazam] frame:122774400 artist:Minilogue title:Blessed score:0.000 confidence:1
+[Shazam] frame:123303600 artist:Giovanny Aparicio title:Yura score:0.000 confidence:1
+[Shazam] frame:123832800 artist:Minilogue title:Blessed score:0.000 confidence:1
+[Shazam] frame:124362000 artist:Minilogue title:Blessed score:0.000 confidence:1
+[Shazam] frame:124891200 artist:Minilogue title:Blessed score:0.000 confidence:1
+[Shazam] frame:125420400 artist:Minilogue title:Blessed score:0.000 confidence:1
+[Shazam] frame:125949600 artist:Minilogue title:Blessed score:0.000 confidence:1
+[Shazam] frame:126478800 artist:4Tune500 title:Dancing In the Dark (Mixed) score:0.000 confidence:1
+[Shazam] frame:127008000 artist:DJ Tonka title:She Knows You (Club Version) score:0.000 confidence:1
+[Shazam] frame:127537200 artist:Rad&Co title:Unspoken Thoughts score:0.000 confidence:1
+[Shazam] frame:128066400 artist:Marcos Barrios, Len Mora & Joaquin Postigo title:Tribaile (Len Mora & Joaquin Postigo) score:0.000 confidence:1
+[Shazam] frame:128595600 artist:AVAION, PaulWetz & Nu Aspect title:Sleepless (feat. Yuma.) score:0.000 confidence:1
+[Shazam] frame:129124800 artist:Tim Green title:Minds score:0.000 confidence:1
+[Shazam] frame:129654000 artist:Dj Afonso de Vic title:Shake It score:0.000 confidence:1
+[Shazam] frame:130183200 artist:Tim Green title:Minds score:0.000 confidence:1
+[Shazam] frame:130712400 artist:Starsailor title:Four To the Floor (Thin White Duke Mix) score:0.000 confidence:1
+[Shazam] frame:131241600 artist:Minilogue title:Blessed score:0.000 confidence:1
+[Shazam] frame:131770800 artist:Dactilar title:Los Ojancanos score:0.000 confidence:1
+[Shazam] frame:132300000 artist:Dactilar title:Los Ojancanos score:0.000 confidence:1
+[Shazam] frame:132829200 artist:Christian Smith title:Traction (Paride Saraceni Remix) score:0.000 confidence:1
+[Shazam] frame:133358400 artist:Lfproductions title:One More Time (Sublime Mix) score:0.000 confidence:1
+[Shazam] frame:133887600 artist:Dactilar title:Los Ojancanos score:0.000 confidence:1
+[Shazam] frame:134416800 artist:Dactilar title:Los Ojancanos score:0.000 confidence:1
+[Shazam] frame:134946000 artist:Dactilar title:Los Ojancanos score:0.000 confidence:1
+[Shazam] frame:135475200 artist:Dactilar title:Los Ojancanos score:0.000 confidence:1
+[Shazam] frame:136004400 artist:Dactilar title:Los Ojancanos score:0.000 confidence:1
+[Shazam] frame:136533600 artist:Gangbangers title:Looking at the Sky score:0.000 confidence:1
+[Shazam] frame:137062800 artist:Gangbangers title:Looking at the Sky score:0.000 confidence:1
+[Shazam] frame:137592000 artist:Dactilar title:Los Ojancanos score:0.000 confidence:1
+[Shazam] frame:138121200 artist:Dactilar title:Los Ojancanos score:0.000 confidence:1
+[Shazam] frame:138650400 artist:Dactilar title:Los Ojancanos score:0.000 confidence:1
+[Shazam] frame:139179600 artist:Dactilar title:Los Ojancanos score:0.000 confidence:1
+[Shazam] frame:139708800 artist:Dactilar title:Los Ojancanos score:0.000 confidence:1
+[Shazam] frame:140238000 artist:Dactilar title:Los Ojancanos score:0.000 confidence:1
+[Shazam] frame:140767200 artist:Öwnboss & SEVEK title:Move Your Body (Mednas Remix) score:0.000 confidence:1
+[Shazam] frame:141296400 artist:Davide Mazzilli title:Disco (Club Mix) score:0.000 confidence:1
+[Shazam] frame:141825600 artist:Cappo & Mondragon title:Outlaw score:0.000 confidence:1
+[Shazam] frame:142354800 artist:Dactilar title:Los Ojancanos score:0.000 confidence:1
+[Shazam] frame:142884000 artist:Cappo & Mondragon title:Outlaw score:0.000 confidence:1
+[Shazam] frame:143413200 artist:Mfs Observatory title:Y1 score:0.000 confidence:1
+[Shazam] frame:143942400 artist:Cappo & Mondragon title:Outlaw score:0.000 confidence:1
+[Shazam] frame:144471600 artist:Subconscious Tales title:Why score:0.000 confidence:1
+[Shazam] frame:145000800 artist:Subconscious Tales title:Why score:0.000 confidence:1
+[Shazam] frame:145530000 artist:Subconscious Tales title:Why score:0.000 confidence:1
+[Shazam] frame:146059200 artist:Subconscious Tales title:Why score:0.000 confidence:1
+[Shazam] frame:146588400 artist:Subconscious Tales title:Why score:0.000 confidence:1
+[Shazam] frame:147117600 artist:Subconscious Tales title:Why score:0.000 confidence:1
+[Shazam] frame:147646800 artist:Subconscious Tales title:Why score:0.000 confidence:1
+[Shazam] frame:148176000 artist:Subconscious Tales title:Why score:0.000 confidence:1
+[Shazam] frame:148705200 artist:Subconscious Tales title:Why score:0.000 confidence:1
+[Shazam] frame:149234400 artist:Subconscious Tales title:Why score:0.000 confidence:1
+[Shazam] frame:149763600 artist:Subconscious Tales title:Why score:0.000 confidence:1
+[Shazam] frame:150292800 artist:Subconscious Tales title:Why score:0.000 confidence:1
+[Shazam] frame:150822000 artist:Subconscious Tales title:Why score:0.000 confidence:1
+[Shazam] frame:151351200 artist:Subconscious Tales title:Why score:0.000 confidence:1
+[Shazam] frame:151880400 artist:Calibre title:Thought Fields score:0.000 confidence:1
+[Shazam] frame:152409600 artist:Oxia title:Unity (Up Mix) score:0.000 confidence:1
+[Shazam] frame:152938800 artist:Calibre title:Thought Fields score:0.000 confidence:1
+[Shazam] frame:153468000 artist:Philipp Neubert title:Early in the Morning score:0.000 confidence:1
+[Shazam] frame:153997200 artist:Calibre title:Thought Fields score:0.000 confidence:1
+[Shazam] frame:154526400 artist:Calibre title:Thought Fields score:0.000 confidence:1
+[Shazam] frame:155055600 artist:Calibre title:Thought Fields score:0.000 confidence:1
+[Shazam] frame:155584800 artist:Calibre title:Thought Fields score:0.000 confidence:1
+[Shazam] frame:156114000 artist:Calibre title:Thought Fields score:0.000 confidence:1
+[Shazam] frame:156643200 artist:Calibre title:Thought Fields score:0.000 confidence:1
+[Shazam] frame:157172400 artist:Calibre title:Thought Fields score:0.000 confidence:1
+[Shazam] frame:157701600 artist:Calibre title:Thought Fields score:0.000 confidence:1
+[Shazam] frame:158230800 artist:Calibre title:Thought Fields score:0.000 confidence:1
+[Shazam] frame:158760000 artist:Calibre title:Thought Fields score:0.000 confidence:1
+[Shazam] frame:159289200 artist:Calibre title:Thought Fields score:0.000 confidence:1
+[Shazam] frame:159818400 artist:Calibre title:Thought Fields score:0.000 confidence:1
+[Shazam] frame:160347600 artist:Calibre title:Thought Fields score:0.000 confidence:1
+[Shazam] frame:160876800 artist:Calibre title:Thought Fields score:0.000 confidence:1
+[Shazam] frame:161406000 artist:Calibre title:Thought Fields score:0.000 confidence:1
+[Shazam] frame:161935200 artist:Calibre title:Thought Fields score:0.000 confidence:1
+[Shazam] frame:162464400 artist:Calibre title:Thought Fields score:0.000 confidence:1
+[Shazam] frame:162993600 artist:Guy Gerber title:Jupiter Blues score:0.000 confidence:1
+[Shazam] frame:163522800 artist:Guy Gerber title:Jupiter Blues score:0.000 confidence:1
+[Shazam] frame:164052000 artist:Dirty Secretz title:Eternity (Edit) score:0.000 confidence:1
+[Shazam] frame:164581200 artist:Dirty Secretz title:Eternity (Edit) score:0.000 confidence:1
+[Shazam] frame:165110400 artist:Guy Gerber title:Jupiter Blues score:0.000 confidence:1
+[Shazam] frame:165639600 artist:Sounom & Sagou title:Everyday Moments (Kamilo Sanclemente Remix) score:0.000 confidence:1
+[Shazam] frame:166168800 artist:Diplo & SIDEPIECE title:On My Mind score:0.000 confidence:1
+[Shazam] frame:166698000 artist:Sounom & Sagou title:Everyday Moments (Kamilo Sanclemente Remix) score:0.000 confidence:1
+[Shazam] frame:167227200 artist:Chymera title:Episode score:0.000 confidence:1
+[Shazam] frame:167756400 artist:Dave Storm title:Happy Endz (Deep Inc Remix) score:0.000 confidence:1
+[Shazam] frame:168285600 artist:Munir Amastha title:Can You Feel the Night (One Opinion Remix) [feat. Sauli Harper] score:0.000 confidence:1
+[Shazam] frame:168814800 artist:Gaetano C & DePandis title:Saw score:0.000 confidence:1
+[Shazam] frame:169344000 artist:Guy Gerber title:Jupiter Blues score:0.000 confidence:1
+[Shazam] frame:169873200 artist:Esoteric Circle title:Resilience score:0.000 confidence:1
+[Shazam] frame:170402400 artist:Guy Gerber title:Jupiter Blues score:0.000 confidence:1
+[Shazam] frame:170931600 artist:Guy Gerber title:Jupiter Blues score:0.000 confidence:1
+[Shazam] frame:171460800 artist:Guy Gerber title:Jupiter Blues score:0.000 confidence:1
+[Shazam] frame:171990000 artist:Guy Gerber title:Jupiter Blues score:0.000 confidence:1
+[Shazam] frame:172519200 artist:Guy Gerber title:Jupiter Blues score:0.000 confidence:1
+[Shazam] frame:173048400 artist:Guy Gerber title:Jupiter Blues score:0.000 confidence:1
+[Shazam] frame:173577600 artist:Guy Gerber title:Jupiter Blues score:0.000 confidence:1
+[Shazam] frame:174106800 artist:Guy Gerber title:Jupiter Blues score:0.000 confidence:1
+[Shazam] frame:174636000 artist:Munir Amastha title:Can You Feel the Night (One Opinion Remix) [feat. Sauli Harper] score:0.000 confidence:1
+[Shazam] frame:175165200 artist:Guy Gerber title:Jupiter Blues score:0.000 confidence:1
+[Shazam] frame:175694400 artist:Guy Gerber title:Jupiter Blues score:0.000 confidence:1
+[Shazam] frame:176223600 artist:Munir Amastha title:Can You Feel the Night (One Opinion Remix) [feat. Sauli Harper] score:0.000 confidence:1
+[Shazam] frame:176752800 artist:Guy Gerber title:Jupiter Blues score:0.000 confidence:1
+[Shazam] frame:177282000 artist:Sam Paganini title:Rave score:0.000 confidence:1
+[Shazam] frame:177811200 artist:Sam Paganini title:Rave score:0.000 confidence:1
+[Shazam] frame:178340400 artist:Sam Paganini title:Rave score:0.000 confidence:1
+[Shazam] frame:178869600 artist:Paperclip People title:Throw (Slam's RTM Remix) score:0.000 confidence:1
+[Shazam] frame:179398800 artist:Sam Paganini title:Rave score:0.000 confidence:1
+[Shazam] frame:179928000 artist:Guy Gerber title:Jupiter Blues score:0.000 confidence:1
+[Shazam] frame:180457200 artist:Sam Paganini title:Rave score:0.000 confidence:1
+[Shazam] frame:180986400 artist:Jean-Michel Jarre title:EPICA score:0.000 confidence:1
+[Shazam] frame:181515600 artist:Todd Terry title:Jumpin Original score:0.000 confidence:1
+[Shazam] frame:182044800 artist:Marc Marzenit title:Perron (Wehbba Remix) score:0.000 confidence:1
+[Shazam] frame:182574000 artist:Tinlicker & Helsloot title:Because You Move Me score:0.000 confidence:1
+[Shazam] frame:183103200 artist:Julien Jabre title:War (Eltonnick Remix) [Mixed] score:0.000 confidence:1
+[Shazam] frame:183632400 artist:Sam Paganini title:Rave score:0.000 confidence:1
+[Shazam] frame:184161600 artist:Galcher Lustwerk title:Liberty, Oh! score:0.000 confidence:1
+[Shazam] frame:184690800 artist:Guy Gerber title:Jupiter Blues score:0.000 confidence:1
+[Shazam] frame:185220000 artist:Galcher Lustwerk title:Liberty, Oh! score:0.000 confidence:1
+[Shazam] frame:185749200 artist:Galcher Lustwerk title:Liberty, Oh! score:0.000 confidence:1
+[Shazam] frame:186278400 artist:Galcher Lustwerk title:Liberty, Oh! score:0.000 confidence:1
+[Shazam] frame:186807600 artist:Jens Zimmermann title:X11 score:0.000 confidence:1
+[Shazam] frame:187336800 artist:Jens Zimmermann title:X11 score:0.000 confidence:1
+[Shazam] frame:187866000 artist:Chris Alot title:Paradise score:0.000 confidence:1
+[Shazam] frame:188395200 artist:Sebástian Bianco Ariza title:Despertar score:0.000 confidence:1
+[Shazam] frame:188924400 artist:Spektre title:Against a Dark Background score:0.000 confidence:1
+[Shazam] frame:189453600 artist:Galcher Lustwerk title:Liberty, Oh! score:0.000 confidence:1
+[Shazam] frame:189982800 artist:Galcher Lustwerk title:Liberty, Oh! score:0.000 confidence:1
+[Shazam] frame:190512000 artist:Jens Zimmermann title:X11 score:0.000 confidence:1
+[Shazam] frame:191041200 artist:Jens Zimmermann title:X11 score:0.000 confidence:1
+[Shazam] frame:191570400 artist:Galcher Lustwerk title:Liberty, Oh! score:0.000 confidence:1
+[Shazam] frame:192099600 artist:Galcher Lustwerk title:Liberty, Oh! score:0.000 confidence:1
+[Shazam] frame:192628800 artist:Jens Zimmermann title:X11 score:0.000 confidence:1
+[Shazam] frame:193158000 artist: title:unknown score:0.000 confidence:(null)
+[Shazam] frame:193687200 artist:Joachim Spieth title:Trails score:0.000 confidence:1
+[Shazam] frame:194216400 artist:Joachim Spieth title:Trails score:0.000 confidence:1
+[Shazam] frame:194745600 artist:Joachim Spieth title:Trails score:0.000 confidence:1
+[Shazam] frame:195274800 artist:Joachim Spieth title:Trails score:0.000 confidence:1
+[Shazam] frame:195804000 artist:Joachim Spieth title:Trails score:0.000 confidence:1
+[Shazam] frame:196333200 artist:Joachim Spieth title:Trails score:0.000 confidence:1
+[Shazam] frame:196862400 artist:Wigbert title:Balance score:0.000 confidence:1
+[Shazam] frame:197391600 artist:Joachim Spieth title:Trails score:0.000 confidence:1
+[Shazam] frame:197920800 artist:Joachim Spieth title:Trails score:0.000 confidence:1
+[Shazam] frame:198450000 artist:Joachim Spieth title:Trails score:0.000 confidence:1
+[Shazam] frame:198979200 artist:Sian title:Let Yourself score:0.000 confidence:1
+[Shazam] frame:199508400 artist:Joachim Spieth title:Trails score:0.000 confidence:1
+[Shazam] frame:200037600 artist:Burial title:New Love score:0.000 confidence:1
+[Shazam] frame:200566800 artist:Burial title:New Love score:0.000 confidence:1
+[Shazam] frame:201096000 artist:Burial title:New Love score:0.000 confidence:1
+[Shazam] frame:201625200 artist:Burial title:New Love score:0.000 confidence:1
+[Shazam] frame:202154400 artist:Burial title:New Love score:0.000 confidence:1
+[Shazam] frame:202683600 artist:Burial title:New Love score:0.000 confidence:1
+[Shazam] frame:203212800 artist:Burial title:New Love score:0.000 confidence:1
+[Shazam] frame:203742000 artist:Burial title:New Love score:0.000 confidence:1
+[Shazam] frame:204271200 artist:Sian title:Let Yourself score:0.000 confidence:1
+[Shazam] frame:204800400 artist:Marc Molina title:More Than Physical (Manuel Palmitesta Remix) score:0.000 confidence:1
+[Shazam] frame:205329600 artist:HOSH & 1979 title:Midnight (The Hanging Tree) [feat. Jalja] score:0.000 confidence:1
+[Shazam] frame:205858800 artist:HOSH & 1979 title:Midnight (The Hanging Tree) [feat. Jalja] score:0.000 confidence:1
+[Shazam] frame:206388000 artist:Johannes Volk title:Resist The Storm score:0.000 confidence:1
+[Shazam] frame:206917200 artist:Sian title:Let Yourself score:0.000 confidence:1
+[Shazam] frame:207446400 artist:Sian title:Let Yourself score:0.000 confidence:1
+[Shazam] frame:207975600 artist:Sian title:Let Yourself score:0.000 confidence:1
+[Shazam] frame:208504800 artist:Troy Parrish title:I Wanna Be Free (Original Factory Mix) score:0.000 confidence:1
+[Shazam] frame:209034000 artist:Ion Ludwig title:Classilion score:0.000 confidence:1
+[Shazam] frame:209563200 artist:Ion Ludwig title:Classilion score:0.000 confidence:1
+[Shazam] frame:210092400 artist:Bohdan title:Tungsten (Deepbass Remix) score:0.000 confidence:1
+[Shazam] frame:210621600 artist:Bohdan title:Tungsten (Deepbass Remix) score:0.000 confidence:1
+[Shazam] frame:211150800 artist:Bohdan title:Tungsten (Deepbass Remix) score:0.000 confidence:1
+[Shazam] frame:211680000 artist:Bohdan title:Tungsten (Deepbass Remix) score:0.000 confidence:1
+[Shazam] frame:212209200 artist:Bohdan title:Tungsten (Deepbass Remix) score:0.000 confidence:1
+[Shazam] frame:212738400 artist:Bohdan title:Tungsten (Deepbass Remix) score:0.000 confidence:1
+[Shazam] frame:213267600 artist:Bohdan title:Tungsten (Deepbass Remix) score:0.000 confidence:1
+[Shazam] frame:213796800 artist:Bohdan title:Tungsten (Deepbass Remix) score:0.000 confidence:1
+[Shazam] frame:214326000 artist:Bohdan title:Tungsten (Deepbass Remix) score:0.000 confidence:1
+[Shazam] frame:214855200 artist:Bohdan title:Tungsten (Deepbass Remix) score:0.000 confidence:1
+[Shazam] frame:215384400 artist:Bohdan title:Tungsten (Deepbass Remix) score:0.000 confidence:1
+[Shazam] frame:215913600 artist:Bohdan title:Tungsten (Deepbass Remix) score:0.000 confidence:1
+[Shazam] frame:216442800 artist:Bohdan title:Tungsten (Deepbass Remix) score:0.000 confidence:1
+[Shazam] frame:216972000 artist:Bohdan title:Tungsten (Deepbass Remix) score:0.000 confidence:1
+[Shazam] frame:217501200 artist:Bohdan title:Tungsten (Deepbass Remix) score:0.000 confidence:1
+[Shazam] frame:218030400 artist:Bohdan title:Tungsten (Deepbass Remix) score:0.000 confidence:1
+[Shazam] frame:218559600 artist:Ben Samuel title:Toscana score:0.000 confidence:1
+[Shazam] frame:219088800 artist:Marc Molina title:More Than Physical (Manuel Palmitesta Remix) score:0.000 confidence:1
+[Shazam] frame:219618000 artist:HOSH & 1979 title:Midnight (The Hanging Tree) [feat. Jalja] score:0.000 confidence:1
+[Shazam] frame:220147200 artist:Maae title:Descartes score:0.000 confidence:1
+[Shazam] frame:220676400 artist:Biscits title:Wait A Minute score:0.000 confidence:1
+[Shazam] frame:221205600 artist:Marc Molina title:More Than Physical (Manuel Palmitesta Remix) score:0.000 confidence:1
+[Shazam] frame:221734800 artist:Marc Molina title:More Than Physical (Manuel Palmitesta Remix) score:0.000 confidence:1
+[Shazam] frame:222264000 artist:Marc Molina title:More Than Physical (Manuel Palmitesta Remix) score:0.000 confidence:1
+[Shazam] frame:222793200 artist:Marc Molina title:More Than Physical (Manuel Palmitesta Remix) score:0.000 confidence:1
+[Shazam] frame:223322400 artist:Marc Molina title:More Than Physical (Manuel Palmitesta Remix) score:0.000 confidence:1
+[Shazam] frame:223851600 artist:Marc Molina title:More Than Physical (Manuel Palmitesta Remix) score:0.000 confidence:1
+[Shazam] frame:224380800 artist:Patrice Bäumel title:The Cave score:0.000 confidence:1
+[Shazam] frame:224910000 artist:Patrice Bäumel title:The Cave score:0.000 confidence:1
+[Shazam] frame:225439200 artist:Blake Jarrell & Jeff Varisco title:Almonaster (Bass Stem) score:0.000 confidence:1
+[Shazam] frame:225968400 artist:Patrice Bäumel title:The Cave score:0.000 confidence:1
+[Shazam] frame:226497600 artist:Patrice Bäumel title:The Cave score:0.000 confidence:1
+[Shazam] frame:227026800 artist:Patrice Bäumel title:The Cave score:0.000 confidence:1
+[Shazam] frame:227556000 artist:Patrice Bäumel title:The Cave score:0.000 confidence:1
+[Shazam] frame:228085200 artist:Patrice Bäumel title:The Cave score:0.000 confidence:1
+[Shazam] frame:228614400 artist:Patrice Bäumel title:The Cave score:0.000 confidence:1
+[Shazam] frame:229143600 artist:Patrice Bäumel title:The Cave score:0.000 confidence:1
+[Shazam] frame:229672800 artist:Marc Molina title:More Than Physical (Manuel Palmitesta Remix) score:0.000 confidence:1
+[Shazam] frame:230202000 artist:Marc Molina title:More Than Physical (Manuel Palmitesta Remix) score:0.000 confidence:1
+[Shazam] frame:230731200 artist:Wigbert title:Balance score:0.000 confidence:1
+[Shazam] frame:231260400 artist:Wigbert title:Balance score:0.000 confidence:1
+[Shazam] frame:231789600 artist:Marc Molina title:More Than Physical (Manuel Palmitesta Remix) score:0.000 confidence:1
+[Shazam] frame:232318800 artist:Maae title:Descartes score:0.000 confidence:1
+[Shazam] frame:232848000 artist:Avicii title:Hey Brother (Syn Cole Remix) score:0.000 confidence:1
+[Shazam] frame:233377200 artist:Marc Molina title:More Than Physical (Manuel Palmitesta Remix) score:0.000 confidence:1
+[Shazam] frame:233906400 artist:The Shapeshifters title:Lola's Theme score:0.000 confidence:1
+[Shazam] frame:234435600 artist:Marc Molina title:More Than Physical (Manuel Palmitesta Remix) score:0.000 confidence:1
+[Shazam] frame:234964800 artist:Oxia title:Domino score:0.000 confidence:1
+[Shazam] frame:235494000 artist:Joey Negro & The Sunburst Band title:Journey To The Sun (Dennis Ferrer Remix) score:0.000 confidence:1
+[Shazam] frame:236023200 artist:Marc Molina title:More Than Physical (Manuel Palmitesta Remix) score:0.000 confidence:1
+[Shazam] frame:236552400 artist:Joey Negro & The Sunburst Band title:Journey To The Sun (Dennis Ferrer Remix) score:0.000 confidence:1
+[Shazam] frame:237081600 artist:Veerus title:Phase score:0.000 confidence:1
+[Shazam] frame:237610800 artist:Davide Mazzilli title:Disco (Club Mix) score:0.000 confidence:1
+[Shazam] frame:238140000 artist:Marc Molina title:More Than Physical (Manuel Palmitesta Remix) score:0.000 confidence:1
+[Shazam] frame:238669200 artist:Maae title:Descartes score:0.000 confidence:1
+[Shazam] frame:239198400 artist:Marc Molina title:More Than Physical (Manuel Palmitesta Remix) score:0.000 confidence:1
+[Shazam] frame:239727600 artist:Marc Molina title:More Than Physical (Manuel Palmitesta Remix) score:0.000 confidence:1
+[Shazam] frame:240256800 artist:Maae title:Descartes score:0.000 confidence:1
+[Shazam] frame:240786000 artist:Crystal Waters & Richey Profond title:Gypsy Woman (Richey Profond Remix) score:0.000 confidence:1
+[Shazam] frame:241315200 artist:Ness title:In the Meanderings of Shibuya score:0.000 confidence:1
+[Shazam] frame:241844400 artist:Patrice Bäumel title:The Cave score:0.000 confidence:1
+[Shazam] frame:242373600 artist:Ness title:In the Meanderings of Shibuya score:0.000 confidence:1
+[Shazam] frame:242902800 artist:Ness title:In the Meanderings of Shibuya score:0.000 confidence:1
+[Shazam] frame:243432000 artist:Ness title:In the Meanderings of Shibuya score:0.000 confidence:1
+[Shazam] frame:243961200 artist:Ness title:In the Meanderings of Shibuya score:0.000 confidence:1
+[Shazam] frame:244490400 artist:Ness title:In the Meanderings of Shibuya score:0.000 confidence:1
+[Shazam] frame:245019600 artist:Ness title:In the Meanderings of Shibuya score:0.000 confidence:1
+[Shazam] frame:245548800 artist:Ness title:In the Meanderings of Shibuya score:0.000 confidence:1
+[Shazam] frame:246078000 artist:Ness title:In the Meanderings of Shibuya score:0.000 confidence:1
+[Shazam] frame:246607200 artist:Ness title:In the Meanderings of Shibuya score:0.000 confidence:1
+[Shazam] frame:247136400 artist:Ness title:In the Meanderings of Shibuya score:0.000 confidence:1
+[Shazam] frame:247665600 artist:Markus Guentner title:Crystal Castle (Original Mix) score:0.000 confidence:1
+[Shazam] frame:248194800 artist:Markus Guentner title:Crystal Castle (Original Mix) score:0.000 confidence:1
+[Shazam] frame:248724000 artist:Markus Guentner title:Crystal Castle (Original Mix) score:0.000 confidence:1
+[Shazam] frame:249253200 artist:Markus Guentner title:Crystal Castle (Original Mix) score:0.000 confidence:1
+[Shazam] frame:249782400 artist:Markus Guentner title:Crystal Castle (Original Mix) score:0.000 confidence:1
+[Shazam] frame:250311600 artist:Markus Guentner title:Crystal Castle (Original Mix) score:0.000 confidence:1
+[Shazam] frame:250840800 artist:Markus Guentner title:Crystal Castle (Original Mix) score:0.000 confidence:1
+[Shazam] frame:251370000 artist:Markus Guentner title:Crystal Castle (Original Mix) score:0.000 confidence:1
+[Shazam] frame:251899200 artist:Cybordelics title:Adventures of Dama (feat. James Davis) [Bodo Felusch-Gimme a Beat Mix] score:0.000 confidence:1
+[Shazam] frame:252428400 artist:Markus Guentner title:Crystal Castle (Original Mix) score:0.000 confidence:1
+[Shazam] frame:252957600 artist:Smoke Sign title:Come Out & Play (Frost Raven Progressive Trance Remix) score:0.000 confidence:1
+[Shazam] frame:253486800 artist:Elektrodrei title:New World Order score:0.000 confidence:1
+[Shazam] frame:254016000 artist:Cybordelics title:Adventures of Dama (feat. James Davis) [Bodo Felusch-Gimme a Beat Mix] score:0.000 confidence:1
+[Shazam] frame:254545200 artist:Markus Guentner title:Crystal Castle (Original Mix) score:0.000 confidence:1
+[Shazam] frame:255074400 artist:Cybordelics title:Adventures of Dama (feat. James Davis) [Bodo Felusch-Gimme a Beat Mix] score:0.000 confidence:1
+[Shazam] frame:255603600 artist:Aux WoMdantso title:My Take score:0.000 confidence:1
+[Shazam] frame:256132800 artist:Markus Guentner title:Crystal Castle (Original Mix) score:0.000 confidence:1
+[Shazam] frame:256662000 artist:Markus Guentner title:Crystal Castle (Original Mix) score:0.000 confidence:1
+[Shazam] frame:257191200 artist:Plaza Beatz title:Alive (Original Mix) score:0.000 confidence:1
+[Shazam] frame:257720400 artist:Juliane Wolf title:Far Away score:0.000 confidence:1
+[Shazam] frame:258249600 artist:t'Awi title:Humancity score:0.000 confidence:1
+[Shazam] frame:258778800 artist:Markus Guentner title:Crystal Castle (Original Mix) score:0.000 confidence:1
+[Shazam] frame:259308000 artist:Aux WoMdantso title:My Take score:0.000 confidence:1
+[Shazam] frame:259837200 artist:Markus Guentner title:Crystal Castle (Original Mix) score:0.000 confidence:1
+[Shazam] frame:260366400 artist:Markus Guentner title:Crystal Castle (Original Mix) score:0.000 confidence:1
+[Shazam] frame:260895600 artist:Markus Guentner title:Crystal Castle (Original Mix) score:0.000 confidence:1
+[Shazam] frame:261424800 artist:Markus Guentner title:Crystal Castle (Original Mix) score:0.000 confidence:1
+[Shazam] frame:261954000 artist:Markus Guentner title:Crystal Castle (Original Mix) score:0.000 confidence:1
+[Shazam] frame:262483200 artist:Blackbelt Andersen title:Åpenbaring (Original Mix) score:0.000 confidence:1
+[Shazam] frame:263012400 artist:Blackbelt Andersen title:Åpenbaring (Original Mix) score:0.000 confidence:1
+[Shazam] frame:263541600 artist:Wellbeing Research Institute title:Soft Oscillator (How We Sleep) score:0.000 confidence:1
+[Shazam] frame:264070800 artist:Blackbelt Andersen title:Åpenbaring (Original Mix) score:0.000 confidence:1
+[Shazam] frame:264600000 artist:Blackbelt Andersen title:Åpenbaring (Original Mix) score:0.000 confidence:1
+[Shazam] frame:265129200 artist:Blackbelt Andersen title:Åpenbaring (Original Mix) score:0.000 confidence:1
+[Shazam] frame:265658400 artist:Blackbelt Andersen title:Åpenbaring (Original Mix) score:0.000 confidence:1
+[Shazam] frame:266187600 artist:Blackbelt Andersen title:Åpenbaring (Original Mix) score:0.000 confidence:1
+[Shazam] frame:266716800 artist:David Foster title:Carol Of The Bells score:0.000 confidence:1
+[Shazam] frame:267246000 artist:Blackbelt Andersen title:Åpenbaring (Original Mix) score:0.000 confidence:1
+[Shazam] frame:267775200 artist:Blackbelt Andersen title:Åpenbaring (Original Mix) score:0.000 confidence:1
+[Shazam] frame:268304400 artist:Blackbelt Andersen title:Åpenbaring (Original Mix) score:0.000 confidence:1
+[Shazam] frame:268833600 artist:Blackbelt Andersen title:Åpenbaring (Original Mix) score:0.000 confidence:1

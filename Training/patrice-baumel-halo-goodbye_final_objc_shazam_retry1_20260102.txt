@@ -1,0 +1,20 @@
+[Final] frame:0 artist:YOTTO title:Seat 11 duration:168.00s score:11.315 confidence:11.3152
+[Final] frame:8467200 artist:Tigerskin & Alfa State title:Slippery Roads (Pablo Bolivar Remix) duration:228.00s score:15.680 confidence:15.68
+[Final] frame:24872400 artist:Saktu title:Muted Glow (Extended Mix) duration:36.00s score:7.272 confidence:7.271999999999999
+[Final] frame:34927200 artist:Fragma title:Toca Me (Inpetto 2008 Mix) duration:12.00s score:5.166 confidence:5.165718897606086
+[Final] frame:35985600 artist:Chymamusique title:Lost in Words (Main Saxed Mix) duration:84.00s score:8.671 confidence:8.671405105519266
+[Final] frame:49215600 artist:Alan Cerra & Gai Barone title:End of the Line (Gai Barone Remix) duration:192.00s score:15.680 confidence:15.68
+[Final] frame:69325200 artist:2hz title:Modest (Remastered) duration:24.00s score:5.272 confidence:5.272228565597966
+[Final] frame:74617200 artist:Panos Pissitelis & Junior Mi title:Freaky duration:24.00s score:5.272 confidence:5.272228565597966
+[Final] frame:101606400 artist:Alex Albrecht title:The Arboretum duration:168.00s score:12.186 confidence:12.1856
+[Final] frame:126478800 artist:Biscits title:Wait A Minute duration:24.00s score:5.272 confidence:5.272228565597966
+[Final] frame:128066400 artist:Nightcrawlers title:Push the Feeling On (T. Tommy Victor Perez & Vicente Ferrer Remix) duration:60.00s score:6.660 confidence:6.659690713431427
+[Final] frame:131241600 artist:Greg Beato title:Pma duration:60.00s score:7.560 confidence:7.56
+[Final] frame:140238000 artist:Slove & David Shaw and the Beat title:Special Places (Damon Jee Remix) duration:264.00s score:15.680 confidence:15.68
+[Final] frame:153997200 artist:Vincent Casanova title:Hold Me duration:312.00s score:15.287 confidence:15.28700391755434
+[Final] frame:168814800 artist:Nick Curly title:Go duration:180.00s score:12.973 confidence:12.97296587356936
+[Final] frame:178340400 artist:Alex O'Rion title:Blackout duration:660.00s score:12.473 confidence:12.47272727272727
+[Final] frame:207975600 artist:Guliver title:Calypso (Claudio PRC Remix) duration:12.00s score:5.166 confidence:5.165718897606086
+[Final] frame:215384400 artist:Gigi D'Agostino title:Bla Bla Bla duration:432.00s score:15.287 confidence:15.28700391755434
+[Final] frame:239727600 artist:Eitan Reiter title:Eat You (Patrice Bäumel Remix) duration:372.00s score:47.040 confidence:47.03999999999999
+[Final] frame:270421200 artist:Wa Wu We title:What's Left? (Ambient Mix) duration:192.00s score:15.680 confidence:15.68

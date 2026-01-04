@@ -1,0 +1,1595 @@
+[ShazamTiming] firstMatch=60.00s delta(mean/p25/p50/p75)=12.07/12.00/12.00/12.00 samples=497
+[InputMeta] sampleRate:44100.0 hopSize:529200 signatureWindow:8.0s maxSignatureWindow:8.0s skipRefinement:0 frames:269597632
+[Shazam] frame:0 artist: title:unknown score:0.000 confidence:(null)
+[Shazam] frame:529200 artist: title:unknown score:0.000 confidence:(null)
+[Shazam] frame:1058400 artist: title:unknown score:0.000 confidence:(null)
+[Shazam] frame:1587600 artist: title:unknown score:0.000 confidence:(null)
+[Shazam] frame:2116800 artist: title:unknown score:0.000 confidence:(null)
+[Shazam] frame:2646000 artist:Priori title:Winged (Priori Rezone) score:0.000 confidence:1
+[Shazam] frame:3175200 artist: title:unknown score:0.000 confidence:(null)
+[Shazam] frame:3704400 artist:Priori title:Winged (Priori Rezone) score:0.000 confidence:1
+[Shazam] frame:4233600 artist:Priori title:Winged (Priori Rezone) score:0.000 confidence:1
+[Shazam] frame:4762800 artist:Priori title:Winged (Priori Rezone) score:0.000 confidence:1
+[Shazam] frame:5292000 artist:Priori title:Winged (Priori Rezone) score:0.000 confidence:1
+[Shazam] frame:5821200 artist:Priori title:Winged (Priori Rezone) score:0.000 confidence:1
+[Shazam] frame:6350400 artist:Priori title:Winged (Priori Rezone) score:0.000 confidence:1
+[Shazam] frame:6879600 artist:Priori title:Winged (Priori Rezone) score:0.000 confidence:1
+[Shazam] frame:7408800 artist:Armin van Buuren title:This Is What It Feels Like (feat. Trevor Guthrie) [W&W Remix] score:0.000 confidence:1
+[Shazam] frame:7938000 artist:DJ Fresca & Kudoskelem title:Int'Engekhoyo score:0.000 confidence:1
+[Shazam] frame:8467200 artist:Ali Bakgor title:In a Dream (Extended) score:0.000 confidence:1
+[Shazam] frame:8996400 artist:Marc Marzenit title:Perron (Wehbba Remix) score:0.000 confidence:1
+[Shazam] frame:9525600 artist:Priori title:Winged (Priori Rezone) score:0.000 confidence:1
+[Shazam] frame:10054800 artist:Priori title:Winged (Priori Rezone) score:0.000 confidence:1
+[Shazam] frame:10584000 artist:Priori title:Winged (Priori Rezone) score:0.000 confidence:1
+[Shazam] frame:11113200 artist:Priori title:Winged (Priori Rezone) score:0.000 confidence:1
+[Shazam] frame:11642400 artist:Priori title:Winged (Priori Rezone) score:0.000 confidence:1
+[Shazam] frame:12171600 artist:Priori title:Winged (Priori Rezone) score:0.000 confidence:1
+[Shazam] frame:12700800 artist:AVAION, PaulWetz & Nu Aspect title:Sleepless (feat. Yuma.) score:0.000 confidence:1
+[Shazam] frame:13230000 artist:Priori title:Winged (Priori Rezone) score:0.000 confidence:1
+[Shazam] frame:13759200 artist:Priori title:Winged (Priori Rezone) score:0.000 confidence:1
+[Shazam] frame:14288400 artist:Priori title:Winged (Priori Rezone) score:0.000 confidence:1
+[Shazam] frame:14817600 artist:Julio Navas & David Amo title:Thank U score:0.000 confidence:1
+[Shazam] frame:15346800 artist:Aaron H-Smith title:Satara (Juanito Remix) score:0.000 confidence:1
+[Shazam] frame:15876000 artist:South Bloom title:Let Me in (Volen Sentir Secret Technique) score:0.000 confidence:1
+[Shazam] frame:16405200 artist:Priori title:Winged (Priori Rezone) score:0.000 confidence:1
+[Shazam] frame:16934400 artist:Priori title:Winged (Priori Rezone) score:0.000 confidence:1
+[Shazam] frame:17463600 artist:Gaetano C & DePandis title:Saw score:0.000 confidence:1
+[Shazam] frame:17992800 artist:Julio Navas & David Amo title:Thank U score:0.000 confidence:1
+[Shazam] frame:18522000 artist:Kidoo title:C'mon score:0.000 confidence:1
+[Shazam] frame:19051200 artist:Davide Mazzilli title:The Beat score:0.000 confidence:1
+[Shazam] frame:19580400 artist:Julio Navas & David Amo title:Thank U score:0.000 confidence:1
+[Shazam] frame:20109600 artist:GMJ & Matter title:Metanoia score:0.000 confidence:1
+[Shazam] frame:20638800 artist:Lucius Young title:Tiempo (Mondragon Remix) score:0.000 confidence:1
+[Shazam] frame:21168000 artist:Lucius Young title:Tiempo (Mondragon Remix) score:0.000 confidence:1
+[Shazam] frame:21697200 artist:GMJ & Matter title:Metanoia score:0.000 confidence:1
+[Shazam] frame:22226400 artist:GMJ & Matter title:Metanoia score:0.000 confidence:1
+[Shazam] frame:22755600 artist:GMJ & Matter title:Metanoia score:0.000 confidence:1
+[Shazam] frame:23284800 artist:Gareth Stirling title:Wallop score:0.000 confidence:1
+[Shazam] frame:23814000 artist:GMJ & Matter title:Metanoia score:0.000 confidence:1
+[Shazam] frame:24343200 artist:GMJ & Matter title:Metanoia score:0.000 confidence:1
+[Shazam] frame:24872400 artist:GMJ & Matter title:Metanoia score:0.000 confidence:1
+[Shazam] frame:25401600 artist:GMJ & Matter title:Metanoia score:0.000 confidence:1
+[Shazam] frame:25930800 artist:GMJ & Matter title:Metanoia score:0.000 confidence:1
+[Shazam] frame:26460000 artist:GMJ & Matter title:Metanoia score:0.000 confidence:1
+[Shazam] frame:26989200 artist:GMJ & Matter title:Metanoia score:0.000 confidence:1
+[Shazam] frame:27518400 artist:GMJ & Matter title:Metanoia score:0.000 confidence:1
+[Shazam] frame:28047600 artist:GMJ & Matter title:Metanoia score:0.000 confidence:1
+[Shazam] frame:28576800 artist:GMJ & Matter title:Metanoia score:0.000 confidence:1
+[Shazam] frame:29106000 artist:GMJ & Matter title:Metanoia score:0.000 confidence:1
+[Shazam] frame:29635200 artist:Ranj Kaler title:Last Sunset (feat. ASYN) [Gai Barone Dub] score:0.000 confidence:1
+[Shazam] frame:30164400 artist:Ranj Kaler title:Last Sunset (feat. ASYN) [Gai Barone Dub] score:0.000 confidence:1
+[Shazam] frame:30693600 artist:Ranj Kaler title:Last Sunset (feat. ASYN) [Gai Barone Dub] score:0.000 confidence:1
+[Shazam] frame:31222800 artist:Ranj Kaler title:Last Sunset (feat. ASYN) [Gai Barone Dub] score:0.000 confidence:1
+[Shazam] frame:31752000 artist:Ranj Kaler title:Last Sunset (feat. ASYN) [Gai Barone Dub] score:0.000 confidence:1
+[Shazam] frame:32281200 artist:Ranj Kaler title:Last Sunset (feat. ASYN) [Gai Barone Dub] score:0.000 confidence:1
+[Shazam] frame:32810400 artist:Ranj Kaler title:Last Sunset (feat. ASYN) [Gai Barone Dub] score:0.000 confidence:1
+[Shazam] frame:33339600 artist:Jonny Calypso title:Teenager 2K15 score:0.000 confidence:1
+[Shazam] frame:33868800 artist:Ranj Kaler title:Last Sunset (feat. ASYN) [Gai Barone Dub] score:0.000 confidence:1
+[Shazam] frame:34398000 artist:Ranj Kaler title:Last Sunset (feat. ASYN) [Gai Barone Dub] score:0.000 confidence:1
+[Shazam] frame:34927200 artist:Ranj Kaler title:Last Sunset (feat. ASYN) [Gai Barone Dub] score:0.000 confidence:1
+[Shazam] frame:35456400 artist:Ranj Kaler title:Last Sunset (feat. ASYN) [Gai Barone Dub] score:0.000 confidence:1
+[Shazam] frame:35985600 artist:Ranj Kaler title:Last Sunset (feat. ASYN) [Gai Barone Dub] score:0.000 confidence:1
+[Shazam] frame:36514800 artist:Ranj Kaler title:Last Sunset (feat. ASYN) [Gai Barone Dub] score:0.000 confidence:1
+[Shazam] frame:37044000 artist:Ranj Kaler title:Last Sunset (feat. ASYN) [Gai Barone Dub] score:0.000 confidence:1
+[Shazam] frame:37573200 artist:Ranj Kaler title:Last Sunset (feat. ASYN) [Gai Barone Dub] score:0.000 confidence:1
+[Shazam] frame:38102400 artist:Paul Kardos title:Clamorous Space score:0.000 confidence:1
+[Shazam] frame:38631600 artist:Ranj Kaler title:Last Sunset (feat. ASYN) [Gai Barone Dub] score:0.000 confidence:1
+[Shazam] frame:39160800 artist:Ranj Kaler title:Last Sunset (feat. ASYN) [Gai Barone Dub] score:0.000 confidence:1
+[Shazam] frame:39690000 artist:Alex Stein title:Rise score:0.000 confidence:1
+[Shazam] frame:40219200 artist:Paperclip People title:Throw (Slam's RTM Remix) score:0.000 confidence:1
+[Shazam] frame:40748400 artist:Ranj Kaler title:Last Sunset (feat. ASYN) [Gai Barone Dub] score:0.000 confidence:1
+[Shazam] frame:41277600 artist:Gareth Stirling title:Wallop score:0.000 confidence:1
+[Shazam] frame:41806800 artist:Ranj Kaler title:Last Sunset (feat. ASYN) [Gai Barone Dub] score:0.000 confidence:1
+[Shazam] frame:42336000 artist:Fabio Orru title:I'm Nothing (Ivanshee Remix) score:0.000 confidence:1
+[Shazam] frame:42865200 artist:Marcapasos title:Blow Job (Club Mix) score:0.000 confidence:1
+[Shazam] frame:43394400 artist:Shouse title:Love Tonight score:0.000 confidence:1
+[Shazam] frame:43923600 artist:Macromism title:The Walk score:0.000 confidence:1
+[Shazam] frame:44452800 artist:Shouse title:Love Tonight score:0.000 confidence:1
+[Shazam] frame:44982000 artist:Shouse title:Love Tonight score:0.000 confidence:1
+[Shazam] frame:45511200 artist:Shouse title:Love Tonight score:0.000 confidence:1
+[Shazam] frame:46040400 artist:Julio Navas & David Amo title:Thank U score:0.000 confidence:1
+[Shazam] frame:46569600 artist:Shouse title:Love Tonight score:0.000 confidence:1
+[Shazam] frame:47098800 artist:Shouse title:Love Tonight score:0.000 confidence:1
+[Shazam] frame:47628000 artist:Shouse title:Love Tonight score:0.000 confidence:1
+[Shazam] frame:48157200 artist:Alvaro Albarran title:Tubah - Single score:0.000 confidence:1
+[Shazam] frame:48686400 artist:Shouse title:Love Tonight score:0.000 confidence:1
+[Shazam] frame:49215600 artist:Alex O'Rion title:Echium score:0.000 confidence:1
+[Shazam] frame:49744800 artist:Alex O'Rion title:Echium score:0.000 confidence:1
+[Shazam] frame:50274000 artist:Alex O'Rion title:Echium score:0.000 confidence:1
+[Shazam] frame:50803200 artist:Alex O'Rion title:Echium score:0.000 confidence:1
+[Shazam] frame:51332400 artist:Alex O'Rion title:Echium score:0.000 confidence:1
+[Shazam] frame:51861600 artist:John T. Garrison title:Cruising score:0.000 confidence:1
+[Shazam] frame:52390800 artist:Alex O'Rion title:Echium score:0.000 confidence:1
+[Shazam] frame:52920000 artist:Makebo & Volen Sentir title:Alchemist score:0.000 confidence:1
+[Shazam] frame:53449200 artist:Shouse title:Love Tonight score:0.000 confidence:1
+[Shazam] frame:53978400 artist:Makebo & Volen Sentir title:Alchemist score:0.000 confidence:1
+[Shazam] frame:54507600 artist:Shouse title:Love Tonight score:0.000 confidence:1
+[Shazam] frame:55036800 artist:Shouse title:Love Tonight score:0.000 confidence:1
+[Shazam] frame:55566000 artist:Shouse title:Love Tonight score:0.000 confidence:1
+[Shazam] frame:56095200 artist:Shouse title:Love Tonight score:0.000 confidence:1
+[Shazam] frame:56624400 artist:Shouse title:Love Tonight score:0.000 confidence:1
+[Shazam] frame:57153600 artist:Bob Sinclar & Raffaella Carrà title:Far l'amore score:0.000 confidence:1
+[Shazam] frame:57682800 artist:Claptone title:No Eyes (feat. JAW) score:0.000 confidence:1
+[Shazam] frame:58212000 artist:Monolink title:Return to Oz (ARTBAT Remix) score:0.000 confidence:1
+[Shazam] frame:58741200 artist:Shouse title:Love Tonight score:0.000 confidence:1
+[Shazam] frame:59270400 artist:DJ Gregory & Gregor Salto title:Canoa score:0.000 confidence:1
+[Shazam] frame:59799600 artist:Masters At Work title:To Be in Love (MAW '99 Mix) [feat. India] score:0.000 confidence:1
+[Shazam] frame:60328800 artist:Alok & DENNIS title:Mimosa (Now And Forever) [feat. Nyasia] score:0.000 confidence:1
+[Shazam] frame:60858000 artist:Gusto title:Disco's Revenge (Mole Hole Dirty Mix) score:0.000 confidence:1
+[Shazam] frame:61387200 artist:Shouse title:Love Tonight score:0.000 confidence:1
+[Shazam] frame:61916400 artist:Masters At Work title:To Be in Love (MAW '99 Mix) [feat. India] score:0.000 confidence:1
+[Shazam] frame:62445600 artist:Ninetoes title:Finder score:0.000 confidence:1
+[Shazam] frame:62974800 artist:Dennis Ferrer title:Hey Hey (Riva Starr Paradise Garage Remix) score:0.000 confidence:1
+[Shazam] frame:63504000 artist:Mark Knight & René Amesz title:All 4 Love (feat. Tasty Lopez) score:0.000 confidence:1
+[Shazam] frame:64033200 artist:Desta Cullen title:Dream score:0.000 confidence:1
+[Shazam] frame:64562400 artist:Township Rebellion title:Ramses score:0.000 confidence:1
+[Shazam] frame:65091600 artist:Faithless title:Insomnia score:0.000 confidence:1
+[Shazam] frame:65620800 artist:Andy Compton title:That Acid Track score:0.000 confidence:1
+[Shazam] frame:66150000 artist:Milk & Sugar & Vaya Con Dios title:Hey (Nah Neh Nah) [Milk & Sugar Club Mix] score:0.000 confidence:1
+[Shazam] frame:66679200 artist:Tobias Schulz title:Ah Johnny score:0.000 confidence:1
+[Shazam] frame:67208400 artist:Downliners Sekt title:Balt Shakt I score:0.000 confidence:1
+[Shazam] frame:67737600 artist:Downliners Sekt title:Balt Shakt I score:0.000 confidence:1
+[Shazam] frame:68266800 artist:Luigi Tozzi title:Epica Del Ritorno (Digital Bonus) score:0.000 confidence:1
+[Shazam] frame:68796000 artist:Downliners Sekt title:Balt Shakt I score:0.000 confidence:1
+[Shazam] frame:69325200 artist:Downliners Sekt title:Balt Shakt I score:0.000 confidence:1
+[Shazam] frame:69854400 artist:Downliners Sekt title:Balt Shakt I score:0.000 confidence:1
+[Shazam] frame:70383600 artist:Downliners Sekt title:Balt Shakt I score:0.000 confidence:1
+[Shazam] frame:70912800 artist:Downliners Sekt title:Balt Shakt I score:0.000 confidence:1
+[Shazam] frame:71442000 artist:Downliners Sekt title:Balt Shakt I score:0.000 confidence:1
+[Shazam] frame:71971200 artist:Downliners Sekt title:Balt Shakt I score:0.000 confidence:1
+[Shazam] frame:72500400 artist:Downliners Sekt title:Balt Shakt I score:0.000 confidence:1
+[Shazam] frame:73029600 artist:Nematic title:Tinctura score:0.000 confidence:1
+[Shazam] frame:73558800 artist:Peter Van Hoesen title:Swerve Damiao score:0.000 confidence:1
+[Shazam] frame:74088000 artist:Peter Van Hoesen title:Swerve Damiao score:0.000 confidence:1
+[Shazam] frame:74617200 artist:Downliners Sekt title:Balt Shakt I score:0.000 confidence:1
+[Shazam] frame:75146400 artist:Peter Van Hoesen title:Swerve Damiao score:0.000 confidence:1
+[Shazam] frame:75675600 artist:Peter Van Hoesen title:Swerve Damiao score:0.000 confidence:1
+[Shazam] frame:76204800 artist:Peter Van Hoesen title:Swerve Damiao score:0.000 confidence:1
+[Shazam] frame:76734000 artist:Peter Van Hoesen title:Swerve Damiao score:0.000 confidence:1
+[Shazam] frame:77263200 artist:Peter Van Hoesen title:Swerve Damiao score:0.000 confidence:1
+[Shazam] frame:77792400 artist:Peter Van Hoesen title:Swerve Damiao score:0.000 confidence:1
+[Shazam] frame:78321600 artist:Peter Van Hoesen title:Swerve Damiao score:0.000 confidence:1
+[Shazam] frame:78850800 artist:Peter Van Hoesen title:Swerve Damiao score:0.000 confidence:1
+[Shazam] frame:79380000 artist:Peter Van Hoesen title:Swerve Damiao score:0.000 confidence:1
+[Shazam] frame:79909200 artist:Peter Van Hoesen title:Swerve Damiao score:0.000 confidence:1
+[Shazam] frame:80438400 artist:Peter Van Hoesen title:Swerve Damiao score:0.000 confidence:1
+[Shazam] frame:80967600 artist:Peter Van Hoesen title:Swerve Damiao score:0.000 confidence:1
+[Shazam] frame:81496800 artist:Peter Van Hoesen title:Swerve Damiao score:0.000 confidence:1
+[Shazam] frame:82026000 artist:Peter Van Hoesen title:Swerve Damiao score:0.000 confidence:1
+[Shazam] frame:82555200 artist:Peter Van Hoesen title:Swerve Damiao score:0.000 confidence:1
+[Shazam] frame:83084400 artist:Peter Van Hoesen title:Swerve Damiao score:0.000 confidence:1
+[Shazam] frame:83613600 artist:Peter Van Hoesen title:Swerve Damiao score:0.000 confidence:1
+[Shazam] frame:84142800 artist:Peter Van Hoesen title:Swerve Damiao score:0.000 confidence:1
+[Shazam] frame:84672000 artist:Peter Van Hoesen title:Swerve Damiao score:0.000 confidence:1
+[Shazam] frame:85201200 artist:Peter Van Hoesen title:Swerve Damiao score:0.000 confidence:1
+[Shazam] frame:85730400 artist:Peter Van Hoesen title:Swerve Damiao score:0.000 confidence:1
+[Shazam] frame:86259600 artist:Dj Akira Prophets Tribe title:Why Listen Music (Paul Hamilton Rmx) score:0.000 confidence:1
+[Shazam] frame:86788800 artist:Peter Van Hoesen title:Swerve Damiao score:0.000 confidence:1
+[Shazam] frame:87318000 artist:Not Dead Yet title:Night Horn (Paul Hamilton Remix) score:0.000 confidence:1
+[Shazam] frame:87847200 artist:Dj Akira Prophets Tribe title:Why Listen Music (Paul Hamilton Rmx) score:0.000 confidence:1
+[Shazam] frame:88376400 artist:Not Dead Yet title:Night Horn (Paul Hamilton Remix) score:0.000 confidence:1
+[Shazam] frame:88905600 artist:Dj Akira Prophets Tribe title:Why Listen Music (Paul Hamilton Rmx) score:0.000 confidence:1
+[Shazam] frame:89434800 artist:Not Dead Yet title:Night Horn (Paul Hamilton Remix) score:0.000 confidence:1
+[Shazam] frame:89964000 artist:South Bloom title:Let Me in (Volen Sentir Secret Technique) score:0.000 confidence:1
+[Shazam] frame:90493200 artist:Dj Akira Prophets Tribe title:Why Listen Music (Paul Hamilton Rmx) score:0.000 confidence:1
+[Shazam] frame:91022400 artist:Not Dead Yet title:Night Horn (Paul Hamilton Remix) score:0.000 confidence:1
+[Shazam] frame:91551600 artist:Not Dead Yet title:Night Horn (Paul Hamilton Remix) score:0.000 confidence:1
+[Shazam] frame:92080800 artist:Dj Akira Prophets Tribe title:Why Listen Music (Paul Hamilton Rmx) score:0.000 confidence:1
+[Shazam] frame:92610000 artist:Dj Akira Prophets Tribe title:Why Listen Music (Paul Hamilton Rmx) score:0.000 confidence:1
+[Shazam] frame:93139200 artist:Dj Akira Prophets Tribe title:Why Listen Music (Paul Hamilton Rmx) score:0.000 confidence:1
+[Shazam] frame:93668400 artist:Dj Akira Prophets Tribe title:Why Listen Music (Paul Hamilton Rmx) score:0.000 confidence:1
+[Shazam] frame:94197600 artist:Dj Akira Prophets Tribe title:Why Listen Music (Paul Hamilton Rmx) score:0.000 confidence:1
+[Shazam] frame:94726800 artist:Dj Akira Prophets Tribe title:Why Listen Music (Paul Hamilton Rmx) score:0.000 confidence:1
+[Shazam] frame:95256000 artist:Dj Akira Prophets Tribe title:Why Listen Music (Paul Hamilton Rmx) score:0.000 confidence:1
+[Shazam] frame:95785200 artist:Stilz title:Don't Look Back (Volkor X Remix) score:0.000 confidence:1
+[Shazam] frame:96314400 artist:Peter Van Hoesen title:Swerve Damiao score:0.000 confidence:1
+[Shazam] frame:96843600 artist:Dj Akira Prophets Tribe title:Why Listen Music (Paul Hamilton Rmx) score:0.000 confidence:1
+[Shazam] frame:97372800 artist:Dj Akira Prophets Tribe title:Why Listen Music (Paul Hamilton Rmx) score:0.000 confidence:1
+[Shazam] frame:97902000 artist:Zo title:We Are On the Move (Joey Negro Revival Mix) [feat. Erro & Phonte] score:0.000 confidence:1
+[Shazam] frame:98431200 artist:Dj Akira Prophets Tribe title:Why Listen Music (Paul Hamilton Rmx) score:0.000 confidence:1
+[Shazam] frame:98960400 artist:Not Dead Yet title:Night Horn (Paul Hamilton Remix) score:0.000 confidence:1
+[Shazam] frame:99489600 artist:Not Dead Yet title:Night Horn (Paul Hamilton Remix) score:0.000 confidence:1
+[Shazam] frame:100018800 artist:Not Dead Yet title:Night Horn (Paul Hamilton Remix) score:0.000 confidence:1
+[Shazam] frame:100548000 artist:Lello B. title:L.O.V.E (Lello B Remix) score:0.000 confidence:1
+[Shazam] frame:101077200 artist:Not Dead Yet title:Night Horn (Paul Hamilton Remix) score:0.000 confidence:1
+[Shazam] frame:101606400 artist:Zo title:We Are On the Move (Joey Negro Revival Mix) [feat. Erro & Phonte] score:0.000 confidence:1
+[Shazam] frame:102135600 artist:Vlada Asanin & Joe Red title:Losing You score:0.000 confidence:1
+[Shazam] frame:102664800 artist:Not Dead Yet title:Night Horn (Paul Hamilton Remix) score:0.000 confidence:1
+[Shazam] frame:103194000 artist:Guille Placencia & George Privatti title:What a Bam score:0.000 confidence:1
+[Shazam] frame:103723200 artist:Dj Akira Prophets Tribe title:Why Listen Music (Paul Hamilton Rmx) score:0.000 confidence:1
+[Shazam] frame:104252400 artist:Roger Sanchez title:2Gether (Antoine Clamaran Remix) score:0.000 confidence:1
+[Shazam] frame:104781600 artist:Villablanca title:One (More Time RMX) score:0.000 confidence:1
+[Shazam] frame:105310800 artist:Dj Akira Prophets Tribe title:Why Listen Music (Paul Hamilton Rmx) score:0.000 confidence:1
+[Shazam] frame:105840000 artist:Julien Jabre title:Swimming Places (Sebastian Ingrosso Re-Edit) score:0.000 confidence:1
+[Shazam] frame:106369200 artist:Dj Akira Prophets Tribe title:Why Listen Music (Paul Hamilton Rmx) score:0.000 confidence:1
+[Shazam] frame:106898400 artist:Sinan Arsan title:Halycon (Paul Hamilton Rmx) score:0.000 confidence:1
+[Shazam] frame:107427600 artist:Sinan Arsan title:Halycon (Paul Hamilton Rmx) score:0.000 confidence:1
+[Shazam] frame:107956800 artist:Madness Ba title:Anywhere score:0.000 confidence:1
+[Shazam] frame:108486000 artist:Marcos Barrios, Len Mora & Joaquin Postigo title:Tribaile (Len Mora & Joaquin Postigo) score:0.000 confidence:1
+[Shazam] frame:109015200 artist:Daniel Madlung & Johannes Retschke title:Foursday score:0.000 confidence:1
+[Shazam] frame:109544400 artist:Marcos Barrios, Len Mora & Joaquin Postigo title:Tribaile (Len Mora & Joaquin Postigo) score:0.000 confidence:1
+[Shazam] frame:110073600 artist:Dantiez Saunderson title:The Harp (feat. LaRae Starr) [Beckwith Extended Remix] score:0.000 confidence:1
+[Shazam] frame:110602800 artist:Moby title:Natural Blues (Reinier Zonneveld Homage Remix) score:0.000 confidence:1
+[Shazam] frame:111132000 artist:Lost Frequencies title:Are You with Me score:0.000 confidence:1
+[Shazam] frame:111661200 artist:Zo title:We Are On the Move (Joey Negro Revival Mix) [feat. Erro & Phonte] score:0.000 confidence:1
+[Shazam] frame:112190400 artist:Claptone title:No Eyes (feat. JAW) score:0.000 confidence:1
+[Shazam] frame:112719600 artist:Daniel Madlung & Johannes Retschke title:Foursday score:0.000 confidence:1
+[Shazam] frame:113248800 artist:Daniel Madlung & Johannes Retschke title:Foursday score:0.000 confidence:1
+[Shazam] frame:113778000 artist:Marcos Barrios, Len Mora & Joaquin Postigo title:Tribaile (Len Mora & Joaquin Postigo) score:0.000 confidence:1
+[Shazam] frame:114307200 artist:Minilogue title:Blessed score:0.000 confidence:1
+[Shazam] frame:114836400 artist:South Bloom title:Let Me in (Volen Sentir Secret Technique) score:0.000 confidence:1
+[Shazam] frame:115365600 artist:Minilogue title:Blessed score:0.000 confidence:1
+[Shazam] frame:115894800 artist:Minilogue title:Blessed score:0.000 confidence:1
+[Shazam] frame:116424000 artist:Black Hawks of Panama title:Wrapped score:0.000 confidence:1
+[Shazam] frame:116953200 artist:Minilogue title:Blessed score:0.000 confidence:1
+[Shazam] frame:117482400 artist:Vintage Culture & Rooftime title:I Will Find (Extended Mix) score:0.000 confidence:1
+[Shazam] frame:118011600 artist:Minilogue title:Blessed score:0.000 confidence:1
+[Shazam] frame:118540800 artist:Minilogue title:Blessed score:0.000 confidence:1
+[Shazam] frame:119070000 artist:Minilogue title:Blessed score:0.000 confidence:1
+[Shazam] frame:119599200 artist:Minilogue title:Blessed score:0.000 confidence:1
+[Shazam] frame:120128400 artist:Minilogue title:Blessed score:0.000 confidence:1
+[Shazam] frame:120657600 artist:Minilogue title:Blessed score:0.000 confidence:1
+[Shazam] frame:121186800 artist:Minilogue title:Blessed score:0.000 confidence:1
+[Shazam] frame:121716000 artist:Minilogue title:Blessed score:0.000 confidence:1
+[Shazam] frame:122245200 artist:Minemice title:Identifier score:0.000 confidence:1
+[Shazam] frame:122774400 artist:Minilogue title:Blessed score:0.000 confidence:1
+[Shazam] frame:123303600 artist:Giovanny Aparicio title:Yura score:0.000 confidence:1
+[Shazam] frame:123832800 artist:Minilogue title:Blessed score:0.000 confidence:1
+[Shazam] frame:124362000 artist:Minilogue title:Blessed score:0.000 confidence:1
+[Shazam] frame:124891200 artist:Minilogue title:Blessed score:0.000 confidence:1
+[Shazam] frame:125420400 artist:Minilogue title:Blessed score:0.000 confidence:1
+[Shazam] frame:125949600 artist:Minilogue title:Blessed score:0.000 confidence:1
+[Shazam] frame:126478800 artist:4Tune500 title:Dancing In the Dark (Mixed) score:0.000 confidence:1
+[Shazam] frame:127008000 artist:DJ Tonka title:She Knows You (Club Version) score:0.000 confidence:1
+[Shazam] frame:127537200 artist:Rad&Co title:Unspoken Thoughts score:0.000 confidence:1
+[Shazam] frame:128066400 artist:Marcos Barrios, Len Mora & Joaquin Postigo title:Tribaile (Len Mora & Joaquin Postigo) score:0.000 confidence:1
+[Shazam] frame:128595600 artist:AVAION, PaulWetz & Nu Aspect title:Sleepless (feat. Yuma.) score:0.000 confidence:1
+[Shazam] frame:129124800 artist:Tim Green title:Minds score:0.000 confidence:1
+[Shazam] frame:129654000 artist:Dj Afonso de Vic title:Shake It score:0.000 confidence:1
+[Shazam] frame:130183200 artist:Tim Green title:Minds score:0.000 confidence:1
+[Shazam] frame:130712400 artist:Starsailor title:Four To the Floor (Thin White Duke Mix) score:0.000 confidence:1
+[Shazam] frame:131241600 artist:Minilogue title:Blessed score:0.000 confidence:1
+[Shazam] frame:131770800 artist:Dactilar title:Los Ojancanos score:0.000 confidence:1
+[Shazam] frame:132300000 artist:Dactilar title:Los Ojancanos score:0.000 confidence:1
+[Shazam] frame:132829200 artist:Christian Smith title:Traction (Paride Saraceni Remix) score:0.000 confidence:1
+[Shazam] frame:133358400 artist:Lfproductions title:One More Time (Sublime Mix) score:0.000 confidence:1
+[Shazam] frame:133887600 artist:Dactilar title:Los Ojancanos score:0.000 confidence:1
+[Shazam] frame:134416800 artist:Dactilar title:Los Ojancanos score:0.000 confidence:1
+[Shazam] frame:134946000 artist:Dactilar title:Los Ojancanos score:0.000 confidence:1
+[Shazam] frame:135475200 artist:Dactilar title:Los Ojancanos score:0.000 confidence:1
+[Shazam] frame:136004400 artist:Dactilar title:Los Ojancanos score:0.000 confidence:1
+[Shazam] frame:136533600 artist:Gangbangers title:Looking at the Sky score:0.000 confidence:1
+[Shazam] frame:137062800 artist:Gangbangers title:Looking at the Sky score:0.000 confidence:1
+[Shazam] frame:137592000 artist:Dactilar title:Los Ojancanos score:0.000 confidence:1
+[Shazam] frame:138121200 artist:Dactilar title:Los Ojancanos score:0.000 confidence:1
+[Shazam] frame:138650400 artist:Dactilar title:Los Ojancanos score:0.000 confidence:1
+[Shazam] frame:139179600 artist:Dactilar title:Los Ojancanos score:0.000 confidence:1
+[Shazam] frame:139708800 artist:Dactilar title:Los Ojancanos score:0.000 confidence:1
+[Shazam] frame:140238000 artist:Dactilar title:Los Ojancanos score:0.000 confidence:1
+[Shazam] frame:140767200 artist:Öwnboss & SEVEK title:Move Your Body (Mednas Remix) score:0.000 confidence:1
+[Shazam] frame:141296400 artist:Davide Mazzilli title:Disco (Club Mix) score:0.000 confidence:1
+[Shazam] frame:141825600 artist:Cappo & Mondragon title:Outlaw score:0.000 confidence:1
+[Shazam] frame:142354800 artist:Dactilar title:Los Ojancanos score:0.000 confidence:1
+[Shazam] frame:142884000 artist: title:unknown score:0.000 confidence:(null)
+[Shazam] frame:143413200 artist:Subconscious Tales title:Why score:0.000 confidence:1
+[Shazam] frame:143942400 artist:Subconscious Tales title:Why score:0.000 confidence:1
+[Shazam] frame:144471600 artist:Subconscious Tales title:Why score:0.000 confidence:1
+[Shazam] frame:145000800 artist:Subconscious Tales title:Why score:0.000 confidence:1
+[Shazam] frame:145530000 artist:Subconscious Tales title:Why score:0.000 confidence:1
+[Shazam] frame:146059200 artist:Subconscious Tales title:Why score:0.000 confidence:1
+[Shazam] frame:146588400 artist:Subconscious Tales title:Why score:0.000 confidence:1
+[Shazam] frame:147117600 artist:Subconscious Tales title:Why score:0.000 confidence:1
+[Shazam] frame:147646800 artist:Subconscious Tales title:Why score:0.000 confidence:1
+[Shazam] frame:148176000 artist:Subconscious Tales title:Why score:0.000 confidence:1
+[Shazam] frame:148705200 artist:Subconscious Tales title:Why score:0.000 confidence:1
+[Shazam] frame:149234400 artist:Subconscious Tales title:Why score:0.000 confidence:1
+[Shazam] frame:149763600 artist:Calibre title:Thought Fields score:0.000 confidence:1
+[Shazam] frame:150292800 artist:Calibre title:Thought Fields score:0.000 confidence:1
+[Shazam] frame:150822000 artist:Oxia title:Unity (Up Mix) score:0.000 confidence:1
+[Shazam] frame:151351200 artist:Calibre title:Thought Fields score:0.000 confidence:1
+[Shazam] frame:151880400 artist:Philipp Neubert title:Early in the Morning score:0.000 confidence:1
+[Shazam] frame:152409600 artist:Calibre title:Thought Fields score:0.000 confidence:1
+[Shazam] frame:152938800 artist:Calibre title:Thought Fields score:0.000 confidence:1
+[Shazam] frame:153468000 artist:Calibre title:Thought Fields score:0.000 confidence:1
+[Shazam] frame:153997200 artist:Calibre title:Thought Fields score:0.000 confidence:1
+[Shazam] frame:154526400 artist:Calibre title:Thought Fields score:0.000 confidence:1
+[Shazam] frame:155055600 artist:Calibre title:Thought Fields score:0.000 confidence:1
+[Shazam] frame:155584800 artist:Calibre title:Thought Fields score:0.000 confidence:1
+[Shazam] frame:156114000 artist:Calibre title:Thought Fields score:0.000 confidence:1
+[Shazam] frame:156643200 artist:Calibre title:Thought Fields score:0.000 confidence:1
+[Shazam] frame:157172400 artist:Calibre title:Thought Fields score:0.000 confidence:1
+[Shazam] frame:157701600 artist:Calibre title:Thought Fields score:0.000 confidence:1
+[Shazam] frame:158230800 artist:Calibre title:Thought Fields score:0.000 confidence:1
+[Shazam] frame:158760000 artist:Calibre title:Thought Fields score:0.000 confidence:1
+[Shazam] frame:159289200 artist:Calibre title:Thought Fields score:0.000 confidence:1
+[Shazam] frame:159818400 artist:Calibre title:Thought Fields score:0.000 confidence:1
+[Shazam] frame:160347600 artist:Calibre title:Thought Fields score:0.000 confidence:1
+[Shazam] frame:160876800 artist:Calibre title:Thought Fields score:0.000 confidence:1
+[Shazam] frame:161406000 artist:Guy Gerber title:Jupiter Blues score:0.000 confidence:1
+[Shazam] frame:161935200 artist:Guy Gerber title:Jupiter Blues score:0.000 confidence:1
+[Shazam] frame:162464400 artist:Dirty Secretz title:Eternity (Edit) score:0.000 confidence:1
+[Shazam] frame:162993600 artist:Dirty Secretz title:Eternity (Edit) score:0.000 confidence:1
+[Shazam] frame:163522800 artist:Guy Gerber title:Jupiter Blues score:0.000 confidence:1
+[Shazam] frame:164052000 artist:Sounom & Sagou title:Everyday Moments (Kamilo Sanclemente Remix) score:0.000 confidence:1
+[Shazam] frame:164581200 artist:Diplo & SIDEPIECE title:On My Mind score:0.000 confidence:1
+[Shazam] frame:165110400 artist:Sounom & Sagou title:Everyday Moments (Kamilo Sanclemente Remix) score:0.000 confidence:1
+[Shazam] frame:165639600 artist:Chymera title:Episode score:0.000 confidence:1
+[Shazam] frame:166168800 artist:Dave Storm title:Happy Endz (Deep Inc Remix) score:0.000 confidence:1
+[Shazam] frame:166698000 artist:Munir Amastha title:Can You Feel the Night (One Opinion Remix) [feat. Sauli Harper] score:0.000 confidence:1
+[Shazam] frame:167227200 artist:Guy Gerber title:Jupiter Blues score:0.000 confidence:1
+[Shazam] frame:167756400 artist:Guy Gerber title:Jupiter Blues score:0.000 confidence:1
+[Shazam] frame:168285600 artist:Esoteric Circle title:Resilience score:0.000 confidence:1
+[Shazam] frame:168814800 artist:Guy Gerber title:Jupiter Blues score:0.000 confidence:1
+[Shazam] frame:169344000 artist:Guy Gerber title:Jupiter Blues score:0.000 confidence:1
+[Shazam] frame:169873200 artist:Guy Gerber title:Jupiter Blues score:0.000 confidence:1
+[Shazam] frame:170402400 artist:Guy Gerber title:Jupiter Blues score:0.000 confidence:1
+[Shazam] frame:170931600 artist:Guy Gerber title:Jupiter Blues score:0.000 confidence:1
+[Shazam] frame:171460800 artist:Guy Gerber title:Jupiter Blues score:0.000 confidence:1
+[Shazam] frame:171990000 artist:Guy Gerber title:Jupiter Blues score:0.000 confidence:1
+[Shazam] frame:172519200 artist:Guy Gerber title:Jupiter Blues score:0.000 confidence:1
+[Shazam] frame:173048400 artist:Munir Amastha title:Can You Feel the Night (One Opinion Remix) [feat. Sauli Harper] score:0.000 confidence:1
+[Shazam] frame:173577600 artist:Guy Gerber title:Jupiter Blues score:0.000 confidence:1
+[Shazam] frame:174106800 artist:Guy Gerber title:Jupiter Blues score:0.000 confidence:1
+[Shazam] frame:174636000 artist:Munir Amastha title:Can You Feel the Night (One Opinion Remix) [feat. Sauli Harper] score:0.000 confidence:1
+[Shazam] frame:175165200 artist:Guy Gerber title:Jupiter Blues score:0.000 confidence:1
+[Shazam] frame:175694400 artist:Sam Paganini title:Rave score:0.000 confidence:1
+[Shazam] frame:176223600 artist:Sam Paganini title:Rave score:0.000 confidence:1
+[Shazam] frame:176752800 artist:Sam Paganini title:Rave score:0.000 confidence:1
+[Shazam] frame:177282000 artist:Paperclip People title:Throw (Slam's RTM Remix) score:0.000 confidence:1
+[Shazam] frame:177811200 artist:Sam Paganini title:Rave score:0.000 confidence:1
+[Shazam] frame:178340400 artist:Guy Gerber title:Jupiter Blues score:0.000 confidence:1
+[Shazam] frame:178869600 artist:Sam Paganini title:Rave score:0.000 confidence:1
+[Shazam] frame:179398800 artist:Jean-Michel Jarre title:EPICA score:0.000 confidence:1
+[Shazam] frame:179928000 artist:Todd Terry title:Jumpin Original score:0.000 confidence:1
+[Shazam] frame:180457200 artist:Marc Marzenit title:Perron (Wehbba Remix) score:0.000 confidence:1
+[Shazam] frame:180986400 artist:Tinlicker & Helsloot title:Because You Move Me score:0.000 confidence:1
+[Shazam] frame:181515600 artist:Julien Jabre title:War (Eltonnick Remix) [Mixed] score:0.000 confidence:1
+[Shazam] frame:182044800 artist:Sam Paganini title:Rave score:0.000 confidence:1
+[Shazam] frame:182574000 artist:Galcher Lustwerk title:Liberty, Oh! score:0.000 confidence:1
+[Shazam] frame:183103200 artist:Guy Gerber title:Jupiter Blues score:0.000 confidence:1
+[Shazam] frame:183632400 artist:Galcher Lustwerk title:Liberty, Oh! score:0.000 confidence:1
+[Shazam] frame:184161600 artist:Galcher Lustwerk title:Liberty, Oh! score:0.000 confidence:1
+[Shazam] frame:184690800 artist:Galcher Lustwerk title:Liberty, Oh! score:0.000 confidence:1
+[Shazam] frame:185220000 artist:Jens Zimmermann title:X11 score:0.000 confidence:1
+[Shazam] frame:185749200 artist:Jens Zimmermann title:X11 score:0.000 confidence:1
+[Shazam] frame:186278400 artist:Sebástian Bianco Ariza title:Despertar score:0.000 confidence:1
+[Shazam] frame:186807600 artist:Spektre title:Against a Dark Background score:0.000 confidence:1
+[Shazam] frame:187336800 artist:Galcher Lustwerk title:Liberty, Oh! score:0.000 confidence:1
+[Shazam] frame:187866000 artist:Galcher Lustwerk title:Liberty, Oh! score:0.000 confidence:1
+[Shazam] frame:188395200 artist:Jens Zimmermann title:X11 score:0.000 confidence:1
+[Shazam] frame:188924400 artist:Jens Zimmermann title:X11 score:0.000 confidence:1
+[Shazam] frame:189453600 artist:Galcher Lustwerk title:Liberty, Oh! score:0.000 confidence:1
+[Shazam] frame:189982800 artist:Galcher Lustwerk title:Liberty, Oh! score:0.000 confidence:1
+[Shazam] frame:190512000 artist:Jens Zimmermann title:X11 score:0.000 confidence:1
+[Shazam] frame:191041200 artist: title:unknown score:0.000 confidence:(null)
+[Shazam] frame:191570400 artist:Joachim Spieth title:Trails score:0.000 confidence:1
+[Shazam] frame:192099600 artist:Joachim Spieth title:Trails score:0.000 confidence:1
+[Shazam] frame:192628800 artist:Joachim Spieth title:Trails score:0.000 confidence:1
+[Shazam] frame:193158000 artist:Joachim Spieth title:Trails score:0.000 confidence:1
+[Shazam] frame:193687200 artist:Joachim Spieth title:Trails score:0.000 confidence:1
+[Shazam] frame:194216400 artist:Joachim Spieth title:Trails score:0.000 confidence:1
+[Shazam] frame:194745600 artist:Wigbert title:Balance score:0.000 confidence:1
+[Shazam] frame:195274800 artist:Joachim Spieth title:Trails score:0.000 confidence:1
+[Shazam] frame:195804000 artist:Joachim Spieth title:Trails score:0.000 confidence:1
+[Shazam] frame:196333200 artist:Joachim Spieth title:Trails score:0.000 confidence:1
+[Shazam] frame:196862400 artist:Sian title:Let Yourself score:0.000 confidence:1
+[Shazam] frame:197391600 artist:Joachim Spieth title:Trails score:0.000 confidence:1
+[Shazam] frame:197920800 artist:Burial title:New Love score:0.000 confidence:1
+[Shazam] frame:198450000 artist:Burial title:New Love score:0.000 confidence:1
+[Shazam] frame:198979200 artist:Burial title:New Love score:0.000 confidence:1
+[Shazam] frame:199508400 artist:Burial title:New Love score:0.000 confidence:1
+[Shazam] frame:200037600 artist:Burial title:New Love score:0.000 confidence:1
+[Shazam] frame:200566800 artist:Burial title:New Love score:0.000 confidence:1
+[Shazam] frame:201096000 artist:Burial title:New Love score:0.000 confidence:1
+[Shazam] frame:201625200 artist:Burial title:New Love score:0.000 confidence:1
+[Shazam] frame:202154400 artist:Sian title:Let Yourself score:0.000 confidence:1
+[Shazam] frame:202683600 artist:Marc Molina title:More Than Physical (Manuel Palmitesta Remix) score:0.000 confidence:1
+[Shazam] frame:203212800 artist:HOSH & 1979 title:Midnight (The Hanging Tree) [feat. Jalja] score:0.000 confidence:1
+[Shazam] frame:203742000 artist:HOSH & 1979 title:Midnight (The Hanging Tree) [feat. Jalja] score:0.000 confidence:1
+[Shazam] frame:204271200 artist:Johannes Volk title:Resist The Storm score:0.000 confidence:1
+[Shazam] frame:204800400 artist:Sian title:Let Yourself score:0.000 confidence:1
+[Shazam] frame:205329600 artist:Ion Ludwig title:Classilion score:0.000 confidence:1
+[Shazam] frame:205858800 artist:Sian title:Let Yourself score:0.000 confidence:1
+[Shazam] frame:206388000 artist:Troy Parrish title:I Wanna Be Free (Original Factory Mix) score:0.000 confidence:1
+[Shazam] frame:206917200 artist:Ion Ludwig title:Classilion score:0.000 confidence:1
+[Shazam] frame:207446400 artist:Ion Ludwig title:Classilion score:0.000 confidence:1
+[Shazam] frame:207975600 artist:Bohdan title:Tungsten (Deepbass Remix) score:0.000 confidence:1
+[Shazam] frame:208504800 artist:Bohdan title:Tungsten (Deepbass Remix) score:0.000 confidence:1
+[Shazam] frame:209034000 artist:Bohdan title:Tungsten (Deepbass Remix) score:0.000 confidence:1
+[Shazam] frame:209563200 artist:Bohdan title:Tungsten (Deepbass Remix) score:0.000 confidence:1
+[Shazam] frame:210092400 artist:Bohdan title:Tungsten (Deepbass Remix) score:0.000 confidence:1
+[Shazam] frame:210621600 artist:Bohdan title:Tungsten (Deepbass Remix) score:0.000 confidence:1
+[Shazam] frame:211150800 artist:Bohdan title:Tungsten (Deepbass Remix) score:0.000 confidence:1
+[Shazam] frame:211680000 artist:Bohdan title:Tungsten (Deepbass Remix) score:0.000 confidence:1
+[Shazam] frame:212209200 artist:Bohdan title:Tungsten (Deepbass Remix) score:0.000 confidence:1
+[Shazam] frame:212738400 artist:Bohdan title:Tungsten (Deepbass Remix) score:0.000 confidence:1
+[Shazam] frame:213267600 artist:Bohdan title:Tungsten (Deepbass Remix) score:0.000 confidence:1
+[Shazam] frame:213796800 artist:Bohdan title:Tungsten (Deepbass Remix) score:0.000 confidence:1
+[Shazam] frame:214326000 artist:Bohdan title:Tungsten (Deepbass Remix) score:0.000 confidence:1
+[Shazam] frame:214855200 artist:Bohdan title:Tungsten (Deepbass Remix) score:0.000 confidence:1
+[Shazam] frame:215384400 artist:Bohdan title:Tungsten (Deepbass Remix) score:0.000 confidence:1
+[Shazam] frame:215913600 artist:Bohdan title:Tungsten (Deepbass Remix) score:0.000 confidence:1
+[Shazam] frame:216442800 artist:Ben Samuel title:Toscana score:0.000 confidence:1
+[Shazam] frame:216972000 artist:Marc Molina title:More Than Physical (Manuel Palmitesta Remix) score:0.000 confidence:1
+[Shazam] frame:217501200 artist:HOSH & 1979 title:Midnight (The Hanging Tree) [feat. Jalja] score:0.000 confidence:1
+[Shazam] frame:218030400 artist:Maae title:Descartes score:0.000 confidence:1
+[Shazam] frame:218559600 artist:Biscits title:Wait A Minute score:0.000 confidence:1
+[Shazam] frame:219088800 artist:Lorenzo Silvano title:Undertrack score:0.000 confidence:1
+[Shazam] frame:219618000 artist:Marc Molina title:More Than Physical (Manuel Palmitesta Remix) score:0.000 confidence:1
+[Shazam] frame:220147200 artist:Marc Molina title:More Than Physical (Manuel Palmitesta Remix) score:0.000 confidence:1
+[Shazam] frame:220676400 artist:Marc Molina title:More Than Physical (Manuel Palmitesta Remix) score:0.000 confidence:1
+[Shazam] frame:221205600 artist:Marc Molina title:More Than Physical (Manuel Palmitesta Remix) score:0.000 confidence:1
+[Shazam] frame:221734800 artist:Wigbert title:Balance score:0.000 confidence:1
+[Shazam] frame:222264000 artist:Patrice Bäumel title:The Cave score:0.000 confidence:1
+[Shazam] frame:222793200 artist:Patrice Bäumel title:The Cave score:0.000 confidence:1
+[Shazam] frame:223322400 artist:Blake Jarrell & Jeff Varisco title:Almonaster (Bass Stem) score:0.000 confidence:1
+[Shazam] frame:223851600 artist:Patrice Bäumel title:The Cave score:0.000 confidence:1
+[Shazam] frame:224380800 artist:Patrice Bäumel title:The Cave score:0.000 confidence:1
+[Shazam] frame:224910000 artist:Patrice Bäumel title:The Cave score:0.000 confidence:1
+[Shazam] frame:225439200 artist:Patrice Bäumel title:The Cave score:0.000 confidence:1
+[Shazam] frame:225968400 artist:Patrice Bäumel title:The Cave score:0.000 confidence:1
+[Shazam] frame:226497600 artist:Patrice Bäumel title:The Cave score:0.000 confidence:1
+[Shazam] frame:227026800 artist:Patrice Bäumel title:The Cave score:0.000 confidence:1
+[Shazam] frame:227556000 artist:Marc Molina title:More Than Physical (Manuel Palmitesta Remix) score:0.000 confidence:1
+[Shazam] frame:228085200 artist:Marc Molina title:More Than Physical (Manuel Palmitesta Remix) score:0.000 confidence:1
+[Shazam] frame:228614400 artist:Wigbert title:Balance score:0.000 confidence:1
+[Shazam] frame:229143600 artist:Marc Molina title:More Than Physical (Manuel Palmitesta Remix) score:0.000 confidence:1
+[Shazam] frame:229672800 artist:Marc Molina title:More Than Physical (Manuel Palmitesta Remix) score:0.000 confidence:1
+[Shazam] frame:230202000 artist:Maae title:Descartes score:0.000 confidence:1
+[Shazam] frame:230731200 artist:Avicii title:Hey Brother (Syn Cole Remix) score:0.000 confidence:1
+[Shazam] frame:231260400 artist:Marc Molina title:More Than Physical (Manuel Palmitesta Remix) score:0.000 confidence:1
+[Shazam] frame:231789600 artist:The Shapeshifters title:Lola's Theme score:0.000 confidence:1
+[Shazam] frame:232318800 artist:Marc Molina title:More Than Physical (Manuel Palmitesta Remix) score:0.000 confidence:1
+[Shazam] frame:232848000 artist:Oxia title:Domino score:0.000 confidence:1
+[Shazam] frame:233377200 artist:Joey Negro & The Sunburst Band title:Journey To The Sun (Dennis Ferrer Remix) score:0.000 confidence:1
+[Shazam] frame:233906400 artist:Marc Molina title:More Than Physical (Manuel Palmitesta Remix) score:0.000 confidence:1
+[Shazam] frame:234435600 artist:Joey Negro & The Sunburst Band title:Journey To The Sun (Dennis Ferrer Remix) score:0.000 confidence:1
+[Shazam] frame:234964800 artist:Veerus title:Phase score:0.000 confidence:1
+[Shazam] frame:235494000 artist:Davide Mazzilli title:Disco (Club Mix) score:0.000 confidence:1
+[Shazam] frame:236023200 artist:Marc Molina title:More Than Physical (Manuel Palmitesta Remix) score:0.000 confidence:1
+[Shazam] frame:236552400 artist:Marc Molina title:More Than Physical (Manuel Palmitesta Remix) score:0.000 confidence:1
+[Shazam] frame:237081600 artist:Marc Molina title:More Than Physical (Manuel Palmitesta Remix) score:0.000 confidence:1
+[Shazam] frame:237610800 artist:Marc Molina title:More Than Physical (Manuel Palmitesta Remix) score:0.000 confidence:1
+[Shazam] frame:238140000 artist:Maae title:Descartes score:0.000 confidence:1
+[Shazam] frame:238669200 artist:Crystal Waters & Richey Profond title:Gypsy Woman (Richey Profond Remix) score:0.000 confidence:1
+[Shazam] frame:239198400 artist:Ness title:In the Meanderings of Shibuya score:0.000 confidence:1
+[Shazam] frame:239727600 artist:Patrice Bäumel title:The Cave score:0.000 confidence:1
+[Shazam] frame:240256800 artist:Ness title:In the Meanderings of Shibuya score:0.000 confidence:1
+[Shazam] frame:240786000 artist:Ness title:In the Meanderings of Shibuya score:0.000 confidence:1
+[Shazam] frame:241315200 artist:Ness title:In the Meanderings of Shibuya score:0.000 confidence:1
+[Shazam] frame:241844400 artist:Ness title:In the Meanderings of Shibuya score:0.000 confidence:1
+[Shazam] frame:242373600 artist:Ness title:In the Meanderings of Shibuya score:0.000 confidence:1
+[Shazam] frame:242902800 artist:Ness title:In the Meanderings of Shibuya score:0.000 confidence:1
+[Shazam] frame:243432000 artist:Ness title:In the Meanderings of Shibuya score:0.000 confidence:1
+[Shazam] frame:243961200 artist:Ness title:In the Meanderings of Shibuya score:0.000 confidence:1
+[Shazam] frame:244490400 artist:Ness title:In the Meanderings of Shibuya score:0.000 confidence:1
+[Shazam] frame:245019600 artist:Ness title:In the Meanderings of Shibuya score:0.000 confidence:1
+[Shazam] frame:245548800 artist:Markus Guentner title:Crystal Castle (Original Mix) score:0.000 confidence:1
+[Shazam] frame:246078000 artist:Markus Guentner title:Crystal Castle (Original Mix) score:0.000 confidence:1
+[Shazam] frame:246607200 artist:Markus Guentner title:Crystal Castle (Original Mix) score:0.000 confidence:1
+[Shazam] frame:247136400 artist:Markus Guentner title:Crystal Castle (Original Mix) score:0.000 confidence:1
+[Shazam] frame:247665600 artist:Markus Guentner title:Crystal Castle (Original Mix) score:0.000 confidence:1
+[Shazam] frame:248194800 artist:Markus Guentner title:Crystal Castle (Original Mix) score:0.000 confidence:1
+[Shazam] frame:248724000 artist:Markus Guentner title:Crystal Castle (Original Mix) score:0.000 confidence:1
+[Shazam] frame:249253200 artist:Markus Guentner title:Crystal Castle (Original Mix) score:0.000 confidence:1
+[Shazam] frame:249782400 artist:Cybordelics title:Adventures of Dama (feat. James Davis) [Bodo Felusch-Gimme a Beat Mix] score:0.000 confidence:1
+[Shazam] frame:250311600 artist:Markus Guentner title:Crystal Castle (Original Mix) score:0.000 confidence:1
+[Shazam] frame:250840800 artist:Smoke Sign title:Come Out & Play (Frost Raven Progressive Trance Remix) score:0.000 confidence:1
+[Shazam] frame:251370000 artist:Elektrodrei title:New World Order score:0.000 confidence:1
+[Shazam] frame:251899200 artist:Cybordelics title:Adventures of Dama (feat. James Davis) [Bodo Felusch-Gimme a Beat Mix] score:0.000 confidence:1
+[Shazam] frame:252428400 artist:Markus Guentner title:Crystal Castle (Original Mix) score:0.000 confidence:1
+[Shazam] frame:252957600 artist:Cybordelics title:Adventures of Dama (feat. James Davis) [Bodo Felusch-Gimme a Beat Mix] score:0.000 confidence:1
+[Shazam] frame:253486800 artist:Aux WoMdantso title:My Take score:0.000 confidence:1
+[Shazam] frame:254016000 artist:Markus Guentner title:Crystal Castle (Original Mix) score:0.000 confidence:1
+[Shazam] frame:254545200 artist:Markus Guentner title:Crystal Castle (Original Mix) score:0.000 confidence:1
+[Shazam] frame:255074400 artist:Plaza Beatz title:Alive (Original Mix) score:0.000 confidence:1
+[Shazam] frame:255603600 artist:Juliane Wolf title:Far Away score:0.000 confidence:1
+[Shazam] frame:256132800 artist:t'Awi title:Humancity score:0.000 confidence:1
+[Shazam] frame:256662000 artist:Markus Guentner title:Crystal Castle (Original Mix) score:0.000 confidence:1
+[Shazam] frame:257191200 artist:Aux WoMdantso title:My Take score:0.000 confidence:1
+[Shazam] frame:257720400 artist:Markus Guentner title:Crystal Castle (Original Mix) score:0.000 confidence:1
+[Shazam] frame:258249600 artist:Markus Guentner title:Crystal Castle (Original Mix) score:0.000 confidence:1
+[Shazam] frame:258778800 artist:Markus Guentner title:Crystal Castle (Original Mix) score:0.000 confidence:1
+[Shazam] frame:259308000 artist:Markus Guentner title:Crystal Castle (Original Mix) score:0.000 confidence:1
+[Shazam] frame:259837200 artist:Markus Guentner title:Crystal Castle (Original Mix) score:0.000 confidence:1
+[Shazam] frame:260366400 artist:Blackbelt Andersen title:Åpenbaring (Original Mix) score:0.000 confidence:1
+[Shazam] frame:260895600 artist:Blackbelt Andersen title:Åpenbaring (Original Mix) score:0.000 confidence:1
+[Shazam] frame:261424800 artist:Wellbeing Research Institute title:Soft Oscillator (How We Sleep) score:0.000 confidence:1
+[Shazam] frame:261954000 artist:Blackbelt Andersen title:Åpenbaring (Original Mix) score:0.000 confidence:1
+[Shazam] frame:262483200 artist:Blackbelt Andersen title:Åpenbaring (Original Mix) score:0.000 confidence:1
+[Shazam] frame:263012400 artist:Blackbelt Andersen title:Åpenbaring (Original Mix) score:0.000 confidence:1
+[Shazam] frame:263541600 artist:Blackbelt Andersen title:Åpenbaring (Original Mix) score:0.000 confidence:1
+[Shazam] frame:264070800 artist:Blackbelt Andersen title:Åpenbaring (Original Mix) score:0.000 confidence:1
+[Shazam] frame:264600000 artist:Blackbelt Andersen title:Åpenbaring (Original Mix) score:0.000 confidence:1
+[Shazam] frame:265129200 artist:Blackbelt Andersen title:Åpenbaring (Original Mix) score:0.000 confidence:1
+[Shazam] frame:265658400 artist:Blackbelt Andersen title:Åpenbaring (Original Mix) score:0.000 confidence:1
+[Shazam] frame:266187600 artist:Blackbelt Andersen title:Åpenbaring (Original Mix) score:0.000 confidence:1
+[Shazam] frame:266716800 artist:Blackbelt Andersen title:Åpenbaring (Original Mix) score:0.000 confidence:1
+[Refine] filter:aggregate in:505
+[Refine] aggregate: keys:138 kept:47 minSupport:2
+[Refine] aggregate: key:yotto seat 11 missing
+[Refine] aggregate: key:jonny calypso - teenager 2k15 count:1 frame:33339600
+[Refine] aggregate: key:ranj kaler - last sunset feat asyn gai barone dub count:19 frame:29635200
+[Refine] aggregate: key:daniel madlung johannes retschke - foursday count:3 frame:109015200
+[Refine] aggregate: key:julio navas david amo - thank u count:4 frame:14817600
+[Refine] aggregate: key:not dead yet - night horn paul hamilton remix count:10 frame:87318000
+[Refine] aggregate: key:andy compton - that acid track count:1 frame:65620800
+[Refine] aggregate: key:claptone - no eyes feat jaw count:2 frame:57682800
+[Refine] aggregate: key:lorenzo silvano - undertrack count:1 frame:219088800
+[Refine] filter:aggregate nilScore:47
+[Refine] filter:aggregate out:47
+[Refine] filter:score in:47
+[ScoreDetail] frame:0 support:6 base:10.798 duration:72.00s durationScore:0.760 ref:yes final:9.243
+[ScoreDetail] frame:2646000 support:19 base:14.000 duration:324.00s durationScore:1.200 ref:yes final:15.680
+[ScoreDetail] frame:14817600 support:3 base:7.928 duration:108.00s durationScore:0.600 ref:yes final:6.025
+[ScoreDetail] frame:20109600 support:15 base:14.000 duration:204.00s durationScore:1.200 ref:yes final:15.680
+[ScoreDetail] frame:20638800 support:2 base:6.657 duration:12.00s durationScore:0.627 ref:yes final:5.166
+[ScoreDetail] frame:29635200 support:19 base:14.000 duration:276.00s durationScore:1.200 ref:yes final:15.680
+[ScoreDetail] frame:43394400 support:16 base:14.000 duration:408.00s durationScore:1.200 ref:yes final:15.680
+[ScoreDetail] frame:49215600 support:6 base:10.798 duration:72.00s durationScore:0.760 ref:yes final:9.243
+[ScoreDetail] frame:52920000 support:2 base:6.657 duration:24.00s durationScore:0.653 ref:yes final:5.272
+[ScoreDetail] frame:59799600 support:2 base:6.657 duration:48.00s durationScore:0.707 ref:yes final:5.485
+[ScoreDetail] frame:67208400 support:11 base:14.000 duration:168.00s durationScore:0.784 ref:yes final:12.186
+[ScoreDetail] frame:73558800 support:25 base:14.000 duration:516.00s durationScore:1.200 ref:yes final:15.680
+[ScoreDetail] frame:86259600 support:17 base:14.000 duration:456.00s durationScore:1.200 ref:yes final:15.680
+[ScoreDetail] frame:87318000 support:10 base:13.649 duration:348.00s durationScore:1.200 ref:yes final:15.287
+[ScoreDetail] frame:97902000 support:3 base:7.928 duration:312.00s durationScore:1.200 ref:yes final:8.880
+[ScoreDetail] frame:106898400 support:2 base:6.657 duration:12.00s durationScore:0.627 ref:yes final:5.166
+[ScoreDetail] frame:108486000 support:3 base:7.928 duration:120.00s durationScore:0.600 ref:yes final:6.025
+[ScoreDetail] frame:109015200 support:3 base:7.928 duration:96.00s durationScore:0.600 ref:yes final:6.025
+[ScoreDetail] frame:114307200 support:19 base:14.000 duration:384.00s durationScore:1.200 ref:yes final:15.680
+[ScoreDetail] frame:129124800 support:2 base:6.657 duration:24.00s durationScore:0.653 ref:yes final:5.272
+[ScoreDetail] frame:131770800 support:14 base:14.000 duration:240.00s durationScore:1.200 ref:yes final:15.680
+[ScoreDetail] frame:136533600 support:2 base:6.657 duration:12.00s durationScore:0.627 ref:yes final:5.166
+[ScoreDetail] frame:143413200 support:12 base:14.000 duration:132.00s durationScore:0.600 ref:yes final:10.640
+[ScoreDetail] frame:149763600 support:20 base:14.000 duration:252.00s durationScore:1.200 ref:yes final:15.680
+[ScoreDetail] frame:161406000 support:18 base:14.000 duration:492.00s durationScore:1.200 ref:yes final:15.680
+[ScoreDetail] frame:162464400 support:2 base:6.657 duration:12.00s durationScore:0.627 ref:yes final:5.166
+[ScoreDetail] frame:164052000 support:2 base:6.657 duration:24.00s durationScore:0.653 ref:yes final:5.272
+[ScoreDetail] frame:166698000 support:3 base:7.928 duration:180.00s durationScore:1.200 ref:yes final:8.880
+[ScoreDetail] frame:175694400 support:6 base:10.798 duration:144.00s durationScore:0.600 ref:yes final:8.206
+[ScoreDetail] frame:182574000 support:8 base:12.314 duration:168.00s durationScore:0.784 ref:yes final:10.718
+[ScoreDetail] frame:185220000 support:5 base:9.944 duration:120.00s durationScore:0.600 ref:yes final:7.558
+[ScoreDetail] frame:191570400 support:10 base:13.649 duration:132.00s durationScore:0.600 ref:yes final:10.373
+[ScoreDetail] frame:196862400 support:4 base:9.000 duration:204.00s durationScore:1.200 ref:yes final:10.080
+[ScoreDetail] frame:197920800 support:8 base:12.314 duration:84.00s durationScore:0.787 ref:yes final:10.738
+[ScoreDetail] frame:203212800 support:2 base:6.657 duration:12.00s durationScore:0.627 ref:yes final:5.166
+[ScoreDetail] frame:205329600 support:3 base:7.928 duration:48.00s durationScore:0.707 ref:yes final:6.533
+[ScoreDetail] frame:207975600 support:16 base:14.000 duration:180.00s durationScore:1.200 ref:yes final:15.680
+[ScoreDetail] frame:216972000 support:16 base:14.000 duration:468.00s durationScore:1.200 ref:yes final:15.680
+[ScoreDetail] frame:221734800 support:2 base:6.657 duration:156.00s durationScore:0.676 ref:yes final:5.363
+[ScoreDetail] frame:222264000 support:9 base:13.000 duration:108.00s durationScore:0.600 ref:yes final:29.640
+[ScoreDetail] frame:230202000 support:2 base:6.657 duration:180.00s durationScore:1.200 ref:yes final:7.456
+[ScoreDetail] frame:233377200 support:2 base:6.657 duration:24.00s durationScore:0.653 ref:yes final:5.272
+[ScoreDetail] frame:239198400 support:11 base:14.000 duration:132.00s durationScore:0.600 ref:yes final:10.640
+[ScoreDetail] frame:245548800 support:18 base:14.000 duration:324.00s durationScore:1.200 ref:yes final:15.680
+[ScoreDetail] frame:249782400 support:3 base:7.928 duration:72.00s durationScore:0.760 ref:yes final:6.787
+[ScoreDetail] frame:253486800 support:2 base:6.657 duration:84.00s durationScore:0.787 ref:yes final:5.805
+[ScoreDetail] frame:260366400 support:12 base:14.000 duration:144.00s durationScore:0.600 ref:yes final:10.640
+[Refine] filter:score out:47
+[Refine] filter:mergeDuplicates in:47
+[Refine] filter:mergeDuplicates out:47
+[Refine] filter:resolveOverlaps in:47
+[Refine] overlap: replacing unknown at 0 with Priori Winged (Priori Rezone) (score 15.680)
+[Refine] overlap: changeover blocked for Julio Navas & David Amo Thank U (support 3 < 8)
+[Refine] overlap: keeping GMJ & Matter Metanoia (15.680 >= 5.166), dropping Lucius Young Tiempo (Mondragon Remix)
+[Refine] overlap: changeover blocked for Alex O'Rion Echium (support 6 < 7)
+[Refine] overlap: changeover blocked for Makebo & Volen Sentir Alchemist (support 2 < 7)
+[Refine] overlap: changeover blocked for Masters At Work To Be in Love (MAW '99 Mix) [feat. India] (support 2 < 7)
+[Refine] overlap: changeover Downliners Sekt Balt Shakt I -> Peter Van Hoesen Swerve Damiao (support 25 >= 5)
+[Refine] overlap: changeover Peter Van Hoesen Swerve Damiao -> Dj Akira Prophets Tribe Why Listen Music (Paul Hamilton Rmx) (support 17 >= 10)
+[Refine] overlap: keeping Dj Akira Prophets Tribe Why Listen Music (Paul Hamilton Rmx) (15.680 >= 15.287), dropping Not Dead Yet Night Horn (Paul Hamilton Remix)
+[Refine] overlap: changeover blocked for Zo We Are On the Move (Joey Negro Revival Mix) [feat. Erro & Phonte] (support 3 < 7)
+[Refine] overlap: keeping Marcos Barrios, Len Mora & Joaquin Postigo Tribaile (Len Mora & Joaquin Postigo) (6.025 >= 6.025), dropping Daniel Madlung & Johannes Retschke Foursday
+[Refine] overlap: changeover blocked for Tim Green Minds (support 2 < 8)
+[Refine] overlap: changeover blocked for Gangbangers Looking at the Sky (support 2 < 6)
+[Refine] overlap: keeping Guy Gerber Jupiter Blues (15.680 >= 5.166), dropping Dirty Secretz Eternity (Edit)
+[Refine] overlap: keeping Guy Gerber Jupiter Blues (15.680 >= 5.272), dropping Sounom & Sagou Everyday Moments (Kamilo Sanclemente Remix)
+[Refine] overlap: changeover blocked for Munir Amastha Can You Feel the Night (One Opinion Remix) [feat. Sauli Harper] (support 3 < 8)
+[Refine] overlap: changeover blocked for Sam Paganini Rave (support 6 < 8)
+[Refine] overlap: changeover Guy Gerber Jupiter Blues -> Galcher Lustwerk Liberty, Oh! (support 8 >= 8)
+[Refine] overlap: keeping Galcher Lustwerk Liberty, Oh! (10.718 >= 7.558), dropping Jens Zimmermann X11
+[Refine] overlap: changeover Joachim Spieth Trails -> Sian Let Yourself (support 4 >= 4)
+[Refine] overlap: replacing Sian Let Yourself with Burial New Love (10.738 > 10.080)
+[Refine] overlap: changeover blocked for Wigbert Balance (support 2 < 7)
+[Refine] overlap: changeover Marc Molina More Than Physical (Manuel Palmitesta Remix) -> Patrice Bäumel The Cave (support 9 >= 7)
+[Refine] overlap: keeping Maae Descartes (7.456 >= 5.272), dropping Joey Negro & The Sunburst Band Journey To The Sun (Dennis Ferrer Remix)
+[Refine] overlap: changeover blocked for Cybordelics Adventures of Dama (feat. James Davis) [Bodo Felusch-Gimme a Beat Mix] (support 3 < 8)
+[Refine] overlap: changeover blocked for Aux WoMdantso My Take (support 2 < 8)
+[Refine] filter:resolveOverlaps out:21
+[Refine] filter:finalFilter in:21
+[Score] dropping sparse hit at frame 108486000 (avgGap 60.00s support 3)
+[Score] dropping long two-hit at frame 230202000 (duration 180.00s)
+[Refine] filter:finalFilter out:19
+[Refine] filter:intervalSchedule in:19
+[Refine] filter:intervalSchedule out:19
+[Refine] filter:dedupe in:19
+[Refine] filter:dedupe out:19
+[Final] frame:2646000 artist:Priori title:Winged (Priori Rezone) duration:324.00s score:15.680 confidence:15.68
+[Final] frame:20109600 artist:GMJ & Matter title:Metanoia duration:204.00s score:15.680 confidence:15.68
+[Final] frame:29635200 artist:Ranj Kaler title:Last Sunset (feat. ASYN) [Gai Barone Dub] duration:276.00s score:15.680 confidence:15.68
+[Final] frame:43394400 artist:Shouse title:Love Tonight duration:408.00s score:15.680 confidence:15.68
+[Final] frame:86259600 artist:Dj Akira Prophets Tribe title:Why Listen Music (Paul Hamilton Rmx) duration:456.00s score:15.680 confidence:15.68
+[Final] frame:106898400 artist:Sinan Arsan title:Halycon (Paul Hamilton Rmx) duration:12.00s score:5.166 confidence:5.165718897606086
+[Final] frame:114307200 artist:Minilogue title:Blessed duration:384.00s score:15.680 confidence:15.68
+[Final] frame:131770800 artist:Dactilar title:Los Ojancanos duration:240.00s score:15.680 confidence:15.68
+[Final] frame:143413200 artist:Subconscious Tales title:Why duration:132.00s score:10.640 confidence:10.64
+[Final] frame:149763600 artist:Calibre title:Thought Fields duration:252.00s score:15.680 confidence:15.68
+[Final] frame:182574000 artist:Galcher Lustwerk title:Liberty, Oh! duration:168.00s score:10.718 confidence:10.71785187751634
+[Final] frame:197920800 artist:Burial title:New Love duration:84.00s score:10.738 confidence:10.73755381111471
+[Final] frame:203212800 artist:HOSH & 1979 title:Midnight (The Hanging Tree) [feat. Jalja] duration:12.00s score:5.166 confidence:5.165718897606086
+[Final] frame:205329600 artist:Ion Ludwig title:Classilion duration:48.00s score:6.533 confidence:6.532839461747018
+[Final] frame:207975600 artist:Bohdan title:Tungsten (Deepbass Remix) duration:180.00s score:15.680 confidence:15.68
+[Final] frame:222264000 artist:Patrice Bäumel title:The Cave duration:108.00s score:29.640 confidence:29.64
+[Final] frame:239198400 artist:Ness title:In the Meanderings of Shibuya duration:132.00s score:10.640 confidence:10.64
+[Final] frame:245548800 artist:Markus Guentner title:Crystal Castle (Original Mix) duration:324.00s score:15.680 confidence:15.68
+[Final] frame:260366400 artist:Blackbelt Andersen title:Åpenbaring (Original Mix) duration:144.00s score:10.640 confidence:10.64
+our first chapter has a non zero start time, inserting cover chapter
+action: doubleClickedSongsTableRow:
+that item is a file
+loadDocumentFromURL url: file:///Users/till/Music/Music2Go/Media.localized/Patrice%20Ba%CC%88umel/Unknown%20Album/Patrice%20Baumel%20HALO%20Goodbye%202025%20Mix.m4a?CurrentFrame=0&Playing=1 - known meta: Title: Patrice Baumel HALO Goodbye 2025 Mix -- Album:  -- Artist: Patrice Bäumel -- Location: file:///Users/till/Music/Music2Go/Media.localized/Patrice%20Ba%CC%88umel/Unknown%20Album/Patrice%20Baumel%20HALO%20Goodbye%202025%20Mix.m4a -- Address: 0x325ccb440 -- Artwork data: {length = 70693, bytes = 0xffd8ffe0 00104a46 49460001 01000001 ... 04ff008d 007fffd9 }  -- Artwork format: 2 -- Tempo: 0 -- Key:  -- Duration: 6346237 -- Rating: 0 -- Comment: 2025 is a wrap. This is a party mix containing many of my secret weapons and dancefloor favourites of the year. I want to thank every dancer who has shared the dancefloor with me in 2025 and every producer who has contributed music to my sets. You are eve -- Apple Location: (null) -- TrackList: {
+}
+attempting to abort key detection...
+abort of key detection ongoing..
+key detector aborted, calling back...
+attempting to abort beat detection...
+beat detector aborted, calling back...
+attempting to abort decoder...
+decoder aborted, calling back...
+attempting to abort meta loader...
+meta loader aborted, calling back...
+loading new meta from: /Users/till/Music/Music2Go/Media.localized/Patrice Bäumel/Unknown Album/Patrice Baumel HALO Goodbye 2025 Mix.m4a ...
+loading metadata from /Users/till/Music/Music2Go/Media.localized/Patrice Bäumel/Unknown Album/Patrice Baumel HALO Goodbye 2025 Mix.m4a...
+readFromMP4FileWithError
+format: com.apple.itunes
+title (@nam): Patrice Baumel HALO Goodbye 2025 Mix dataType: com.apple.metadata.datatype.UTF-8 extra:{
+    dataType = 1;
+    dataTypeNamespace = "com.apple.itunes";
+}
+artist (@ART): Patrice Bäumel dataType: com.apple.metadata.datatype.UTF-8 extra:{
+    dataType = 1;
+    dataTypeNamespace = "com.apple.itunes";
+}
+(null) (@day): 2025-12-30 11::46::39 dataType: com.apple.metadata.datatype.UTF-8 extra:{
+    dataType = 1;
+    dataTypeNamespace = "com.apple.itunes";
+}
+artwork (covr): {length = 70693, bytes = 0xffd8ffe0 00104a46 49460001 01000001 ... 04ff008d 007fffd9 } dataType: com.apple.metadata.datatype.JPEG extra:{
+    dataType = 13;
+    dataTypeNamespace = "com.apple.itunes";
+}
+(null) (purl): https://soundcloud.com/patrice-baumel/patrice-baumel-halo-goodbye dataType: com.apple.metadata.datatype.UTF-8 extra:{
+    dataType = 1;
+    dataTypeNamespace = "com.apple.itunes";
+}
+(null) (@cmt): 2025 is a wrap. This is a party mix containing many of my secret weapons and dancefloor favourites of the year. I want to thank every dancer who has shared the dancefloor with me in 2025 and every producer who has contributed music to my sets. You are everything to me. Rock on 2026.
+
+SETLIST:
+
+1. Yotto - Seat 11
+2. Tigerskin, Pablo Bolivar, Alfa State - Slippery Road (Pablo Bolivar Rework)
+3. Saktu - Muted Glow
+4. Lavie Au Soleil & Oreiente - Suivi
+5. Alan Cerra - End of the Line (Gai Barone Remix)
+6. Cornucopia - Unreleased
+7. Amber Long, Hot Tuneik - Heaven on Earth 
+8. Alex Albrecht - The Arboretum
+9. Cosmjn - Cosmo Acids
+10. Edmondson - Masquerade
+11. Slove, David Shaw and The Beat - Special Places (Damon Jee Remix)
+12. Vincent Casanova - Hold Me
+13. Nick Curly - Go
+14. Alex O’Rion - Blackout
+15. Guliver - Calypso (Claudio PRC Remix)
+16. Mike Griego - Back In Trance
+17. Eitan Reiter - Eat You (Patrice Baumel Remix)
+18. Tijn Driessen - Moed
+19. Wa Wu We - What's Left? (Ambient Mix) dataType: com.apple.metadata.datatype.UTF-8 extra:{
+    dataType = 1;
+    dataTypeNamespace = "com.apple.itunes";
+}
+format: org.mp4ra
+(null) (chpl): {length = 862, bytes = 0x00000000 13000000 00000000 000f594f ... 656e7420 4d697829 } dataType: com.apple.metadata.datatype.raw-data extra:{
+    dataType = 0;
+    dataTypeNamespace = "com.apple.quicktime.udta";
+}
+meta loader phase one is done - we are back on the main thread - run the callback block with Title: Patrice Baumel HALO Goodbye 2025 Mix -- Album: (null) -- Artist: Patrice Bäumel -- Location: file:///Users/till/Music/Music2Go/Media.localized/Patrice%20Ba%CC%88umel/Unknown%20Album/Patrice%20Baumel%20HALO%20Goodbye%202025%20Mix.m4a -- Address: 0x1391c89f0 -- Artwork data: {length = 70693, bytes = 0xffd8ffe0 00104a46 49460001 01000001 ... 04ff008d 007fffd9 }  -- Artwork format: (null) -- Tempo: (null) -- Key: (null) -- Duration: (null) -- Rating: (null) -- Comment: 2025 is a wrap. This is a party mix containing many of my secret weapons and dancefloor favourites of the year. I want to thank every dancer who has shared the dancefloor with me in 2025 and every producer who has contributed music to my sets. You are everything to me. Rock on 2026. SETLIST: 1. Yotto - Seat 11 2. Tigerskin, Pablo Bolivar, Alfa State - Slippery Road (Pablo Bolivar Rework) 3. Saktu - Muted Glow 4. Lavie Au Soleil & Oreiente - Suivi 5. Alan Cerra - End of the Line (Gai Barone Remix) 6. Cornucopia - Unreleased 7. Amber Long, Hot Tuneik - Heaven on Earth 8. Alex Albrecht - The Arboretum 9. Cosmjn - Cosmo Acids 10. Edmondson - Masquerade 11. Slove, David Shaw and The Beat - Special Places (Damon Jee Remix) 12. Vincent Casanova - Hold Me 13. Nick Curly - Go 14. Alex O’Rion - Blackout 15. Guliver - Calypso (Claudio PRC Remix) 16. Mike Griego - Back In Trance 17. Eitan Reiter - Eat You (Patrice Baumel Remix) 18. Tijn Driessen - Moed 19. Wa Wu We - What's Left? (Ambient Mix) -- Apple Location: (null) -- TrackList: {
+}
+container meta loading done
+We dont seem to have a tracklist yet - lets see if we can recover one...
+attempting to recover tracklist
+readChaperMarksFromMP4FileWithCallback
+readChapterMarksFromAVAsset
+asset claims to have a samplerate of 44100
+title (title): YOTTO - Seat 11 dataType: (null) extra:{
+    HREF = "https://music.apple.com/us/album/seat-11/1625080056?i=1625080058&itscg=30201&itsct=bglsk";
+}
+artwork (artwork): {length = 133288, bytes = 0xffd8ffe0 00104a46 49460001 01000048 ... 718e303a d007ffd9 } dataType: com.apple.metadata.datatype.JPEG extra:(null)
+TimedMediaMetaData: frame:0 endFrame:(null) support:(null) confidence:(null) score:(null) meta:Title: YOTTO - Seat 11 -- Album: (null) -- Artist: (null) -- Location: (null) -- Address: 0x325c0f4e0 -- Artwork data: {length = 133288, bytes = 0xffd8ffe0 00104a46 49460001 01000048 ... 718e303a d007ffd9 }  -- Artwork format: (null) -- Tempo: (null) -- Key: (null) -- Duration: (null) -- Rating: (null) -- Comment: (null) -- Apple Location: https://music.apple.com/us/album/seat-11/1625080056?i=1625080058&itscg=30201&itsct=bglsk -- TrackList: {
+}
+title (title): Mark Alow - Trip To The Lonely Planet dataType: (null) extra:{
+    HREF = "https://music.apple.com/us/album/trip-to-the-lonely-planet/1444940289?i=1444940550&itscg=30201&itsct=bglsk";
+}
+artwork (artwork): {length = 341322, bytes = 0xffd8ffe0 00104a46 49460001 01000048 ... 7397bb2b bb9fffd9 } dataType: com.apple.metadata.datatype.JPEG extra:(null)
+TimedMediaMetaData: frame:5203800 endFrame:(null) support:(null) confidence:(null) score:(null) meta:Title: Mark Alow - Trip To The Lonely Planet -- Album: (null) -- Artist: (null) -- Location: (null) -- Address: 0x13927c670 -- Artwork data: {length = 341322, bytes = 0xffd8ffe0 00104a46 49460001 01000048 ... 7397bb2b bb9fffd9 }  -- Artwork format: (null) -- Tempo: (null) -- Key: (null) -- Duration: (null) -- Rating: (null) -- Comment: (null) -- Apple Location: https://music.apple.com/us/album/trip-to-the-lonely-planet/1444940289?i=1444940550&itscg=30201&itsct=bglsk -- TrackList: {
+}
+title (title): Tigerskin & Alfa State - Slippery Roads (Pablo Bolivar Remix) dataType: (null) extra:{
+    HREF = "https://music.apple.com/us/album/slippery-roads-pablo-bolivar-remix/1327310542?i=1327310943&itscg=30201&itsct=bglsk";
+}
+artwork (artwork): {length = 97660, bytes = 0xffd8ffe0 00104a46 49460001 01000048 ... 651c67f3 a00fffd9 } dataType: com.apple.metadata.datatype.JPEG extra:(null)
+TimedMediaMetaData: frame:7320600 endFrame:(null) support:(null) confidence:(null) score:(null) meta:Title: Tigerskin & Alfa State - Slippery Roads (Pablo Bolivar Remix) -- Album: (null) -- Artist: (null) -- Location: (null) -- Address: 0x33fee9900 -- Artwork data: {length = 97660, bytes = 0xffd8ffe0 00104a46 49460001 01000048 ... 651c67f3 a00fffd9 }  -- Artwork format: (null) -- Tempo: (null) -- Key: (null) -- Duration: (null) -- Rating: (null) -- Comment: (null) -- Apple Location: https://music.apple.com/us/album/slippery-roads-pablo-bolivar-remix/1327310542?i=1327310943&itscg=30201&itsct=bglsk -- TrackList: {
+}
+title (title): Saktu - Muted Glow (Extended Mix) dataType: (null) extra:(null)
+artwork (artwork): {length = 282376, bytes = 0xffd8ffe0 00104a46 49460001 01000048 ... a0028a28 a00fffd9 } dataType: com.apple.metadata.datatype.JPEG extra:(null)
+TimedMediaMetaData: frame:24078600 endFrame:(null) support:(null) confidence:(null) score:(null) meta:Title: Saktu - Muted Glow (Extended Mix) -- Album: (null) -- Artist: (null) -- Location: (null) -- Address: 0x33feda040 -- Artwork data: {length = 282376, bytes = 0xffd8ffe0 00104a46 49460001 01000048 ... a0028a28 a00fffd9 }  -- Artwork format: (null) -- Tempo: (null) -- Key: (null) -- Duration: (null) -- Rating: (null) -- Comment: (null) -- Apple Location: (null) -- TrackList: {
+}
+title (title): Alan Cerra & Gai Barone - End of the Line (Gai Barone Remix) dataType: (null) extra:{
+    HREF = "https://music.apple.com/us/album/end-of-the-line-gai-barone-remix/1808441350?i=1808441352&itscg=30201&itsct=bglsk";
+}
+artwork (artwork): {length = 125754, bytes = 0xffd8ffe0 00104a46 49460001 01000048 ... 4a2a5aea 34cfffd9 } dataType: com.apple.metadata.datatype.JPEG extra:(null)
+TimedMediaMetaData: frame:39822300 endFrame:(null) support:(null) confidence:(null) score:(null) meta:Title: Alan Cerra & Gai Barone - End of the Line (Gai Barone Remix) -- Album: (null) -- Artist: (null) -- Location: (null) -- Address: 0x385d2b7b0 -- Artwork data: {length = 125754, bytes = 0xffd8ffe0 00104a46 49460001 01000048 ... 4a2a5aea 34cfffd9 }  -- Artwork format: (null) -- Tempo: (null) -- Key: (null) -- Duration: (null) -- Rating: (null) -- Comment: (null) -- Apple Location: https://music.apple.com/us/album/end-of-the-line-gai-barone-remix/1808441350?i=1808441352&itscg=30201&itsct=bglsk -- TrackList: {
+}
+title (title): Dosem & Prok & Fitch - Doors dataType: (null) extra:{
+    HREF = "https://music.apple.com/us/album/doors/1139757508?i=1139757590&itscg=30201&itsct=bglsk";
+}
+artwork (artwork): {length = 136200, bytes = 0xffd8ffe0 00104a46 49460001 01000048 ... e1c1eb54 4bdcffd9 } dataType: com.apple.metadata.datatype.JPEG extra:(null)
+TimedMediaMetaData: frame:57638700 endFrame:(null) support:(null) confidence:(null) score:(null) meta:Title: Dosem & Prok & Fitch - Doors -- Album: (null) -- Artist: (null) -- Location: (null) -- Address: 0x33b186470 -- Artwork data: {length = 136200, bytes = 0xffd8ffe0 00104a46 49460001 01000048 ... e1c1eb54 4bdcffd9 }  -- Artwork format: (null) -- Tempo: (null) -- Key: (null) -- Duration: (null) -- Rating: (null) -- Comment: (null) -- Apple Location: https://music.apple.com/us/album/doors/1139757508?i=1139757590&itscg=30201&itsct=bglsk -- TrackList: {
+}
+title (title): Alex Albrecht - The Arboretum dataType: (null) extra:{
+    HREF = "https://music.apple.com/us/album/the-arboretum/1844609267?i=1844609270&itscg=30201&itsct=bglsk";
+}
+artwork (artwork): {length = 144423, bytes = 0xffd8ffe0 00104a46 49460001 01000048 ... a73d697a 033fffd9 } dataType: com.apple.metadata.datatype.JPEG extra:(null)
+TimedMediaMetaData: frame:101694600 endFrame:(null) support:(null) confidence:(null) score:(null) meta:Title: Alex Albrecht - The Arboretum -- Album: (null) -- Artist: (null) -- Location: (null) -- Address: 0x13909c980 -- Artwork data: {length = 144423, bytes = 0xffd8ffe0 00104a46 49460001 01000048 ... a73d697a 033fffd9 }  -- Artwork format: (null) -- Tempo: (null) -- Key: (null) -- Duration: (null) -- Rating: (null) -- Comment: (null) -- Apple Location: https://music.apple.com/us/album/the-arboretum/1844609267?i=1844609270&itscg=30201&itsct=bglsk -- TrackList: {
+}
+title (title): HUGEL, Merk & Kremont & Lirico En La Casa - Marianela (Qué Pasa) dataType: (null) extra:{
+    HREF = "https://music.apple.com/us/album/marianela-qu%C3%A9-pasa/1751782520?i=1751782521&itscg=30201&itsct=bglsk";
+}
+artwork (artwork): {length = 101265, bytes = 0xffd8ffe0 00104a46 49460001 01000048 ... 8a0028a2 8a00ffd9 } dataType: com.apple.metadata.datatype.JPEG extra:(null)
+TimedMediaMetaData: frame:111132000 endFrame:(null) support:(null) confidence:(null) score:(null) meta:Title: HUGEL, Merk & Kremont & Lirico En La Casa - Marianela (Qué Pasa) -- Album: (null) -- Artist: (null) -- Location: (null) -- Address: 0x385d236d0 -- Artwork data: {length = 101265, bytes = 0xffd8ffe0 00104a46 49460001 01000048 ... 8a0028a2 8a00ffd9 }  -- Artwork format: (null) -- Tempo: (null) -- Key: (null) -- Duration: (null) -- Rating: (null) -- Comment: (null) -- Apple Location: https://music.apple.com/us/album/marianela-qu%C3%A9-pasa/1751782520?i=1751782521&itscg=30201&itsct=bglsk -- TrackList: {
+}
+title (title): Blaze & Bicep - Lovelee Dae (Bicep Remix) dataType: (null) extra:{
+    HREF = "https://music.apple.com/us/album/lovelee-dae-bicep-remix/1828970315?i=1828970316&itscg=30201&itsct=bglsk";
+}
+artwork (artwork): {length = 112352, bytes = 0xffd8ffe0 00104a46 49460001 01000048 ... a1ff006a 81b3ffd9 } dataType: com.apple.metadata.datatype.JPEG extra:(null)
+TimedMediaMetaData: frame:112190400 endFrame:(null) support:(null) confidence:(null) score:(null) meta:Title: Blaze & Bicep - Lovelee Dae (Bicep Remix) -- Album: (null) -- Artist: (null) -- Location: (null) -- Address: 0x31f7a9c60 -- Artwork data: {length = 112352, bytes = 0xffd8ffe0 00104a46 49460001 01000048 ... a1ff006a 81b3ffd9 }  -- Artwork format: (null) -- Tempo: (null) -- Key: (null) -- Duration: (null) -- Rating: (null) -- Comment: (null) -- Apple Location: https://music.apple.com/us/album/lovelee-dae-bicep-remix/1828970315?i=1828970316&itscg=30201&itsct=bglsk -- TrackList: {
+}
+title (title): Slove & David Shaw and the Beat - Special Places (Damon Jee Remix) dataType: (null) extra:{
+    HREF = "https://music.apple.com/us/album/special-places-damon-jee-remix/1744953959?i=1744954119&itscg=30201&itsct=bglsk";
+}
+artwork (artwork): {length = 56325, bytes = 0xffd8ffe0 00104a46 49460001 01000048 ... 2800a28a 2803ffd9 } dataType: com.apple.metadata.datatype.JPEG extra:(null)
+TimedMediaMetaData: frame:140502600 endFrame:(null) support:(null) confidence:(null) score:(null) meta:Title: Slove & David Shaw and the Beat - Special Places (Damon Jee Remix) -- Album: (null) -- Artist: (null) -- Location: (null) -- Address: 0x385d23810 -- Artwork data: {length = 56325, bytes = 0xffd8ffe0 00104a46 49460001 01000048 ... 2800a28a 2803ffd9 }  -- Artwork format: (null) -- Tempo: (null) -- Key: (null) -- Duration: (null) -- Rating: (null) -- Comment: (null) -- Apple Location: https://music.apple.com/us/album/special-places-damon-jee-remix/1744953959?i=1744954119&itscg=30201&itsct=bglsk -- TrackList: {
+}
+title (title): Vincent Casanova - Hold Me dataType: (null) extra:{
+    HREF = "https://music.apple.com/us/album/hold-me/1784753802?i=1784754259&itscg=30201&itsct=bglsk";
+}
+artwork (artwork): {length = 77957, bytes = 0xffd8ffe0 00104a46 49460001 01000048 ... 8a0028a2 8a00ffd9 } dataType: com.apple.metadata.datatype.JPEG extra:(null)
+TimedMediaMetaData: frame:154129500 endFrame:(null) support:(null) confidence:(null) score:(null) meta:Title: Vincent Casanova - Hold Me -- Album: (null) -- Artist: (null) -- Location: (null) -- Address: 0x385d21f90 -- Artwork data: {length = 77957, bytes = 0xffd8ffe0 00104a46 49460001 01000048 ... 8a0028a2 8a00ffd9 }  -- Artwork format: (null) -- Tempo: (null) -- Key: (null) -- Duration: (null) -- Rating: (null) -- Comment: (null) -- Apple Location: https://music.apple.com/us/album/hold-me/1784753802?i=1784754259&itscg=30201&itsct=bglsk -- TrackList: {
+}
+title (title): Nick Curly - Go dataType: (null) extra:{
+    HREF = "https://music.apple.com/us/album/go/1159368659?i=1159368822&itscg=30201&itsct=bglsk";
+}
+artwork (artwork): {length = 66950, bytes = 0xffd8ffe0 00104a46 49460001 01000048 ... cd1df14b 401fffd9 } dataType: com.apple.metadata.datatype.JPEG extra:(null)
+TimedMediaMetaData: frame:167756400 endFrame:(null) support:(null) confidence:(null) score:(null) meta:Title: Nick Curly - Go -- Album: (null) -- Artist: (null) -- Location: (null) -- Address: 0x385d22130 -- Artwork data: {length = 66950, bytes = 0xffd8ffe0 00104a46 49460001 01000048 ... cd1df14b 401fffd9 }  -- Artwork format: (null) -- Tempo: (null) -- Key: (null) -- Duration: (null) -- Rating: (null) -- Comment: (null) -- Apple Location: https://music.apple.com/us/album/go/1159368659?i=1159368822&itscg=30201&itsct=bglsk -- TrackList: {
+}
+title (title): Alex O'Rion - Blackout dataType: (null) extra:{
+    HREF = "https://music.apple.com/us/album/blackout/1791999230?i=1791999232&itscg=30201&itsct=bglsk";
+}
+artwork (artwork): {length = 70681, bytes = 0xffd8ffe0 00104a46 49460001 01000048 ... ef0ec7d6 803fffd9 } dataType: com.apple.metadata.datatype.JPEG extra:(null)
+TimedMediaMetaData: frame:178252200 endFrame:(null) support:(null) confidence:(null) score:(null) meta:Title: Alex O'Rion - Blackout -- Album: (null) -- Artist: (null) -- Location: (null) -- Address: 0x325c0c650 -- Artwork data: {length = 70681, bytes = 0xffd8ffe0 00104a46 49460001 01000048 ... ef0ec7d6 803fffd9 }  -- Artwork format: (null) -- Tempo: (null) -- Key: (null) -- Duration: (null) -- Rating: (null) -- Comment: (null) -- Apple Location: https://music.apple.com/us/album/blackout/1791999230?i=1791999232&itscg=30201&itsct=bglsk -- TrackList: {
+}
+title (title): Guliver - Calypso (Claudio PRC Remix) dataType: (null) extra:{
+    HREF = "https://music.apple.com/us/album/calypso-claudio-prc-remix/1815342575?i=1815342586&itscg=30201&itsct=bglsk";
+}
+artwork (artwork): {length = 100042, bytes = 0xffd8ffe0 00104a46 49460001 01000048 ... dd5296a3 ba47ffd9 } dataType: com.apple.metadata.datatype.JPEG extra:(null)
+TimedMediaMetaData: frame:207578700 endFrame:(null) support:(null) confidence:(null) score:(null) meta:Title: Guliver - Calypso (Claudio PRC Remix) -- Album: (null) -- Artist: (null) -- Location: (null) -- Address: 0x385d222d0 -- Artwork data: {length = 100042, bytes = 0xffd8ffe0 00104a46 49460001 01000048 ... dd5296a3 ba47ffd9 }  -- Artwork format: (null) -- Tempo: (null) -- Key: (null) -- Duration: (null) -- Rating: (null) -- Comment: (null) -- Apple Location: https://music.apple.com/us/album/calypso-claudio-prc-remix/1815342575?i=1815342586&itscg=30201&itsct=bglsk -- TrackList: {
+}
+title (title): Mike Griego - Back In Trance dataType: (null) extra:{
+    HREF = "https://music.apple.com/us/album/back-in-trance/1753729897?i=1753729898&itscg=30201&itsct=bglsk";
+}
+artwork (artwork): {length = 220379, bytes = 0xffd8ffe0 00104a46 49460001 01000048 ... 1e11464e 4fa1ffd9 } dataType: com.apple.metadata.datatype.JPEG extra:(null)
+TimedMediaMetaData: frame:209695500 endFrame:(null) support:(null) confidence:(null) score:(null) meta:Title: Mike Griego - Back In Trance -- Album: (null) -- Artist: (null) -- Location: (null) -- Address: 0x325cf3120 -- Artwork data: {length = 220379, bytes = 0xffd8ffe0 00104a46 49460001 01000048 ... 1e11464e 4fa1ffd9 }  -- Artwork format: (null) -- Tempo: (null) -- Key: (null) -- Duration: (null) -- Rating: (null) -- Comment: (null) -- Apple Location: https://music.apple.com/us/album/back-in-trance/1753729897?i=1753729898&itscg=30201&itsct=bglsk -- TrackList: {
+}
+title (title): Eli & Fur - Parfume (Dosem Remix) dataType: (null) extra:{
+    HREF = "https://music.apple.com/us/album/parfume-dosem-remix/1434684286?i=1434684292&itscg=30201&itsct=bglsk";
+}
+artwork (artwork): {length = 253447, bytes = 0xffd8ffe0 00104a46 49460001 01000048 ... da35e2e4 d3d0ffd9 } dataType: com.apple.metadata.datatype.JPEG extra:(null)
+TimedMediaMetaData: frame:236949300 endFrame:(null) support:(null) confidence:(null) score:(null) meta:Title: Eli & Fur - Parfume (Dosem Remix) -- Album: (null) -- Artist: (null) -- Location: (null) -- Address: 0x38b30bf90 -- Artwork data: {length = 253447, bytes = 0xffd8ffe0 00104a46 49460001 01000048 ... da35e2e4 d3d0ffd9 }  -- Artwork format: (null) -- Tempo: (null) -- Key: (null) -- Duration: (null) -- Rating: (null) -- Comment: (null) -- Apple Location: https://music.apple.com/us/album/parfume-dosem-remix/1434684286?i=1434684292&itscg=30201&itsct=bglsk -- TrackList: {
+}
+title (title): Eitan Reiter - Eat You (Patrice Bäumel Remix) dataType: (null) extra:{
+    HREF = "https://music.apple.com/us/album/eat-you-patrice-b%C3%A4umel-remix/1846298439?i=1846298440&itscg=30201&itsct=bglsk";
+}
+artwork (artwork): {length = 347303, bytes = 0xffd8ffe0 00104a46 49460001 01000048 ... 63369c5b f99fffd9 } dataType: com.apple.metadata.datatype.JPEG extra:(null)
+TimedMediaMetaData: frame:243255600 endFrame:(null) support:(null) confidence:(null) score:(null) meta:Title: Eitan Reiter - Eat You (Patrice Bäumel Remix) -- Album: (null) -- Artist: (null) -- Location: (null) -- Address: 0x325cf01f0 -- Artwork data: {length = 347303, bytes = 0xffd8ffe0 00104a46 49460001 01000048 ... 63369c5b f99fffd9 }  -- Artwork format: (null) -- Tempo: (null) -- Key: (null) -- Duration: (null) -- Rating: (null) -- Comment: (null) -- Apple Location: https://music.apple.com/us/album/eat-you-patrice-b%C3%A4umel-remix/1846298439?i=1846298440&itscg=30201&itsct=bglsk -- TrackList: {
+}
+title (title): unknown dataType: (null) extra:(null)
+artwork (artwork): (null) dataType: com.apple.metadata.datatype.JPEG extra:(null)
+unknown artwork
+TimedMediaMetaData: frame:256882500 endFrame:(null) support:(null) confidence:(null) score:(null) meta:Title: unknown -- Album: (null) -- Artist: (null) -- Location: (null) -- Address: 0x385d22480 -- Artwork data: (null)  -- Artwork format: (null) -- Tempo: (null) -- Key: (null) -- Duration: (null) -- Rating: (null) -- Comment: (null) -- Apple Location: (null) -- TrackList: {
+}
+title (title): Wa Wu We - What's Left? (Ambient Mix) dataType: (null) extra:{
+    HREF = "https://music.apple.com/us/album/whats-left-ambient-mix/1502292768?i=1502292772&itscg=30201&itsct=bglsk";
+}
+artwork (artwork): {length = 199236, bytes = 0xffd8ffe0 00104a46 49460001 01000048 ... f152996d 743fffd9 } dataType: com.apple.metadata.datatype.JPEG extra:(null)
+TimedMediaMetaData: frame:270509400 endFrame:(null) support:(null) confidence:(null) score:(null) meta:Title: Wa Wu We - What's Left? (Ambient Mix) -- Album: (null) -- Artist: (null) -- Location: (null) -- Address: 0x325c106a0 -- Artwork data: {length = 199236, bytes = 0xffd8ffe0 00104a46 49460001 01000048 ... f152996d 743fffd9 }  -- Artwork format: (null) -- Tempo: (null) -- Key: (null) -- Duration: (null) -- Rating: (null) -- Comment: (null) -- Apple Location: https://music.apple.com/us/album/whats-left-ambient-mix/1502292768?i=1502292772&itscg=30201&itsct=bglsk -- TrackList: {
+}
+titles trackID=2
+sample pts=0.00 dur=118.00 title (tx3g len=15): YOTTO - Seat 11
+sample pts=118.00 dur=48.00 title (tx3g len=37): Mark Alow - Trip To The Lonely Planet
+sample pts=166.00 dur=380.00 title (tx3g len=61): Tigerskin & Alfa State - Slippery Roads (Pablo Bolivar Remix)
+sample pts=546.00 dur=357.00 title (tx3g len=33): Saktu - Muted Glow (Extended Mix)
+sample pts=903.00 dur=404.00 title (tx3g len=60): Alan Cerra & Gai Barone - End of the Line (Gai Barone Remix)
+sample pts=1307.00 dur=999.00 title (tx3g len=28): Dosem & Prok & Fitch - Doors
+sample pts=2306.00 dur=214.00 title (tx3g len=29): Alex Albrecht - The Arboretum
+sample pts=2520.00 dur=24.00 title (tx3g len=65): HUGEL, Merk & Kremont & Lirico En La Casa - Marianela (Qué Pasa)
+sample pts=2544.00 dur=642.00 title (tx3g len=41): Blaze & Bicep - Lovelee Dae (Bicep Remix)
+sample pts=3186.00 dur=309.00 title (tx3g len=66): Slove & David Shaw and the Beat - Special Places (Damon Jee Remix)
+sample pts=3495.00 dur=309.00 title (tx3g len=26): Vincent Casanova - Hold Me
+sample pts=3804.00 dur=238.00 title (tx3g len=15): Nick Curly - Go
+sample pts=4042.00 dur=665.00 title (tx3g len=22): Alex O'Rion - Blackout
+sample pts=4707.00 dur=48.00 title (tx3g len=37): Guliver - Calypso (Claudio PRC Remix)
+sample pts=4755.00 dur=618.00 title (tx3g len=28): Mike Griego - Back In Trance
+sample pts=5373.00 dur=143.00 title (tx3g len=33): Eli & Fur - Parfume (Dosem Remix)
+sample pts=5516.00 dur=309.00 title (tx3g len=46): Eitan Reiter - Eat You (Patrice Bäumel Remix)
+sample pts=5825.00 dur=309.00 title (tx3g len=7): unknown
+sample pts=6134.00 dur=212.32 title (tx3g len=37): Wa Wu We - What's Left? (Ambient Mix)
+url trackID=3
+sample pts=0.00 dur=118.00 artist (tx3g len=5): YOTTO
+sample pts=118.00 dur=48.00 artist (tx3g len=9): Mark Alow
+sample pts=166.00 dur=380.00 artist (tx3g len=22): Tigerskin & Alfa State
+sample pts=546.00 dur=357.00 artist (tx3g len=5): Saktu
+sample pts=903.00 dur=404.00 artist (tx3g len=23): Alan Cerra & Gai Barone
+sample pts=1307.00 dur=999.00 artist (tx3g len=20): Dosem & Prok & Fitch
+sample pts=2306.00 dur=214.00 artist (tx3g len=13): Alex Albrecht
+sample pts=2520.00 dur=24.00 artist (tx3g len=41): HUGEL, Merk & Kremont & Lirico En La Casa
+sample pts=2544.00 dur=642.00 artist (tx3g len=13): Blaze & Bicep
+sample pts=3186.00 dur=309.00 artist (tx3g len=31): Slove & David Shaw and the Beat
+sample pts=3495.00 dur=309.00 artist (tx3g len=16): Vincent Casanova
+sample pts=3804.00 dur=238.00 artist (tx3g len=10): Nick Curly
+sample pts=4042.00 dur=665.00 artist (tx3g len=11): Alex O'Rion
+sample pts=4707.00 dur=48.00 artist (tx3g len=7): Guliver
+sample pts=4755.00 dur=618.00 artist (tx3g len=11): Mike Griego
+sample pts=5373.00 dur=143.00 artist (tx3g len=9): Eli & Fur
+sample pts=5516.00 dur=309.00 artist (tx3g len=12): Eitan Reiter
+sample pts=6134.00 dur=212.32 artist (tx3g len=8): Wa Wu We
+lets see {
+    0 =     {
+        artist = YOTTO;
+        title = "YOTTO - Seat 11";
+    };
+    243255600 =     {
+        artist = "Eitan Reiter";
+        title = "Eitan Reiter - Eat You (Patrice B\U00e4umel Remix)";
+    };
+    256882500 =     {
+        title = unknown;
+    };
+    270509400 =     {
+        artist = "Wa Wu We";
+        title = "Wa Wu We - What's Left? (Ambient Mix)";
+    };
+    24078600 =     {
+        artist = Saktu;
+        title = "Saktu - Muted Glow (Extended Mix)";
+    };
+    178252200 =     {
+        artist = "Alex O'Rion";
+        title = "Alex O'Rion - Blackout";
+    };
+    112190400 =     {
+        artist = "Blaze & Bicep";
+        title = "Blaze & Bicep - Lovelee Dae (Bicep Remix)";
+    };
+    209695500 =     {
+        artist = "Mike Griego";
+        title = "Mike Griego - Back In Trance";
+    };
+    236949300 =     {
+        artist = "Eli & Fur";
+        title = "Eli & Fur - Parfume (Dosem Remix)";
+    };
+    7320600 =     {
+        artist = "Tigerskin & Alfa State";
+        title = "Tigerskin & Alfa State - Slippery Roads (Pablo Bolivar Remix)";
+    };
+    207578700 =     {
+        artist = Guliver;
+        title = "Guliver - Calypso (Claudio PRC Remix)";
+    };
+    140502600 =     {
+        artist = "Slove & David Shaw and the Beat";
+        title = "Slove & David Shaw and the Beat - Special Places (Damon Jee Remix)";
+    };
+    154129500 =     {
+        artist = "Vincent Casanova";
+        title = "Vincent Casanova - Hold Me";
+    };
+    167756400 =     {
+        artist = "Nick Curly";
+        title = "Nick Curly - Go";
+    };
+    57638700 =     {
+        artist = "Dosem & Prok & Fitch";
+        title = "Dosem & Prok & Fitch - Doors";
+    };
+    39822300 =     {
+        artist = "Alan Cerra & Gai Barone";
+        title = "Alan Cerra & Gai Barone - End of the Line (Gai Barone Remix)";
+    };
+    101694600 =     {
+        artist = "Alex Albrecht";
+        title = "Alex Albrecht - The Arboretum";
+    };
+    5203800 =     {
+        artist = "Mark Alow";
+        title = "Mark Alow - Trip To The Lonely Planet";
+    };
+    111132000 =     {
+        artist = "HUGEL, Merk & Kremont & Lirico En La Casa";
+        title = "HUGEL, Merk & Kremont & Lirico En La Casa - Marianela (Qu\U00e9 Pasa)";
+    };
+}
+lets see if we can read chapters from our sidecar
+WaveWindowController setMeta: Title: Patrice Baumel HALO Goodbye 2025 Mix -- Album: (null) -- Artist: Patrice Bäumel -- Location: file:///Users/till/Music/Music2Go/Media.localized/Patrice%20Ba%CC%88umel/Unknown%20Album/Patrice%20Baumel%20HALO%20Goodbye%202025%20Mix.m4a -- Address: 0x1391c89f0 -- Artwork data: {length = 70693, bytes = 0xffd8ffe0 00104a46 49460001 01000001 ... 04ff008d 007fffd9 }  -- Artwork format: (null) -- Tempo: (null) -- Key: (null) -- Duration: (null) -- Rating: (null) -- Comment: 2025 is a wrap. This is a party mix containing many of my secret weapons and dancefloor favourites of the year. I want to thank every dancer who has shared the dancefloor with me in 2025 and every producer who has contributed music to my sets. You are everything to me. Rock on 2026. SETLIST: 1. Yotto - Seat 11 2. Tigerskin, Pablo Bolivar, Alfa State - Slippery Road (Pablo Bolivar Rework) 3. Saktu - Muted Glow 4. Lavie Au Soleil & Oreiente - Suivi 5. Alan Cerra - End of the Line (Gai Barone Remix) 6. Cornucopia - Unreleased 7. Amber Long, Hot Tuneik - Heaven on Earth 8. Alex Albrecht - The Arboretum 9. Cosmjn - Cosmo Acids 10. Edmondson - Masquerade 11. Slove, David Shaw and The Beat - Special Places (Damon Jee Remix) 12. Vincent Casanova - Hold Me 13. Nick Curly - Go 14. Alex O’Rion - Blackout 15. Guliver - Calypso (Claudio PRC Remix) 16. Mike Griego - Back In Trance 17. Eitan Reiter - Eat You (Patrice Baumel Remix) 18. Tijn Driessen - Moed 19. Wa Wu We - What's Left? (Ambient Mix) -- Apple Location: (null) -- TrackList: {
+    0 = "frame:0 endFrame:(null) support:(null) confidence:(null) score:(null) meta:Title: Seat 11 -- Album: (null) -- Artist: YOTTO -- Location: (null) -- Address: 0x325c0f4e0 -- Artwork data: {length = 133288, bytes = 0xffd8ffe0 00104a46 49460001 01000048 ... 718e303a d007ffd9 }  -- Artwork format: (null) -- Tempo: (null) -- Key: (null) -- Duration: (null) -- Rating: (null) -- Comment: (null) -- Apple Location: https://music.apple.com/us/album/seat-11/1625080056?i=1625080058&itscg=30201&itsct=bglsk -- TrackList: {\n}";
+    243255600 = "frame:243255600 endFrame:(null) support:(null) confidence:(null) score:(null) meta:Title: Eat You (Patrice B\U00e4umel Remix) -- Album: (null) -- Artist: Eitan Reiter -- Location: (null) -- Address: 0x325cf01f0 -- Artwork data: {length = 347303, bytes = 0xffd8ffe0 00104a46 49460001 01000048 ... 63369c5b f99fffd9 }  -- Artwork format: (null) -- Tempo: (null) -- Key: (null) -- Duration: (null) -- Rating: (null) -- Comment: (null) -- Apple Location: https://music.apple.com/us/album/eat-you-patrice-b%C3%A4umel-remix/1846298439?i=1846298440&itscg=30201&itsct=bglsk -- TrackList: {\n}";
+    256882500 = "frame:256882500 endFrame:(null) support:(null) confidence:(null) score:(null) meta:Title: unknown -- Album: (null) -- Artist: (null) -- Location: (null) -- Address: 0x385d22480 -- Artwork data: (null)  -- Artwork format: (null) -- Tempo: (null) -- Key: (null) -- Duration: (null) -- Rating: (null) -- Comment: (null) -- Apple Location: (null) -- TrackList: {\n}";
+    270509400 = "frame:270509400 endFrame:(null) support:(null) confidence:(null) score:(null) meta:Title: What's Left? (Ambient Mix) -- Album: (null) -- Artist: Wa Wu We -- Location: (null) -- Address: 0x325c106a0 -- Artwork data: {length = 199236, bytes = 0xffd8ffe0 00104a46 49460001 01000048 ... f152996d 743fffd9 }  -- Artwork format: (null) -- Tempo: (null) -- Key: (null) -- Duration: (null) -- Rating: (null) -- Comment: (null) -- Apple Location: https://music.apple.com/us/album/whats-left-ambient-mix/1502292768?i=1502292772&itscg=30201&itsct=bglsk -- TrackList: {\n}";
+    24078600 = "frame:24078600 endFrame:(null) support:(null) confidence:(null) score:(null) meta:Title: Muted Glow (Extended Mix) -- Album: (null) -- Artist: Saktu -- Location: (null) -- Address: 0x33feda040 -- Artwork data: {length = 282376, bytes = 0xffd8ffe0 00104a46 49460001 01000048 ... a0028a28 a00fffd9 }  -- Artwork format: (null) -- Tempo: (null) -- Key: (null) -- Duration: (null) -- Rating: (null) -- Comment: (null) -- Apple Location: (null) -- TrackList: {\n}";
+    178252200 = "frame:178252200 endFrame:(null) support:(null) confidence:(null) score:(null) meta:Title: Blackout -- Album: (null) -- Artist: Alex O'Rion -- Location: (null) -- Address: 0x325c0c650 -- Artwork data: {length = 70681, bytes = 0xffd8ffe0 00104a46 49460001 01000048 ... ef0ec7d6 803fffd9 }  -- Artwork format: (null) -- Tempo: (null) -- Key: (null) -- Duration: (null) -- Rating: (null) -- Comment: (null) -- Apple Location: https://music.apple.com/us/album/blackout/1791999230?i=1791999232&itscg=30201&itsct=bglsk -- TrackList: {\n}";
+    112190400 = "frame:112190400 endFrame:(null) support:(null) confidence:(null) score:(null) meta:Title: Lovelee Dae (Bicep Remix) -- Album: (null) -- Artist: Blaze & Bicep -- Location: (null) -- Address: 0x31f7a9c60 -- Artwork data: {length = 112352, bytes = 0xffd8ffe0 00104a46 49460001 01000048 ... a1ff006a 81b3ffd9 }  -- Artwork format: (null) -- Tempo: (null) -- Key: (null) -- Duration: (null) -- Rating: (null) -- Comment: (null) -- Apple Location: https://music.apple.com/us/album/lovelee-dae-bicep-remix/1828970315?i=1828970316&itscg=30201&itsct=bglsk -- TrackList: {\n}";
+    209695500 = "frame:209695500 endFrame:(null) support:(null) confidence:(null) score:(null) meta:Title: Back In Trance -- Album: (null) -- Artist: Mike Griego -- Location: (null) -- Address: 0x325cf3120 -- Artwork data: {length = 220379, bytes = 0xffd8ffe0 00104a46 49460001 01000048 ... 1e11464e 4fa1ffd9 }  -- Artwork format: (null) -- Tempo: (null) -- Key: (null) -- Duration: (null) -- Rating: (null) -- Comment: (null) -- Apple Location: https://music.apple.com/us/album/back-in-trance/1753729897?i=1753729898&itscg=30201&itsct=bglsk -- TrackList: {\n}";
+    236949300 = "frame:236949300 endFrame:(null) support:(null) confidence:(null) score:(null) meta:Title: Parfume (Dosem Remix) -- Album: (null) -- Artist: Eli & Fur -- Location: (null) -- Address: 0x38b30bf90 -- Artwork data: {length = 253447, bytes = 0xffd8ffe0 00104a46 49460001 01000048 ... da35e2e4 d3d0ffd9 }  -- Artwork format: (null) -- Tempo: (null) -- Key: (null) -- Duration: (null) -- Rating: (null) -- Comment: (null) -- Apple Location: https://music.apple.com/us/album/parfume-dosem-remix/1434684286?i=1434684292&itscg=30201&itsct=bglsk -- TrackList: {\n}";
+    7320600 = "frame:7320600 endFrame:(null) support:(null) confidence:(null) score:(null) meta:Title: Slippery Roads (Pablo Bolivar Remix) -- Album: (null) -- Artist: Tigerskin & Alfa State -- Location: (null) -- Address: 0x33fee9900 -- Artwork data: {length = 97660, bytes = 0xffd8ffe0 00104a46 49460001 01000048 ... 651c67f3 a00fffd9 }  -- Artwork format: (null) -- Tempo: (null) -- Key: (null) -- Duration: (null) -- Rating: (null) -- Comment: (null) -- Apple Location: https://music.apple.com/us/album/slippery-roads-pablo-bolivar-remix/1327310542?i=1327310943&itscg=30201&itsct=bglsk -- TrackList: {\n}";
+    207578700 = "frame:207578700 endFrame:(null) support:(null) confidence:(null) score:(null) meta:Title: Calypso (Claudio PRC Remix) -- Album: (null) -- Artist: Guliver -- Location: (null) -- Address: 0x385d222d0 -- Artwork data: {length = 100042, bytes = 0xffd8ffe0 00104a46 49460001 01000048 ... dd5296a3 ba47ffd9 }  -- Artwork format: (null) -- Tempo: (null) -- Key: (null) -- Duration: (null) -- Rating: (null) -- Comment: (null) -- Apple Location: https://music.apple.com/us/album/calypso-claudio-prc-remix/1815342575?i=1815342586&itscg=30201&itsct=bglsk -- TrackList: {\n}";
+    140502600 = "frame:140502600 endFrame:(null) support:(null) confidence:(null) score:(null) meta:Title: Special Places (Damon Jee Remix) -- Album: (null) -- Artist: Slove & David Shaw and the Beat -- Location: (null) -- Address: 0x385d23810 -- Artwork data: {length = 56325, bytes = 0xffd8ffe0 00104a46 49460001 01000048 ... 2800a28a 2803ffd9 }  -- Artwork format: (null) -- Tempo: (null) -- Key: (null) -- Duration: (null) -- Rating: (null) -- Comment: (null) -- Apple Location: https://music.apple.com/us/album/special-places-damon-jee-remix/1744953959?i=1744954119&itscg=30201&itsct=bglsk -- TrackList: {\n}";
+    154129500 = "frame:154129500 endFrame:(null) support:(null) confidence:(null) score:(null) meta:Title: Hold Me -- Album: (null) -- Artist: Vincent Casanova -- Location: (null) -- Address: 0x385d21f90 -- Artwork data: {length = 77957, bytes = 0xffd8ffe0 00104a46 49460001 01000048 ... 8a0028a2 8a00ffd9 }  -- Artwork format: (null) -- Tempo: (null) -- Key: (null) -- Duration: (null) -- Rating: (null) -- Comment: (null) -- Apple Location: https://music.apple.com/us/album/hold-me/1784753802?i=1784754259&itscg=30201&itsct=bglsk -- TrackList: {\n}";
+    167756400 = "frame:167756400 endFrame:(null) support:(null) confidence:(null) score:(null) meta:Title: Go -- Album: (null) -- Artist: Nick Curly -- Location: (null) -- Address: 0x385d22130 -- Artwork data: {length = 66950, bytes = 0xffd8ffe0 00104a46 49460001 01000048 ... cd1df14b 401fffd9 }  -- Artwork format: (null) -- Tempo: (null) -- Key: (null) -- Duration: (null) -- Rating: (null) -- Comment: (null) -- Apple Location: https://music.apple.com/us/album/go/1159368659?i=1159368822&itscg=30201&itsct=bglsk -- TrackList: {\n}";
+    57638700 = "frame:57638700 endFrame:(null) support:(null) confidence:(null) score:(null) meta:Title: Doors -- Album: (null) -- Artist: Dosem & Prok & Fitch -- Location: (null) -- Address: 0x33b186470 -- Artwork data: {length = 136200, bytes = 0xffd8ffe0 00104a46 49460001 01000048 ... e1c1eb54 4bdcffd9 }  -- Artwork format: (null) -- Tempo: (null) -- Key: (null) -- Duration: (null) -- Rating: (null) -- Comment: (null) -- Apple Location: https://music.apple.com/us/album/doors/1139757508?i=1139757590&itscg=30201&itsct=bglsk -- TrackList: {\n}";
+    39822300 = "frame:39822300 endFrame:(null) support:(null) confidence:(null) score:(null) meta:Title: End of the Line (Gai Barone Remix) -- Album: (null) -- Artist: Alan Cerra & Gai Barone -- Location: (null) -- Address: 0x385d2b7b0 -- Artwork data: {length = 125754, bytes = 0xffd8ffe0 00104a46 49460001 01000048 ... 4a2a5aea 34cfffd9 }  -- Artwork format: (null) -- Tempo: (null) -- Key: (null) -- Duration: (null) -- Rating: (null) -- Comment: (null) -- Apple Location: https://music.apple.com/us/album/end-of-the-line-gai-barone-remix/1808441350?i=1808441352&itscg=30201&itsct=bglsk -- TrackList: {\n}";
+    101694600 = "frame:101694600 endFrame:(null) support:(null) confidence:(null) score:(null) meta:Title: The Arboretum -- Album: (null) -- Artist: Alex Albrecht -- Location: (null) -- Address: 0x13909c980 -- Artwork data: {length = 144423, bytes = 0xffd8ffe0 00104a46 49460001 01000048 ... a73d697a 033fffd9 }  -- Artwork format: (null) -- Tempo: (null) -- Key: (null) -- Duration: (null) -- Rating: (null) -- Comment: (null) -- Apple Location: https://music.apple.com/us/album/the-arboretum/1844609267?i=1844609270&itscg=30201&itsct=bglsk -- TrackList: {\n}";
+    5203800 = "frame:5203800 endFrame:(null) support:(null) confidence:(null) score:(null) meta:Title: Trip To The Lonely Planet -- Album: (null) -- Artist: Mark Alow -- Location: (null) -- Address: 0x13927c670 -- Artwork data: {length = 341322, bytes = 0xffd8ffe0 00104a46 49460001 01000048 ... 7397bb2b bb9fffd9 }  -- Artwork format: (null) -- Tempo: (null) -- Key: (null) -- Duration: (null) -- Rating: (null) -- Comment: (null) -- Apple Location: https://music.apple.com/us/album/trip-to-the-lonely-planet/1444940289?i=1444940550&itscg=30201&itsct=bglsk -- TrackList: {\n}";
+    111132000 = "frame:111132000 endFrame:(null) support:(null) confidence:(null) score:(null) meta:Title: Marianela (Qu\U00e9 Pasa) -- Album: (null) -- Artist: HUGEL, Merk & Kremont & Lirico En La Casa -- Location: (null) -- Address: 0x385d236d0 -- Artwork data: {length = 101265, bytes = 0xffd8ffe0 00104a46 49460001 01000048 ... 8a0028a2 8a00ffd9 }  -- Artwork format: (null) -- Tempo: (null) -- Key: (null) -- Duration: (null) -- Rating: (null) -- Comment: (null) -- Apple Location: https://music.apple.com/us/album/marianela-qu%C3%A9-pasa/1751782520?i=1751782521&itscg=30201&itsct=bglsk -- TrackList: {\n}";
+}
+init source file for reading
+...lazy sample 0x600002a35360 initialized
+attempting to abort key detection...
+abort of key detection ongoing..
+key detector aborted, calling back...
+attempting to abort beat detection...
+beat detector aborted, calling back...
+attempting to abort decoder...
+decoder aborted, calling back...
+attempting to abort meta loader...
+meta loader aborted, calling back...
+loading new sample from: /Users/till/Music/Music2Go/Media.localized/Patrice Bäumel/Unknown Album/Patrice Baumel HALO Goodbye 2025 Mix.m4a ...
+previous sample 0x600002a20230 should get unretained now
+VisualSample Visual Sample - Total Width: 732603, Frames per Pixel: 368, Tile Width: 256, Queue Name: <OS_dispatch_queue_serial: VisualSample7200PPM>, Underlying Sample: file: file:///Users/till/Music/Music2Go/Media.localized/Patrice%20Ba%CC%88umel/Unknown%20Album/HALO%20Afterparty%20Mix%20(Summer%202024).m4a, channels: 2, rate: 44100, duration: 6113.00 seconds removing from memory
+aborting all operations for <OS_dispatch_queue_serial: VisualSample7200PPM> ...
+VisualSample Visual Sample - Total Width: 1506, Frames per Pixel: 179126, Tile Width: 8, Queue Name: <OS_dispatch_queue_serial: VisualSample15PPM>, Underlying Sample: file: file:///Users/till/Music/Music2Go/Media.localized/Patrice%20Ba%CC%88umel/Unknown%20Album/HALO%20Afterparty%20Mix%20(Summer%202024).m4a, channels: 2, rate: 44100, duration: 6113.00 seconds removing from memory
+aborting all operations for <OS_dispatch_queue_serial: VisualSample15PPM> ...
+VisualSample Visual Sample - Total Width: 760518, Frames per Pixel: 368, Tile Width: 256, Queue Name: <OS_dispatch_queue_serial: VisualSample7200PPM>, Underlying Sample: file: file:///Users/till/Music/Music2Go/Media.localized/Patrice%20Ba%CC%88umel/Unknown%20Album/Patrice%20Baumel%20HALO%20Goodbye%202025%20Mix.m4a, channels: 2, rate: 44100, duration: 6346.00 seconds init
+VisualSample Visual Sample - Total Width: 1506, Frames per Pixel: 185953, Tile Width: 8, Queue Name: <OS_dispatch_queue_serial: VisualSample14PPM>, Underlying Sample: file: file:///Users/till/Music/Music2Go/Media.localized/Patrice%20Ba%CC%88umel/Unknown%20Album/Patrice%20Baumel%20HALO%20Goodbye%202025%20Mix.m4a, channels: 2, rate: 44100, duration: 6346.00 seconds init
+frames per reduced value: 34983 (total 8000)
+playback starting...
+reset audio
+decoding sample file: file:///Users/till/Music/Music2Go/Media.localized/Patrice%20Ba%CC%88umel/Unknown%20Album/Patrice%20Baumel%20HALO%20Goodbye%202025%20Mix.m4a, channels: 2, rate: 44100, duration: 6346.00 seconds...
+enabling manual render...
+attaching player node...
+connecting player to engine...
+starting engine...
+scheduling file...
+72 frames device latency, 0 frames output stream latency, 73 safety offset, 512 buffer size resulting in an estimated total latency of 657 frames
+playback will happen on device Komplete Audio 2 with a latency of 657 frames
+audiocontroller update with new sample file:///Users/till/Music/Music2Go/Media.localized/Patrice%20Ba%CC%88umel/Unknown%20Album/Patrice%20Baumel%20HALO%20Goodbye%202025%20Mix.m4a
+engine state: 
+________ GraphDescription ________
+AVAudioEngineGraph 0x6000035842d0: initialized = 1, running = 1, number of nodes = 2
+
+	 ******** output chain ********
+
+	 node 0x600003f403c0 {auou genr appl}, 'I'
+		 inputs = 1
+			 (bus0, en1) <- (bus0) 0x385d28aa0, {augn sspl appl}, [ 2 ch,  44100 Hz, Float32, deinterleaved]
+
+	 node 0x385d28aa0 {augn sspl appl}, 'I'
+		 outputs = 1
+			 (bus0, en1) -> (bus0) 0x600003f403c0, {auou genr appl}, [ 2 ch,  44100 Hz, Float32, deinterleaved]
+______________________________________
+manual rendering maximum frame count: 16384
+got enough data already.
+starting audioqueue to play file:///Users/till/Music/Music2Go/Media.localized/Patrice%20Ba%CC%88umel/Unknown%20Album/Patrice%20Baumel%20HALO%20Goodbye%202025%20Mix.m4a
+audioControllerPlaybackStarted
+re-starting beat effect
+renderer starting...
+start animating coverview with tempo 125.000000
+coverview was paused, resume
+audioControllerPlaybackPlaying
+screen locked with result 0
+audio now running = 0
+signalling we are paused
+audioControllerPlaybackPaused
+screen unlocked with result 0
+audio now running = 1
+signalling we are running
+start animating coverview with tempo 125.000000
+coverview was paused, resume
+audioControllerPlaybackPlaying
+screen locked with result 0
+active track: 0
+last tile rendering: 17081
+...decoding done
+old engine freed - exiting decoder
+decoder is done - we are back on the main thread - run the callback block with 1
+beats tracking...
+beat detect pass one: libaubio
+active track: 4294967295
+initial silence ends at 1100801 frames after start of sample
+trailing silence starts 1239945 frames before end of sample
+pass two: locate constant regions
+pass three: identify longest constant region from out of 2523
+longest constant region: 4320574.00 frames, 209 beats
+pass four: find a region at the beginning of the track with a similar tempo and phase
+startRegionIndex: 1584
+pass five: find a region at the end of the track with a similar tempo and phase
+longestRegionNumberOfBeats: 3172
+start: 1584, mid: 2088, count: 2523, longest: 65570903.00
+first beat: 204878941, longest region length: 65570903.00, number of beats: 3172
+pass six: create a const region from the first beat of the first region to the last beat of the last region
+rounded BPM: 128.0000
+first possible beat offset 20659
+graciously adjusted possible beat offset towards frame -12
+silence ends at frame 1100801
+rounded beat length is 20671 frames
+silently adjusted first beat offset = 1095597
+adjusting phase by: -45.87
+first beat frame = 1095551 with 128.00
+...beats tracking done - total beats: 13487
+re-starting beat effect
+key tracking...
+skipping key tracking - sample is too long to get any value out.
+key tracking finished
+removing LazySample 0x600002a20230 from memory
+starting track list detection
+detectTracklist (streaming)
+[Detect] progress 0% (0/279870400 frames)
+[Detect] progress 10% (28047600/279870400 frames)
+[Detect] progress 20% (56095200/279870400 frames)
+[Detect] progress 30% (84142800/279870400 frames)
+[Detect] progress 40% (112190400/279870400 frames)
+[Detect] progress 50% (140238000/279870400 frames)
+[Detect] progress 60% (168285600/279870400 frames)
+[Detect] progress 70% (196333200/279870400 frames)
+[Detect] progress 80% (224380800/279870400 frames)
+[Detect] progress 90% (251899200/279870400 frames)
+track detection feed finished with 1 - checking completion
+firing completion after 529 requests / 528 responses (finishedFeeding=1) inFlightMax=2 latency(avg/min/max)=0.269/0.156/0.814
+[ShazamTiming] firstMatch=0.00s delta(mean/p25/p50/p75)=12.60/12.00/12.00/12.00 samples=503
+[InputMeta] sampleRate:44100.0 hopSize:529200 signatureWindow:8.0s maxSignatureWindow:8.0s skipRefinement:0 frames:279870400
+[Shazam] frame:0 artist:YOTTO title:Seat 11 score:0.000 confidence:1
+[Shazam] frame:529200 artist:YOTTO title:Seat 11 score:0.000 confidence:1
+[Shazam] frame:1058400 artist:YOTTO title:Seat 11 score:0.000 confidence:1
+[Shazam] frame:1587600 artist:YOTTO title:Seat 11 score:0.000 confidence:1
+[Shazam] frame:2116800 artist:Tinlicker & Solomon Grey title:Choir To The Wild score:0.000 confidence:1
+[Shazam] frame:2646000 artist:Full Trunk & Ninet Tayeb title:נגנב ממך score:0.000 confidence:1
+[Shazam] frame:3175200 artist:Deathmind & Sequence title:The Concept score:0.000 confidence:1
+[Shazam] frame:3704400 artist:YOTTO title:Seat 11 score:0.000 confidence:1
+[Shazam] frame:4233600 artist:YOTTO title:Seat 11 score:0.000 confidence:1
+[Shazam] frame:4762800 artist:YOTTO title:Seat 11 score:0.000 confidence:1
+[Shazam] frame:5292000 artist:''El Obama'' Carlos Anderson title:Protégeme Señor (Padre Guilherme & KYD3N Remix (Radio Edit)) score:0.000 confidence:1
+[Shazam] frame:5821200 artist:Mark Alow title:Trip To The Lonely Planet score:0.000 confidence:1
+[Shazam] frame:6350400 artist:Mark Alow title:Trip To The Lonely Planet score:0.000 confidence:1
+[Shazam] frame:6879600 artist:YOTTO title:Seat 11 score:0.000 confidence:1
+[Shazam] frame:7408800 artist:YOTTO title:Seat 11 score:0.000 confidence:1
+[Shazam] frame:7938000 artist:Melvin Meeks title:Acid Mode score:0.000 confidence:1
+[Shazam] frame:8467200 artist:Tigerskin & Alfa State title:Slippery Roads (Pablo Bolivar Remix) score:0.000 confidence:1
+[Shazam] frame:8996400 artist:Arsevty title:Element score:0.000 confidence:1
+[Shazam] frame:9525600 artist:Chris Alot title:Paradise score:0.000 confidence:1
+[Shazam] frame:10054800 artist:Dark Society title:Let's Make Bunga Bunga (Original Mix) score:0.000 confidence:1
+[Shazam] frame:10584000 artist:Tigerskin & Alfa State title:Slippery Roads (Pablo Bolivar Remix) score:0.000 confidence:1
+[Shazam] frame:11113200 artist:Tigerskin & Alfa State title:Slippery Roads (Pablo Bolivar Remix) score:0.000 confidence:1
+[Shazam] frame:11642400 artist:Scape One & Tau Sagittarii title:After the Rain score:0.000 confidence:1
+[Shazam] frame:12171600 artist:Gabriel Marchisio title:More Days on Week score:0.000 confidence:1
+[Shazam] frame:12700800 artist:Energy 52 title:Café Del Mar (Deadmau5 Remix) score:0.000 confidence:1
+[Shazam] frame:13230000 artist:Chromeo title:Fancy Footwork score:0.000 confidence:1
+[Shazam] frame:13759200 artist:Tigerskin & Alfa State title:Slippery Roads (Pablo Bolivar Remix) score:0.000 confidence:1
+[Shazam] frame:14288400 artist:Tigerskin & Alfa State title:Slippery Roads (Pablo Bolivar Remix) score:0.000 confidence:1
+[Shazam] frame:14817600 artist:Tigerskin & Alfa State title:Slippery Roads (Pablo Bolivar Remix) score:0.000 confidence:1
+[Shazam] frame:15346800 artist:Tigerskin & Alfa State title:Slippery Roads (Pablo Bolivar Remix) score:0.000 confidence:1
+[Shazam] frame:15876000 artist:Tigerskin & Alfa State title:Slippery Roads (Pablo Bolivar Remix) score:0.000 confidence:1
+[Shazam] frame:16405200 artist:Tigerskin & Alfa State title:Slippery Roads (Pablo Bolivar Remix) score:0.000 confidence:1
+[Shazam] frame:16934400 artist:Tigerskin & Alfa State title:Slippery Roads (Pablo Bolivar Remix) score:0.000 confidence:1
+[Shazam] frame:17463600 artist:Tigerskin & Alfa State title:Slippery Roads (Pablo Bolivar Remix) score:0.000 confidence:1
+[Shazam] frame:17992800 artist:Ichisan & Nakova title:Mrk (Jonathan Krisp Remix) score:0.000 confidence:1
+[Shazam] frame:18522000 artist:Tigerskin & Alfa State title:Slippery Roads (Pablo Bolivar Remix) score:0.000 confidence:1
+[Shazam] frame:19051200 artist:X-Press 2 title:Say What! (London Underground Mix) score:0.000 confidence:1
+[Shazam] frame:19580400 artist:Andy Compton title:That Acid Track score:0.000 confidence:1
+[Shazam] frame:20109600 artist:X-Press 2 title:Say What! (London Underground Mix) score:0.000 confidence:1
+[Shazam] frame:20638800 artist:Andy Compton title:That Acid Track score:0.000 confidence:1
+[Shazam] frame:21168000 artist:Andy Compton title:That Acid Track score:0.000 confidence:1
+[Shazam] frame:21697200 artist:Andy Compton title:That Acid Track score:0.000 confidence:1
+[Shazam] frame:22226400 artist:Andy Compton title:That Acid Track score:0.000 confidence:1
+[Shazam] frame:22755600 artist:Andy Compton title:That Acid Track score:0.000 confidence:1
+[Shazam] frame:23284800 artist:Gigi D'Agostino title:Bla Bla Bla score:0.000 confidence:1
+[Shazam] frame:23814000 artist:X-Press 2 title:Say What! (London Underground Mix) score:0.000 confidence:1
+[Shazam] frame:24343200 artist:Claptone & Mylo title:Drop the Pressure score:0.000 confidence:1
+[Shazam] frame:24872400 artist:Saktu title:Muted Glow (Extended Mix) score:0.000 confidence:1
+[Shazam] frame:25401600 artist:Saktu title:Muted Glow (Extended Mix) score:0.000 confidence:1
+[Shazam] frame:25930800 artist:Saktu title:Muted Glow (Extended Mix) score:0.000 confidence:1
+[Shazam] frame:26460000 artist:Saktu title:Muted Glow (Extended Mix) score:0.000 confidence:1
+[Shazam] frame:26989200 artist:X-Press 2 title:Say What! (London Underground Mix) score:0.000 confidence:1
+[Shazam] frame:27518400 artist:X-Press 2 title:Say What! (London Underground Mix) score:0.000 confidence:1
+[Shazam] frame:28047600 artist:X-Press 2 title:Say What! (London Underground Mix) score:0.000 confidence:1
+[Shazam] frame:28576800 artist:Andy Compton title:That Acid Track score:0.000 confidence:1
+[Shazam] frame:29106000 artist:BLR & Rave & Crave title:Taj score:0.000 confidence:1
+[Shazam] frame:29635200 artist:Wuki title:Edge of Seventeen score:0.000 confidence:1
+[Shazam] frame:30164400 artist:Andy Compton title:That Acid Track score:0.000 confidence:1
+[Shazam] frame:30693600 artist:Lorenzo Silvano title:Undertrack score:0.000 confidence:1
+[Shazam] frame:31222800 artist:Dosem & Prok & Fitch title:Doors score:0.000 confidence:1
+[Shazam] frame:31752000 artist:Calvin Harris & Disciples title:How Deep Is Your Love (Disciples & Unorthodox Remix) score:0.000 confidence:1
+[Shazam] frame:32281200 artist:Matt Sassari title:Give It to Me score:0.000 confidence:1
+[Shazam] frame:32810400 artist:Kevin de Vries & Mau P title:Metro score:0.000 confidence:1
+[Shazam] frame:33339600 artist:The Ones title:Flawless (ATOC Re-Remix) score:0.000 confidence:1
+[Shazam] frame:33868800 artist:The Ones title:Flawless (ATOC Re-Remix) score:0.000 confidence:1
+[Shazam] frame:34398000 artist:Dosem & Prok & Fitch title:Doors score:0.000 confidence:1
+[Shazam] frame:34927200 artist:Fragma title:Toca Me (Inpetto 2008 Mix) score:0.000 confidence:1
+[Shazam] frame:35456400 artist:Fragma title:Toca Me (Inpetto 2008 Mix) score:0.000 confidence:1
+[Shazam] frame:35985600 artist:Chymamusique title:Lost in Words (Main Saxed Mix) score:0.000 confidence:1
+[Shazam] frame:36514800 artist:Chymamusique title:Lost in Words (Main Saxed Mix) score:0.000 confidence:1
+[Shazam] frame:37044000 artist:Chymamusique title:Lost in Words (Main Saxed Mix) score:0.000 confidence:1
+[Shazam] frame:37573200 artist: title:unknown score:0.000 confidence:(null)
+[Shazam] frame:38102400 artist: title:unknown score:0.000 confidence:(null)
+[Shazam] frame:38631600 artist:Chymamusique title:Lost in Words (Main Saxed Mix) score:0.000 confidence:1
+[Shazam] frame:39160800 artist:Majestic & Boney M. title:Rasputin score:0.000 confidence:1
+[Shazam] frame:39690000 artist:Chymamusique title:Lost in Words (Main Saxed Mix) score:0.000 confidence:1
+[Shazam] frame:40219200 artist: title:unknown score:0.000 confidence:(null)
+[Shazam] frame:40748400 artist: title:unknown score:0.000 confidence:(null)
+[Shazam] frame:41277600 artist: title:unknown score:0.000 confidence:(null)
+[Shazam] frame:41806800 artist: title:unknown score:0.000 confidence:(null)
+[Shazam] frame:42336000 artist: title:unknown score:0.000 confidence:(null)
+[Shazam] frame:42865200 artist: title:unknown score:0.000 confidence:(null)
+[Shazam] frame:43394400 artist: title:unknown score:0.000 confidence:(null)
+[Shazam] frame:43923600 artist:Ministers De La Funk title:Believe (feat. Jocelyn Brown) [Ministers Club Mix] score:0.000 confidence:1
+[Shazam] frame:44452800 artist:Paperclip People title:Throw (Slam's RTM Remix) score:0.000 confidence:1
+[Shazam] frame:44982000 artist:Floating Points title:Del Oro score:0.000 confidence:1
+[Shazam] frame:45511200 artist:Paperclip People title:Throw (Slam's RTM Remix) score:0.000 confidence:1
+[Shazam] frame:46040400 artist:Luca Morris & Mozzy Rekorder title:Gypsy Woman (La - Da - Dee) score:0.000 confidence:1
+[Shazam] frame:46569600 artist:Oxia title:Domino score:0.000 confidence:1
+[Shazam] frame:47098800 artist:Gusto title:Disco's Revenge (Mole Hole Dirty Mix) score:0.000 confidence:1
+[Shazam] frame:47628000 artist:Bob Sinclar title:World, Hold On (feat. Steve Edwards) [FISHER Rework] score:0.000 confidence:1
+[Shazam] frame:48157200 artist:Floating Points title:Del Oro score:0.000 confidence:1
+[Shazam] frame:48686400 artist:Dale Howard title:Rogue Keys score:0.000 confidence:1
+[Shazam] frame:49215600 artist:Alan Cerra & Gai Barone title:End of the Line (Gai Barone Remix) score:0.000 confidence:1
+[Shazam] frame:49744800 artist:Alan Cerra & Gai Barone title:End of the Line (Gai Barone Remix) score:0.000 confidence:1
+[Shazam] frame:50274000 artist:Alan Cerra & Gai Barone title:End of the Line (Gai Barone Remix) score:0.000 confidence:1
+[Shazam] frame:50803200 artist:Alan Cerra & Gai Barone title:End of the Line (Gai Barone Remix) score:0.000 confidence:1
+[Shazam] frame:51332400 artist:Alan Cerra & Gai Barone title:End of the Line (Gai Barone Remix) score:0.000 confidence:1
+[Shazam] frame:51861600 artist:Alan Cerra & Gai Barone title:End of the Line (Gai Barone Remix) score:0.000 confidence:1
+[Shazam] frame:52390800 artist:Alan Cerra & Gai Barone title:End of the Line (Gai Barone Remix) score:0.000 confidence:1
+[Shazam] frame:52920000 artist:Alan Cerra & Gai Barone title:End of the Line (Gai Barone Remix) score:0.000 confidence:1
+[Shazam] frame:53449200 artist:Steve Edwards, Bob Sinclar & Sly & Robbie title:World Hold On score:0.000 confidence:1
+[Shazam] frame:53978400 artist:Dale Howard title:Rogue Keys score:0.000 confidence:1
+[Shazam] frame:54507600 artist:The Return title:New Day score:0.000 confidence:1
+[Shazam] frame:55036800 artist:Alan Cerra & Gai Barone title:End of the Line (Gai Barone Remix) score:0.000 confidence:1
+[Shazam] frame:55566000 artist:Alan Cerra & Gai Barone title:End of the Line (Gai Barone Remix) score:0.000 confidence:1
+[Shazam] frame:56095200 artist:Alan Cerra & Gai Barone title:End of the Line (Gai Barone Remix) score:0.000 confidence:1
+[Shazam] frame:56624400 artist:Alan Cerra & Gai Barone title:End of the Line (Gai Barone Remix) score:0.000 confidence:1
+[Shazam] frame:57153600 artist:Culture Shock & TEED title:Back In Time (LSB Remix) score:0.000 confidence:1
+[Shazam] frame:57682800 artist:Alan Cerra & Gai Barone title:End of the Line (Gai Barone Remix) score:0.000 confidence:1
+[Shazam] frame:58212000 artist:Ricky Sinz title:Riders score:0.000 confidence:1
+[Shazam] frame:58741200 artist:Floating Points title:Del Oro score:0.000 confidence:1
+[Shazam] frame:59270400 artist:Dosem & Prok & Fitch title:Doors score:0.000 confidence:1
+[Shazam] frame:59799600 artist:Shane Fontane title:Rituals score:0.000 confidence:1
+[Shazam] frame:60328800 artist:Floating Points title:Del Oro score:0.000 confidence:1
+[Shazam] frame:60858000 artist:Floating Points title:Del Oro score:0.000 confidence:1
+[Shazam] frame:61387200 artist:Patrice Bäumel title:Serpent score:0.000 confidence:1
+[Shazam] frame:61916400 artist:Dark Roast Specialist title:Art vs Science (Dark) score:0.000 confidence:1
+[Shazam] frame:62445600 artist: title:unknown score:0.000 confidence:(null)
+[Shazam] frame:62974800 artist:M&d Substance title:Sounds I Never Hear (Original Mix) score:0.000 confidence:1
+[Shazam] frame:63504000 artist:Virasco title:REM Losing My Religion VIRASCO edit score:0.000 confidence:1
+[Shazam] frame:64033200 artist:M&d Substance title:Sounds I Never Hear (Original Mix) score:0.000 confidence:1
+[Shazam] frame:64562400 artist:Savas Pascalidis title:Shot In the Dark score:0.000 confidence:1
+[Shazam] frame:65091600 artist:Patrice Bäumel title:Serpent score:0.000 confidence:1
+[Shazam] frame:65620800 artist:Savas Pascalidis title:Shot In the Dark score:0.000 confidence:1
+[Shazam] frame:66150000 artist:Felipe Gus title:Let It Go score:0.000 confidence:1
+[Shazam] frame:66679200 artist:BLR & POOK title:Taj (Extended Mix) score:0.000 confidence:1
+[Shazam] frame:67208400 artist:Savas Pascalidis title:Shot In the Dark score:0.000 confidence:1
+[Shazam] frame:67737600 artist:Esoteric Circle title:Resilience score:0.000 confidence:1
+[Shazam] frame:68266800 artist:Savas Pascalidis title:Shot In the Dark score:0.000 confidence:1
+[Shazam] frame:68796000 artist:Savas Pascalidis title:Shot In the Dark score:0.000 confidence:1
+[Shazam] frame:69325200 artist:2hz title:Modest (Remastered) score:0.000 confidence:1
+[Shazam] frame:69854400 artist:Savas Pascalidis title:Shot In the Dark score:0.000 confidence:1
+[Shazam] frame:70383600 artist:2hz title:Modest (Remastered) score:0.000 confidence:1
+[Shazam] frame:70912800 artist:Alvaro Albarran title:Tubah - Single score:0.000 confidence:1
+[Shazam] frame:71442000 artist:Wigbert title:Balance score:0.000 confidence:1
+[Shazam] frame:71971200 artist:Christian Smith & Wehbba title:Mutate score:0.000 confidence:1
+[Shazam] frame:72500400 artist:Three Drives title:Greece 2000 (Sander Van Dien Remix) score:0.000 confidence:1
+[Shazam] frame:73029600 artist:Julian Wassermann title:Sol score:0.000 confidence:1
+[Shazam] frame:73558800 artist: title:unknown score:0.000 confidence:(null)
+[Shazam] frame:74088000 artist:Wehbba title:Backlash score:0.000 confidence:1
+[Shazam] frame:74617200 artist:Panos Pissitelis & Junior Mi title:Freaky score:0.000 confidence:1
+[Shazam] frame:75146400 artist:Alvaro Albarran title:Tubah - Single score:0.000 confidence:1
+[Shazam] frame:75675600 artist:Panos Pissitelis & Junior Mi title:Freaky score:0.000 confidence:1
+[Shazam] frame:76204800 artist:Fairmont title:Plastic Head Tv score:0.000 confidence:1
+[Shazam] frame:76734000 artist:DJ Maestro title:He Needs Me (Gramophonedzie Remix) score:0.000 confidence:1
+[Shazam] frame:77263200 artist:Loud Luxury title:Body (feat. brando) [Chus & Ceballos Extended Remix] score:0.000 confidence:1
+[Shazam] frame:77792400 artist:Joel Corry title:Sorry score:0.000 confidence:1
+[Shazam] frame:78321600 artist: title:unknown score:0.000 confidence:(null)
+[Shazam] frame:78850800 artist:Allen (Italy) & Filix title:Dusty Palace score:0.000 confidence:1
+[Shazam] frame:79380000 artist:Echonomist & Alexandros Miaris title:A Different Frame (Mita Gami Remix) score:0.000 confidence:1
+[Shazam] frame:79909200 artist:Djuma Soundsystem title:Les Djinns (Trentemøller Remix) score:0.000 confidence:1
+[Shazam] frame:80438400 artist:Borai & Denham Audio title:Make Me (Franky Rizardo Remix) score:0.000 confidence:1
+[Shazam] frame:80967600 artist:Julio Navas & David Amo title:Thank U score:0.000 confidence:1
+[Shazam] frame:81496800 artist:Munfell Muzik title:Eny score:0.000 confidence:1
+[Shazam] frame:82026000 artist:Munfell Muzik title:Eny score:0.000 confidence:1
+[Shazam] frame:82555200 artist:Munfell Muzik title:Eny score:0.000 confidence:1
+[Shazam] frame:83084400 artist:Dyuna title:Привет с большого бодуна score:0.000 confidence:1
+[Shazam] frame:83613600 artist:Makebo & Volen Sentir title:Alchemist score:0.000 confidence:1
+[Shazam] frame:84142800 artist:Faithless title:Insomnia (Monster Mix) score:0.000 confidence:1
+[Shazam] frame:84672000 artist:deadmau5 & Kaskade title:I Remember (Vocal Mix) score:0.000 confidence:1
+[Shazam] frame:85201200 artist:RÜFÜS DU SOL title:Innerbloom score:0.000 confidence:1
+[Shazam] frame:85730400 artist:Cosmic Gate & AVIRA title:How This Ends (feat. Sarah de Warren) [Extended Mix] score:0.000 confidence:1
+[Shazam] frame:86259600 artist:Tinlicker & Helsloot title:Because You Move Me (Extended Mix) score:0.000 confidence:1
+[Shazam] frame:86788800 artist:Paul Kalkbrenner title:No Goodbye score:0.000 confidence:1
+[Shazam] frame:87318000 artist:Contiez & Treyy G title:Trumpsta (Djuro Remix) score:0.000 confidence:1
+[Shazam] frame:87847200 artist:Brian Harden title:Tour De Chi score:0.000 confidence:1
+[Shazam] frame:88376400 artist: title:unknown score:0.000 confidence:(null)
+[Shazam] frame:88905600 artist: title:unknown score:0.000 confidence:(null)
+[Shazam] frame:89434800 artist: title:unknown score:0.000 confidence:(null)
+[Shazam] frame:89964000 artist:Munfell Muzik title:Eny score:0.000 confidence:1
+[Shazam] frame:90493200 artist:Julio Navas & David Amo title:Thank U score:0.000 confidence:1
+[Shazam] frame:91022400 artist: title:unknown score:0.000 confidence:(null)
+[Shazam] frame:91551600 artist:Joel Corry title:Sorry score:0.000 confidence:1
+[Shazam] frame:92080800 artist:Nahuel Perez title:Buscando Money Vs Hombres y Mujeres (Remix) score:0.000 confidence:1
+[Shazam] frame:92610000 artist:Julio Navas & David Amo title:Thank U score:0.000 confidence:1
+[Shazam] frame:93139200 artist:RÜFÜS DU SOL title:Innerbloom score:0.000 confidence:1
+[Shazam] frame:93668400 artist:FORSBY title:Red Tape score:0.000 confidence:1
+[Shazam] frame:94197600 artist:RÜFÜS DU SOL title:Innerbloom score:0.000 confidence:1
+[Shazam] frame:94726800 artist:Vlada Asanin & Joe Red title:Losing You score:0.000 confidence:1
+[Shazam] frame:95256000 artist:Kidoo title:C'mon score:0.000 confidence:1
+[Shazam] frame:95785200 artist:Faithless title:Insomnia (Monster Mix) score:0.000 confidence:1
+[Shazam] frame:96314400 artist:Munfell Muzik title:Eny score:0.000 confidence:1
+[Shazam] frame:96843600 artist:MK & Clementine Douglas title:Come Find Me score:0.000 confidence:1
+[Shazam] frame:97372800 artist:Mark Knight & René Amesz title:All 4 Love (feat. Tasty Lopez) score:0.000 confidence:1
+[Shazam] frame:97902000 artist:Vlada Asanin & Joe Red title:Losing You score:0.000 confidence:1
+[Shazam] frame:98431200 artist:Uto Karem title:Body Move score:0.000 confidence:1
+[Shazam] frame:98960400 artist:Gotye, FISHER & Chris Lake title:Somebody (feat. Kimbra & Sante Sansone) score:0.000 confidence:1
+[Shazam] frame:99489600 artist:Kidoo title:C'mon score:0.000 confidence:1
+[Shazam] frame:100018800 artist:Corona title:I Don't Wanna be A Star (Lee Marrow E.U.R.O Beat Mix) score:0.000 confidence:1
+[Shazam] frame:100548000 artist:RÜFÜS DU SOL title:Lately (Adam Ten & Mita Gami Remix) score:0.000 confidence:1
+[Shazam] frame:101077200 artist:Calvin Harris title:Bounce (Extended Mix) [feat. Kelis] score:0.000 confidence:1
+[Shazam] frame:101606400 artist:Alex Albrecht title:The Arboretum score:0.000 confidence:1
+[Shazam] frame:102135600 artist:Alex Albrecht title:The Arboretum score:0.000 confidence:1
+[Shazam] frame:102664800 artist:Alex Albrecht title:The Arboretum score:0.000 confidence:1
+[Shazam] frame:103194000 artist:Alex Albrecht title:The Arboretum score:0.000 confidence:1
+[Shazam] frame:103723200 artist:Alex Albrecht title:The Arboretum score:0.000 confidence:1
+[Shazam] frame:104252400 artist:Alex Albrecht title:The Arboretum score:0.000 confidence:1
+[Shazam] frame:104781600 artist:Alex Albrecht title:The Arboretum score:0.000 confidence:1
+[Shazam] frame:105310800 artist:Alex Albrecht title:The Arboretum score:0.000 confidence:1
+[Shazam] frame:105840000 artist:Alex Albrecht title:The Arboretum score:0.000 confidence:1
+[Shazam] frame:106369200 artist:Alex Albrecht title:The Arboretum score:0.000 confidence:1
+[Shazam] frame:106898400 artist:Alex Albrecht title:The Arboretum score:0.000 confidence:1
+[Shazam] frame:107427600 artist:Alex Albrecht title:The Arboretum score:0.000 confidence:1
+[Shazam] frame:107956800 artist:Alex Albrecht title:The Arboretum score:0.000 confidence:1
+[Shazam] frame:108486000 artist:Alex Albrecht title:The Arboretum score:0.000 confidence:1
+[Shazam] frame:109015200 artist:Alex Albrecht title:The Arboretum score:0.000 confidence:1
+[Shazam] frame:109544400 artist:The Ones title:Flawless (ATOC Re-Remix) score:0.000 confidence:1
+[Shazam] frame:110073600 artist:Steve Aoki, Chris Lake & Tujamo title:Boneless score:0.000 confidence:1
+[Shazam] frame:110602800 artist:Gotye title:Somebody That I Used to Know (Tiësto Remix) [feat. Kimbra] score:0.000 confidence:1
+[Shazam] frame:111132000 artist:Calvin Harris & Disciples title:How Deep Is Your Love (Disciples & Unorthodox Remix) score:0.000 confidence:1
+[Shazam] frame:111661200 artist:Amine Edge & DANCE & Blaze (Kevin Hedge) title:Lovelee Dae score:0.000 confidence:1
+[Shazam] frame:112190400 artist:Amine Edge & DANCE & Blaze (Kevin Hedge) title:Lovelee Dae score:0.000 confidence:1
+[Shazam] frame:112719600 artist:Jax Jones & MNEK title:Where Did You Go? score:0.000 confidence:1
+[Shazam] frame:113248800 artist:Blaze & Bicep title:Lovelee Dae (Bicep Remix) score:0.000 confidence:1
+[Shazam] frame:113778000 artist:Blaze & Bicep title:Lovelee Dae (Bicep Remix) score:0.000 confidence:1
+[Shazam] frame:114307200 artist:Ron Hall & The MuthaFunkaz title:The Way You Love Me (feat. Marc Evans) score:0.000 confidence:1
+[Shazam] frame:114836400 artist:Blaze & Bicep title:Lovelee Dae (Bicep Remix) score:0.000 confidence:1
+[Shazam] frame:115365600 artist:Jax Jones & MNEK title:Where Did You Go? score:0.000 confidence:1
+[Shazam] frame:115894800 artist:Zimmie Gix title:Absolute Chill score:0.000 confidence:1
+[Shazam] frame:116424000 artist:Corona title:Try Me Out score:0.000 confidence:1
+[Shazam] frame:116953200 artist:Solee title:Shanti score:0.000 confidence:1
+[Shazam] frame:117482400 artist:Simon from Deep Divas vs Corona title:The Rhythm of the Night (Club Mix) score:0.000 confidence:1
+[Shazam] frame:118011600 artist:Dua Lipa title:Don't Start Now (Purple Disco Machine Remix) score:0.000 confidence:1
+[Shazam] frame:118540800 artist:Andrea Frisina title:Faith (Dedicated Mix) score:0.000 confidence:1
+[Shazam] frame:119070000 artist:Sean & Dee title:Last Tree Standing score:0.000 confidence:1
+[Shazam] frame:119599200 artist:Corona title:Try Me Out score:0.000 confidence:1
+[Shazam] frame:120128400 artist:Faithless title:Insomnia (Monster Mix) score:0.000 confidence:1
+[Shazam] frame:120657600 artist:Jax Jones & MNEK title:Where Did You Go? score:0.000 confidence:1
+[Shazam] frame:121186800 artist:Jax Jones & MNEK title:Where Did You Go? score:0.000 confidence:1
+[Shazam] frame:121716000 artist:Jax Jones & MNEK title:Where Did You Go? score:0.000 confidence:1
+[Shazam] frame:122245200 artist:Faithless title:Insomnia (Monster Mix) score:0.000 confidence:1
+[Shazam] frame:122774400 artist:Jax Jones & MNEK title:Where Did You Go? score:0.000 confidence:1
+[Shazam] frame:123303600 artist:Blaze & Bicep title:Lovelee Dae (Bicep Remix) score:0.000 confidence:1
+[Shazam] frame:123832800 artist:Jax Jones & MNEK title:Where Did You Go? score:0.000 confidence:1
+[Shazam] frame:124362000 artist:Blaze & Bicep title:Lovelee Dae (Bicep Remix) score:0.000 confidence:1
+[Shazam] frame:124891200 artist:Salif Keïta title:Madan score:0.000 confidence:1
+[Shazam] frame:125420400 artist:Andy Compton title:That Acid Track score:0.000 confidence:1
+[Shazam] frame:125949600 artist:SolyMar & Megamen title:All I Need score:0.000 confidence:1
+[Shazam] frame:126478800 artist:Enzo Siragusa & Nima Gorji title:Foreal (Seb Zito Remix) score:0.000 confidence:1
+[Shazam] frame:127008000 artist:Luca Morris & Mozzy Rekorder title:Gypsy Woman (La - Da - Dee) score:0.000 confidence:1
+[Shazam] frame:127537200 artist:Biscits title:Wait A Minute score:0.000 confidence:1
+[Shazam] frame:128066400 artist:Nightcrawlers title:Push the Feeling On (T. Tommy Victor Perez & Vicente Ferrer Remix) score:0.000 confidence:1
+[Shazam] frame:128595600 artist:Energy 52 title:Café Del Mar (Three 'N One Radio Edit) score:0.000 confidence:1
+[Shazam] frame:129124800 artist:Nightcrawlers title:Push the Feeling On (T. Tommy Victor Perez & Vicente Ferrer Remix) score:0.000 confidence:1
+[Shazam] frame:129654000 artist:New Order title:Blue Monday score:0.000 confidence:1
+[Shazam] frame:130183200 artist:New Order title:Blue Monday score:0.000 confidence:1
+[Shazam] frame:130712400 artist:Nightcrawlers title:Push the Feeling On (T. Tommy Victor Perez & Vicente Ferrer Remix) score:0.000 confidence:1
+[Shazam] frame:131241600 artist:Greg Beato title:Pma score:0.000 confidence:1
+[Shazam] frame:131770800 artist:Max Styler & Kyle Walker title:Give It Up (Extended Mix) score:0.000 confidence:1
+[Shazam] frame:132300000 artist:Greg Beato title:Pma score:0.000 confidence:1
+[Shazam] frame:132829200 artist:Greg Beato title:Pma score:0.000 confidence:1
+[Shazam] frame:133358400 artist:Lello B. title:L.O.V.E (Lello B Remix) score:0.000 confidence:1
+[Shazam] frame:133887600 artist:Greg Beato title:Pma score:0.000 confidence:1
+[Shazam] frame:134416800 artist:Edmondson title:Masquerade score:0.000 confidence:1
+[Shazam] frame:134946000 artist:Lane 8 title:Loving You (feat. Lulu James) [Solee Remix] score:0.000 confidence:1
+[Shazam] frame:135475200 artist:Lane 8 title:Loving You (feat. Lulu James) [Solee Remix] score:0.000 confidence:1
+[Shazam] frame:136004400 artist:Nana K & Ben Champell title:Rapid Zone (Albird Remix) score:0.000 confidence:1
+[Shazam] frame:136533600 artist:Oliv Olivers & Roslav title:Révolution score:0.000 confidence:1
+[Shazam] frame:137062800 artist:Edmondson title:Masquerade score:0.000 confidence:1
+[Shazam] frame:137592000 artist:Monolink title:Return to Oz score:0.000 confidence:1
+[Shazam] frame:138121200 artist:Edmondson title:Masquerade score:0.000 confidence:1
+[Shazam] frame:138650400 artist:Edmondson title:Masquerade score:0.000 confidence:1
+[Shazam] frame:139179600 artist:The Golden Boy title:Blah Blah Shake score:0.000 confidence:1
+[Shazam] frame:139708800 artist:Paul C & Paolo Martini title:Klong (Max Chapman & Apollo 84 Remix) score:0.000 confidence:1
+[Shazam] frame:140238000 artist:Slove & David Shaw and the Beat title:Special Places (Damon Jee Remix) score:0.000 confidence:1
+[Shazam] frame:140767200 artist:Nana K & Ben Champell title:Rapid Zone (Albird Remix) score:0.000 confidence:1
+[Shazam] frame:141296400 artist:Slove & David Shaw and the Beat title:Special Places (Damon Jee Remix) score:0.000 confidence:1
+[Shazam] frame:141825600 artist:Slove & David Shaw and the Beat title:Special Places (Damon Jee Remix) score:0.000 confidence:1
+[Shazam] frame:142354800 artist:Slove & David Shaw and the Beat title:Special Places (Damon Jee Remix) score:0.000 confidence:1
+[Shazam] frame:142884000 artist:Slove & David Shaw and the Beat title:Special Places (Damon Jee Remix) score:0.000 confidence:1
+[Shazam] frame:143413200 artist:Slove & David Shaw and the Beat title:Special Places (Damon Jee Remix) score:0.000 confidence:1
+[Shazam] frame:143942400 artist:Slove & David Shaw and the Beat title:Special Places (Damon Jee Remix) score:0.000 confidence:1
+[Shazam] frame:144471600 artist:Slove & David Shaw and the Beat title:Special Places (Damon Jee Remix) score:0.000 confidence:1
+[Shazam] frame:145000800 artist:Renato Hoffman title:Ghost score:0.000 confidence:1
+[Shazam] frame:145530000 artist:Slove & David Shaw and the Beat title:Special Places (Damon Jee Remix) score:0.000 confidence:1
+[Shazam] frame:146059200 artist:Slove & David Shaw and the Beat title:Special Places (Damon Jee Remix) score:0.000 confidence:1
+[Shazam] frame:146588400 artist:Slove & David Shaw and the Beat title:Special Places (Damon Jee Remix) score:0.000 confidence:1
+[Shazam] frame:147117600 artist:Slove & David Shaw and the Beat title:Special Places (Damon Jee Remix) score:0.000 confidence:1
+[Shazam] frame:147646800 artist:Slove & David Shaw and the Beat title:Special Places (Damon Jee Remix) score:0.000 confidence:1
+[Shazam] frame:148176000 artist:Slove & David Shaw and the Beat title:Special Places (Damon Jee Remix) score:0.000 confidence:1
+[Shazam] frame:148705200 artist:Slove & David Shaw and the Beat title:Special Places (Damon Jee Remix) score:0.000 confidence:1
+[Shazam] frame:149234400 artist:Slove & David Shaw and the Beat title:Special Places (Damon Jee Remix) score:0.000 confidence:1
+[Shazam] frame:149763600 artist:Donna Summer title:I Feel Love score:0.000 confidence:1
+[Shazam] frame:150292800 artist:Slove & David Shaw and the Beat title:Special Places (Damon Jee Remix) score:0.000 confidence:1
+[Shazam] frame:150822000 artist:Slove & David Shaw and the Beat title:Special Places (Damon Jee Remix) score:0.000 confidence:1
+[Shazam] frame:151351200 artist:Putra Baar title:One More Dance score:0.000 confidence:1
+[Shazam] frame:151880400 artist:Slove & David Shaw and the Beat title:Special Places (Damon Jee Remix) score:0.000 confidence:1
+[Shazam] frame:152409600 artist:Steve Smooth title:I'm Not Sorry (feat. Krystal Malik) [Steve Smooth & Kalendr Remix] score:0.000 confidence:1
+[Shazam] frame:152938800 artist:Christian Thomas title:Wake (Far Out Remix) score:0.000 confidence:1
+[Shazam] frame:153468000 artist:Sil title:Villa Ducato score:0.000 confidence:1
+[Shazam] frame:153997200 artist:Vincent Casanova title:Hold Me score:0.000 confidence:1
+[Shazam] frame:154526400 artist:Vincent Casanova title:Hold Me score:0.000 confidence:1
+[Shazam] frame:155055600 artist:Inland Knights title:Deep In score:0.000 confidence:1
+[Shazam] frame:155584800 artist:Inland Knights title:Deep In score:0.000 confidence:1
+[Shazam] frame:156114000 artist:Inland Knights title:Deep In score:0.000 confidence:1
+[Shazam] frame:156643200 artist:Inland Knights title:Deep In score:0.000 confidence:1
+[Shazam] frame:157172400 artist:Inland Knights title:Deep In score:0.000 confidence:1
+[Shazam] frame:157701600 artist:Ohmme title:Excess (Original Mix) score:0.000 confidence:1
+[Shazam] frame:158230800 artist:Panos Pissitelis & Junior Mi title:Freaky score:0.000 confidence:1
+[Shazam] frame:158760000 artist:D-Ignition Project title:Diving (Original Mix) score:0.000 confidence:1
+[Shazam] frame:159289200 artist:Vincent Casanova title:Hold Me score:0.000 confidence:1
+[Shazam] frame:159818400 artist:Vincent Casanova title:Hold Me score:0.000 confidence:1
+[Shazam] frame:160347600 artist:Vincent Casanova title:Hold Me score:0.000 confidence:1
+[Shazam] frame:160876800 artist:Vincent Casanova title:Hold Me score:0.000 confidence:1
+[Shazam] frame:161406000 artist:Vincent Casanova title:Hold Me score:0.000 confidence:1
+[Shazam] frame:161935200 artist:Supershy title:Happy Music score:0.000 confidence:1
+[Shazam] frame:162464400 artist:Supershy title:Happy Music score:0.000 confidence:1
+[Shazam] frame:162993600 artist:Inland Knights title:Deep In score:0.000 confidence:1
+[Shazam] frame:163522800 artist:Supershy title:Happy Music score:0.000 confidence:1
+[Shazam] frame:164052000 artist:Inland Knights title:Deep In score:0.000 confidence:1
+[Shazam] frame:164581200 artist:Inland Knights title:Deep In score:0.000 confidence:1
+[Shazam] frame:165110400 artist:Inland Knights title:Deep In score:0.000 confidence:1
+[Shazam] frame:165639600 artist:Lexuspi title:M.A.T.B Love score:0.000 confidence:1
+[Shazam] frame:166168800 artist:Inland Knights title:Deep In score:0.000 confidence:1
+[Shazam] frame:166698000 artist:Inland Knights title:Deep In score:0.000 confidence:1
+[Shazam] frame:167227200 artist:Vincent Casanova title:Hold Me score:0.000 confidence:1
+[Shazam] frame:167756400 artist:Vincent Casanova title:Hold Me score:0.000 confidence:1
+[Shazam] frame:168285600 artist:Green Velvet title:La La Land score:0.000 confidence:1
+[Shazam] frame:168814800 artist:Nick Curly title:Go score:0.000 confidence:1
+[Shazam] frame:169344000 artist:Nick Curly title:Go score:0.000 confidence:1
+[Shazam] frame:169873200 artist:Nick Curly title:Go score:0.000 confidence:1
+[Shazam] frame:170402400 artist:Arnaud Rebotini title:777 (Ascii Disko Remix) score:0.000 confidence:1
+[Shazam] frame:170931600 artist:Yves Larock title:Rise Up score:0.000 confidence:1
+[Shazam] frame:171460800 artist:Boris Brejcha title:On His Way score:0.000 confidence:1
+[Shazam] frame:171990000 artist:Ezel title:You Got Worked (feat. Mateo Senolia) [Casamena Stripped Remix] score:0.000 confidence:1
+[Shazam] frame:172519200 artist:Yves Larock title:Rise Up score:0.000 confidence:1
+[Shazam] frame:173048400 artist:Ezel title:You Got Worked (feat. Mateo Senolia) [Casamena Stripped Remix] score:0.000 confidence:1
+[Shazam] frame:173577600 artist:Boom! title:Messed Up score:0.000 confidence:1
+[Shazam] frame:174106800 artist:Yves Larock title:Rise Up (feat. Jaba) score:0.000 confidence:1
+[Shazam] frame:174636000 artist:Nick Curly title:Go score:0.000 confidence:1
+[Shazam] frame:175165200 artist:Nick Curly title:Go score:0.000 confidence:1
+[Shazam] frame:175694400 artist:Nick Curly title:Go score:0.000 confidence:1
+[Shazam] frame:176223600 artist:antraum, An-Ton & Traumer title:Ju (Traumer Sunset Mix) score:0.000 confidence:1
+[Shazam] frame:176752800 artist:Nick Curly title:Go score:0.000 confidence:1
+[Shazam] frame:177282000 artist:Yves Larock title:Rise Up score:0.000 confidence:1
+[Shazam] frame:177811200 artist:Boom! title:Messed Up score:0.000 confidence:1
+[Shazam] frame:178340400 artist:Alex O'Rion title:Blackout score:0.000 confidence:1
+[Shazam] frame:178869600 artist:Tiësto title:The Business (Vintage Culture & Dubdogz Remix) score:0.000 confidence:1
+[Shazam] frame:179398800 artist:Alex O'Rion title:Blackout score:0.000 confidence:1
+[Shazam] frame:179928000 artist:Eduardo Alvarado title:Cerveza Especial score:0.000 confidence:1
+[Shazam] frame:180457200 artist:David Guetta title:When Love Takes Over (feat. Kelly Rowland) score:0.000 confidence:1
+[Shazam] frame:180986400 artist:Eduardo Alvarado title:Cerveza Especial score:0.000 confidence:1
+[Shazam] frame:181515600 artist:Alex O'Rion title:Blackout score:0.000 confidence:1
+[Shazam] frame:182044800 artist:Mylo title:Drop the Pressure (Club Mix) score:0.000 confidence:1
+[Shazam] frame:182574000 artist:Diego Costa title:Synesthesia score:0.000 confidence:1
+[Shazam] frame:183103200 artist:Mylo title:Drop the Pressure score:0.000 confidence:1
+[Shazam] frame:183632400 artist:Alex O'Rion title:Blackout score:0.000 confidence:1
+[Shazam] frame:184161600 artist:Alex O'Rion title:Blackout score:0.000 confidence:1
+[Shazam] frame:184690800 artist:Alex O'Rion title:Blackout score:0.000 confidence:1
+[Shazam] frame:185220000 artist:Alex O'Rion title:Blackout score:0.000 confidence:1
+[Shazam] frame:185749200 artist:Alex O'Rion title:Blackout score:0.000 confidence:1
+[Shazam] frame:186278400 artist:Alex O'Rion title:Blackout score:0.000 confidence:1
+[Shazam] frame:186807600 artist:Max Styler & Kyle Walker title:Give It Up (Extended Mix) score:0.000 confidence:1
+[Shazam] frame:187336800 artist:Alex O'Rion title:Blackout score:0.000 confidence:1
+[Shazam] frame:187866000 artist:Paolo Rocco title:People Say (Tech House Edit) [Nic Fanciulli Remix] score:0.000 confidence:1
+[Shazam] frame:188395200 artist:Vintage Culture & James Hype title:You Give Me a Feeling score:0.000 confidence:1
+[Shazam] frame:188924400 artist:Alex O'Rion title:Blackout score:0.000 confidence:1
+[Shazam] frame:189453600 artist:Alex O'Rion title:Blackout score:0.000 confidence:1
+[Shazam] frame:189982800 artist:Alex O'Rion title:Blackout score:0.000 confidence:1
+[Shazam] frame:190512000 artist:Alex O'Rion title:Blackout score:0.000 confidence:1
+[Shazam] frame:191041200 artist:Anthony Godfather title:caliente (Club versión) score:0.000 confidence:1
+[Shazam] frame:191570400 artist:Alex O'Rion title:Blackout score:0.000 confidence:1
+[Shazam] frame:192099600 artist:Alex O'Rion title:Blackout score:0.000 confidence:1
+[Shazam] frame:192628800 artist:Lorenzo Silvano title:Undertrack score:0.000 confidence:1
+[Shazam] frame:193158000 artist:Alex O'Rion title:Blackout score:0.000 confidence:1
+[Shazam] frame:193687200 artist:Dirty Vegas title:Days Go By score:0.000 confidence:1
+[Shazam] frame:194216400 artist:Nightcrawlers title:Push the Feeling On (T. Tommy Victor Perez & Vicente Ferrer Remix) score:0.000 confidence:1
+[Shazam] frame:194745600 artist:Alex O'Rion title:Blackout score:0.000 confidence:1
+[Shazam] frame:195274800 artist:Alex O'Rion title:Blackout score:0.000 confidence:1
+[Shazam] frame:195804000 artist:Oliver Dollar title:Doin' Ya Thang score:0.000 confidence:1
+[Shazam] frame:196333200 artist:Eric Prydz title:Call on Me (HILLS Remix) [Mixed] score:0.000 confidence:1
+[Shazam] frame:196862400 artist:Alex O'Rion title:Blackout score:0.000 confidence:1
+[Shazam] frame:197391600 artist:Alex O'Rion title:Blackout score:0.000 confidence:1
+[Shazam] frame:197920800 artist:Alex O'Rion title:Blackout score:0.000 confidence:1
+[Shazam] frame:198450000 artist:Aaron Tracey title:Gameweek 9 score:0.000 confidence:1
+[Shazam] frame:198979200 artist:S Moreira title:Elevate score:0.000 confidence:1
+[Shazam] frame:199508400 artist:Alex O'Rion title:Blackout score:0.000 confidence:1
+[Shazam] frame:200037600 artist:Alex O'Rion title:Blackout score:0.000 confidence:1
+[Shazam] frame:200566800 artist:Alex O'Rion title:Blackout score:0.000 confidence:1
+[Shazam] frame:201096000 artist:Alex O'Rion title:Blackout score:0.000 confidence:1
+[Shazam] frame:201625200 artist:F.Sonik title:Simplon score:0.000 confidence:1
+[Shazam] frame:202154400 artist:Oliver Dollar title:Doin' Ya Thang score:0.000 confidence:1
+[Shazam] frame:202683600 artist:Alex O'Rion title:Blackout score:0.000 confidence:1
+[Shazam] frame:203212800 artist:Alex O'Rion title:Blackout score:0.000 confidence:1
+[Shazam] frame:203742000 artist:Alex O'Rion title:Blackout score:0.000 confidence:1
+[Shazam] frame:204271200 artist:Alex O'Rion title:Blackout score:0.000 confidence:1
+[Shazam] frame:204800400 artist:Alex O'Rion title:Blackout score:0.000 confidence:1
+[Shazam] frame:205329600 artist:Alex O'Rion title:Blackout score:0.000 confidence:1
+[Shazam] frame:205858800 artist:Alex O'Rion title:Blackout score:0.000 confidence:1
+[Shazam] frame:206388000 artist:Alex O'Rion title:Blackout score:0.000 confidence:1
+[Shazam] frame:206917200 artist:Alex O'Rion title:Blackout score:0.000 confidence:1
+[Shazam] frame:207446400 artist:Alex O'Rion title:Blackout score:0.000 confidence:1
+[Shazam] frame:207975600 artist:Guliver title:Calypso (Claudio PRC Remix) score:0.000 confidence:1
+[Shazam] frame:208504800 artist:Guliver title:Calypso (Claudio PRC Remix) score:0.000 confidence:1
+[Shazam] frame:209034000 artist:Oliver Dollar title:Doin' Ya Thang score:0.000 confidence:1
+[Shazam] frame:209563200 artist:Allies for Everyone title:Bunker (Jay Hill's Dreamy Tech Remix) score:0.000 confidence:1
+[Shazam] frame:210092400 artist:Mike Griego title:Back In Trance score:0.000 confidence:1
+[Shazam] frame:210621600 artist:Mike Griego title:Back In Trance score:0.000 confidence:1
+[Shazam] frame:211150800 artist:49ers title:Touch Me 2010 (Original Sexualversion) score:0.000 confidence:1
+[Shazam] frame:211680000 artist:MEDUZA & James Carter title:Bad Memories (feat. Elley Duhé & FAST BOY) score:0.000 confidence:1
+[Shazam] frame:212209200 artist:Adele title:Set Fire to the Rain (Moto Blanco Remix) score:0.000 confidence:1
+[Shazam] frame:212738400 artist:Mike Griego title:Back In Trance score:0.000 confidence:1
+[Shazam] frame:213267600 artist:Röyksopp & Fever Ray title:What Else Is There? (DJ Tennis Remix) score:0.000 confidence:1
+[Shazam] frame:213796800 artist:Mike Griego title:Back In Trance score:0.000 confidence:1
+[Shazam] frame:214326000 artist:Mike Griego title:Back In Trance score:0.000 confidence:1
+[Shazam] frame:214855200 artist:Purple Disco Machine & The Magician title:All My Life (Extended) score:0.000 confidence:1
+[Shazam] frame:215384400 artist:Gigi D'Agostino title:Bla Bla Bla score:0.000 confidence:1
+[Shazam] frame:215913600 artist:ATB title:9 P.M. (Till I Come) score:0.000 confidence:1
+[Shazam] frame:216442800 artist:Rozalla title:Everybody's Free (To Feel Good) score:0.000 confidence:1
+[Shazam] frame:216972000 artist:Roula & 20 Fingers title:Lick It (20 Fingers Radio Mix) score:0.000 confidence:1
+[Shazam] frame:217501200 artist:Gigi D'Agostino title:Bla Bla Bla score:0.000 confidence:1
+[Shazam] frame:218030400 artist:Jeff Hax title:Robotnik Compression (Davide Bossi Remix) score:0.000 confidence:1
+[Shazam] frame:218559600 artist:Prezioso title:Tell Me Why (Extended Mix) [feat. Marvin] score:0.000 confidence:1
+[Shazam] frame:219088800 artist:Clyde P title:The Gwana March (Darius Syrossian Remix) score:0.000 confidence:1
+[Shazam] frame:219618000 artist:Gigi D'Agostino title:Bla Bla Bla score:0.000 confidence:1
+[Shazam] frame:220147200 artist:Axwell Λ Ingrosso title:More Than You Know score:0.000 confidence:1
+[Shazam] frame:220676400 artist:X CLUB. title:Scum 3 -03 score:0.000 confidence:1
+[Shazam] frame:221205600 artist:Tiësto title:Love Comes Again score:0.000 confidence:1
+[Shazam] frame:221734800 artist:Roula title:Lick It score:0.000 confidence:1
+[Shazam] frame:222264000 artist:The Strings ITA title:Border Line score:0.000 confidence:1
+[Shazam] frame:222793200 artist:The Goooniez title:A****Loch (Dabruck & Klein Remix) score:0.000 confidence:1
+[Shazam] frame:223322400 artist:Mike Griego title:Back In Trance score:0.000 confidence:1
+[Shazam] frame:223851600 artist:DJ Motion title:We Merge score:0.000 confidence:1
+[Shazam] frame:224380800 artist:DEADWALKMAN title:Rhythm 11 score:0.000 confidence:1
+[Shazam] frame:224910000 artist:Mike Griego title:Back In Trance score:0.000 confidence:1
+[Shazam] frame:225439200 artist:Zairi Torrez title:Progressive World (2Qimic Remix) score:0.000 confidence:1
+[Shazam] frame:225968400 artist:Mike Griego title:Back In Trance score:0.000 confidence:1
+[Shazam] frame:226497600 artist:Andy Chatterley & Clinton Brown title:Sabotage (Original Mix) score:0.000 confidence:1
+[Shazam] frame:227026800 artist:Mike Griego title:Back In Trance score:0.000 confidence:1
+[Shazam] frame:227556000 artist:Mike Griego title:Back In Trance score:0.000 confidence:1
+[Shazam] frame:228085200 artist:Mike Griego title:Back In Trance score:0.000 confidence:1
+[Shazam] frame:228614400 artist:Eelke Kleijn title:Transmission (Joris Voorn Remix) score:0.000 confidence:1
+[Shazam] frame:229143600 artist:Terrace title:Magic O score:0.000 confidence:1
+[Shazam] frame:229672800 artist:Purple Disco Machine & The Magician title:All My Life (Extended) score:0.000 confidence:1
+[Shazam] frame:230202000 artist:Gigi D'Agostino title:Bla Bla Bla score:0.000 confidence:1
+[Shazam] frame:230731200 artist:Gigi D'Agostino title:Bla Bla Bla score:0.000 confidence:1
+[Shazam] frame:231260400 artist:Gigi D'Agostino title:Bla Bla Bla score:0.000 confidence:1
+[Shazam] frame:231789600 artist:Gigi D'Agostino title:Bla Bla Bla score:0.000 confidence:1
+[Shazam] frame:232318800 artist:Gigi D'Agostino title:Bla Bla Bla score:0.000 confidence:1
+[Shazam] frame:232848000 artist:Gigi D'Agostino title:Bla Bla Bla score:0.000 confidence:1
+[Shazam] frame:233377200 artist:BLR & Rave & Crave title:Taj score:0.000 confidence:1
+[Shazam] frame:233906400 artist:Gigi D'Agostino title:Bla Bla Bla score:0.000 confidence:1
+[Shazam] frame:234435600 artist:Gigi D'Agostino title:Bla Bla Bla score:0.000 confidence:1
+[Shazam] frame:234964800 artist:Andrea Frisina & Irregular Synth title:Dub City score:0.000 confidence:1
+[Shazam] frame:235494000 artist:Armand Van Helden title:You Don't Know Me (feat. Duane Harden) score:0.000 confidence:1
+[Shazam] frame:236023200 artist:Uto Karem title:Body Move score:0.000 confidence:1
+[Shazam] frame:236552400 artist:BLR & Rave & Crave title:Taj score:0.000 confidence:1
+[Shazam] frame:237081600 artist:Syke 'n' Sugarstarr title:Ticket 2 Ride (Remastered) score:0.000 confidence:1
+[Shazam] frame:237610800 artist:Eli & Fur title:Parfume (Dosem Remix) score:0.000 confidence:1
+[Shazam] frame:238140000 artist:Tim Deluxe title:It Just Won't Do (feat. Sam Obernik) [Radio Edit] score:0.000 confidence:1
+[Shazam] frame:238669200 artist:Jonatas C title:Jack score:0.000 confidence:1
+[Shazam] frame:239198400 artist:Armin van Buuren title:This Is What It Feels Like (feat. Trevor Guthrie) [W&W Remix] score:0.000 confidence:1
+[Shazam] frame:239727600 artist:Eitan Reiter title:Eat You (Patrice Bäumel Remix) score:0.000 confidence:1
+[Shazam] frame:240256800 artist:Eli & Fur title:Parfume (Dosem Remix) score:0.000 confidence:1
+[Shazam] frame:240786000 artist:Eli & Fur title:Parfume (Dosem Remix) score:0.000 confidence:1
+[Shazam] frame:241315200 artist:Daft Punk title:Rollin' & Scratchin' score:0.000 confidence:1
+[Shazam] frame:241844400 artist:Eli & Fur title:Parfume (Dosem Remix) score:0.000 confidence:1
+[Shazam] frame:242373600 artist:Eli & Fur title:Parfume (Dosem Remix) score:0.000 confidence:1
+[Shazam] frame:242902800 artist:Eitan Reiter title:Eat You (Patrice Bäumel Remix) score:0.000 confidence:1
+[Shazam] frame:243432000 artist:Syke 'n' Sugarstarr title:Ticket 2 Ride (Remastered) score:0.000 confidence:1
+[Shazam] frame:243961200 artist:F.Sonik title:Simplon score:0.000 confidence:1
+[Shazam] frame:244490400 artist:Eitan Reiter title:Eat You (Patrice Bäumel Remix) score:0.000 confidence:1
+[Shazam] frame:245019600 artist:F.Sonik title:Simplon score:0.000 confidence:1
+[Shazam] frame:245548800 artist:Shawn Jackson title:What's Good (Extended Mix) score:0.000 confidence:1
+[Shazam] frame:246078000 artist:Eitan Reiter title:Eat You (Patrice Bäumel Remix) score:0.000 confidence:1
+[Shazam] frame:246607200 artist:Eitan Reiter title:Eat You (Patrice Bäumel Remix) score:0.000 confidence:1
+[Shazam] frame:247136400 artist:Eitan Reiter title:Eat You (Patrice Bäumel Remix) score:0.000 confidence:1
+[Shazam] frame:247665600 artist:Eitan Reiter title:Eat You (Patrice Bäumel Remix) score:0.000 confidence:1
+[Shazam] frame:248194800 artist:Eitan Reiter title:Eat You (Patrice Bäumel Remix) score:0.000 confidence:1
+[Shazam] frame:248724000 artist:Enrique Gongora title:XTC (Serge Gee Remix) score:0.000 confidence:1
+[Shazam] frame:249253200 artist:Eitan Reiter title:Eat You (Patrice Bäumel Remix) score:0.000 confidence:1
+[Shazam] frame:249782400 artist:Eitan Reiter title:Eat You (Patrice Bäumel Remix) score:0.000 confidence:1
+[Shazam] frame:250311600 artist:Eitan Reiter title:Eat You (Patrice Bäumel Remix) score:0.000 confidence:1
+[Shazam] frame:250840800 artist:Eitan Reiter title:Eat You (Patrice Bäumel Remix) score:0.000 confidence:1
+[Shazam] frame:251370000 artist:Eitan Reiter title:Eat You (Patrice Bäumel Remix) score:0.000 confidence:1
+[Shazam] frame:251899200 artist:Eitan Reiter title:Eat You (Patrice Bäumel Remix) score:0.000 confidence:1
+[Shazam] frame:252428400 artist:Eitan Reiter title:Eat You (Patrice Bäumel Remix) score:0.000 confidence:1
+[Shazam] frame:252957600 artist:Biscits title:Wait A Minute score:0.000 confidence:1
+[Shazam] frame:253486800 artist:Eitan Reiter title:Eat You (Patrice Bäumel Remix) score:0.000 confidence:1
+[Shazam] frame:254016000 artist:Eitan Reiter title:Eat You (Patrice Bäumel Remix) score:0.000 confidence:1
+[Shazam] frame:254545200 artist: title:unknown score:0.000 confidence:(null)
+[Shazam] frame:255074400 artist:Eitan Reiter title:Eat You (Patrice Bäumel Remix) score:0.000 confidence:1
+[Shazam] frame:255603600 artist:Jon Cutler title:It's Yours (feat. E-Man) [Distant Music Mix] score:0.000 confidence:1
+[Shazam] frame:256132800 artist:Eitan Reiter title:Eat You (Patrice Bäumel Remix) score:0.000 confidence:1
+[Shazam] frame:256662000 artist:Bambook title:Give It Up (Audiofly Remix) score:0.000 confidence:1
+[Shazam] frame:257191200 artist:Redeyes title:Long Ago score:0.000 confidence:1
+[Shazam] frame:257720400 artist: title:unknown score:0.000 confidence:(null)
+[Shazam] frame:258249600 artist:Maae title:The Man score:0.000 confidence:1
+[Shazam] frame:258778800 artist:Paolo Rocco title:People Say (Tech House Edit) [Nic Fanciulli Remix] score:0.000 confidence:1
+[Shazam] frame:259308000 artist:Tinlicker & Robert Miles title:Children score:0.000 confidence:1
+[Shazam] frame:259837200 artist:Gabi Mujica title:In Da Getto (Tech House) score:0.000 confidence:1
+[Shazam] frame:260366400 artist:QuiQui title:Chaos Is Creativity score:0.000 confidence:1
+[Shazam] frame:260895600 artist:Playa del Sol Dj title:Creamy score:0.000 confidence:1
+[Shazam] frame:261424800 artist: title:unknown score:0.000 confidence:(null)
+[Shazam] frame:261954000 artist: title:unknown score:0.000 confidence:(null)
+[Shazam] frame:262483200 artist:South Bloom title:Let Me in (Volen Sentir Secret Technique) score:0.000 confidence:1
+[Shazam] frame:263012400 artist:Earth, Wind & Fire title:September '99 (Re-Edit) score:0.000 confidence:1
+[Shazam] frame:263541600 artist:Redeyes title:Long Ago score:0.000 confidence:1
+[Shazam] frame:264070800 artist:South Bloom title:Let Me in (Volen Sentir Secret Technique) score:0.000 confidence:1
+[Shazam] frame:264600000 artist: title:unknown score:0.000 confidence:(null)
+[Shazam] frame:265129200 artist: title:unknown score:0.000 confidence:(null)
+[Shazam] frame:265658400 artist: title:unknown score:0.000 confidence:(null)
+[Shazam] frame:266187600 artist: title:unknown score:0.000 confidence:(null)
+[Shazam] frame:266716800 artist:Elton John & Dua Lipa title:Cold Heart (Claptone Remix) score:0.000 confidence:1
+[Shazam] frame:267246000 artist:Munfell Muzik title:Eny score:0.000 confidence:1
+[Shazam] frame:267775200 artist:Marcos Barrios, Len Mora & Joaquin Postigo title:Tribaile (Len Mora & Joaquin Postigo) score:0.000 confidence:1
+[Shazam] frame:268304400 artist:Redeyes title:Long Ago score:0.000 confidence:1
+[Shazam] frame:268833600 artist:Argy, Omiki & Son of Son title:RITMO score:0.000 confidence:1
+[Shazam] frame:269362800 artist:Cybercat title:Fallen score:0.000 confidence:1
+[Shazam] frame:269892000 artist: title:unknown score:0.000 confidence:(null)
+[Shazam] frame:270421200 artist:Wa Wu We title:What's Left? (Ambient Mix) score:0.000 confidence:1
+[Shazam] frame:270950400 artist:Wa Wu We title:What's Left? (Ambient Mix) score:0.000 confidence:1
+[Shazam] frame:271479600 artist:Wa Wu We title:What's Left? (Ambient Mix) score:0.000 confidence:1
+[Shazam] frame:272008800 artist:Wa Wu We title:What's Left? (Ambient Mix) score:0.000 confidence:1
+[Shazam] frame:272538000 artist:Wa Wu We title:What's Left? (Ambient Mix) score:0.000 confidence:1
+[Shazam] frame:273067200 artist:Wa Wu We title:What's Left? (Ambient Mix) score:0.000 confidence:1
+[Shazam] frame:273596400 artist:Ivy Meadows title:Géminis score:0.000 confidence:1
+[Shazam] frame:274125600 artist:Wa Wu We title:What's Left? (Ambient Mix) score:0.000 confidence:1
+[Shazam] frame:274654800 artist:Wa Wu We title:What's Left? (Ambient Mix) score:0.000 confidence:1
+[Shazam] frame:275184000 artist:Wa Wu We title:What's Left? (Ambient Mix) score:0.000 confidence:1
+[Shazam] frame:275713200 artist:Wa Wu We title:What's Left? (Ambient Mix) score:0.000 confidence:1
+[Shazam] frame:276242400 artist:Oliver Smith title:Inside (Abgt265) [Mixed] score:0.000 confidence:1
+[Shazam] frame:276771600 artist:Wa Wu We title:What's Left? (Ambient Mix) score:0.000 confidence:1
+[Shazam] frame:277300800 artist:Wa Wu We title:What's Left? (Ambient Mix) score:0.000 confidence:1
+[Shazam] frame:277830000 artist:Wa Wu We title:What's Left? (Ambient Mix) score:0.000 confidence:1
+[Shazam] frame:278359200 artist:Wa Wu We title:What's Left? (Ambient Mix) score:0.000 confidence:1
+[Shazam] frame:278888400 artist:Wa Wu We title:What's Left? (Ambient Mix) score:0.000 confidence:1

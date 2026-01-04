@@ -1,0 +1,28 @@
+Mode: strict
+Refined: 19  Golden: 19
+Matched: 10  Precision: 0.526  Recall: 0.526
+SoftMatched: 11  SoftPrecision: 0.579  SoftRecall: 0.579
+RecoverableMissed: 0  Recoverable: 0  RecoverableMissedRate: 0.000
+Unrecoverable: 19  MaxRecall: 0.000
+
+False positives:
+- Tigerskin & Alfa State - Slippery Roads (Pablo Bolivar Remix)
+- Fragma - Toca Me (Inpetto 2008 Mix)
+- Chymamusique - Lost in Words (Main Saxed Mix)
+- 2hz - Modest (Remastered)
+- Panos Pissitelis & Junior Mi - Freaky
+- Nightcrawlers - Push the Feeling On (T. Tommy Victor Perez & Vicente Ferrer Remix)
+- Greg Beato - Pma
+- Inland Knights - Deep In
+- Gigi D'Agostino - Bla Bla Bla
+
+Missed golden:
+- Tigerskin, Pablo Bolivar, Alfa State - Slippery Road (Pablo Bolivar Rework)
+- Lavie Au Soleil & Oreiente - Suivi
+- Cornucopia - Unreleased
+- Amber Long, Hot Tuneik - Heaven on Earth
+- Cosmjn - Cosmo Acids
+- Edmondson - Masquerade
+- Vincent Casanova - Hold Me
+- Mike Griego - Back In Trance
+- Tijn Driessen - Moed

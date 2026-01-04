@@ -1,0 +1,23 @@
+# Backlog
+
+- Improve Shazam signal collection: replace hardcoded sleeps with a more robust pacing/flow strategy to avoid missing matches.
+- Observation: some runs show 1:1 request/response balance (e.g., 303/303 with finishedFeeding=1); keep monitoring. Example file: `/Users/till/Music/Music2Go/Media.localized/Magician On Duty/Bucht der Träumer 2024 [Saga Stage]/01 Magician On Duty @@ Bucht der Träumer 2024 [Saga Stage].mp3`.
+- Observation: another run ended 381 requests / 380 responses (finishedFeeding=1). Example file: `/Users/till/Music/Music2Go/Media.localized/Frida Darko/Unknown Album/Frida Darko & Atric @ Tanzwüste - Fusion Festival 2025.m4a`.
+- WIS baseline metrics (locked defaults): Goodbye 0.824/0.737 (precision/recall), HALO 2024 0.783/0.750, Citizen Kain 0.652/0.714, Frida/Atric 0.760/0.475; recoverable-missed: 1/14, 4/21, 1/14, 11/27.
+- WIS duration-default change (short=60, mid=120, short_factor=0.15, mid_factor=0.45) regressed Goodbye/Fusion; reverted.
+- WIS span bonus (span_scale=180, span_floor=0.5) improves precision without recall regressions: Goodbye 0.765/0.684 (rm 2/14), HALO 2024 0.783/0.750 (rm 4/21), Citizen Kain 0.682/0.714 (rm 1/14), Frida/Atric 0.783/0.450 (rm 12/27).
+- Default alignment fix: `Scripts/refine_experiments.py` now uses WIS defaults (support_scale=6, support_floor=0.3, span_scale=180, span_floor=0.5). Current metrics: Goodbye 0.765/0.684 (rm 2/14), HALO 2024 0.783/0.750 (rm 4/21), Citizen Kain 0.682/0.714 (rm 1/14), Frida/Atric 0.760/0.475 (rm 11/27).
+- Cleanup: remove temporary `[Detect] didFindMatch responses/requests` log once signal-baseline comparisons are done.
+- Refactor: align beat-detection, key-detection, and track-detection producer/consumer flow with the GCD-based decoding pattern (replace condition-variable approach).
+- Hop size experiment summary: tested 8s, 4s, 2s, 1s, 0.25s, 0.125s, 0.0625s, and 1024-frame hops; golden recall unchanged across runs. Default back to 4096-frame hop for stability.
+- ShazamKit signature duration limit: catalog accepts 3.0–12.0s; durations beyond that trigger Code=201 ("signature duration is outside the valid range").
+- Assumption: stereo vs mono likely does not affect ShazamKit matching (expected internal downmix); defer explicit A/B until needed.
+- Observation: hop size and signature window size showed no meaningful impact on golden recall in current tests; treat as low-impact knobs.
+- Input capture regression: Patrice 2024 input quality collapsed (unknowns ~2% → ~51%, unique keys 118 → 44, recall 0.79 → 0.33). Inputs archived in `Training/input_regression_patrice_2024.md` with eval outputs and file dates for later traceability.
+- Patrice 2024: recall improved while precision dropped; likely refiner/normalization permissiveness rather than signal quality regression. See `Training/input_regression_patrice_2024.md`.
+- Goodbye: precision and recall both regressed vs old baseline (0.737 → 0.526). See `Training/input_regression_goodbye.md`.
+- Draft ShazamKit feedback email (observations + questions); decide whether to send.
+- Explore custom ShazamKit catalog idea (reference signatures + metadata/timecodes) for known sets to improve track/time mapping.
+- UI: TrackListController sometimes fails to show progress after “Detect Tracklist”; only ActivityController (and chaser) indicate ongoing work. Investigate progress propagation/update timing. Example: Activity shows “Tracklist Detection — Atric & Frida Darko - Elevate” while TrackListController stays idle (screenshot 2026-01-02 16:10). Added observation: when clicking detect button, TrackListController state flashes briefly, then seems overwritten by another row’s update (possibly tied to Activity updates or row reload order). Confirmation: when nothing else is active, TrackListController progress appears; when Activity updates are ongoing, TrackListController progress is overwritten (see screenshot 2026-01-02 16:22).
+- UI: ActivityController rotary progress should use segmented CRT look (orange + bloom) by bending the vertical bars from `LargeRastaPattern_40x10.png` into a circular mask; interpret “bending” as fanning the bars into radial wedges around the ring.
+- Shazam “Cosmjn” variability: not a confirmed regression. Short clip (`Training/short_with_cosmjn.mp3`, log `Training/new_showing_it.txt`) shows Cosmjn in delegate/`[ShazamRaw]`/final; long run (`Training/shazamraw_goodbye_newcode_20260102.txt`) shows no Cosmjn in raw around the same window, with different returned tracks. Treat as context‑dependent recognition variability; re‑investigate only if recurrence grows.

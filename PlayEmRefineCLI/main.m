@@ -8,7 +8,7 @@
 
 #import <Foundation/Foundation.h>
 // Use direct relative imports so we don't depend on framework header exports.
-#import "../PlayEmCore/TotalIdentificationController.h"
+#import "../PlayEmCore/Identification/TotalIdentificationController.h"
 #import "../PlayEmCore/Sample/LazySample.h"
 #import "../PlayEmCore/Sample/SampleFormat.h"
 #import "../PlayEmCore/Metadata/TimedMediaMetaData.h"
@@ -55,18 +55,18 @@ static NSArray<TimedMediaMetaData*>* ParseInputLog(NSString *path, unsigned long
         return @[];
     }
     NSMutableArray<TimedMediaMetaData*> *hits = [NSMutableArray array];
-    unsigned long long maxFrame = 0;
+    __block unsigned long long maxFrame = 0;
 
-    NSRegularExpression *re = [NSRegularExpression regularExpressionWithPattern:@"\\[Input\\]\\s*frame:(\\d+)\\s*artist:(.*?)\\s*title:(.*?)\\s*score:([0-9\\.]+)\\s*confidence:\\((null|[^\\)]*)\\)" options:NSRegularExpressionDotMatchesLineSeparators error:nil];
+    NSRegularExpression *re = [NSRegularExpression regularExpressionWithPattern:@"\\[(Input|Shazam)\\]\\s*frame:(\\d+)\\s*artist:([^\\r\\n]*)\\s*title:([^\\r\\n]*)\\s*score:([0-9\\.]+)\\s*confidence:(null|[0-9\\.]+)" options:0 error:nil];
 
     NSArray<NSTextCheckingResult*> *matches = [re matchesInString:contents options:0 range:NSMakeRange(0, contents.length)];
     for (NSTextCheckingResult *m in matches) {
         if (m.numberOfRanges < 6) { continue; }
-        NSString *frameStr = [contents substringWithRange:[m rangeAtIndex:1]];
-        NSString *artist = [[contents substringWithRange:[m rangeAtIndex:2]] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
-        NSString *title = [[contents substringWithRange:[m rangeAtIndex:3]] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
-        NSString *scoreStr = [contents substringWithRange:[m rangeAtIndex:4]];
-        NSString *confStr = [contents substringWithRange:[m rangeAtIndex:5]];
+        NSString *frameStr = [contents substringWithRange:[m rangeAtIndex:2]];
+        NSString *artist = [[contents substringWithRange:[m rangeAtIndex:3]] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+        NSString *title = [[contents substringWithRange:[m rangeAtIndex:4]] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+        NSString *scoreStr = [contents substringWithRange:[m rangeAtIndex:5]];
+        NSString *confStr = [contents substringWithRange:[m rangeAtIndex:6]];
 
         unsigned long long frame = strtoull(frameStr.UTF8String, NULL, 10);
         maxFrame = MAX(maxFrame, frame);
@@ -98,7 +98,7 @@ int main(int argc, const char * argv[]) {
         unsigned long long maxFrame = 0;
         NSArray<TimedMediaMetaData*> *hits = ParseInputLog(inputPath, &maxFrame);
         if (hits.count == 0) {
-            fprintf(stderr, "No [Input] entries parsed from %s\n", inputPath.UTF8String);
+            fprintf(stderr, "No [Shazam] entries parsed from %s\n", inputPath.UTF8String);
             return EXIT_FAILURE;
         }
 
@@ -110,6 +110,8 @@ int main(int argc, const char * argv[]) {
 
         TotalIdentificationController *controller = [[TotalIdentificationController alloc] initWithSample:sample];
         controller.debugScoring = YES;
+        NSBundle *bundle = [NSBundle bundleForClass:[TotalIdentificationController class]];
+        NSLog(@"[CLI] PlayEmCore bundle: %@", bundle.bundlePath ?: @"<nil>");
 
         // Inject hits and refine.
         [controller testing_setIdentifieds:hits];

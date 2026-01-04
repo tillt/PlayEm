@@ -1,0 +1,18 @@
+[Final] frame:0 artist:Citizen Kain, Alexandros Djkevingr & Greg Ignatovich title:Caliph of Baghdad duration:395.95s score:47.040 confidence:47.03999999999999
+[Final] frame:63787008 artist:Adriatique, Marino Canal & Delhia de France title:Home duration:242.42s score:15.680 confidence:15.68
+[Final] frame:90513408 artist:Citizen Kain title:Moments (feat. Kaps) [Extended Mix] duration:298.98s score:47.040 confidence:47.03999999999999
+[Final] frame:104767488 artist:Citizen Kain, Aaron Suiss & Cari Golden title:Innocent duration:298.98s score:47.040 confidence:47.03999999999999
+[Final] frame:118665216 artist:Citizen Kain, Lazarusman & Aaron Suiss title:Reset duration:339.38s score:47.040 confidence:47.03999999999999
+[Final] frame:134344704 artist: title:unknown duration:16.16s score:6.196 confidence:6.196272313060188
+[Final] frame:135413760 artist:Citizen Kain & Aaron Suiss title:Colors duration:250.50s score:47.040 confidence:47.03999999999999
+[Final] frame:146817024 artist:Citizen Kain & DJ AroZe title:Us duration:339.38s score:47.040 confidence:47.03999999999999
+[Final] frame:171761664 artist:Andrea Salerno title:Teleri duration:16.16s score:5.203 confidence:5.202651909917466
+[Final] frame:173899776 artist:Purple Disco Machine title:Playbox duration:250.50s score:15.680 confidence:15.68
+[Final] frame:189222912 artist:Christian Krauter title:Elozias Dance (feat. Shelly Thunder, Chemical Brothers & Shawn Lee) duration:40.40s score:7.325 confidence:7.324832653061224
+[Final] frame:191361024 artist:Kryoman title:Faith (Radio Edit) duration:24.24s score:6.282 confidence:6.281691242085589
+[Final] frame:198844416 artist:Joachim Pastor title:Millenium duration:16.16s score:5.203 confidence:5.202651909917466
+[Final] frame:204546048 artist:Esoteric Circle title:Resilience duration:8.08s score:5.131 confidence:5.130930569765837
+[Final] frame:232697856 artist:Paul Kalkbrenner title:Feed Your Head duration:88.89s score:9.486 confidence:9.486165130323656
+[Final] frame:237686784 artist:Claptone & Mylo title:Drop the Pressure duration:8.08s score:5.131 confidence:5.130930569765837
+[Final] frame:238755840 artist:Noir & Olivier Giacomotto title:Blackrays (feat. Hendrik Burkhard) [Kiko & Citizen Kain Remix] duration:331.30s score:47.040 confidence:47.03999999999999
+[Final] frame:293634048 artist:Citizen Kain title:Your Heart (feat. Eleonora) duration:339.38s score:47.040 confidence:47.03999999999999

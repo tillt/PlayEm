@@ -1,0 +1,20 @@
+Mode: strict
+Refined: 19  Golden: 19
+Matched: 14  Precision: 0.737  Recall: 0.737
+SoftMatched: 15  SoftPrecision: 0.789  SoftRecall: 0.789
+RecoverableMissed: 0  Recoverable: 0  RecoverableMissedRate: 0.000
+Unrecoverable: 19  MaxRecall: 0.000
+
+False positives:
+- Tigerskin & Alfa State - Slippery Roads (Pablo Bolivar Remix)
+- Oliver Dollar - Granulated Soul
+-  - unknown
+- Gigi D'Agostino - Bla Bla Bla
+- Eli & Fur - Parfume (Dosem Remix)
+
+Missed golden:
+- Tigerskin, Pablo Bolivar, Alfa State - Slippery Road (Pablo Bolivar Rework)
+- Lavie Au Soleil & Oreiente - Suivi
+- Cornucopia - Unreleased
+- Amber Long, Hot Tuneik - Heaven on Earth
+- Tijn Driessen - Moed

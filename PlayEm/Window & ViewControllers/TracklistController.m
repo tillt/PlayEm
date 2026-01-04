@@ -669,7 +669,9 @@ static const NSAutoresizingMaskOptions kViewFullySizeable = NSViewHeightSizable 
     if (track.confidence == nil) {
         confidence = @"unknown";
     } else {
-        confidence = [track.confidence stringValue];
+        NSNumberFormatter *decimalStyleFormatter = [[NSNumberFormatter alloc] init];
+        [decimalStyleFormatter setMaximumFractionDigits:2];
+        confidence = [decimalStyleFormatter stringFromNumber:track.confidence];
     }
     
     NSString* output = [NSString stringWithFormat:@"%@, confidence %@", time, confidence];

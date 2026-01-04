@@ -1,0 +1,13 @@
+sample=/Users/till/Development/PlayEm/PlayEmTests/test_set_patrice.m4a
+windows=3,6
+runs_per_window=3
+hop_override_frames=1048576
+use_streaming_match=1
+downmix_to_mono=1
+total_runs=6
+run window=3.00 duration=36.89 hits_per_min=4.69 matched=3 unexpected=49 latency_avg=0.290
+run window=3.00 duration=36.68 hits_per_min=4.69 matched=3 unexpected=49 latency_avg=0.282
+run window=3.00 duration=36.99 hits_per_min=4.76 matched=3 unexpected=50 latency_avg=0.280
+run window=6.00 duration=37.16 hits_per_min=4.76 matched=3 unexpected=50 latency_avg=0.315
+run window=6.00 duration=37.31 hits_per_min=4.76 matched=3 unexpected=50 latency_avg=0.273
+run window=6.00 duration=37.22 hits_per_min=4.69 matched=3 unexpected=49 latency_avg=0.287

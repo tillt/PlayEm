@@ -1,0 +1,5 @@
+[Final] frame:0 artist: title:unknown score:15.680 support:33
+[Final] frame:10584000 artist:Atric & Frida Darko title:Elevate score:15.680 support:24
+[Final] frame:18522000 artist:Arta title:Differently (Extended Mix) score:15.680 support:20
+[Final] frame:26460000 artist:Vakabular & Fab Massimo title:It's Yours (Extended) score:15.287 support:10
+[Final] frame:34398000 artist:Nick Curly title:Underground (Dennis Ferrer Remix) [Mixed] score:10.920 support:9

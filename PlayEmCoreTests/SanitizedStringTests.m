@@ -123,4 +123,30 @@
     }
 }
 
+- (void)testLikelyCleanFastPathPerformance
+{
+#ifndef ENABLE_SANITIZER_BENCH
+    XCTSkip(@"Sanitizer micro-benchmark skipped unless ENABLE_SANITIZER_BENCH is defined.");
+#else
+    NSString *clean = @"Hello World – Café";
+    const NSUInteger iterations = 100000;
+
+    // Manual timing so we can assert a per-call budget; keep XCT measure for trend reporting.
+    CFAbsoluteTime start = CFAbsoluteTimeGetCurrent();
+    for (NSUInteger i = 0; i < iterations; i++) {
+        __unused NSString *s = [clean sanitizedMetadataString];
+    }
+    CFTimeInterval total = CFAbsoluteTimeGetCurrent() - start;
+    double perCall = total / (double)iterations;
+    // Expect sub-5µs per call on clean strings.
+    XCTAssertLessThan(perCall, 5e-6);
+
+    [self measureBlock:^{
+        for (NSUInteger i = 0; i < iterations / 100; i++) {
+            __unused NSString *s = [clean sanitizedMetadataString];
+        }
+    }];
+#endif
+}
+
 @end

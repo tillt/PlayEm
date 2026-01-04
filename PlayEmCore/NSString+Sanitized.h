@@ -23,6 +23,9 @@ NS_ASSUME_NONNULL_BEGIN
              Irreversible mangles (e.g. where bytes map to multiple accents) return the
              mechanically derived character; we do not inject bias. Optional verbose logging
              is gated at compile time with DEBUG_SANITIZER.
+             Fast-path: cf_isLikelyClean scans once for markers, NBSP, U+FFFD, leading/trailing
+             whitespace, and double-spaces. If none are found and length is in bounds, the
+             original string is returned untouched; otherwise the full pipeline above runs.
  @return A sanitized string suitable for display or comparison.
  */
 - (NSString*)sanitizedMetadataString;

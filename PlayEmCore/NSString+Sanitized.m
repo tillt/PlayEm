@@ -7,6 +7,7 @@
 //
 
 #import "NSString+Sanitized.h"
+#include <stdlib.h>
 
 
 // Bounding extremely long or corrupt strings keeps the sanitizer from doing
@@ -257,6 +258,54 @@ static BOOL hasBadMarkers(NSString* s)
            (cf_replacementCount(s) > 0);
 }
 
+static BOOL cf_isLikelyClean(NSString* s)
+{
+    if (s == nil) return YES;
+    if (s.length > kCFMaxStringLength) return NO;
+
+    static NSCharacterSet* markerSet;
+    static dispatch_once_t once;
+    dispatch_once(&once, ^{
+        markerSet = [NSCharacterSet characterSetWithCharactersInString:@"ÃÂðÐÑ"];
+    });
+
+    NSUInteger len = s.length;
+    unichar stackBuf[256];
+    unichar* buf = stackBuf;
+    BOOL usedHeap = NO;
+    if (len > (sizeof(stackBuf) / sizeof(unichar))) {
+        buf = (unichar*)malloc(len * sizeof(unichar));
+        if (!buf) return NO;
+        usedHeap = YES;
+    }
+    [s getCharacters:buf range:NSMakeRange(0, len)];
+
+    NSCharacterSet* ws = [NSCharacterSet whitespaceAndNewlineCharacterSet];
+    BOOL prevSpace = NO;
+    BOOL bad = NO;
+    for (NSUInteger i = 0; i < len && !bad; i++) {
+        unichar c = buf[i];
+        if ([markerSet characterIsMember:c] || c == 0xFFFD || c == 0x00A0) {
+            bad = YES;
+            break;
+        }
+        BOOL isSpace = (c == ' ');
+        if (isSpace && prevSpace) {
+            bad = YES;
+            break;
+        }
+        if (i == 0 || i == len - 1) {
+            if ([ws characterIsMember:c]) {
+                bad = YES;
+                break;
+            }
+        }
+        prevSpace = isSpace;
+    }
+    if (usedHeap) free(buf);
+    return !bad;
+}
+
 static void cf_logStage(NSString *label, NSString *value)
 {
 #if DEBUG_SANITIZER
@@ -272,6 +321,9 @@ static void cf_logStage(NSString *label, NSString *value)
 - (NSString*)sanitizedMetadataString
 {
     NSString* s = self ?: @"";
+    if (cf_isLikelyClean(s)) {
+        return s;
+    }
     // Normalize early to reduce noise and collapse whitespace.
     s = cf_normalize(s);
 

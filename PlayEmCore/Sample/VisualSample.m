@@ -8,7 +8,7 @@
 
 #import "VisualSample.h"
 #import "LazySample.h"
-#import "IndexedBlockOperation.h"
+#import "CancelableBlockOperation.h"
 #import "VisualPair.h"
 #import "VisualPairContext.h"
 #import "ConcurrentAccessDictionary.h"
@@ -122,11 +122,11 @@
     NSArray* keys = [_operations allKeys];
     
     for (id key in keys) {
-        IndexedBlockOperation* operation = [_operations objectForKey:key];
+        CancelableBlockOperation* operation = [_operations objectForKey:key];
         [operation cancel];
     }
     for (id key in keys) {
-        IndexedBlockOperation* operation = [_operations objectForKey:key];
+        CancelableBlockOperation* operation = [_operations objectForKey:key];
         [operation wait];
     }
 
@@ -141,14 +141,14 @@
 
     NSNumber* pageNumber = [NSNumber numberWithLong:pageIndex];
 
-    IndexedBlockOperation* operation = [_operations objectForKey:pageNumber];
+    CancelableBlockOperation* operation = [_operations objectForKey:pageNumber];
 
     if (operation == nil) {
         //os_signpost_interval_end(pointsOfInterest, POIVisualsFromOrigin, "VisualsFromOrigin", "unknown");
         return nil;
     }
 
-    if (!operation.isFinished) {
+    if (!operation.isDone) {
         //os_signpost_interval_end(pointsOfInterest, POIVisualsFromOrigin, "VisualsFromOrigin", "unfinished");
         return nil;
     }
@@ -239,22 +239,22 @@
 //    _reductionWindowFrame++;
 //}
 
-- (IndexedBlockOperation*)runOperationWithOrigin:(size_t)origin pairs:(size_t)pairsCount callback:(nonnull void (^)(void))callback
+- (CancelableBlockOperation*)runOperationWithOrigin:(size_t)origin pairs:(size_t)pairsCount callback:(nonnull void (^)(void))callback
 {
     assert(origin < self.width);
     
     size_t pageIndex = origin / _tileWidth;
     
     NSNumber* pageNumber = [NSNumber numberWithLong:pageIndex];
-    IndexedBlockOperation* blockOperation = [_operations objectForKey:pageNumber];
+    CancelableBlockOperation* blockOperation = [_operations objectForKey:pageNumber];
     if (blockOperation != nil) {
         // While in theory this should not happen, it does for example when
         NSLog(@"asking for the same operation again on page %ld for sample %@", pageIndex, self);
         return blockOperation;
     }
-    blockOperation = [[IndexedBlockOperation alloc] initWithIndex:pageIndex];
+    blockOperation = [[CancelableBlockOperation alloc] init];
 
-    IndexedBlockOperation* __weak weakOperation = blockOperation;
+    CancelableBlockOperation* __weak weakOperation = blockOperation;
     VisualSample* __weak weakSample = self;
     
 //    VisualPairContext* reductionPairContext = &_reductionPairContext;
@@ -276,10 +276,10 @@
     [blockOperation run:^(void){
         const int channels = weakSample.sample.sampleFormat.channels;
 
-        if (weakOperation.isCancelled || channels == 0) {
+        if (weakOperation.isDone || channels == 0) {
             return;
         }
-        assert(!weakOperation.isFinished);
+        assert(!weakOperation.isDone);
         
         const unsigned long int framesNeeded = pairsCount * weakSample.framesPerPixel;
 
@@ -308,7 +308,6 @@
                                             outputs:data];
         
         //NSLog(@"This block of %lld frames is used to create visuals for %ld pixels", displayFrameCount, width);
-        weakOperation.index = pageIndex;
         weakOperation.data = buffer;
 
         unsigned long int frameIndex = 0;
@@ -370,7 +369,6 @@
             
         };
         
-        weakOperation.isFinished = !weakOperation.isCancelled;
         callback();
     }];
 

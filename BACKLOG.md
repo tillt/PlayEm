@@ -31,3 +31,5 @@
 
 - TODO: FFT visualizer performance—explore a branch to keep the “lower-half” look but reduce FFT cost (smaller FFT plus controlled remap) without affecting visuals; current code still uses the larger FFT and discards the top band.
 - Process hygiene: avoid resurfacing resolved issues without justification; keep backlog/status in sync to prevent rehashing closed items.
+- Machine-wide note: Xcode builds from the assistant session are unreliable—DerivedData is not writable here and code signing fails; disabling signing lets builds run but then execution/signature breaks. Outcome: user should trigger Xcode builds/tests; assistant should prototype in Python first, then translate to Objective-C/Swift; avoid chasing signing fixes.
+- Machine-wide note: ripgrep is available; use `rg`/`rg --files` as default. Avoid re-checking its syntax; remember flags and usage to prevent churn.

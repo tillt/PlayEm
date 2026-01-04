@@ -9,7 +9,7 @@
 
 #import "BeatTrackedSample.h"
 #import "LazySample.h"
-#import "IndexedBlockOperation.h"
+#import "CancelableBlockOperation.h"
 #import "ConstantBeatRefiner.h"
 #import "../Audio/AudioProcessing.h"
 #import "EnergyDetector.h"

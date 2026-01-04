@@ -9,7 +9,7 @@
 
 #import "KeyTrackedSample.h"
 #import "LazySample.h"
-#import "IndexedBlockOperation.h"
+#import "CancelableBlockOperation.h"
 
 #include <keyfinder/keyfinder.h>
 #include <keyfinder/audiodata.h>

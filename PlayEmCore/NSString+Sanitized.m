@@ -35,7 +35,8 @@ static NSInteger cf_replacementCount(NSString* s)
 static NSInteger cf_mojibakeScore(NSString* s)
 {
     __block NSInteger bad = cf_replacementCount(s);
-    NSCharacterSet* markers = [NSCharacterSet characterSetWithCharactersInString:@"ÃÂð"];
+    // Markers commonly seen in Latin/CP1252 mojibake and some Cyrillic mangling.
+    NSCharacterSet* markers = [NSCharacterSet characterSetWithCharactersInString:@"ÃÂðÐÑ"];
     NSUInteger len = MIN(s.length, kCFMaxScanCharacters);
     [s enumerateSubstringsInRange:NSMakeRange(0, len)
                           options:NSStringEnumerationByComposedCharacterSequences
@@ -83,14 +84,23 @@ static BOOL hasBadMarkers(NSString* s)
     }
     NSRange r1 = [s rangeOfString:@"Ã"];
     NSRange r2 = [s rangeOfString:@"Â"];
-    return (r1.location != NSNotFound) || (r2.location != NSNotFound) || (cf_replacementCount(s) > 0);
+    NSRange r3 = [s rangeOfString:@"ð"];
+    NSRange r4 = [s rangeOfString:@"Ð"];
+    NSRange r5 = [s rangeOfString:@"Ñ"];
+    return (r1.location != NSNotFound) ||
+           (r2.location != NSNotFound) ||
+           (r3.location != NSNotFound) ||
+           (r4.location != NSNotFound) ||
+           (r5.location != NSNotFound) ||
+           (cf_replacementCount(s) > 0);
 }
 
 @implementation NSString (Sanitized)
 
 - (NSString*)sanitizedMetadataString
 {
-    NSString* best = cf_normalize(self ?: @"");
+    NSString* original = self ?: @"";
+    NSString* best = cf_normalize(original);
     // If the string looks clean, keep it as-is; avoids over-aggressive rewrites of
     // legitimate characters (em dashes, Cyrillic, etc.).
     if (!hasBadMarkers(best)) {
@@ -98,6 +108,7 @@ static BOOL hasBadMarkers(NSString* s)
     }
 
     NSInteger bestScore = cf_mojibakeScore(best);
+    NSData *originalUTF8 = [original dataUsingEncoding:NSUTF8StringEncoding allowLossyConversion:NO];
 
     // Iterative Latin1 -> UTF8 pass (bounded).
     NSString* current = best;
@@ -118,6 +129,23 @@ static BOOL hasBadMarkers(NSString* s)
             current = decoded;
         } else {
             break;  // stop if it gets worse
+        }
+    }
+
+    // UTF-16 fallback attempts if markers persist.
+    if (originalUTF8.length > 0 && hasBadMarkers(best)) {
+        NSArray<NSNumber *> *encs = @[@(NSUTF16LittleEndianStringEncoding), @(NSUTF16BigEndianStringEncoding)];
+        for (NSNumber *encNum in encs) {
+            NSStringEncoding enc = encNum.unsignedIntegerValue;
+            NSString *decoded = [[NSString alloc] initWithData:originalUTF8 encoding:enc];
+            if (decoded.length > 0) {
+                decoded = cf_normalize(decoded);
+                NSInteger score = cf_mojibakeScore(decoded);
+                if (score < bestScore) {
+                    best = decoded;
+                    bestScore = score;
+                }
+            }
         }
     }
 
@@ -178,9 +206,11 @@ static BOOL hasBadMarkers(NSString* s)
             recovered = cf_normalize(recovered);
             best = recovered;
             bestScore = cf_mojibakeScore(recovered);
+#ifdef DEBUG
             if (didReplace) {
                 NSLog(@"replaced E2 88 9A AE -> C3 A9");
             }
+#endif
         }
     }
 

@@ -33,3 +33,9 @@
 - Process hygiene: avoid resurfacing resolved issues without justification; keep backlog/status in sync to prevent rehashing closed items.
 - Machine-wide note: Xcode builds from the assistant session are unreliable—DerivedData is not writable here and code signing fails; disabling signing lets builds run but then execution/signature breaks. Outcome: user should trigger Xcode builds/tests; assistant should prototype in Python first, then translate to Objective-C/Swift; avoid chasing signing fixes.
 - Machine-wide note: ripgrep is available; use `rg`/`rg --files` as default. Avoid re-checking its syntax; remember flags and usage to prevent churn.
+
+- Wave visuals/coarse rendering: multiple attempts caused UI stalls and zero-filled coarse data. Root cause: coarse sampling ran during decode; `rawSampleFromFrameOffset` returned zeros when pages weren’t decoded yet, and segments were marked built. Best-known stable approach is the old baseline (non-progressive coarse). Future attempt should:
+  - Keep `rawSample` non-blocking only while decoding; after decode complete it must deliver real PCM.
+  - Trigger coarse once decode completes; avoid progress-time builds until a safe retry loop exists.
+  - Mark coarse segments built only when real samples were read; skipped segments should retry instead of being marked built with placeholders.
+  - WaveViewController already has per-range coarse invalidation to limit redraws.

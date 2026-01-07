@@ -5,7 +5,8 @@
 //  Created by Till Toenshoff on 01/05/26.
 //  Copyright © 2026 Till Toenshoff. All rights reserved.
 //
-//  Backend protocol to abstract playback implementations (AudioQueue, AVAudioEngine, etc.).
+//  Backend protocol to abstract playback implementations (AudioQueue,
+//  AVAudioEngine, etc.).
 
 #import <Foundation/Foundation.h>
 
@@ -16,9 +17,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 @protocol AudioPlaybackBackendDelegate <NSObject>
 @optional
-- (void)playbackBackendDidStart:(AudioPlaybackBackend *)backend;
-- (void)playbackBackendDidPause:(AudioPlaybackBackend *)backend;
-- (void)playbackBackendDidEnd:(AudioPlaybackBackend *)backend;
+- (void)playbackBackendDidStart:(AudioPlaybackBackend*)backend;
+- (void)playbackBackendDidPause:(AudioPlaybackBackend*)backend;
+- (void)playbackBackendDidEnd:(AudioPlaybackBackend*)backend;
 @end
 
 @protocol AudioPlaybackBackend <NSObject>
@@ -29,7 +30,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, assign) float volume;
 @property (nonatomic, assign) float tempo;
 
-- (void)prepareWithSample:(LazySample *)sample;
+- (void)prepareWithSample:(LazySample*)sample;
 - (void)play;
 - (void)pause;
 - (void)stop;

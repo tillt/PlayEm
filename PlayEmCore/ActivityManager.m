@@ -74,8 +74,8 @@ NSNotificationName const ActivityManagerDidUpdateNotification = @"ActivityManage
         _records = [NSMutableArray array];
         _activities = @[];
         _lastEmitTime = 0;
-        _minEmitInterval = 0.1; // seconds
-        _retentionInterval = 5.0; // seconds to keep completed entries visible
+        _minEmitInterval = 0.1;    // seconds
+        _retentionInterval = 5.0;  // seconds to keep completed entries visible
     }
     return self;
 }
@@ -99,7 +99,8 @@ NSNotificationName const ActivityManagerDidUpdateNotification = @"ActivityManage
     }
 }
 
-// Schedule a lightweight, infrequent prune timer when there are completed records.
+// Schedule a lightweight, infrequent prune timer when there are completed
+// records.
 - (void)schedulePruneIfNeeded
 {
     if (self.pruneTimer || self.records.count == 0) {
@@ -107,22 +108,22 @@ NSNotificationName const ActivityManagerDidUpdateNotification = @"ActivityManage
     }
     __weak typeof(self) weakSelf = self;
     self.pruneTimer = [NSTimer scheduledTimerWithTimeInterval:self.retentionInterval
-                                                       repeats:YES
-                                                         block:^(NSTimer * _Nonnull timer) {
-        typeof(self) strongSelf = weakSelf;
-        if (!strongSelf) {
-            [timer invalidate];
-            return;
-        }
-        [strongSelf purgeStaleRecords];
-        strongSelf.activities = [strongSelf.records copy];
-        [[NSNotificationCenter defaultCenter] postNotificationName:ActivityManagerDidUpdateNotification
-                                                            object:strongSelf];
-        if (strongSelf.records.count == 0) {
-            [timer invalidate];
-            strongSelf.pruneTimer = nil;
-        }
-    }];
+                                                      repeats:YES
+                                                        block:^(NSTimer* _Nonnull timer) {
+                                                            typeof(self) strongSelf = weakSelf;
+                                                            if (!strongSelf) {
+                                                                [timer invalidate];
+                                                                return;
+                                                            }
+                                                            [strongSelf purgeStaleRecords];
+                                                            strongSelf.activities = [strongSelf.records copy];
+                                                            [[NSNotificationCenter defaultCenter] postNotificationName:ActivityManagerDidUpdateNotification
+                                                                                                                object:strongSelf];
+                                                            if (strongSelf.records.count == 0) {
+                                                                [timer invalidate];
+                                                                strongSelf.pruneTimer = nil;
+                                                            }
+                                                        }];
     self.pruneTimer.tolerance = self.retentionInterval * 0.5;
     [[NSRunLoop mainRunLoop] addTimer:self.pruneTimer forMode:NSRunLoopCommonModes];
 }
@@ -135,7 +136,7 @@ NSNotificationName const ActivityManagerDidUpdateNotification = @"ActivityManage
     if (_notifyScheduled) {
         return;
     }
-    
+
     // We now wait with our update for the next dispatch to happen.
     _notifyScheduled = YES;
 
@@ -143,14 +144,12 @@ NSNotificationName const ActivityManagerDidUpdateNotification = @"ActivityManage
     CFAbsoluteTime elapsed = now - _lastEmitTime;
     NSTimeInterval delay = (elapsed >= _minEmitInterval) ? 0.0 : (_minEmitInterval - elapsed);
 
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delay * NSEC_PER_SEC)),
-                   dispatch_get_main_queue(), ^{
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t) (delay * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
         // We can finally send our throttled notification update.
         self.notifyScheduled = NO;
         self.lastEmitTime = CFAbsoluteTimeGetCurrent();
         self.activities = [self.records copy];
-        [[NSNotificationCenter defaultCenter] postNotificationName:ActivityManagerDidUpdateNotification
-                                                            object:self];
+        [[NSNotificationCenter defaultCenter] postNotificationName:ActivityManagerDidUpdateNotification object:self];
     });
 }
 
@@ -187,7 +186,7 @@ NSNotificationName const ActivityManagerDidUpdateNotification = @"ActivityManage
         if (index == NSNotFound) {
             return;
         }
-        ActivityRecord* record = self.records[(NSUInteger)index];
+        ActivityRecord* record = self.records[(NSUInteger) index];
         if (record.completed) {
             return;
         }
@@ -198,9 +197,7 @@ NSNotificationName const ActivityManagerDidUpdateNotification = @"ActivityManage
     });
 }
 
-- (void)updateActivity:(ActivityToken*)token
-              progress:(double)progress
-                detail:(nullable NSString*)detail
+- (void)updateActivity:(ActivityToken*)token progress:(double)progress detail:(nullable NSString*)detail
 {
     if (![token isKindOfClass:[ActivityToken class]]) {
         return;
@@ -210,7 +207,7 @@ NSNotificationName const ActivityManagerDidUpdateNotification = @"ActivityManage
         if (index == NSNotFound) {
             return;
         }
-        ActivityRecord* record = self.records[(NSUInteger)index];
+        ActivityRecord* record = self.records[(NSUInteger) index];
         if (record.completed) {
             return;
         }
@@ -239,7 +236,7 @@ NSNotificationName const ActivityManagerDidUpdateNotification = @"ActivityManage
             active = NO;
             return;
         }
-        ActivityRecord* record = self.records[(NSUInteger)index];
+        ActivityRecord* record = self.records[(NSUInteger) index];
         active = !record.completed;
     };
     if ([NSThread isMainThread]) {
@@ -258,8 +255,8 @@ NSNotificationName const ActivityManagerDidUpdateNotification = @"ActivityManage
     __block ActivityEntry* entry = nil;
     void (^readBlock)(void) = ^{
         NSInteger index = [self indexOfToken:token];
-        if (index != NSNotFound && (NSUInteger)index < self.records.count) {
-            entry = self.records[(NSUInteger)index];
+        if (index != NSNotFound && (NSUInteger) index < self.records.count) {
+            entry = self.records[(NSUInteger) index];
         }
     };
     if ([NSThread isMainThread]) {
@@ -273,7 +270,7 @@ NSNotificationName const ActivityManagerDidUpdateNotification = @"ActivityManage
 - (BOOL)hasOngoingActivity
 {
     __block BOOL found = NO;
-    [self.records enumerateObjectsUsingBlock:^(ActivityRecord * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+    [self.records enumerateObjectsUsingBlock:^(ActivityRecord* _Nonnull obj, NSUInteger idx, BOOL* _Nonnull stop) {
         if (!obj.completed) {
             found = YES;
             *stop = YES;
@@ -293,7 +290,7 @@ NSNotificationName const ActivityManagerDidUpdateNotification = @"ActivityManage
             return;
         }
 
-        ActivityRecord* record = self.records[(NSUInteger)index];
+        ActivityRecord* record = self.records[(NSUInteger) index];
         // If already scheduled for removal, ignore.
         if (record.completed) {
             return;
@@ -313,7 +310,7 @@ NSNotificationName const ActivityManagerDidUpdateNotification = @"ActivityManage
         if (index == NSNotFound) {
             return;
         }
-        ActivityRecord* record = self.records[(NSUInteger)index];
+        ActivityRecord* record = self.records[(NSUInteger) index];
         if (record.cancelHandler) {
             record.cancelHandler();
         }
@@ -330,9 +327,9 @@ NSNotificationName const ActivityManagerDidUpdateNotification = @"ActivityManage
 {
     __block NSInteger found = NSNotFound;
 
-    [self.records enumerateObjectsUsingBlock:^(ActivityRecord* obj, NSUInteger idx, BOOL *stop) {
+    [self.records enumerateObjectsUsingBlock:^(ActivityRecord* obj, NSUInteger idx, BOOL* stop) {
         if ([obj.token.uuid isEqual:token.uuid]) {
-            found = (NSInteger)idx;
+            found = (NSInteger) idx;
             *stop = YES;
         }
     }];

@@ -7,7 +7,9 @@
 //
 
 #import <Foundation/Foundation.h>
+
 #import <AVFoundation/AVFoundation.h>
+
 #import "../Sample/SampleFormat.h"
 #import "AudioPlaybackBackend.h"
 NS_ASSUME_NONNULL_BEGIN
@@ -15,15 +17,15 @@ NS_ASSUME_NONNULL_BEGIN
 extern const unsigned int kPlaybackBufferFrames;
 extern const unsigned int kPlaybackBufferCount;
 
-extern NSString * const kAudioControllerChangedPlaybackStateNotification;
-extern NSString * const kPlaybackStateStarted;
-extern NSString * const kPlaybackStatePaused;
-extern NSString * const kPlaybackStatePlaying;
-extern NSString * const kPlaybackStateEnded;
+extern NSString* const kAudioControllerChangedPlaybackStateNotification;
+extern NSString* const kPlaybackStateStarted;
+extern NSString* const kPlaybackStatePaused;
+extern NSString* const kPlaybackStatePlaying;
+extern NSString* const kPlaybackStateEnded;
 
 @class LazySample;
 
-typedef void (^TapBlock) (unsigned long long framePosition, float* frameData, unsigned int frameCount);
+typedef void (^TapBlock)(unsigned long long framePosition, float* frameData, unsigned int frameCount);
 
 @interface AudioController : NSObject
 
@@ -40,13 +42,13 @@ typedef void (^TapBlock) (unsigned long long framePosition, float* frameData, un
 - (void)togglePause;
 - (void)play;
 - (void)pause;
-- (void)playSample:(LazySample *)sample frame:(unsigned long long)frame paused:(BOOL)paused;
+- (void)playSample:(LazySample*)sample frame:(unsigned long long)frame paused:(BOOL)paused;
 - (void)startTapping:(TapBlock _Nullable)tap;
 - (void)stopTapping;
 - (NSTimeInterval)currentTime;
 - (void)setCurrentTime:(NSTimeInterval)time;
-- (LazySample *)sample;
-- (void)decodeAsyncWithSample:(LazySample *)sample callback:(void (^)(BOOL))callback;
+- (LazySample*)sample;
+- (void)decodeAsyncWithSample:(LazySample*)sample callback:(void (^)(BOOL))callback;
 - (void)decodeAbortWithCallback:(void (^)(void))callback;
 - (AVAudioFramePosition)totalLatency;
 - (AVAudioFramePosition)frameCountDeltaWithTimeDelta:(NSTimeInterval)timestamp;

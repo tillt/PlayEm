@@ -7,6 +7,7 @@
 //
 
 #import "ImageController.h"
+
 #import <AppKit/AppKit.h>
 #import <CoreImage/CoreImage.h>
 
@@ -21,7 +22,7 @@
 
 + (instancetype)shared
 {
-    static ImageController *mgr;
+    static ImageController* mgr;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
         mgr = [[ImageController alloc] init];
@@ -34,29 +35,24 @@
     self = [super init];
     if (self != nil) {
         self.cache = [NSCache new];
-        self.cache.totalCostLimit = 50 * 1024 * 1024; // ~50 MB
-        
+        self.cache.totalCostLimit = 50 * 1024 * 1024;  // ~50 MB
+
         dispatch_queue_attr_t attr = dispatch_queue_attr_make_with_qos_class(DISPATCH_QUEUE_SERIAL, QOS_CLASS_USER_INITIATED, 0);
         _resizingQueue = dispatch_queue_create("PlayEm.ImageControllerResizeQueue", attr);
         _downloadingQueue = dispatch_queue_create("PlayEm.ImageControllerDownloadQueue", attr);
 
         CGColorSpaceRef sRGB = CGColorSpaceCreateWithName(kCGColorSpaceSRGB);
-        self.ciContext = [CIContext contextWithOptions:@{
-            kCIContextOutputColorSpace: (__bridge id)sRGB
-        }];
+        self.ciContext = [CIContext contextWithOptions:@{kCIContextOutputColorSpace : (__bridge id) sRGB}];
         CGColorSpaceRelease(sRGB);
     }
     return self;
 }
 
-- (void)imageForData:(NSData*)data
-                 key:(NSString*)key
-                size:(CGFloat)size
-          completion:(void (^)(NSImage*image))completion
+- (void)imageForData:(NSData*)data key:(NSString*)key size:(CGFloat)size completion:(void (^)(NSImage* image))completion
 {
-    NSString *cacheKey = [NSString stringWithFormat:@"%@-%.0f", key, size];
+    NSString* cacheKey = [NSString stringWithFormat:@"%@-%.0f", key, size];
 
-    NSImage *cached = [self.cache objectForKey:cacheKey];
+    NSImage* cached = [self.cache objectForKey:cacheKey];
     if (cached != nil) {
         // Cache hit, return the cached image.
         completion(cached);
@@ -64,9 +60,9 @@
     }
 
     // This is a cache miss.
-    
+
     dispatch_async(_resizingQueue, ^{
-        CIImage *ci = [CIImage imageWithData:data options:@{ kCIImageApplyOrientationProperty : @YES }];
+        CIImage* ci = [CIImage imageWithData:data options:@{kCIImageApplyOrientationProperty : @YES}];
         if (ci == nil) {
             dispatch_async(dispatch_get_main_queue(), ^{
                 completion(nil);
@@ -75,27 +71,28 @@
         }
 
         // We are using a rather elaborate way of scaling our images. Anything else
-        // caused red-shift issues when scaling up. This is a fascinating issue I have
-        // observed on my machines since I am using macOS -- somehow that seems to be
-        // just me. I can only guess that I have a misconfigured coloring pipeline through
-        // some screwed up display profile or alike. Whatever it is, this is the way to do
-        // it without any problems. I should list the ways I have tried without success...
+        // caused red-shift issues when scaling up. This is a fascinating issue I
+        // have observed on my machines since I am using macOS -- somehow that seems
+        // to be just me. I can only guess that I have a misconfigured coloring
+        // pipeline through some screwed up display profile or alike. Whatever it
+        // is, this is the way to do it without any problems. I should list the ways
+        // I have tried without success...
         CGFloat scale = size / MAX(ci.extent.size.width, ci.extent.size.height);
-        CIFilter *f = [CIFilter filterWithName:@"CILanczosScaleTransform"];
+        CIFilter* f = [CIFilter filterWithName:@"CILanczosScaleTransform"];
         [f setValue:ci forKey:kCIInputImageKey];
         [f setValue:@(scale) forKey:kCIInputScaleKey];
         [f setValue:@1.0 forKey:kCIInputAspectRatioKey];
-        CIImage *scaled = f.outputImage;
-        
+        CIImage* scaled = f.outputImage;
+
         CGImageRef cg = [self.ciContext createCGImage:scaled fromRect:scaled.extent];
-        NSImage *thumb = nil;
+        NSImage* thumb = nil;
         if (cg != nil) {
             thumb = [[NSImage alloc] initWithCGImage:cg size:NSMakeSize(size, size)];
             size_t cost = CGImageGetBytesPerRow(cg) * CGImageGetHeight(cg);
             [self.cache setObject:thumb forKey:cacheKey cost:cost];
             CGImageRelease(cg);
         }
-        
+
         dispatch_async(dispatch_get_main_queue(), ^{
             completion(thumb);
         });

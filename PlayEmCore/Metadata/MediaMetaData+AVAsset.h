@@ -18,7 +18,6 @@ NS_ASSUME_NONNULL_BEGIN
 + (MediaMetaData*)mediaMetaDataWithMetadataItems:(NSArray<AVMetadataItem*>*)items;
 + (long)sampleRateForAsset:(AVAsset*)asset;
 
-
 - (BOOL)readFromAVAsset:(AVAsset*)asset error:(NSError**)error;
 
 //- (BOOL)readChapterMarksFromMP4FileWithError:(NSError**)error;
@@ -35,7 +34,8 @@ NS_ASSUME_NONNULL_BEGIN
 /*
 - (void)addChapterMarksToMP4AtURL:(NSURL*)inputURL
                         outputURL:(NSURL*)outputURL
-                       completion:(void (^)(BOOL success, NSError* error))completion;
+                       completion:(void (^)(BOOL success, NSError*
+error))completion;
 
 */
 @end

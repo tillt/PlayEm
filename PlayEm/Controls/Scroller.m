@@ -15,9 +15,9 @@
     if (self.color) {
         NSRect knobRect = [self rectForPart:NSScrollerKnob];
         knobRect.origin.y += 1;
-        //knobRect.size.width = 7;
+        // knobRect.size.width = 7;
         knobRect.size.height -= 2;
-        NSBezierPath *bezierPath = [NSBezierPath bezierPathWithRoundedRect:knobRect xRadius:4 yRadius:4];
+        NSBezierPath* bezierPath = [NSBezierPath bezierPathWithRoundedRect:knobRect xRadius:4 yRadius:4];
         [self.color set];
         [bezierPath fill];
     } else {

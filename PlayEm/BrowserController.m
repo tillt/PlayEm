@@ -8,28 +8,23 @@
 
 #import "BrowserController.h"
 
-#import <iTunesLibrary/ITLibrary.h>
-#import <iTunesLibrary/ITLibMediaItem.h>
-#import <iTunesLibrary/ITLibArtist.h>
-#import <iTunesLibrary/ITLibAlbum.h>
-#import <iTunesLibrary/ITLibArtwork.h>
-
 #import <CoreImage/CoreImage.h>
-
-#import "CAShapeLayer+Path.h"
-#import "NSBezierPath+CGPath.h"
-#import "ProfilingPointsOfInterest.h"
-
-#import "MediaMetaData.h"
-
-#import "TableHeaderCell.h"
-#import "TableRowView.h"
-#import "TableCellView.h"
-
-#import "NSString+BeautifulPast.h"
-#import "NSURL+WithoutParameters.h"
+#import <iTunesLibrary/ITLibAlbum.h>
+#import <iTunesLibrary/ITLibArtist.h>
+#import <iTunesLibrary/ITLibArtwork.h>
+#import <iTunesLibrary/ITLibMediaItem.h>
+#import <iTunesLibrary/ITLibrary.h>
 
 #import "ActivityManager.h"
+#import "CAShapeLayer+Path.h"
+#import "MediaMetaData.h"
+#import "NSBezierPath+CGPath.h"
+#import "NSString+BeautifulPast.h"
+#import "NSURL+WithoutParameters.h"
+#import "ProfilingPointsOfInterest.h"
+#import "TableCellView.h"
+#import "TableHeaderCell.h"
+#import "TableRowView.h"
 
 NSString* const kSongsColTrackNumber = @"TrackCell";
 NSString* const kSongsColTitle = @"TitleCell";
@@ -72,8 +67,7 @@ NSString* const kSongsColGenre = @"GenreCell";
 
 @end
 
-@implementation BrowserController
-{
+@implementation BrowserController {
     BOOL _updatingGenres;
     BOOL _updatingArtists;
     BOOL _updatingAlbums;
@@ -81,9 +75,9 @@ NSString* const kSongsColGenre = @"GenreCell";
     BOOL _updatingKeys;
     BOOL _updatingRatings;
     BOOL _updatingTags;
-    
+
     BOOL _reloadingLibrary;
-    
+
     MediaMetaData* _lazyUpdatedMeta;
 }
 
@@ -101,7 +95,7 @@ NSString* const kSongsColGenre = @"GenreCell";
     self = [super init];
     if (self) {
         _delegate = delegate;
-        
+
         _currentLocation = nil;
 
         _updatingGenres = NO;
@@ -120,7 +114,7 @@ NSString* const kSongsColGenre = @"GenreCell";
         _keys = [NSMutableArray array];
         _ratings = [NSMutableArray array];
         _tags = [NSMutableArray array];
-        
+
         _searchField = searchField;
         _searchField.delegate = self;
 
@@ -166,10 +160,8 @@ NSString* const kSongsColGenre = @"GenreCell";
         _songsTable.allowsColumnReordering = NO;
         _songsTable.allowsColumnResizing = YES;
         _songsTable.doubleAction = @selector(doubleClickedSongsTableRow:);
-        
-        dispatch_queue_attr_t attr = dispatch_queue_attr_make_with_qos_class(DISPATCH_QUEUE_SERIAL,
-                                                                             QOS_CLASS_USER_INTERACTIVE,
-                                                                             0);
+
+        dispatch_queue_attr_t attr = dispatch_queue_attr_make_with_qos_class(DISPATCH_QUEUE_SERIAL, QOS_CLASS_USER_INTERACTIVE, 0);
         _filterQueue = dispatch_queue_create("PlayEm.BrowserFilterQueue", attr);
 
         [self loadITunesLibrary];
@@ -180,14 +172,15 @@ NSString* const kSongsColGenre = @"GenreCell";
 - (void)reloadData
 {
     if (_cachedLibrary == nil) {
-        NSLog(@"we dont have a cached library just yet - reload will happen when that is established");
+        NSLog(@"we dont have a cached library just yet - reload will happen when "
+              @"that is established");
         return;
     }
 
     NSArray<NSSortDescriptor*>* descriptors = [_songsTable sortDescriptors];
-    
+
     BrowserController* __weak weakSelf = self;
-    
+
     NSMutableArray<MediaMetaData*>* __block cachedLibrary = _cachedLibrary;
     NSArray<MediaMetaData*>* __block filteredItems = _filteredItems;
 
@@ -216,12 +209,13 @@ NSString* const kSongsColGenre = @"GenreCell";
                                                   tag:tag
                                                needle:needle] sortedArrayUsingDescriptors:descriptors];
 
-        // This weird construct shall assure that we only reload those columns that are
-        // undetermined by a selection with a priority built in. 
-        // That means that if the user selected an `album` but nothing else, `reloadData`
-        // will re-populate all the table to the right - that is `tempos`, `keys` and so on columns.
-        // If the user had selected a `genre` but nothing else, all but the `genres` column
-        // get reloaded. If the user selected a `key` but nothing else, nothing gets reloaded.
+        // This weird construct shall assure that we only reload those columns that
+        // are undetermined by a selection with a priority built in. That means that
+        // if the user selected an `album` but nothing else, `reloadData` will
+        // re-populate all the table to the right - that is `tempos`, `keys` and so
+        // on columns. If the user had selected a `genre` but nothing else, all but
+        // the `genres` column get reloaded. If the user selected a `key` but
+        // nothing else, nothing gets reloaded.
         NSMutableArray* destGenres = nil;
         NSMutableArray* destArtists = nil;
         NSMutableArray* destAlbums = nil;
@@ -265,7 +259,7 @@ NSString* const kSongsColGenre = @"GenreCell";
                 return;
             }
             mainSelf.filteredItems = filteredItems;
-            
+
             [mainSelf setNowPlayingWithMeta:mainSelf->_lazyUpdatedMeta];
 
             NSIndexSet* genreSelections = [mainSelf->_genresTable selectedRowIndexes];
@@ -280,19 +274,19 @@ NSString* const kSongsColGenre = @"GenreCell";
             [mainSelf.genresTable beginUpdates];
             [mainSelf.genresTable reloadData];
             [mainSelf.genresTable endUpdates];
-            
+
             [mainSelf.albumsTable beginUpdates];
             [mainSelf.albumsTable reloadData];
             [mainSelf.albumsTable endUpdates];
-            
+
             [mainSelf.artistsTable beginUpdates];
             [mainSelf.artistsTable reloadData];
             [mainSelf.artistsTable endUpdates];
-            
+
             [mainSelf.temposTable beginUpdates];
             [mainSelf.temposTable reloadData];
             [mainSelf.temposTable endUpdates];
-                        
+
             [mainSelf.keysTable beginUpdates];
             [mainSelf.keysTable reloadData];
             [mainSelf.keysTable endUpdates];
@@ -317,22 +311,14 @@ NSString* const kSongsColGenre = @"GenreCell";
             mainSelf->_updatingRatings = YES;
             mainSelf->_updatingTags = YES;
 
-            [mainSelf.genresTable selectRowIndexes:genreSelections
-                              byExtendingSelection:NO];
-            [mainSelf.artistsTable selectRowIndexes:artistSelections
-                              byExtendingSelection:NO];
-            [mainSelf.albumsTable selectRowIndexes:albumSelections
-                              byExtendingSelection:NO];
-            [mainSelf.temposTable selectRowIndexes:tempoSelections
-                              byExtendingSelection:NO];
-            [mainSelf.keysTable selectRowIndexes:keySelections
-                              byExtendingSelection:NO];
-            [mainSelf.ratingsTable selectRowIndexes:ratingSelections
-                              byExtendingSelection:NO];
-            [mainSelf.tagsTable selectRowIndexes:tagSelections
-                              byExtendingSelection:NO];
-            [mainSelf.songsTable selectRowIndexes:songSelections
-                              byExtendingSelection:NO];
+            [mainSelf.genresTable selectRowIndexes:genreSelections byExtendingSelection:NO];
+            [mainSelf.artistsTable selectRowIndexes:artistSelections byExtendingSelection:NO];
+            [mainSelf.albumsTable selectRowIndexes:albumSelections byExtendingSelection:NO];
+            [mainSelf.temposTable selectRowIndexes:tempoSelections byExtendingSelection:NO];
+            [mainSelf.keysTable selectRowIndexes:keySelections byExtendingSelection:NO];
+            [mainSelf.ratingsTable selectRowIndexes:ratingSelections byExtendingSelection:NO];
+            [mainSelf.tagsTable selectRowIndexes:tagSelections byExtendingSelection:NO];
+            [mainSelf.songsTable selectRowIndexes:songSelections byExtendingSelection:NO];
             NSLog(@"selecting songs %@", songSelections);
 
             mainSelf->_updatingGenres = NO;
@@ -342,37 +328,37 @@ NSString* const kSongsColGenre = @"GenreCell";
             mainSelf->_updatingKeys = NO;
             mainSelf->_updatingRatings = NO;
             mainSelf->_updatingTags = NO;
-            
-            [mainSelf.delegate updateSongsCount:mainSelf.cachedLibrary.count
-                                       filtered:mainSelf.filteredItems.count];
+
+            [mainSelf.delegate updateSongsCount:mainSelf.cachedLibrary.count filtered:mainSelf.filteredItems.count];
         });
     });
 }
 
-- (void)metaChangedForMeta:(MediaMetaData *)meta updatedMeta:(MediaMetaData *)updatedMeta
+- (void)metaChangedForMeta:(MediaMetaData*)meta updatedMeta:(MediaMetaData*)updatedMeta
 {
     NSAssert(meta != nil, @"updated MediaMetaData %p has no known original", updatedMeta);
     NSAssert(updatedMeta != nil, @"no updated MediaMetaData given - what is happening");
 
     NSUInteger index = [self.cachedLibrary indexOfObject:meta];
     if (index == NSNotFound) {
-        // We may end up right here when the song in question does not originally come from
-        // the filtered list of songs. In such cases, get the actual meta object from the
-        // cached library using the URL from the "original" meta.
+        // We may end up right here when the song in question does not originally
+        // come from the filtered list of songs. In such cases, get the actual meta
+        // object from the cached library using the URL from the "original" meta.
         NSUInteger fakeIndex = [self songsRowForMeta:meta];
         if (fakeIndex == NSNotFound) {
             NSLog(@"MediaMetaData for %@ does not exist in filtered library", meta.location);
             return;
         }
         meta = self.filteredItems[fakeIndex];
-        // We need the index of that meta from the cached library for the following logic.
+        // We need the index of that meta from the cached library for the following
+        // logic.
         index = [self.cachedLibrary indexOfObject:meta];
     }
     if (index != NSNotFound) {
         NSLog(@"MediaMetaData %p updated does not exist in cached library", meta);
         [self.cachedLibrary replaceObjectAtIndex:index withObject:updatedMeta];
     }
-    //NSLog(@"replaced metadata in cachedLibrary %p with %p", meta, updatedMeta);
+    // NSLog(@"replaced metadata in cachedLibrary %p with %p", meta, updatedMeta);
 
     NSMutableArray* filtered = [NSMutableArray arrayWithArray:_filteredItems];
     index = [filtered indexOfObject:meta];
@@ -381,23 +367,24 @@ NSString* const kSongsColGenre = @"GenreCell";
         return;
     }
     [filtered replaceObjectAtIndex:index withObject:updatedMeta];
-    //NSLog(@"replaced metadata in filteredObject %p with %p", meta, updatedMeta);
+    // NSLog(@"replaced metadata in filteredObject %p with %p", meta,
+    // updatedMeta);
     self.filteredItems = filtered;
 }
 
 - (NSMutableArray*)cacheFromiTunesLibrary:(ITLibrary*)library token:(ActivityToken*)token
 {
     NSMutableArray<MediaMetaData*>* cache = [NSMutableArray new];
-    
+
     NSLog(@"iTunes returned %ld items", library.allMediaItems.count);
-    
+
     size_t skippedCloudItems = 0;
     size_t skippedAAXFiles = 0;
     size_t processCounter = 0;
     size_t total = library.allMediaItems.count;
-    
+
     for (ITLibMediaItem* d in library.allMediaItems) {
-        double progress = (double)processCounter / total;
+        double progress = (double) processCounter / total;
         processCounter++;
         // Lets throttle our state updates -- be a good boy.
         if (processCounter % 10 == 0) {
@@ -410,16 +397,14 @@ NSString* const kSongsColGenre = @"GenreCell";
             continue;
         }
         // We cannot support encrypted audiobooks, unfortunately.
-        if ([[[d.location filePathURL] pathExtension] isEqualToString:@"aax"] ) {
+        if ([[[d.location filePathURL] pathExtension] isEqualToString:@"aax"]) {
             skippedAAXFiles++;
             continue;
         }
         MediaMetaData* m = [MediaMetaData mediaMetaDataWithITLibMediaItem:d error:nil];
         [cache addObject:m];
     }
-    [[ActivityManager shared] updateActivity:token
-                                    progress:1.0
-                                      detail:[NSString stringWithFormat:@"accepted %ld of %ld entries", cache.count, total]];
+    [[ActivityManager shared] updateActivity:token progress:1.0 detail:[NSString stringWithFormat:@"accepted %ld of %ld entries", cache.count, total]];
 
     NSLog(@"%ld cloud based items ignored", skippedCloudItems);
     NSLog(@"%ld encrypted audiobooks ignored", skippedAAXFiles);
@@ -448,24 +433,21 @@ NSString* const kSongsColGenre = @"GenreCell";
     if (_reloadingLibrary) {
         NSLog(@"patience, young padawan - loading already");
     }
-    ActivityToken* libraryToken = [[ActivityManager shared] beginActivityWithTitle:@"Loading Music Library"
-                                                                            detail:@""
-                                                                       cancellable:NO
-                                                                     cancelHandler:nil];
-    
-    NSError *error = nil;
+    ActivityToken* libraryToken = [[ActivityManager shared] beginActivityWithTitle:@"Loading Music Library" detail:@"" cancellable:NO cancelHandler:nil];
+
+    NSError* error = nil;
     [[ActivityManager shared] updateActivity:libraryToken progress:0.00 detail:@"locating Music library"];
     _library = [ITLibrary libraryWithAPIVersion:@"1.0" options:ITLibInitOptionLazyLoadData error:&error];
     if (!_library) {
         NSLog(@"Failed accessing iTunes Library: %@", error);
         return;
     }
-    
+
     NSLog(@"Media folder location: %@", _library.mediaFolderLocation.path);
-    
+
     _filteredItems = nil;
     _cachedLibrary = nil;
-    
+
     _genres = [NSMutableArray array];
     _artists = [NSMutableArray array];
     _albums = [NSMutableArray array];
@@ -482,13 +464,13 @@ NSString* const kSongsColGenre = @"GenreCell";
     [self resetTableView:_ratingsTable];
     [self resetTableView:_tagsTable];
     [self resetTableView:_songsTable];
-    
+
     BrowserController* __weak weakSelf = self;
-    
+
     _reloadingLibrary = YES;
-    
+
     NSArray<NSSortDescriptor*>* descriptors = [_songsTable sortDescriptors];
-    
+
     dispatch_async(_filterQueue, ^{
         BrowserController* strongSelf = weakSelf;
         if (!strongSelf) {
@@ -497,13 +479,12 @@ NSString* const kSongsColGenre = @"GenreCell";
 
         [[ActivityManager shared] updateActivity:libraryToken progress:0.01 detail:@"fetching Music library"];
 
-        NSMutableArray<MediaMetaData*>* cachedLibrary = [strongSelf cacheFromiTunesLibrary:strongSelf.library
-                                                                                     token:libraryToken];
-        
+        NSMutableArray<MediaMetaData*>* cachedLibrary = [strongSelf cacheFromiTunesLibrary:strongSelf.library token:libraryToken];
+
         // Apply sorting.
         strongSelf.filteredItems = [cachedLibrary sortedArrayUsingDescriptors:descriptors];
         strongSelf.cachedLibrary = cachedLibrary;
-        
+
         [strongSelf columnsFromMediaItems:strongSelf.filteredItems
                                    genres:strongSelf.genres
                                   artists:strongSelf.artists
@@ -512,7 +493,7 @@ NSString* const kSongsColGenre = @"GenreCell";
                                      keys:strongSelf.keys
                                   ratings:strongSelf.ratings
                                      tags:strongSelf.tags];
-        
+
         dispatch_sync(dispatch_get_main_queue(), ^{
             BrowserController* strongSelf = weakSelf;
             if (!strongSelf) {
@@ -520,10 +501,9 @@ NSString* const kSongsColGenre = @"GenreCell";
             }
 
             [strongSelf reloadTableView:strongSelf.genresTable];
-            
-            [strongSelf.delegate updateSongsCount:strongSelf.cachedLibrary.count
-                                       filtered:strongSelf.filteredItems.count];
-            
+
+            [strongSelf.delegate updateSongsCount:strongSelf.cachedLibrary.count filtered:strongSelf.filteredItems.count];
+
             strongSelf->_updatingGenres = NO;
             strongSelf->_updatingArtists = NO;
             strongSelf->_updatingAlbums = NO;
@@ -531,9 +511,8 @@ NSString* const kSongsColGenre = @"GenreCell";
             strongSelf->_updatingKeys = NO;
             strongSelf->_updatingRatings = NO;
             strongSelf->_updatingTags = NO;
-            [strongSelf.genresTable selectRowIndexes:[NSIndexSet indexSetWithIndex:0]
-                                byExtendingSelection:NO];
-            
+            [strongSelf.genresTable selectRowIndexes:[NSIndexSet indexSetWithIndex:0] byExtendingSelection:NO];
+
             [strongSelf reloadTableView:strongSelf.albumsTable];
             [strongSelf reloadTableView:strongSelf.artistsTable];
             [strongSelf reloadTableView:strongSelf.temposTable];
@@ -541,10 +520,10 @@ NSString* const kSongsColGenre = @"GenreCell";
             [strongSelf reloadTableView:strongSelf.ratingsTable];
             [strongSelf reloadTableView:strongSelf.tagsTable];
             [strongSelf reloadTableView:strongSelf.songsTable];
-            
+
             [strongSelf setNowPlayingWithMeta:strongSelf->_lazyUpdatedMeta];
             [[ActivityManager shared] completeActivity:libraryToken];
-           
+
             strongSelf->_reloadingLibrary = YES;
         });
     });
@@ -552,7 +531,7 @@ NSString* const kSongsColGenre = @"GenreCell";
 
 - (void)setNowPlayingWithMeta:(MediaMetaData*)meta
 {
-    if ( _filteredItems != nil) {
+    if (_filteredItems != nil) {
         [self setCurrentMeta:meta];
         [self setPlaying:YES];
         [self showSongRowForMeta:meta];
@@ -584,14 +563,14 @@ NSString* const kSongsColGenre = @"GenreCell";
 - (void)setCurrentMeta:(MediaMetaData*)meta
 {
     NSURL* currentLocation = [meta.location URLWithoutParameters];
-    // FIXME; This is a horrendous hack using a static variable for storing the location
-    // of the currently active meta.
+    // FIXME; This is a horrendous hack using a static variable for storing the
+    // location of the currently active meta.
     //[MediaMetaData setActiveLocation:currentLocation];
 
     if (currentLocation == _currentLocation) {
         return;
     }
-    
+
     NSUInteger lastIndex = [_filteredItems indexOfObjectPassingTest:^BOOL(MediaMetaData* meta, NSUInteger idx, BOOL* stop) {
         return [meta.location.absoluteString isEqualToString:_currentLocation.absoluteString];
     }];
@@ -607,7 +586,7 @@ NSString* const kSongsColGenre = @"GenreCell";
         TableRowView* rowView = [_songsTable rowViewAtRow:index makeIfNecessary:YES];
         [rowView setExtraState:kExtraStateActive];
     }
-    
+
     _currentLocation = currentLocation;
 }
 
@@ -682,21 +661,21 @@ NSString* const kSongsColGenre = @"GenreCell";
 - (IBAction)playNextInPlaylist:(id)sender
 {
     [self.songsTable.selectedRowIndexes enumerateIndexesWithOptions:NSEnumerationReverse
-                                                         usingBlock:^(NSUInteger idx, BOOL *stop) {
-        MediaMetaData* meta = self.filteredItems[idx];
-        NSLog(@"playNext item: %@", meta);
-        [_delegate addToPlaylistNext:meta];
-    }];
+                                                         usingBlock:^(NSUInteger idx, BOOL* stop) {
+                                                             MediaMetaData* meta = self.filteredItems[idx];
+                                                             NSLog(@"playNext item: %@", meta);
+                                                             [_delegate addToPlaylistNext:meta];
+                                                         }];
 }
 
 - (IBAction)playLaterInPlaylist:(id)sender
 {
     [self.songsTable.selectedRowIndexes enumerateIndexesWithOptions:NSEnumerationReverse
-                                                         usingBlock:^(NSUInteger idx, BOOL *stop) {
-        MediaMetaData* meta = self.filteredItems[idx];
-        NSLog(@"playLater item: %@", meta);
-        [_delegate addToPlaylistLater:meta];
-    }];
+                                                         usingBlock:^(NSUInteger idx, BOOL* stop) {
+                                                             MediaMetaData* meta = self.filteredItems[idx];
+                                                             NSLog(@"playLater item: %@", meta);
+                                                             [_delegate addToPlaylistLater:meta];
+                                                         }];
 }
 
 - (void)showInfoForCurrentSong:(id)sender
@@ -740,14 +719,16 @@ NSString* const kSongsColGenre = @"GenreCell";
                        album:(NSString*)album
                        tempo:(NSString*)tempo
                          key:(NSString*)key
-                       rating:(NSString*)rating
+                      rating:(NSString*)rating
                          tag:(NSString*)tag
                       needle:(NSString*)needle
 {
-    NSLog(@"filtered based on genre:%@ artist:%@ album:%@ tempo:%@ key:%@, rating:%@, tag:%@, needle: %@", genre, artist, album, tempo, key, rating, tag, needle);
+    NSLog(@"filtered based on genre:%@ artist:%@ album:%@ tempo:%@ key:%@, "
+          @"rating:%@, tag:%@, needle: %@",
+          genre, artist, album, tempo, key, rating, tag, needle);
     NSMutableArray* filtered = [NSMutableArray array];
 
-    for (MediaMetaData *d in items) {
+    for (MediaMetaData* d in items) {
         NSArray* tags = nil;
         if (d.tags && d.tags.length) {
             if ([[d.tags substringToIndex:1] isEqualToString:@"#"]) {
@@ -757,10 +738,8 @@ NSString* const kSongsColGenre = @"GenreCell";
         // Filter per column browser first.
         if ((genre == nil || (d.genre && d.genre.length && [d.genre isEqualTo:genre])) &&
             (artist == nil || (d.artist && d.artist.length && [d.artist isEqualTo:artist])) &&
-            (album == nil || (d.album && d.album.length && [d.album isEqualTo:album])) &&
-            (key == nil || (d.key && d.key.length && [d.key isEqualTo:key])) &&
-            (rating == nil || (d.rating && d.stars.length && [d.stars isEqualTo:rating])) &&
-            (tag == nil || [tags containsObject:tag]) &&
+            (album == nil || (d.album && d.album.length && [d.album isEqualTo:album])) && (key == nil || (d.key && d.key.length && [d.key isEqualTo:key])) &&
+            (rating == nil || (d.rating && d.stars.length && [d.stars isEqualTo:rating])) && (tag == nil || [tags containsObject:tag]) &&
             (tempo == nil || (d.tempo && [[d.tempo stringValue] isEqualTo:tempo]))) {
             // When the user entered a search needle, we additionally filter for that.
             if (needle.length) {
@@ -769,8 +748,7 @@ NSString* const kSongsColGenre = @"GenreCell";
                     (d.artist && d.artist.length && [d.artist localizedCaseInsensitiveContainsString:needle]) ||
                     (d.album && d.album.length && [d.album localizedCaseInsensitiveContainsString:needle]) ||
                     (d.key && d.key.length && [d.key localizedCaseInsensitiveContainsString:needle]) ||
-                    (d.rating && d.stars.length && [d.stars localizedCaseInsensitiveContainsString:needle]) ||
-                    ([tags containsObject:needle]) ||
+                    (d.rating && d.stars.length && [d.stars localizedCaseInsensitiveContainsString:needle]) || ([tags containsObject:needle]) ||
                     ([[d.tempo stringValue] localizedCaseInsensitiveContainsString:needle])) {
                     [filtered addObject:d];
                 }
@@ -786,7 +764,7 @@ NSString* const kSongsColGenre = @"GenreCell";
     dispatch_async(dispatch_get_main_queue(), ^{
         [self.delegate updateSongsCount:self->_cachedLibrary.count filtered:count];
     });
-    
+
     return filtered;
 }
 
@@ -840,13 +818,14 @@ NSString* const kSongsColGenre = @"GenreCell";
                 }
             }
         }
-//        dispatch_async(dispatch_get_main_queue(), ^{
-//            [self.delegate loadLibraryState:LoadStateLoading 
-//                                      value:(double)(itemIndex + 1) / (double)itemCount];
-//        });
+        //        dispatch_async(dispatch_get_main_queue(), ^{
+        //            [self.delegate loadLibraryState:LoadStateLoading
+        //                                      value:(double)(itemIndex + 1) /
+        //                                      (double)itemCount];
+        //        });
         itemIndex++;
     }
-    
+
     if (genres != nil) {
         NSArray* array = [filteredGenres allKeys];
         NSString* label = [NSString stringWithFormat:array.count != 1 ? @"All (%ld Genres)" : @"All (%ld Genre)", array.count];
@@ -889,12 +868,12 @@ NSString* const kSongsColGenre = @"GenreCell";
         [tags setArray:[[filteredTags allKeys] sortedArrayUsingSelector:@selector(localizedCaseInsensitiveCompare:)]];
         [tags insertObject:label atIndex:0];
     }
-//    dispatch_async(dispatch_get_main_queue(), ^{
-//        [self.delegate loadLibraryState:LoadStateStopped];
-//    });
+    //    dispatch_async(dispatch_get_main_queue(), ^{
+    //        [self.delegate loadLibraryState:LoadStateStopped];
+    //    });
 }
 
--(void)genresTableViewSelectionDidChange:(NSInteger)row
+- (void)genresTableViewSelectionDidChange:(NSInteger)row
 {
     if (_updatingGenres) {
         return;
@@ -927,7 +906,7 @@ NSString* const kSongsColGenre = @"GenreCell";
                                                           rating:rating
                                                              tag:tag
                                                           needle:needle] sortedArrayUsingDescriptors:descriptors];
-        
+
         [strongSelf columnsFromMediaItems:strongSelf.filteredItems
                                    genres:nil
                                   artists:strongSelf.artists
@@ -993,7 +972,7 @@ NSString* const kSongsColGenre = @"GenreCell";
     });
 }
 
--(void)artistsTableSelectionDidChange:(NSInteger)row
+- (void)artistsTableSelectionDidChange:(NSInteger)row
 {
     if (_updatingArtists) {
         return;
@@ -1026,7 +1005,7 @@ NSString* const kSongsColGenre = @"GenreCell";
                                                           rating:rating
                                                              tag:tag
                                                           needle:needle] sortedArrayUsingDescriptors:descriptors];
-    
+
         [strongSelf columnsFromMediaItems:strongSelf.filteredItems
                                    genres:nil
                                   artists:nil
@@ -1085,7 +1064,7 @@ NSString* const kSongsColGenre = @"GenreCell";
     });
 }
 
--(void)albumsTableSelectionDidChange:(NSInteger)row
+- (void)albumsTableSelectionDidChange:(NSInteger)row
 {
     if (_updatingAlbums) {
         return;
@@ -1169,7 +1148,7 @@ NSString* const kSongsColGenre = @"GenreCell";
     });
 }
 
--(void)temposTableSelectionDidChange:(NSInteger)row
+- (void)temposTableSelectionDidChange:(NSInteger)row
 {
     if (_updatingTempos) {
         return;
@@ -1232,7 +1211,7 @@ NSString* const kSongsColGenre = @"GenreCell";
             [mainSelf.songsTable endUpdates];
 
             NSIndexSet* zeroSet = [NSIndexSet indexSetWithIndex:0];
-            
+
             mainSelf->_updatingKeys = YES;
             mainSelf->_updatingRatings = YES;
             mainSelf->_updatingTags = YES;
@@ -1247,7 +1226,7 @@ NSString* const kSongsColGenre = @"GenreCell";
     return;
 }
 
--(void)keysTableSelectionDidChange:(NSInteger)row
+- (void)keysTableSelectionDidChange:(NSInteger)row
 {
     if (_updatingKeys) {
         return;
@@ -1297,7 +1276,7 @@ NSString* const kSongsColGenre = @"GenreCell";
             [mainSelf.songsTable endUpdates];
 
             NSIndexSet* zeroSet = [NSIndexSet indexSetWithIndex:0];
-            
+
             mainSelf->_updatingRatings = YES;
             mainSelf->_updatingTags = YES;
             [mainSelf.ratingsTable selectRowIndexes:zeroSet byExtendingSelection:NO];
@@ -1308,7 +1287,7 @@ NSString* const kSongsColGenre = @"GenreCell";
     });
 }
 
--(void)ratingsTableSelectionDidChange:(NSInteger)row
+- (void)ratingsTableSelectionDidChange:(NSInteger)row
 {
     if (_updatingRatings) {
         return;
@@ -1354,7 +1333,7 @@ NSString* const kSongsColGenre = @"GenreCell";
             [mainSelf.songsTable endUpdates];
 
             NSIndexSet* zeroSet = [NSIndexSet indexSetWithIndex:0];
-            
+
             mainSelf->_updatingTags = YES;
             [mainSelf.tagsTable selectRowIndexes:zeroSet byExtendingSelection:NO];
             mainSelf->_updatingTags = NO;
@@ -1362,7 +1341,7 @@ NSString* const kSongsColGenre = @"GenreCell";
     });
 }
 
--(void)tagsTableSelectionDidChange:(NSInteger)row
+- (void)tagsTableSelectionDidChange:(NSInteger)row
 {
     if (_updatingTags) {
         return;
@@ -1406,7 +1385,7 @@ NSString* const kSongsColGenre = @"GenreCell";
     });
 }
 
--(void)doubleClickedSongsTableRow:(id)sender
+- (void)doubleClickedSongsTableRow:(id)sender
 {
     NSInteger row = [_songsTable clickedRow];
     if (row < 0) {
@@ -1416,19 +1395,25 @@ NSString* const kSongsColGenre = @"GenreCell";
     MediaMetaData* item = _filteredItems[row];
     NSURL* url = item.location;
     switch ([item.locationType intValue]) {
-        case MediaMetaDataLocationTypeFile:    NSLog(@"that item is a file");  break;
-        case MediaMetaDataLocationTypeURL:     NSLog(@"that item is a URL");   break;
-        case MediaMetaDataLocationTypeRemote:  NSLog(@"that item is remote");  break;
-        case MediaMetaDataLocationTypeUnknown:
-        default:
-            NSLog(@"that item (%p) is of unknown location type %@", item, item.locationType);
+    case MediaMetaDataLocationTypeFile:
+        NSLog(@"that item is a file");
+        break;
+    case MediaMetaDataLocationTypeURL:
+        NSLog(@"that item is a URL");
+        break;
+    case MediaMetaDataLocationTypeRemote:
+        NSLog(@"that item is remote");
+        break;
+    case MediaMetaDataLocationTypeUnknown:
+    default:
+        NSLog(@"that item (%p) is of unknown location type %@", item, item.locationType);
     }
     if (url != nil && _delegate != nil) {
         [self.delegate browseSelectedUrl:url meta:item];
     }
 }
 
--(NSString*)formattedDuration:(NSTimeInterval)interval
+- (NSString*)formattedDuration:(NSTimeInterval)interval
 {
     NSDateComponentsFormatter* formatter = [[NSDateComponentsFormatter alloc] init];
     formatter.allowedUnits = NSCalendarUnitHour | NSCalendarUnitMinute | NSCalendarUnitSecond;
@@ -1446,12 +1431,13 @@ NSString* const kSongsColGenre = @"GenreCell";
 
 - (NSArray<MediaMetaData*>*)selectedSongMetas
 {
-    __block NSMutableArray<MediaMetaData*>* metas = [NSMutableArray array];;
+    __block NSMutableArray<MediaMetaData*>* metas = [NSMutableArray array];
+    ;
     [self.songsTable.selectedRowIndexes enumerateIndexesWithOptions:NSEnumerationReverse
-                                                         usingBlock:^(NSUInteger idx, BOOL *stop) {
-        MediaMetaData* meta = self.filteredItems[idx];
-        [metas addObject:meta];
-    }];
+                                                         usingBlock:^(NSUInteger idx, BOOL* stop) {
+                                                             MediaMetaData* meta = self.filteredItems[idx];
+                                                             [metas addObject:meta];
+                                                         }];
     if (metas.count == 0 && self.songsTable.clickedRow >= 0) {
         [metas addObject:self.filteredItems[self.songsTable.clickedRow]];
     }
@@ -1459,75 +1445,73 @@ NSString* const kSongsColGenre = @"GenreCell";
     return metas;
 }
 
-- (NSString *)stringValueForRow:(NSInteger)row 
-                    tableColumn:(NSTableColumn* _Nullable)tableColumn
-                      tableView:(NSTableView* _Nonnull)tableView
+- (NSString*)stringValueForRow:(NSInteger)row tableColumn:(NSTableColumn* _Nullable)tableColumn tableView:(NSTableView* _Nonnull)tableView
 {
     NSString* string = nil;
-    switch(tableView.tag) {
-        case VIEWTAG_GENRE:
-            assert(row < _genres.count);
-            string = _genres[row];
-            break;
-        case VIEWTAG_ARTISTS:
-            assert(row < _artists.count);
-            string = _artists[row];
-            break;
-        case VIEWTAG_ALBUMS:
-            assert(row < _albums.count);
-            string = _albums[row];
-            break;
-        case VIEWTAG_TEMPO:
-            assert(row < _tempos.count);
-            string = _tempos[row];
-            break;
-        case VIEWTAG_KEY:
-            assert(row < _keys.count);
-            string = _keys[row];
-            break;
-        case VIEWTAG_RATING:
-            assert(row < _ratings.count);
-            string = _ratings[row];
-            //string = [self starsWithRating:[[ _ratings[row] intValue]];
-            break;
-        case VIEWTAG_TAGS:
-            assert(row < _tags.count);
-            string = _tags[row];
-            break;
-        case VIEWTAG_SONGS:
-            assert(row < _filteredItems.count);
-            if ([tableColumn.identifier isEqualToString:@"TrackCell"]) {
-                if ([_filteredItems[row].track intValue] > 0) {
-                    string = [_filteredItems[row].track stringValue];
-                }
-            } else if ([tableColumn.identifier isEqualToString:@"TitleCell"]) {
-                string = _filteredItems[row].title;
-            } else if ([tableColumn.identifier isEqualToString:@"ArtistCell"]) {
-                string = _filteredItems[row].artist;
-            } else if ([tableColumn.identifier isEqualToString:@"AlbumCell"]) {
-                string = _filteredItems[row].album;
-            } else if ([tableColumn.identifier isEqualToString:@"TimeCell"]) {
-                string = [self formattedDuration:[_filteredItems[row].duration floatValue]];
-            } else if ([tableColumn.identifier isEqualToString:@"TempoCell"]) {
-                if ([_filteredItems[row].tempo intValue] > 0) {
-                    string = [_filteredItems[row].tempo stringValue];
-                } else {
-                    string = @"";
-                }
-            } else if ([tableColumn.identifier isEqualToString:@"KeyCell"]) {
-                string = _filteredItems[row].key;
-            } else if ([tableColumn.identifier isEqualToString:@"RatingCell"]) {
-                string = _filteredItems[row].stars;
-            } else if ([tableColumn.identifier isEqualToString:@"TagsCell"]) {
-                string = _filteredItems[row].tags;
-            } else if ([tableColumn.identifier isEqualToString:@"AddedCell"]) {
-                string = [NSString BeautifulPast:_filteredItems[row].added];
-            } else if ([tableColumn.identifier isEqualToString:@"GenreCell"]) {
-                string = _filteredItems[row].genre;
+    switch (tableView.tag) {
+    case VIEWTAG_GENRE:
+        assert(row < _genres.count);
+        string = _genres[row];
+        break;
+    case VIEWTAG_ARTISTS:
+        assert(row < _artists.count);
+        string = _artists[row];
+        break;
+    case VIEWTAG_ALBUMS:
+        assert(row < _albums.count);
+        string = _albums[row];
+        break;
+    case VIEWTAG_TEMPO:
+        assert(row < _tempos.count);
+        string = _tempos[row];
+        break;
+    case VIEWTAG_KEY:
+        assert(row < _keys.count);
+        string = _keys[row];
+        break;
+    case VIEWTAG_RATING:
+        assert(row < _ratings.count);
+        string = _ratings[row];
+        // string = [self starsWithRating:[[ _ratings[row] intValue]];
+        break;
+    case VIEWTAG_TAGS:
+        assert(row < _tags.count);
+        string = _tags[row];
+        break;
+    case VIEWTAG_SONGS:
+        assert(row < _filteredItems.count);
+        if ([tableColumn.identifier isEqualToString:@"TrackCell"]) {
+            if ([_filteredItems[row].track intValue] > 0) {
+                string = [_filteredItems[row].track stringValue];
             }
-            break;
-        default:
-            string = @"<??? UNHANDLED TABLEVIEW ???>";
+        } else if ([tableColumn.identifier isEqualToString:@"TitleCell"]) {
+            string = _filteredItems[row].title;
+        } else if ([tableColumn.identifier isEqualToString:@"ArtistCell"]) {
+            string = _filteredItems[row].artist;
+        } else if ([tableColumn.identifier isEqualToString:@"AlbumCell"]) {
+            string = _filteredItems[row].album;
+        } else if ([tableColumn.identifier isEqualToString:@"TimeCell"]) {
+            string = [self formattedDuration:[_filteredItems[row].duration floatValue]];
+        } else if ([tableColumn.identifier isEqualToString:@"TempoCell"]) {
+            if ([_filteredItems[row].tempo intValue] > 0) {
+                string = [_filteredItems[row].tempo stringValue];
+            } else {
+                string = @"";
+            }
+        } else if ([tableColumn.identifier isEqualToString:@"KeyCell"]) {
+            string = _filteredItems[row].key;
+        } else if ([tableColumn.identifier isEqualToString:@"RatingCell"]) {
+            string = _filteredItems[row].stars;
+        } else if ([tableColumn.identifier isEqualToString:@"TagsCell"]) {
+            string = _filteredItems[row].tags;
+        } else if ([tableColumn.identifier isEqualToString:@"AddedCell"]) {
+            string = [NSString BeautifulPast:_filteredItems[row].added];
+        } else if ([tableColumn.identifier isEqualToString:@"GenreCell"]) {
+            string = _filteredItems[row].genre;
+        }
+        break;
+    default:
+        string = @"<??? UNHANDLED TABLEVIEW ???>";
     }
 
     return string;
@@ -1547,38 +1531,39 @@ NSString* const kSongsColGenre = @"GenreCell";
     return [self stringValueForRow:row tableColumn:tableColumn tableView:tableView];
 }
 
--(void)tableViewSelectionDidChange:(NSNotification *)notification{
+- (void)tableViewSelectionDidChange:(NSNotification*)notification
+{
 
     NSTableView* tableView = [notification object];
     NSInteger row = [tableView selectedRow];
     if (row == -1) {
         return;
     }
-    
-    switch(tableView.tag) {
-        case VIEWTAG_GENRE:
-            [self genresTableViewSelectionDidChange:row];
+
+    switch (tableView.tag) {
+    case VIEWTAG_GENRE:
+        [self genresTableViewSelectionDidChange:row];
         break;
-        case VIEWTAG_ARTISTS:
-            [self artistsTableSelectionDidChange:row];
+    case VIEWTAG_ARTISTS:
+        [self artistsTableSelectionDidChange:row];
         break;
-        case VIEWTAG_ALBUMS:
-            [self albumsTableSelectionDidChange:row];
+    case VIEWTAG_ALBUMS:
+        [self albumsTableSelectionDidChange:row];
         break;
-        case VIEWTAG_TEMPO:
-            [self temposTableSelectionDidChange:row];
+    case VIEWTAG_TEMPO:
+        [self temposTableSelectionDidChange:row];
         break;
-        case VIEWTAG_KEY:
-            [self keysTableSelectionDidChange:row];
+    case VIEWTAG_KEY:
+        [self keysTableSelectionDidChange:row];
         break;
-        case VIEWTAG_RATING:
-            [self ratingsTableSelectionDidChange:row];
+    case VIEWTAG_RATING:
+        [self ratingsTableSelectionDidChange:row];
         break;
-        case VIEWTAG_TAGS:
-            [self tagsTableSelectionDidChange:row];
+    case VIEWTAG_TAGS:
+        [self tagsTableSelectionDidChange:row];
         break;
-        case VIEWTAG_SONGS:
-            break;
+    case VIEWTAG_SONGS:
+        break;
     }
 }
 
@@ -1589,25 +1574,25 @@ NSString* const kSongsColGenre = @"GenreCell";
         return NO;
     }
 
-    switch(tableView.tag) {
-        case VIEWTAG_GENRE:
-            return YES;
-        case VIEWTAG_ARTISTS:
-            return YES;
-        case VIEWTAG_ALBUMS:
-            return YES;
-        case VIEWTAG_TEMPO:
-            return YES;
-        case VIEWTAG_KEY:
-            return YES;
-        case VIEWTAG_SONGS:
-            return YES;
-        case VIEWTAG_RATING:
-            return YES;
-        case VIEWTAG_TAGS:
-            return YES;
-        default:
-            return YES;
+    switch (tableView.tag) {
+    case VIEWTAG_GENRE:
+        return YES;
+    case VIEWTAG_ARTISTS:
+        return YES;
+    case VIEWTAG_ALBUMS:
+        return YES;
+    case VIEWTAG_TEMPO:
+        return YES;
+    case VIEWTAG_KEY:
+        return YES;
+    case VIEWTAG_SONGS:
+        return YES;
+    case VIEWTAG_RATING:
+        return YES;
+    case VIEWTAG_TAGS:
+        return YES;
+    default:
+        return YES;
     }
 
     return YES;
@@ -1620,9 +1605,9 @@ NSString* const kSongsColGenre = @"GenreCell";
     [tableView reloadData];
 }
 
-- (void)tableView:(NSTableView *)tableView didAddRowView:(NSTableRowView *)rowView forRow:(NSInteger)row
+- (void)tableView:(NSTableView*)tableView didAddRowView:(NSTableRowView*)rowView forRow:(NSInteger)row
 {
-    TableRowView* view = (TableRowView*)rowView;
+    TableRowView* view = (TableRowView*) rowView;
     if (tableView.tag == VIEWTAG_SONGS) {
         if ([_filteredItems[row].location.absoluteString isEqualToString:_currentLocation.absoluteString]) {
             if (_delegate.playing) {
@@ -1642,41 +1627,33 @@ NSString* const kSongsColGenre = @"GenreCell";
 
     TableRowView* rowView = [tableView makeViewWithIdentifier:kRowIdentifier owner:self];
     if (rowView == nil) {
-        rowView = [[TableRowView alloc] initWithFrame:NSMakeRect(0.0, 
-                                                                 0.0,
-                                                                 tableView.bounds.size.width,
-                                                                 tableView.rowHeight)];
+        rowView = [[TableRowView alloc] initWithFrame:NSMakeRect(0.0, 0.0, tableView.bounds.size.width, tableView.rowHeight)];
         rowView.identifier = kRowIdentifier;
     }
     rowView.nextKeyView = tableView.nextKeyView;
     return rowView;
 }
-  
-- (nullable NSView*)tableView:(NSTableView*)tableView 
-  viewForTableColumn:(nullable NSTableColumn*)tableColumn
-                 row:(NSInteger)row
+
+- (nullable NSView*)tableView:(NSTableView*)tableView viewForTableColumn:(nullable NSTableColumn*)tableColumn row:(NSInteger)row
 {
-    switch(tableView.tag) {
-        case VIEWTAG_GENRE:
-        case VIEWTAG_ARTISTS:
-        case VIEWTAG_ALBUMS:
-        case VIEWTAG_TEMPO:
-        case VIEWTAG_KEY:
-        case VIEWTAG_RATING:
-        case VIEWTAG_TAGS:
-        case VIEWTAG_SONGS:
-            break;
-        default:
-            assert(NO);
+    switch (tableView.tag) {
+    case VIEWTAG_GENRE:
+    case VIEWTAG_ARTISTS:
+    case VIEWTAG_ALBUMS:
+    case VIEWTAG_TEMPO:
+    case VIEWTAG_KEY:
+    case VIEWTAG_RATING:
+    case VIEWTAG_TAGS:
+    case VIEWTAG_SONGS:
+        break;
+    default:
+        assert(NO);
     }
 
     TableCellView* result = [tableView makeViewWithIdentifier:tableColumn.identifier owner:self];
-    
+
     if (result == nil) {
-        result = [[TableCellView alloc] initWithFrame:NSMakeRect(0.0,
-                                                                 0.0,
-                                                                 tableColumn.width,
-                                                                 tableView.rowHeight )];
+        result = [[TableCellView alloc] initWithFrame:NSMakeRect(0.0, 0.0, tableColumn.width, tableView.rowHeight)];
         NSString* cellName = tableColumn.identifier;
         if (tableView.tag == VIEWTAG_SONGS) {
             if ([cellName isEqualToString:@"TrackCell"]) {
@@ -1686,7 +1663,10 @@ NSString* const kSongsColGenre = @"GenreCell";
             } else if ([cellName isEqualToString:@"TempoCell"]) {
                 [result.textField setAlignment:NSTextAlignmentRight];
             }
-            //[result addConstraint: [NSLayoutConstraint constraintWithItem:result attribute:NSLayoutAttributeLeft relatedBy:NSLayoutRelationEqual toItem:tableView.enclosingScrollView attribute:NSLayoutAttributeLeft multiplier:1.0 constant:0.0]];
+            //[result addConstraint: [NSLayoutConstraint constraintWithItem:result
+            //attribute:NSLayoutAttributeLeft relatedBy:NSLayoutRelationEqual
+            //toItem:tableView.enclosingScrollView attribute:NSLayoutAttributeLeft
+            //multiplier:1.0 constant:0.0]];
         }
         result.identifier = cellName;
     }
@@ -1705,32 +1685,32 @@ NSString* const kSongsColGenre = @"GenreCell";
 
 - (NSInteger)numberOfRowsInTableView:(NSTableView*)tableView
 {
-    switch(tableView.tag) {
-        case VIEWTAG_GENRE:
-            return _genres.count;
-        case VIEWTAG_ARTISTS:
-            return _artists.count;
-        case VIEWTAG_ALBUMS:
-            return _albums.count;
-        case VIEWTAG_TEMPO:
-            return _tempos.count;
-        case VIEWTAG_KEY:
-            return _keys.count;
-        case VIEWTAG_RATING:
-            return _ratings.count;
-        case VIEWTAG_TAGS:
-            return _tags.count;
-        case VIEWTAG_SONGS:
-            return _filteredItems.count;
-        default:
-            return 0;
+    switch (tableView.tag) {
+    case VIEWTAG_GENRE:
+        return _genres.count;
+    case VIEWTAG_ARTISTS:
+        return _artists.count;
+    case VIEWTAG_ALBUMS:
+        return _albums.count;
+    case VIEWTAG_TEMPO:
+        return _tempos.count;
+    case VIEWTAG_KEY:
+        return _keys.count;
+    case VIEWTAG_RATING:
+        return _ratings.count;
+    case VIEWTAG_TAGS:
+        return _tags.count;
+    case VIEWTAG_SONGS:
+        return _filteredItems.count;
+    default:
+        return 0;
     }
     return 0;
 }
 
 #pragma mark - Search Field
 
-- (void)controlTextDidChange:(NSNotification *)obj
+- (void)controlTextDidChange:(NSNotification*)obj
 {
     [self updatedNeedle];
 }

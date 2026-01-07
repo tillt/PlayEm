@@ -6,8 +6,10 @@
 //  Copyright © 2025 Till Toenshoff. All rights reserved.
 //
 
-#import <Cocoa/Cocoa.h>
 #import <Foundation/Foundation.h>
+
+#import <Cocoa/Cocoa.h>
+
 #import "MediaMetaData.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -16,7 +18,7 @@ NS_ASSUME_NONNULL_BEGIN
 @class AudioController;
 @class ActivityToken;
 
-extern NSString * const kTracklistControllerChangedActiveTrackNotification;
+extern NSString* const kTracklistControllerChangedActiveTrackNotification;
 
 @protocol TracklistControllerDelegate <NSObject>
 
@@ -32,7 +34,7 @@ extern NSString * const kTracklistControllerChangedActiveTrackNotification;
 
 @interface TracklistController : NSViewController <NSTableViewDelegate, NSTableViewDataSource>
 
-@property (nonatomic, weak) id <TracklistControllerDelegate> delegate;
+@property (nonatomic, weak) id<TracklistControllerDelegate> delegate;
 @property (nonatomic, weak) MediaMetaData* current;
 @property (nonatomic, assign) unsigned long long currentFrame;
 @property (nonatomic, readonly, nullable) TimedMediaMetaData* currentTrack;

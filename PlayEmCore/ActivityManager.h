@@ -25,7 +25,7 @@ extern NSNotificationName const ActivityManagerDidUpdateNotification;
 /*! Optional detail text. */
 @property (nonatomic, copy, readonly, nullable) NSString* detail;
 /*! Progress 0–1; negative means indeterminate. */
-@property (nonatomic, assign, readonly) double progress; // <0 indeterminate
+@property (nonatomic, assign, readonly) double progress;  // <0 indeterminate
 /*! Whether the activity can be cancelled. */
 @property (nonatomic, assign, readonly) BOOL cancellable;
 /*! YES if the activity has completed. */
@@ -50,20 +50,17 @@ extern NSNotificationName const ActivityManagerDidUpdateNotification;
                            cancelHandler:(nullable dispatch_block_t)cancelHandler;
 
 /*! @brief Update progress and/or detail for an activity (async on main). */
-- (void)updateActivity:(ActivityToken*)token
-              progress:(double)progress
-                detail:(nullable NSString*)detail;
+- (void)updateActivity:(ActivityToken*)token progress:(double)progress detail:(nullable NSString*)detail;
 
-- (void)updateActivity:(ActivityToken*)token
-              progress:(double)progress;
+- (void)updateActivity:(ActivityToken*)token progress:(double)progress;
 
-- (void)updateActivity:(ActivityToken*)token
-                detail:(nullable NSString*)detail;
+- (void)updateActivity:(ActivityToken*)token detail:(nullable NSString*)detail;
 
 /*! @brief Mark an activity complete and emit an update. */
 - (void)completeActivity:(ActivityToken*)token;
 
-/*! @brief Request cancellation; invokes cancelHandler and completes the activity. */
+/*! @brief Request cancellation; invokes cancelHandler and completes the
+ * activity. */
 - (void)requestCancel:(ActivityToken*)token;
 
 /*! @brief Return YES if the activity exists and is not completed. */
@@ -72,7 +69,8 @@ extern NSNotificationName const ActivityManagerDidUpdateNotification;
 /*! @brief Lookup an activity entry by token. */
 - (ActivityEntry*)activityWithToken:(ActivityToken*)token;
 
-// Returns YES when at least one activity is still in progress (completed == NO).
+// Returns YES when at least one activity is still in progress (completed ==
+// NO).
 - (BOOL)hasOngoingActivity;
 
 @end

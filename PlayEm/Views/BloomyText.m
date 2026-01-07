@@ -5,12 +5,14 @@
 //  Created by Till Toenshoff on 9/6/25.
 //  Copyright © 2025 Till Toenshoff. All rights reserved.
 //
-#import <CoreImage/CoreImage.h>
-#import <QuartzCore/QuartzCore.h>
-#import "../CAShapeLayer+Path.h"
 #import "BloomyText.h"
 
-@interface BloomyText()
+#import <CoreImage/CoreImage.h>
+#import <QuartzCore/QuartzCore.h>
+
+#import "../CAShapeLayer+Path.h"
+
+@interface BloomyText ()
 
 @property (nonatomic, strong) CATextLayer* textLayer;
 @property (nonatomic, strong) CALayer* fxLayer;
@@ -36,8 +38,7 @@
 }
 
 - (void)dealloc
-{
-}
+{}
 
 - (BOOL)wantsLayer
 {
@@ -60,7 +61,7 @@
 {
     CATextLayer* layer = [CATextLayer layer];
     layer.drawsAsynchronously = YES;
-    layer.font = (__bridge  CFTypeRef)self.font;
+    layer.font = (__bridge CFTypeRef) self.font;
     layer.fontSize = self.fontSize;
     layer.allowsEdgeAntialiasing = YES;
     layer.allowsFontSubpixelQuantization = YES;
@@ -75,27 +76,29 @@
 
     self.textLayer = [self makeTextLayer];
     self.textLayer.string = _text;
-    
+
     NSAttributedString* attributedString = [[NSAttributedString alloc] initWithString:self.text attributes:[self attributes]];
     self.textLayer.frame = CGRectMake(0.0, 0.0, attributedString.size.width, attributedString.size.height);
 
     CIFilter* bloomFilter = [CIFilter filterWithName:@"CIBloom"];
     [bloomFilter setDefaults];
-    [bloomFilter setValue: [NSNumber numberWithFloat:7.0] forKey: @"inputRadius"];
-    [bloomFilter setValue: [NSNumber numberWithFloat:0.8] forKey: @"inputIntensity"];
+    [bloomFilter setValue:[NSNumber numberWithFloat:7.0] forKey:@"inputRadius"];
+    [bloomFilter setValue:[NSNumber numberWithFloat:0.8] forKey:@"inputIntensity"];
 
-//    _titleBloomFilter = [CIFilter filterWithName:@"CIZoomBlur"];
-//    [_titleBloomFilter setDefaults];
-//    [_titleBloomFilter setValue: [NSNumber numberWithFloat:1.0] forKey: @"inputAmount"];
-//    [_titleBloomFilter setValue: [CIVector vectorWithCGPoint:CGPointMake(self.textLayer.frame.size.width / 2.0, self.textLayer.frame.size.height / 2.0)] forKey: @"inputCenter"];
+    //    _titleBloomFilter = [CIFilter filterWithName:@"CIZoomBlur"];
+    //    [_titleBloomFilter setDefaults];
+    //    [_titleBloomFilter setValue: [NSNumber numberWithFloat:1.0] forKey:
+    //    @"inputAmount"];
+    //    [_titleBloomFilter setValue: [CIVector
+    //    vectorWithCGPoint:CGPointMake(self.textLayer.frame.size.width / 2.0,
+    //    self.textLayer.frame.size.height / 2.0)] forKey: @"inputCenter"];
 
     self.fxLayer = [CALayer layer];
     _fxLayer.drawsAsynchronously = YES;
-    _fxLayer.backgroundFilters = @[ bloomFilter];
+    _fxLayer.backgroundFilters = @[ bloomFilter ];
     _fxLayer.frame = NSInsetRect(self.bounds, -16, -16);
     _fxLayer.masksToBounds = NO;
     _fxLayer.mask = [CAShapeLayer MaskLayerFromRect:_fxLayer.bounds];
-
 
     self.rastaLayer = [CALayer layer];
     _rastaLayer.backgroundColor = [[NSColor colorWithPatternImage:[NSImage imageNamed:@"RastaPattern"]] CGColor];
@@ -103,10 +106,7 @@
     _rastaLayer.anchorPoint = CGPointMake(1.0, 0.0);
     _rastaLayer.drawsAsynchronously = YES;
     _rastaLayer.autoresizingMask = kCALayerWidthSizable;
-    _rastaLayer.frame = NSMakeRect(self.bounds.origin.x,
-                                   self.bounds.origin.y,
-                                   self.bounds.size.width + 100.0,
-                                   self.bounds.size.height);
+    _rastaLayer.frame = NSMakeRect(self.bounds.origin.x, self.bounds.origin.y, self.bounds.size.width + 100.0, self.bounds.size.height);
     _rastaLayer.zPosition = 1.1;
     _rastaLayer.opacity = 0.4;
     _rastaLayer.compositingFilter = [CIFilter filterWithName:@"CISourceAtopCompositing"];
@@ -115,7 +115,7 @@
     [_textLayer addSublayer:_fxLayer];
 
     [self.layer addSublayer:_textLayer];
-    
+
     CABasicAnimation* animation = [CABasicAnimation animationWithKeyPath:@"transform"];
     CATransform3D tr = CATransform3DIdentity;
     animation.fromValue = [NSValue valueWithCATransform3D:tr];
@@ -128,22 +128,20 @@
     animation.fillMode = kCAFillModeBoth;
     animation.removedOnCompletion = NO;
     [_rastaLayer addAnimation:animation forKey:@"beatScaling"];
-
 }
 
 - (NSDictionary*)attributes
 {
-    return @{ NSForegroundColorAttributeName:_textColor,
-              NSFontAttributeName: _font    };
+    return @{NSForegroundColorAttributeName : _textColor, NSFontAttributeName : _font};
 }
 
-- (void)setText:(NSString *)text
+- (void)setText:(NSString*)text
 {
     if ([_text isEqualToString:text]) {
         return;
     }
     _text = text;
-    
+
     [self setNeedsDisplay:YES];
 }
 

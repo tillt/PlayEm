@@ -30,7 +30,7 @@
 - TODO: When modifying sanitizer logic, update the header doc to reflect the current pipeline and logging flags (DEBUG_SANITIZER) before moving on.
 - Code style (machine-wide reminders):
   - Pointer asterisk binds to the type (`float* p`), apply consistently.
-  - Function/method opening brace on the next line; control-flow blocks (if/for/while) keep the brace on the same line but always use braces (no single-line, brace-less blocks).
+  - Function/method opening brace on the next line; control-flow blocks (if/for/while) keep the brace on the same line but always use braces (no single-line, brace-less blocks). Applies to Objective-C, C++, and C.
 - AudioQueue backend: visual playhead jumps on pause/resume. Likely because the queue has already pulled buffered frames when pausing (currentFrame reflects queued sampleTime). On resume we reset baseFrame and visuals snap back. Possible fixes: track last confirmed played frame (not queued sampleTime) for visuals, or flush/re-prime on pause to align queue with the visual playhead.
 
 - TODO: FFT visualizer performance—explore a branch to keep the “lower-half” look but reduce FFT cost (smaller FFT plus controlled remap) without affecting visuals; current code still uses the larger FFT and discards the top band.

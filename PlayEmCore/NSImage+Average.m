@@ -26,19 +26,15 @@
     CGColorSpaceRelease(colorSpace);
     CGContextRelease(context);
 
-    if(rgba[3] > 0) {
-        const CGFloat alpha = ((CGFloat)rgba[3])/255.0;
+    if (rgba[3] > 0) {
+        const CGFloat alpha = ((CGFloat) rgba[3]) / 255.0;
         const CGFloat multiplier = alpha / 255.0;
-        return [NSColor colorWithRed:((CGFloat)rgba[0]) * multiplier
-                               green:((CGFloat)rgba[1]) * multiplier
-                                blue:((CGFloat)rgba[2]) * multiplier
-                               alpha:alpha];
-    }
-    else {
-        return [NSColor colorWithRed:((CGFloat)rgba[0])/255.0
-                               green:((CGFloat)rgba[1])/255.0
-                                blue:((CGFloat)rgba[2])/255.0
-                               alpha:((CGFloat)rgba[3])/255.0];
+        return [NSColor colorWithRed:((CGFloat) rgba[0]) * multiplier green:((CGFloat) rgba[1]) * multiplier blue:((CGFloat) rgba[2]) * multiplier alpha:alpha];
+    } else {
+        return [NSColor colorWithRed:((CGFloat) rgba[0]) / 255.0
+                               green:((CGFloat) rgba[1]) / 255.0
+                                blue:((CGFloat) rgba[2]) / 255.0
+                               alpha:((CGFloat) rgba[3]) / 255.0];
     }
 }
 

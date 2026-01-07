@@ -7,6 +7,7 @@
 //
 
 #import <Cocoa/Cocoa.h>
+
 #import "NSColor+Metal.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -15,27 +16,27 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (MTLClearColor)MetalClearColorFromColor:(NSColor*)color
 {
-    NSColor *out = [color colorUsingColorSpace:[NSColorSpace deviceRGBColorSpace]];
+    NSColor* out = [color colorUsingColorSpace:[NSColorSpace deviceRGBColorSpace]];
 
     double red = [out redComponent];
     double green = [out greenComponent];
     double blue = [out blueComponent];
     double alpha = [out alphaComponent];
-    
+
     return MTLClearColorMake(red, green, blue, alpha);
 }
 
 + (vector_float4)ShaderColorFromColor:(NSColor*)color
 {
-    NSColor *out = [color colorUsingColorSpace:[NSColorSpace deviceRGBColorSpace]];
+    NSColor* out = [color colorUsingColorSpace:[NSColorSpace deviceRGBColorSpace]];
 
     double red = [out redComponent];
     double green = [out greenComponent];
     double blue = [out blueComponent];
     double alpha = [out alphaComponent];
-    
+
     vector_float4 color_vec = {red, green, blue, alpha};
-    
+
     return color_vec;
 }
 

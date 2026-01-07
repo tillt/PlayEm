@@ -10,20 +10,21 @@
 
 @implementation DragImageFileView
 
-- (void)drawRect:(NSRect)dirtyRect {
+- (void)drawRect:(NSRect)dirtyRect
+{
     [super drawRect:dirtyRect];
-    
+
     // Drawing code here.
 }
 
 #pragma mark - Drag & Drop
 
-- (NSDragOperation)draggingEntered:(id <NSDraggingInfo>)sender
+- (NSDragOperation)draggingEntered:(id<NSDraggingInfo>)sender
 {
     NSPasteboard* pboard = [sender draggingPasteboard];
     NSDragOperation sourceDragMask = [sender draggingSourceOperationMask];
- 
-    if ( [[pboard types] containsObject:NSPasteboardTypeFileURL] ) {
+
+    if ([[pboard types] containsObject:NSPasteboardTypeFileURL]) {
         if (sourceDragMask & NSDragOperationGeneric) {
             return NSDragOperationGeneric;
         } else if (sourceDragMask & NSDragOperationLink) {
@@ -37,10 +38,10 @@
 
 - (BOOL)prepareForDragOperation:(id<NSDraggingInfo>)sender
 {
-   return YES;
+    return YES;
 }
 
-- (BOOL)performDragOperation:(id <NSDraggingInfo>)sender
+- (BOOL)performDragOperation:(id<NSDraggingInfo>)sender
 {
     NSPasteboard* pboard = [sender draggingPasteboard];
 

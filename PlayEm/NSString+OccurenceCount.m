@@ -13,7 +13,7 @@
 
 - (NSUInteger)occurrenceCountOfCharacter:(UniChar)character
 {
-    CFStringRef selfAsCFStr = (__bridge CFStringRef)self;
+    CFStringRef selfAsCFStr = (__bridge CFStringRef) self;
 
     CFStringInlineBuffer inlineBuffer;
 

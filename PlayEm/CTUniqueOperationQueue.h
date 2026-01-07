@@ -34,28 +34,31 @@
 @interface CTUniqueOperationQueue : NSOperationQueue
 
 /*!
- * Adds a NSOperation if there isn't already one in the queue with the specified id
+ * Adds a NSOperation if there isn't already one in the queue with the specified
+ * id
  */
-- (void)addOperation:(NSOperation *)op withID:(NSString *)aID;
+- (void)addOperation:(NSOperation*)op withID:(NSString*)aID;
 
 /*!
- * Adds a block operation if there isn't already one in the queue with the specified id
+ * Adds a block operation if there isn't already one in the queue with the
+ * specified id
  */
-- (void)addOperationWithBlock:(void (^)(void))block withID:(NSString *)aID;
+- (void)addOperationWithBlock:(void (^)(void))block withID:(NSString*)aID;
 
 /*!
  * Cancels the operation, if there is one, which matches the specified id
  */
-- (void)cancelOperationWithID:(NSString *)anID;
+- (void)cancelOperationWithID:(NSString*)anID;
 
 /*!
  * Provides the operation, if there is one, which matches the specified id
  */
-- (NSOperation *)operationWithID:(NSString *)anID;
+- (NSOperation*)operationWithID:(NSString*)anID;
 
 /*!
- * If the provided operation is in the queue, update the priority, otherwise add to the queue with this priority
+ * If the provided operation is in the queue, update the priority, otherwise add
+ * to the queue with this priority
  */
-- (void)addOrSetQueuePriority:(NSOperationQueuePriority)priority operation:(NSOperation *)op withID:(NSString *)anID;
+- (void)addOrSetQueuePriority:(NSOperationQueuePriority)priority operation:(NSOperation*)op withID:(NSString*)anID;
 
 @end

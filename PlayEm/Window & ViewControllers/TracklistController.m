@@ -12,21 +12,21 @@
 
 #import "../Defaults.h"
 #import "../NSImage+Resize.h"
-#import "TrackList.h"
+#import "ActivityManager.h"
 #import "Audio/AudioController.h"
+#import "ImageController.h"
+#import "MediaMetaData.h"
 #import "Sample/LazySample.h"
 #import "TimedMediaMetaData.h"
-#import "MediaMetaData.h"
-#import "ImageController.h"
-#import "ActivityManager.h"
+#import "TrackList.h"
 
 const CGFloat kTimeHeight = 22.0;
 const CGFloat kTotalRowHeight = 52.0 + kTimeHeight;
 
-NSString * const kTracklistControllerChangedActiveTrackNotification = @"TracklistControllerChangedActiveTrackNotification";
+NSString* const kTracklistControllerChangedActiveTrackNotification = @"TracklistControllerChangedActiveTrackNotification";
 static const NSAutoresizingMaskOptions kViewFullySizeable = NSViewHeightSizable | NSViewWidthSizable;
 
-@interface TracklistController()
+@interface TracklistController ()
 @property (nonatomic, strong) NSTableView* table;
 @property (assign, nonatomic) NSUInteger currentTrackIndex;
 @property (strong, nonatomic) NSButton* detectButton;
@@ -35,8 +35,7 @@ static const NSAutoresizingMaskOptions kViewFullySizeable = NSViewHeightSizable 
 @end
 
 // FIXME: This should be a viewcontroller.
-@implementation TracklistController
-{
+@implementation TracklistController {
 }
 
 - (id)init
@@ -48,7 +47,6 @@ static const NSAutoresizingMaskOptions kViewFullySizeable = NSViewHeightSizable 
     return self;
 }
 
-
 - (void)dealloc
 {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
@@ -57,26 +55,22 @@ static const NSAutoresizingMaskOptions kViewFullySizeable = NSViewHeightSizable 
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(activitiesUpdated:)
-                                                 name:ActivityManagerDidUpdateNotification
-                                               object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(activitiesUpdated:) name:ActivityManagerDidUpdateNotification object:nil];
 }
-
 
 - (void)loadView
 {
     NSLog(@"-[TrackListController loadView]");
     self.view = [[NSView alloc] initWithFrame:NSZeroRect];
     self.view.autoresizingMask = NSViewWidthSizable | NSViewHeightSizable;
-    
+
     NSScrollView* sv = [[NSScrollView alloc] initWithFrame:self.view.bounds];
     sv.hasVerticalScroller = YES;
     sv.autoresizingMask = kViewFullySizeable;
     sv.drawsBackground = NO;
-    
+
     [self.view addSubview:sv];
-    
+
     // Tracklist
     _table = [[NSTableView alloc] initWithFrame:sv.bounds];
     _table.dataSource = self;
@@ -89,20 +83,18 @@ static const NSAutoresizingMaskOptions kViewFullySizeable = NSViewHeightSizable 
     _table.rowHeight = kTotalRowHeight;
     _table.allowsMultipleSelection = YES;
     _table.intercellSpacing = NSMakeSize(0.0, 0.0);
-    
+
     NSTableColumn* col = [[NSTableColumn alloc] init];
     col.title = @"";
     col.identifier = @"Column";
     col.width = _table.enclosingScrollView.bounds.size.width;
     [_table addTableColumn:col];
-    
+
     sv.documentView = _table;
-    
-    _detectButton = [NSButton buttonWithTitle:@"Detect Tracklist"
-                                       target:nil
-                                       action:@selector(startTrackDetection:)];
+
+    _detectButton = [NSButton buttonWithTitle:@"Detect Tracklist" target:nil action:@selector(startTrackDetection:)];
     [self.view addSubview:_detectButton];
-    
+
     _detectLabel = [NSTextField textFieldWithString:@"Tracklist Detection in Progress"];
     _detectLabel.editable = NO;
     _detectLabel.font = [[Defaults sharedDefaults] smallFont];
@@ -120,17 +112,16 @@ static const NSAutoresizingMaskOptions kViewFullySizeable = NSViewHeightSizable 
     _detectProgress.maxValue = 1.0;
     _detectProgress.style = NSProgressIndicatorStyleBar;
     _detectProgress.controlSize = NSControlSizeMini;
-    _detectProgress.autoresizingMask =  NSViewWidthSizable;
+    _detectProgress.autoresizingMask = NSViewWidthSizable;
 
     // Create color:
-    CIColor *color = [[CIColor alloc] initWithColor:[NSColor whiteColor]];
+    CIColor* color = [[CIColor alloc] initWithColor:[NSColor whiteColor]];
 
     // Create filter:
-    CIFilter *colorFilter = [CIFilter filterWithName:@"CIColorMonochrome"
-                                 withInputParameters:@{@"inputColor": color}];
+    CIFilter* colorFilter = [CIFilter filterWithName:@"CIColorMonochrome" withInputParameters:@{@"inputColor" : color}];
 
     // Assign to bar:
-    _detectProgress.contentFilters = @[colorFilter];
+    _detectProgress.contentFilters = @[ colorFilter ];
 
     [self.view addSubview:_detectProgress];
 }
@@ -138,21 +129,18 @@ static const NSAutoresizingMaskOptions kViewFullySizeable = NSViewHeightSizable 
 - (void)viewDidLayout
 {
     [super viewDidLayout];
-    
+
     NSRect buttonRect = NSMakeRect(floor((self.view.bounds.size.width - _detectButton.frame.size.width) / 2.0),
-                                   floor((self.view.bounds.size.height - _detectButton.frame.size.height) / 2.0),
-                                   _detectButton.frame.size.width,
+                                   floor((self.view.bounds.size.height - _detectButton.frame.size.height) / 2.0), _detectButton.frame.size.width,
                                    _detectButton.frame.size.height);
     _detectButton.frame = buttonRect;
-    
+
     NSRect labelRect = NSMakeRect(0.0, buttonRect.origin.y, self.view.bounds.size.width, buttonRect.size.height);
     _detectLabel.frame = labelRect;
-    
+
     CGFloat padding = 50.0;
-    NSRect progressRect = NSMakeRect(labelRect.origin.x + padding,
-                                     labelRect.origin.y - (_detectProgress.frame.size.height - 4.0),
-                                     labelRect.size.width - (2 * padding),
-                                     _detectProgress.frame.size.height);
+    NSRect progressRect = NSMakeRect(labelRect.origin.x + padding, labelRect.origin.y - (_detectProgress.frame.size.height - 4.0),
+                                     labelRect.size.width - (2 * padding), _detectProgress.frame.size.height);
     _detectProgress.frame = progressRect;
 }
 
@@ -172,7 +160,7 @@ static const NSAutoresizingMaskOptions kViewFullySizeable = NSViewHeightSizable 
     _detectProgress.hidden = idle;
 }
 
-- (void)setDetectionToken:(ActivityToken *)detectionToken
+- (void)setDetectionToken:(ActivityToken*)detectionToken
 {
     _detectProgress.doubleValue = 0.0;
     _detectionToken = detectionToken;
@@ -192,7 +180,7 @@ static const NSAutoresizingMaskOptions kViewFullySizeable = NSViewHeightSizable 
     size_t lastIndex = UINT_MAX;
 
     unsigned long long nextTrackFrame = [_current.trackList firstTrackFrame:&iter];
-    //unsigned long long lastTrackFrame = 0LL;
+    // unsigned long long lastTrackFrame = 0LL;
 
     while (nextTrackFrame != ULONG_LONG_MAX) {
         if (frame < nextTrackFrame) {
@@ -201,16 +189,15 @@ static const NSAutoresizingMaskOptions kViewFullySizeable = NSViewHeightSizable 
         lastIndex = iter.index - 1;
         nextTrackFrame = [_current.trackList nextTrackFrame:iter];
     };
-    
+
     if (cache != lastIndex) {
         cache = lastIndex;
         _currentTrackIndex = lastIndex;
-        NSLog(@"active track: %ld", _currentTrackIndex );
+        NSLog(@"active track: %ld", _currentTrackIndex);
         [_table reloadData];
         [_table scrollRowToVisible:_currentTrackIndex];
-        
-        [[NSNotificationCenter defaultCenter] postNotificationName:kTracklistControllerChangedActiveTrackNotification
-                                                            object:[self currentTrack]];
+
+        [[NSNotificationCenter defaultCenter] postNotificationName:kTracklistControllerChangedActiveTrackNotification object:[self currentTrack]];
     }
 }
 
@@ -235,11 +222,12 @@ static const NSAutoresizingMaskOptions kViewFullySizeable = NSViewHeightSizable 
 - (NSArray<NSNumber*>*)selectedFrames
 {
     NSArray<NSNumber*>* frames = [_current.trackList.frames sortedArrayUsingSelector:@selector(compare:)];
-    __block NSMutableArray<NSNumber*>* trackFrames = [NSMutableArray array];;
+    __block NSMutableArray<NSNumber*>* trackFrames = [NSMutableArray array];
+    ;
     [_table.selectedRowIndexes enumerateIndexesWithOptions:NSEnumerationReverse
-                                                         usingBlock:^(NSUInteger idx, BOOL *stop) {
-        [trackFrames addObject:frames[idx]];
-    }];
+                                                usingBlock:^(NSUInteger idx, BOOL* stop) {
+                                                    [trackFrames addObject:frames[idx]];
+                                                }];
 
     if (trackFrames.count == 0 && self.table.clickedRow >= 0) {
         [trackFrames addObject:frames[self.table.clickedRow]];
@@ -264,15 +252,15 @@ static const NSAutoresizingMaskOptions kViewFullySizeable = NSViewHeightSizable 
     // TODO: Add logic to spare us a reload.
     [_table reloadData];
     [_delegate updatedTracks];
-    
+
     _current.frameToSeconds = [self frameToSecondsBlock];
-    
+
     NSError* error = nil;
     BOOL done = [_current storeTracklistWithError:&error];
     if (!done) {
         NSLog(@"failed to write tracklist: %@", error);
     }
-    _detectButton.hidden =  _current.trackList.tracks.count > 0;
+    _detectButton.hidden = _current.trackList.tracks.count > 0;
 }
 
 - (void)musicURLClickedWithTrack:(id)sender
@@ -294,11 +282,11 @@ static const NSAutoresizingMaskOptions kViewFullySizeable = NSViewHeightSizable 
     [[NSWorkspace sharedWorkspace] openURLs:[NSArray arrayWithObject:musicURL]
                        withApplicationAtURL:appURL
                               configuration:configuration
-                          completionHandler:^(NSRunningApplication* app, NSError* error){
-        if (error) {
-            NSLog(@"failed to open musicURL %@: %@", musicURL, error);
-        }
-    }];
+                          completionHandler:^(NSRunningApplication* app, NSError* error) {
+                              if (error) {
+                                  NSLog(@"failed to open musicURL %@: %@", musicURL, error);
+                              }
+                          }];
 }
 
 - (void)musicURLClicked:(id)sender
@@ -306,7 +294,7 @@ static const NSAutoresizingMaskOptions kViewFullySizeable = NSViewHeightSizable 
     NSArray* framesToRemove = [self selectedFrames];
     assert(framesToRemove.count > 0);
     TimedMediaMetaData* track = [_current.trackList trackAtFrameNumber:framesToRemove[0]];
-    
+
     NSURL* musicURL = track.meta.appleLocation;
     if (musicURL == nil) {
         NSLog(@"no URL to show");
@@ -322,11 +310,11 @@ static const NSAutoresizingMaskOptions kViewFullySizeable = NSViewHeightSizable 
     [[NSWorkspace sharedWorkspace] openURLs:[NSArray arrayWithObject:musicURL]
                        withApplicationAtURL:appURL
                               configuration:configuration
-                          completionHandler:^(NSRunningApplication* app, NSError* error){
-        if (error) {
-            NSLog(@"failed to open musicURL %@: %@", musicURL, error);
-        }
-    }];
+                          completionHandler:^(NSRunningApplication* app, NSError* error) {
+                              if (error) {
+                                  NSLog(@"failed to open musicURL %@: %@", musicURL, error);
+                              }
+                          }];
 }
 
 - (void)moveTrackAtFrame:(unsigned long long)oldFrame frame:(unsigned long long)newFrame
@@ -344,14 +332,13 @@ static const NSAutoresizingMaskOptions kViewFullySizeable = NSViewHeightSizable 
     [_current.trackList addTrack:track];
 
     [_table beginUpdates];
-    [_table reloadDataForRowIndexes:[NSIndexSet indexSetWithIndex:index]
-                      columnIndexes:[NSIndexSet indexSetWithIndex:0]];
+    [_table reloadDataForRowIndexes:[NSIndexSet indexSetWithIndex:index] columnIndexes:[NSIndexSet indexSetWithIndex:0]];
     [_table endUpdates];
 
     [_table scrollRowToVisible:index];
 
     _current.frameToSeconds = [self frameToSecondsBlock];
-    
+
     NSError* error = nil;
     BOOL done = [_current storeTracklistWithError:&error];
     if (!done) {
@@ -361,13 +348,13 @@ static const NSAutoresizingMaskOptions kViewFullySizeable = NSViewHeightSizable 
 
 - (void)addTracks:(NSArray<TimedMediaMetaData*>*)tracks
 {
-    //NSLog(@"adding tracks: %@", tracks);
+    // NSLog(@"adding tracks: %@", tracks);
     for (TimedMediaMetaData* track in tracks) {
         [_current.trackList addTrack:track];
     }
-   
+
     [_table reloadData];
-    
+
     _current.frameToSeconds = [self frameToSecondsBlock];
 
     NSError* error = nil;
@@ -375,8 +362,7 @@ static const NSAutoresizingMaskOptions kViewFullySizeable = NSViewHeightSizable 
     if (!done) {
         NSLog(@"failed to write tracklist: %@", error);
     }
-    _detectButton.hidden =  _current.trackList.tracks.count > 0;
-
+    _detectButton.hidden = _current.trackList.tracks.count > 0;
 }
 
 - (void)addTrack:(TimedMediaMetaData*)track
@@ -386,19 +372,18 @@ static const NSAutoresizingMaskOptions kViewFullySizeable = NSViewHeightSizable 
         return;
     }
     [_current.trackList addTrack:track];
-    
+
     NSArray<NSNumber*>* frames = [[_current.trackList frames] sortedArrayUsingSelector:@selector(compare:)];
     NSUInteger index = [frames indexOfObject:track.frame];
 
     assert(index != NSNotFound);
 
     [_table beginUpdates];
-    [_table insertRowsAtIndexes:[NSIndexSet indexSetWithIndex:index]
-                  withAnimation:NSTableViewAnimationSlideRight];
+    [_table insertRowsAtIndexes:[NSIndexSet indexSetWithIndex:index] withAnimation:NSTableViewAnimationSlideRight];
     [_table endUpdates];
 
     [_table scrollRowToVisible:index];
-    
+
     _current.frameToSeconds = [self frameToSecondsBlock];
 
     NSError* error = nil;
@@ -406,7 +391,7 @@ static const NSAutoresizingMaskOptions kViewFullySizeable = NSViewHeightSizable 
     if (!done) {
         NSLog(@"failed to write tracklist: %@", error);
     }
-    _detectButton.hidden =  _current.trackList.tracks.count > 0;
+    _detectButton.hidden = _current.trackList.tracks.count > 0;
 }
 
 - (IBAction)exportTracklist:(id)sender
@@ -431,7 +416,7 @@ static const NSAutoresizingMaskOptions kViewFullySizeable = NSViewHeightSizable 
 - (FrameToSeconds)frameToSecondsBlock
 {
     __weak typeof(self) weakSelf = self;
-    return ^double (unsigned long long frame) {
+    return ^double(unsigned long long frame) {
         TracklistController* strongSelf = weakSelf;
         if (!strongSelf) {
             return 0.0;
@@ -453,56 +438,51 @@ static const NSAutoresizingMaskOptions kViewFullySizeable = NSViewHeightSizable 
 - (NSMenu*)menu
 {
     NSMenu* menu = [NSMenu new];
-    
-    NSMenuItem* item = [menu addItemWithTitle:@"Remove from Tracklist"
-                                       action:@selector(removeFromTracklist:)
-                                keyEquivalent:@""];
+
+    NSMenuItem* item = [menu addItemWithTitle:@"Remove from Tracklist" action:@selector(removeFromTracklist:) keyEquivalent:@""];
 
     [menu addItem:[NSMenuItem separatorItem]];
 
-    item = [menu addItemWithTitle:@"Open in Apple Music"
-                           action:@selector(musicURLClicked:)
-                    keyEquivalent:@""];
+    item = [menu addItemWithTitle:@"Open in Apple Music" action:@selector(musicURLClicked:) keyEquivalent:@""];
 
     [menu addItem:[NSMenuItem separatorItem]];
 
-    item = [[NSMenuItem alloc] initWithTitle:@"Export Tracklist..."
-                                      action:@selector(exportTracklist:)
-                               keyEquivalent:@""];
+    item = [[NSMenuItem alloc] initWithTitle:@"Export Tracklist..." action:@selector(exportTracklist:) keyEquivalent:@""];
     [item setKeyEquivalentModifierMask:NSEventModifierFlagCommand];
     item.target = self;
     [menu addItem:item];
 
     [menu addItem:[NSMenuItem separatorItem]];
 
-    item = [[NSMenuItem alloc] initWithTitle:@"Copy Tracklist to Clipboard"
-                                      action:@selector(copyTracklist:)
-                               keyEquivalent:@""];
+    item = [[NSMenuItem alloc] initWithTitle:@"Copy Tracklist to Clipboard" action:@selector(copyTracklist:) keyEquivalent:@""];
     [item setKeyEquivalentModifierMask:NSEventModifierFlagCommand];
     item.target = self;
     [menu addItem:item];
 
     //[menu addItem:item];
 
-//
-//    item = [menu addItemWithTitle:@"Show in Finder"
-//                           action:@selector(showInFinder:)
-//                    keyEquivalent:@""];
-//    item.target = self;
-//
+    //
+    //    item = [menu addItemWithTitle:@"Show in Finder"
+    //                           action:@selector(showInFinder:)
+    //                    keyEquivalent:@""];
+    //    item.target = self;
+    //
 
-// TODO: allow disabling depending on the number of songs selected. Note to myself, this here is the wrong place!
-//    size_t numberOfSongsSelected = ;
-//    showInFinder.enabled = numberOfSongsSelected > 1;
-  
+    // TODO: allow disabling depending on the number of songs selected. Note to
+    // myself, this here is the wrong place!
+    //    size_t numberOfSongsSelected = ;
+    //    showInFinder.enabled = numberOfSongsSelected > 1;
+
     return menu;
 }
 
 //- (NSArray<MediaMetaData*>*)selectedSongMetas
 //{
 //    __block NSMutableArray<MediaMetaData*>* metas = [NSMutableArray array];;
-//    [self.songsTable.selectedRowIndexes enumerateIndexesWithOptions:NSEnumerationReverse
-//                                                         usingBlock:^(NSUInteger idx, BOOL *stop) {
+//    [self.songsTable.selectedRowIndexes
+//    enumerateIndexesWithOptions:NSEnumerationReverse
+//                                                         usingBlock:^(NSUInteger
+//                                                         idx, BOOL *stop) {
 //        MediaMetaData* meta = self.filteredItems[idx];
 //        [metas addObject:meta];
 //    }];
@@ -537,20 +517,15 @@ static const NSAutoresizingMaskOptions kViewFullySizeable = NSViewHeightSizable 
     const CGFloat kRowHeight = tableView.rowHeight - (kRowInset + kTimeHeight);
 
     NSView* result = [tableView makeViewWithIdentifier:tableColumn.identifier owner:self];
-    
+
     if (result == nil) {
-        NSView* view = [[NSView alloc] initWithFrame:NSMakeRect(0.0,
-                                                                0.0,
-                                                                tableColumn.width,
-                                                                kRowHeight)];
+        NSView* view = [[NSView alloc] initWithFrame:NSMakeRect(0.0, 0.0, tableColumn.width, kRowHeight)];
         const CGFloat kArtistHeight = 16.0;
         const CGFloat kTitleHeight = 22.0;
 
         // Time
-        NSTextField* tf = [[NSTextField alloc] initWithFrame:NSMakeRect(0,
-                                                                        tableView.rowHeight  - (kRowInset + kTimeHeight - 4.0),
-                                                                        tableColumn.width,
-                                                                        kTimeHeight)];
+        NSTextField* tf =
+            [[NSTextField alloc] initWithFrame:NSMakeRect(0, tableView.rowHeight - (kRowInset + kTimeHeight - 4.0), tableColumn.width, kTimeHeight)];
         tf.editable = NO;
         tf.font = kTimeHeight > 16.0 ? [[Defaults sharedDefaults] normalFont] : [[Defaults sharedDefaults] smallFont];
         tf.drawsBackground = NO;
@@ -564,10 +539,7 @@ static const NSAutoresizingMaskOptions kViewFullySizeable = NSViewHeightSizable 
 
         // Cover
         CGFloat coverWidth = kRowHeight;
-        NSImageView* iv = [[NSImageView alloc] initWithFrame:NSMakeRect(0.0,
-                                                                        8.0,
-                                                                        coverWidth,
-                                                                        kRowHeight)];
+        NSImageView* iv = [[NSImageView alloc] initWithFrame:NSMakeRect(0.0, 8.0, coverWidth, kRowHeight)];
 
         iv.wantsLayer = YES;
         iv.layer.contentsScale = [[NSScreen mainScreen] backingScaleFactor];
@@ -575,15 +547,13 @@ static const NSAutoresizingMaskOptions kViewFullySizeable = NSViewHeightSizable 
         iv.layer.masksToBounds = YES;
         iv.tag = kImageViewTag;
         [view addSubview:iv];
-        
+
         CGFloat x = coverWidth + kRowInset;
         CGFloat labelWidth = tableColumn.width - (x + (4 * kRowInset));
-        
+
         // Title
-        tf = [[NSTextField alloc] initWithFrame:NSMakeRect( x,
-                                                            (tableView.rowHeight - (kTimeHeight + kTitleHeight + kRowInset - 4.0)),
-                                                            labelWidth,
-                                                            kTitleHeight)];
+        tf =
+            [[NSTextField alloc] initWithFrame:NSMakeRect(x, (tableView.rowHeight - (kTimeHeight + kTitleHeight + kRowInset - 4.0)), labelWidth, kTitleHeight)];
         tf.editable = NO;
         tf.font = [[Defaults sharedDefaults] largeFont];
         tf.drawsBackground = NO;
@@ -595,10 +565,8 @@ static const NSAutoresizingMaskOptions kViewFullySizeable = NSViewHeightSizable 
         [view addSubview:tf];
 
         // Artist
-        tf = [[NSTextField alloc] initWithFrame:NSMakeRect(x,
-                                                           (tableView.rowHeight - (kTimeHeight + kTitleHeight + kRowInset + kArtistHeight - 6.0)),
-                                                           labelWidth,
-                                                           kArtistHeight)];
+        tf = [[NSTextField alloc]
+            initWithFrame:NSMakeRect(x, (tableView.rowHeight - (kTimeHeight + kTitleHeight + kRowInset + kArtistHeight - 6.0)), labelWidth, kArtistHeight)];
         tf.editable = NO;
         tf.font = [[Defaults sharedDefaults] normalFont];
         tf.drawsBackground = NO;
@@ -613,36 +581,36 @@ static const NSAutoresizingMaskOptions kViewFullySizeable = NSViewHeightSizable 
         result.identifier = tableColumn.identifier;
     }
 
-    NSColor* titleColor = row == _currentTrackIndex ? [[Defaults sharedDefaults] lightFakeBeamColor] : [[Defaults sharedDefaults] secondaryLabelColor];;
+    NSColor* titleColor = row == _currentTrackIndex ? [[Defaults sharedDefaults] lightFakeBeamColor] : [[Defaults sharedDefaults] secondaryLabelColor];
+    ;
     NSColor* artistColor = row == _currentTrackIndex ? [[Defaults sharedDefaults] regularFakeBeamColor] : [[Defaults sharedDefaults] secondaryLabelColor];
- 
+
     NSArray<NSNumber*>* frames = [_current.trackList.frames sortedArrayUsingSelector:@selector(compare:)];
     unsigned long long frame = [frames[row] unsignedLongLongValue];
     TimedMediaMetaData* track = [_current.trackList trackAtFrame:frame];
 
     NSImageView* iv = [result viewWithTag:kImageViewTag];
-    
-    // Placeholder initially - we may need to resolve the data (unlikely for a tracklist,
-    // very likely for a playlist).
-    iv.image = [NSImage resizedImageWithData:[MediaMetaData defaultArtworkData]
-                                        size:iv.frame.size];
 
-    __weak NSView *weakView = result;
-    __weak NSTableView *weakTable = tableView;
-    
-    void (^applyImage)(NSData*) = ^(NSData*data) {
+    // Placeholder initially - we may need to resolve the data (unlikely for a
+    // tracklist, very likely for a playlist).
+    iv.image = [NSImage resizedImageWithData:[MediaMetaData defaultArtworkData] size:iv.frame.size];
+
+    __weak NSView* weakView = result;
+    __weak NSTableView* weakTable = tableView;
+
+    void (^applyImage)(NSData*) = ^(NSData* data) {
         [[ImageController shared] imageForData:data
                                            key:track.meta.artworkHash
                                           size:iv.frame.size.width
-                                    completion:^(NSImage *image) {
-            if (image == nil || weakView == nil || weakTable == nil) {
-                return;
-            }
-            if ([weakTable rowForView:weakView] == row) {
-                NSImageView *iv = [weakView viewWithTag:kImageViewTag];
-                iv.image = image;
-            }
-        }];
+                                    completion:^(NSImage* image) {
+                                        if (image == nil || weakView == nil || weakTable == nil) {
+                                            return;
+                                        }
+                                        if ([weakTable rowForView:weakView] == row) {
+                                            NSImageView* iv = [weakView viewWithTag:kImageViewTag];
+                                            iv.image = image;
+                                        }
+                                    }];
     };
 
     if (track.meta.artwork != nil) {
@@ -650,13 +618,14 @@ static const NSAutoresizingMaskOptions kViewFullySizeable = NSViewHeightSizable 
     } else {
         if (track.meta.artworkLocation != nil) {
             assert(NO);
-            [[ImageController shared] resolveDataForURL:track.meta.artworkLocation callback:^(NSData* data){
-                track.meta.artwork = data;
-                applyImage(track.meta.artwork);
-            }];
+            [[ImageController shared] resolveDataForURL:track.meta.artworkLocation
+                                               callback:^(NSData* data) {
+                                                   track.meta.artwork = data;
+                                                   applyImage(track.meta.artwork);
+                                               }];
         }
     }
-    
+
     NSTextField* tf = [result viewWithTag:kTitleViewTag];
     tf.textColor = titleColor;
     NSString* title = track.meta.title;
@@ -684,20 +653,19 @@ static const NSAutoresizingMaskOptions kViewFullySizeable = NSViewHeightSizable 
     if (track.confidence == nil) {
         confidence = @"unknown";
     } else {
-        NSNumberFormatter *decimalStyleFormatter = [[NSNumberFormatter alloc] init];
+        NSNumberFormatter* decimalStyleFormatter = [[NSNumberFormatter alloc] init];
         [decimalStyleFormatter setMaximumFractionDigits:2];
         confidence = [decimalStyleFormatter stringFromNumber:track.confidence];
     }
-    
+
     NSString* output = [NSString stringWithFormat:@"%@, confidence %@", time, confidence];
     [tf setStringValue:output];
 
     return result;
 }
 
--(void)tableViewSelectionDidChange:(NSNotification*)notification
-{
-}
+- (void)tableViewSelectionDidChange:(NSNotification*)notification
+{}
 
 - (void)tracklistDoubleClickedRow:(id)sender
 {
@@ -716,22 +684,21 @@ static const NSAutoresizingMaskOptions kViewFullySizeable = NSViewHeightSizable 
     return YES;
 }
 
-
 #pragma mark - Notifications
 
 - (void)activitiesUpdated:(NSNotification*)note
 {
     // Should we care?
-    if(_detectionToken == nil) {
+    if (_detectionToken == nil) {
         return;
     }
-    
+
     // Did our token expire?
     if (![[ActivityManager shared] isActive:_detectionToken]) {
         self.detectionToken = nil;
         return;
     }
-    
+
     ActivityEntry* entry = [[ActivityManager shared] activityWithToken:_detectionToken];
     _detectProgress.doubleValue = entry.progress;
     [_detectProgress setNeedsDisplay:YES];

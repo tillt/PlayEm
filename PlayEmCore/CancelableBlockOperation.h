@@ -12,12 +12,16 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  A tiny cancelable wrapper around a single dispatch block.
- 
- Call `-run:` to wrap work, enqueue `dispatchBlock` yourself on a queue, and observe `isCancelled`, `isCompleted`, and `isDone` to decide whether to use the result. `-cancel` marks the operation done and cancels the wrapped block; `-wait` joins if enqueued. No indexing or queueing logic is built in.
+
+ Call `-run:` to wrap work, enqueue `dispatchBlock` yourself on a queue, and
+ observe `isCancelled`, `isCompleted`, and `isDone` to decide whether to use the
+ result. `-cancel` marks the operation done and cancels the wrapped block;
+ `-wait` joins if enqueued. No indexing or queueing logic is built in.
  */
 @interface CancelableBlockOperation : NSObject
 
-/// Optional payload/result buffer owned by the caller (e.g., filled inside the wrapped block).
+/// Optional payload/result buffer owned by the caller (e.g., filled inside the
+/// wrapped block).
 @property (nonatomic, strong, nullable) NSMutableData* data;
 @property (nonatomic, copy, readonly, nullable) dispatch_block_t dispatchBlock;
 /// YES if the block was cancelled before running to completion.

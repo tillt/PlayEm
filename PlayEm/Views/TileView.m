@@ -6,15 +6,16 @@
 //  Copyright © 2025 Till Toenshoff. All rights reserved.
 //
 
-#import <QuartzCore/QuartzCore.h>
 #import "TileView.h"
+
+#import <QuartzCore/QuartzCore.h>
+
 #import "../Defaults.h"
 #import "WaveViewController.h"
 
 @implementation TileView
 
-- (nonnull instancetype)initWithFrame:(CGRect)frameRect
-                        waveLayerDelegate:(id<CALayerDelegate>)waveLayerDelegate
+- (nonnull instancetype)initWithFrame:(CGRect)frameRect waveLayerDelegate:(id<CALayerDelegate>)waveLayerDelegate
 {
     self = [super initWithFrame:frameRect];
     if (self) {
@@ -37,11 +38,11 @@
         _beatLayer.zPosition = 1.0;
         [self.layer addSublayer:_beatLayer];
 
-//        _markLayer = [self makeMarkLayer];
-//        _markLayer.frame = CGRectMake(0.0, 0.0, frameRect.size.width, frameRect.size.height);
-//        _markLayer.name = @"TileViewMarkLayer";
-//        _markLayer.zPosition = 2.0;
-//        [self.layer addSublayer:_markLayer];
+        //        _markLayer = [self makeMarkLayer];
+        //        _markLayer.frame = CGRectMake(0.0, 0.0, frameRect.size.width,
+        //        frameRect.size.height); _markLayer.name = @"TileViewMarkLayer";
+        //        _markLayer.zPosition = 2.0;
+        //        [self.layer addSublayer:_markLayer];
 
         _waveLayer.delegate = waveLayerDelegate;
     }
@@ -93,6 +94,5 @@
     layer.autoresizingMask = kCALayerWidthSizable | kCALayerHeightSizable;
     return layer;
 }
-
 
 @end

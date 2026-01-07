@@ -6,15 +6,15 @@
 //  Copyright © 2024 Till Toenshoff. All rights reserved.
 //
 
-#import "NSURL+WithoutParameters.h"
 #import <Foundation/Foundation.h>
+
+#import "NSURL+WithoutParameters.h"
 
 @implementation NSURL (WithoutParameters)
 
 - (NSURL*)URLWithoutParameters
 {
-    NSURLComponents* components = [NSURLComponents componentsWithURL:self
-                                             resolvingAgainstBaseURL:NO];
+    NSURLComponents* components = [NSURLComponents componentsWithURL:self resolvingAgainstBaseURL:NO];
     components.query = nil;
     return [components URL];
 }

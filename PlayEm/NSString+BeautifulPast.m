@@ -10,8 +10,8 @@
 
 @implementation NSString (BeautifulPast)
 
-/// Describes an age in a human readable form, applying spoken patterns like "yesterday" for anything older than 24 hours
-/// but younger than 48 hours.
+/// Describes an age in a human readable form, applying spoken patterns like
+/// "yesterday" for anything older than 24 hours but younger than 48 hours.
 ///
 /// - Parameter past: point of time in the past
 ///
@@ -68,7 +68,7 @@
     unsigned long long int gigabyte = megabyte * base;
     unsigned long long int terrabyte = gigabyte * base;
     unsigned long long int petabyte = terrabyte * base;
-    
+
     NSString* const formatByte = @"%.0f %@";
     NSString* const formatRest = @"%.1f %@";
 

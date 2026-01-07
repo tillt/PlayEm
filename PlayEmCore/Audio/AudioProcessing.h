@@ -15,12 +15,7 @@ extern const size_t kFrequencyDataLength;
 extern const size_t kScaledFrequencyDataLength;
 extern const size_t kWindowSamples;
 
-typedef NS_ENUM(NSInteger, APWindowType) {
-    APWindowTypeNone = 0,
-    APWindowTypeHanning,
-    APWindowTypeHamming,
-    APWindowTypeBlackman
-};
+typedef NS_ENUM(NSInteger, APWindowType) { APWindowTypeNone = 0, APWindowTypeHanning, APWindowTypeHamming, APWindowTypeBlackman };
 
 /*! @brief Create a DCT setup for 1D transforms over the mel filter count. */
 vDSP_DFT_Setup initDCT(void);
@@ -35,7 +30,8 @@ double dB(double amplitude);
 FFTSetup initFFT(void);
 void destroyFFT(FFTSetup setup);
 
-/*! @brief Convert linear FFT magnitudes into a logarithmically scaled vector. */
+/*! @brief Convert linear FFT magnitudes into a logarithmically scaled vector.
+ */
 float* initLogMap(void);
 void destroyLogMap(float* map);
 void logscaleFFT(float* map, float* frequencyData);
@@ -48,10 +44,12 @@ void logscaleFFT(float* map, float* frequencyData);
     @param windowType Windowing function to apply before the FFT. */
 void performFFT(FFTSetup fft, float* data, size_t numberOfFrames, float* frequencyData, APWindowType windowType);
 
-/*! @brief Convert FFT magnitudes into a mel vector (length kScaledFrequencyDataLength).
-    @discussion Uses a wide mel bank (~20 Hz–20 kHz) and assumes input magnitudes of length
-    kFrequencyDataLength (as produced by performFFT); overwrites the buffer with mel bins.
-    No band remapping, tilt, or resampling is applied here. */
+/*! @brief Convert FFT magnitudes into a mel vector (length
+   kScaledFrequencyDataLength).
+    @discussion Uses a wide mel bank (~20 Hz–20 kHz) and assumes input
+   magnitudes of length kFrequencyDataLength (as produced by performFFT);
+   overwrites the buffer with mel bins. No band remapping, tilt, or resampling
+   is applied here. */
 void melScaleFFT(float* frequencyData);
 
 #endif /* AudioProcessing_h */

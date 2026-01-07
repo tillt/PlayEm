@@ -12,8 +12,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface MusicAuthenticationController : NSObject
 
-- (void)requestAppleMusicUserTokenWithCompletion:(void(^)(BOOL success, NSString *appleMusicUserToken))completionBlock;
-- (void)requestAppleMusicDeveloperTokenWithCompletion:(void(^)(NSString *appleMusicDeveloperToken))completionBlock;
+- (void)requestAppleMusicUserTokenWithCompletion:(void (^)(BOOL success, NSString* appleMusicUserToken))completionBlock;
+- (void)requestAppleMusicDeveloperTokenWithCompletion:(void (^)(NSString* appleMusicDeveloperToken))completionBlock;
 
 @end
 

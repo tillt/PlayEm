@@ -5,11 +5,13 @@
 //  Created by Till Toenshoff on 9/27/25.
 //  Copyright © 2025 Till Toenshoff. All rights reserved.
 //
+#import "IdentifiedTrack.h"
+
 #import <Foundation/Foundation.h>
+
 #import <AppKit/AppKit.h>
 #import <ShazamKit/ShazamKit.h>
 
-#import "IdentifiedTrack.h"
 #import "MediaMetaData.h"
 
 @implementation IdentifiedTrack
@@ -20,7 +22,6 @@
     track.artwork = [NSImage imageNamed:@"UnknownSong"];
     return track;
 }
-
 
 - (id)initWithTitle:(NSString*)title artist:(NSString*)artist genre:(NSString*)genre musicURL:(NSURL*)musicURL imageURL:(NSURL*)imageURL frame:(NSNumber*)frame
 {
@@ -36,7 +37,7 @@
     return self;
 }
 
-- (id)initWithCoder:(NSCoder *)coder
+- (id)initWithCoder:(NSCoder*)coder
 {
     self = [super init];
     if (self) {
@@ -50,19 +51,19 @@
     return self;
 }
 
-- (void)encodeWithCoder:(NSCoder *)coder
+- (void)encodeWithCoder:(NSCoder*)coder
 {
     [coder encodeObject:_title forKey:@"title"];
     [coder encodeObject:_artist forKey:@"artist"];
-    [coder encodeObject:_genre  forKey:@"genre"];
+    [coder encodeObject:_genre forKey:@"genre"];
     [coder encodeObject:_imageURL forKey:@"imageURL"];
     [coder encodeObject:_musicURL forKey:@"musicURL"];
-    [coder encodeObject:_frame  forKey:@"frame"];
+    [coder encodeObject:_frame forKey:@"frame"];
 }
 
 + (BOOL)supportsSecureCoding
 {
-   return YES;
+    return YES;
 }
 
 - (id)initWithMatchedMediaItem:(SHMatchedMediaItem*)item
@@ -82,8 +83,7 @@
 
 - (NSString*)description
 {
-    return [NSString stringWithFormat:@"frame:%@ title:%@ artist:%@ genre:%@ imageURL:%@ musicURL:%@",
-            _frame, _title, _artist, _genre, _imageURL, _musicURL];
+    return [NSString stringWithFormat:@"frame:%@ title:%@ artist:%@ genre:%@ imageURL:%@ musicURL:%@", _frame, _title, _artist, _genre, _imageURL, _musicURL];
 }
 
 @end

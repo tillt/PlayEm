@@ -4,6 +4,7 @@
 //
 
 #import <XCTest/XCTest.h>
+
 #import "ActivityManager.h"
 
 @interface ActivityManagerTests : XCTestCase
@@ -17,7 +18,7 @@
     dispatch_async(dispatch_get_main_queue(), ^{
         [exp fulfill];
     });
-    [self waitForExpectations:@[exp] timeout:1.0];
+    [self waitForExpectations:@[ exp ] timeout:1.0];
 }
 
 - (void)waitForActivitiesAtLeast:(NSUInteger)count
@@ -36,11 +37,11 @@
     token = [[NSNotificationCenter defaultCenter] addObserverForName:ActivityManagerDidUpdateNotification
                                                               object:nil
                                                                queue:[NSOperationQueue mainQueue]
-                                                          usingBlock:^(__unused NSNotification * _Nonnull note) {
-        check();
-    }];
+                                                          usingBlock:^(__unused NSNotification* _Nonnull note) {
+                                                              check();
+                                                          }];
     dispatch_async(dispatch_get_main_queue(), check);
-    [self waitForExpectations:@[exp] timeout:1.0];
+    [self waitForExpectations:@[ exp ] timeout:1.0];
 }
 
 - (void)testBeginAndCompleteMarksInactive
@@ -62,8 +63,8 @@
                                                                      detail:nil
                                                                 cancellable:YES
                                                               cancelHandler:^{
-        handlerCalled = YES;
-    }];
+                                                                  handlerCalled = YES;
+                                                              }];
     [self waitForActivitiesAtLeast:1];
     XCTAssertTrue([[ActivityManager shared] isActive:token]);
 

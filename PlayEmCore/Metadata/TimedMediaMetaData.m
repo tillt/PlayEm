@@ -5,11 +5,13 @@
 //  Created by Till Toenshoff on 9/27/25.
 //  Copyright © 2025 Till Toenshoff. All rights reserved.
 //
+#import "TimedMediaMetaData.h"
+
 #import <Foundation/Foundation.h>
+
 #import <AppKit/AppKit.h>
 #import <ShazamKit/ShazamKit.h>
 
-#import "TimedMediaMetaData.h"
 #import "MediaMetaData+AVAsset.h"
 #import "MediaMetaData.h"
 
@@ -33,7 +35,7 @@
     return self;
 }
 
-- (id)initWithCoder:(NSCoder *)coder
+- (id)initWithCoder:(NSCoder*)coder
 {
     self = [super init];
     if (self) {
@@ -52,27 +54,27 @@
     self = [super init];
     if (self) {
         _meta = [MediaMetaData mediaMetaDataWithMetadataItems:group.items];
-        double time = (double)group.timeRange.start.value / group.timeRange.start.timescale;
-        _frame = [NSNumber numberWithUnsignedLongLong:(unsigned long long)((double)rate * time)];
+        double time = (double) group.timeRange.start.value / group.timeRange.start.timescale;
+        _frame = [NSNumber numberWithUnsignedLongLong:(unsigned long long) ((double) rate * time)];
         _confidence = nil;
         _score = nil;
     }
     return self;
 }
 
-- (void)encodeWithCoder:(NSCoder *)coder
+- (void)encodeWithCoder:(NSCoder*)coder
 {
     [coder encodeObject:_meta forKey:@"meta"];
-    [coder encodeObject:_frame  forKey:@"frame"];
+    [coder encodeObject:_frame forKey:@"frame"];
     [coder encodeObject:_endFrame forKey:@"endFrame"];
-    [coder encodeObject:_confidence  forKey:@"confidence"];
+    [coder encodeObject:_confidence forKey:@"confidence"];
     [coder encodeObject:_supportCount forKey:@"supportCount"];
     [coder encodeObject:_score forKey:@"score"];
 }
 
 + (BOOL)supportsSecureCoding
 {
-   return YES;
+    return YES;
 }
 
 - (id)initWithMatchedMediaItem:(SHMatchedMediaItem*)item frame:(NSNumber*)frame
@@ -89,9 +91,8 @@
 
 - (NSString*)description
 {
-    return [NSString stringWithFormat:@"frame:%@ endFrame:%@ support:%@ confidence:%@ score:%@ meta:%@",
-                                      _frame, _endFrame, _supportCount, _confidence, _score,  _meta];
+    return [NSString
+        stringWithFormat:@"frame:%@ endFrame:%@ support:%@ confidence:%@ score:%@ meta:%@", _frame, _endFrame, _supportCount, _confidence, _score, _meta];
 }
-
 
 @end

@@ -10,7 +10,7 @@
 #define VisualPairContext_h
 
 typedef struct {
-//    NSMutableData* reductionBuffer;
+    //    NSMutableData* reductionBuffer;
     double negativeSum;
     double positiveSum;
     unsigned int positiveCount;

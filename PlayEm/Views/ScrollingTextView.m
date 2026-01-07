@@ -6,13 +6,14 @@
 //  Copyright © 2022 Till Toenshoff. All rights reserved.
 //
 
+#import "ScrollingTextView.h"
+
 #import <Foundation/Foundation.h>
+
 #import <Cocoa/Cocoa.h>
 #import <CoreGraphics/CoreGraphics.h>
 
-#import "ScrollingTextView.h"
-
-@interface ScrollingTextView()
+@interface ScrollingTextView ()
 
 @property (nonatomic, strong) CATextLayer* first;
 @property (nonatomic, strong) CATextLayer* second;
@@ -48,7 +49,7 @@ static const double kScrollSpeed = 1.0 / 24.0;
         _first.contentsScale = [[NSScreen mainScreen] backingScaleFactor];
 
         [self.layer addSublayer:_first];
-        
+
         _second = [CATextLayer layer];
         _second.drawsAsynchronously = YES;
         _second.anchorPoint = CGPointMake(0.0, 0.0);
@@ -58,7 +59,7 @@ static const double kScrollSpeed = 1.0 / 24.0;
         _second.shouldRasterize = YES;
         _second.contentsScale = [[NSScreen mainScreen] backingScaleFactor];
         [self.layer addSublayer:_second];
-        
+
         _font = [NSFont systemFontOfSize:13.0];
     }
     return self;
@@ -76,23 +77,21 @@ static const double kScrollSpeed = 1.0 / 24.0;
 }
 
 - (void)dealloc
-{
-}
+{}
 
-- (void)setText:(NSString *)text
+- (void)setText:(NSString*)text
 {
     if ([_text isEqualToString:text]) {
         return;
     }
     _text = text;
-    
+
     [self setNeedsDisplay:YES];
 }
 
 - (NSDictionary*)attributes
 {
-    return @{ NSForegroundColorAttributeName:_textColor,
-              NSFontAttributeName: _font    };
+    return @{NSForegroundColorAttributeName : _textColor, NSFontAttributeName : _font};
 }
 
 - (BOOL)wantsUpdateLayer
@@ -108,7 +107,7 @@ static const double kScrollSpeed = 1.0 / 24.0;
     _textColor = color;
 }
 
-- (void)animationDidStop:(CAAnimation *)animation finished:(BOOL)finished
+- (void)animationDidStop:(CAAnimation*)animation finished:(BOOL)finished
 {
     if (finished) {
         [self setNeedsDisplay:YES];
@@ -117,7 +116,7 @@ static const double kScrollSpeed = 1.0 / 24.0;
 
 - (void)addAnimation:(CATextLayer*)layer
 {
-    CGFloat width = ceil([(NSAttributedString*)layer.string size].width);
+    CGFloat width = ceil([(NSAttributedString*) layer.string size].width);
 
     CABasicAnimation* animation = [CABasicAnimation animationWithKeyPath:@"position"];
     animation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionLinear];
@@ -135,13 +134,12 @@ static const double kScrollSpeed = 1.0 / 24.0;
 {
     [_first removeAnimationForKey:@"ScrollAnimation"];
     [_second removeAnimationForKey:@"ScrollAnimation"];
-    
+
     if (_text == nil || _text.length == 0) {
         return;
     }
-    
-    NSAttributedString* attributedString = [[NSAttributedString alloc] initWithString:_text
-                                                                           attributes:self.attributes];
+
+    NSAttributedString* attributedString = [[NSAttributedString alloc] initWithString:_text attributes:self.attributes];
 
     _first.string = attributedString;
     _second.string = attributedString;
@@ -155,7 +153,7 @@ static const double kScrollSpeed = 1.0 / 24.0;
     _second.frame = CGRectMake(0.0, 0.0, width, self.frame.size.height);
     _second.position = CGPointMake(MAX(width + kSpaceInRepeat, self.frame.size.width), 0.0f);
     [CATransaction commit];
-    
+
     if (width > self.frame.size.width) {
         _second.hidden = NO;
         [self addAnimation:_first];

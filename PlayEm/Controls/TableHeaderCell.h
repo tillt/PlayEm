@@ -11,9 +11,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @interface TableHeaderCell : NSTableHeaderCell
-- (void)drawWithFrame:(CGRect)cellFrame
-          highlighted:(BOOL)isHighlighted
-               inView:(NSView *)view;
+- (void)drawWithFrame:(CGRect)cellFrame highlighted:(BOOL)isHighlighted inView:(NSView*)view;
 @end
 
 NS_ASSUME_NONNULL_END

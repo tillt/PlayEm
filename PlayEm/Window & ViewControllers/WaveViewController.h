@@ -7,8 +7,10 @@
 //
 
 #import <Foundation/Foundation.h>
+
 #import <Cocoa/Cocoa.h>
 #import <QuartzCore/QuartzCore.h>
+
 #import "Sample/BeatEvent.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -20,8 +22,8 @@ NS_ASSUME_NONNULL_BEGIN
 @class VisualSample;
 @class TimedMediaMetaData;
 
-typedef CGFloat (^OffsetBlock) (void);
-typedef CGFloat (^TotalWidthBlock) (void);
+typedef CGFloat (^OffsetBlock)(void);
+typedef CGFloat (^TotalWidthBlock)(void);
 
 @protocol WaveViewControllerDelegate <NSObject>
 - (NSString*)stringFromFrame:(unsigned long long)frame;

@@ -8,6 +8,7 @@
 
 #import <Cocoa/Cocoa.h>
 #import <Quartz/Quartz.h>
+
 #import "TableViewExtraState.h"
 
 NS_ASSUME_NONNULL_BEGIN

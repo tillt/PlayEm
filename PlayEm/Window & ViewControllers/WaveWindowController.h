@@ -6,19 +6,19 @@
 //  Copyright © 2020 Till Toenshoff. All rights reserved.
 //
 
+#import <AVKit/AVKit.h>
 #import <Cocoa/Cocoa.h>
 #import <QuartzCore/QuartzCore.h>
-#import <AVKit/AVKit.h>
 
 #import "AudioController.h"
 #import "BrowserController.h"
-#import "PlaylistController.h"
-#import "TracklistController.h"
-#import "ScopeRenderer.h"
-#import "ScopeView.h"
 #import "ControlPanelController.h"
 #import "IdentifyViewController.h"
 #import "InfoPanel.h"
+#import "PlaylistController.h"
+#import "ScopeRenderer.h"
+#import "ScopeView.h"
+#import "TracklistController.h"
 #import "WaveViewController.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -37,21 +37,11 @@ NS_ASSUME_NONNULL_BEGIN
 @class AVRoutePickerView;
 @class MetaController;
 
-@interface WaveWindowController : NSWindowController <NSWindowDelegate,
-                                                      NSToolbarDelegate,
-                                                      NSToolbarItemValidation,
-                                                      BrowserControllerDelegate,
-                                                      PlaylistControllerDelegate,
-                                                      TracklistControllerDelegate,
-                                                      ScopeRendererDelegate,
-                                                      ControlPanelControllerDelegate,
-                                                      InfoPanelControllerDelegate,
-                                                      IdentifyViewControllerDelegate,
-                                                      WaveViewControllerDelegate,
-                                                      NSSplitViewDelegate,
-                                                      NSMenuDelegate,
-                                                      AVRoutePickerViewDelegate>
-//SPMediaKeyTapDelegate>
+@interface WaveWindowController
+    : NSWindowController <NSWindowDelegate, NSToolbarDelegate, NSToolbarItemValidation, BrowserControllerDelegate, PlaylistControllerDelegate,
+                          TracklistControllerDelegate, ScopeRendererDelegate, ControlPanelControllerDelegate, InfoPanelControllerDelegate,
+                          IdentifyViewControllerDelegate, WaveViewControllerDelegate, NSSplitViewDelegate, NSMenuDelegate, AVRoutePickerViewDelegate>
+// SPMediaKeyTapDelegate>
 
 @property (nonatomic, strong) AudioController* audioController;
 
@@ -111,6 +101,6 @@ NS_ASSUME_NONNULL_BEGIN
 - (IBAction)skip4Bars:(id)sender;
 - (IBAction)repeat4Bars:(id)sender;
 
- @end
+@end
 
 NS_ASSUME_NONNULL_END

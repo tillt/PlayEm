@@ -7,20 +7,22 @@
 //
 
 #import <Foundation/Foundation.h>
-#import <iTunesLibrary/ITLibMediaItem.h>
+
 #import <iTunesLibrary/ITLibArtwork.h>
+#import <iTunesLibrary/ITLibMediaItem.h>
+
 #import "TrackList.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-typedef double(^FrameToSeconds)(unsigned long long frame);
-
+typedef double (^FrameToSeconds)(unsigned long long frame);
 
 @class SHMatchedMediaItem;
 
 ///
-/// MediaMetaData is lazily holding metadata for library entries to allow for extending iTunes provided data.
-/// iTunes provided data are held in a shadow item until data is requested and thus copied in.
+/// MediaMetaData is lazily holding metadata for library entries to allow for
+/// extending iTunes provided data. iTunes provided data are held in a shadow
+/// item until data is requested and thus copied in.
 ///
 
 typedef enum : NSUInteger {
@@ -51,9 +53,9 @@ extern NSString* const kMediaMetaDataMapTypeImage;
 extern NSString* const kMediaMetaDataMapTypeTuple;
 extern NSString* const kMediaMetaDataMapTypeNumber;
 
-//extern NSString* const kStarSymbol;
+// extern NSString* const kStarSymbol;
 
-@interface MediaMetaData : NSObject<NSCopying, NSSecureCoding>
+@interface MediaMetaData : NSObject <NSCopying, NSSecureCoding>
 @property (strong, nonatomic) ITLibMediaItem* shadow;
 @property (copy, nonatomic, nullable) NSString* title;
 @property (copy, nonatomic, nullable) NSString* album;
@@ -107,7 +109,7 @@ extern NSString* const kMediaMetaDataMapTypeNumber;
 
 - (void)setArtworkFromImage:(NSImage*)image;
 
-- (BOOL)exportTracklistToFile:(NSURL*)url frameEncoder:(FrameToString)encoder error:(NSError *__autoreleasing  _Nullable *)error;
+- (BOOL)exportTracklistToFile:(NSURL*)url frameEncoder:(FrameToString)encoder error:(NSError* __autoreleasing _Nullable*)error;
 - (NSString*)readableTracklistWithFrameEncoder:(FrameToString)encoder;
 
 + (MediaMetaData*)mediaMetaDataWithURL:(NSURL*)url error:(NSError**)error;
@@ -117,7 +119,6 @@ extern NSString* const kMediaMetaDataMapTypeNumber;
 + (MediaMetaData*)emptyMediaDataWithURL:(NSURL*)url;
 
 + (NSString*)mimeTypeForArtworkFormat:(ITLibArtworkFormat)format;
-
 
 + (NSDictionary<NSString*, NSDictionary*>*)mediaMetaKeyMap;
 + (NSArray<NSString*>*)mediaMetaKeys;

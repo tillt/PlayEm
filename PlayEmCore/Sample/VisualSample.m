@@ -7,20 +7,21 @@
 //
 
 #import "VisualSample.h"
-#import "LazySample.h"
+
 #import "CancelableBlockOperation.h"
+#import "ConcurrentAccessDictionary.h"
+#import "EnergyDetector.h"
+#import "LazySample.h"
+#import "ProfilingPointsOfInterest.h"
 #import "VisualPair.h"
 #import "VisualPairContext.h"
-#import "ConcurrentAccessDictionary.h"
-#import "ProfilingPointsOfInterest.h"
-#import "EnergyDetector.h"
 // TODO: Implement DynamicReducedVisualSample
-// Implementation does two things at the same time - it immediately produces the requested
-// tiles while additionally reducing the total amount of source samples towards something
-// resembling a biggest possible visual representation width - ie 8192 pairs.
+// Implementation does two things at the same time - it immediately produces the
+// requested tiles while additionally reducing the total amount of source
+// samples towards something resembling a biggest possible visual representation
+// width - ie 8192 pairs.
 
-@interface VisualSample()
-{
+@interface VisualSample () {
     // FIXME: losing the error from the previous window
 }
 
@@ -37,8 +38,7 @@
 
 @end
 
-@implementation VisualSample
-{
+@implementation VisualSample {
     dispatch_queue_t _calculations_queue;
 }
 
@@ -51,7 +51,7 @@
         _pixelPerSecond = pixelPerSecond;
         _operations = [ConcurrentAccessDictionary new];
         //_framesPerPixel = (double)sample.sampleFormat.rate / pixelPerSecond;
-        _framesPerPixel = ceil((double)sample.sampleFormat.rate / pixelPerSecond);
+        _framesPerPixel = ceil((double) sample.sampleFormat.rate / pixelPerSecond);
         _tileWidth = tileWidth;
         _energy = [EnergyDetector new];
         assert(_framesPerPixel >= 1.0);
@@ -64,9 +64,10 @@
         }
 
         dispatch_queue_attr_t attr = dispatch_queue_attr_make_with_qos_class(DISPATCH_QUEUE_SERIAL, QOS_CLASS_USER_INITIATED, 0);
-        const char* queue_name = [[NSString stringWithFormat:@"VisualSample%.0fPPM", pixelPerSecond * 60.0] cStringUsingEncoding:NSStringEncodingConversionAllowLossy];
+        const char* queue_name =
+            [[NSString stringWithFormat:@"VisualSample%.0fPPM", pixelPerSecond * 60.0] cStringUsingEncoding:NSStringEncodingConversionAllowLossy];
         _calculations_queue = dispatch_queue_create(queue_name, attr);
-        
+
         _reducedTotalWidth = 0;
         _framesPerReducedValue = 0;
         _reductionWindowFrame = 0.0;
@@ -82,7 +83,8 @@
         _framesPerReducedValue = _sample.frames / reducedMaxWidth;
         _reducedTotalWidth = _sample.frames / _framesPerReducedValue;
         NSLog(@"frames per reduced value: %ld (total %ld)", _framesPerReducedValue, _reducedTotalWidth);
-        //_reductionPairContext = (VisualPairContext){ .reductionBuffer = [NSMutableData new] };
+        //_reductionPairContext = (VisualPairContext){ .reductionBuffer =
+        //[NSMutableData new] };
     }
     return self;
 }
@@ -107,20 +109,20 @@
     _pixelPerSecond = pixelPerSecond;
     assert(_pixelPerSecond > 0.0f);
 
-    _framesPerPixel = (double)_sample.sampleFormat.rate / pixelPerSecond;
+    _framesPerPixel = (double) _sample.sampleFormat.rate / pixelPerSecond;
     assert(_framesPerPixel >= 1.0);
 }
 
 - (size_t)width
 {
-    return ceil((float)_sample.frames / _framesPerPixel);
+    return ceil((float) _sample.frames / _framesPerPixel);
 }
 
 - (void)reset
 {
     NSLog(@"aborting all operations for %@ ...", _calculations_queue);
     NSArray* keys = [_operations allKeys];
-    
+
     for (id key in keys) {
         CancelableBlockOperation* operation = [_operations objectForKey:key];
         [operation cancel];
@@ -135,8 +137,9 @@
 
 - (NSData* _Nullable)visualsFromOrigin:(size_t)origin
 {
-    //os_signpost_interval_begin(pointsOfInterest, POIVisualsFromOrigin, "VisualsFromOrigin");
-    
+    // os_signpost_interval_begin(pointsOfInterest, POIVisualsFromOrigin,
+    // "VisualsFromOrigin");
+
     size_t pageIndex = origin / _tileWidth;
 
     NSNumber* pageNumber = [NSNumber numberWithLong:pageIndex];
@@ -144,30 +147,30 @@
     CancelableBlockOperation* operation = [_operations objectForKey:pageNumber];
 
     if (operation == nil) {
-        //os_signpost_interval_end(pointsOfInterest, POIVisualsFromOrigin, "VisualsFromOrigin", "unknown");
+        // os_signpost_interval_end(pointsOfInterest, POIVisualsFromOrigin,
+        // "VisualsFromOrigin", "unknown");
         return nil;
     }
 
     if (!operation.isDone) {
-        //os_signpost_interval_end(pointsOfInterest, POIVisualsFromOrigin, "VisualsFromOrigin", "unfinished");
+        // os_signpost_interval_end(pointsOfInterest, POIVisualsFromOrigin,
+        // "VisualsFromOrigin", "unfinished");
         return nil;
     }
 
     [_operations removeObjectForKey:pageNumber];
 
-    //os_signpost_interval_end(pointsOfInterest, POIVisualsFromOrigin, "VisualsFromOrigin", "normal");
+    // os_signpost_interval_end(pointsOfInterest, POIVisualsFromOrigin,
+    // "VisualsFromOrigin", "normal");
 
     return operation.data;
 }
 
 - (NSString*)description
 {
-    return [NSString stringWithFormat:@"Visual Sample - Total Width: %ld, Frames per Pixel: %.0f, Tile Width: %ld, Queue Name: %@, Underlying Sample: %@",
-            [self width],
-            _framesPerPixel,
-            _tileWidth,
-            _calculations_queue.description,
-            _sample];
+    return [NSString stringWithFormat:@"Visual Sample - Total Width: %ld, Frames per Pixel: %.0f, Tile "
+                                      @"Width: %ld, Queue Name: %@, Underlying Sample: %@",
+                                      [self width], _framesPerPixel, _tileWidth, _calculations_queue.description, _sample];
 }
 
 - (double)framesPerPixel
@@ -184,7 +187,7 @@
         left = (window / _tileWidth) - prerenderTileDistance;
     }
     size_t right = prerenderTileDistance + ((window + width) / _tileWidth);
-    
+
     NSArray* keys = [_operations allKeys];
     for (NSNumber* pageNumber in keys) {
         if (pageNumber.integerValue < left || pageNumber.integerValue > right) {
@@ -194,28 +197,38 @@
     }
 }
 
-- (void)prepareVisualsFromOrigin:(size_t)origin pairs:(size_t)pairsCount window:(size_t)window total:(size_t)totalWidth callback:(nonnull void (^)(void))callback
+- (void)prepareVisualsFromOrigin:(size_t)origin
+                           pairs:(size_t)pairsCount
+                          window:(size_t)window
+                           total:(size_t)totalWidth
+                        callback:(nonnull void (^)(void))callback
 {
-    //os_signpost_interval_begin(pointsOfInterest, POIPrepareVisualsFromOrigin, "PrepareVisualsFromOrigin");
-    
+    // os_signpost_interval_begin(pointsOfInterest, POIPrepareVisualsFromOrigin,
+    // "PrepareVisualsFromOrigin");
+
     [self garbageCollectOperationsOutsideOfWindow:window width:totalWidth];
     [self runOperationWithOrigin:origin pairs:pairsCount callback:callback];
-    
-    //os_signpost_interval_end(pointsOfInterest, POIPrepareVisualsFromOrigin, "PrepareVisualsFromOrigin");
+
+    // os_signpost_interval_end(pointsOfInterest, POIPrepareVisualsFromOrigin,
+    // "PrepareVisualsFromOrigin");
 }
 
-// TODO(tillt): Generalize this to reuse for both, the quick-render as well as the
-// initial render.
-//- (void)appendToReducedSampleWithValue:(double)s context:(VisualPairContext*)context
+// TODO(tillt): Generalize this to reuse for both, the quick-render as well as
+// the initial render.
+//- (void)appendToReducedSampleWithValue:(double)s
+//context:(VisualPairContext*)context
 //{
 //    // Store once we get a complete window done.
 //    if (_reductionWindowFrame >= _framesPerReducedValue) {
 //        VisualPair pair = {
-//            .negativeAverage = context->negativeCount > 0 ? context->negativeSum / context->negativeCount : 0.0,
-//            .positiveAverage = context->positiveSum > 0 ? context->positiveSum / context->positiveCount : 0.0
+//            .negativeAverage = context->negativeCount > 0 ?
+//            context->negativeSum / context->negativeCount : 0.0,
+//            .positiveAverage = context->positiveSum > 0 ? context->positiveSum
+//            / context->positiveCount : 0.0
 //        };
 //
-//        [context->reductionBuffer appendBytes:&pair length:sizeof(VisualPair)];
+//        [context->reductionBuffer appendBytes:&pair
+//        length:sizeof(VisualPair)];
 //
 //        *context = (VisualPairContext){
 //            .negativeSum = 0.0,
@@ -242,9 +255,9 @@
 - (CancelableBlockOperation*)runOperationWithOrigin:(size_t)origin pairs:(size_t)pairsCount callback:(nonnull void (^)(void))callback
 {
     assert(origin < self.width);
-    
+
     size_t pageIndex = origin / _tileWidth;
-    
+
     NSNumber* pageNumber = [NSNumber numberWithLong:pageIndex];
     CancelableBlockOperation* blockOperation = [_operations objectForKey:pageNumber];
     if (blockOperation != nil) {
@@ -256,44 +269,46 @@
 
     CancelableBlockOperation* __weak weakOperation = blockOperation;
     VisualSample* __weak weakSample = self;
-    
-//    VisualPairContext* reductionPairContext = &_reductionPairContext;
-//    BOOL reduce = NO;
-//    BOOL fromReduced = NO;
-//    if (_reducedTotalWidth > 0) {
-//        if (reductionPairContext->reductionBuffer.length < _reducedTotalWidth) {
-//            reduce = YES;
-//        } else {
-//            NSLog(@"from reduced!");
-//            fromReduced = YES;
-//        }
-//        reduce = reductionPairContext->reductionBuffer.length < _reducedTotalWidth;
-//    }
+
+    //    VisualPairContext* reductionPairContext = &_reductionPairContext;
+    //    BOOL reduce = NO;
+    //    BOOL fromReduced = NO;
+    //    if (_reducedTotalWidth > 0) {
+    //        if (reductionPairContext->reductionBuffer.length <
+    //        _reducedTotalWidth) {
+    //            reduce = YES;
+    //        } else {
+    //            NSLog(@"from reduced!");
+    //            fromReduced = YES;
+    //        }
+    //        reduce = reductionPairContext->reductionBuffer.length <
+    //        _reducedTotalWidth;
+    //    }
 
     [_operations setObject:blockOperation forKey:[NSNumber numberWithLong:pageIndex]];
-    //NSLog(@"asking for operation on tile %ld", pageIndex);
-    
-    [blockOperation run:^(void){
+    // NSLog(@"asking for operation on tile %ld", pageIndex);
+
+    [blockOperation run:^(void) {
         const int channels = weakSample.sample.sampleFormat.channels;
 
         if (weakOperation.isDone || channels == 0) {
             return;
         }
         assert(!weakOperation.isDone);
-        
+
         const unsigned long int framesNeeded = pairsCount * weakSample.framesPerPixel;
 
         float* data[channels];
-        
+
         for (int channel = 0; channel < channels; channel++) {
-            data[channel] = (float*)((NSMutableData*)weakSample.sampleBuffers[channel]).bytes;
+            data[channel] = (float*) ((NSMutableData*) weakSample.sampleBuffers[channel]).bytes;
         }
-     
-        //NSLog(@"we got room for %ld bytes", width * sizeof(VisualPair));
+
+        // NSLog(@"we got room for %ld bytes", width * sizeof(VisualPair));
         NSMutableData* buffer = [NSMutableData dataWithLength:pairsCount * sizeof(VisualPair)];
         assert(buffer);
 
-        VisualPair* storage = (VisualPair*)buffer.mutableBytes;
+        VisualPair* storage = (VisualPair*) buffer.mutableBytes;
         assert(storage);
 
         unsigned long long displaySampleFrameIndexOffset = origin * weakSample.framesPerPixel;
@@ -303,25 +318,19 @@
         unsigned long long displayFrameCount = MIN(framesNeeded, weakSample.sample.frames - displaySampleFrameIndexOffset);
 
         // This may block for a loooooong time!
-        [weakSample.sample rawSampleFromFrameOffset:displaySampleFrameIndexOffset
-                                             frames:displayFrameCount
-                                            outputs:data];
-        
-        //NSLog(@"This block of %lld frames is used to create visuals for %ld pixels", displayFrameCount, width);
+        [weakSample.sample rawSampleFromFrameOffset:displaySampleFrameIndexOffset frames:displayFrameCount outputs:data];
+
+        // NSLog(@"This block of %lld frames is used to create visuals for %ld
+        // pixels", displayFrameCount, width);
         weakOperation.data = buffer;
 
         unsigned long int frameIndex = 0;
         unsigned long int pixelIndex = 0;
 
         VisualPairContext context;
-        
-        while(pixelIndex < pairsCount) {
-            context = (VisualPairContext){
-                .negativeSum = 0.0,
-                .positiveSum = 0.0,
-                .negativeCount = 0,
-                .positiveCount = 0
-            };
+
+        while (pixelIndex < pairsCount) {
+            context = (VisualPairContext) {.negativeSum = 0.0, .positiveSum = 0.0, .negativeCount = 0, .positiveCount = 0};
 
             unsigned long int frameOffset = frameIndex;
 
@@ -329,11 +338,11 @@
                 if (weakOperation.isCancelled) {
                     break;
                 }
-                
+
                 if (frameIndex >= displayFrameCount) {
-                   break;
+                    break;
                 }
-                   
+
                 double s = 0.0;
                 for (int channel = 0; channel < channels; channel++) {
                     const float v = data[channel][frameIndex];
@@ -349,9 +358,10 @@
                     context.negativeCount++;
                 }
 
-//                if (reduce) {
-//                    [weakSample appendToReducedSampleWithValue:s context:reductionPairContext];
-//                }
+                //                if (reduce) {
+                //                    [weakSample appendToReducedSampleWithValue:s
+                //                    context:reductionPairContext];
+                //                }
 
                 frameIndex++;
             } while ((frameIndex - frameOffset) < weakSample.framesPerPixel);
@@ -362,13 +372,9 @@
 
             const float negativeAverage = context.negativeCount > 0 ? context.negativeSum / context.negativeCount : 0.0;
             const float positiveAverage = context.positiveCount > 0 ? context.positiveSum / context.positiveCount : 0.0;
-            storage[pixelIndex++] = (VisualPair) {
-                .negativeAverage = negativeAverage,
-                .positiveAverage = positiveAverage
-            };
-            
+            storage[pixelIndex++] = (VisualPair) {.negativeAverage = negativeAverage, .positiveAverage = positiveAverage};
         };
-        
+
         callback();
     }];
 

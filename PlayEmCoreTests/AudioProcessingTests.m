@@ -6,6 +6,7 @@
 //
 
 #import <XCTest/XCTest.h>
+
 #import "AudioProcessing.h"
 
 @interface AudioProcessingTests : XCTestCase
@@ -20,8 +21,8 @@
     const double frequency = 1000.0;
     float* samples = calloc(kWindowSamples, sizeof(float));
     for (size_t i = 0; i < kWindowSamples; i++) {
-        double t = (double)i / sampleRate;
-        samples[i] = (float)sin(2.0 * M_PI * frequency * t);
+        double t = (double) i / sampleRate;
+        samples[i] = (float) sin(2.0 * M_PI * frequency * t);
     }
 
     float* spectrum = calloc(kFrequencyDataLength, sizeof(float));
@@ -39,9 +40,9 @@
     }
 
     // Expected bin for 1 kHz.
-    double expectedBin = (frequency * (double)kWindowSamples) / sampleRate;
+    double expectedBin = (frequency * (double) kWindowSamples) / sampleRate;
     XCTAssertLessThan(peakIndex, kFrequencyDataLength);
-    XCTAssertTrue(fabs((double)peakIndex - expectedBin) <= 3.0, @"Peak bin %@ not near expected %.2f", @(peakIndex), expectedBin);
+    XCTAssertTrue(fabs((double) peakIndex - expectedBin) <= 3.0, @"Peak bin %@ not near expected %.2f", @(peakIndex), expectedBin);
     XCTAssertGreaterThan(peakValue, 0.0f);
 
     destroyFFT(fft);

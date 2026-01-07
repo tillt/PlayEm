@@ -3,6 +3,7 @@
 //
 
 #import <XCTest/XCTest.h>
+
 #import "AcceleratedBiquadFilter.h"
 #import "MockLazySample.h"
 
@@ -19,8 +20,8 @@
 
     float inputBuf[4] = {1.0f, 0.0f, 0.0f, 0.0f};
     float outputBuf[4] = {0};
-    float const* inputs[1] = { inputBuf };
-    float* outputs[1] = { outputBuf };
+    float const* inputs[1] = {inputBuf};
+    float* outputs[1] = {outputBuf};
 
     [filter applyToInputs:inputs outputs:outputs frames:4];
 
@@ -39,8 +40,8 @@
     float inR[2] = {0.1f, -0.1f};
     float outL[2] = {0};
     float outR[2] = {0};
-    float const* inputs[2] = { inL, inR };
-    float* outputs[2] = { outL, outR };
+    float const* inputs[2] = {inL, inR};
+    float* outputs[2] = {outL, outR};
 
     [filter applyToInputs:inputs outputs:outputs frames:2];
 

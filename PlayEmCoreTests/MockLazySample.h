@@ -5,6 +5,7 @@
 //
 
 #import <Foundation/Foundation.h>
+
 #import "LazySample.h"
 
 @interface MockLazySample : LazySample

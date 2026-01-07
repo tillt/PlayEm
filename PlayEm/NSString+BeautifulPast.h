@@ -15,7 +15,6 @@ NS_ASSUME_NONNULL_BEGIN
 + (NSString*)BeautifulPast:(NSDate*)past;
 + (NSString*)BeautifulSize:(NSNumber*)size;
 
-
 @end
 
 NS_ASSUME_NONNULL_END

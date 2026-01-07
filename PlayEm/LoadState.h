@@ -9,12 +9,6 @@
 #ifndef LoadState_h
 #define LoadState_h
 
-typedef NS_ENUM(NSInteger, LoadState)
-{
-    LoadStateInit       = 0,
-    LoadStateStarted    = 1,
-    LoadStateLoading    = 2,
-    LoadStateStopped    = 3
-};
+typedef NS_ENUM(NSInteger, LoadState) { LoadStateInit = 0, LoadStateStarted = 1, LoadStateLoading = 2, LoadStateStopped = 3 };
 
 #endif /* LoadState_h */

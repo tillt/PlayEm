@@ -7,9 +7,11 @@
 //
 
 #import "TrackList.h"
-#import "TimedMediaMetaData.h"
-#import "MediaMetaData.h"
+
 #import <AVFoundation/AVFoundation.h>
+
+#import "MediaMetaData.h"
+#import "TimedMediaMetaData.h"
 
 @implementation TrackListIterator
 
@@ -40,7 +42,7 @@
 
 @end
 
-@interface TrackList()
+@interface TrackList ()
 @property (strong, nonatomic) NSMutableDictionary<NSNumber*, TimedMediaMetaData*>* trackMap;
 @end
 
@@ -64,7 +66,7 @@
         for (AVTimedMetadataGroup* group in groups) {
             TimedMediaMetaData* track = [[TimedMediaMetaData alloc] initWithTimedMediaGroup:group framerate:rate];
             NSLog(@"TimedMediaMetaData: %@", track);
-            
+
             if (track.meta.title.length > 0) {
                 _trackMap[track.frame] = track;
             } else {
@@ -126,7 +128,7 @@
         if (track.meta.artist.length > 0) {
             entry = [NSString stringWithFormat:@"%@    PERFORMER \"%@\"\n", entry, track.meta.artist];
         }
-        entry = [NSString stringWithFormat:@"%@    INDEX 01 %@\n", entry,  encoder(frame)];
+        entry = [NSString stringWithFormat:@"%@    INDEX 01 %@\n", entry, encoder(frame)];
 
         sheet = [sheet stringByAppendingString:entry];
 
@@ -137,22 +139,19 @@
 
 - (BOOL)writeToFile:(NSURL*)url error:(NSError**)error
 {
-    NSData* data = [NSKeyedArchiver archivedDataWithRootObject:_trackMap
-                                         requiringSecureCoding:NO
-                                                         error:error];
+    NSData* data = [NSKeyedArchiver archivedDataWithRootObject:_trackMap requiringSecureCoding:NO error:error];
     return [data writeToURL:url atomically:YES];
 }
 
 - (BOOL)readFromFile:(NSURL*)url error:(NSError**)error
 {
-    NSData* data = [NSData dataWithContentsOfURL:url
-                                         options:NSDataReadingMapped
-                                           error:error];
+    NSData* data = [NSData dataWithContentsOfURL:url options:NSDataReadingMapped error:error];
     if (data == nil) {
         return NO;
     }
-    
-    NSSet* allowedClasses = [NSSet setWithObjects:[TimedMediaMetaData class], [MediaMetaData class], [NSData class], [NSString class], [NSNumber class], [NSURL class], nil];
+
+    NSSet* allowedClasses =
+        [NSSet setWithObjects:[TimedMediaMetaData class], [MediaMetaData class], [NSData class], [NSString class], [NSNumber class], [NSURL class], nil];
     NSSet* allowedKeyClasses = [NSSet setWithObjects:[NSString class], [NSNumber class], nil];
     NSDictionary* dictionary = [NSKeyedUnarchiver unarchivedDictionaryWithKeysOfClasses:allowedKeyClasses
                                                                        objectsOfClasses:allowedClasses
@@ -202,14 +201,14 @@
     return [_trackMap objectForKey:frame];
 }
 
-- (unsigned long long)firstTrackFrame:(TrackListIterator *_Nonnull*_Nullable)iterator
+- (unsigned long long)firstTrackFrame:(TrackListIterator* _Nonnull* _Nullable)iterator
 {
     NSArray<NSNumber*>* frames = [[_trackMap allKeys] sortedArrayUsingSelector:@selector(compare:)];
     *iterator = [[TrackListIterator alloc] initWithKeys:frames];
     return [self nextTrackFrame:*iterator];
 }
 
-- (unsigned long long)nextTrackFrame:(nonnull TrackListIterator *)iterator
+- (unsigned long long)nextTrackFrame:(nonnull TrackListIterator*)iterator
 {
     if (![iterator valid]) {
         return ULONG_LONG_MAX;

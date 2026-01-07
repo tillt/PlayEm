@@ -15,5 +15,4 @@ float ScaleWithOriginalFrame(float originalValue, float originalSize, float newS
 
 @implementation GraphicsTools
 
-
 @end

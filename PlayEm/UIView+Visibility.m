@@ -1,7 +1,7 @@
 #import "UIView+Visibility.h"
 
-NSString *const UIViewVisibilityAnimationKeyShow = @"UIViewVisibilityAnimationKeyShow";
-NSString *const UIViewVisibilityAnimationKeyHide = @"UIViewVisibilityAnimationKeyHide";
+NSString* const UIViewVisibilityAnimationKeyShow = @"UIViewVisibilityAnimationKeyShow";
+NSString* const UIViewVisibilityAnimationKeyHide = @"UIViewVisibilityAnimationKeyHide";
 
 @implementation NSView (Visibility)
 
@@ -38,9 +38,9 @@ NSString *const UIViewVisibilityAnimationKeyHide = @"UIViewVisibilityAnimationKe
 
     CGFloat fromAlpha = visible ? 0.f : 1.f;
     CGFloat toAlpha = visible ? 1.f : 0.f;
-    NSString *animationKey = visible ? UIViewVisibilityAnimationKeyShow : UIViewVisibilityAnimationKeyHide;
+    NSString* animationKey = visible ? UIViewVisibilityAnimationKeyShow : UIViewVisibilityAnimationKeyHide;
 
-    CABasicAnimation *animation = [CABasicAnimation animationWithKeyPath:@"opacity"];
+    CABasicAnimation* animation = [CABasicAnimation animationWithKeyPath:@"opacity"];
     animation.duration = 1.25;
     animation.fromValue = @(fromAlpha);
     animation.toValue = @(toAlpha);
@@ -52,7 +52,7 @@ NSString *const UIViewVisibilityAnimationKeyHide = @"UIViewVisibilityAnimationKe
 
 #pragma mark - CAAnimationDelegate
 
-- (void)animationDidStop:(CAAnimation *)animation finished:(BOOL)finished
+- (void)animationDidStop:(CAAnimation*)animation finished:(BOOL)finished
 {
     if ([[self.layer animationForKey:UIViewVisibilityAnimationKeyHide] isEqual:animation]) {
         self.hidden = YES;
@@ -60,4 +60,3 @@ NSString *const UIViewVisibilityAnimationKeyHide = @"UIViewVisibilityAnimationKe
 }
 
 @end
-

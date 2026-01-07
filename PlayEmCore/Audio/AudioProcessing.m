@@ -6,18 +6,20 @@
 //  Copyright © 2022 Till Toenshoff. All rights reserved.
 //
 
+#import "AudioProcessing.h"
+
 #import <Foundation/Foundation.h>
+
+#include <float.h>
+#include <math.h>
 #import <simd/simd.h>
 #include <stdlib.h>
-#include <math.h>
-#include <float.h>
-#import "AudioProcessing.h"
 
 const size_t kScaledFrequencyDataLength = 256;
 const size_t kFrequencyDataLength = kScaledFrequencyDataLength * 4;
 
 /// The number of mel filter banks. Align with the downsampled visual spectrum.
-static const int kFilterBankCount = (int)kScaledFrequencyDataLength;
+static const int kFilterBankCount = (int) kScaledFrequencyDataLength;
 
 static const float kFFTHighestFrequencyScaleFactor = 20.0f;
 
@@ -30,9 +32,9 @@ typedef struct {
     size_t size;
 } APWindowCache;
 
-static APWindowCache gHanningCache = { NULL, 0 };
-static APWindowCache gHammingCache = { NULL, 0 };
-static APWindowCache gBlackmanCache = { NULL, 0 };
+static APWindowCache gHanningCache = {NULL, 0};
+static APWindowCache gHammingCache = {NULL, 0};
+static APWindowCache gBlackmanCache = {NULL, 0};
 
 static void freeWindowCache(APWindowCache* cache)
 {
@@ -49,26 +51,26 @@ static float* windowBufferForType(APWindowType type, size_t numberOfFrames)
     void (*generator)(float*, vDSP_Length, int) = NULL;
 
     switch (type) {
-        case APWindowTypeHanning:
-            cache = &gHanningCache;
-            generator = vDSP_hann_window;
-            break;
-        case APWindowTypeHamming:
-            cache = &gHammingCache;
-            generator = vDSP_hamm_window;
-            break;
-        case APWindowTypeBlackman:
-            cache = &gBlackmanCache;
-            generator = vDSP_blkman_window;
-            break;
-        case APWindowTypeNone:
-        default:
-            return NULL;
+    case APWindowTypeHanning:
+        cache = &gHanningCache;
+        generator = vDSP_hann_window;
+        break;
+    case APWindowTypeHamming:
+        cache = &gHammingCache;
+        generator = vDSP_hamm_window;
+        break;
+    case APWindowTypeBlackman:
+        cache = &gBlackmanCache;
+        generator = vDSP_blkman_window;
+        break;
+    case APWindowTypeNone:
+    default:
+        return NULL;
     }
 
     if (cache->size != numberOfFrames) {
         freeWindowCache(cache);
-        cache->data = (float*)malloc(sizeof(float) * numberOfFrames);
+        cache->data = (float*) malloc(sizeof(float) * numberOfFrames);
         cache->size = numberOfFrames;
         generator(cache->data, numberOfFrames, 0);
     }
@@ -84,29 +86,29 @@ static void clearWindowCaches(void)
 
 double logVolume(const double input)
 {
-    // Use a logarithmic scale as that is much closer to what we perceive. Neatly fake
-    // ourselves into the slope.
+    // Use a logarithmic scale as that is much closer to what we perceive. Neatly
+    // fake ourselves into the slope.
     double absoluteValue = fabs(input);
     if (absoluteValue < DBL_EPSILON) {
         return 0.0;
     }
     double sign = input / absoluteValue;
-    
+
     return sign * (log10(10.0 + (absoluteValue * 100.0f)) - 1.0f);
 }
 
 double dB(double amplitude)
 {
     if (amplitude <= 0.0) {
-        amplitude = 1e-12; // avoid -inf and log(0)
+        amplitude = 1e-12;  // avoid -inf and log(0)
     }
     return 20. * log10(amplitude);
 }
 
 vDSP_DFT_Setup initDCT(void)
 {
-    //vDSP_Length(
-    return vDSP_DCT_CreateSetup(NULL, 1 << (unsigned int)(round(log2((float)kFilterBankCount))), vDSP_DCT_II);
+    // vDSP_Length(
+    return vDSP_DCT_CreateSetup(NULL, 1 << (unsigned int) (round(log2((float) kFilterBankCount))), vDSP_DCT_II);
 }
 
 FFTSetup initFFT(void)
@@ -134,12 +136,13 @@ void destroyLogMap(float* map)
 float* initLogMap(void)
 {
     float* map = malloc(sizeof(float) * kFrequencyDataLength);
-    // Map each linear FFT bin onto a fractional logarithmic bin index in the compressed spectrum.
-    // For visuals, use a mild easing to keep lows present without overemphasizing highs.
-    const float targetBins = (float)(kScaledFrequencyDataLength - 1);
-    const float gamma = 0.95f; // <1 slightly lifts the lower bins
+    // Map each linear FFT bin onto a fractional logarithmic bin index in the
+    // compressed spectrum. For visuals, use a mild easing to keep lows present
+    // without overemphasizing highs.
+    const float targetBins = (float) (kScaledFrequencyDataLength - 1);
+    const float gamma = 0.95f;  // <1 slightly lifts the lower bins
     for (int i = 0; i < kFrequencyDataLength; i++) {
-        float fraction = (float)i / (float)(kFrequencyDataLength - 1); // 0..1 across linear bins
+        float fraction = (float) i / (float) (kFrequencyDataLength - 1);  // 0..1 across linear bins
         float eased = powf(fraction, gamma);
         map[i] = targetBins * eased;
     }
@@ -148,11 +151,11 @@ float* initLogMap(void)
 
 COMPLEX_SPLIT* allocComplexSplit(size_t strideLength)
 {
-    // Altivec's functions rely on 16-byte aligned memory locations. We use `malloc` here to make
-    // sure the buffers fit that limit.
-    float* outReal = (float*)malloc(sizeof(float) * strideLength);
-    float* outImaginary = (float*)malloc(sizeof(float) * strideLength);
-    COMPLEX_SPLIT* output = (COMPLEX_SPLIT*)malloc(sizeof(COMPLEX_SPLIT));
+    // Altivec's functions rely on 16-byte aligned memory locations. We use
+    // `malloc` here to make sure the buffers fit that limit.
+    float* outReal = (float*) malloc(sizeof(float) * strideLength);
+    float* outImaginary = (float*) malloc(sizeof(float) * strideLength);
+    COMPLEX_SPLIT* output = (COMPLEX_SPLIT*) malloc(sizeof(COMPLEX_SPLIT));
     output->realp = outReal;
     output->imagp = outImaginary;
     return output;
@@ -161,11 +164,8 @@ COMPLEX_SPLIT* allocComplexSplit(size_t strideLength)
 void performDFT(vDSP_DFT_Setup dct, float* data, size_t numberOfFrames, float* frequencyData)
 {
     float* hanningWindow = windowBufferForType(APWindowTypeHanning, numberOfFrames);
- 
-    vDSP_vmul(data, 1,
-              hanningWindow, 1,
-              data, 1,
-              numberOfFrames);
+
+    vDSP_vmul(data, 1, hanningWindow, 1, data, 1, numberOfFrames);
 
     vDSP_DCT_Execute(dct, data, frequencyData);
 }
@@ -179,7 +179,8 @@ typedef struct {
 
 static void freeComplexSplit(COMPLEX_SPLIT* split)
 {
-    if (!split) return;
+    if (!split)
+        return;
     free(split->realp);
     free(split->imagp);
     free(split);
@@ -187,7 +188,7 @@ static void freeComplexSplit(COMPLEX_SPLIT* split)
 
 static APFFTCache* fftCache(void)
 {
-    static APFFTCache cache = { NULL, NULL, NULL, 0 };
+    static APFFTCache cache = {NULL, NULL, NULL, 0};
     return &cache;
 }
 
@@ -214,12 +215,9 @@ void performFFT(FFTSetup fft, float* data, size_t numberOfFrames, float* frequen
     // Apply windowing function if requested.
     float* window = windowBufferForType(windowType, numberOfFrames);
     if (window) {
-        vDSP_vmul(data, 1,
-                  window, 1,
-                  data, 1,
-                  numberOfFrames);
+        vDSP_vmul(data, 1, window, 1, data, 1, numberOfFrames);
     }
-  
+
     APFFTCache* cache = fftCache();
     if (cache->framesOver2 != framesOver2) {
         clearFFTCache();
@@ -228,14 +226,16 @@ void performFFT(FFTSetup fft, float* data, size_t numberOfFrames, float* frequen
         cache->scaleVector = malloc(framesOver2 * sizeof(float));
         cache->framesOver2 = framesOver2;
         for (size_t i = 0; i < framesOver2; i++) {
-            const float factor = 1.0f + (((float)i / (float)framesOver2) * (kFFTHighestFrequencyScaleFactor - 1.0f));
+            const float factor = 1.0f + (((float) i / (float) framesOver2) * (kFFTHighestFrequencyScaleFactor - 1.0f));
             cache->scaleVector[i] = factor;
         }
     }
 
-    // Put all of the even numbered elements into out.real and odd numbered into out.imag.
-    vDSP_ctoz((COMPLEX*)data, 2, cache->output, 1, framesOver2);
-    // For best possible speed, we are using the buffered variant of that FFT calculation.
+    // Put all of the even numbered elements into out.real and odd numbered into
+    // out.imag.
+    vDSP_ctoz((COMPLEX*) data, 2, cache->output, 1, framesOver2);
+    // For best possible speed, we are using the buffered variant of that FFT
+    // calculation.
     vDSP_fft_zript(fft, cache->output, 1, cache->computeBuffer, bufferLog2, kFFTDirection_Forward);
     // Take the absolute value of the output.
     vDSP_zvabs(cache->output, 1, frequencyData, 1, kFrequencyDataLength);
@@ -246,8 +246,8 @@ void performFFT(FFTSetup fft, float* data, size_t numberOfFrames, float* frequen
     vDSP_vdist(frequencyData, 1, frequencyData, 1, frequencyData, 1, kFrequencyDataLength);
 }
 
-// Scales the linear frequency domain over into a logarithmic one. Or at least something
-// close to that.
+// Scales the linear frequency domain over into a logarithmic one. Or at least
+// something close to that.
 static float* gLogscaleCounters = NULL;
 static float* gLogscaleBuffer = NULL;
 static size_t gLogscaleSize = 0;
@@ -260,8 +260,8 @@ static void ensureLogscaleBuffers(void)
     }
     free(gLogscaleCounters);
     free(gLogscaleBuffer);
-    gLogscaleCounters = (float*)calloc(needed, sizeof(float));
-    gLogscaleBuffer = (float*)calloc(needed, sizeof(float));
+    gLogscaleCounters = (float*) calloc(needed, sizeof(float));
+    gLogscaleBuffer = (float*) calloc(needed, sizeof(float));
     gLogscaleSize = needed;
 }
 
@@ -282,8 +282,7 @@ void logscaleFFT(float* map, float* frequencyData)
     }
     memset(gLogscaleCounters, 0, gLogscaleSize * sizeof(float));
     memset(gLogscaleBuffer, 0, gLogscaleSize * sizeof(float));
- 
- 
+
     // FIXME: This doesnt seem to result in a homogenous distribution!
     // One point here may be that the scaling of more than 2
     //
@@ -297,11 +296,11 @@ void logscaleFFT(float* map, float* frequencyData)
     //  => leftFragment = 0.74
     //    => buffer[7] = freq[i] * 0.74
     //    => buffer[8] = freq[i] * 0.26
-    for (int i=0; i < kFrequencyDataLength;i++) {
+    for (int i = 0; i < kFrequencyDataLength; i++) {
         double preComma;
         const double postComma = modf(map[i], &preComma);
-        const unsigned int leftIndex = (unsigned int)MIN(preComma, (double)(kScaledFrequencyDataLength - 1));
-        const unsigned int rightIndex =  MIN(leftIndex + 1, (const unsigned int)kScaledFrequencyDataLength);
+        const unsigned int leftIndex = (unsigned int) MIN(preComma, (double) (kScaledFrequencyDataLength - 1));
+        const unsigned int rightIndex = MIN(leftIndex + 1, (const unsigned int) kScaledFrequencyDataLength);
         const double rightFragment = postComma;
         const double leftFragment = 1.0f - rightFragment;
         gLogscaleBuffer[leftIndex] += frequencyData[i] * leftFragment;
@@ -309,15 +308,16 @@ void logscaleFFT(float* map, float* frequencyData)
         gLogscaleBuffer[rightIndex] += frequencyData[i] * rightFragment;
         gLogscaleCounters[rightIndex] += rightFragment;
     }
-    gLogscaleBuffer[kScaledFrequencyDataLength-1] += gLogscaleBuffer[kScaledFrequencyDataLength];
-    gLogscaleCounters[kScaledFrequencyDataLength-1] += gLogscaleCounters[kScaledFrequencyDataLength];
-    
+    gLogscaleBuffer[kScaledFrequencyDataLength - 1] += gLogscaleBuffer[kScaledFrequencyDataLength];
+    gLogscaleCounters[kScaledFrequencyDataLength - 1] += gLogscaleCounters[kScaledFrequencyDataLength];
+
     // Normalize values.
-    for (int i=0; i < kScaledFrequencyDataLength;i++) {
+    for (int i = 0; i < kScaledFrequencyDataLength; i++) {
         if (gLogscaleCounters[i] > 0.0f) {
             gLogscaleBuffer[i] /= gLogscaleCounters[i];
         }
-        // Gentle visual companding to lift quieter bins for display without changing dynamics too much.
+        // Gentle visual companding to lift quieter bins for display without
+        // changing dynamics too much.
         gLogscaleBuffer[i] = powf(gLogscaleBuffer[i], 0.8f);
     }
     memcpy(frequencyData, gLogscaleBuffer, kScaledFrequencyDataLength * sizeof(float));
@@ -333,33 +333,36 @@ float mel2hz(float mel)
     return 700.0f * (powf(10, mel / 2595.0f) - 1.0f);
 }
 
-/// Populates the specified `melFilterBankFrequencies` with a monotonically increasing series
-/// of indices into `frequencyDomainBuffer` that represent evenly spaced mels.
+/// Populates the specified `melFilterBankFrequencies` with a monotonically
+/// increasing series of indices into `frequencyDomainBuffer` that represent
+/// evenly spaced mels.
 void populateMelFilterBankFrequencies(NSRange frequencyRange, int filterBankCount, int sampleCount, NSMutableArray* melFilterBankFrequencies)
 {
     float minMel = hz2mel(frequencyRange.location);
     float maxMel = hz2mel(frequencyRange.location + frequencyRange.length);
-    float bankWidth = (maxMel - minMel) / ((float)filterBankCount - 1);
+    float bankWidth = (maxMel - minMel) / ((float) filterBankCount - 1);
 
     float mel = minMel;
-    for (int i = 0; i  < filterBankCount; i++) {
+    for (int i = 0; i < filterBankCount; i++) {
         float frequency = mel2hz(mel);
-        melFilterBankFrequencies[i] = @((int)((frequency / (frequencyRange.location + frequencyRange.length)) * (float)sampleCount));
+        melFilterBankFrequencies[i] = @((int) ((frequency / (frequencyRange.location + frequencyRange.length)) * (float) sampleCount));
         mel += bankWidth;
     }
 }
 
-/// Populates the specified `filterBank` with a matrix of overlapping triangular windows.
+/// Populates the specified `filterBank` with a matrix of overlapping triangular
+/// windows.
 ///
-/// For each frequency in `melFilterBankFrequencies`, the function creates a row in `filterBank`
-/// that contains a triangular window starting at the previous frequency, having a response of `1` at the
-/// frequency, and ending at the next frequency.
+/// For each frequency in `melFilterBankFrequencies`, the function creates a row
+/// in `filterBank` that contains a triangular window starting at the previous
+/// frequency, having a response of `1` at the frequency, and ending at the next
+/// frequency.
 float* makeFilterBank(NSRange frequencyRange, int sampleCount, int filterBankCount)
 {
     /// The `melFilterBankFrequencies` array contains `filterBankCount` elements
-    /// that are indices of the `frequencyDomainBuffer`. The indices represent evenly spaced
-    /// monotonically incrementing mel frequencies; that is, they're roughly logarithmically spaced as
-    /// frequency in hertz.
+    /// that are indices of the `frequencyDomainBuffer`. The indices represent
+    /// evenly spaced monotonically incrementing mel frequencies; that is, they're
+    /// roughly logarithmically spaced as frequency in hertz.
     NSMutableArray<NSNumber*>* melFilterBankFrequencies = [NSMutableArray array];
     populateMelFilterBankFrequencies(frequencyRange, filterBankCount, sampleCount, melFilterBankFrequencies);
 
@@ -368,39 +371,30 @@ float* makeFilterBank(NSRange frequencyRange, int sampleCount, int filterBankCou
 
     float baseValue = 1;
     float endValue = 0;
-    for (int i = 0; i < melFilterBankFrequencies.count;i++) {
+    for (int i = 0; i < melFilterBankFrequencies.count; i++) {
         int row = i * sampleCount;
 
         int startFrequency = melFilterBankFrequencies[MAX(0, i - 1)].intValue;
         int centerFrequency = melFilterBankFrequencies[i].intValue;
-        int endFrequency = (i + 1) < melFilterBankFrequencies.count ?
-                melFilterBankFrequencies[i + 1].intValue :
-                sampleCount - 1;
+        int endFrequency = (i + 1) < melFilterBankFrequencies.count ? melFilterBankFrequencies[i + 1].intValue : sampleCount - 1;
 
         float attackWidth = centerFrequency - startFrequency + 1;
         float decayWidth = endFrequency - centerFrequency + 1;
 
         // Create the attack phase of the triangle.
         if (attackWidth > 0) {
-            vDSP_vgen(&endValue,
-                      &baseValue,
-                      &filterBank[row + startFrequency],
-                      1,
-                      (vDSP_Length)attackWidth);
+            vDSP_vgen(&endValue, &baseValue, &filterBank[row + startFrequency], 1, (vDSP_Length) attackWidth);
         }
         // Create the decay phase of the triangle.
         if (decayWidth > 0) {
-            vDSP_vgen(&baseValue,
-                      &endValue,
-                      &filterBank[row + centerFrequency],
-                      1,
-                      (vDSP_Length)decayWidth);
+            vDSP_vgen(&baseValue, &endValue, &filterBank[row + centerFrequency], 1, (vDSP_Length) decayWidth);
         }
     }
     return filterBank;
 }
 
-// Variant that biases center frequencies toward the top end (biasExp < 1.0 increases high-frequency density).
+// Variant that biases center frequencies toward the top end (biasExp < 1.0
+// increases high-frequency density).
 static float* makeBiasedFilterBank(NSRange frequencyRange, int sampleCount, int filterBankCount, float biasExp)
 {
     NSMutableArray<NSNumber*>* centers = [NSMutableArray arrayWithCapacity:filterBankCount];
@@ -408,10 +402,10 @@ static float* makeBiasedFilterBank(NSRange frequencyRange, int sampleCount, int 
     double maxHz = frequencyRange.location + frequencyRange.length;
     double span = maxHz - minHz;
     for (int i = 0; i < filterBankCount; i++) {
-        double t = (filterBankCount == 1) ? 0.0 : (double)i / (double)(filterBankCount - 1);
+        double t = (filterBankCount == 1) ? 0.0 : (double) i / (double) (filterBankCount - 1);
         double biased = pow(t, biasExp);
         double hz = minHz + biased * span;
-        int bin = (int)((hz / maxHz) * (double)sampleCount);
+        int bin = (int) ((hz / maxHz) * (double) sampleCount);
         centers[i] = @(bin);
     }
 
@@ -430,10 +424,10 @@ static float* makeBiasedFilterBank(NSRange frequencyRange, int sampleCount, int 
         float decayWidth = endFrequency - centerFrequency + 1;
 
         if (attackWidth > 0) {
-            vDSP_vgen(&endValue, &baseValue, &filterBank[row + startFrequency], 1, (vDSP_Length)attackWidth);
+            vDSP_vgen(&endValue, &baseValue, &filterBank[row + startFrequency], 1, (vDSP_Length) attackWidth);
         }
         if (decayWidth > 0) {
-            vDSP_vgen(&baseValue, &endValue, &filterBank[row + centerFrequency], 1, (vDSP_Length)decayWidth);
+            vDSP_vgen(&baseValue, &endValue, &filterBank[row + centerFrequency], 1, (vDSP_Length) decayWidth);
         }
     }
     return filterBank;
@@ -446,9 +440,9 @@ static float* makeBiasedFilterBank(NSRange frequencyRange, int sampleCount, int 
 /// to generate `sgemmResult` product.
 /// 3. Convert the matrix multiply results to decibels.
 ///
-/// The matrix multiply effectively creates a  vector of `filterBankCount` elements that summarises
-/// the `sampleCount` frequency-domain values.  For example, given a vector of four frequency-domain
-/// values:
+/// The matrix multiply effectively creates a  vector of `filterBankCount`
+/// elements that summarises the `sampleCount` frequency-domain values.  For
+/// example, given a vector of four frequency-domain values:
 /// ```
 ///  [ 1, 2, 3, 4 ]
 /// ```
@@ -464,38 +458,28 @@ static float* makeBiasedFilterBank(NSRange frequencyRange, int sampleCount, int 
 ///     (2 * 0.5 + 3 * 0.5) = 2.5,
 ///     (3 * 0.5 + 4 * 0.5) = 3.5 ]
 /// ```
-// Convert linear FFT magnitudes into mel-spaced bins of length kScaledFrequencyDataLength in-place.
+// Convert linear FFT magnitudes into mel-spaced bins of length
+// kScaledFrequencyDataLength in-place.
 void melScaleFFT(float* frequencyData)
 {
     static float* filterBank = NULL;
     static float* melBuffer = NULL;
     if (filterBank == NULL) {
-        filterBank = makeFilterBank(NSMakeRange(20.0f, 19980.0f), (int)kFrequencyDataLength, kFilterBankCount);
+        filterBank = makeFilterBank(NSMakeRange(20.0f, 19980.0f), (int) kFrequencyDataLength, kFilterBankCount);
     }
     if (melBuffer == NULL) {
-        int err = posix_memalign((void**)&melBuffer, 64, sizeof(float) * kFilterBankCount);
+        int err = posix_memalign((void**) &melBuffer, 64, sizeof(float) * kFilterBankCount);
         assert(err == 0 && melBuffer != NULL);
     }
 
     // Ensure magnitudes are non-negative.
     vDSP_vabs(frequencyData, 1, frequencyData, 1, kFrequencyDataLength);
 
-    cblas_sgemm(CblasRowMajor,
-                CblasNoTrans,
-                CblasTrans,
-                1,
-                kFilterBankCount,
-                (int)kFrequencyDataLength,
-                1.0f,
-                frequencyData,
-                (int)kFrequencyDataLength,
-                filterBank,
-                (int)kFrequencyDataLength,
-                0.0f,
-                melBuffer,
-                kFilterBankCount);
+    cblas_sgemm(CblasRowMajor, CblasNoTrans, CblasTrans, 1, kFilterBankCount, (int) kFrequencyDataLength, 1.0f, frequencyData, (int) kFrequencyDataLength,
+                filterBank, (int) kFrequencyDataLength, 0.0f, melBuffer, kFilterBankCount);
 
-    // Use RMS of the mel bins as reference so single loud bins (e.g., bass) don't suppress mids/highs.
+    // Use RMS of the mel bins as reference so single loud bins (e.g., bass) don't
+    // suppress mids/highs.
     float meanSquare = 0.0f;
     vDSP_measqv(melBuffer, 1, &meanSquare, kFilterBankCount);
     float rms = sqrtf(meanSquare);

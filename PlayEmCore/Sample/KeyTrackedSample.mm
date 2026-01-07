@@ -5,22 +5,22 @@
 //  Created by Till Toenshoff on 18.12.24.
 //  Copyright © 2024 Till Toenshoff. All rights reserved.
 //
+#import "KeyTrackedSample.h"
+
 #import <Foundation/Foundation.h>
 
-#import "KeyTrackedSample.h"
-#import "LazySample.h"
-#import "IndexedBlockOperation.h"
-
-#include <keyfinder/keyfinder.h>
 #include <keyfinder/audiodata.h>
+#include <keyfinder/keyfinder.h>
 
 #import "ActivityManager.h"
+#import "CancelableBlockOperation.h"
+#import "LazySample.h"
 
-// Anything beyond 30mins playtime is not of interest for chroma tracking, I declare hereby.
+// Anything beyond 30mins playtime is not of interest for chroma tracking, I
+// declare hereby.
 const double kBeatSampleDurationThreshold = 30.0 * 60.0;
 
-@interface KeyTrackedSample()
-{
+@interface KeyTrackedSample () {
 }
 
 @property (assign, nonatomic) size_t windowWidth;
@@ -31,8 +31,7 @@ const double kBeatSampleDurationThreshold = 30.0 * 60.0;
 
 @end
 
-@implementation KeyTrackedSample
-{
+@implementation KeyTrackedSample {
     KeyFinder::KeyFinder _keyFinder;
     KeyFinder::Workspace _workspace;
     KeyFinder::AudioData _audioData;
@@ -51,7 +50,7 @@ const double kBeatSampleDurationThreshold = 30.0 * 60.0;
         _sampleBuffers = [NSMutableArray array];
         _key = nil;
         _hint = nil;
-        
+
         unsigned long long framesNeeded = _windowWidth * 1024;
         for (int channel = 0; channel < sample.sampleFormat.channels; channel++) {
             NSMutableData* buffer = [NSMutableData dataWithCapacity:framesNeeded * _sample.frameSize];
@@ -67,12 +66,10 @@ const double kBeatSampleDurationThreshold = 30.0 * 60.0;
 }
 
 - (void)cleanupTracking
-{
-}
+{}
 
 - (void)dealloc
-{
-}
+{}
 
 - (void)trackKeyAsyncWithCallback:(void (^)(BOOL))callback;
 {
@@ -107,17 +104,17 @@ const double kBeatSampleDurationThreshold = 30.0 * 60.0;
 
     float* data[channels];
     for (int channel = 0; channel < channels; channel++) {
-        data[channel] = (float*)((NSMutableData*)self->_sampleBuffers[channel]).bytes;
+        data[channel] = (float*) ((NSMutableData*) self->_sampleBuffers[channel]).bytes;
     }
 
     _audioData.setChannels(channels);
-    _audioData.setFrameRate((unsigned int)self->_sample.sampleFormat.rate);
-    _audioData.addToSampleCount((unsigned int)self->_windowWidth * channels);
-    
+    _audioData.setFrameRate((unsigned int) self->_sample.sampleFormat.rate);
+    _audioData.addToSampleCount((unsigned int) self->_windowWidth * channels);
+
     unsigned long long sourceWindowFrameOffset = 0LL;
-    
+
     while (sourceWindowFrameOffset < self->_sample.frames) {
-        double progress = (double)sourceWindowFrameOffset / self->_sample.frames;
+        double progress = (double) sourceWindowFrameOffset / self->_sample.frames;
         [[ActivityManager shared] updateActivity:token progress:progress detail:@"detecting key"];
 
         if (dispatch_block_testcancel(self.queueOperation) != 0) {
@@ -125,70 +122,136 @@ const double kBeatSampleDurationThreshold = 30.0 * 60.0;
             [[ActivityManager shared] completeActivity:token];
             return NO;
         }
-        unsigned long long sourceWindowFrameCount = MIN(self->_windowWidth * 1024,
-                                                        self->_sample.frames - sourceWindowFrameOffset);
+        unsigned long long sourceWindowFrameCount = MIN(self->_windowWidth * 1024, self->_sample.frames - sourceWindowFrameOffset);
         // This may block for a loooooong time!
-        unsigned long long received = [self->_sample rawSampleFromFrameOffset:sourceWindowFrameOffset
-                                                                       frames:sourceWindowFrameCount
-                                                                      outputs:data];
+        unsigned long long received = [self->_sample rawSampleFromFrameOffset:sourceWindowFrameOffset frames:sourceWindowFrameCount outputs:data];
         unsigned long int sourceFrameIndex = 0;
-        while(sourceFrameIndex < received) {
+        while (sourceFrameIndex < received) {
             if (dispatch_block_testcancel(self.queueOperation) != 0) {
                 [[ActivityManager shared] completeActivity:token];
                 NSLog(@"aborted key detection");
                 return NO;
             }
-            
+
             const unsigned long int inputWindowFrameCount = MIN(self->_windowWidth, self->_sample.frames - (sourceWindowFrameOffset + sourceFrameIndex));
 
-            for (unsigned long int inputFrameIndex = 0;
-                 inputFrameIndex < inputWindowFrameCount;
-                 inputFrameIndex++) {
+            for (unsigned long int inputFrameIndex = 0; inputFrameIndex < inputWindowFrameCount; inputFrameIndex++) {
                 for (int channel = 0; channel < channels; channel++) {
-                    _audioData.setSampleByFrame((unsigned int)inputFrameIndex,
-                                                channel,
-                                                data[channel][sourceFrameIndex]);
+                    _audioData.setSampleByFrame((unsigned int) inputFrameIndex, channel, data[channel][sourceFrameIndex]);
                 }
                 sourceFrameIndex++;
             }
             _keyFinder.progressiveChromagram(_audioData, _workspace);
         };
-        
+
         sourceWindowFrameOffset += received;
     };
 
     _keyFinder.finalChromagram(_workspace);
 
     KeyFinder::key_t key = _keyFinder.keyOfChromagram(_workspace);
-    
-    switch(key) {
-        case KeyFinder::D_FLAT_MINOR:  _key = @"12A";  _hint = @"D flat minor"; break;
-        case KeyFinder::E_MAJOR:       _key = @"12B";  _hint = @"E major"; break;
-        case KeyFinder::G_FLAT_MINOR:  _key = @"11A";  _hint = @"G flat minor"; break;
-        case KeyFinder::A_MAJOR:       _key = @"11B";  _hint = @"A major"; break;
-        case KeyFinder::B_MINOR:       _key = @"10A";  _hint = @"B minor"; break;
-        case KeyFinder::D_MAJOR:       _key = @"10B";  _hint = @"D major"; break;
-        case KeyFinder::E_MINOR:       _key = @"9A";   _hint = @"E minor"; break;
-        case KeyFinder::G_MAJOR:       _key = @"9B";   _hint = @"G major"; break;
-        case KeyFinder::A_MINOR:       _key = @"8A";   _hint = @"A minor"; break;
-        case KeyFinder::C_MAJOR:       _key = @"8B";   _hint = @"C major"; break;
-        case KeyFinder::D_MINOR:       _key = @"7A";   _hint = @"D minor"; break;
-        case KeyFinder::F_MAJOR:       _key = @"7B";   _hint = @"F major"; break;
-        case KeyFinder::G_MINOR:       _key = @"6A";   _hint = @"G minor"; break;
-        case KeyFinder::B_FLAT_MAJOR:  _key = @"6B";   _hint = @"B flat major"; break;
-        case KeyFinder::C_MINOR:       _key = @"5A";   _hint = @"C minor"; break;
-        case KeyFinder::E_FLAT_MAJOR:  _key = @"5B";   _hint = @"E flat major"; break;
-        case KeyFinder::F_MINOR:       _key = @"4A";   _hint = @"F minor"; break;
-        case KeyFinder::A_FLAT_MAJOR:  _key = @"4B";   _hint = @"A flat major"; break;
-        case KeyFinder::B_FLAT_MINOR:  _key = @"3A";   _hint = @"B flat minor"; break;
-        case KeyFinder::D_FLAT_MAJOR:  _key = @"3B";   _hint = @"D flat major"; break;
-        case KeyFinder::E_FLAT_MINOR:  _key = @"2A";   _hint = @"E flat minor"; break;
-        case KeyFinder::G_FLAT_MAJOR:  _key = @"2B";   _hint = @"G flat major"; break;
-        case KeyFinder::A_FLAT_MINOR:  _key = @"1A";   _hint = @"A flat minor"; break;
-        case KeyFinder::B_MAJOR:       _key = @"1B";   _hint = @"B major"; break;
-        case KeyFinder::SILENCE:
-        default:
-            _key = @""; _hint = @"";
+
+    switch (key) {
+    case KeyFinder::D_FLAT_MINOR:
+        _key = @"12A";
+        _hint = @"D flat minor";
+        break;
+    case KeyFinder::E_MAJOR:
+        _key = @"12B";
+        _hint = @"E major";
+        break;
+    case KeyFinder::G_FLAT_MINOR:
+        _key = @"11A";
+        _hint = @"G flat minor";
+        break;
+    case KeyFinder::A_MAJOR:
+        _key = @"11B";
+        _hint = @"A major";
+        break;
+    case KeyFinder::B_MINOR:
+        _key = @"10A";
+        _hint = @"B minor";
+        break;
+    case KeyFinder::D_MAJOR:
+        _key = @"10B";
+        _hint = @"D major";
+        break;
+    case KeyFinder::E_MINOR:
+        _key = @"9A";
+        _hint = @"E minor";
+        break;
+    case KeyFinder::G_MAJOR:
+        _key = @"9B";
+        _hint = @"G major";
+        break;
+    case KeyFinder::A_MINOR:
+        _key = @"8A";
+        _hint = @"A minor";
+        break;
+    case KeyFinder::C_MAJOR:
+        _key = @"8B";
+        _hint = @"C major";
+        break;
+    case KeyFinder::D_MINOR:
+        _key = @"7A";
+        _hint = @"D minor";
+        break;
+    case KeyFinder::F_MAJOR:
+        _key = @"7B";
+        _hint = @"F major";
+        break;
+    case KeyFinder::G_MINOR:
+        _key = @"6A";
+        _hint = @"G minor";
+        break;
+    case KeyFinder::B_FLAT_MAJOR:
+        _key = @"6B";
+        _hint = @"B flat major";
+        break;
+    case KeyFinder::C_MINOR:
+        _key = @"5A";
+        _hint = @"C minor";
+        break;
+    case KeyFinder::E_FLAT_MAJOR:
+        _key = @"5B";
+        _hint = @"E flat major";
+        break;
+    case KeyFinder::F_MINOR:
+        _key = @"4A";
+        _hint = @"F minor";
+        break;
+    case KeyFinder::A_FLAT_MAJOR:
+        _key = @"4B";
+        _hint = @"A flat major";
+        break;
+    case KeyFinder::B_FLAT_MINOR:
+        _key = @"3A";
+        _hint = @"B flat minor";
+        break;
+    case KeyFinder::D_FLAT_MAJOR:
+        _key = @"3B";
+        _hint = @"D flat major";
+        break;
+    case KeyFinder::E_FLAT_MINOR:
+        _key = @"2A";
+        _hint = @"E flat minor";
+        break;
+    case KeyFinder::G_FLAT_MAJOR:
+        _key = @"2B";
+        _hint = @"G flat major";
+        break;
+    case KeyFinder::A_FLAT_MINOR:
+        _key = @"1A";
+        _hint = @"A flat minor";
+        break;
+    case KeyFinder::B_MAJOR:
+        _key = @"1B";
+        _hint = @"B major";
+        break;
+    case KeyFinder::SILENCE:
+    default:
+        _key = @"";
+        _hint = @"";
     }
 
     NSLog(@"key %d", key);
@@ -202,7 +265,7 @@ const double kBeatSampleDurationThreshold = 30.0 * 60.0;
     return YES;
 }
 
-- (NSString *)description
+- (NSString*)description
 {
     return [NSString stringWithFormat:@"key: %.0f BPM", 0.0];
 }

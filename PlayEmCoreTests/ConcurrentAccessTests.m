@@ -7,6 +7,7 @@
 //
 
 #import <XCTest/XCTest.h>
+
 #import "ConcurrentAccessDictionary.h"
 
 @interface ConcurrentAccessTests : XCTestCase
@@ -16,34 +17,34 @@
 
 - (void)testWriteBeforeReadOrdering
 {
-    ConcurrentAccessDictionary *dict = [ConcurrentAccessDictionary new];
+    ConcurrentAccessDictionary* dict = [ConcurrentAccessDictionary new];
     [dict setObject:@1 forKey:@"k"];
-    NSNumber *n = [dict objectForKey:@"k"];
+    NSNumber* n = [dict objectForKey:@"k"];
     XCTAssertEqualObjects(n, @1);
 }
 
 - (void)testConcurrentReads
 {
-    ConcurrentAccessDictionary *dict = [ConcurrentAccessDictionary new];
+    ConcurrentAccessDictionary* dict = [ConcurrentAccessDictionary new];
     [dict setObject:@"v" forKey:@"k"];
 
-    XCTestExpectation *expect = [self expectationWithDescription:@"concurrent reads"];
+    XCTestExpectation* expect = [self expectationWithDescription:@"concurrent reads"];
     expect.expectedFulfillmentCount = 10;
 
     dispatch_group_t group = dispatch_group_create();
     for (NSUInteger i = 0; i < 10; i++) {
         dispatch_group_async(group, dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0), ^{
-            NSString *v = [dict objectForKey:@"k"];
+            NSString* v = [dict objectForKey:@"k"];
             XCTAssertEqualObjects(v, @"v");
             [expect fulfill];
         });
     }
-    [self waitForExpectations:@[expect] timeout:2.0];
+    [self waitForExpectations:@[ expect ] timeout:2.0];
 }
 
 - (void)testRemoveAndClear
 {
-    ConcurrentAccessDictionary *dict = [ConcurrentAccessDictionary new];
+    ConcurrentAccessDictionary* dict = [ConcurrentAccessDictionary new];
     [dict setObject:@1 forKey:@"a"];
     [dict setObject:@2 forKey:@"b"];
     XCTAssertEqual([[dict allKeys] count], 2);

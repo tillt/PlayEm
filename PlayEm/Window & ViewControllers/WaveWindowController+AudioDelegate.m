@@ -1,8 +1,8 @@
 
-#import "WaveWindowController.h"
 #import "WaveWindowController+AudioDelegate.h"
+#import "WaveWindowController.h"
 
-@implementation WaveWindowController(AudioDelegate)
+@implementation WaveWindowController (AudioDelegate)
 
 - (void)startVisuals
 {
@@ -77,7 +77,7 @@
         [_audioController play];
         return;
     }
-    
+
     [self playNext:self];
 }
 

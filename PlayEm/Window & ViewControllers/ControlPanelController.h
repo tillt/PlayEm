@@ -40,7 +40,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (assign, nonatomic) BOOL durationUnitTime;
 
-
 - (id)initWithDelegate:(id<ControlPanelControllerDelegate>)delegate;
 - (void)loadView;
 - (void)tickWithTimestamp:(CFTimeInterval)interval;

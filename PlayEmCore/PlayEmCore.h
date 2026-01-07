@@ -14,4 +14,5 @@ FOUNDATION_EXPORT double PlayEmCoreVersionNumber;
 //! Project version string for PlayEmCore.
 FOUNDATION_EXPORT const unsigned char PlayEmCoreVersionString[];
 
-// In this header, you should import all the public headers of your framework using statements like #import <PlayEmCore/PublicHeader.h>
+// In this header, you should import all the public headers of your framework
+// using statements like #import <PlayEmCore/PublicHeader.h>

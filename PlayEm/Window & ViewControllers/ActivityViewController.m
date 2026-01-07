@@ -26,13 +26,12 @@ static const CGFloat kProgressColumnPadding = 8.0;
 static const BOOL kActivityDebugLogging = NO;
 
 @interface CircleProgressView : NSView
-@property (nonatomic, assign) double progress; // 0...1
+@property (nonatomic, assign) double progress;  // 0...1
 - (void)setProgress:(double)progress animated:(BOOL)animated;
 @property (nonatomic, strong, nullable) NSUUID* tokenUUID;
 @end
 
-@implementation CircleProgressView
-{
+@implementation CircleProgressView {
     CAShapeLayer* _bgLayer;
     CAShapeLayer* _fgLayer;
 }
@@ -83,7 +82,8 @@ static const BOOL kActivityDebugLogging = NO;
     CGPoint center = CGPointMake(CGRectGetMidX(circle), CGRectGetMidY(circle));
     CGFloat radius = MIN(circle.size.width, circle.size.height) / 2.0;
     CGMutablePathRef p = CGPathCreateMutable();
-    CGPathAddArc(p, NULL, center.x, center.y, radius, -M_PI_2, -M_PI_2 + 2 * M_PI, false); // start at top
+    CGPathAddArc(p, NULL, center.x, center.y, radius, -M_PI_2, -M_PI_2 + 2 * M_PI,
+                 false);  // start at top
     _bgLayer.frame = b;
     _fgLayer.frame = b;
     _bgLayer.path = p;
@@ -98,7 +98,7 @@ static const BOOL kActivityDebugLogging = NO;
 
 - (void)setProgress:(double)progress animated:(BOOL)animated
 {
-    CGFloat clamped = (CGFloat)MIN(1.0, MAX(0.0, progress));
+    CGFloat clamped = (CGFloat) MIN(1.0, MAX(0.0, progress));
     if (clamped == _progress) {
         return;
     }
@@ -123,17 +123,15 @@ static const BOOL kActivityDebugLogging = NO;
 
 @end
 
-
-// While neat in isolation, this doesnt play well with the table view animations. It appears
-// the table-view reload animations totally trash all timing - even if done carefully (not
-// globally as in `reloadData`).
+// While neat in isolation, this doesnt play well with the table view
+// animations. It appears the table-view reload animations totally trash all
+// timing - even if done carefully (not globally as in `reloadData`).
 @interface ArcSpinnerView : NSView
 @property (nonatomic, assign) BOOL spinning;
 @property (nonatomic, assign) BOOL wasIndeterminate;
 @end
 
-@implementation ArcSpinnerView
-{
+@implementation ArcSpinnerView {
     CAShapeLayer* _arcLayer;
 }
 
@@ -179,13 +177,14 @@ static const BOOL kActivityDebugLogging = NO;
     CGPoint center = CGPointMake(CGRectGetMidX(circle), CGRectGetMidY(circle));
     CGFloat radius = MIN(circle.size.width, circle.size.height) / 2.0;
     CGMutablePathRef p = CGPathCreateMutable();
-    CGPathAddArc(p, NULL, center.x, center.y, radius, -M_PI_2, -M_PI_2 + 2 * M_PI, false); // start at top
+    CGPathAddArc(p, NULL, center.x, center.y, radius, -M_PI_2, -M_PI_2 + 2 * M_PI,
+                 false);  // start at top
     CGPathRef path = CGPathCreateCopy(p);
     _arcLayer.path = path;
     _arcLayer.frame = b;
     // update the background ring to the same path
     if (self.layer.sublayers.count > 0) {
-        CAShapeLayer* background = (CAShapeLayer*)self.layer.sublayers.firstObject;
+        CAShapeLayer* background = (CAShapeLayer*) self.layer.sublayers.firstObject;
         background.path = path;
         background.frame = b;
     }
@@ -197,7 +196,8 @@ static const BOOL kActivityDebugLogging = NO;
 {
     _spinning = spinning;
     if (spinning) {
-        // Ensure a clean slate so timing isn’t compounded when views are reused/relayed out.
+        // Ensure a clean slate so timing isn’t compounded when views are
+        // reused/relayed out.
         [_arcLayer removeAllAnimations];
         if ([_arcLayer animationForKey:@"spin"] == nil) {
             CABasicAnimation* spin = [CABasicAnimation animationWithKeyPath:@"transform.rotation.z"];
@@ -210,8 +210,8 @@ static const BOOL kActivityDebugLogging = NO;
             [_arcLayer addAnimation:spin forKey:@"spin"];
 
             CAKeyframeAnimation* head = [CAKeyframeAnimation animationWithKeyPath:@"strokeStart"];
-            head.values = @[@0.0, @0.25, @0.9];
-            head.keyTimes = @[@0.0, @0.5, @1.0];
+            head.values = @[ @0.0, @0.25, @0.9 ];
+            head.keyTimes = @[ @0.0, @0.5, @1.0 ];
             head.duration = 1.2;
             head.repeatCount = HUGE_VALF;
             head.timingFunctions = @[
@@ -222,8 +222,8 @@ static const BOOL kActivityDebugLogging = NO;
             [_arcLayer addAnimation:head forKey:@"head"];
 
             CAKeyframeAnimation* tail = [CAKeyframeAnimation animationWithKeyPath:@"strokeEnd"];
-            tail.values = @[@0.1, @1.0, @1.0];
-            tail.keyTimes = @[@0.0, @0.6, @1.0];
+            tail.values = @[ @0.1, @1.0, @1.0 ];
+            tail.keyTimes = @[ @0.0, @0.6, @1.0 ];
             tail.duration = 1.2;
             tail.repeatCount = HUGE_VALF;
             tail.timingFunctions = @[
@@ -259,10 +259,7 @@ static const BOOL kActivityDebugLogging = NO;
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(activitiesUpdated:)
-                                                 name:ActivityManagerDidUpdateNotification
-                                               object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(activitiesUpdated:) name:ActivityManagerDidUpdateNotification object:nil];
 }
 
 #pragma mark - View lifecycle
@@ -273,13 +270,14 @@ static const BOOL kActivityDebugLogging = NO;
 
     NSView* view = [[NSView alloc] initWithFrame:NSMakeRect(0, 0, 500, 300)];
 
-    // Measure the native spinner size for the chosen control size and give it breathing room.
+    // Measure the native spinner size for the chosen control size and give it
+    // breathing room.
     NSProgressIndicator* measure = [[NSProgressIndicator alloc] initWithFrame:NSZeroRect];
     measure.style = NSProgressIndicatorStyleSpinning;
     measure.controlSize = NSControlSizeRegular;
     [measure sizeToFit];
-    _spinnerSide = ceil(MAX(measure.fittingSize.width, measure.fittingSize.height)) - 2.0; // slightly smaller than default
-    _progressColumnWidth = _spinnerSide + kProgressColumnPadding; // small padding inside the column
+    _spinnerSide = ceil(MAX(measure.fittingSize.width, measure.fittingSize.height)) - 2.0;  // slightly smaller than default
+    _progressColumnWidth = _spinnerSide + kProgressColumnPadding;                           // small padding inside the column
 
     NSScrollView* scrollView = [[NSScrollView alloc] initWithFrame:view.bounds];
     scrollView.autoresizingMask = kViewFullySizeable;
@@ -292,7 +290,7 @@ static const BOOL kActivityDebugLogging = NO;
     _table.headerView = nil;
     _table.autoresizingMask = kViewFullySizeable;
     _table.columnAutoresizingStyle = NSTableViewNoColumnAutoresizing;
-    _table.intercellSpacing = NSMakeSize(2.0, 0.0); // tighter spacing between fixed-width columns
+    _table.intercellSpacing = NSMakeSize(2.0, 0.0);  // tighter spacing between fixed-width columns
 
     NSTableColumn* titleColumn = [[NSTableColumn alloc] init];
     titleColumn.identifier = kTitleColumnIdentifier;
@@ -323,7 +321,6 @@ static const BOOL kActivityDebugLogging = NO;
 
     self.view = view;
     _lastRowCount = [ActivityManager shared].activities.count;
-
 }
 
 #pragma mark - NSTableViewDataSource
@@ -341,7 +338,7 @@ static const BOOL kActivityDebugLogging = NO;
         return nil;
     }
 
-    ActivityEntry* entry = [ActivityManager shared].activities[(NSUInteger)row];
+    ActivityEntry* entry = [ActivityManager shared].activities[(NSUInteger) row];
     NSString* identifier = tableColumn.identifier;
     const CGFloat padding = 8.0;
     const CGFloat progressSize = self.spinnerSide;
@@ -353,10 +350,8 @@ static const BOOL kActivityDebugLogging = NO;
         const CGFloat titleHeight = 20.0;
         const CGFloat detailHeight = 16.0;
 
-        NSTextField* titleField = [[NSTextField alloc] initWithFrame:NSMakeRect(padding,
-                                                                               tableView.rowHeight - padding - titleHeight - 4.0,
-                                                                               tableColumn.width - (padding * 2),
-                                                                               titleHeight)];
+        NSTextField* titleField = [[NSTextField alloc]
+            initWithFrame:NSMakeRect(padding, tableView.rowHeight - padding - titleHeight - 4.0, tableColumn.width - (padding * 2), titleHeight)];
         titleField.editable = NO;
         titleField.bordered = NO;
         titleField.drawsBackground = NO;
@@ -367,11 +362,8 @@ static const BOOL kActivityDebugLogging = NO;
         titleField.stringValue = entry.title;
         [view addSubview:titleField];
 
-        const CGFloat detailYOffset = padding + 6.0; // tuck much closer to the title
-        NSTextField* detailField = [[NSTextField alloc] initWithFrame:NSMakeRect(padding,
-                                                                                detailYOffset,
-                                                                                tableColumn.width - (padding * 2),
-                                                                                detailHeight)];
+        const CGFloat detailYOffset = padding + 6.0;  // tuck much closer to the title
+        NSTextField* detailField = [[NSTextField alloc] initWithFrame:NSMakeRect(padding, detailYOffset, tableColumn.width - (padding * 2), detailHeight)];
         detailField.editable = NO;
         detailField.bordered = NO;
         detailField.drawsBackground = NO;
@@ -415,7 +407,8 @@ static const BOOL kActivityDebugLogging = NO;
         NSButton* cancelButton = [NSButton buttonWithTitle:@"" target:self action:@selector(cancelButtonPressed:)];
 
         NSImageSymbolConfiguration* baseConfig = [NSImageSymbolConfiguration configurationWithPointSize:18 weight:NSFontWeightBold];
-        NSImageSymbolConfiguration* palette = [NSImageSymbolConfiguration configurationWithPaletteColors:@[[NSColor labelColor], [NSColor tertiaryLabelColor]]];
+        NSImageSymbolConfiguration* palette =
+            [NSImageSymbolConfiguration configurationWithPaletteColors:@[ [NSColor labelColor], [NSColor tertiaryLabelColor] ]];
         NSImageSymbolConfiguration* config = [baseConfig configurationByApplyingConfiguration:palette];
 
         NSImage* closeImage = [NSImage imageWithSystemSymbolName:@"xmark.circle.fill" accessibilityDescription:@"Cancel"];
@@ -426,15 +419,13 @@ static const BOOL kActivityDebugLogging = NO;
         cancelButton.bezelStyle = NSBezelStyleToolbar;
         cancelButton.controlSize = NSControlSizeSmall;
         cancelButton.identifier = kCancelButtonViewIdentifier;
-        // Fire on mouse-down so frequent table reloads can’t eat the click before mouse-up.
+        // Fire on mouse-down so frequent table reloads can’t eat the click before
+        // mouse-up.
         [[cancelButton cell] sendActionOn:NSEventMaskLeftMouseDown];
         cancelButton.tag = row;
         cancelButton.enabled = entry.cancellable;
         cancelButton.hidden = !entry.cancellable;
-        cancelButton.frame = NSMakeRect(cancelX,
-                                        cancelY,
-                                        cancelSize,
-                                        cancelSize);
+        cancelButton.frame = NSMakeRect(cancelX, cancelY, cancelSize, cancelSize);
         [view addSubview:cancelButton];
         return view;
     }
@@ -456,12 +447,12 @@ static const BOOL kActivityDebugLogging = NO;
 
 - (void)cancelButtonPressed:(id)sender
 {
-    NSButton* button = (NSButton*)sender;
+    NSButton* button = (NSButton*) sender;
     NSInteger row = [self.table rowForView:button];
-    if (row < 0 || (NSUInteger)row >= [ActivityManager shared].activities.count) {
+    if (row < 0 || (NSUInteger) row >= [ActivityManager shared].activities.count) {
         return;
     }
-    ActivityEntry* entry = [ActivityManager shared].activities[(NSUInteger)row];
+    ActivityEntry* entry = [ActivityManager shared].activities[(NSUInteger) row];
     [[ActivityManager shared] requestCancel:entry.token];
 }
 
@@ -471,7 +462,7 @@ static const BOOL kActivityDebugLogging = NO;
 {
     NSUInteger newCount = [ActivityManager shared].activities.count;
     if (kActivityDebugLogging) {
-        NSLog(@"[ActivityVC] activitiesUpdated old:%lu new:%lu", (unsigned long)self.lastRowCount, (unsigned long)newCount);
+        NSLog(@"[ActivityVC] activitiesUpdated old:%lu new:%lu", (unsigned long) self.lastRowCount, (unsigned long) newCount);
     }
 
     NSMutableIndexSet* removes = [NSMutableIndexSet indexSet];
@@ -492,9 +483,9 @@ static const BOOL kActivityDebugLogging = NO;
     } else {
         [self.table beginUpdates];
         if (removes.count > 0) {
-            // Slide out (to the right) with a light fade so disappearing rows are visually obvious.
-            [self.table removeRowsAtIndexes:removes
-                               withAnimation:(NSTableViewAnimationEffectFade)];
+            // Slide out (to the right) with a light fade so disappearing rows are
+            // visually obvious.
+            [self.table removeRowsAtIndexes:removes withAnimation:(NSTableViewAnimationEffectFade)];
             if (kActivityDebugLogging) {
                 NSLog(@"[ActivityVC] remove rows: %@", removes);
             }
@@ -510,9 +501,7 @@ static const BOOL kActivityDebugLogging = NO;
     }
 }
 
-- (void)configureProgressIndicatorSpinner:(ArcSpinnerView*)spinner
-                                   circle:(CircleProgressView*)circle
-                                     entry:(ActivityEntry*)entry
+- (void)configureProgressIndicatorSpinner:(ArcSpinnerView*)spinner circle:(CircleProgressView*)circle entry:(ActivityEntry*)entry
 {
     BOOL sameToken = [circle.tokenUUID isEqual:entry.token.uuid];
     circle.tokenUUID = entry.token.uuid;

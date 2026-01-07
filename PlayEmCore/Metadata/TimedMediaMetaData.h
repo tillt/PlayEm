@@ -17,12 +17,12 @@ NS_ASSUME_NONNULL_BEGIN
 @class SHMatchedMediaItem;
 @class MediaMetaData;
 
-@interface TimedMediaMetaData : NSObject<NSSecureCoding>
+@interface TimedMediaMetaData : NSObject <NSSecureCoding>
 
 + (TimedMediaMetaData*)unknownTrackAtFrame:(NSNumber*)frame;
 
 @property (strong, nonatomic, nullable) NSNumber* frame;
-@property (strong, nonatomic, nullable) NSNumber* endFrame; // optional latest frame for this key
+@property (strong, nonatomic, nullable) NSNumber* endFrame;  // optional latest frame for this key
 @property (strong, nonatomic, nullable) NSNumber* confidence;
 @property (strong, nonatomic, nullable) NSNumber* score;
 @property (strong, nonatomic, nullable) NSNumber* supportCount;
@@ -30,7 +30,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (id)initWithMatchedMediaItem:(SHMatchedMediaItem*)item frame:(NSNumber*)frame;
 - (id)initWithTimedMediaGroup:(AVTimedMetadataGroup*)group framerate:(long)rate;
-
 
 @end
 

@@ -20,7 +20,6 @@
 
 @end
 
-
 @implementation AppDelegate
 
 - (WaveWindowController*)waveController
@@ -50,15 +49,14 @@
         return;
     }
 
-    NSURL* url = [WaveWindowController encodeQueryItemsWithUrl:urls[0]
-                                                         frame:0LL
-                                                       playing:YES];
+    NSURL* url = [WaveWindowController encodeQueryItemsWithUrl:urls[0] frame:0LL playing:YES];
     [[self waveController] loadDocumentFromURL:url meta:nil];
 }
 
 - (void)applicationDidFinishLaunching:(NSNotification*)aNotification
 {
-    // When running under XCTest we keep the UI hidden to avoid popping windows or a dock icon during headless tests.
+    // When running under XCTest we keep the UI hidden to avoid popping windows or
+    // a dock icon during headless tests.
     if ([[NSProcessInfo processInfo].environment objectForKey:@"XCTestConfigurationFilePath"] != nil) {
         [NSApp setActivationPolicy:NSApplicationActivationPolicyAccessory];
         return;
@@ -80,10 +78,9 @@
 }
 
 - (void)applicationWillTerminate:(NSNotification*)aNotification
-{
-}
+{}
 
-- (NSMenu*)applicationDockMenu:(NSApplication *)sender
+- (NSMenu*)applicationDockMenu:(NSApplication*)sender
 {
     return _waveController.dockMenu;
 }

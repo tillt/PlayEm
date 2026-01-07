@@ -6,8 +6,9 @@
 //  Copyright © 2025 Till Toenshoff. All rights reserved.
 //
 
-#import <Cocoa/Cocoa.h>
 #import <AppKit/AppKit.h>
+#import <Cocoa/Cocoa.h>
+
 #import "WaveView.h"
 
 NS_ASSUME_NONNULL_BEGIN

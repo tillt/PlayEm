@@ -8,21 +8,19 @@
 
 #import "TableCellView.h"
 
+#import <CoreGraphics/CoreGraphics.h>
 #import <Quartz/Quartz.h>
 #import <QuartzCore/QuartzCore.h>
-#import <CoreGraphics/CoreGraphics.h>
 
+#import "BeatEvent.h"
 #import "CAShapeLayer+Path.h"
 #import "Defaults.h"
-#import "BeatEvent.h"
-
 
 @interface TableCellView ()
 @property (nonatomic, strong) NSTextField* tf;
 @end
 
-@implementation TableCellView
-{
+@implementation TableCellView {
 }
 
 - (id)initWithFrame:(NSRect)frameRect
@@ -42,14 +40,14 @@
         _tf.cell.lineBreakMode = NSLineBreakByTruncatingTail;
         self.textField = _tf;
         [self addSubview:_tf];
-        //self.layerContentsRedrawPolicy = NSViewLayerContentsRedrawOnSetNeedsDisplay;
+        // self.layerContentsRedrawPolicy =
+        // NSViewLayerContentsRedrawOnSetNeedsDisplay;
     }
     return self;
 }
 
 - (void)setupWithFrame:(NSRect)frameRect
-{
-}
+{}
 
 - (void)updatedStyle
 {
@@ -59,16 +57,16 @@
         color = [[Defaults sharedDefaults] lightFakeBeamColor];
     } else {
         switch (self.backgroundStyle) {
-            case NSBackgroundStyleNormal:
-                color = [[Defaults sharedDefaults] secondaryLabelColor];
-                break;
-            case NSBackgroundStyleEmphasized:
-                color = [[Defaults sharedDefaults] lightFakeBeamColor];
-                break;
-            case NSBackgroundStyleRaised:
-            case NSBackgroundStyleLowered:
-            default:
-                color = [NSColor linkColor];
+        case NSBackgroundStyleNormal:
+            color = [[Defaults sharedDefaults] secondaryLabelColor];
+            break;
+        case NSBackgroundStyleEmphasized:
+            color = [[Defaults sharedDefaults] lightFakeBeamColor];
+            break;
+        case NSBackgroundStyleRaised:
+        case NSBackgroundStyleLowered:
+        default:
+            color = [NSColor linkColor];
         }
     }
     //_textLayer.foregroundColor = color.CGColor;
@@ -88,17 +86,17 @@
     const unsigned int style = [dict[kBeatNotificationKeyStyle] intValue];
     const float tempo = [dict[kBeatNotificationKeyTempo] floatValue];
     const float barDuration = 4.0f * 60.0f / tempo;
-    
+
     if ((style & BeatEventStyleBar) == BeatEventStyleBar) {
-        // For creating a discrete effect accross the timeline, a keyframe animation is the
-        // right thing as it even allows us to animate strings.
+        // For creating a discrete effect accross the timeline, a keyframe animation
+        // is the right thing as it even allows us to animate strings.
         CAKeyframeAnimation* animation = [CAKeyframeAnimation animationWithKeyPath:@"foregroundColor"];
         animation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionLinear];
-        
-        //animation.fromValue = (id)[[[Defaults sharedDefaults] lightBeamColor] CGColor];
-        //animation.toValue = (id)[[NSColor secondaryLabelColor] CGColor];
-        animation.values = @[ (id)[[[Defaults sharedDefaults] lightFakeBeamColor] CGColor],
-                              (id)[[NSColor secondaryLabelColor] CGColor] ];
+
+        // animation.fromValue = (id)[[[Defaults sharedDefaults] lightBeamColor]
+        // CGColor]; animation.toValue = (id)[[NSColor secondaryLabelColor]
+        // CGColor];
+        animation.values = @[ (id)[[[Defaults sharedDefaults] lightFakeBeamColor] CGColor], (id)[[NSColor secondaryLabelColor] CGColor] ];
         animation.fillMode = kCAFillModeBoth;
         [animation setValue:@"barSyncedColor" forKey:@"name"];
         animation.removedOnCompletion = NO;

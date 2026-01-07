@@ -33,7 +33,6 @@ NS_ASSUME_NONNULL_BEGIN
     return result;
 }
 
-
 @end
 
 NS_ASSUME_NONNULL_END

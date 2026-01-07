@@ -16,4 +16,3 @@
 - (void)addFrame:(double)s;
 
 @end
-

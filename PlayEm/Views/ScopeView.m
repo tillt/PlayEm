@@ -7,19 +7,18 @@
 //
 
 #import "ScopeView.h"
+
 #import "UIView+Visibility.h"
 
-NSString * const kScopeViewDidLiveResizeNotification = @"ScopeViewDidLiveResizeNotification";
+NSString* const kScopeViewDidLiveResizeNotification = @"ScopeViewDidLiveResizeNotification";
 const double kControlPanelVisiblePhase = 10.0f;
 
 @interface ScopeView ()
-@property (strong, nonatomic) NSTimer *delayedHide;
+@property (strong, nonatomic) NSTimer* delayedHide;
 @property (assign, nonatomic) CGRect oldFrame;
 @end
 
-@implementation ScopeView
-{
-   
+@implementation ScopeView {
 }
 
 - (nonnull instancetype)initWithFrame:(CGRect)frameRect device:(nullable id<MTLDevice>)device
@@ -49,12 +48,10 @@ const double kControlPanelVisiblePhase = 10.0f;
     NSLog(@"viewDidEndLiveResize ScopeView");
     if (!CGRectEqualToRect(self.frame, _oldFrame)) {
         NSLog(@"ScopeView changed, inform it");
-        [[NSNotificationCenter defaultCenter] postNotificationName:kScopeViewDidLiveResizeNotification
-                                                            object:self];
+        [[NSNotificationCenter defaultCenter] postNotificationName:kScopeViewDidLiveResizeNotification object:self];
     } else {
         NSLog(@"ScopeView didnt change");
     }
 }
-
 
 @end

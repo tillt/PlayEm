@@ -10,7 +10,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-extern NSString * const kScopeViewDidLiveResizeNotification;
+extern NSString* const kScopeViewDidLiveResizeNotification;
 
 @interface ScopeView : MTKView
 

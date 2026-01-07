@@ -12,8 +12,7 @@ const static double transitionSpeedFactor = 10.0;
 
 typedef void (*ActionMethodImplementation)(id, SEL, id);
 
-@interface SymbolButton ()
-{
+@interface SymbolButton () {
 }
 
 @property (strong, nonatomic) NSImageView* imageView;
@@ -31,7 +30,7 @@ typedef void (*ActionMethodImplementation)(id, SEL, id);
 
         _state = NSControlStateValueOff;
         _imageView = [[NSImageView alloc] initWithFrame:NSInsetRect(self.bounds, 4.0, 4.0)];
-        _imageView.autoresizingMask = NSViewHeightSizable | NSViewWidthSizable | NSViewMaxXMargin | NSViewMaxYMargin | NSViewMinYMargin| NSViewMinXMargin;
+        _imageView.autoresizingMask = NSViewHeightSizable | NSViewWidthSizable | NSViewMaxXMargin | NSViewMaxYMargin | NSViewMinYMargin | NSViewMinXMargin;
         [self addSubview:_imageView];
     }
     return self;
@@ -42,11 +41,10 @@ typedef void (*ActionMethodImplementation)(id, SEL, id);
     [self addTrackingRect:self.bounds owner:self userData:NULL assumeInside:NO];
 }
 
-- (void)mouseEntered:(NSEvent *)event
-{
-}
+- (void)mouseEntered:(NSEvent*)event
+{}
 
-- (void)mouseExited:(NSEvent *)event
+- (void)mouseExited:(NSEvent*)event
 {
     self.highlighted = NO;
 }
@@ -78,7 +76,7 @@ typedef void (*ActionMethodImplementation)(id, SEL, id);
     [self transitionImage];
 }
 
-- (void)mouseDown:(NSEvent *)event
+- (void)mouseDown:(NSEvent*)event
 {
     if (self.enabled == NO) {
         return;
@@ -86,8 +84,9 @@ typedef void (*ActionMethodImplementation)(id, SEL, id);
     self.highlighted = YES;
 }
 
-// FIXME: This doesnt work as regular buttons do. We need to assert that when the user clicks and drags outside the button, the action gets canceled.
-- (void)mouseUp:(NSEvent *)event
+// FIXME: This doesnt work as regular buttons do. We need to assert that when
+// the user clicks and drags outside the button, the action gets canceled.
+- (void)mouseUp:(NSEvent*)event
 {
     if (self.enabled == NO) {
         return;
@@ -101,7 +100,7 @@ typedef void (*ActionMethodImplementation)(id, SEL, id);
             // Call action.
             if (self.target) {
                 ActionMethodImplementation impl;
-                impl = (ActionMethodImplementation)[self.target methodForSelector:self.action];
+                impl = (ActionMethodImplementation) [self.target methodForSelector:self.action];
                 impl(self.target, self.action, self);
             }
         }
@@ -116,16 +115,13 @@ typedef void (*ActionMethodImplementation)(id, SEL, id);
     NSSymbolReplaceContentTransition* transition = [NSSymbolReplaceContentTransition replaceDownUpTransition];
     NSSymbolEffectOptions* options = [NSSymbolEffectOptions optionsWithSpeed:transitionSpeedFactor];
 
-    [self.imageView setSymbolImage:imageWithConfig
-             withContentTransition:transition
-                           options:options];
+    [self.imageView setSymbolImage:imageWithConfig withContentTransition:transition options:options];
 }
 
 - (NSImage*)currentSymbolImage
 {
     NSString* name = self.state == NSControlStateValueOn ? _alternateSymbolName : _symbolName;
-    NSImage* image = [NSImage imageWithSystemSymbolName:name
-                               accessibilityDescription:@""];
+    NSImage* image = [NSImage imageWithSystemSymbolName:name accessibilityDescription:@""];
     NSImageSymbolConfiguration* config = [NSImageSymbolConfiguration configurationWithPointSize:self.frame.size.height
                                                                                          weight:NSFontWeightBold
                                                                                           scale:NSImageSymbolScaleLarge];
@@ -142,7 +138,7 @@ typedef void (*ActionMethodImplementation)(id, SEL, id);
     self.imageView.image = [self currentSymbolImage];
 }
 
-- (void)setAlternateSymbolName:(NSString *)name
+- (void)setAlternateSymbolName:(NSString*)name
 {
     if ([name isEqualToString:_alternateSymbolName]) {
         return;

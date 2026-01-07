@@ -16,26 +16,26 @@ const NSStringEncoding kEncoding_wchar_t = CFStringConvertEncodingToNSStringEnco
 const NSStringEncoding kEncoding_wchar_t = CFStringConvertEncodingToNSStringEncoding(kCFStringEncodingUTF32LE);
 #endif
 
-+(NSString*) stringWithwstring:(const std::wstring&)ws
++ (NSString*)stringWithwstring:(const std::wstring&)ws
 {
-    char* data = (char*)ws.data();
+    char* data = (char*) ws.data();
     unsigned size = ws.size() * sizeof(wchar_t);
 
     NSString* result = [[NSString alloc] initWithBytes:data length:size encoding:kEncoding_wchar_t];
     return result;
 }
-+(NSString*) stringWithstring:(const std::string&)s
++ (NSString*)stringWithstring:(const std::string&)s
 {
     NSString* result = [[NSString alloc] initWithUTF8String:s.c_str()];
     return result;
 }
 
--(std::wstring) getwstring
+- (std::wstring)getwstring
 {
     NSData* asData = [self dataUsingEncoding:kEncoding_wchar_t];
-    return std::wstring((wchar_t*)[asData bytes], [asData length] / sizeof(wchar_t));
+    return std::wstring((wchar_t*) [asData bytes], [asData length] / sizeof(wchar_t));
 }
--(std::string) getstring
+- (std::string)getstring
 {
     return [self UTF8String];
 }

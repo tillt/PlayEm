@@ -12,7 +12,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface TextViewWithPlaceholder : NSTextView
 
-@property (strong, nonatomic, nullable)  NSAttributedString* placeholderAttributedString;
+@property (strong, nonatomic, nullable) NSAttributedString* placeholderAttributedString;
 
 @end
 

@@ -5,16 +5,15 @@
 //  Created by Till Toenshoff on 12/16/25.
 //  Copyright © 2025 Till Toenshoff. All rights reserved.
 //
-#import "TimedMediaMetaData.h"
 #import "TimedMediaMetaData+ChapterForge.hpp"
+#import "TimedMediaMetaData.h"
 
 //
 NSString* const kStructuredMetaTitleKey = @"title";
 NSString* const kStructuredMetaArtistKey = @"artist";
 NSString* const kStructuredMetaURLKey = @"url";
 
-
-@implementation TimedMediaMetaData(ChapterForge)
+@implementation TimedMediaMetaData (ChapterForge)
 
 - (id)initWithChapteredMetaData:(StructuredMetaData*)structured frame:(NSNumber*)frame
 {

@@ -13,7 +13,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface WaveWindowController (AudioDelegate)
 
-
 @end
 
 NS_ASSUME_NONNULL_END

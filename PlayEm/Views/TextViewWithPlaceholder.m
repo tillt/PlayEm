@@ -24,18 +24,18 @@
     return [super becomeFirstResponder];
 }
 
-- (void)drawRect:(NSRect)dirtyRect 
+- (void)drawRect:(NSRect)dirtyRect
 {
     [super drawRect:dirtyRect];
-    if ([[self string] isEqualToString:@""] && self != [[self window] firstResponder]){
+    if ([[self string] isEqualToString:@""] && self != [[self window] firstResponder]) {
         [_placeholderAttributedString drawAtPoint:self.frame.origin];
     }
 }
 
 - (BOOL)resignFirstResponder
 {
-   [self setNeedsDisplay:YES];
-   return [super resignFirstResponder];
+    [self setNeedsDisplay:YES];
+    return [super resignFirstResponder];
 }
 
 @end

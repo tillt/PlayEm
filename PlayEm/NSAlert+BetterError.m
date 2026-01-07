@@ -6,10 +6,10 @@
 //  Copyright © 2024 Till Toenshoff. All rights reserved.
 //
 
+#import <AudioToolbox/AudioToolbox.h>
+
 #import "NSAlert+BetterError.h"
 #import "NSError+BetterError.h"
-
-#import <AudioToolbox/AudioToolbox.h>
 
 @implementation NSAlert (BetterError)
 
@@ -26,7 +26,7 @@
     NSError* betterError = [NSError betterErrorWithError:error url:url];
     NSAlert* alert = [NSAlert alertWithError:betterError];
     alert.informativeText = betterError.localizedFailureReason;
-    
+
     return alert;
 }
 
@@ -44,7 +44,7 @@
     NSError* betterError = [NSError betterErrorWithError:error action:action url:url];
     NSAlert* alert = [NSAlert alertWithError:betterError];
     alert.informativeText = betterError.localizedFailureReason;
-    
+
     return alert;
 }
 

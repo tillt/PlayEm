@@ -6,9 +6,12 @@
 //  Copyright © 2023 Till Toenshoff. All rights reserved.
 //
 
-#import <Foundation/Foundation.h>
-#import <CoreImage/CoreImage.h>
 #import "WaveView.h"
+
+#import <Foundation/Foundation.h>
+
+#import <CoreImage/CoreImage.h>
+
 #import "CAShapeLayer+Path.h"
 #import "NSBezierPath+CGPath.h"
 #import "ProfilingPointsOfInterest.h"
@@ -41,7 +44,7 @@ static const CGFloat kMarkerLayerZ = 10.0;
 - (CALayer*)makeMarkLayer
 {
     CALayer* layer = [CALayer layer];
-    
+
     layer.drawsAsynchronously = YES;
     layer.zPosition = 5.1;
     layer.name = @"WaveMarkLayer";
@@ -54,7 +57,7 @@ static const CGFloat kMarkerLayerZ = 10.0;
 - (CALayer*)makeHeadLayer
 {
     CALayer* layer = [CALayer layer];
-    
+
     layer.anchorPoint = CGPointMake(0.5, 0.0);
     layer.drawsAsynchronously = YES;
     layer.zPosition = 1.1;
@@ -76,18 +79,17 @@ static const CGFloat kMarkerLayerZ = 10.0;
     return layer;
 }
 
-
 - (void)viewDidMoveToSuperview
 {
     [super viewDidMoveToSuperview];
-    
+
     [self createHead];
-    
+
     NSView<PlaybackDisplay>* target = nil;
     if (self.enclosingScrollView == nil) {
         target = self;
     } else {
-        target = (NSView<PlaybackDisplay>*)self.enclosingScrollView;
+        target = (NSView<PlaybackDisplay>*) self.enclosingScrollView;
     }
 
     [target createTrail];
@@ -104,8 +106,7 @@ static const CGFloat kMarkerLayerZ = 10.0;
 }
 
 - (void)dealloc
-{
-}
+{}
 
 - (BOOL)wantsLayer
 {
@@ -122,20 +123,21 @@ static const CGFloat kMarkerLayerZ = 10.0;
 - (void)createHead
 {
     BOOL scrolling = self.enclosingScrollView != nil;
-    
+
     _headLayer = [self makeHeadLayer];
     _headLayer.compositingFilter = [CIFilter filterWithName:@"CISourceAtopCompositing"];
-    
+
     CIFilter* clampFilter = [CIFilter filterWithName:@"CIAffineClamp"];
     [clampFilter setDefaults];
     CGFloat scaleFactor = scrolling ? 1.05 : 1.05;
-    CGAffineTransform transform = CGAffineTransformScale(CGAffineTransformMakeTranslation(0.0, self.enclosingScrollView.bounds.size.height * -(scaleFactor - 1.0) / 2.0), 1.0, scaleFactor);
+    CGAffineTransform transform = CGAffineTransformScale(
+        CGAffineTransformMakeTranslation(0.0, self.enclosingScrollView.bounds.size.height * -(scaleFactor - 1.0) / 2.0), 1.0, scaleFactor);
     [clampFilter setValue:[NSValue valueWithBytes:&transform objCType:@encode(CGAffineTransform)] forKey:@"inputTransform"];
-    
+
     CIFilter* bloomFilter = [CIFilter filterWithName:@"CIBloom"];
     [bloomFilter setDefaults];
-    [bloomFilter setValue: @(self.bounds.size.height / 20.0) forKey: @"inputRadius"];
-    [bloomFilter setValue: @(1.0f) forKey: @"inputIntensity"];
+    [bloomFilter setValue:@(self.bounds.size.height / 20.0) forKey:@"inputRadius"];
+    [bloomFilter setValue:@(1.0f) forKey:@"inputIntensity"];
 
     CIFilter* lightenFilter = [CIFilter filterWithName:@"CIColorControls"];
     [lightenFilter setDefaults];
@@ -143,7 +145,7 @@ static const CGFloat kMarkerLayerZ = 10.0;
     [lightenFilter setValue:@(0.20f) forKey:@"inputBrightness"];
 
     _headBloomFxLayer = [self makeHeadBloomFxLayer];
-    _headBloomFxLayer.backgroundFilters = @[ clampFilter, bloomFilter, bloomFilter,lightenFilter];
+    _headBloomFxLayer.backgroundFilters = @[ clampFilter, bloomFilter, bloomFilter, lightenFilter ];
 
     CIFilter* vibranceFilter = [CIFilter filterWithName:@"CIColorControls"];
     [vibranceFilter setDefaults];
@@ -172,9 +174,7 @@ static const CGFloat kMarkerLayerZ = 10.0;
 }
 
 - (void)createTrail
-{
-    
-}
+{}
 
 - (void)addHead
 {
@@ -201,7 +201,7 @@ static const CGFloat kMarkerLayerZ = 10.0;
 {
     NSImage* image = [NSImage imageNamed:@"TotalCurrentTime"];
     image.resizingMode = NSImageResizingModeTile;
-    
+
     CGFloat height = floor(self.bounds.size.height);
 
     _headImageSize = image.size;
@@ -215,7 +215,7 @@ static const CGFloat kMarkerLayerZ = 10.0;
 
     _headBloomFxLayer.frame = CGRectMake(0.0, 0.0, 5.0, height);
     _headBloomFxLayer.mask = [CAShapeLayer MaskLayerFromRect:_headBloomFxLayer.frame];
-    
+
     _rastaLayer.backgroundColor = [[NSColor colorWithPatternImage:[NSImage imageNamed:@"RastaPattern"]] CGColor];
     _rastaLayer.frame = self.bounds;
 }
@@ -223,7 +223,8 @@ static const CGFloat kMarkerLayerZ = 10.0;
 - (void)resize
 {
     _aheadVibranceFxLayer.bounds = self.bounds;
-    // FIXME: We are redoing the mask layer cause all ways of resizing it ended up with rather weird effects.
+    // FIXME: We are redoing the mask layer cause all ways of resizing it ended up
+    // with rather weird effects.
     _aheadVibranceFxLayer.mask = [CAShapeLayer MaskLayerFromRect:self.bounds];
 }
 
@@ -239,4 +240,3 @@ static const CGFloat kMarkerLayerZ = 10.0;
 }
 
 @end
-

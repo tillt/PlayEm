@@ -6,11 +6,11 @@
 //  Copyright © 2025 Till Toenshoff. All rights reserved.
 //
 
-#import "MediaMetaData.h"
-#import "JPEGTool.h"
 #import "../NSImage+Resize.h"
+#import "JPEGTool.h"
+#import "MediaMetaData.h"
 
-@implementation MediaMetaData(JPEGTool)
+@implementation MediaMetaData (JPEGTool)
 
 - (NSData*)sizedJPEG420
 {
@@ -36,10 +36,11 @@
         if (!sizeOK) {
             image = [NSImage resizedImageWithData:source size:NSMakeSize(800, 800)];
         }
-        // Get us a YUVJ 4:2:0 encoded JPEG file as data from that image. We need those
-        // to assert proper compatibility. For our own purposes we could even encode PNG
-        // files within the MJPEG track and that works fine - surprisingly fine. Just other
-        // players like QuickTime wont like that at all and display black images.
+        // Get us a YUVJ 4:2:0 encoded JPEG file as data from that image. We need
+        // those to assert proper compatibility. For our own purposes we could even
+        // encode PNG files within the MJPEG track and that works fine -
+        // surprisingly fine. Just other players like QuickTime wont like that at
+        // all and display black images.
         artwork420 = [JPEGTool encodeImageToJPEG420:image quality:1.0];
     }
 

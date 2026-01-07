@@ -23,7 +23,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface IdentifyViewController : NSViewController <SHSessionDelegate, NSMenuDelegate, NSTableViewDelegate, NSTableViewDataSource>
 
-@property (nonatomic, weak) id <IdentifyViewControllerDelegate> delegate;
+@property (nonatomic, weak) id<IdentifyViewControllerDelegate> delegate;
 
 - (id)initWithAudioController:(AudioController*)audioController delegate:(id<IdentifyViewControllerDelegate>)delegate;
 - (void)setCurrentIdentificationSource:(NSURL*)url;

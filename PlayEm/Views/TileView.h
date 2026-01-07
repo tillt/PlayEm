@@ -16,10 +16,8 @@ NS_ASSUME_NONNULL_BEGIN
 //@property (readonly, nonatomic, strong) CALayer* markLayer;
 @property (readonly, nonatomic, strong) CALayer* waveLayer;
 
-- (nonnull instancetype)initWithFrame:(CGRect)frameRect
-                    waveLayerDelegate:(id<CALayerDelegate>)layerDelegate;
+- (nonnull instancetype)initWithFrame:(CGRect)frameRect waveLayerDelegate:(id<CALayerDelegate>)layerDelegate;
 
 @end
-
 
 NS_ASSUME_NONNULL_END

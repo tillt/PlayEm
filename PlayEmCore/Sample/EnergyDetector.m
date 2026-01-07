@@ -41,7 +41,7 @@
     if (_frames == 0) {
         squaredValue = _rms / 0.0000000001;
     } else {
-        squaredValue = _rms / (double)_frames;
+        squaredValue = _rms / (double) _frames;
     }
     return sqrt(squaredValue);
 }

@@ -6,11 +6,11 @@
 //  Copyright © 2025 Till Toenshoff. All rights reserved.
 //
 
-#import "TrackList+ChapterForge.hpp"
 #import "MediaMetaData.h"
+#import "TrackList+ChapterForge.hpp"
 NS_ASSUME_NONNULL_BEGIN
 
-typedef NSDictionary<NSString*,NSString*> StructuredMetaData;
+typedef NSDictionary<NSString*, NSString*> StructuredMetaData;
 
 @class AVAsset;
 

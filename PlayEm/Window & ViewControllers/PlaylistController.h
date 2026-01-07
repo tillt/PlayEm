@@ -6,8 +6,10 @@
 //  Copyright © 2022 Till Toenshoff. All rights reserved.
 //
 
-#import <Cocoa/Cocoa.h>
 #import <Foundation/Foundation.h>
+
+#import <Cocoa/Cocoa.h>
+
 #import "MediaMetaData.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -18,10 +20,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
-
 @interface PlaylistController : NSViewController <NSTableViewDelegate, NSTableViewDataSource>
 
-@property (nonatomic, weak) id <PlaylistControllerDelegate> delegate;
+@property (nonatomic, weak) id<PlaylistControllerDelegate> delegate;
 @property (nonatomic, strong) MediaMetaData* current;
 @property (nonatomic, assign) BOOL playing;
 

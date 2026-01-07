@@ -32,7 +32,8 @@ typedef struct _BeatsParserContext BeatsParserContext;
 ///
 @interface BeatTrackedSample : NSObject
 
-// FIXME: Allows for retrieval of beat events based on a screen origin - this is all too weird - feels like we should have something
+// FIXME: Allows for retrieval of beat events based on a screen origin - this is
+// all too weird - feels like we should have something
 // FIXME: inbetween there. Screen stuff shouldnt be of any concern here.
 
 @property (strong, nonatomic) LazySample* sample;
@@ -53,7 +54,6 @@ typedef struct _BeatsParserContext BeatsParserContext;
 
 - (void)abortWithCallback:(nonnull void (^)(void))block;
 
-
 //- (unsigned long long)beatOffsetFromFrame:(unsigned long long)frame;
 
 - (id)initWithSample:(LazySample*)sample;
@@ -69,7 +69,8 @@ typedef struct _BeatsParserContext BeatsParserContext;
 
 - (unsigned long long)beatCount;
 
-//- (unsigned long long)frameForPreviousBeat:(nonnull BeatEventIterator*)iterator;
+//- (unsigned long long)frameForPreviousBeat:(nonnull
+//BeatEventIterator*)iterator;
 
 - (float)currentTempo:(nonnull BeatEventIterator*)iterator;
 - (unsigned long long)currentEventFrame:(BeatEventIterator*)iterator;

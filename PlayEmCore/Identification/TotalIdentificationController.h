@@ -7,6 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
+
 #import <ShazamKit/ShazamKit.h>
 
 NS_ASSUME_NONNULL_BEGIN
@@ -15,7 +16,7 @@ NS_ASSUME_NONNULL_BEGIN
 @class ActivityToken;
 @class TimedMediaMetaData;
 
-@interface TotalIdentificationController : NSObject<SHSessionDelegate>
+@interface TotalIdentificationController : NSObject <SHSessionDelegate>
 
 - (id)initWithSample:(LazySample*)sample;
 

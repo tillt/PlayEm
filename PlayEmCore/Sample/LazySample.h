@@ -7,6 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
+
 #import "SampleFormat.h"
 NS_ASSUME_NONNULL_BEGIN
 
@@ -26,12 +27,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (id)initWithPath:(NSString*)path error:(NSError**)error;
 
-- (unsigned long long)rawSampleFromFrameOffset:(unsigned long long)offset
-                                        frames:(unsigned long long)frames
-                                       outputs:(float * const _Nonnull * _Nullable)outputs;
-- (unsigned long long)rawSampleFromFrameOffset:(unsigned long long)offset
-                                        frames:(unsigned long long)frames
-                                          data:(float *)data;
+- (unsigned long long)rawSampleFromFrameOffset:(unsigned long long)offset frames:(unsigned long long)frames outputs:(float* const _Nonnull* _Nullable)outputs;
+- (unsigned long long)rawSampleFromFrameOffset:(unsigned long long)offset frames:(unsigned long long)frames data:(float*)data;
 
 - (void)dumpToFile;
 
@@ -39,8 +36,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (NSString*)beautifulTimeWithFrame:(unsigned long long)frame;
 - (NSString*)cueTimeWithFrame:(unsigned long long)frame;
 
-- (void)addLazyPageIndex:(unsigned long long)pageIndex
-                channels:(NSArray<NSData*>*)channels;
+- (void)addLazyPageIndex:(unsigned long long)pageIndex channels:(NSArray<NSData*>*)channels;
 - (void)markDecodingComplete;
 
 @end

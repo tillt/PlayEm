@@ -27,8 +27,6 @@
 		BB3B8D9D2B87CC12006AEFCA /* ShazamKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BB3B8D9C2B87CC12006AEFCA /* ShazamKit.framework */; };
 		BB3D78922F043D23002C2D7E /* PhosphorChaserView.m in Sources */ = {isa = PBXBuildFile; fileRef = BB3D78912F043D23002C2D7E /* PhosphorChaserView.m */; };
 		BB46D4AC2D8DCD150090CD56 /* NSString+OccurenceCount.m in Sources */ = {isa = PBXBuildFile; fileRef = BB46D4AB2D8DCD150090CD56 /* NSString+OccurenceCount.m */; };
-		BB46D4AF2D98715B0090CD56 /* NSImage+Resize.m in Sources */ = {isa = PBXBuildFile; fileRef = BB46D4AE2D98715B0090CD56 /* NSImage+Resize.m */; };
-		BB46D4B22D99AD5E0090CD56 /* NSImage+Average.m in Sources */ = {isa = PBXBuildFile; fileRef = BB46D4B12D99AD5E0090CD56 /* NSImage+Average.m */; };
 		BB51C1E02E59C1990049355F /* WaveScrollView.m in Sources */ = {isa = PBXBuildFile; fileRef = BB51C1DF2E59C1990049355F /* WaveScrollView.m */; };
 		BB51C1E22E59DAA50049355F /* TileView.m in Sources */ = {isa = PBXBuildFile; fileRef = BB51C1E12E59DAA50049355F /* TileView.m */; };
 		BB51C1E92E5A4A320049355F /* CreditsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = BB51C1E82E5A4A320049355F /* CreditsViewController.m */; };
@@ -219,10 +217,6 @@
 		BB3D78912F043D23002C2D7E /* PhosphorChaserView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = PhosphorChaserView.m; sourceTree = "<group>"; };
 		BB46D4AA2D8DCD150090CD56 /* NSString+OccurenceCount.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSString+OccurenceCount.h"; sourceTree = "<group>"; };
 		BB46D4AB2D8DCD150090CD56 /* NSString+OccurenceCount.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSString+OccurenceCount.m"; sourceTree = "<group>"; };
-		BB46D4AD2D98715B0090CD56 /* NSImage+Resize.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSImage+Resize.h"; sourceTree = "<group>"; };
-		BB46D4AE2D98715B0090CD56 /* NSImage+Resize.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSImage+Resize.m"; sourceTree = "<group>"; };
-		BB46D4B02D99AD5E0090CD56 /* NSImage+Average.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSImage+Average.h"; sourceTree = "<group>"; };
-		BB46D4B12D99AD5E0090CD56 /* NSImage+Average.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSImage+Average.m"; sourceTree = "<group>"; };
 		BB51C1DE2E59C1990049355F /* WaveScrollView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WaveScrollView.h; sourceTree = "<group>"; };
 		BB51C1DF2E59C1990049355F /* WaveScrollView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WaveScrollView.m; sourceTree = "<group>"; };
 		BB51C1E12E59DAA50049355F /* TileView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TileView.m; sourceTree = "<group>"; };
@@ -258,7 +252,6 @@
 		BB8A1009290353E300FC6013 /* PlayEm.profdata */ = {isa = PBXFileReference; lastKnownFileType = file; path = PlayEm.profdata; sourceTree = "<group>"; };
 		BB8A100A290586A200FC6013 /* CAShapeLayer+Path.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "CAShapeLayer+Path.h"; sourceTree = "<group>"; };
 		BB8A100B290586E500FC6013 /* CAShapeLayer+Path.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "CAShapeLayer+Path.m"; sourceTree = "<group>"; };
-		BB9401862AD0974900B7B150 /* AcceleratedBiquadFilter.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AcceleratedBiquadFilter.h; sourceTree = "<group>"; };
 		BB9C77E32A8D5F3400A138BE /* WaveView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WaveView.h; sourceTree = "<group>"; };
 		BB9C77E42A8D5F7C00A138BE /* WaveView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WaveView.m; sourceTree = "<group>"; };
 		BB9C77E62A8D618700A138BE /* CoreImage.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreImage.framework; path = System/Library/Frameworks/CoreImage.framework; sourceTree = SDKROOT; };
@@ -324,7 +317,9 @@
 		BB57DE5D2F05D614008FFBD1 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
-				Audio/AudioController.h,
+				"NSImage+Average.h",
+				"NSImage+Average.m",
+				Sample/AcceleratedBiquadFilter.h,
 			);
 			publicHeaders = (
 				PlayEmCore.h,
@@ -334,7 +329,7 @@
 		BB57E0232F05E7D6008FFBD1 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
-				Audio/AudioController.mm,
+				"NSImage+Average.m",
 			);
 			target = BBD24D5C2432948800DC2A81 /* PlayEm */;
 		};
@@ -471,8 +466,8 @@
 				BBB37D20290F4A7E0007A6BB /* PlaylistController.m */,
 				BB0A62CC2E88791400BAF444 /* TracklistController.h */,
 				BB0A62CD2E88796500BAF444 /* TracklistController.m */,
-				BB0BDC392EC014480052D363 /* WaveViewController.m */,
 				BB0BDC382EC00E470052D363 /* WaveViewController.h */,
+				BB0BDC392EC014480052D363 /* WaveViewController.m */,
 				BBA456DF29395B970062D470 /* IdentifyViewController.h */,
 				BBA456E029395B970062D470 /* IdentifyViewController.m */,
 				BB51C1E72E5A4A320049355F /* CreditsViewController.h */,
@@ -588,7 +583,6 @@
 				BBD24D632432948B00DC2A81 /* Assets.xcassets */,
 				BBECB0242D4FF33E00C6A6F3 /* LargeRastaPattern.png */,
 				BBBBF94A2EF30ADF001035DA /* UnknownSong.png */,
-				BB9401862AD0974900B7B150 /* AcceleratedBiquadFilter.h */,
 				BB51C1F02E5D18940049355F /* credits.rtf */,
 				BB0A62D42EAD690A00BAF444 /* TODO.md */,
 				BBD24D682432948B00DC2A81 /* Info.plist */,
@@ -614,10 +608,6 @@
 				BB8571022972152B0004218B /* README.md */,
 				BB3927072C1BA8BD009C7B32 /* NSURL+WithoutParameters.h */,
 				BB3927082C1BA8BD009C7B32 /* NSURL+WithoutParameters.m */,
-				BB46D4AD2D98715B0090CD56 /* NSImage+Resize.h */,
-				BB46D4AE2D98715B0090CD56 /* NSImage+Resize.m */,
-				BB46D4B02D99AD5E0090CD56 /* NSImage+Average.h */,
-				BB46D4B12D99AD5E0090CD56 /* NSImage+Average.m */,
 			);
 			path = PlayEm;
 			sourceTree = "<group>";
@@ -937,7 +927,6 @@
 				BB7C626C2932E1540019AF25 /* ControlPanelController.m in Sources */,
 				BB46D4AC2D8DCD150090CD56 /* NSString+OccurenceCount.m in Sources */,
 				BBC76D912CCD9D6A00772DD2 /* IdentificationCoverView.m in Sources */,
-				BB46D4B22D99AD5E0090CD56 /* NSImage+Average.m in Sources */,
 				BBDC988A250E81D0008B19D1 /* BrowserController.m in Sources */,
 				BB0A62CE2E88796A00BAF444 /* TracklistController.m in Sources */,
 				BBC43B7028D28CDD00CD1080 /* InfoPanel.m in Sources */,
@@ -964,7 +953,6 @@
 				BBAD7D55262B973C00089ACC /* ScopeView.m in Sources */,
 				BB51C1E02E59C1990049355F /* WaveScrollView.m in Sources */,
 				BB3D78922F043D23002C2D7E /* PhosphorChaserView.m in Sources */,
-				BB46D4AF2D98715B0090CD56 /* NSImage+Resize.m in Sources */,
 				BB0BDC3A2EC014550052D363 /* WaveViewController.m in Sources */,
 				BB3926FF2C14B43E009C7B32 /* TableRowView.m in Sources */,
 				BBB37D21290F4A7E0007A6BB /* PlaylistController.m in Sources */,

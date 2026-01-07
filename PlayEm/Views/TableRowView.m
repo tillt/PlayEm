@@ -9,18 +9,19 @@
 #import "TableRowView.h"
 
 #import <Foundation/Foundation.h>
+
 #import <Quartz/Quartz.h>
 #import <QuartzCore/QuartzCore.h>
 
-#import "TableCellView.h"
+#import "BeatEvent.h"
 #import "CAShapeLayer+Path.h"
 #import "Defaults.h"
-#import "BeatEvent.h"
+#import "TableCellView.h"
 
 static const double kFontSize = 11.0f;
 static const CGFloat kSelectionCornerRadius = 5.0;
 
-//#define TABLE_ROW_GLOW  1
+// #define TABLE_ROW_GLOW  1
 
 typedef enum : NSUInteger {
     RoundedNone = 0,
@@ -37,8 +38,7 @@ typedef enum : NSUInteger {
 
 @end
 
-@implementation TableRowView
-{
+@implementation TableRowView {
     BOOL _subscribedToBeatTicks;
 }
 
@@ -50,8 +50,8 @@ typedef enum : NSUInteger {
     dispatch_once(&once, ^{
         sharedInstance = [CIFilter filterWithName:@"CIBloom"];
         [sharedInstance setDefaults];
-        [sharedInstance setValue:[NSNumber numberWithFloat:3.0] forKey: @"inputRadius"];
-        [sharedInstance setValue:[NSNumber numberWithFloat:0.8] forKey: @"inputIntensity"];
+        [sharedInstance setValue:[NSNumber numberWithFloat:3.0] forKey:@"inputRadius"];
+        [sharedInstance setValue:[NSNumber numberWithFloat:0.8] forKey:@"inputIntensity"];
     });
     return sharedInstance;
 }
@@ -90,12 +90,12 @@ typedef enum : NSUInteger {
     layer.drawsAsynchronously = YES;
     layer.autoresizingMask = kCALayerNotSizable;
     layer.frame = self.bounds;
-    
+
     CGRect symbolRect = CGRectMake(0.0, 0.0, self.bounds.size.height, self.bounds.size.height);
 
     _symbolLayer = [CATextLayer layer];
     _symbolLayer.fontSize = kFontSize;
-    _symbolLayer.font =  (__bridge  CFTypeRef)[NSFont systemFontOfSize:kFontSize weight:NSFontWeightMedium];
+    _symbolLayer.font = (__bridge CFTypeRef) [NSFont systemFontOfSize:kFontSize weight:NSFontWeightMedium];
     _symbolLayer.wrapped = NO;
     _symbolLayer.autoresizingMask = kCALayerNotSizable;
     _symbolLayer.truncationMode = kCATruncationEnd;
@@ -104,7 +104,7 @@ typedef enum : NSUInteger {
     _symbolLayer.contentsScale = [[NSScreen mainScreen] backingScaleFactor];
     _symbolLayer.foregroundColor = [[Defaults sharedDefaults] lightFakeBeamColor].CGColor;
     _symbolLayer.frame = NSOffsetRect(NSInsetRect(symbolRect, 0.0, 5.0), 8.0, 0.0);
-//    _symbolLayer.drawsAsynchronously = YES;
+    //    _symbolLayer.drawsAsynchronously = YES;
     [layer addSublayer:_symbolLayer];
 
 #ifdef TABLE_ROW_GLOW
@@ -125,7 +125,7 @@ typedef enum : NSUInteger {
 
 /*
  Draws the selection background in its entirety.
- 
+
  Note how this asserts that any selection block - a continuous set of rows -
  has neatly rounded corners at its outer limits.
  */
@@ -149,7 +149,7 @@ typedef enum : NSUInteger {
     }
 
     NSBezierPath* path = [NSBezierPath bezierPath];
-    
+
     if (roundAtTop) {
         [path moveToPoint:CGPointMake(selectionRect.origin.x + tl, selectionRect.origin.y)];
         [path lineToPoint:CGPointMake(selectionRect.origin.x + selectionRect.size.width - tr, selectionRect.origin.y)];
@@ -165,7 +165,8 @@ typedef enum : NSUInteger {
 
     if (roundAtBottom) {
         [path lineToPoint:CGPointMake(selectionRect.origin.x + selectionRect.size.width, selectionRect.origin.y + selectionRect.size.height - br)];
-        [path appendBezierPathWithArcWithCenter:CGPointMake(selectionRect.origin.x + selectionRect.size.width - br, selectionRect.origin.y + selectionRect.size.height - br)
+        [path appendBezierPathWithArcWithCenter:CGPointMake(selectionRect.origin.x + selectionRect.size.width - br,
+                                                            selectionRect.origin.y + selectionRect.size.height - br)
                                          radius:br
                                      startAngle:0.0
                                        endAngle:90.0
@@ -228,17 +229,12 @@ typedef enum : NSUInteger {
 
     if (needsBeatTicks && !_subscribedToBeatTicks) {
         // We out to react to beat ticks, subscribe to the notification.
-        [[NSNotificationCenter defaultCenter] addObserver:self
-                                                 selector:@selector(beatEffect:)
-                                                     name:kBeatTrackedSampleBeatNotification
-                                                   object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(beatEffect:) name:kBeatTrackedSampleBeatNotification object:nil];
         _subscribedToBeatTicks = YES;
     }
-    
+
     if (!needsBeatTicks && _subscribedToBeatTicks) {
-        [[NSNotificationCenter defaultCenter] removeObserver:self
-                                                        name:kBeatTrackedSampleBeatNotification
-                                                      object:nil];
+        [[NSNotificationCenter defaultCenter] removeObserver:self name:kBeatTrackedSampleBeatNotification object:nil];
         _subscribedToBeatTicks = NO;
     }
 }
@@ -279,10 +275,10 @@ typedef enum : NSUInteger {
     const unsigned int style = [dict[kBeatNotificationKeyStyle] intValue];
     const float tempo = [dict[kBeatNotificationKeyTempo] floatValue];
     const float barDuration = 4.0f * 60.0f / tempo;
-    
+
     if ((style & BeatEventStyleBar) == BeatEventStyleBar) {
-        // For creating a discrete effect accross the timeline, a keyframe animation is the
-        // right thing as it even allows us to animate strings.
+        // For creating a discrete effect accross the timeline, a keyframe animation
+        // is the right thing as it even allows us to animate strings.
         {
             CAKeyframeAnimation* animation = [CAKeyframeAnimation animationWithKeyPath:@"string"];
             animation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionLinear];
@@ -302,7 +298,7 @@ typedef enum : NSUInteger {
     if ((style & mask) == mask) {
         CAKeyframeAnimation* animation = [CAKeyframeAnimation animationWithKeyPath:@"hidden"];
         animation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionLinear];
-        animation.values = @[ @(NO), @(YES)];
+        animation.values = @[ @(NO), @(YES) ];
         animation.fillMode = kCAFillModeBoth;
         [animation setValue:@"barSyncedEffect" forKey:@"name"];
         animation.removedOnCompletion = NO;

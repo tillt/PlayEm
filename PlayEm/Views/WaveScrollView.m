@@ -6,18 +6,18 @@
 //  Copyright © 2025 Till Toenshoff. All rights reserved.
 //
 
+#import "WaveScrollView.h"
+
 #import <CoreImage/CoreImage.h>
 
 #import "CAShapeLayer+Path.h"
-#import "NSBezierPath+CGPath.h"
-
-#import "Scroller.h"
-#import "WaveScrollView.h"
-#import "WaveView.h"
-#import "TileView.h"
-#import "LazySample.h"
-#import "VisualSample.h"
 #import "Defaults.h"
+#import "LazySample.h"
+#import "NSBezierPath+CGPath.h"
+#import "Scroller.h"
+#import "TileView.h"
+#import "VisualSample.h"
+#import "WaveView.h"
 #import "WaveViewController.h"
 
 static const CGFloat kRastaLayerZ = 0.5;
@@ -25,9 +25,9 @@ static const CGFloat kAheadVibrancyLayerZ = 0.1;
 static const CGFloat kHeadLayerZ = 0.2;
 static const CGFloat kHeadBloomFxLayerZ = 1.2;
 static const CGFloat kTrailLayerZ = 1.4;
-//static const CGFloat kMarkerLayerZ = 10.0;
+// static const CGFloat kMarkerLayerZ = 10.0;
 
-@interface WaveScrollView () // Private
+@interface WaveScrollView ()  // Private
 @end
 
 @implementation WaveScrollView
@@ -39,20 +39,20 @@ static const CGFloat kTrailLayerZ = 1.4;
         Scroller* scroller = [Scroller new];
         scroller.color = [NSColor redColor];
         self.horizontalScroller = scroller;
-        
+
         self.wantsLayer = YES;
         self.layerUsesCoreImageFilters = YES;
         self.layer = [self makeBackingLayer];
         self.layerContentsRedrawPolicy = NSViewLayerContentsRedrawOnSetNeedsDisplay;
-//        self.layer.backgroundColor = [[NSColor blueColor] CGColor];
+        //        self.layer.backgroundColor = [[NSColor blueColor] CGColor];
         self.automaticallyAdjustsContentInsets = NO;
         self.contentInsets = NSEdgeInsetsMake(0.0, 0.0, 0.0, 0.0);
-        
+
         self.backgroundColor = [[Defaults sharedDefaults] backColor];
-        
+
         self.allowsMagnification = NO;
         self.canDrawConcurrently = YES;
-        
+
         self.horizontal = YES;
     }
     return self;
@@ -60,13 +60,13 @@ static const CGFloat kTrailLayerZ = 1.4;
 
 - (void)addHead
 {
-    WaveView* wv = (WaveView*)self.documentView;
-    
+    WaveView* wv = (WaveView*) self.documentView;
+
     wv.aheadVibranceFxLayer.zPosition = kAheadVibrancyLayerZ;
-    
-//    NSClipView* clip = self.subviews[0];
-//    CALayer* dest = clip.layer;
-    
+
+    //    NSClipView* clip = self.subviews[0];
+    //    CALayer* dest = clip.layer;
+
     CALayer* dest = self.layer;
 
     [dest addSublayer:wv.aheadVibranceFxLayer];
@@ -89,12 +89,12 @@ static const CGFloat kTrailLayerZ = 1.4;
 
 - (void)createTrail
 {
-    WaveView* wv = (WaveView*)self.documentView;
+    WaveView* wv = (WaveView*) self.documentView;
 
     NSImage* image = [NSImage imageNamed:@"CurrentTime"];
 
     CGSize size = CGSizeMake(image.size.width, self.frame.size.height);
-    
+
     CALayer* mask = [CALayer layer];
     mask.contents = [NSImage imageNamed:@"SquareFadeMask"];
     mask.frame = CGRectMake(0.0, 0.0, size.width, size.height);
@@ -103,7 +103,7 @@ static const CGFloat kTrailLayerZ = 1.4;
     mask.allowsEdgeAntialiasing = YES;
     mask.magnificationFilter = kCAFilterLinear;
     mask.minificationFilter = kCAFilterLinear;
-    
+
     CIFilter* lightenFilter = [CIFilter filterWithName:@"CIColorControls"];
     [lightenFilter setDefaults];
     [lightenFilter setValue:@(2.1) forKey:@"inputSaturation"];
@@ -112,25 +112,22 @@ static const CGFloat kTrailLayerZ = 1.4;
     CIFilter* bloom = [CIFilter filterWithName:@"CIBloom"];
     [bloom setDefaults];
 
-    [bloom setValue: @(14.0f) forKey: @"inputRadius"];
-    [bloom setValue: @(1.75f) forKey: @"inputIntensity"];
-    
+    [bloom setValue:@(14.0f) forKey:@"inputRadius"];
+    [bloom setValue:@(1.75f) forKey:@"inputIntensity"];
+
     wv.trailBloomHFxLayer = [CALayer layer];
-    wv.trailBloomHFxLayer.backgroundFilters = @[lightenFilter, bloom];
+    wv.trailBloomHFxLayer.backgroundFilters = @[ lightenFilter, bloom ];
     wv.trailBloomHFxLayer.drawsAsynchronously = YES;
     wv.trailBloomHFxLayer.autoresizingMask = kCALayerNotSizable;
     wv.trailBloomHFxLayer.mask = mask;
-    wv.trailBloomHFxLayer.frame = CGRectMake(image.size.width - size.width,
-                                             0.0,
-                                             size.width,
-                                             size.height);
+    wv.trailBloomHFxLayer.frame = CGRectMake(image.size.width - size.width, 0.0, size.width, size.height);
     wv.trailBloomHFxLayer.masksToBounds = YES;
     wv.trailBloomHFxLayer.zPosition = 3.99;
 }
 
 - (void)setupHead
 {
-    WaveView* wv = (WaveView*)self.documentView;
+    WaveView* wv = (WaveView*) self.documentView;
 
     NSImage* image = [NSImage imageNamed:@"CurrentTime"];
     image.resizingMode = NSImageResizingModeTile;
@@ -139,7 +136,7 @@ static const CGFloat kTrailLayerZ = 1.4;
     wv.headImageSize = image.size;
 
     wv.headLayer.frame = CGRectMake(0.0, 0.0, image.size.width, self.bounds.size.height);
-    
+
     wv.aheadVibranceFxLayer.bounds = self.bounds;
     wv.aheadVibranceFxLayer.position = CGPointMake(0.0, 0.0);
     wv.aheadVibranceFxLayer.mask = [CAShapeLayer MaskLayerFromRect:self.bounds];
@@ -153,11 +150,12 @@ static const CGFloat kTrailLayerZ = 1.4;
 
 - (void)setHead:(CGFloat)head
 {
-    WaveView* wv = (WaveView*)self.documentView;
+    WaveView* wv = (WaveView*) self.documentView;
 
-    // Check if head position is within visible window. When the head is prior to the visible
-    // window, we know all display is covered by a vibrance reduced wave. When the head is
-    // past the visible window, all displayed is covered by the fully colored variant.
+    // Check if head position is within visible window. When the head is prior to
+    // the visible window, we know all display is covered by a vibrance reduced
+    // wave. When the head is past the visible window, all displayed is covered by
+    // the fully colored variant.
     if (NSPointInRect(NSMakePoint(head, 1.0f), self.documentVisibleRect)) {
         wv.aheadVibranceFxLayer.position = CGPointMake(head + 0.0 - self.documentVisibleRect.origin.x, self.bounds.origin.y);
     } else {
@@ -169,17 +167,19 @@ static const CGFloat kTrailLayerZ = 1.4;
     }
     wv.headBloomFxLayer.position = CGPointMake(head + 0.0 - self.documentVisibleRect.origin.x, wv.headBloomFxLayer.position.y);
     wv.headLayer.position = CGPointMake(head + 0.0 - self.documentVisibleRect.origin.x, wv.headLayer.position.y);
-    //wv.rastaLayer.position = CGPointMake(0, wv.rastaLayer.position.y);
+    // wv.rastaLayer.position = CGPointMake(0, wv.rastaLayer.position.y);
 
     const unsigned int trailFragmentWidth = wv.trailBloomHFxLayer.frame.size.width;
-    wv.trailBloomHFxLayer.position = CGPointMake((head + 4.0) - (self.documentVisibleRect.origin.x) - (trailFragmentWidth / 2.0), wv.trailBloomHFxLayer.position.y);
+    wv.trailBloomHFxLayer.position =
+        CGPointMake((head + 4.0) - (self.documentVisibleRect.origin.x) - (trailFragmentWidth / 2.0), wv.trailBloomHFxLayer.position.y);
 }
 
 - (void)resize
 {
-    WaveView* wv = (WaveView*)self.documentView;
+    WaveView* wv = (WaveView*) self.documentView;
     wv.aheadVibranceFxLayer.bounds = self.bounds;
-    // FIXME: We are redoing the mask layer cause all ways of resizing it ended up with rather weird effects.
+    // FIXME: We are redoing the mask layer cause all ways of resizing it ended up
+    // with rather weird effects.
     wv.aheadVibranceFxLayer.mask = [CAShapeLayer MaskLayerFromRect:self.bounds];
 }
 

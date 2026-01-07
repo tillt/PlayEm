@@ -6,41 +6,42 @@
 //  Copyright © 2025 Till Toenshoff. All rights reserved.
 //
 
-#import "TotalIdentificationController+Private.h"
-
-#import "../Sample/LazySample.h"
-#import "../Metadata/TimedMediaMetaData.h"
 #import <float.h>
+
+#import "../Metadata/TimedMediaMetaData.h"
+#import "../Sample/LazySample.h"
+#import "TotalIdentificationController+Private.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-// Test-only setter to inject raw hits for refinement without exposing the property publicly.
+// Test-only setter to inject raw hits for refinement without exposing the
+// property publicly.
 #ifdef DEBUG
 @interface TotalIdentificationController (TestingAccess)
-- (void)testing_setIdentifieds:(NSArray<TimedMediaMetaData *> *)hits;
-- (NSDictionary<NSString *, NSNumber *> *)testing_metrics;
+- (void)testing_setIdentifieds:(NSArray<TimedMediaMetaData*>*)hits;
+- (NSDictionary<NSString*, NSNumber*>*)testing_metrics;
 @end
 
 @implementation TotalIdentificationController (TestingAccess)
-- (void)testing_setIdentifieds:(NSArray<TimedMediaMetaData *> *)hits
+- (void)testing_setIdentifieds:(NSArray<TimedMediaMetaData*>*)hits
 {
     self.identifieds = [hits mutableCopy];
 }
 
-- (NSDictionary<NSString *, NSNumber *> *)testing_metrics
+- (NSDictionary<NSString*, NSNumber*>*)testing_metrics
 {
     double avgLatency = 0.0;
     if (self.matchResponseCount > 0) {
-        avgLatency = self.responseLatencySum / (double)self.matchResponseCount;
+        avgLatency = self.responseLatencySum / (double) self.matchResponseCount;
     }
     double minLatency = self.responseLatencyMin == DBL_MAX ? 0.0 : self.responseLatencyMin;
     return @{
-        @"match_requests": @(self.matchRequestCount),
-        @"match_responses": @(self.matchResponseCount),
-        @"in_flight_max": @(self.maxInFlightCount),
-        @"latency_avg": @(avgLatency),
-        @"latency_min": @(minLatency),
-        @"latency_max": @(self.responseLatencyMax),
+        @"match_requests" : @(self.matchRequestCount),
+        @"match_responses" : @(self.matchResponseCount),
+        @"in_flight_max" : @(self.maxInFlightCount),
+        @"latency_avg" : @(avgLatency),
+        @"latency_min" : @(minLatency),
+        @"latency_max" : @(self.responseLatencyMax),
     };
 }
 @end
@@ -55,29 +56,30 @@ NS_ASSUME_NONNULL_BEGIN
         static dispatch_once_t onceToken;
         dispatch_once(&onceToken, ^{
             NSDictionary<NSString*, id>* defaults = @{
-                @"UseStreamingMatch": @YES,
-                @"UseSignatureTimes": @YES,
-                @"SignatureWindowSeconds": @8.0,
-                @"SignatureWindowMaxSeconds": @8.0,
-                @"HopSizeFrames": @1048576,
-                @"DownmixToMono": @YES,
-                @"ExcludeUnknownInputs": @YES,
+                @"UseStreamingMatch" : @YES,
+                @"UseSignatureTimes" : @YES,
+                @"SignatureWindowSeconds" : @8.0,
+                @"SignatureWindowMaxSeconds" : @8.0,
+                @"HopSizeFrames" : @1048576,
+                @"DownmixToMono" : @YES,
+                @"ExcludeUnknownInputs" : @YES,
             };
             [[NSUserDefaults standardUserDefaults] registerDefaults:defaults];
         });
 
         _sample = sample;
-        // Live-simulation hop size (~4096 frames), with optional override via defaults.
-        AVAudioFrameCount hopSize = (AVAudioFrameCount)4096;
+        // Live-simulation hop size (~4096 frames), with optional override via
+        // defaults.
+        AVAudioFrameCount hopSize = (AVAudioFrameCount) 4096;
         double hopOverride = [[NSUserDefaults standardUserDefaults] doubleForKey:@"HopSizeFrames"];
         if (hopOverride > 0.0) {
-            hopSize = (AVAudioFrameCount)hopOverride;
+            hopSize = (AVAudioFrameCount) hopOverride;
         }
-        AVAudioFrameCount maxHopFrames = (AVAudioFrameCount)(12.0 * sample.sampleFormat.rate);
+        AVAudioFrameCount maxHopFrames = (AVAudioFrameCount) (12.0 * sample.sampleFormat.rate);
         if (maxHopFrames > 0 && hopSize > maxHopFrames) {
             hopSize = maxHopFrames;
             if (_debugScoring) {
-                NSLog(@"[Detect] hopSizeFrames clamped to %u (12s max signature window)", (unsigned int)hopSize);
+                NSLog(@"[Detect] hopSizeFrames clamped to %u (12s max signature window)", (unsigned int) hopSize);
             }
         }
         _hopSize = hopSize;
@@ -99,7 +101,7 @@ NS_ASSUME_NONNULL_BEGIN
         _matchFrames = [NSMutableArray array];
         _lastProgressLogged = -1.0;
         _maxInFlightRequests = 1;
-        _matchInFlightSemaphore = dispatch_semaphore_create((long)_maxInFlightRequests);
+        _matchInFlightSemaphore = dispatch_semaphore_create((long) _maxInFlightRequests);
         _inFlightCount = 0;
         _maxInFlightCount = 0;
         _responseLatencySum = 0.0;

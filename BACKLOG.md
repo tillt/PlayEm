@@ -28,5 +28,19 @@
 - TODO: Apply the cleanup checklist whenever switching areas: normalize logging flags, delete temporary maps/helpers, prune dead code/tests, and note any leftovers explicitly in BACKLOG.md before moving on.
 - Note: Town Joker/Niconé mojibake is irreversible; we chose the mechanical decode (è). If future bias is desired (“exit for heroes”), decide on a heuristic/override or diacritic-stripping fallback before changing expectations.
 - TODO: When modifying sanitizer logic, update the header doc to reflect the current pipeline and logging flags (DEBUG_SANITIZER) before moving on.
+- Code style (machine-wide reminders):
+  - Pointer asterisk binds to the type (`float* p`), apply consistently.
+  - Function/method opening brace on the next line; control-flow blocks (if/for/while) keep the brace on the same line but always use braces (no single-line, brace-less blocks). Applies to Objective-C, C++, and C.
+- AudioQueue backend: visual playhead jumps on pause/resume. Likely because the queue has already pulled buffered frames when pausing (currentFrame reflects queued sampleTime). On resume we reset baseFrame and visuals snap back. Possible fixes: track last confirmed played frame (not queued sampleTime) for visuals, or flush/re-prime on pause to align queue with the visual playhead.
 
 - TODO: FFT visualizer performance—explore a branch to keep the “lower-half” look but reduce FFT cost (smaller FFT plus controlled remap) without affecting visuals; current code still uses the larger FFT and discards the top band.
+- Process hygiene: avoid resurfacing resolved issues without justification; keep backlog/status in sync to prevent rehashing closed items.
+- Machine-wide note: Xcode builds from the assistant session are unreliable—DerivedData is not writable here and code signing fails; disabling signing lets builds run but then execution/signature breaks. Outcome: user should trigger Xcode builds/tests; assistant should prototype in Python first, then translate to Objective-C/Swift; avoid chasing signing fixes.
+- Machine-wide note: ripgrep is available; use `rg`/`rg --files` as default. Avoid re-checking its syntax; remember flags and usage to prevent churn.
+
+- Wave visuals/coarse rendering: multiple attempts caused UI stalls and zero-filled coarse data. Root cause: coarse sampling ran during decode; `rawSampleFromFrameOffset` returned zeros when pages weren’t decoded yet, and segments were marked built. Best-known stable approach is the old baseline (non-progressive coarse). Future attempt should:
+  - Keep `rawSample` non-blocking only while decoding; after decode complete it must deliver real PCM.
+  - Trigger coarse once decode completes; avoid progress-time builds until a safe retry loop exists.
+  - Mark coarse segments built only when real samples were read; skipped segments should retry instead of being marked built with placeholders.
+  - WaveViewController already has per-range coarse invalidation to limit redraws.
+- AcceleratedBiquadFilter refactor: now uses per-instance coeff storage, cleans up vDSP setup in dealloc, and expects deinterleaved buffers via `applyToInputs`. Added tests with `MockLazySample` to sanity-check mono/stereo cases; callers must supply per-channel pointers. No further issues pending.

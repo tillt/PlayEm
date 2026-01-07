@@ -10,8 +10,7 @@
 
 #import <dispatch/dispatch.h>
 
-@implementation ConcurrentAccessDictionary
-{
+@implementation ConcurrentAccessDictionary {
     dispatch_queue_t _access_queue;
     NSMutableDictionary* _dictionary;
 }
@@ -21,8 +20,7 @@
     self = [super init];
     if (self) {
         _dictionary = [NSMutableDictionary dictionary];
-        _access_queue = dispatch_queue_create("PlayEm.DictionaryAccessQueue",
-                                              DISPATCH_QUEUE_CONCURRENT);
+        _access_queue = dispatch_queue_create("PlayEm.DictionaryAccessQueue", DISPATCH_QUEUE_CONCURRENT);
     }
     return self;
 }

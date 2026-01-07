@@ -13,8 +13,8 @@
 NS_ASSUME_NONNULL_BEGIN
 
 typedef enum : NSUInteger {
-    BeatEventStyleBeat  = 1 << 0,
-    BeatEventStyleBar   = 1 << 1,
+    BeatEventStyleBeat = 1 << 0,
+    BeatEventStyleBar = 1 << 1,
 
     BeatEventStyleFound = 1 << 2,
 
@@ -27,7 +27,7 @@ typedef enum : NSUInteger {
     BeatEventStyleMarkBuildup = 1 << 8,
     BeatEventStyleMarkTeardown = 1 << 9,
     BeatEventStyleMarkOutro = 1 << 10,
-    
+
     BeatEventStyleMarkStart = 1 << 11,
     BeatEventStyleMarkEnd = 1 << 12,
     BeatEventStyleMarkChapter = 1 << 13,
@@ -36,27 +36,27 @@ typedef enum : NSUInteger {
 extern const NSUInteger BeatEventMaskMarkers;
 
 typedef struct {
-    BeatEventStyle      style;
-    unsigned long long  frame;
-    double              bpm;
-    size_t              index;
-    double              energy;
-    double              peak;
+    BeatEventStyle style;
+    unsigned long long frame;
+    double bpm;
+    size_t index;
+    double energy;
+    double peak;
 } BeatEvent;
 
-extern NSString * const kBeatTrackedSampleTempoChangeNotification;
-extern NSString * const kBeatTrackedSampleBeatNotification;
+extern NSString* const kBeatTrackedSampleTempoChangeNotification;
+extern NSString* const kBeatTrackedSampleBeatNotification;
 
-extern NSString * const kBeatNotificationKeyBar;
-extern NSString * const kBeatNotificationKeyBeat;
-extern NSString * const kBeatNotificationKeyFrame;
-extern NSString * const kBeatNotificationKeyTempo;
-extern NSString * const kBeatNotificationKeyStyle;
-extern NSString * const kBeatNotificationKeyLocalEnergy;
-extern NSString * const kBeatNotificationKeyLocalPeak;
-extern NSString * const kBeatNotificationKeyTotalEnergy;
-extern NSString * const kBeatNotificationKeyTotalPeak;
-extern NSString * const kBeatNotificationKeyTotalBeats;
+extern NSString* const kBeatNotificationKeyBar;
+extern NSString* const kBeatNotificationKeyBeat;
+extern NSString* const kBeatNotificationKeyFrame;
+extern NSString* const kBeatNotificationKeyTempo;
+extern NSString* const kBeatNotificationKeyStyle;
+extern NSString* const kBeatNotificationKeyLocalEnergy;
+extern NSString* const kBeatNotificationKeyLocalPeak;
+extern NSString* const kBeatNotificationKeyTotalEnergy;
+extern NSString* const kBeatNotificationKeyTotalPeak;
+extern NSString* const kBeatNotificationKeyTotalBeats;
 
 NS_ASSUME_NONNULL_END
 #endif /* BeatEvent_h */

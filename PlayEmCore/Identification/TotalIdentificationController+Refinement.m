@@ -9,17 +9,18 @@
 #import <fcntl.h>
 #import <unistd.h>
 
+#import "../Metadata/TimedMediaMetaData.h"
+#import "../Sample/LazySample.h"
 #import "TotalIdentificationController+Private.h"
 #import "TotalIdentificationController+Refinement.h"
-
-#import "../Sample/LazySample.h"
-#import "../Metadata/TimedMediaMetaData.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 static BOOL IsUnknownTrack(TimedMediaMetaData* _Nullable t)
 {
-    if (t == nil) { return NO; }
+    if (t == nil) {
+        return NO;
+    }
     NSString* title = [[t.meta.title ?: @"" precomposedStringWithCanonicalMapping] lowercaseString];
     NSString* artist = [[t.meta.artist ?: @"" precomposedStringWithCanonicalMapping] lowercaseString];
     BOOL titleUnknown = (title.length == 0 || [title isEqualToString:@"unknown"]);
@@ -84,7 +85,7 @@ static NSComparisonResult CompareTracksByFrameThenKey(TimedMediaMetaData* a, Tim
     return [rawTitleA compare:rawTitleB];
 }
 
-static void WriteScoreLogLine(const char *line)
+static void WriteScoreLogLine(const char* line)
 {
     if (line == NULL) {
         return;
@@ -97,7 +98,7 @@ static void WriteScoreLogLine(const char *line)
             char header[128];
             int written = snprintf(header, sizeof(header), "[ScoreV2] pid:%d\n", getpid());
             if (written > 0) {
-                (void)write(fd, header, (size_t)written);
+                (void) write(fd, header, (size_t) written);
             }
         }
     });
@@ -106,7 +107,7 @@ static void WriteScoreLogLine(const char *line)
     }
     size_t len = strlen(line);
     if (len > 0) {
-        (void)write(fd, line, len);
+        (void) write(fd, line, len);
     }
 }
 
@@ -134,20 +135,20 @@ typedef NSArray<TimedMediaMetaData*>* _Nonnull (^TracklistFilterBlock)(NSArray<T
 - (double)estimatedDurationForTrack:(TimedMediaMetaData*)track nextTrack:(TimedMediaMetaData* _Nullable)next
 {
     double durationSeconds = 0.0;
-    double sampleRate = (double)self->_sample.sampleFormat.rate;
+    double sampleRate = (double) self->_sample.sampleFormat.rate;
     if (track.meta.duration != nil) {
         durationSeconds = track.meta.duration.doubleValue;
     } else if (track.endFrame != nil && track.frame != nil && track.endFrame.unsignedLongLongValue > track.frame.unsignedLongLongValue && sampleRate > 0.0) {
         // Use span between first and last detection of the same key.
-        double frameSpan = (double)(track.endFrame.unsignedLongLongValue - track.frame.unsignedLongLongValue);
+        double frameSpan = (double) (track.endFrame.unsignedLongLongValue - track.frame.unsignedLongLongValue);
         durationSeconds = frameSpan / sampleRate;
     } else if (next != nil && track.frame != nil && next.frame != nil && sampleRate > 0.0) {
         // Estimate duration from frame gap.
-        double frameGap = (double)(next.frame.unsignedLongLongValue - track.frame.unsignedLongLongValue);
+        double frameGap = (double) (next.frame.unsignedLongLongValue - track.frame.unsignedLongLongValue);
         durationSeconds = frameGap / sampleRate;
     } else if (track.frame != nil && sampleRate > 0.0) {
         // Fallback: time from this frame to the end of the sample.
-        double frameGap = (double)(self->_sample.frames - track.frame.unsignedLongLongValue);
+        double frameGap = (double) (self->_sample.frames - track.frame.unsignedLongLongValue);
         durationSeconds = frameGap / sampleRate;
     }
     return durationSeconds;
@@ -156,33 +157,41 @@ typedef NSArray<TimedMediaMetaData*>* _Nonnull (^TracklistFilterBlock)(NSArray<T
 - (unsigned long long)estimatedEndFrameForTrack:(TimedMediaMetaData*)track nextTrack:(TimedMediaMetaData* _Nullable)next
 {
     double start = track.frame != nil ? track.frame.doubleValue : 0.0;
-    double sampleRate = (double)self->_sample.sampleFormat.rate;
+    double sampleRate = (double) self->_sample.sampleFormat.rate;
     double durationSeconds = [self estimatedDurationForTrack:track nextTrack:next];
 
-    // If we already have a last detection frame, prefer that over derived duration.
+    // If we already have a last detection frame, prefer that over derived
+    // duration.
     if (track.endFrame != nil && track.endFrame.unsignedLongLongValue > (track.frame != nil ? track.frame.unsignedLongLongValue : 0)) {
         return track.endFrame.unsignedLongLongValue;
     }
     if (durationSeconds <= 0.0 || sampleRate <= 0.0) {
-        return (unsigned long long)start;
+        return (unsigned long long) start;
     }
     double frames = durationSeconds * sampleRate;
-    return (unsigned long long)(start + frames);
+    return (unsigned long long) (start + frames);
 }
 
 //
 // Cluster‑Score‑Select (CSS) Refiner
 //
-//    - Parse & normalize: ingest hit events, normalize artist/title for grouping.
-//    - Cluster hits: group same-track hits within small gaps (~1s); keep clusters with support ≥2.
+//    - Parse & normalize: ingest hit events, normalize artist/title for
+//    grouping.
+//    - Cluster hits: group same-track hits within small gaps (~1s); keep
+//    clusters with support ≥2.
 //    - Estimate duration: use end_frame if present, else gap to next track.
-//    - Score: base score from support; boost for sensible spans/durations with caps.
-//    - Merge near-dupes: within ~8s, merge similar artist/title candidates, keep higher score.
-//    - Resolve overlaps: weighted interval scheduling selects the best non-overlapping set using
+//    - Score: base score from support; boost for sensible spans/durations with
+//    caps.
+//    - Merge near-dupes: within ~8s, merge similar artist/title candidates,
+//    keep higher score.
+//    - Resolve overlaps: weighted interval scheduling selects the best
+//    non-overlapping set using
 //      support, duration, gap quality, neighbor context, and streak factors.
-//    - Filter blend/noise: drop short, low-support tracks overshadowed by stronger neighbors.
+//    - Filter blend/noise: drop short, low-support tracks overshadowed by
+//    stronger neighbors.
 //    - Final sweep: remove weak/short/high-gap leftovers.
-//    - Optional gap fill: insert “unknown” placeholders into long gaps if enabled.
+//    - Optional gap fill: insert “unknown” placeholders into long gaps if
+//    enabled.
 //
 - (NSArray<TimedMediaMetaData*>*)refineTracklist
 {
@@ -201,7 +210,8 @@ typedef NSArray<TimedMediaMetaData*>* _Nonnull (^TracklistFilterBlock)(NSArray<T
     if (_debugScoring) {
         for (TimedMediaMetaData* t in result) {
             if (t.score == nil || t.confidence == nil) {
-                NSLog(@"[Refine] missing score/conf frame:%@ artist:%@ title:%@ score:%@ confidence:%@",
+                NSLog(@"[Refine] missing score/conf frame:%@ artist:%@ title:%@ "
+                      @"score:%@ confidence:%@",
                       t.frame, t.meta.artist ?: @"", t.meta.title ?: @"", t.score, t.confidence);
             }
         }
@@ -219,7 +229,7 @@ typedef NSArray<TimedMediaMetaData*>* _Nonnull (^TracklistFilterBlock)(NSArray<T
 
     for (TracklistFilterSpec* spec in pipeline) {
         if (_debugScoring) {
-            NSLog(@"[Refine] filter:%@ in:%lu", spec.name, (unsigned long)current.count);
+            NSLog(@"[Refine] filter:%@ in:%lu", spec.name, (unsigned long) current.count);
         }
         current = spec.block(current, input) ?: @[];
         if (_debugScoring) {
@@ -230,9 +240,9 @@ typedef NSArray<TimedMediaMetaData*>* _Nonnull (^TracklistFilterBlock)(NSArray<T
                 }
             }
             if (nilScores > 0) {
-                NSLog(@"[Refine] filter:%@ nilScore:%lu", spec.name, (unsigned long)nilScores);
+                NSLog(@"[Refine] filter:%@ nilScore:%lu", spec.name, (unsigned long) nilScores);
             }
-            NSLog(@"[Refine] filter:%@ out:%lu", spec.name, (unsigned long)current.count);
+            NSLog(@"[Refine] filter:%@ out:%lu", spec.name, (unsigned long) current.count);
         }
         if (current.count == 0) {
             break;
@@ -244,27 +254,34 @@ typedef NSArray<TimedMediaMetaData*>* _Nonnull (^TracklistFilterBlock)(NSArray<T
 - (NSArray<TracklistFilterSpec*>*)refinementPipeline
 {
     return @[
-        [TracklistFilterSpec specWithName:@"aggregate" block:^NSArray<TimedMediaMetaData*>*(NSArray<TimedMediaMetaData*>* tracks, NSArray<TimedMediaMetaData*>* rawInput) {
-            return [self aggregateIdentifieds:rawInput];
-        }],
-        [TracklistFilterSpec specWithName:@"score" block:^NSArray<TimedMediaMetaData*>*(NSArray<TimedMediaMetaData*>* tracks, NSArray<TimedMediaMetaData*>* rawInput) {
-            return [self scoreTracks:tracks];
-        }],
-        [TracklistFilterSpec specWithName:@"mergeDuplicates" block:^NSArray<TimedMediaMetaData*>*(NSArray<TimedMediaMetaData*>* tracks, NSArray<TimedMediaMetaData*>* rawInput) {
-            return [self mergeDuplicateTracks:tracks];
-        }],
-        [TracklistFilterSpec specWithName:@"resolveOverlaps" block:^NSArray<TimedMediaMetaData*>*(NSArray<TimedMediaMetaData*>* tracks, NSArray<TimedMediaMetaData*>* rawInput) {
-            return [self resolveOverlapsInTracks:tracks];
-        }],
-        [TracklistFilterSpec specWithName:@"finalFilter" block:^NSArray<TimedMediaMetaData*>*(NSArray<TimedMediaMetaData*>* tracks, NSArray<TimedMediaMetaData*>* rawInput) {
-            return [self applyFinalTrackFilters:tracks];
-        }],
-        [TracklistFilterSpec specWithName:@"intervalSchedule" block:^NSArray<TimedMediaMetaData*>*(NSArray<TimedMediaMetaData*>* tracks, NSArray<TimedMediaMetaData*>* rawInput) {
-            return [self applyIntervalScheduleToTracks:tracks];
-        }],
-        [TracklistFilterSpec specWithName:@"dedupe" block:^NSArray<TimedMediaMetaData*>*(NSArray<TimedMediaMetaData*>* tracks, NSArray<TimedMediaMetaData*>* rawInput) {
-            return [self dedupeTracksByKey:tracks];
-        }],
+        [TracklistFilterSpec specWithName:@"aggregate"
+                                    block:^NSArray<TimedMediaMetaData*>*(NSArray<TimedMediaMetaData*>* tracks, NSArray<TimedMediaMetaData*>* rawInput) {
+                                        return [self aggregateIdentifieds:rawInput];
+                                    }],
+        [TracklistFilterSpec specWithName:@"score"
+                                    block:^NSArray<TimedMediaMetaData*>*(NSArray<TimedMediaMetaData*>* tracks, NSArray<TimedMediaMetaData*>* rawInput) {
+                                        return [self scoreTracks:tracks];
+                                    }],
+        [TracklistFilterSpec specWithName:@"mergeDuplicates"
+                                    block:^NSArray<TimedMediaMetaData*>*(NSArray<TimedMediaMetaData*>* tracks, NSArray<TimedMediaMetaData*>* rawInput) {
+                                        return [self mergeDuplicateTracks:tracks];
+                                    }],
+        [TracklistFilterSpec specWithName:@"resolveOverlaps"
+                                    block:^NSArray<TimedMediaMetaData*>*(NSArray<TimedMediaMetaData*>* tracks, NSArray<TimedMediaMetaData*>* rawInput) {
+                                        return [self resolveOverlapsInTracks:tracks];
+                                    }],
+        [TracklistFilterSpec specWithName:@"finalFilter"
+                                    block:^NSArray<TimedMediaMetaData*>*(NSArray<TimedMediaMetaData*>* tracks, NSArray<TimedMediaMetaData*>* rawInput) {
+                                        return [self applyFinalTrackFilters:tracks];
+                                    }],
+        [TracklistFilterSpec specWithName:@"intervalSchedule"
+                                    block:^NSArray<TimedMediaMetaData*>*(NSArray<TimedMediaMetaData*>* tracks, NSArray<TimedMediaMetaData*>* rawInput) {
+                                        return [self applyIntervalScheduleToTracks:tracks];
+                                    }],
+        [TracklistFilterSpec specWithName:@"dedupe"
+                                    block:^NSArray<TimedMediaMetaData*>*(NSArray<TimedMediaMetaData*>* tracks, NSArray<TimedMediaMetaData*>* rawInput) {
+                                        return [self dedupeTracksByKey:tracks];
+                                    }],
     ];
 }
 
@@ -278,32 +295,18 @@ typedef NSArray<TimedMediaMetaData*>* _Nonnull (^TracklistFilterBlock)(NSArray<T
         unsigned long long frames = self->_sample != nil ? self->_sample.frames : 0;
         double signatureWindow = self.signatureWindowSeconds > 0.0 ? self.signatureWindowSeconds : 8.0;
         double signatureWindowMax = self.signatureWindowMaxSeconds > 0.0 ? self.signatureWindowMaxSeconds : signatureWindow;
-        NSLog(@"[InputMeta] sampleRate:%.1f hopSize:%u signatureWindow:%.1fs maxSignatureWindow:%.1fs skipRefinement:%d frames:%llu",
-              rate,
-              (unsigned int)self->_hopSize,
-              signatureWindow,
-              signatureWindowMax,
-              self.skipRefinement ? 1 : 0,
-              frames);
+        NSLog(@"[InputMeta] sampleRate:%.1f hopSize:%u signatureWindow:%.1fs "
+              @"maxSignatureWindow:%.1fs skipRefinement:%d frames:%llu",
+              rate, (unsigned int) self->_hopSize, signatureWindow, signatureWindowMax, self.skipRefinement ? 1 : 0, frames);
     }
     for (TimedMediaMetaData* t in tracks) {
         if (includeDuration) {
             double durationSeconds = [self estimatedDurationForTrack:t nextTrack:nil];
-            NSLog(@"[%@] frame:%@ artist:%@ title:%@ duration:%.2fs score:%.3f confidence:%@",
-                  tag,
-                  t.frame,
-                  t.meta.artist ?: @"",
-                  t.meta.title ?: @"",
-                  durationSeconds,
-                  t.score.doubleValue,
-                  t.confidence);
+            NSLog(@"[%@] frame:%@ artist:%@ title:%@ duration:%.2fs score:%.3f "
+                  @"confidence:%@",
+                  tag, t.frame, t.meta.artist ?: @"", t.meta.title ?: @"", durationSeconds, t.score.doubleValue, t.confidence);
         } else {
-            NSLog(@"[%@] frame:%@ artist:%@ title:%@ score:%.3f confidence:%@",
-                  tag,
-                  t.frame,
-                  t.meta.artist ?: @"",
-                  t.meta.title ?: @"",
-                  t.score.doubleValue,
+            NSLog(@"[%@] frame:%@ artist:%@ title:%@ score:%.3f confidence:%@", tag, t.frame, t.meta.artist ?: @"", t.meta.title ?: @"", t.score.doubleValue,
                   t.confidence);
         }
     }
@@ -311,8 +314,8 @@ typedef NSArray<TimedMediaMetaData*>* _Nonnull (^TracklistFilterBlock)(NSArray<T
 
 - (NSArray<TimedMediaMetaData*>*)aggregateIdentifieds:(NSArray<TimedMediaMetaData*>*)input
 {
-    double sampleRate = (double)self->_sample.sampleFormat.rate;
-    unsigned long long clusterGapFrames = (unsigned long long)(sampleRate * 240.0);
+    double sampleRate = (double) self->_sample.sampleFormat.rate;
+    unsigned long long clusterGapFrames = (unsigned long long) (sampleRate * 240.0);
     NSInteger minSupport = self.skipRefinement ? 1 : 2;
 
     NSMutableDictionary<NSString*, NSMutableArray<TimedMediaMetaData*>*>* buckets = [NSMutableDictionary dictionary];
@@ -389,26 +392,23 @@ typedef NSArray<TimedMediaMetaData*>* _Nonnull (^TracklistFilterBlock)(NSArray<T
     }
 
     if (_debugScoring) {
-        NSLog(@"[Refine] aggregate: keys:%lu kept:%lu minSupport:%ld",
-              (unsigned long)buckets.count,
-              (unsigned long)result.count,
-              (long)minSupport);
+        NSLog(@"[Refine] aggregate: keys:%lu kept:%lu minSupport:%ld", (unsigned long) buckets.count, (unsigned long) result.count, (long) minSupport);
         NSArray<TimedMediaMetaData*>* yotto = buckets[@"yotto seat 11"];
         if (yotto != nil && yotto.count > 0) {
             TimedMediaMetaData* first = yotto.firstObject;
             TimedMediaMetaData* last = yotto.lastObject;
-            NSLog(@"[Refine] aggregate: key:yotto seat 11 count:%lu frame:%@ last:%@",
-                  (unsigned long)yotto.count,
-                  first.frame ?: @"",
-                  last.frame ?: @"");
+            NSLog(@"[Refine] aggregate: key:yotto seat 11 count:%lu frame:%@ last:%@", (unsigned long) yotto.count, first.frame ?: @"", last.frame ?: @"");
         } else {
             NSLog(@"[Refine] aggregate: key:yotto seat 11 missing");
         }
         __block NSUInteger logged = 0;
         [buckets enumerateKeysAndObjectsUsingBlock:^(NSString* key, NSArray<TimedMediaMetaData*>* list, BOOL* stop) {
-            if (logged >= 8) { *stop = YES; return; }
-            NSNumber* frame = list.count > 0 ? ((TimedMediaMetaData*)list[0]).frame : nil;
-            NSLog(@"[Refine] aggregate: key:%@ count:%lu frame:%@", key, (unsigned long)list.count, frame ?: @"");
+            if (logged >= 8) {
+                *stop = YES;
+                return;
+            }
+            NSNumber* frame = list.count > 0 ? ((TimedMediaMetaData*) list[0]).frame : nil;
+            NSLog(@"[Refine] aggregate: key:%@ count:%lu frame:%@", key, (unsigned long) list.count, frame ?: @"");
             logged += 1;
         }];
     }
@@ -423,7 +423,8 @@ typedef NSArray<TimedMediaMetaData*>* _Nonnull (^TracklistFilterBlock)(NSArray<T
         return CompareTracksByFrameThenKey(a, b);
     }];
 
-    // After sorting, recompute duration/producer-based scores using neighbors and reflect into confidence.
+    // After sorting, recompute duration/producer-based scores using neighbors and
+    // reflect into confidence.
     NSUInteger missingScore = 0;
     for (NSUInteger i = 0; i < sorted.count; i++) {
         TimedMediaMetaData* current = sorted[i];
@@ -452,17 +453,10 @@ typedef NSArray<TimedMediaMetaData*>* _Nonnull (^TracklistFilterBlock)(NSArray<T
             const char* confC = current.confidence != nil ? current.confidence.stringValue.UTF8String : "<nil>";
             const char* supportC = current.supportCount != nil ? current.supportCount.stringValue.UTF8String : "<nil>";
             char line[1024];
-            int written = snprintf(line,
-                                   sizeof(line),
-                                   "[ScoreV2:scoreTracks] frame:%s artist:%s title:%s duration:%.2fs raw:%.3f stored:%s conf:%s support:%s\n",
-                                   frameC,
-                                   artistC,
-                                   titleC,
-                                   durationSeconds,
-                                   s,
-                                   scoreC,
-                                   confC,
-                                   supportC);
+            int written = snprintf(line, sizeof(line),
+                                   "[ScoreV2:scoreTracks] frame:%s artist:%s title:%s duration:%.2fs "
+                                   "raw:%.3f stored:%s conf:%s support:%s\n",
+                                   frameC, artistC, titleC, durationSeconds, s, scoreC, confC, supportC);
             if (written > 0) {
                 WriteScoreLogLine(line);
             }
@@ -472,7 +466,7 @@ typedef NSArray<TimedMediaMetaData*>* _Nonnull (^TracklistFilterBlock)(NSArray<T
         }
     }
     if (_debugScoring && missingScore > 0) {
-        NSLog(@"[Score] missing score on %lu tracks", (unsigned long)missingScore);
+        NSLog(@"[Score] missing score on %lu tracks", (unsigned long) missingScore);
     }
 
     return sorted;
@@ -480,21 +474,26 @@ typedef NSArray<TimedMediaMetaData*>* _Nonnull (^TracklistFilterBlock)(NSArray<T
 
 - (NSArray<TimedMediaMetaData*>*)pruneLowEvidenceTracks:(NSArray<TimedMediaMetaData*>*)tracks
 {
-    // Early pruning of low-evidence outliers: single hits that are extremely low score.
-    return [tracks filteredArrayUsingPredicate:[NSPredicate predicateWithBlock:^BOOL(TimedMediaMetaData *t, NSDictionary<NSString *,id> *bindings) {
-        double s = t.score != nil ? t.score.doubleValue : 0.0;
+    // Early pruning of low-evidence outliers: single hits that are extremely low
+    // score.
+    return [tracks filteredArrayUsingPredicate:[NSPredicate predicateWithBlock:^BOOL(TimedMediaMetaData* t, NSDictionary<NSString*, id>* bindings) {
+                       double s = t.score != nil ? t.score.doubleValue : 0.0;
 
-        // Drop anything below the configured score floor unless it has repeat support.
-        NSInteger support = t.supportCount != nil ? t.supportCount.integerValue : 0;
-        if (s < self->_minScoreThreshold && support < 2) { return NO; }
-        return YES;
-    }]];
+                       // Drop anything below the configured score floor unless it has repeat
+                       // support.
+                       NSInteger support = t.supportCount != nil ? t.supportCount.integerValue : 0;
+                       if (s < self->_minScoreThreshold && support < 2) {
+                           return NO;
+                       }
+                       return YES;
+                   }]];
 }
 
 - (NSArray<TimedMediaMetaData*>*)mergeDuplicateTracks:(NSArray<TimedMediaMetaData*>*)tracks
 {
-    // Merge near-duplicates (same/related track within a small time window), keeping the higher-scoring one.
-    double windowFrames = _duplicateMergeWindowSeconds * (double)self->_sample.sampleFormat.rate;
+    // Merge near-duplicates (same/related track within a small time window),
+    // keeping the higher-scoring one.
+    double windowFrames = _duplicateMergeWindowSeconds * (double) self->_sample.sampleFormat.rate;
     NSMutableArray<TimedMediaMetaData*>* pruned = [NSMutableArray array];
     for (NSUInteger i = 0; i < tracks.count; i++) {
         TimedMediaMetaData* current = tracks[i];
@@ -507,10 +506,10 @@ typedef NSArray<TimedMediaMetaData*>* _Nonnull (^TracklistFilterBlock)(NSArray<T
                 TimedMediaMetaData* winner = current.score.doubleValue >= other.score.doubleValue ? current : other;
                 TimedMediaMetaData* loser = (winner == current) ? other : current;
                 if (_debugScoring) {
-                    NSLog(@"[Score] merging similar tracks at frames %@/%@ -> keeping %@ %@ (score %.3f) dropping %@ %@ (score %.3f)",
-                          current.frame, other.frame,
-                          winner.meta.artist ?: @"", winner.meta.title ?: @"", winner.score.doubleValue,
-                          loser.meta.artist ?: @"", loser.meta.title ?: @"", loser.score.doubleValue);
+                    NSLog(@"[Score] merging similar tracks at frames %@/%@ -> keeping %@ "
+                          @"%@ (score %.3f) dropping %@ %@ (score %.3f)",
+                          current.frame, other.frame, winner.meta.artist ?: @"", winner.meta.title ?: @"", winner.score.doubleValue, loser.meta.artist ?: @"",
+                          loser.meta.title ?: @"", loser.score.doubleValue);
                 }
                 // Skip adding loser; advance i to winner position.
                 current = winner;
@@ -524,17 +523,18 @@ typedef NSArray<TimedMediaMetaData*>* _Nonnull (^TracklistFilterBlock)(NSArray<T
 
 - (NSArray<TimedMediaMetaData*>*)resolveOverlapsInTracks:(NSArray<TimedMediaMetaData*>*)tracks
 {
-    // Enforce a simple non-overlap rule: walk in frame order and keep the higher-scoring
-    // track when two spans would overlap. We always favor the higher score, regardless
-    // of order, so strong tracks push out weaker overlapping candidates. Duration is
-    // estimated from either metadata, the span of repeated detections, or gap to the next track.
+    // Enforce a simple non-overlap rule: walk in frame order and keep the
+    // higher-scoring track when two spans would overlap. We always favor the
+    // higher score, regardless of order, so strong tracks push out weaker
+    // overlapping candidates. Duration is estimated from either metadata, the
+    // span of repeated detections, or gap to the next track.
     NSMutableArray<TimedMediaMetaData*>* nonOverlapping = [NSMutableArray array];
     TimedMediaMetaData* lastKept = nil;
     unsigned long long lastEnd = 0;
     double lastScore = 0.0;
     NSInteger lastSupport = 0;
-    double sampleRate = (double)self->_sample.sampleFormat.rate;
-    unsigned long long changeoverFrames = (unsigned long long)(sampleRate * 90.0);
+    double sampleRate = (double) self->_sample.sampleFormat.rate;
+    unsigned long long changeoverFrames = (unsigned long long) (sampleRate * 90.0);
     for (NSUInteger i = 0; i < tracks.count; i++) {
         TimedMediaMetaData* current = tracks[i];
         TimedMediaMetaData* lookahead = (i + 1 < tracks.count) ? tracks[i + 1] : nil;
@@ -546,7 +546,7 @@ typedef NSArray<TimedMediaMetaData*>* _Nonnull (^TracklistFilterBlock)(NSArray<T
         }
         unsigned long long end = start;
         if (durationSeconds > 0.0 && sampleRate > 0.0) {
-            end = start + (unsigned long long)(durationSeconds * sampleRate);
+            end = start + (unsigned long long) (durationSeconds * sampleRate);
         }
         double score = current.score != nil ? current.score.doubleValue : 0.0;
 
@@ -567,7 +567,8 @@ typedef NSArray<TimedMediaMetaData*>* _Nonnull (^TracklistFilterBlock)(NSArray<T
             // Prefer real tracks over "unknown" filler regardless of score.
             if (lastIsUnknown && !currentIsUnknown) {
                 if (_debugScoring) {
-                    NSLog(@"[Refine] overlap: replacing unknown at %@ with %@ %@ (score %.3f)",
+                    NSLog(@"[Refine] overlap: replacing unknown at %@ with %@ %@ (score "
+                          @"%.3f)",
                           lastKept.frame, current.meta.artist ?: @"", current.meta.title ?: @"", score);
                 }
                 [nonOverlapping removeLastObject];
@@ -578,20 +579,18 @@ typedef NSArray<TimedMediaMetaData*>* _Nonnull (^TracklistFilterBlock)(NSArray<T
                 lastSupport = support;
             } else if (!lastIsUnknown && currentIsUnknown) {
                 if (_debugScoring) {
-                    NSLog(@"[Refine] overlap: keeping %@ %@, dropping unknown at %@",
-                          lastKept.meta.artist ?: @"", lastKept.meta.title ?: @"", current.frame);
+                    NSLog(@"[Refine] overlap: keeping %@ %@, dropping unknown at %@", lastKept.meta.artist ?: @"", lastKept.meta.title ?: @"", current.frame);
                 }
                 // Drop the unknown overlap; keep the real track already kept.
                 continue;
-            } else if (lastKept != nil && start > lastKept.frame.unsignedLongLongValue &&
-                       (start - lastKept.frame.unsignedLongLongValue) >= changeoverFrames) {
-                NSInteger minSupport = MAX(2, (NSInteger)ceil((double)lastSupport * 0.4));
+            } else if (lastKept != nil && start > lastKept.frame.unsignedLongLongValue && (start - lastKept.frame.unsignedLongLongValue) >= changeoverFrames) {
+                NSInteger minSupport = MAX(2, (NSInteger) ceil((double) lastSupport * 0.4));
                 if (support >= minSupport) {
                     if (_debugScoring) {
-                        NSLog(@"[Refine] overlap: changeover %@ %@ -> %@ %@ (support %ld >= %ld)",
-                              lastKept.meta.artist ?: @"", lastKept.meta.title ?: @"",
-                              current.meta.artist ?: @"", current.meta.title ?: @"",
-                              (long)support, (long)minSupport);
+                        NSLog(@"[Refine] overlap: changeover %@ %@ -> %@ %@ (support %ld "
+                              @">= %ld)",
+                              lastKept.meta.artist ?: @"", lastKept.meta.title ?: @"", current.meta.artist ?: @"", current.meta.title ?: @"", (long) support,
+                              (long) minSupport);
                     }
                     [nonOverlapping removeLastObject];
                     [nonOverlapping addObject:current];
@@ -601,18 +600,16 @@ typedef NSArray<TimedMediaMetaData*>* _Nonnull (^TracklistFilterBlock)(NSArray<T
                     lastSupport = support;
                 } else {
                     if (_debugScoring) {
-                        NSLog(@"[Refine] overlap: changeover blocked for %@ %@ (support %ld < %ld)",
-                              current.meta.artist ?: @"", current.meta.title ?: @"",
-                              (long)support, (long)minSupport);
+                        NSLog(@"[Refine] overlap: changeover blocked for %@ %@ (support "
+                              @"%ld < %ld)",
+                              current.meta.artist ?: @"", current.meta.title ?: @"", (long) support, (long) minSupport);
                     }
                     continue;
                 }
             } else if (score > lastScore) {
                 if (_debugScoring) {
-                    NSLog(@"[Refine] overlap: replacing %@ %@ with %@ %@ (%.3f > %.3f)",
-                          lastKept.meta.artist ?: @"", lastKept.meta.title ?: @"",
-                          current.meta.artist ?: @"", current.meta.title ?: @"",
-                          score, lastScore);
+                    NSLog(@"[Refine] overlap: replacing %@ %@ with %@ %@ (%.3f > %.3f)", lastKept.meta.artist ?: @"", lastKept.meta.title ?: @"",
+                          current.meta.artist ?: @"", current.meta.title ?: @"", score, lastScore);
                 }
                 [nonOverlapping removeLastObject];
                 [nonOverlapping addObject:current];
@@ -622,10 +619,8 @@ typedef NSArray<TimedMediaMetaData*>* _Nonnull (^TracklistFilterBlock)(NSArray<T
                 lastSupport = support;
             } else {
                 if (_debugScoring) {
-                    NSLog(@"[Refine] overlap: keeping %@ %@ (%.3f >= %.3f), dropping %@ %@",
-                          lastKept.meta.artist ?: @"", lastKept.meta.title ?: @"",
-                          lastScore, score,
-                          current.meta.artist ?: @"", current.meta.title ?: @"");
+                    NSLog(@"[Refine] overlap: keeping %@ %@ (%.3f >= %.3f), dropping %@ %@", lastKept.meta.artist ?: @"", lastKept.meta.title ?: @"", lastScore,
+                          score, current.meta.artist ?: @"", current.meta.title ?: @"");
                 }
                 // Keep previous; drop current.
             }
@@ -653,14 +648,17 @@ typedef NSArray<TimedMediaMetaData*>* _Nonnull (^TracklistFilterBlock)(NSArray<T
         NSInteger support = current.supportCount != nil ? current.supportCount.integerValue : 0;
         double spanSeconds = 0.0;
         if (current.endFrame != nil && current.frame != nil && current.endFrame.unsignedLongLongValue > current.frame.unsignedLongLongValue) {
-            double frameSpan = (double)(current.endFrame.unsignedLongLongValue - current.frame.unsignedLongLongValue);
-            spanSeconds = frameSpan / (double)self->_sample.sampleFormat.rate;
+            double frameSpan = (double) (current.endFrame.unsignedLongLongValue - current.frame.unsignedLongLongValue);
+            spanSeconds = frameSpan / (double) self->_sample.sampleFormat.rate;
         }
 
-        // For single-hit tracks, be stricter on short durations unless the score is strong.
+        // For single-hit tracks, be stricter on short durations unless the score is
+        // strong.
         if (support <= 1 && durationSeconds > 0.0 && durationSeconds < 90.0 && s < 3.2) {
             if (_debugScoring) {
-                NSLog(@"[Score] dropping short single-hit at frame %@ (duration %.2fs score %.3f)", current.frame, durationSeconds, s);
+                NSLog(@"[Score] dropping short single-hit at frame %@ (duration %.2fs "
+                      @"score %.3f)",
+                      current.frame, durationSeconds, s);
             }
             continue;
         }
@@ -685,18 +683,22 @@ typedef NSArray<TimedMediaMetaData*>* _Nonnull (^TracklistFilterBlock)(NSArray<T
             }
         }
         if (support > 1 && support < 8) {
-            double avgGap = (spanSeconds > 0.0 && support > 1) ? (spanSeconds / (double)(support - 1)) : 0.0;
+            double avgGap = (spanSeconds > 0.0 && support > 1) ? (spanSeconds / (double) (support - 1)) : 0.0;
             if (avgGap > 30.0) {
                 if (_debugScoring) {
-                    NSLog(@"[Score] dropping sparse hit at frame %@ (avgGap %.2fs support %ld)", current.frame, avgGap, (long)support);
+                    NSLog(@"[Score] dropping sparse hit at frame %@ (avgGap %.2fs "
+                          @"support %ld)",
+                          current.frame, avgGap, (long) support);
                 }
                 continue;
             }
         }
-        const double shortCutoffSeconds = 90.0; // ~1.5 minutes
+        const double shortCutoffSeconds = 90.0;  // ~1.5 minutes
         if (s < _minScoreThreshold && durationSeconds > 0.0 && durationSeconds < shortCutoffSeconds) {
             if (_debugScoring) {
-                NSLog(@"[Score] dropping low-score short candidate at frame %@ (duration %.2fs score %.3f)", current.frame, durationSeconds, s);
+                NSLog(@"[Score] dropping low-score short candidate at frame %@ "
+                      @"(duration %.2fs score %.3f)",
+                      current.frame, durationSeconds, s);
             }
             continue;
         }
@@ -717,7 +719,7 @@ typedef NSArray<TimedMediaMetaData*>* _Nonnull (^TracklistFilterBlock)(NSArray<T
         return CompareTracksByFrameThenKey(a, b);
     }];
 
-    const double sampleRate = (double)self->_sample.sampleFormat.rate;
+    const double sampleRate = (double) self->_sample.sampleFormat.rate;
     const double minSeconds = 120.0;
 
     NSUInteger count = sorted.count;
@@ -729,10 +731,9 @@ typedef NSArray<TimedMediaMetaData*>* _Nonnull (^TracklistFilterBlock)(NSArray<T
         TimedMediaMetaData* next = (i + 1 < count) ? sorted[i + 1] : nil;
         unsigned long long start = current.frame != nil ? current.frame.unsignedLongLongValue : 0;
         double durationSeconds = 0.0;
-        if (current.endFrame != nil && current.frame != nil &&
-            current.endFrame.unsignedLongLongValue > current.frame.unsignedLongLongValue) {
+        if (current.endFrame != nil && current.frame != nil && current.endFrame.unsignedLongLongValue > current.frame.unsignedLongLongValue) {
             unsigned long long spanFrames = current.endFrame.unsignedLongLongValue - current.frame.unsignedLongLongValue;
-            durationSeconds = (sampleRate > 0.0) ? ((double)spanFrames / sampleRate) : 0.0;
+            durationSeconds = (sampleRate > 0.0) ? ((double) spanFrames / sampleRate) : 0.0;
         }
         if (durationSeconds <= 0.0) {
             durationSeconds = [self estimatedDurationForTrack:current nextTrack:next];
@@ -742,7 +743,7 @@ typedef NSArray<TimedMediaMetaData*>* _Nonnull (^TracklistFilterBlock)(NSArray<T
         }
         unsigned long long end = start;
         if (sampleRate > 0.0 && durationSeconds > 0.0) {
-            end = start + (unsigned long long)(durationSeconds * sampleRate);
+            end = start + (unsigned long long) (durationSeconds * sampleRate);
         }
         [starts addObject:@(start)];
         [ends addObject:@(end)];
@@ -752,7 +753,7 @@ typedef NSArray<TimedMediaMetaData*>* _Nonnull (^TracklistFilterBlock)(NSArray<T
     for (NSUInteger j = 0; j < count; j++) {
         unsigned long long start = starts[j].unsignedLongLongValue;
         NSInteger last = -1;
-        for (NSInteger i = (NSInteger)j - 1; i >= 0; i--) {
+        for (NSInteger i = (NSInteger) j - 1; i >= 0; i--) {
             if (ends[i].unsignedLongLongValue <= start) {
                 last = i;
                 break;
@@ -778,7 +779,7 @@ typedef NSArray<TimedMediaMetaData*>* _Nonnull (^TracklistFilterBlock)(NSArray<T
     }
 
     NSMutableArray<TimedMediaMetaData*>* selected = [NSMutableArray array];
-    NSInteger j = (NSInteger)count - 1;
+    NSInteger j = (NSInteger) count - 1;
     while (j >= 0) {
         if (choose[j].boolValue) {
             [selected addObject:sorted[j]];
@@ -842,18 +843,19 @@ typedef NSArray<TimedMediaMetaData*>* _Nonnull (^TracklistFilterBlock)(NSArray<T
 - (double)scoreForTrack:(TimedMediaMetaData*)track nextTrack:(TimedMediaMetaData* _Nullable)next
 {
     // Base score starts from support or the prior confidence.
-    // We intentionally let support scale freely (no cap) so a strongly repeated hit
-    // can dominate and push out unlikely, short-lived candidates.
+    // We intentionally let support scale freely (no cap) so a strongly repeated
+    // hit can dominate and push out unlikely, short-lived candidates.
     double base = 1.0;
     if (track.supportCount != nil) {
         // Favor repeated hits more strongly; sqrt keeps growth under control.
         double s = MAX(1.0, track.supportCount.doubleValue);
-        base = MIN(14.0, 1.0 + sqrt(s) * 4.0); // ranges from ~5 (1 hit) up to 14
+        base = MIN(14.0, 1.0 + sqrt(s) * 4.0);  // ranges from ~5 (1 hit) up to 14
     } else if (track.confidence != nil) {
         base = track.confidence.doubleValue;
     }
 
-    // Duration heuristic: prefer 4–8 minutes. Estimate duration from metadata if present, otherwise from spacing to next track.
+    // Duration heuristic: prefer 4–8 minutes. Estimate duration from metadata if
+    // present, otherwise from spacing to next track.
     double durationSeconds = [self estimatedDurationForTrack:track nextTrack:next];
 
     double durationScore = 1.0;
@@ -862,14 +864,14 @@ typedef NSArray<TimedMediaMetaData*>* _Nonnull (^TracklistFilterBlock)(NSArray<T
         durationScore = 0.70;
     } else if (durationSeconds < 90.0) {
         // Very short (<1.5min): small penalty.
-        double ratio = durationSeconds / _idealTrackMinSeconds; // tiny number
+        double ratio = durationSeconds / _idealTrackMinSeconds;  // tiny number
         durationScore = MAX(0.60, 0.60 + 0.40 * ratio);
     } else if (durationSeconds >= _idealTrackMinSeconds && durationSeconds <= _idealTrackMaxSeconds) {
         // Ideal window: modest reward.
         durationScore = 1.20;
     } else if (durationSeconds < _idealTrackMinSeconds) {
         // Short: gentler quadratic falloff; floor at 0.60.
-        double ratio = durationSeconds / _idealTrackMinSeconds; // 0..1
+        double ratio = durationSeconds / _idealTrackMinSeconds;  // 0..1
         durationScore = MAX(0.60, 0.9 * ratio * ratio);
     } else {
         // Penalize long tracks; floor at 0.40.
@@ -880,10 +882,11 @@ typedef NSArray<TimedMediaMetaData*>* _Nonnull (^TracklistFilterBlock)(NSArray<T
     // De-weight duration so repetition dominates.
     double score = base * (0.4 + 0.6 * durationScore);
 
-    // Producer/artist bonus: if the reference artist appears in the detected artist or title, boost strongly.
+    // Producer/artist bonus: if the reference artist appears in the detected
+    // artist or title, boost strongly.
     NSString* refArtist = _referenceArtist;
     if (refArtist.length > 0) {
-        NSString* (^norm)(NSString*) = ^NSString* (NSString* s) {
+        NSString* (^norm)(NSString*) = ^NSString*(NSString* s) {
             if (s == nil) {
                 return @"";
             }
@@ -901,14 +904,9 @@ typedef NSArray<TimedMediaMetaData*>* _Nonnull (^TracklistFilterBlock)(NSArray<T
 
     if (_debugScoring) {
         NSInteger support = track.supportCount != nil ? track.supportCount.integerValue : 0;
-        NSLog(@"[ScoreDetail] frame:%@ support:%ld base:%.3f duration:%.2fs durationScore:%.3f ref:%@ final:%.3f",
-              track.frame,
-              (long)support,
-              base,
-              durationSeconds,
-              durationScore,
-              (refArtist.length > 0 ? @"yes" : @"no"),
-              score);
+        NSLog(@"[ScoreDetail] frame:%@ support:%ld base:%.3f duration:%.2fs "
+              @"durationScore:%.3f ref:%@ final:%.3f",
+              track.frame, (long) support, base, durationSeconds, durationScore, (refArtist.length > 0 ? @"yes" : @"no"), score);
     }
 
     return score;
@@ -919,7 +917,7 @@ typedef NSArray<TimedMediaMetaData*>* _Nonnull (^TracklistFilterBlock)(NSArray<T
     if (tracks.count == 0 || input.count == 0) {
         return tracks;
     }
-    NSString* (^normKey)(TimedMediaMetaData*) = ^NSString* (TimedMediaMetaData* t) {
+    NSString* (^normKey)(TimedMediaMetaData*) = ^NSString*(TimedMediaMetaData* t) {
         NSString* artist = t.meta.artist ?: @"";
         NSString* title = t.meta.title ?: @"";
         NSString* key = [NSString stringWithFormat:@"%@ — %@", artist, title];
@@ -939,8 +937,7 @@ typedef NSArray<TimedMediaMetaData*>* _Nonnull (^TracklistFilterBlock)(NSArray<T
         }
         NSMutableDictionary* entry = supportAgg[k];
         if (entry == nil) {
-            entry = [@{@"frame": t.frame,
-                       @"count": @(1)} mutableCopy];
+            entry = [@{@"frame" : t.frame, @"count" : @(1)} mutableCopy];
             supportAgg[k] = entry;
         } else {
             entry[@"count"] = @([entry[@"count"] integerValue] + 1);
@@ -970,7 +967,7 @@ typedef NSArray<TimedMediaMetaData*>* _Nonnull (^TracklistFilterBlock)(NSArray<T
     }];
 
     NSMutableArray<TimedMediaMetaData*>* augmented = [sortedTracks mutableCopy];
-    double sampleRate = (double)self->_sample.sampleFormat.rate;
+    double sampleRate = (double) self->_sample.sampleFormat.rate;
     const double gapMinSeconds = 600.0;
     const NSInteger minSupportThreshold = 3;
 
@@ -980,7 +977,7 @@ typedef NSArray<TimedMediaMetaData*>* _Nonnull (^TracklistFilterBlock)(NSArray<T
         if (gapEnd <= gapStart) {
             continue;
         }
-        double gapSeconds = sampleRate > 0.0 ? ((double)(gapEnd - gapStart) / sampleRate) : 0.0;
+        double gapSeconds = sampleRate > 0.0 ? ((double) (gapEnd - gapStart) / sampleRate) : 0.0;
         if (gapSeconds < gapMinSeconds) {
             continue;
         }
@@ -996,16 +993,18 @@ typedef NSArray<TimedMediaMetaData*>* _Nonnull (^TracklistFilterBlock)(NSArray<T
         }
         if (maxSupport >= minSupportThreshold) {
             if (_debugScoring) {
-                NSLog(@"[Refine] unknown gap skip start:%llu end:%llu gap:%.2fs maxSupport:%ld",
-                      gapStart, gapEnd, gapSeconds, (long)maxSupport);
+                NSLog(@"[Refine] unknown gap skip start:%llu end:%llu gap:%.2fs "
+                      @"maxSupport:%ld",
+                      gapStart, gapEnd, gapSeconds, (long) maxSupport);
             }
             continue;
         }
 
         unsigned long long mid = gapStart + (gapEnd - gapStart) / 2;
         if (_debugScoring) {
-            NSLog(@"[Refine] unknown gap insert start:%llu end:%llu mid:%llu gap:%.2fs maxSupport:%ld",
-                  gapStart, gapEnd, mid, gapSeconds, (long)maxSupport);
+            NSLog(@"[Refine] unknown gap insert start:%llu end:%llu mid:%llu "
+                  @"gap:%.2fs maxSupport:%ld",
+                  gapStart, gapEnd, mid, gapSeconds, (long) maxSupport);
         }
         TimedMediaMetaData* unknown = [TimedMediaMetaData unknownTrackAtFrame:@(mid)];
         unknown.supportCount = @(0);
@@ -1022,8 +1021,10 @@ typedef NSArray<TimedMediaMetaData*>* _Nonnull (^TracklistFilterBlock)(NSArray<T
 
 - (BOOL)isSimilarTrack:(TimedMediaMetaData*)a other:(TimedMediaMetaData*)b
 {
-    NSString* (^norm)(NSString*) = ^NSString* (NSString* s) {
-        if (s == nil) { return @""; }
+    NSString* (^norm)(NSString*) = ^NSString*(NSString* s) {
+        if (s == nil) {
+            return @"";
+        }
         NSString* n = [[s precomposedStringWithCanonicalMapping] lowercaseString];
         return [n stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
     };
@@ -1034,8 +1035,7 @@ typedef NSArray<TimedMediaMetaData*>* _Nonnull (^TracklistFilterBlock)(NSArray<T
     NSString* titleB = norm(b.meta.title);
 
     BOOL artistMatch = artistA.length > 0 && [artistA isEqualToString:artistB];
-    BOOL titleOverlap = (titleA.length > 0 && titleB.length > 0 &&
-                         ([titleA containsString:titleB] || [titleB containsString:titleA]));
+    BOOL titleOverlap = (titleA.length > 0 && titleB.length > 0 && ([titleA containsString:titleB] || [titleB containsString:titleA]));
 
     return artistMatch || titleOverlap;
 }

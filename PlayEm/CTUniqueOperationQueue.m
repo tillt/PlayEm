@@ -32,10 +32,11 @@
 #import "CTUniqueOperationQueue.h"
 
 @implementation CTUniqueOperationQueue {
-    NSMutableDictionary *idToOp;
+    NSMutableDictionary* idToOp;
 }
 
-- (id)init {
+- (id)init
+{
     self = [super init];
     if (self) {
         idToOp = [[NSMutableDictionary alloc] init];
@@ -43,15 +44,16 @@
     return self;
 }
 
-- (void)addOperation:(NSOperation *)op withID:(NSString *)aID {
+- (void)addOperation:(NSOperation*)op withID:(NSString*)aID
+{
     if (![aID length]) {
         return;
     }
     if (!op) {
         return;
     }
-    NSString *anIdCopy = [aID copy];
-    __weak NSOperation *weakOp = op;
+    NSString* anIdCopy = [aID copy];
+    __weak NSOperation* weakOp = op;
     __weak typeof(self) weakSelf = self;
 
     void (^realCompletionBlock)() = op.completionBlock;
@@ -64,7 +66,7 @@
             // Make sure we are removing the right object, because
             // if the op was cancelled and it was replaced, we
             // don't want to remove the op that replaced it
-            NSOperation *opInQueue = [strongSelf->idToOp objectForKey:aID];
+            NSOperation* opInQueue = [strongSelf->idToOp objectForKey:aID];
             if (weakOp == opInQueue) {
                 [strongSelf->idToOp removeObjectForKey:anIdCopy];
             }
@@ -75,7 +77,7 @@
     };
 
     @synchronized(self) {
-        NSOperation *opInQueue = [idToOp objectForKey:aID];
+        NSOperation* opInQueue = [idToOp objectForKey:aID];
 
         // If the op isn't already in the queue or if there is one in the queue
         // but it is cancelled, we'll let another one in.
@@ -87,42 +89,46 @@
     }
 }
 
-- (void)addOperationWithBlock:(void (^)(void))block withID:(NSString *)aID {
+- (void)addOperationWithBlock:(void (^)(void))block withID:(NSString*)aID
+{
     [self addOperation:[NSBlockOperation blockOperationWithBlock:block] withID:aID];
 }
 
-- (void)cancelOperationWithID:(NSString *)anID {
+- (void)cancelOperationWithID:(NSString*)anID
+{
     @synchronized(self) {
-        NSOperation *op = [idToOp objectForKey:anID];
+        NSOperation* op = [idToOp objectForKey:anID];
         [op cancel];
     }
 }
 
-- (NSOperation *)operationWithID:(NSString *)anID {
+- (NSOperation*)operationWithID:(NSString*)anID
+{
     @synchronized(self) {
-        NSOperation *op = [idToOp objectForKey:anID];
+        NSOperation* op = [idToOp objectForKey:anID];
         return op;
     }
 }
 
-- (void)addOrSetQueuePriority:(NSOperationQueuePriority)priority operation:(NSOperation *)op withID:(NSString *)anID {
+- (void)addOrSetQueuePriority:(NSOperationQueuePriority)priority operation:(NSOperation*)op withID:(NSString*)anID
+{
     @synchronized(self) {
-        NSOperation *existingOperation = [idToOp objectForKey:anID];
+        NSOperation* existingOperation = [idToOp objectForKey:anID];
         if (existingOperation) {
             if ([existingOperation isExecuting]) {
                 // do nothing, too late to change priority
-            }
-            else if (existingOperation.queuePriority == priority) {
+            } else if (existingOperation.queuePriority == priority) {
                 // do nothing, priority has not changed
-            }
-            else {
-                // http://developer.apple.com/library/mac/documentation/General/Conceptual/ConcurrencyProgrammingGuide/OperationObjects/OperationObjects.html#//apple_ref/doc/uid/TP40008091-CH101-SW38 says to never modify an operation once placed in a queue, so if it has not yet started, cancel and add the same operation but with a new priority.
+            } else {
+                // http://developer.apple.com/library/mac/documentation/General/Conceptual/ConcurrencyProgrammingGuide/OperationObjects/OperationObjects.html#//apple_ref/doc/uid/TP40008091-CH101-SW38
+                // says to never modify an operation once placed in a queue, so if it
+                // has not yet started, cancel and add the same operation but with a new
+                // priority.
                 [existingOperation cancel];
                 [op setQueuePriority:priority];
                 [self addOperation:op withID:anID];
             }
-        }
-        else {
+        } else {
             [op setQueuePriority:priority];
             [self addOperation:op withID:anID];
         }

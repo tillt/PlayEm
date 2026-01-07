@@ -317,7 +317,6 @@
 		BB57DE5D2F05D614008FFBD1 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
-				Audio/AudioController.h,
 				"NSImage+Average.h",
 				"NSImage+Average.m",
 				Sample/AcceleratedBiquadFilter.h,
@@ -330,7 +329,6 @@
 		BB57E0232F05E7D6008FFBD1 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
-				Audio/AudioController.mm,
 				"NSImage+Average.m",
 			);
 			target = BBD24D5C2432948800DC2A81 /* PlayEm */;

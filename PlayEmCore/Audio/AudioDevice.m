@@ -71,11 +71,12 @@
         }
     }
     
-    AVAudioFramePosition totalLatency = deviceLatency + streamLatency + safetyOffset + bufferSize;
-    
-    NSLog(@"%d frames device latency, %d frames output stream latency, %d safety offset, %d buffer size resulting in an estimated total latency of %lld frames", deviceLatency, streamLatency, safetyOffset, bufferSize, totalLatency);
-    
-    return totalLatency;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        AVAudioFramePosition totalLatency = deviceLatency + streamLatency + safetyOffset + bufferSize;
+        NSLog(@"%d frames device latency, %d frames output stream latency, %d safety offset, %d buffer size resulting in an estimated total latency of %lld frames", deviceLatency, streamLatency, safetyOffset, bufferSize, totalLatency);
+    });
+    return deviceLatency + streamLatency + safetyOffset + bufferSize;
 }
 
 + (NSString*)nameForDevice:(AudioObjectID)deviceId

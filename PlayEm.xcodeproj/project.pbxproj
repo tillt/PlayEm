@@ -15,6 +15,7 @@
 		BB0C5D9327768D2400856978 /* MatrixUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = BB0C5D9227768D2400856978 /* MatrixUtilities.m */; };
 		BB1614B92AACB0C300F6C5E6 /* libaubio.5.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = BB1614B82AACB0C300F6C5E6 /* libaubio.5.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		BB1614BA2AACB0DF00F6C5E6 /* libaubio.5.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = BB1614B82AACB0C300F6C5E6 /* libaubio.5.dylib */; };
+		BB17E2692F0F0F68004F94F5 /* FXViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = BB17E2682F0F0F68004F94F5 /* FXViewController.m */; };
 		BB19A3772C5FAE0C00E5B4D2 /* CoreWLAN.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BB19A3762C5FAE0C00E5B4D2 /* CoreWLAN.framework */; };
 		BB2CB5652481A92600D47258 /* WaveWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = BB2CB5642481A92600D47258 /* WaveWindowController.m */; };
 		BB3926FF2C14B43E009C7B32 /* TableRowView.m in Sources */ = {isa = PBXBuildFile; fileRef = BB3926FE2C14B43E009C7B32 /* TableRowView.m */; };
@@ -198,6 +199,8 @@
 		BB0C5D9127768D2400856978 /* MatrixUtilities.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MatrixUtilities.h; sourceTree = "<group>"; };
 		BB0C5D9227768D2400856978 /* MatrixUtilities.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MatrixUtilities.m; sourceTree = "<group>"; };
 		BB1614B82AACB0C300F6C5E6 /* libaubio.5.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libaubio.5.dylib; sourceTree = "<group>"; };
+		BB17E2672F0F0F68004F94F5 /* FXViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FXViewController.h; sourceTree = "<group>"; };
+		BB17E2682F0F0F68004F94F5 /* FXViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FXViewController.m; sourceTree = "<group>"; };
 		BB19A3762C5FAE0C00E5B4D2 /* CoreWLAN.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreWLAN.framework; path = System/Library/Frameworks/CoreWLAN.framework; sourceTree = SDKROOT; };
 		BB25CF55255758CC005BFC32 /* LoadState.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LoadState.h; sourceTree = "<group>"; };
 		BB2CB5632481A92600D47258 /* WaveWindowController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WaveWindowController.h; sourceTree = "<group>"; };
@@ -462,6 +465,8 @@
 			children = (
 				BB2CB5632481A92600D47258 /* WaveWindowController.h */,
 				BB2CB5642481A92600D47258 /* WaveWindowController.m */,
+				BB17E2672F0F0F68004F94F5 /* FXViewController.h */,
+				BB17E2682F0F0F68004F94F5 /* FXViewController.m */,
 				BBB37D1F290F4A7E0007A6BB /* PlaylistController.h */,
 				BBB37D20290F4A7E0007A6BB /* PlaylistController.m */,
 				BB0A62CC2E88791400BAF444 /* TracklistController.h */,
@@ -956,6 +961,7 @@
 				BB0BDC3A2EC014550052D363 /* WaveViewController.m in Sources */,
 				BB3926FF2C14B43E009C7B32 /* TableRowView.m in Sources */,
 				BBB37D21290F4A7E0007A6BB /* PlaylistController.m in Sources */,
+				BB17E2692F0F0F68004F94F5 /* FXViewController.m in Sources */,
 				BB3927022C14C606009C7B32 /* TableCellView.m in Sources */,
 				BB0C5D9327768D2400856978 /* MatrixUtilities.m in Sources */,
 				BB694CA32E6BB09C00818B01 /* BloomyText.m in Sources */,

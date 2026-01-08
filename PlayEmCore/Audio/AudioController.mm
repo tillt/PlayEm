@@ -9,6 +9,7 @@
 #import "AudioController.h"
 
 #import <AVFoundation/AVFoundation.h>
+#import <AudioToolbox/AudioToolbox.h>
 
 #import "AUPlaybackBackend.h"
 #import "ActivityManager.h"
@@ -30,6 +31,8 @@ NSString* const kPlaybackStatePaused = @"paused";
 NSString* const kPlaybackStatePlaying = @"playing";
 NSString* const kPlaybackStateEnded = @"ended";
 
+static OSStatus DefaultOutputDeviceChanged(AudioObjectID objectId, UInt32 numberAddresses, const AudioObjectPropertyAddress addresses[], void* clientData);
+
 @interface AudioController () <AudioPlaybackBackendDelegate>
 
 @property (nonatomic, strong) id<AudioPlaybackBackend> backend;
@@ -39,8 +42,24 @@ NSString* const kPlaybackStateEnded = @"ended";
 @property (nonatomic, copy, nullable) TapBlock tapBlock;
 @property (nonatomic, assign) AVAudioFramePosition cachedLatency;
 @property (nonatomic, assign) AudioObjectID cachedDeviceId;
+@property (nonatomic, strong) NSArray<NSDictionary*>* availableEffects;
+@property (nonatomic, assign) NSInteger currentEffectIndex;
+
+- (void)handleDefaultDeviceChange;
 
 @end
+
+static OSStatus DefaultOutputDeviceChanged(AudioObjectID objectId, UInt32 numberAddresses, const AudioObjectPropertyAddress addresses[], void* clientData)
+{
+    if (clientData == NULL) {
+        return noErr;
+    }
+    AudioController* controller = (__bridge AudioController*) clientData;
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [controller handleDefaultDeviceChange];
+    });
+    return noErr;
+}
 
 @implementation AudioController
 
@@ -57,9 +76,19 @@ NSString* const kPlaybackStateEnded = @"ended";
         _outputVolume = 1.0;
         _tempoShift = 1.0f;
         _cachedLatency = -1;
-        _cachedDeviceId = 0;
+        _cachedDeviceId = [AudioDevice defaultOutputDevice];
+        _availableEffects = @[];
+        _currentEffectIndex = -1;
+        AudioObjectPropertyAddress addr = {kAudioHardwarePropertyDefaultOutputDevice, kAudioObjectPropertyScopeGlobal, kAudioObjectPropertyElementMain};
+        AudioObjectAddPropertyListener(kAudioObjectSystemObject, &addr, DefaultOutputDeviceChanged, (__bridge void*) self);
     }
     return self;
+}
+
+- (void)dealloc
+{
+    AudioObjectPropertyAddress addr = {kAudioHardwarePropertyDefaultOutputDevice, kAudioObjectPropertyScopeGlobal, kAudioObjectPropertyElementMain};
+    AudioObjectRemovePropertyListener(kAudioObjectSystemObject, &addr, DefaultOutputDeviceChanged, (__bridge void*) self);
 }
 
 #pragma mark - Playback controls
@@ -178,6 +207,30 @@ NSString* const kPlaybackStateEnded = @"ended";
     return self.backend.paused;
 }
 
+- (void)handleDefaultDeviceChange
+{
+    AudioObjectID newDevice = [AudioDevice defaultOutputDevice];
+    if (newDevice == 0 || newDevice == self.cachedDeviceId) {
+        return;
+    }
+    self.cachedDeviceId = newDevice;
+    BOOL wasPlaying = self.playing;
+    AVAudioFramePosition currentFrame = [self.backend currentFrame];
+    [self.backend stop];
+    if (self.sampleRef) {
+        [self.backend prepareWithSample:self.sampleRef];
+        [self.backend seekToFrame:(unsigned long long) currentFrame];
+        self.backend.volume = (float) self.outputVolume;
+        self.backend.tempo = self.tempoShift;
+        if (self.tapBlock && [self.backend respondsToSelector:@selector(setTapBlock:)]) {
+            [(id) self.backend setTapBlock:self.tapBlock];
+        }
+        if (wasPlaying) {
+            [self.backend play];
+        }
+    }
+}
+
 - (void)setOutputVolume:(double)outputVolume
 {
     _outputVolume = outputVolume;
@@ -188,6 +241,81 @@ NSString* const kPlaybackStateEnded = @"ended";
 {
     _tempoShift = tempoShift;
     self.backend.tempo = tempoShift;
+}
+
+- (BOOL)selectEffectAtIndex:(NSInteger)index
+{
+    AudioComponentDescription desc = {0};
+    if (index >= 0 && index < (NSInteger) self.availableEffects.count) {
+        NSDictionary* entry = self.availableEffects[(NSUInteger) index];
+        NSValue* packed = entry[@"component"];
+        if (packed != nil && strcmp([packed objCType], @encode(AudioComponentDescription)) == 0) {
+            [packed getValue:&desc];
+        }
+    }
+    return [self selectEffectWithDescription:desc indexHint:index];
+}
+
+- (void)refreshAvailableEffectsAsync:(void (^)(NSArray<NSDictionary*>* effects))completion
+{
+    __weak AudioController* weakSelf = self;
+    dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0), ^{
+        NSArray<NSDictionary*>* effects = @[];
+        if ([weakSelf.backend respondsToSelector:@selector(availableEffects)]) {
+            effects = [(_Nullable id) weakSelf.backend availableEffects] ?: @[];
+        }
+        weakSelf.availableEffects = effects;
+        if (completion) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                completion(effects);
+            });
+        }
+    });
+}
+
+- (BOOL)selectEffectWithDescription:(AudioComponentDescription)description indexHint:(NSInteger)indexHint
+{
+    if (![self.backend respondsToSelector:@selector(setEffectWithDescription:)]) {
+        return NO;
+    }
+    BOOL wasPlaying = self.playing;
+    NSLog(@"AudioController: selectEffect type=0x%08x subtype=0x%08x manuf=0x%08x hint=%ld", (unsigned int) description.componentType,
+          (unsigned int) description.componentSubType, (unsigned int) description.componentManufacturer, (long) indexHint);
+    BOOL ok = [(id) self.backend setEffectWithDescription:description];
+    if (ok) {
+        if (indexHint >= 0 && indexHint < (NSInteger) self.availableEffects.count) {
+            _currentEffectIndex = indexHint;
+        } else {
+            _currentEffectIndex = -1;
+        }
+        self.backend.volume = (float) self.outputVolume;
+        self.backend.tempo = self.tempoShift;
+        if (self.tapBlock && [self.backend respondsToSelector:@selector(setTapBlock:)]) {
+            [(id) self.backend setTapBlock:self.tapBlock];
+        }
+        if (wasPlaying) {
+            [self.backend play];
+        }
+    } else {
+        NSLog(@"AudioController: selectEffect failed");
+    }
+    return ok;
+}
+
+- (NSDictionary<NSNumber*, NSDictionary*>*)effectParameterInfo
+{
+    if (![self.backend respondsToSelector:@selector(effectParameterInfo)]) {
+        return @{};
+    }
+    return [(_Nullable id) self.backend effectParameterInfo] ?: @{};
+}
+
+- (BOOL)setEffectParameter:(AudioUnitParameterID)parameter value:(AudioUnitParameterValue)value
+{
+    if (![self.backend respondsToSelector:@selector(setEffectParameter:value:)]) {
+        return NO;
+    }
+    return [(_Nullable id) self.backend setEffectParameter:parameter value:value];
 }
 
 - (LazySample*)sample

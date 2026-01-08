@@ -6,6 +6,8 @@
 //  Copyright © 2025 Till Toenshoff. All rights reserved.
 //
 
+#import "MediaMetaData.h"
+
 #ifndef MediaMetaData_JPEGTool_h
 #define MediaMetaData_JPEGTool_h
 

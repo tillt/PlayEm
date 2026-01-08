@@ -37,6 +37,8 @@ typedef void (^TapBlock)(unsigned long long framePosition, float* frameData, uns
 @property (nonatomic, assign, readonly) BOOL playing;
 @property (nonatomic, assign, readonly) BOOL paused;
 @property (nonatomic, assign) float tempoShift;
+@property (nonatomic, strong, readonly) NSArray<NSDictionary*>* availableEffects;
+@property (nonatomic, assign, readonly) NSInteger currentEffectIndex;
 
 - (instancetype)init;
 - (void)togglePause;
@@ -53,6 +55,11 @@ typedef void (^TapBlock)(unsigned long long framePosition, float* frameData, uns
 - (AVAudioFramePosition)totalLatency;
 - (AVAudioFramePosition)frameCountDeltaWithTimeDelta:(NSTimeInterval)timestamp;
 - (NSTimeInterval)timeDeltaWithFrameCountDelta:(AVAudioFramePosition)timestamp;
+- (BOOL)selectEffectAtIndex:(NSInteger)index;
+- (void)refreshAvailableEffectsAsync:(void (^)(NSArray<NSDictionary*>* effects))completion;
+- (BOOL)selectEffectWithDescription:(AudioComponentDescription)description indexHint:(NSInteger)indexHint;
+- (NSDictionary<NSNumber*, NSDictionary*>*)effectParameterInfo;
+- (BOOL)setEffectParameter:(AudioUnitParameterID)parameter value:(AudioUnitParameterValue)value;
 
 @end
 

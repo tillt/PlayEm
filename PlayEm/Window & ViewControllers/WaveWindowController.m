@@ -18,12 +18,15 @@
 #import "ActivityManager.h"
 #import "ActivityViewController.h"
 #import "AudioController.h"
+
+static NSString* const kFXLastEffectDefaultsKey = @"FXLastEffectComponent";
 #import "BeatTrackedSample.h"
 #import "BrowserController.h"
 #import "ControlPanelController.h"
 #import "CreditsViewController.h"
 #import "Defaults.h"
 #import "EnergyDetector.h"
+#import "FXViewController.h"
 #import "IdentifyViewController.h"
 #import "InfoPanel.h"
 #import "KeyTrackedSample.h"
@@ -142,6 +145,7 @@ os_log_t pointsOfInterest;
 @property (strong, nonatomic) NSWindowController* identifyWindowController;
 @property (strong, nonatomic) NSWindowController* aboutWindowController;
 @property (strong, nonatomic) NSWindowController* activityWindowController;
+@property (strong, nonatomic) FXViewController* fxViewController;
 
 @property (strong, nonatomic) NSViewController* aboutViewController;
 @property (strong, nonatomic) NSViewController* activityViewController;
@@ -478,12 +482,26 @@ static const NSString* kIdentifyToolbarIdentifier = @"Live Identify";
     _controlPanelController = [[ControlPanelController alloc] initWithDelegate:self];
     _controlPanelController.layoutAttribute = NSLayoutAttributeLeft;
     [self.window addTitlebarAccessoryViewController:_controlPanelController];
+    [_controlPanelController setEffectsEnabled:NO];
+    _fxViewController = [[FXViewController alloc] initWithAudioController:_audioController];
+    __weak typeof(self) weakSelf = self;
+    _fxViewController.effectSelectionChanged = ^(NSInteger index) {
+        __strong typeof(weakSelf) strongSelf = weakSelf;
+        if (!strongSelf) {
+            return;
+        }
+        BOOL enabled = index >= 0;
+        [strongSelf.controlPanelController setEffectsEnabled:enabled];
+        if (enabled) {
+            [strongSelf persistEffectSelectionIndex:index];
+        }
+    };
 
     _splitViewController = [NSSplitViewController new];
 
     [self loadViews];
 
-    WaveWindowController* __weak weakSelf = self;
+    //WaveWindowController* __weak weakSelf = self;
 
     _scrollingWaveViewController.visualSample = self.visualSample;
     _scrollingWaveViewController.offsetBlock = ^CGFloat {
@@ -2022,16 +2040,75 @@ typedef struct {
     return loaderOut;
 }
 
+- (NSInteger)storedEffectSelectionIndex
+{
+    NSUserDefaults* defaults = [NSUserDefaults standardUserDefaults];
+    NSDictionary* stored = [defaults dictionaryForKey:kFXLastEffectDefaultsKey];
+    if (stored == nil) {
+        return -1;
+    }
+    UInt32 storedType = (UInt32)[stored[@"type"] unsignedIntValue];
+    UInt32 storedSub = (UInt32)[stored[@"subtype"] unsignedIntValue];
+    UInt32 storedManuf = (UInt32)[stored[@"manuf"] unsignedIntValue];
+
+    for (NSUInteger i = 0; i < self.audioController.availableEffects.count; i++) {
+        NSDictionary* entry = self.audioController.availableEffects[i];
+        NSValue* packed = entry[@"component"];
+        if (packed == nil || strcmp([packed objCType], @encode(AudioComponentDescription)) != 0) {
+            continue;
+        }
+        AudioComponentDescription desc = {0};
+        [packed getValue:&desc];
+        if (desc.componentType == storedType && desc.componentSubType == storedSub && desc.componentManufacturer == storedManuf) {
+            return (NSInteger) i;
+        }
+    }
+    return -1;
+}
+
+- (void)persistEffectSelectionIndex:(NSInteger)index
+{
+    if (index < 0 || index >= (NSInteger) self.audioController.availableEffects.count) {
+        return;
+    }
+    NSDictionary* entry = self.audioController.availableEffects[(NSUInteger) index];
+    NSValue* packed = entry[@"component"];
+    if (packed == nil || strcmp([packed objCType], @encode(AudioComponentDescription)) != 0) {
+        return;
+    }
+    AudioComponentDescription desc = {0};
+    [packed getValue:&desc];
+    NSDictionary* stored = @{@"type" : @(desc.componentType), @"subtype" : @(desc.componentSubType), @"manuf" : @(desc.componentManufacturer)};
+    NSUserDefaults* defaults = [NSUserDefaults standardUserDefaults];
+    [defaults setObject:stored forKey:kFXLastEffectDefaultsKey];
+}
+
 - (BOOL)loadDocumentFromURL:(NSURL*)url meta:(MediaMetaData*)meta
 {
     NSError* error = nil;
     if (_audioController == nil) {
         _audioController = [AudioController new];
-
+        _fxViewController.audioController = _audioController;
         [[NSNotificationCenter defaultCenter] addObserver:self
                                                  selector:@selector(AudioControllerPlaybackStateChange:)
                                                      name:kAudioControllerChangedPlaybackStateNotification
                                                    object:nil];
+        __weak typeof(self) weakSelf = self;
+        [_audioController refreshAvailableEffectsAsync:^(NSArray<NSDictionary*>* effects) {
+            [weakSelf.fxViewController updateEffects:effects];
+            BOOL enabled = (weakSelf.audioController.currentEffectIndex >= 0);
+            if (!enabled) {
+                NSInteger stored = [weakSelf storedEffectSelectionIndex];
+                if (stored >= 0) {
+                    if ([weakSelf.audioController selectEffectAtIndex:stored]) {
+                        enabled = YES;
+                        [weakSelf.fxViewController selectEffectIndex:stored];
+                        [weakSelf.fxViewController applyCurrentSelection];
+                    }
+                }
+            }
+            [weakSelf.controlPanelController setEffectsEnabled:enabled];
+        }];
     }
 
     if (url == nil) {
@@ -2654,6 +2731,30 @@ typedef struct {
 {
     _audioController.tempoShift = 1.0;
     _controlPanelController.tempoSlider.doubleValue = 1.0;
+}
+
+- (void)effectsToggle:(id)sender
+{
+    // Toggle FX window visibility. Effect on/off depends on selection (None keeps FX off but window open).
+    if (_controlPanelController.effectsButton.state == NSControlStateValueOn) {
+        [_fxViewController updateEffects:_audioController.availableEffects];
+        NSInteger currentIdx = _audioController.currentEffectIndex;
+        if (currentIdx < 0) {
+            NSInteger stored = [self storedEffectSelectionIndex];
+            if (stored >= 0) {
+                [_audioController selectEffectAtIndex:stored];
+                currentIdx = stored;
+            }
+        }
+        [_fxViewController selectEffectIndex:currentIdx];
+        [_fxViewController applyCurrentSelection];
+        [_fxViewController showWithParent:self.window];
+        [_controlPanelController setEffectsEnabled:(currentIdx >= 0)];
+    } else {
+        [_audioController selectEffectAtIndex:-1];
+        [_controlPanelController setEffectsEnabled:NO];
+        [_fxViewController hide];
+    }
 }
 
 - (void)togglePause:(id)sender

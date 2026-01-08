@@ -31,12 +31,16 @@
 - Code style (machine-wide reminders):
   - Pointer asterisk binds to the type (`float* p`), apply consistently.
   - Function/method opening brace on the next line; control-flow blocks (if/for/while) keep the brace on the same line but always use braces (no single-line, brace-less blocks). Applies to Objective-C, C++, and C.
+- Clang-format: added repo-wide config (4-space indents, 160 cols, Allman for functions/methods only, include sorting with Foundation → other system → PlayEm → project) and `Scripts/clang_format.sh` to format .h/.hpp/.m/.mm.
 - AudioQueue backend: visual playhead jumps on pause/resume. Likely because the queue has already pulled buffered frames when pausing (currentFrame reflects queued sampleTime). On resume we reset baseFrame and visuals snap back. Possible fixes: track last confirmed played frame (not queued sampleTime) for visuals, or flush/re-prime on pause to align queue with the visual playhead.
 
 - TODO: FFT visualizer performance—explore a branch to keep the “lower-half” look but reduce FFT cost (smaller FFT plus controlled remap) without affecting visuals; current code still uses the larger FFT and discards the top band.
 - Process hygiene: avoid resurfacing resolved issues without justification; keep backlog/status in sync to prevent rehashing closed items.
 - Machine-wide note: Xcode builds from the assistant session are unreliable—DerivedData is not writable here and code signing fails; disabling signing lets builds run but then execution/signature breaks. Outcome: user should trigger Xcode builds/tests; assistant should prototype in Python first, then translate to Objective-C/Swift; avoid chasing signing fixes.
 - Machine-wide note: ripgrep is available; use `rg`/`rg --files` as default. Avoid re-checking its syntax; remember flags and usage to prevent churn.
+- TODO: Ensure new files carry the standard header (filename, PlayEm, created by Till Toenshoff with date, and copyright).
+
+- Feature idea: add VST3 effect hosting (audio FX only, no instruments/MIDI). Scope: scan/load VST3 bundles, host IAudioProcessor/Controller for audio in/out, expose parameters (UI + state save/restore), optional editor embedding, map buffers into process(), minimal process context (tempo optional), and crash-safe scanning/instantiation.
 
 - Wave visuals/coarse rendering: multiple attempts caused UI stalls and zero-filled coarse data. Root cause: coarse sampling ran during decode; `rawSampleFromFrameOffset` returned zeros when pages weren’t decoded yet, and segments were marked built. Best-known stable approach is the old baseline (non-progressive coarse). Future attempt should:
   - Keep `rawSample` non-blocking only while decoding; after decode complete it must deliver real PCM.

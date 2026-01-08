@@ -46,6 +46,8 @@ extern NSString* const kPlaybackStatePlaying;
 @property (strong, nonatomic) IdentificationCoverView* coverButton;
 @property (strong, nonatomic) PhosphorChaserView* activityChaser;
 @property (weak, nonatomic) id<ControlPanelControllerDelegate> delegate;
+@property (strong, nonatomic) NSArray<NSDictionary*>* effectOptions;
+@property (assign, nonatomic) BOOL effectsButtonHover;
 @end
 
 @implementation ControlPanelController
@@ -123,7 +125,7 @@ extern NSString* const kPlaybackStatePlaying;
 
     const CGFloat volumeSliderY = 10.0;
 
-    const CGFloat controlPanelWidth = 826.0;
+    const CGFloat controlPanelWidth = 915.0;
     const CGFloat controlPanelHeight = 56.0;
 
     const CGFloat timeLabelWidth = 152.0;
@@ -361,6 +363,30 @@ extern NSString* const kPlaybackStatePlaying;
     textField.frame = NSMakeRect(_tempoSlider.frame.origin.x + _tempoSlider.frame.size.width, _volumeSlider.frame.origin.y, 30.0, sliderHeight);
     [self.view addSubview:textField];
 
+    _effectsButton = [[NSButton alloc]
+        initWithFrame:NSMakeRect(_tempoSlider.frame.origin.x + _tempoSlider.frame.size.width + 30.0, _tempoSlider.frame.origin.y, 60.0, sliderHeight)];
+    _effectsButton.bezelStyle = NSBezelStyleTexturedRounded;
+    _effectsButton.title = @"FX Off";
+    _effectsButton.state = NSControlStateValueOff;
+    _effectsButton.target = self;
+    _effectsButton.action = @selector(effectsToggle:);
+    _effectsButton.contentTintColor = [NSColor controlTextColor];
+    _effectsButton.bordered = NO;
+    _effectsButton.focusRingType = NSFocusRingTypeNone;
+    _effectsButton.wantsLayer = YES;
+    _effectsButton.layerUsesCoreImageFilters = YES;
+    _effectsButton.layer.masksToBounds = NO;
+    _effectsButton.layer.needsDisplayOnBoundsChange = YES;
+    NSButtonCell* effectsCell = (NSButtonCell*) _effectsButton.cell;
+    effectsCell.showsStateBy = NSNoCellMask;
+    effectsCell.highlightsBy = NSNoCellMask;
+    NSTrackingArea* tracking = [[NSTrackingArea alloc] initWithRect:_effectsButton.bounds
+                                                            options:(NSTrackingMouseEnteredAndExited | NSTrackingActiveAlways | NSTrackingInVisibleRect)
+                                                              owner:self
+                                                           userInfo:nil];
+    [_effectsButton addTrackingArea:tracking];
+    [self.view addSubview:_effectsButton];
+
     _level = [[NSLevelIndicator alloc]
         initWithFrame:NSMakeRect(_volumeSlider.frame.origin.x + 2.0, _volumeSlider.frame.origin.y + levelHeight - 4.0, sliderWidth - 4, levelHeight)];
     _level.levelIndicatorStyle = NSLevelIndicatorStyleContinuousCapacity;
@@ -452,6 +478,61 @@ extern NSString* const kPlaybackStatePlaying;
 - (void)setKeyHidden:(BOOL)hidden
 {
     _keyField.hidden = hidden;
+}
+
+- (void)setEffectsEnabled:(BOOL)enabled
+{
+    _effectsButton.state = enabled ? NSControlStateValueOn : NSControlStateValueOff;
+    _effectsButton.title = enabled ? @"FX On" : @"FX Off";
+    NSColor* activeColor = [[Defaults sharedDefaults] lightFakeBeamColor];
+    NSColor* hoverColor = [[Defaults sharedDefaults] regularFakeBeamColor];
+    NSColor* baseColor = enabled ? activeColor : [[Defaults sharedDefaults] tertiaryLabelColor];
+    NSColor* color = self.effectsButtonHover ? hoverColor : baseColor;
+    NSDictionary* attrs =
+        @{NSForegroundColorAttributeName : color, NSFontAttributeName : _effectsButton.font ?: [NSFont systemFontOfSize:NSFont.systemFontSize]};
+    NSAttributedString* title = [[NSAttributedString alloc] initWithString:_effectsButton.title attributes:attrs];
+    _effectsButton.attributedTitle = title;
+    _effectsButton.contentTintColor = color;
+    _effectsButton.layer.cornerRadius = _effectsButton.bounds.size.height / 4.0;
+    _effectsButton.layer.bounds = NSRectToCGRect(NSMakeRect(0, 0, _effectsButton.bounds.size.width, _effectsButton.bounds.size.height));
+    if (enabled) {
+        _effectsButton.layer.shadowColor = [activeColor CGColor];
+        _effectsButton.layer.shadowOpacity = 0.85f;
+        _effectsButton.layer.shadowRadius = 8.0f;
+        _effectsButton.layer.shadowOffset = CGSizeMake(0.0, 0.0);
+        CIFilter* titleBloomFilter = [CIFilter filterWithName:@"CIBloom"];
+        [titleBloomFilter setDefaults];
+        [titleBloomFilter setValue:@(2.0f) forKey:kCIInputRadiusKey];
+        [titleBloomFilter setValue:@(1.0f) forKey:kCIInputIntensityKey];
+        _effectsButton.layer.backgroundFilters = @[ titleBloomFilter ];
+    } else {
+        _effectsButton.layer.backgroundFilters = nil;
+        _effectsButton.layer.shadowOpacity = 0.0f;
+    }
+    [_effectsButton.layer setNeedsDisplay];
+}
+
+- (void)mouseEntered:(NSEvent*)event
+{
+    if (event.trackingArea.owner == self) {
+        self.effectsButtonHover = YES;
+        [self setEffectsEnabled:(_effectsButton.state == NSControlStateValueOn)];
+    }
+}
+
+- (void)mouseExited:(NSEvent*)event
+{
+    if (event.trackingArea.owner == self) {
+        self.effectsButtonHover = NO;
+        [self setEffectsEnabled:(_effectsButton.state == NSControlStateValueOn)];
+    }
+}
+
+- (void)effectsToggle:(id)sender
+{
+    if ([_delegate respondsToSelector:@selector(effectsToggle:)]) {
+        [_delegate effectsToggle:sender];
+    }
 }
 
 - (void)resetTempo:(id)sender

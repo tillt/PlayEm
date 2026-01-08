@@ -73,6 +73,7 @@
     // Header row
     self.effectLabel = [NSTextField labelWithString:@"Effect"];
     self.effectLabel.font = [[Defaults sharedDefaults] smallFont];
+    self.effectLabel.accessibilityLabel = @"Effect";
     [self.effectLabel.widthAnchor constraintEqualToConstant:60.0].active = YES;
     [self.effectLabel.heightAnchor constraintEqualToConstant:20.0].active = YES;
 
@@ -81,6 +82,7 @@
     self.effectMenu.action = @selector(effectChanged:);
     self.effectMenu.translatesAutoresizingMaskIntoConstraints = NO;
     [self.effectMenu.heightAnchor constraintEqualToConstant:24.0].active = YES;
+    self.effectMenu.accessibilityLabel = @"Effect selection";
 
     NSStackView* header = [NSStackView stackViewWithViews:@[ self.effectLabel, self.effectMenu ]];
     header.orientation = NSUserInterfaceLayoutOrientationHorizontal;
@@ -217,6 +219,7 @@
         NSTextField* nameField = [NSTextField labelWithString:name];
         nameField.font = [[Defaults sharedDefaults] smallFont];
         nameField.lineBreakMode = NSLineBreakByTruncatingTail;
+        nameField.accessibilityLabel = name;
         [nameField.widthAnchor constraintEqualToConstant:nameWidth].active = YES;
         [nameField.heightAnchor constraintEqualToConstant:20.0].active = YES;
 
@@ -234,8 +237,15 @@
         [slider setContentCompressionResistancePriority:NSLayoutPriorityDefaultLow forOrientation:NSLayoutConstraintOrientationHorizontal];
         [slider.heightAnchor constraintEqualToConstant:16.0].active = YES;
         [slider.widthAnchor constraintGreaterThanOrEqualToConstant:110.0].active = YES;
-
+        slider.accessibilityLabel = name;
+        slider.accessibilityTitleUIElement = nameField;
         NSString* unitText = [self displayUnitFor:unit];
+        if (unitText.length > 0) {
+            slider.accessibilityHelp = [NSString stringWithFormat:@"Range %.2f to %.2f %@", min, max, unitText];
+        } else {
+            slider.accessibilityHelp = [NSString stringWithFormat:@"Range %.2f to %.2f", min, max];
+        }
+
         NSString* valueString = unitText.length > 0 ? [NSString stringWithFormat:@"%.2f %@", current, unitText] : [NSString stringWithFormat:@"%.2f", current];
         NSTextField* valueField = [NSTextField labelWithString:valueString];
         valueField.font = [[Defaults sharedDefaults] smallFont];
@@ -243,6 +253,11 @@
         valueField.tag = slider.tag;
         valueField.identifier = @"valueLabel";
         valueField.toolTip = unitText;
+        valueField.accessibilityLabel = name;
+        valueField.accessibilityValue = valueString;
+        if (unitText.length > 0) {
+            valueField.accessibilityHelp = [NSString stringWithFormat:@"Value in %@", unitText];
+        }
         [valueField setContentHuggingPriority:NSLayoutPriorityRequired forOrientation:NSLayoutConstraintOrientationHorizontal];
         [valueField setContentCompressionResistancePriority:NSLayoutPriorityRequired forOrientation:NSLayoutConstraintOrientationHorizontal];
         [valueField.widthAnchor constraintEqualToConstant:valueWidth].active = YES;
@@ -267,17 +282,23 @@
     AudioUnitParameterValue value = (AudioUnitParameterValue) slider.doubleValue;
     [self.audioController setEffectParameter:param value:value];
     [self persistParameter:param value:value];
+    NSString* unitText = @"";
     for (NSView* v in self.paramsStack.arrangedSubviews) {
         if (![v isKindOfClass:[NSStackView class]]) {
             continue;
         }
         for (NSView* sub in ((NSStackView*) v).arrangedSubviews) {
             if ([sub isKindOfClass:[NSTextField class]] && sub.tag == slider.tag && sub.identifier != nil && [sub.identifier isEqualToString:@"valueLabel"]) {
-                NSString* unitText = ((NSTextField*) sub).toolTip ?: @"";
-                ((NSTextField*) sub).stringValue =
+                unitText = ((NSTextField*) sub).toolTip ?: @"";
+                NSString* newValue =
                     unitText.length > 0 ? [NSString stringWithFormat:@"%.2f %@", value, unitText] : [NSString stringWithFormat:@"%.2f", value];
+                ((NSTextField*) sub).stringValue = newValue;
+                ((NSTextField*) sub).accessibilityValue = newValue;
             }
         }
+    }
+    if (unitText.length > 0 && slider.accessibilityHelp.length == 0) {
+        slider.accessibilityHelp = [NSString stringWithFormat:@"Value in %@", unitText];
     }
 }
 
@@ -368,8 +389,10 @@
             }
             if (valueField != nil) {
                 NSString* unitText = valueField.toolTip ?: @"";
-                valueField.stringValue =
+                NSString* newValue =
                     unitText.length > 0 ? [NSString stringWithFormat:@"%.2f %@", value, unitText] : [NSString stringWithFormat:@"%.2f", value];
+                valueField.stringValue = newValue;
+                valueField.accessibilityValue = newValue;
             }
         }
     }

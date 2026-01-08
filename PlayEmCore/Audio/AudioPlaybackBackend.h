@@ -30,12 +30,19 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, assign) float volume;
 @property (nonatomic, assign) float tempo;
 
+/// Prepare backend with a sample before playback.
 - (void)prepareWithSample:(LazySample*)sample;
+/// Start playback.
 - (void)play;
+/// Pause playback.
 - (void)pause;
+/// Stop playback and tear down as needed.
 - (void)stop;
+/// Seek to a frame in the prepared sample.
 - (void)seekToFrame:(unsigned long long)frame;
+/// Current frame position.
 - (unsigned long long)currentFrame;
+/// Current playback time in seconds.
 - (NSTimeInterval)currentTime;
 
 @end

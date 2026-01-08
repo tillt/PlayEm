@@ -9,9 +9,35 @@
 #import "AUPlaybackBackend.h"
 
 #import <AudioToolbox/AudioToolbox.h>
+#import <AudioToolbox/AudioComponent.h>
+#import <ctype.h>
+
+#ifndef kAudioComponentConfigurationInfo_BundleURL
+#define kAudioComponentConfigurationInfo_BundleURL CFSTR("url")
+#endif
 
 #import "AudioDevice.h"
 #import "LazySample.h"
+
+static inline NSString* VendorStringFromOSType(OSType code)
+{
+    char c[5] = {0};
+    *(OSType*) c = CFSwapInt32HostToBig(code);
+    for (int i = 0; i < 4; i++) {
+        if (!isprint((unsigned char) c[i])) {
+            return [NSString stringWithFormat:@"0x%08x", (unsigned int) code];
+        }
+    }
+    return [NSString stringWithCString:c encoding:NSMacOSRomanStringEncoding];
+}
+
+static inline NSString* VendorNameFromManufacturer(OSType code)
+{
+    if (code == kAudioUnitManufacturer_Apple) {
+        return @"Apple";
+    }
+    return VendorStringFromOSType(code);
+}
 
 @interface AUPlaybackBackend () {
     AudioComponentInstance _outputUnit;
@@ -35,6 +61,9 @@
 @property (atomic) unsigned long long baseFrame;
 @property (atomic) signed long long latencyFrames;
 @property (atomic) unsigned long long tapFrame;
+@property (nonatomic, assign) BOOL tapDumpEnabled;
+@property (nonatomic) FILE* tapDumpHandle;
+
 - (OSStatus)createGraphAndNodes;
 - (OSStatus)configureFormats;
 - (OSStatus)installRenderCallback;
@@ -54,6 +83,7 @@ static OSStatus AUPlaybackTapNotify(void* inRefCon, AudioUnitRenderActionFlags* 
 
 @implementation AUPlaybackBackend
 
+// Gotta hate categories for this!
 @synthesize playing = _playing;
 @synthesize paused = _paused;
 @synthesize volume = _volume;
@@ -71,17 +101,35 @@ static OSStatus AUPlaybackTapNotify(void* inRefCon, AudioUnitRenderActionFlags* 
         _tapFrame = 0;
         _hasEffect = NO;
         memset(&_effectDescription, 0, sizeof(_effectDescription));
+        _tapDumpHandle = NULL;
+        _tapDumpEnabled = [[[NSProcessInfo processInfo] environment][@"PLAYEM_TAP_DUMP"] length] > 0;
+        if (_tapDumpEnabled) {
+            NSString* path = @"/tmp/playem_tap.raw";
+            _tapDumpHandle = fopen(path.UTF8String, "wb");
+            if (_tapDumpHandle != NULL) {
+                NSLog(@"AUPlaybackBackend: tap dumping enabled -> %@", path);
+            } else {
+                NSLog(@"AUPlaybackBackend: failed to open tap dump file at %@", path);
+                _tapDumpEnabled = NO;
+            }
+        }
     }
     return self;
 }
 
 - (void)dealloc
 {
+    if (_tapDumpHandle != NULL) {
+        fclose(_tapDumpHandle);
+        _tapDumpHandle = NULL;
+    }
     [self stop];
+
     if (_outputUnit != NULL) {
         AudioComponentInstanceDispose(_outputUnit);
         _outputUnit = NULL;
     }
+
     if (_graph != NULL) {
         AUGraphStop(_graph);
         AUGraphUninitialize(_graph);
@@ -93,9 +141,12 @@ static OSStatus AUPlaybackTapNotify(void* inRefCon, AudioUnitRenderActionFlags* 
 
 - (OSStatus)configureGraph
 {
-    NSLog(@"AUPlaybackBackend: configureGraph begin (hasEffect=%d type=0x%08x subtype=0x%08x manuf=0x%08x)", _hasEffect,
-          (unsigned int) _effectDescription.componentType, (unsigned int) _effectDescription.componentSubType,
+    NSLog(@"AUPlaybackBackend: configureGraph begin (hasEffect=%d type=0x%08x subtype=0x%08x manuf=0x%08x)",
+          _hasEffect,
+          (unsigned int) _effectDescription.componentType,
+          (unsigned int) _effectDescription.componentSubType,
           (unsigned int) _effectDescription.componentManufacturer);
+
     if (_graph != NULL) {
         AUGraphStop(_graph);
         AUGraphUninitialize(_graph);
@@ -111,31 +162,39 @@ static OSStatus AUPlaybackTapNotify(void* inRefCon, AudioUnitRenderActionFlags* 
         _timePitchNode = 0;
         _effectNode = 0;
     }
+
     OSStatus res = [self createGraphAndNodes];
     if (res != noErr) {
         return res;
     }
+
     res = [self configureFormats];
     if (res != noErr) {
         return res;
     }
+
     res = [self installRenderCallback];
     if (res != noErr) {
         return res;
     }
+
     res = [self connectGraph];
     if (res != noErr) {
         return res;
     }
+
     res = [self installTapNotify];
     if (res != noErr) {
         return res;
     }
+
     res = [self initializeGraph];
     if (res != noErr) {
         return res;
     }
+
     [self applyTempo];
+
     // Set initial volumes.
     AudioUnitParameterValue vol = _volume;
     AudioUnitSetParameter(_mixerUnit, kMultiChannelMixerParam_Volume, kAudioUnitScope_Input, 0, vol, 0);
@@ -147,11 +206,13 @@ static OSStatus AUPlaybackTapNotify(void* inRefCon, AudioUnitRenderActionFlags* 
 - (void)prepareWithSample:(LazySample*)sample
 {
     [self stop];
+
     self.sample = sample;
     self.baseFrame = 0;
     self.tapFrame = 0;
     AudioObjectID deviceId = [AudioDevice defaultOutputDevice];
     self.latencyFrames = [AudioDevice latencyForDevice:deviceId scope:kAudioDevicePropertyScopeOutput];
+
     OSStatus res = [self configureGraph];
     if (res != noErr) {
         NSLog(@"AUPlaybackBackend configureGraph failed: %d", (int) res);
@@ -163,10 +224,12 @@ static OSStatus AUPlaybackTapNotify(void* inRefCon, AudioUnitRenderActionFlags* 
     if (_playing || self.sample == nil) {
         return;
     }
+
     AudioOutputUnitStart(_outputUnit);
     AUGraphStart(_graph);
     _playing = YES;
     _paused = NO;
+
     [self.delegate playbackBackendDidStart:self];
 }
 
@@ -175,9 +238,11 @@ static OSStatus AUPlaybackTapNotify(void* inRefCon, AudioUnitRenderActionFlags* 
     if (!_playing) {
         return;
     }
+
     AudioOutputUnitStop(_outputUnit);
     _paused = YES;
     _playing = NO;
+
     [self.delegate playbackBackendDidPause:self];
 }
 
@@ -186,9 +251,11 @@ static OSStatus AUPlaybackTapNotify(void* inRefCon, AudioUnitRenderActionFlags* 
     if (_outputUnit != NULL) {
         AudioOutputUnitStop(_outputUnit);
     }
+
     if (_graph != NULL) {
         AUGraphStop(_graph);
     }
+
     _playing = NO;
     _paused = NO;
     _timePitchUnit = NULL;
@@ -241,26 +308,72 @@ static OSStatus AUPlaybackTapNotify(void* inRefCon, AudioUnitRenderActionFlags* 
 
 - (BOOL)setEffectWithDescription:(AudioComponentDescription)description
 {
-    NSLog(@"AUPlaybackBackend: setEffectWithDescription type=0x%08x subtype=0x%08x manuf=0x%08x", (unsigned int) description.componentType,
-          (unsigned int) description.componentSubType, (unsigned int) description.componentManufacturer);
+    NSLog(@"AUPlaybackBackend: setEffectWithDescription type=0x%08x subtype=0x%08x manuf=0x%08x",
+          (unsigned int) description.componentType,
+          (unsigned int) description.componentSubType,
+          (unsigned int) description.componentManufacturer);
+
+    AudioComponentDescription none = {0};
+
+    // If disabling and we already have an effect unit, just bypass it without rebuilding.
+    if (memcmp(&description, &none, sizeof(AudioComponentDescription)) == 0 && _effectUnit != NULL) {
+        UInt32 bypass = 1;
+        OSStatus bypassRes = AudioUnitSetProperty(_effectUnit, kAudioUnitProperty_BypassEffect, kAudioUnitScope_Global, 0, &bypass, sizeof(bypass));
+        if (bypassRes != noErr) {
+            NSLog(@"AUPlaybackBackend: failed to bypass effect res=%d", (int) bypassRes);
+        }
+        _hasEffect = YES;  // keep node alive but bypassed
+        return YES;
+    }
+
+    // If selecting the same effect, ensure bypass is cleared without rebuild.
+    if (_effectUnit != NULL && memcmp(&description, &_effectDescription, sizeof(AudioComponentDescription)) == 0) {
+        UInt32 bypass = 0;
+        OSStatus bypassRes = AudioUnitSetProperty(_effectUnit, kAudioUnitProperty_BypassEffect, kAudioUnitScope_Global, 0, &bypass, sizeof(bypass));
+        if (bypassRes != noErr) {
+            NSLog(@"AUPlaybackBackend: failed to un-bypass effect res=%d", (int) bypassRes);
+        }
+        return YES;
+    }
+
     BOOL wasPlaying = _playing;
     [self stop];
+
     BOOL enable = !(description.componentType == 0 && description.componentSubType == 0 && description.componentManufacturer == 0);
+
     _hasEffect = enable;
     _effectDescription = description;
+
     OSStatus res = [self configureGraph];
     if (res == noErr && wasPlaying && self.sample != nil) {
         [self play];
     }
+
     if (res != noErr) {
         NSLog(@"AUPlaybackBackend: setEffectWithDescription failed res=%d", (int) res);
     }
+
     return (res == noErr);
 }
 
 - (float)tempo
 {
     return _tempo;
+}
+
+- (BOOL)setEffectEnabled:(BOOL)enabled
+{
+    if (_effectUnit == NULL) {
+        return NO;
+    }
+    UInt32 bypass = enabled ? 0 : 1;
+    OSStatus res =
+        AudioUnitSetProperty(_effectUnit, kAudioUnitProperty_BypassEffect, kAudioUnitScope_Global, 0, &bypass, sizeof(bypass));
+    if (res != noErr) {
+        NSLog(@"AUPlaybackBackend: setEffectEnabled failed res=%d", (int) res);
+        return NO;
+    }
+    return YES;
 }
 
 - (void)setTapBlock:(void (^)(unsigned long long, float*, unsigned int))tapBlock
@@ -297,6 +410,7 @@ static OSStatus AUPlaybackTapNotify(void* inRefCon, AudioUnitRenderActionFlags* 
         NSLog(@"AUPlaybackBackend: AddNode mixer failed: %d", (int) res);
         return res;
     }
+
     if (_hasEffect) {
         res = AUGraphAddNode(_graph, &effectDesc, &_effectNode);
         if (res != noErr) {
@@ -304,31 +418,37 @@ static OSStatus AUPlaybackTapNotify(void* inRefCon, AudioUnitRenderActionFlags* 
             return res;
         }
     }
+
     res = AUGraphAddNode(_graph, &timePitchDesc, &_timePitchNode);
     if (res != noErr) {
         NSLog(@"AUPlaybackBackend: AddNode time-pitch failed: %d", (int) res);
         return res;
     }
+
     res = AUGraphAddNode(_graph, &halDesc, &_outputNode);
     if (res != noErr) {
         NSLog(@"AUPlaybackBackend: AddNode output failed: %d", (int) res);
         return res;
     }
+
     res = AUGraphOpen(_graph);
     if (res != noErr) {
         NSLog(@"AUPlaybackBackend: AUGraphOpen failed: %d", (int) res);
         return res;
     }
+
     res = AUGraphNodeInfo(_graph, _outputNode, NULL, &_outputUnit);
     if (res != noErr) {
         NSLog(@"AUPlaybackBackend: NodeInfo output failed: %d", (int) res);
         return res;
     }
+
     res = AUGraphNodeInfo(_graph, _mixerNode, NULL, &_mixerUnit);
     if (res != noErr) {
         NSLog(@"AUPlaybackBackend: NodeInfo mixer failed: %d", (int) res);
         return res;
     }
+
     if (_hasEffect) {
         res = AUGraphNodeInfo(_graph, _effectNode, NULL, &_effectUnit);
         if (res != noErr) {
@@ -336,11 +456,13 @@ static OSStatus AUPlaybackTapNotify(void* inRefCon, AudioUnitRenderActionFlags* 
             return res;
         }
     }
+
     res = AUGraphNodeInfo(_graph, _timePitchNode, NULL, &_timePitchUnit);
     if (res != noErr) {
         NSLog(@"AUPlaybackBackend: NodeInfo time-pitch failed: %d", (int) res);
         return res;
     }
+
     if (_hasEffect) {
         NSLog(@"AUPlaybackBackend: effect node added type=0x%08x subtype=0x%08x manuf=0x%08x", (unsigned int) _effectDescription.componentType,
               (unsigned int) _effectDescription.componentSubType, (unsigned int) _effectDescription.componentManufacturer);
@@ -349,6 +471,7 @@ static OSStatus AUPlaybackTapNotify(void* inRefCon, AudioUnitRenderActionFlags* 
         NSLog(@"AUPlaybackBackend: effect instantiated type=0x%08x subtype=0x%08x manuf=0x%08x", (unsigned int) actual.componentType,
               (unsigned int) actual.componentSubType, (unsigned int) actual.componentManufacturer);
     }
+
     return res;
 }
 
@@ -413,6 +536,7 @@ static OSStatus AUPlaybackTapNotify(void* inRefCon, AudioUnitRenderActionFlags* 
     AURenderCallbackStruct render;
     render.inputProc = AUPlaybackRender;
     render.inputProcRefCon = (__bridge void*) self;
+
     OSStatus res = AudioUnitSetProperty(_mixerUnit, kAudioUnitProperty_SetRenderCallback, kAudioUnitScope_Input, 0, &render, sizeof(render));
     if (res != noErr) {
         NSLog(@"AUPlaybackBackend: SetRenderCallback mixer failed: %d", (int) res);
@@ -433,11 +557,13 @@ static OSStatus AUPlaybackTapNotify(void* inRefCon, AudioUnitRenderActionFlags* 
         }
         source = _effectNode;
     }
+
     res = AUGraphConnectNodeInput(_graph, source, 0, sink, 0);
     if (res != noErr) {
         NSLog(@"AUPlaybackBackend: connect upstream->time-pitch failed: %d", (int) res);
         return res;
     }
+
     res = AUGraphConnectNodeInput(_graph, _timePitchNode, 0, _outputNode, 0);
     if (res != noErr) {
         NSLog(@"AUPlaybackBackend: connect time-pitch->output failed: %d", (int) res);
@@ -495,7 +621,18 @@ static OSStatus AUPlaybackTapNotify(void* inRefCon, AudioUnitRenderActionFlags* 
         return;
     }
     AudioUnitParameterValue rate = _tempo;
-    AudioUnitSetParameter(_timePitchUnit, kNewTimePitchParam_Rate, kAudioUnitScope_Global, 0, rate, 0);
+
+    // Bypass when near unity to avoid coloration; always set bypass explicitly.
+    static const float kBypassEpsilon = 0.01f;
+    UInt32 bypass = (fabsf(rate - 1.0f) <= kBypassEpsilon) ? 1 : 0;
+    AudioUnitSetProperty(_timePitchUnit, kAudioUnitProperty_BypassEffect, kAudioUnitScope_Global, 0, &bypass, sizeof(bypass));
+    if (!bypass) {
+        AudioUnitSetParameter(_timePitchUnit, kNewTimePitchParam_Rate, kAudioUnitScope_Global, 0, rate, 0);
+        // Favor transient preservation to keep percussive sounds mostly intact.
+        AudioUnitSetParameter(_timePitchUnit, kNewTimePitchParam_EnableSpectralCoherence, kAudioUnitScope_Global, 0, 1.0f, 0);
+        AudioUnitSetParameter(_timePitchUnit, kNewTimePitchParam_EnableTransientPreservation, kAudioUnitScope_Global, 0, 1.0f, 0);
+        AudioUnitSetParameter(_timePitchUnit, kNewTimePitchParam_Smoothness, kAudioUnitScope_Global, 0, 32.0f, 0);
+    }
 }
 
 - (BOOL)hasEffectUnit
@@ -508,21 +645,25 @@ static OSStatus AUPlaybackTapNotify(void* inRefCon, AudioUnitRenderActionFlags* 
     if (![self hasEffectUnit]) {
         return @[];
     }
+
     UInt32 dataSize = 0;
     OSStatus res = AudioUnitGetPropertyInfo(_effectUnit, kAudioUnitProperty_ParameterList, kAudioUnitScope_Global, 0, &dataSize, NULL);
     if (res != noErr || dataSize == 0 || (dataSize % sizeof(AudioUnitParameterID)) != 0) {
         return @[];
     }
+
     UInt32 count = dataSize / sizeof(AudioUnitParameterID);
     AudioUnitParameterID* ids = (AudioUnitParameterID*) malloc(dataSize);
     if (ids == NULL) {
         return @[];
     }
+
     res = AudioUnitGetProperty(_effectUnit, kAudioUnitProperty_ParameterList, kAudioUnitScope_Global, 0, ids, &dataSize);
     if (res != noErr) {
         free(ids);
         return @[];
     }
+
     NSMutableArray<NSNumber*>* list = [NSMutableArray arrayWithCapacity:count];
     for (UInt32 i = 0; i < count; i++) {
         [list addObject:@(ids[i])];
@@ -536,6 +677,7 @@ static OSStatus AUPlaybackTapNotify(void* inRefCon, AudioUnitRenderActionFlags* 
     if (![self hasEffectUnit]) {
         return @{};
     }
+
     NSMutableDictionary<NSNumber*, NSDictionary*>* info = [NSMutableDictionary dictionary];
     NSArray<NSNumber*>* scopes = @[ @(kAudioUnitScope_Global), @(kAudioUnitScope_Input), @(kAudioUnitScope_Output) ];
     for (NSNumber* scopeNum in scopes) {
@@ -547,25 +689,30 @@ static OSStatus AUPlaybackTapNotify(void* inRefCon, AudioUnitRenderActionFlags* 
             (dataSize % sizeof(AudioUnitParameterID)) != 0) {
             continue;
         }
+
         UInt32 count = dataSize / sizeof(AudioUnitParameterID);
         AudioUnitParameterID* ids = (AudioUnitParameterID*) malloc(dataSize);
         if (ids == NULL) {
             continue;
         }
+
         if (AudioUnitGetProperty(_effectUnit, kAudioUnitProperty_ParameterList, scope, element, ids, &dataSize) != noErr) {
             free(ids);
             continue;
         }
+
         for (UInt32 i = 0; i < count; i++) {
             NSNumber* param = @(ids[i]);
             if (info[param] != nil) {
                 continue;
             }
+
             AudioUnitParameterInfo paramInfo;
             UInt32 size = sizeof(paramInfo);
             if (AudioUnitGetProperty(_effectUnit, kAudioUnitProperty_ParameterInfo, scope, ids[i], &paramInfo, &size) != noErr) {
                 continue;
             }
+
             AudioUnitParameterValue current = paramInfo.defaultValue;
             AudioUnitGetParameter(_effectUnit, ids[i], scope, element, &current);
             NSString* name = @"";
@@ -574,9 +721,11 @@ static OSStatus AUPlaybackTapNotify(void* inRefCon, AudioUnitRenderActionFlags* 
             } else if (paramInfo.name[0] != '\0') {
                 name = [NSString stringWithUTF8String:paramInfo.name] ?: @"";
             }
+
             if (name.length == 0) {
                 name = [NSString stringWithFormat:@"Param %u", ids[i]];
             }
+
             NSDictionary* entry = @{
                 @"name" : name ?: @"",
                 @"min" : @(paramInfo.minValue),
@@ -606,6 +755,7 @@ static OSStatus AUPlaybackTapNotify(void* inRefCon, AudioUnitRenderActionFlags* 
 {
     NSMutableArray<NSDictionary*>* list = [NSMutableArray array];
     NSSet<NSNumber*>* types = [NSSet setWithObjects:@(kAudioUnitType_Effect), @(kAudioUnitType_MusicEffect), nil];
+
     for (NSNumber* type in types) {
         AudioComponentDescription query;
         memset(&query, 0, sizeof(query));
@@ -616,17 +766,49 @@ static OSStatus AUPlaybackTapNotify(void* inRefCon, AudioUnitRenderActionFlags* 
             if (AudioComponentGetDescription(comp, &got) != noErr) {
                 continue;
             }
+
             AudioComponentInstance inst = NULL;
             if (AudioComponentInstanceNew(comp, &inst) != noErr || inst == NULL) {
                 continue;
             }
+
             AudioComponentInstanceDispose(inst);
-            CFStringRef nameRef = NULL;
-            AudioComponentCopyName(comp, &nameRef);
-            NSString* name = nameRef ? (__bridge_transfer NSString*) nameRef : @"";
+
+            NSString* name = @"";
+            CFDictionaryRef config = NULL;
+            if (AudioComponentCopyConfigurationInfo(comp, &config) == noErr && config != NULL) {
+                CFTypeRef bundleURLRef = CFDictionaryGetValue(config, kAudioComponentConfigurationInfo_BundleURL);
+                if (bundleURLRef != NULL && CFGetTypeID(bundleURLRef) == CFURLGetTypeID()) {
+                    NSURL* bundleURL = (__bridge NSURL*) bundleURLRef;
+                    NSBundle* bundle = [NSBundle bundleWithURL:bundleURL];
+                    if (bundle != nil) {
+                        name = bundle.localizedInfoDictionary[@"CFBundleDisplayName"]
+                                   ?: bundle.infoDictionary[@"CFBundleDisplayName"]
+                                   ?: bundle.localizedInfoDictionary[(NSString*) kCFBundleNameKey]
+                                   ?: bundle.infoDictionary[(NSString*) kCFBundleNameKey]
+                                   ?: @"";
+                    }
+                }
+                CFRelease(config);
+            }
+            if (name.length == 0) {
+                CFStringRef nameRef = NULL;
+                AudioComponentCopyName(comp, &nameRef);
+                name = nameRef ? (__bridge_transfer NSString*) nameRef : @"";
+            }
+            NSString* vendor = VendorNameFromManufacturer(got.componentManufacturer);
+            NSString* displayName = name;
+            NSString* vendorPrefix = [vendor stringByAppendingString:@": "];
+            if (vendor.length > 0 && [name length] > vendorPrefix.length &&
+                [[name substringToIndex:vendorPrefix.length] caseInsensitiveCompare:vendorPrefix] == NSOrderedSame) {
+                displayName = [name substringFromIndex:vendorPrefix.length];
+            }
             NSValue* packed = [NSValue valueWithBytes:&got objCType:@encode(AudioComponentDescription)];
+
             NSDictionary* entry = @{
                 @"name" : name ?: @"",
+                @"displayName" : displayName ?: name ?: @"",
+                @"vendor" : vendor ?: @"",
                 @"type" : @(got.componentType),
                 @"subtype" : @(got.componentSubType),
                 @"manufacturer" : @(got.componentManufacturer),
@@ -650,23 +832,25 @@ static OSStatus AUPlaybackRender(void* inRefCon, AudioUnitRenderActionFlags* ioA
         }
         return noErr;
     }
+
     unsigned int channels = (unsigned int) backend.sample.sampleFormat.channels;
     unsigned int frames = inNumberFrames;
     if (ioData->mNumberBuffers < channels) {
         return noErr;
     }
+
     static NSMutableData* tmp = nil;
     size_t needed = (size_t) frames * channels * sizeof(float);
     if (tmp == nil || tmp.length < needed) {
         tmp = [NSMutableData dataWithLength:needed];
     }
+
     float* interleaved = (float*) tmp.mutableBytes;
-    unsigned long long startFrame = backend.baseFrame;
-    backend.tapFrame = startFrame;
     unsigned long long fetched = [backend.sample rawSampleFromFrameOffset:backend.baseFrame frames:frames data:interleaved];
     if (fetched < frames) {
         memset(interleaved + fetched * channels, 0, (frames - fetched) * channels * sizeof(float));
     }
+
     for (unsigned int ch = 0; ch < channels; ch++) {
         float* dst = (float*) ioData->mBuffers[ch].mData;
         for (unsigned int f = 0; f < frames; f++) {
@@ -684,6 +868,7 @@ static OSStatus AUPlaybackTapNotify(void* inRefCon, AudioUnitRenderActionFlags* 
     if (backend.tapBlock == nil || ioData->mNumberBuffers < 1) {
         return noErr;
     }
+
     unsigned int channels = (unsigned int) backend.sample.sampleFormat.channels;
     unsigned int frames = inNumberFrames;
     static NSMutableData* tmp = nil;
@@ -691,6 +876,7 @@ static OSStatus AUPlaybackTapNotify(void* inRefCon, AudioUnitRenderActionFlags* 
     if (tmp == nil || tmp.length < needed) {
         tmp = [NSMutableData dataWithLength:needed];
     }
+
     float* interleaved = (float*) tmp.mutableBytes;
     for (unsigned int f = 0; f < frames; f++) {
         for (unsigned int ch = 0; ch < channels; ch++) {
@@ -698,11 +884,15 @@ static OSStatus AUPlaybackTapNotify(void* inRefCon, AudioUnitRenderActionFlags* 
             interleaved[f * channels + ch] = src ? src[f] : 0.0f;
         }
     }
+
     unsigned long long framePos = backend.tapFrame;
-    unsigned long long available = (backend.baseFrame > backend.tapFrame) ? (backend.baseFrame - backend.tapFrame) : 0;
-    unsigned int delivered = (unsigned int) MIN((unsigned long long) frames, available);
-    backend.tapFrame = backend.tapFrame + delivered;
-    backend.tapBlock(framePos, interleaved, delivered);
+    backend.tapFrame = backend.tapFrame + frames;
+    backend.tapBlock(framePos, interleaved, frames);
+    if (backend.tapDumpEnabled && backend.tapDumpHandle != NULL && interleaved != NULL && frames > 0 && channels > 0) {
+        size_t toWrite = (size_t) frames * channels;
+        fwrite(interleaved, sizeof(float), toWrite, backend.tapDumpHandle);
+        fflush(backend.tapDumpHandle);
+    }
 
     return noErr;
 }

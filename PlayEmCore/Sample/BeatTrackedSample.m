@@ -378,7 +378,11 @@ void beatsContextReset(BeatsParserContext* context)
     __block BOOL done = NO;
 
     BeatTrackedSample* __weak weakSelf = self;
-    ActivityToken* beatsToken = [[ActivityManager shared] beginActivityWithTitle:@"Beat Detection" detail:@"" cancellable:NO cancelHandler:nil];
+
+    ActivityToken* beatsToken = [[ActivityManager shared] beginActivityWithTitle:@"Beat Detection"
+                                                                          detail:@""
+                                                                     cancellable:NO
+                                                                   cancelHandler:nil];
 
     _queueOperation = dispatch_block_create(DISPATCH_BLOCK_NO_QOS_CLASS, ^{
         done = [weakSelf trackBeatsWithToken:beatsToken];

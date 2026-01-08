@@ -6,7 +6,7 @@
 //  Copyright © 2026 Till Toenshoff. All rights reserved.
 //
 
-#import "AudioQueuePlaybackBackend.h"
+#import "AQPlaybackBackend.h"
 
 #import <AudioToolbox/AudioToolbox.h>
 
@@ -26,7 +26,7 @@ typedef struct {
     signed long long latencyFrames;
 } AQStream;
 
-@interface AudioQueuePlaybackBackend () {
+@interface AQPlaybackBackend () {
     AQStream _stream;
     BOOL _paused;
     float _volume;
@@ -52,7 +52,7 @@ unsigned long long AQPlaybackAdjustedFrame(unsigned long long baseFrame, double 
     return capped;
 }
 
-@implementation AudioQueuePlaybackBackend
+@implementation AQPlaybackBackend
 
 @synthesize playing = _playing;
 @synthesize paused = _paused;
@@ -314,7 +314,7 @@ unsigned long long AQPlaybackAdjustedFrame(unsigned long long baseFrame, double 
 
 static void AQBufferCallback(void* userData, AudioQueueRef queue, AudioQueueBufferRef buffer)
 {
-    AudioQueuePlaybackBackend* backend = (__bridge AudioQueuePlaybackBackend*) userData;
+    AQPlaybackBackend* backend = (__bridge AQPlaybackBackend*) userData;
     if (!backend.sample) {
         memset(buffer->mAudioData, 0, buffer->mAudioDataByteSize);
         buffer->mAudioDataByteSize = 0;
@@ -354,7 +354,7 @@ static void AQPropertyCallback(void* userData, AudioQueueRef queue, AudioQueuePr
     if (propertyID != kAudioQueueProperty_IsRunning) {
         return;
     }
-    AudioQueuePlaybackBackend* backend = (__bridge AudioQueuePlaybackBackend*) userData;
+    AQPlaybackBackend* backend = (__bridge AQPlaybackBackend*) userData;
     UInt32 isRunning = FALSE;
     UInt32 size = sizeof(isRunning);
     AudioQueueGetProperty(queue, kAudioQueueProperty_IsRunning, &isRunning, &size);
@@ -366,7 +366,7 @@ static void AQPropertyCallback(void* userData, AudioQueueRef queue, AudioQueuePr
 static void AQTapCallback(void* userData, AudioQueueProcessingTapRef tapRef, UInt32 inNumberFrames, AudioTimeStamp* ioTimeStamp,
                           AudioQueueProcessingTapFlags* outFlags, UInt32* outNumberFrames, AudioBufferList* ioData)
 {
-    AudioQueuePlaybackBackend* backend = (__bridge AudioQueuePlaybackBackend*) userData;
+    AQPlaybackBackend* backend = (__bridge AQPlaybackBackend*) userData;
     if (backend == nil || backend.sample == nil) {
         *outNumberFrames = 0;
         return;

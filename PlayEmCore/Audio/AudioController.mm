@@ -14,7 +14,7 @@
 #import "AUPlaybackBackend.h"
 #import "ActivityManager.h"
 #import "AudioDevice.h"
-#import "AudioQueuePlaybackBackend.h"
+#import "AQPlaybackBackend.h"
 #import "LazySample.h"
 
 static const BOOL kUseAUBackend = YES;
@@ -30,6 +30,7 @@ NSString* const kPlaybackStateStarted = @"started";
 NSString* const kPlaybackStatePaused = @"paused";
 NSString* const kPlaybackStatePlaying = @"playing";
 NSString* const kPlaybackStateEnded = @"ended";
+NSString* const kPlaybackFXStateChanged = @"fxStateChanged";
 
 static OSStatus DefaultOutputDeviceChanged(AudioObjectID objectId, UInt32 numberAddresses, const AudioObjectPropertyAddress addresses[], void* clientData);
 
@@ -44,6 +45,7 @@ static OSStatus DefaultOutputDeviceChanged(AudioObjectID objectId, UInt32 number
 @property (nonatomic, assign) AudioObjectID cachedDeviceId;
 @property (nonatomic, strong) NSArray<NSDictionary*>* availableEffects;
 @property (nonatomic, assign) NSInteger currentEffectIndex;
+@property (nonatomic, assign) AudioComponentDescription currentEffectDescription;
 
 - (void)handleDefaultDeviceChange;
 
@@ -70,7 +72,7 @@ static OSStatus DefaultOutputDeviceChanged(AudioObjectID objectId, UInt32 number
         if (kUseAUBackend) {
             _backend = [[AUPlaybackBackend alloc] init];
         } else {
-            _backend = [[AudioQueuePlaybackBackend alloc] init];
+            _backend = [[AQPlaybackBackend alloc] init];
         }
         _backend.delegate = self;
         _outputVolume = 1.0;
@@ -79,6 +81,7 @@ static OSStatus DefaultOutputDeviceChanged(AudioObjectID objectId, UInt32 number
         _cachedDeviceId = [AudioDevice defaultOutputDevice];
         _availableEffects = @[];
         _currentEffectIndex = -1;
+        _currentEffectDescription = (AudioComponentDescription){0};
         AudioObjectPropertyAddress addr = {kAudioHardwarePropertyDefaultOutputDevice, kAudioObjectPropertyScopeGlobal, kAudioObjectPropertyElementMain};
         AudioObjectAddPropertyListener(kAudioObjectSystemObject, &addr, DefaultOutputDeviceChanged, (__bridge void*) self);
     }
@@ -278,6 +281,22 @@ static OSStatus DefaultOutputDeviceChanged(AudioObjectID objectId, UInt32 number
     if (![self.backend respondsToSelector:@selector(setEffectWithDescription:)]) {
         return NO;
     }
+    // Avoid redundant reconfiguration if this effect is already active.
+    AudioComponentDescription none = {0};
+    if (indexHint == _currentEffectIndex) {
+        if (memcmp(&description, &_currentEffectDescription, sizeof(AudioComponentDescription)) == 0) {
+            _currentEffectDescription = description;
+            _currentEffectIndex = indexHint;
+            return YES;
+        }
+        if (memcmp(&description, &none, sizeof(AudioComponentDescription)) == 0 &&
+            memcmp(&_currentEffectDescription, &none, sizeof(AudioComponentDescription)) == 0) {
+            _currentEffectDescription = description;
+            _currentEffectIndex = indexHint;
+            return YES;
+        }
+    }
+
     BOOL wasPlaying = self.playing;
     NSLog(@"AudioController: selectEffect type=0x%08x subtype=0x%08x manuf=0x%08x hint=%ld", (unsigned int) description.componentType,
           (unsigned int) description.componentSubType, (unsigned int) description.componentManufacturer, (long) indexHint);
@@ -288,6 +307,7 @@ static OSStatus DefaultOutputDeviceChanged(AudioObjectID objectId, UInt32 number
         } else {
             _currentEffectIndex = -1;
         }
+        _currentEffectDescription = description;
         self.backend.volume = (float) self.outputVolume;
         self.backend.tempo = self.tempoShift;
         if (self.tapBlock && [self.backend respondsToSelector:@selector(setTapBlock:)]) {
@@ -296,6 +316,10 @@ static OSStatus DefaultOutputDeviceChanged(AudioObjectID objectId, UInt32 number
         if (wasPlaying) {
             [self.backend play];
         }
+        BOOL enabled = (_currentEffectIndex >= 0);
+        [[NSNotificationCenter defaultCenter] postNotificationName:kPlaybackFXStateChanged
+                                                            object:self
+                                                          userInfo:@{ @"enabled" : @(enabled), @"index" : @(_currentEffectIndex) }];
     } else {
         NSLog(@"AudioController: selectEffect failed");
     }
@@ -316,6 +340,22 @@ static OSStatus DefaultOutputDeviceChanged(AudioObjectID objectId, UInt32 number
         return NO;
     }
     return [(_Nullable id) self.backend setEffectParameter:parameter value:value];
+}
+
+- (BOOL)setEffectEnabled:(BOOL)enabled
+{
+    BOOL ok = NO;
+    if ([self.backend respondsToSelector:@selector(setEffectEnabled:)]) {
+        ok = [(_Nullable id) self.backend setEffectEnabled:enabled];
+    }
+    if (!ok && self.currentEffectIndex >= 0 && self.currentEffectIndex < (NSInteger) self.availableEffects.count) {
+        // Fall back to reselecting the current effect to force it audible.
+        ok = [self selectEffectAtIndex:self.currentEffectIndex];
+    }
+    [[NSNotificationCenter defaultCenter] postNotificationName:kPlaybackFXStateChanged
+                                                        object:self
+                                                      userInfo:@{ @"enabled" : @(enabled), @"index" : @(self.currentEffectIndex) }];
+    return ok;
 }
 
 - (LazySample*)sample

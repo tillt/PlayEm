@@ -17,10 +17,13 @@
 @property (nonatomic, strong) NSView* content;
 @property (nonatomic, strong) NSPopUpButton* effectMenu;
 @property (nonatomic, strong) NSTextField* effectLabel;
+@property (nonatomic, strong) NSButton* effectToggle;
 @property (nonatomic, strong) NSArray<NSDictionary*>* effects;
 @property (nonatomic, strong) NSStackView* rootStack;
 @property (nonatomic, strong) NSStackView* paramsStack;
 @end
+
+static NSString* const kFXLastEffectEnabledKey = @"FXLastEffectEnabled";
 
 @implementation FXViewController
 
@@ -59,7 +62,7 @@
     self.rootStack = [[NSStackView alloc] initWithFrame:NSZeroRect];
     self.rootStack.orientation = NSUserInterfaceLayoutOrientationVertical;
     self.rootStack.alignment = NSLayoutAttributeLeading;
-    self.rootStack.spacing = 8.0;
+    self.rootStack.spacing = 4.0;
     self.rootStack.edgeInsets = NSEdgeInsetsMake(10.0, 10.0, 10.0, 10.0);
     self.rootStack.translatesAutoresizingMaskIntoConstraints = NO;
     [self.content addSubview:self.rootStack];
@@ -84,7 +87,13 @@
     [self.effectMenu.heightAnchor constraintEqualToConstant:24.0].active = YES;
     self.effectMenu.accessibilityLabel = @"Effect selection";
 
-    NSStackView* header = [NSStackView stackViewWithViews:@[ self.effectLabel, self.effectMenu ]];
+    self.effectToggle = [NSButton checkboxWithTitle:@"On" target:self action:@selector(effectToggleChanged:)];
+    self.effectToggle.controlSize = NSControlSizeSmall;
+    self.effectToggle.state = NSControlStateValueOff;
+    self.effectToggle.translatesAutoresizingMaskIntoConstraints = NO;
+    [self.effectToggle.heightAnchor constraintEqualToConstant:20.0].active = YES;
+
+    NSStackView* header = [NSStackView stackViewWithViews:@[ self.effectLabel, self.effectMenu, self.effectToggle ]];
     header.orientation = NSUserInterfaceLayoutOrientationHorizontal;
     header.alignment = NSLayoutAttributeCenterY;
     header.spacing = 10.0;
@@ -124,13 +133,16 @@
 {
     self.effects = effects ?: @[];
     [self.effectMenu removeAllItems];
+
     for (NSDictionary* entry in self.effects) {
-        NSString* name = entry[@"name"];
+        NSString* name = entry[@"displayName"] ?: entry[@"name"];
         NSNumber* subtype = entry[@"subtype"];
         NSString* title = (name && name.length > 0) ? name : [NSString stringWithFormat:@"0x%08x", subtype.unsignedIntValue];
         [self.effectMenu addItemWithTitle:title];
     }
     [self selectEffectIndex:self.audioController.currentEffectIndex];
+    self.effectToggle.state = (self.audioController.currentEffectIndex >= 0) ? NSControlStateValueOn : NSControlStateValueOff;
+
     [self reloadParameterControls];
 }
 
@@ -149,11 +161,44 @@
         }
     }
     [self.audioController selectEffectWithDescription:desc indexHint:idx];
+
     [self reloadParameterControls];
+
     [self applyStoredParametersForCurrentEffect];
+
+    self.effectToggle.state = (idx >= 0) ? NSControlStateValueOn : NSControlStateValueOff;
     if (self.effectSelectionChanged != nil) {
         self.effectSelectionChanged(idx);
     }
+}
+
+- (void)effectToggleChanged:(id)sender
+{
+    if (self.effectToggle.state == NSControlStateValueOn) {
+        NSInteger selected = self.effectMenu.indexOfSelectedItem;
+        if (selected < 0 && self.effects.count > 0) {
+            selected = 0;
+            [self.effectMenu selectItemAtIndex:selected];
+        }
+        if (selected >= 0) {
+            // If already selected, just ensure it is enabled.
+            if (self.audioController.currentEffectIndex == selected) {
+                [self.audioController setEffectEnabled:YES];
+                [[NSUserDefaults standardUserDefaults] setBool:YES forKey:kFXLastEffectEnabledKey];
+            } else {
+                [self effectChanged:self.effectMenu];
+            }
+        }
+    } else {
+        [self.audioController setEffectEnabled:NO];
+        [[NSUserDefaults standardUserDefaults] setBool:NO forKey:kFXLastEffectEnabledKey];
+        [self reloadParameterControls];
+    }
+}
+
+- (void)setEffectEnabledState:(BOOL)enabled
+{
+    self.effectToggle.state = enabled ? NSControlStateValueOn : NSControlStateValueOff;
 }
 
 - (void)applyCurrentSelection

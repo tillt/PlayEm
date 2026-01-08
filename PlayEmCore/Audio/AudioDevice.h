@@ -13,21 +13,23 @@
 
 @interface AudioDevice : NSObject
 
-/*!
- @brief Returns the default audio output device ID.
- */
+/// Returns the default audio output device ID.
 + (AudioObjectID)defaultOutputDevice;
 
-/*!
- @brief Estimates total path latency in frames for the given device/scope.
- @discussion Fetches device latency, safety offset, buffer size, and the first
-             stream’s latency, and sums them. Returns 0 on error.
- */
+/// Estimates total path latency in frames for the given device/scope.
+///
+/// Fetches device latency, safety offset, buffer size, and the first stream’s latency, and sums them. Returns 0 on error.
+///
+/// - Parameters:
+///   - deviceId: Target device.
+///   - scope: Property scope.
+/// - Returns: Latency in frames, or 0 on error.
 + (AVAudioFramePosition)latencyForDevice:(AudioObjectID)deviceId scope:(AudioObjectPropertyScope)scope;
 
-/*!
- @brief Returns the human-readable device name, or nil on error.
- */
+/// Returns the human-readable device name, or nil on error.
+///
+/// - Parameter deviceId: Target device.
+/// - Returns: Device name or nil.
 + (NSString*)nameForDevice:(AudioObjectID)deviceId;
 
 @end

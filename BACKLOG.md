@@ -39,6 +39,7 @@
 - Machine-wide note: Xcode builds from the assistant session are unreliable—DerivedData is not writable here and code signing fails; disabling signing lets builds run but then execution/signature breaks. Outcome: user should trigger Xcode builds/tests; assistant should prototype in Python first, then translate to Objective-C/Swift; avoid chasing signing fixes.
 - Machine-wide note: ripgrep is available; use `rg`/`rg --files` as default. Avoid re-checking its syntax; remember flags and usage to prevent churn.
 - TODO: Ensure new files carry the standard header (filename, PlayEm, created by Till Toenshoff with date, and copyright).
+- Code docs: Objective-C/Objective-C++ headers should use DocC-style comments (`///` summary, blank line, `- Parameters:`/`- Returns:` as needed) for API documentation.
 
 - Feature idea: add VST3 effect hosting (audio FX only, no instruments/MIDI). Scope: scan/load VST3 bundles, host IAudioProcessor/Controller for audio in/out, expose parameters (UI + state save/restore), optional editor embedding, map buffers into process(), minimal process context (tempo optional), and crash-safe scanning/instantiation.
 
@@ -48,3 +49,4 @@
   - Mark coarse segments built only when real samples were read; skipped segments should retry instead of being marked built with placeholders.
   - WaveViewController already has per-range coarse invalidation to limit redraws.
 - AcceleratedBiquadFilter refactor: now uses per-instance coeff storage, cleans up vDSP setup in dealloc, and expects deinterleaved buffers via `applyToInputs`. Added tests with `MockLazySample` to sanity-check mono/stereo cases; callers must supply per-channel pointers. No further issues pending.
+- Audio playback timing: playtime display should be multiplied by the current tempo factor (time-stretch) so UI reflects adjusted duration/progress.

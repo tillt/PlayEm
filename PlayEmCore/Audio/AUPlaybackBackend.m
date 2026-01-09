@@ -78,8 +78,8 @@ static inline NSString* VendorNameFromManufacturer(OSType code)
 
 static OSStatus AUPlaybackRender(void* inRefCon, AudioUnitRenderActionFlags* ioActionFlags, const AudioTimeStamp* inTimeStamp, UInt32 inBusNumber,
                                  UInt32 inNumberFrames, AudioBufferList* ioData);
-static OSStatus AUPlaybackTapNotify(void* inRefCon, AudioUnitRenderActionFlags* ioActionFlags, const AudioTimeStamp* inTimeStamp, UInt32 inBusNumber,
-                                    UInt32 inNumberFrames, AudioBufferList* ioData);
+OSStatus AUPlaybackTapNotify(void* inRefCon, AudioUnitRenderActionFlags* ioActionFlags, const AudioTimeStamp* inTimeStamp, UInt32 inBusNumber,
+                             UInt32 inNumberFrames, AudioBufferList* ioData);
 
 @implementation AUPlaybackBackend
 
@@ -861,8 +861,8 @@ static OSStatus AUPlaybackRender(void* inRefCon, AudioUnitRenderActionFlags* ioA
     return noErr;
 }
 
-static OSStatus AUPlaybackTapNotify(void* inRefCon, AudioUnitRenderActionFlags* ioActionFlags, const AudioTimeStamp* inTimeStamp, UInt32 inBusNumber,
-                                    UInt32 inNumberFrames, AudioBufferList* ioData)
+OSStatus AUPlaybackTapNotify(void* inRefCon, AudioUnitRenderActionFlags* ioActionFlags, const AudioTimeStamp* inTimeStamp, UInt32 inBusNumber,
+                             UInt32 inNumberFrames, AudioBufferList* ioData)
 {
     AUPlaybackBackend* backend = (__bridge AUPlaybackBackend*) inRefCon;
     if (backend.tapBlock == nil || ioData->mNumberBuffers < 1) {

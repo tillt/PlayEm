@@ -369,7 +369,7 @@ static uint64_t HashAudioSlice(float* const* channels, uint32_t channelCount, AV
 {
     __weak typeof(self) weakSelf = self;
     __block BOOL done = NO;
-    __weak __block dispatch_block_t weakBlock;
+    __block dispatch_block_t queueBlock = NULL;
 
     _completionHandler = [callback copy];
     [_identifieds removeAllObjects];
@@ -404,12 +404,16 @@ static uint64_t HashAudioSlice(float* const* channels, uint32_t channelCount, AV
                                                 }];
 
     dispatch_block_t block = dispatch_block_create(DISPATCH_BLOCK_NO_QOS_CLASS, ^{
-        done = [weakSelf detectTracklist];
+        __strong typeof(weakSelf) strongSelf = weakSelf;
+        if (strongSelf == nil) {
+            return;
+        }
+        done = [strongSelf detectTracklist];
     });
 
-    weakBlock = block;
+    queueBlock = block;
     _queueOperation = block;
-    dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0), _queueOperation);
+    dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0), queueBlock);
 
     NSLog(@"starting track list detection");
     dispatch_block_notify(_queueOperation, dispatch_get_main_queue(), ^{
@@ -417,7 +421,7 @@ static uint64_t HashAudioSlice(float* const* channels, uint32_t channelCount, AV
         if (strongSelf == nil) {
             return;
         }
-        if (dispatch_block_testcancel(weakBlock) != 0) {
+        if (queueBlock != NULL && dispatch_block_testcancel(queueBlock) != 0) {
             return;
         }
         NSLog(@"track detection feed finished with %d - checking completion", done);

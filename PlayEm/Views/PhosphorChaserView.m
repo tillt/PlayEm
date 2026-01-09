@@ -55,7 +55,7 @@
         self.accessibilityLabel = @"Background activity indicator";
 
         _period = 1.0;
-        _decayFactor = 0.93;  // how much of the tail persists each frame
+        _decayFactor = 0.97;  // how much of the tail persists each frame
         _stopping = NO;
         _disappearing = NO;
 

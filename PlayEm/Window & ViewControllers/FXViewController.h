@@ -22,7 +22,6 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)hide;
 - (void)setAudioController:(AudioController*)audioController;
 - (void)applyCurrentSelection;
-// Reflect external effect on/off state in the toggle without triggering selection changes.
 - (void)setEffectEnabledState:(BOOL)enabled;
 
 @end

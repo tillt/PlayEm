@@ -2776,6 +2776,12 @@ typedef struct {
     _controlPanelController.tempoSlider.doubleValue = 1.0;
 }
 
+- (void)showEffects:(id)sender
+{
+    [_fxViewController updateEffects:_audioController.availableEffects];
+    [_fxViewController showWithParent:self.window];
+}
+
 - (void)effectsToggle:(id)sender
 {
     // Toggle FX window visibility. Effect on/off depends on selection (None keeps FX off but window open).

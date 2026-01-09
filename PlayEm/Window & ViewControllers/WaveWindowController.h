@@ -82,6 +82,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (IBAction)showIdentifier:(id)sender;
 - (IBAction)showActivity:(id)sender;
 - (IBAction)startTrackDetection:(id)sender;
+- (IBAction)showEffects:(id)sender;
+
 
 - (IBAction)playNext:(id)sender;
 - (IBAction)playPrevious:(id)sender;

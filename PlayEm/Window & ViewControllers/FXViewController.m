@@ -185,6 +185,7 @@ static NSString* const kFXLastEffectEnabledKey = @"FXLastEffectEnabled";
             if (self.audioController.currentEffectIndex == selected) {
                 [self.audioController setEffectEnabled:YES];
                 [[NSUserDefaults standardUserDefaults] setBool:YES forKey:kFXLastEffectEnabledKey];
+                [self applyStoredParametersForCurrentEffect];
             } else {
                 [self effectChanged:self.effectMenu];
             }
@@ -192,7 +193,7 @@ static NSString* const kFXLastEffectEnabledKey = @"FXLastEffectEnabled";
     } else {
         [self.audioController setEffectEnabled:NO];
         [[NSUserDefaults standardUserDefaults] setBool:NO forKey:kFXLastEffectEnabledKey];
-        [self reloadParameterControls];
+        // Keep current UI/values; do not reload to avoid pulling defaults from the unit.
     }
 }
 
@@ -243,6 +244,13 @@ static NSString* const kFXLastEffectEnabledKey = @"FXLastEffectEnabled";
     CGFloat valueWidth = 90.0;
     CGFloat spacing = 6.0;
 
+    // Preserve any persisted values so toggling bypass does not reset UI or parameters.
+    NSDictionary* persisted = nil;
+    NSString* persistedKey = [self defaultsKeyForEffectIndex:self.audioController.currentEffectIndex];
+    if (persistedKey.length > 0) {
+        persisted = [[NSUserDefaults standardUserDefaults] dictionaryForKey:persistedKey];
+    }
+
     for (NSNumber* key in keys) {
         NSDictionary* meta = info[key];
         NSString* name = meta[@"name"] ?: @"";
@@ -252,7 +260,14 @@ static NSString* const kFXLastEffectEnabledKey = @"FXLastEffectEnabled";
         double min = [meta[@"min"] doubleValue];
         double max = [meta[@"max"] doubleValue];
         double current = meta[@"current"] ? [meta[@"current"] doubleValue] : [meta[@"default"] doubleValue];
+        if (persisted != nil) {
+            id stored = persisted[[key stringValue]];
+            if (stored != nil) {
+                current = [stored doubleValue];
+            }
+        }
         AudioUnitParameterUnit unit = (AudioUnitParameterUnit)[meta[@"unit"] unsignedIntValue];
+        BOOL isBoolean = (unit == kAudioUnitParameterUnit_Boolean);
 
         NSStackView* row = [NSStackView stackViewWithViews:@[]];
         row.orientation = NSUserInterfaceLayoutOrientationHorizontal;
@@ -268,36 +283,55 @@ static NSString* const kFXLastEffectEnabledKey = @"FXLastEffectEnabled";
         [nameField.widthAnchor constraintEqualToConstant:nameWidth].active = YES;
         [nameField.heightAnchor constraintEqualToConstant:20.0].active = YES;
 
-        NSSlider* slider = [[NSSlider alloc] initWithFrame:NSZeroRect];
-        slider.minValue = min;
-        slider.maxValue = max;
-        slider.doubleValue = current;
-        slider.target = self;
-        slider.trackFillColor = [NSColor labelColor];
-        slider.action = @selector(parameterChanged:);
-        slider.tag = (NSInteger) key.unsignedIntValue;
-        slider.translatesAutoresizingMaskIntoConstraints = NO;
-        slider.controlSize = NSControlSizeMini;
-        [slider setContentHuggingPriority:NSLayoutPriorityDefaultLow forOrientation:NSLayoutConstraintOrientationHorizontal];
-        [slider setContentCompressionResistancePriority:NSLayoutPriorityDefaultLow forOrientation:NSLayoutConstraintOrientationHorizontal];
-        [slider.heightAnchor constraintEqualToConstant:16.0].active = YES;
-        [slider.widthAnchor constraintGreaterThanOrEqualToConstant:110.0].active = YES;
-        slider.accessibilityLabel = name;
-        slider.accessibilityTitleUIElement = nameField;
         NSString* unitText = [self displayUnitFor:unit];
-        if (unitText.length > 0) {
-            slider.accessibilityHelp = [NSString stringWithFormat:@"Range %.2f to %.2f %@", min, max, unitText];
+        NSControl* control = nil;
+        NSString* valueString = @"";
+
+        if (isBoolean) {
+            NSButton* toggle = [NSButton checkboxWithTitle:@"" target:self action:@selector(parameterChanged:)];
+            toggle.state = (current >= 0.5) ? NSControlStateValueOn : NSControlStateValueOff;
+            toggle.tag = (NSInteger) key.unsignedIntValue;
+            toggle.controlSize = NSControlSizeMini;
+            toggle.translatesAutoresizingMaskIntoConstraints = NO;
+            [toggle.heightAnchor constraintEqualToConstant:18.0].active = YES;
+            [toggle.widthAnchor constraintEqualToConstant:18.0].active = YES;
+            toggle.accessibilityLabel = name;
+            control = toggle;
+            //valueString = (toggle.state == NSControlStateValueOn) ? @"On" : @"Off";
         } else {
-            slider.accessibilityHelp = [NSString stringWithFormat:@"Range %.2f to %.2f", min, max];
+            NSSlider* slider = [[NSSlider alloc] initWithFrame:NSZeroRect];
+            slider.minValue = min;
+            slider.maxValue = max;
+            slider.doubleValue = current;
+            slider.target = self;
+            slider.trackFillColor = [NSColor labelColor];
+            slider.action = @selector(parameterChanged:);
+            slider.tag = (NSInteger) key.unsignedIntValue;
+            slider.translatesAutoresizingMaskIntoConstraints = NO;
+            slider.controlSize = NSControlSizeMini;
+            [slider setContentHuggingPriority:NSLayoutPriorityDefaultLow forOrientation:NSLayoutConstraintOrientationHorizontal];
+            [slider setContentCompressionResistancePriority:NSLayoutPriorityDefaultLow forOrientation:NSLayoutConstraintOrientationHorizontal];
+            [slider.heightAnchor constraintEqualToConstant:16.0].active = YES;
+            [slider.widthAnchor constraintGreaterThanOrEqualToConstant:110.0].active = YES;
+            slider.accessibilityLabel = name;
+            slider.accessibilityTitleUIElement = nameField;
+
+            NSString* help = [NSString stringWithFormat:@"Range %.2f to %.2f", min, max];
+            if (unitText.length > 0) {
+                help = [help stringByAppendingFormat:@" %@", unitText];
+            }
+            slider.accessibilityHelp = help;
+            control = slider;
+            valueString =
+                unitText.length > 0 ? [NSString stringWithFormat:@"%.2f %@", current, unitText] : [NSString stringWithFormat:@"%.2f", current];
         }
 
-        NSString* valueString = unitText.length > 0 ? [NSString stringWithFormat:@"%.2f %@", current, unitText] : [NSString stringWithFormat:@"%.2f", current];
         NSTextField* valueField = [NSTextField labelWithString:valueString];
         valueField.font = [[Defaults sharedDefaults] smallFont];
         valueField.alignment = NSTextAlignmentRight;
-        valueField.tag = slider.tag;
+        valueField.tag = control.tag;
         valueField.identifier = @"valueLabel";
-        valueField.toolTip = unitText;
+        valueField.toolTip = isBoolean ? @"boolean" : unitText;
         valueField.accessibilityLabel = name;
         valueField.accessibilityValue = valueString;
         if (unitText.length > 0) {
@@ -309,7 +343,7 @@ static NSString* const kFXLastEffectEnabledKey = @"FXLastEffectEnabled";
         [valueField.heightAnchor constraintEqualToConstant:20.0].active = YES;
 
         [row addArrangedSubview:nameField];
-        [row addArrangedSubview:slider];
+        [row addArrangedSubview:control];
         [row addArrangedSubview:valueField];
 
         [self.paramsStack addArrangedSubview:row];
@@ -319,31 +353,42 @@ static NSString* const kFXLastEffectEnabledKey = @"FXLastEffectEnabled";
 
 - (void)parameterChanged:(id)sender
 {
-    if (![sender isKindOfClass:[NSSlider class]]) {
+    AudioUnitParameterID param = (AudioUnitParameterID)[sender tag];
+    AudioUnitParameterValue value = 0.0f;
+
+    BOOL isBoolean = NO;
+    if ([sender isKindOfClass:[NSButton class]]) {
+        value = (((NSButton*) sender).state == NSControlStateValueOn) ? 1.0f : 0.0f;
+        isBoolean = YES;
+    } else if ([sender isKindOfClass:[NSSlider class]]) {
+        value = (AudioUnitParameterValue) ((NSSlider*) sender).doubleValue;
+    } else {
         return;
     }
-    NSSlider* slider = (NSSlider*) sender;
-    AudioUnitParameterID param = (AudioUnitParameterID) slider.tag;
-    AudioUnitParameterValue value = (AudioUnitParameterValue) slider.doubleValue;
+
     [self.audioController setEffectParameter:param value:value];
     [self persistParameter:param value:value];
+
     NSString* unitText = @"";
+
     for (NSView* v in self.paramsStack.arrangedSubviews) {
         if (![v isKindOfClass:[NSStackView class]]) {
             continue;
         }
         for (NSView* sub in ((NSStackView*) v).arrangedSubviews) {
-            if ([sub isKindOfClass:[NSTextField class]] && sub.tag == slider.tag && sub.identifier != nil && [sub.identifier isEqualToString:@"valueLabel"]) {
+            if ([sub isKindOfClass:[NSTextField class]] && sub.tag == param && sub.identifier != nil &&
+                [sub.identifier isEqualToString:@"valueLabel"]) {
                 unitText = ((NSTextField*) sub).toolTip ?: @"";
-                NSString* newValue =
-                    unitText.length > 0 ? [NSString stringWithFormat:@"%.2f %@", value, unitText] : [NSString stringWithFormat:@"%.2f", value];
+
+                NSString* newValue = @"";
+                if (!isBoolean && ![unitText isEqualToString:@"boolean"]) {
+                    newValue =
+                        unitText.length > 0 ? [NSString stringWithFormat:@"%.2f %@", value, unitText] : [NSString stringWithFormat:@"%.2f", value];
+                }
                 ((NSTextField*) sub).stringValue = newValue;
                 ((NSTextField*) sub).accessibilityValue = newValue;
             }
         }
-    }
-    if (unitText.length > 0 && slider.accessibilityHelp.length == 0) {
-        slider.accessibilityHelp = [NSString stringWithFormat:@"Value in %@", unitText];
     }
 }
 
@@ -397,10 +442,12 @@ static NSString* const kFXLastEffectEnabledKey = @"FXLastEffectEnabled";
     if (key.length == 0) {
         return;
     }
+
     NSDictionary* stored = [[NSUserDefaults standardUserDefaults] dictionaryForKey:key];
     if (stored.count == 0) {
         return;
     }
+
     for (id rawKey in stored) {
         AudioUnitParameterID param = 0;
         if ([rawKey isKindOfClass:[NSString class]]) {
@@ -410,32 +457,41 @@ static NSString* const kFXLastEffectEnabledKey = @"FXLastEffectEnabled";
         } else {
             continue;
         }
+
         double value = [stored[rawKey] doubleValue];
         [self.audioController setEffectParameter:param value:(AudioUnitParameterValue) value];
+
         // update UI if visible
         for (NSView* row in self.paramsStack.arrangedSubviews) {
             if (![row isKindOfClass:[NSStackView class]]) {
                 continue;
             }
             NSStackView* stack = (NSStackView*) row;
-            NSSlider* slider = nil;
+            NSControl* control = nil;
             NSTextField* valueField = nil;
             for (NSView* sub in stack.arrangedSubviews) {
-                if ([sub isKindOfClass:[NSSlider class]] && sub.tag == (NSInteger) param) {
-                    slider = (NSSlider*) sub;
+                if ([sub isKindOfClass:[NSControl class]] && sub.tag == (NSInteger) param) {
+                    control = (NSControl*) sub;
                 }
                 if ([sub isKindOfClass:[NSTextField class]] && sub.tag == (NSInteger) param && sub.identifier != nil &&
                     [sub.identifier isEqualToString:@"valueLabel"]) {
                     valueField = (NSTextField*) sub;
                 }
             }
-            if (slider != nil) {
-                slider.doubleValue = value;
+            if (control != nil) {
+                if ([control isKindOfClass:[NSButton class]]) {
+                    ((NSButton*) control).state = (value >= 0.5) ? NSControlStateValueOn : NSControlStateValueOff;
+                } else if ([control isKindOfClass:[NSSlider class]]) {
+                    ((NSSlider*) control).doubleValue = value;
+                }
             }
             if (valueField != nil) {
                 NSString* unitText = valueField.toolTip ?: @"";
-                NSString* newValue =
-                    unitText.length > 0 ? [NSString stringWithFormat:@"%.2f %@", value, unitText] : [NSString stringWithFormat:@"%.2f", value];
+                NSString* newValue = @"";
+                if (![unitText isEqualToString:@"boolean"]) {
+                    newValue =
+                        unitText.length > 0 ? [NSString stringWithFormat:@"%.2f %@", value, unitText] : [NSString stringWithFormat:@"%.2f", value];
+                }
                 valueField.stringValue = newValue;
                 valueField.accessibilityValue = newValue;
             }

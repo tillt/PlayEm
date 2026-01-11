@@ -17,6 +17,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 @protocol IdentifyViewControllerDelegate <NSObject>
 
+/// Add a detected track to the tracklist.
+///
+/// - Parameter track: Identified track metadata.
 - (void)addTrackToTracklist:(TimedMediaMetaData*)track;
 
 @end
@@ -25,7 +28,15 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic, weak) id<IdentifyViewControllerDelegate> delegate;
 
+/// Create an identification view controller bound to an audio controller.
+///
+/// - Parameters:
+///   - audioController: Audio controller providing playback and tap data.
+///   - delegate: Receiver for identified tracks.
 - (id)initWithAudioController:(AudioController*)audioController delegate:(id<IdentifyViewControllerDelegate>)delegate;
+/// Set the current identification source URL and refresh displayed results.
+///
+/// - Parameter url: Location of the audio being identified.
 - (void)setCurrentIdentificationSource:(NSURL*)url;
 @end
 

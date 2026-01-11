@@ -24,6 +24,7 @@
 #import "NSString+BeautifulPast.h"
 #import "NSString+OccurenceCount.h"
 #import "NSString+Sanitized.h"
+#import "NSData+Hashing.h"
 #import "NSURL+WithoutParameters.h"
 #import "TemporaryFiles.h"
 #import "TrackList.h"
@@ -172,6 +173,13 @@ NSString* const kMediaMetaDataMapTypeNumber = @"number";
     MediaMetaData* meta = [MediaMetaData new];
     meta.location = [NSURL fileURLWithPath:url.path];
     meta.title = [[meta.location lastPathComponent] stringByDeletingPathExtension];
+    return meta;
+}
+
++ (MediaMetaData*)unknownMediaMetaData
+{
+    MediaMetaData* meta = [MediaMetaData new];
+    meta.title = @"unknown";
     return meta;
 }
 
@@ -1329,17 +1337,14 @@ NSString* const kMediaMetaDataMapTypeNumber = @"number";
 
 - (NSString*)artworkHash
 {
-    NSData* data = self.artwork;
-    if (data != nil && _artworkHashKey.length == 0) {
-        unsigned char digest[CC_SHA256_DIGEST_LENGTH];
-
-        CC_SHA256(data.bytes, (CC_LONG) data.length, digest);
-
-        NSMutableString* s = [NSMutableString stringWithCapacity:24];
-        for (int i = 0; i < 12; i++) {
-            [s appendFormat:@"%02x", digest[i]];
+    // Assert that without data we also have no hash.
+    if (self.artwork != nil) {
+        // Assert we calculate that hash dynamically.
+        if (_artworkHashKey.length == 0) {
+            _artworkHashKey = [self.artwork shortSHA256];
         }
-        _artworkHashKey = s;
+    } else {
+        _artworkHashKey = nil;
     }
     return _artworkHashKey;
 }

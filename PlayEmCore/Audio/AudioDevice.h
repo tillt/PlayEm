@@ -32,5 +32,21 @@
 /// - Returns: Device name or nil.
 + (NSString*)nameForDevice:(AudioObjectID)deviceId;
 
+/// Returns the nominal sample rate (Hz) for the given device, or 0 on error.
+///
+/// - Parameter deviceId: Target device.
+/// - Returns: Sample rate in Hz, or 0 on error.
++ (Float64)sampleRateForDevice:(AudioObjectID)deviceId;
++ (BOOL)device:(AudioObjectID)deviceId supportsSampleRate:(Float64)rate;
++ (BOOL)setSampleRate:(Float64)rate forDevice:(AudioObjectID)deviceId;
+/// Attempt to set the device to the given rate and validate within the timeout (async).
+/// Completion is invoked on the main queue with YES if the device reports the requested rate (within 0.5 Hz) before timeout.
++ (void)switchDevice:(AudioObjectID)deviceId
+       toSampleRate:(Float64)rate
+            timeout:(NSTimeInterval)timeoutSeconds
+         completion:(void (^)(BOOL success))completion;
+/// Returns the highest available nominal sample rate the device reports, or 0 on error.
++ (Float64)highestSupportedSampleRateForDevice:(AudioObjectID)deviceId;
+
 @end
 #endif

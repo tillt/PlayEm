@@ -125,7 +125,7 @@ const NSUInteger BeatEventMaskMarkers = BeatEventStyleMarkIntro | BeatEventStyle
         _aubio_tempo = NULL;
 
         _beats = [NSMutableDictionary dictionary];
-        _shardFrameCount = ceil(sample.sampleFormat.rate * kBeatsShardSecondCount);
+        _shardFrameCount = ceil(sample.renderedSampleRate * kBeatsShardSecondCount);
         _constantBeats = nil;
 
         unsigned long long framesNeeded = _hopSize * 1024;
@@ -145,12 +145,12 @@ const NSUInteger BeatEventMaskMarkers = BeatEventStyleMarkIntro | BeatEventStyle
     assert(_aubio_input_buffer);
     _aubio_output_buffer = new_fvec((unsigned int) 1);
     assert(_aubio_output_buffer);
-    _aubio_tempo = new_aubio_tempo("default", (unsigned int) _windowWidth, (unsigned int) _hopSize, (unsigned int) _sample.sampleFormat.rate);
+    _aubio_tempo = new_aubio_tempo("default", (unsigned int) _windowWidth, (unsigned int) _hopSize, (unsigned int) _sample.renderedSampleRate);
     aubio_tempo_set_threshold(_aubio_tempo, 0.75f);
     assert(_aubio_tempo);
     _filterEnabled = YES;
     _filterFrequency = kParamFilterDefaultValue;
-    _filterConstant = _sample.sampleFormat.rate / (2.0f * M_PI * _filterFrequency);
+    _filterConstant = _sample.renderedSampleRate / (2.0f * M_PI * _filterFrequency);
 }
 
 - (void)cleanupTracking

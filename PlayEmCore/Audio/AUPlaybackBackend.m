@@ -61,8 +61,9 @@ static inline NSString* VendorNameFromManufacturer(OSType code)
 @property (atomic) unsigned long long baseFrame;
 @property (atomic) signed long long latencyFrames;
 @property (atomic) unsigned long long tapFrame;
-@property (nonatomic, assign) BOOL tapDumpEnabled;
-@property (nonatomic) FILE* tapDumpHandle;
+@property (nonatomic, assign, readwrite) BOOL effectEnabled;
+@property (nonatomic, assign, readwrite) BOOL tempoBypassed;
+@property (atomic) BOOL didSendEnd;
 
 - (OSStatus)createGraphAndNodes;
 - (OSStatus)configureFormats;
@@ -100,29 +101,16 @@ OSStatus AUPlaybackTapNotify(void* inRefCon, AudioUnitRenderActionFlags* ioActio
         _latencyFrames = 0;
         _tapFrame = 0;
         _hasEffect = NO;
+        _effectEnabled = NO;
+        _tempoBypassed = YES;
+        _didSendEnd = NO;
         memset(&_effectDescription, 0, sizeof(_effectDescription));
-        _tapDumpHandle = NULL;
-        _tapDumpEnabled = [[[NSProcessInfo processInfo] environment][@"PLAYEM_TAP_DUMP"] length] > 0;
-        if (_tapDumpEnabled) {
-            NSString* path = @"/tmp/playem_tap.raw";
-            _tapDumpHandle = fopen(path.UTF8String, "wb");
-            if (_tapDumpHandle != NULL) {
-                NSLog(@"AUPlaybackBackend: tap dumping enabled -> %@", path);
-            } else {
-                NSLog(@"AUPlaybackBackend: failed to open tap dump file at %@", path);
-                _tapDumpEnabled = NO;
-            }
-        }
     }
     return self;
 }
 
 - (void)dealloc
 {
-    if (_tapDumpHandle != NULL) {
-        fclose(_tapDumpHandle);
-        _tapDumpHandle = NULL;
-    }
     [self stop];
 
     if (_outputUnit != NULL) {
@@ -210,6 +198,7 @@ OSStatus AUPlaybackTapNotify(void* inRefCon, AudioUnitRenderActionFlags* ioActio
     self.sample = sample;
     self.baseFrame = 0;
     self.tapFrame = 0;
+    self.didSendEnd = NO;
     AudioObjectID deviceId = [AudioDevice defaultOutputDevice];
     self.latencyFrames = [AudioDevice latencyForDevice:deviceId scope:kAudioDevicePropertyScopeOutput];
 
@@ -225,6 +214,12 @@ OSStatus AUPlaybackTapNotify(void* inRefCon, AudioUnitRenderActionFlags* ioActio
         return;
     }
 
+    double deviceRate = [AudioDevice sampleRateForDevice:[AudioDevice defaultOutputDevice]];
+    NSLog(@"AUPlaybackBackend: starting playback (sample rate=%.2f Hz, device rate=%.2f Hz, latency frames=%llu, total frames=%llu)",
+          (double) self.sample.fileSampleRate,
+          deviceRate,
+          self.latencyFrames,
+          (unsigned long long) self.sample.frames);
     AudioOutputUnitStart(_outputUnit);
     AUGraphStart(_graph);
     _playing = YES;
@@ -260,12 +255,14 @@ OSStatus AUPlaybackTapNotify(void* inRefCon, AudioUnitRenderActionFlags* ioActio
     _paused = NO;
     _timePitchUnit = NULL;
     _effectUnit = NULL;
+    _didSendEnd = NO;
 }
 
 - (void)seekToFrame:(unsigned long long)frame
 {
     self.baseFrame = frame;
     self.tapFrame = frame;
+    _didSendEnd = NO;
 }
 
 - (unsigned long long)currentFrame
@@ -282,7 +279,7 @@ OSStatus AUPlaybackTapNotify(void* inRefCon, AudioUnitRenderActionFlags* ioActio
     if (self.sample == nil) {
         return 0;
     }
-    return ((NSTimeInterval)[self currentFrame] / self.sample.sampleFormat.rate);
+    return ((NSTimeInterval)[self currentFrame] / self.sample.renderedSampleRate);
 }
 
 - (void)setVolume:(float)volume
@@ -323,6 +320,7 @@ OSStatus AUPlaybackTapNotify(void* inRefCon, AudioUnitRenderActionFlags* ioActio
             NSLog(@"AUPlaybackBackend: failed to bypass effect res=%d", (int) bypassRes);
         }
         _hasEffect = YES;  // keep node alive but bypassed
+        _effectEnabled = NO;
         return YES;
     }
 
@@ -333,6 +331,7 @@ OSStatus AUPlaybackTapNotify(void* inRefCon, AudioUnitRenderActionFlags* ioActio
         if (bypassRes != noErr) {
             NSLog(@"AUPlaybackBackend: failed to un-bypass effect res=%d", (int) bypassRes);
         }
+        _effectEnabled = YES;
         return YES;
     }
 
@@ -343,8 +342,10 @@ OSStatus AUPlaybackTapNotify(void* inRefCon, AudioUnitRenderActionFlags* ioActio
 
     _hasEffect = enable;
     _effectDescription = description;
+    _effectEnabled = enable;
 
     OSStatus res = [self configureGraph];
+    _effectEnabled = (res == noErr) ? enable : NO;
     if (res == noErr && wasPlaying && self.sample != nil) {
         [self play];
     }
@@ -361,9 +362,10 @@ OSStatus AUPlaybackTapNotify(void* inRefCon, AudioUnitRenderActionFlags* ioActio
     return _tempo;
 }
 
-- (BOOL)setEffectEnabled:(BOOL)enabled
+- (BOOL)applyEffectEnabled:(BOOL)enabled
 {
     if (_effectUnit == NULL) {
+        _effectEnabled = NO;
         return NO;
     }
     UInt32 bypass = enabled ? 0 : 1;
@@ -373,6 +375,7 @@ OSStatus AUPlaybackTapNotify(void* inRefCon, AudioUnitRenderActionFlags* ioActio
         NSLog(@"AUPlaybackBackend: setEffectEnabled failed res=%d", (int) res);
         return NO;
     }
+    _effectEnabled = enabled;
     return YES;
 }
 
@@ -593,7 +596,7 @@ OSStatus AUPlaybackTapNotify(void* inRefCon, AudioUnitRenderActionFlags* ioActio
 - (AudioStreamBasicDescription)streamFormatForSample
 {
     AudioStreamBasicDescription fmt = {0};
-    fmt.mSampleRate = (Float64) self.sample.sampleFormat.rate;
+    fmt.mSampleRate = (Float64) self.sample.renderedSampleRate;
     fmt.mFormatID = kAudioFormatLinearPCM;
     fmt.mFormatFlags = kLinearPCMFormatFlagIsFloat | kAudioFormatFlagIsPacked | kAudioFormatFlagIsNonInterleaved;
     fmt.mFramesPerPacket = 1;
@@ -617,13 +620,16 @@ OSStatus AUPlaybackTapNotify(void* inRefCon, AudioUnitRenderActionFlags* ioActio
 
 - (void)applyTempo
 {
+    // Track bypass state even if the time-pitch unit is not yet available.
+    static const float kBypassEpsilon = 0.01f;
+    _tempoBypassed = (fabsf(_tempo - 1.0f) <= kBypassEpsilon);
+
     if (_timePitchUnit == NULL) {
         return;
     }
     AudioUnitParameterValue rate = _tempo;
 
     // Bypass when near unity to avoid coloration; always set bypass explicitly.
-    static const float kBypassEpsilon = 0.01f;
     UInt32 bypass = (fabsf(rate - 1.0f) <= kBypassEpsilon) ? 1 : 0;
     AudioUnitSetProperty(_timePitchUnit, kAudioUnitProperty_BypassEffect, kAudioUnitScope_Global, 0, &bypass, sizeof(bypass));
     if (!bypass) {
@@ -858,6 +864,15 @@ static OSStatus AUPlaybackRender(void* inRefCon, AudioUnitRenderActionFlags* ioA
         }
     }
     backend.baseFrame = backend.baseFrame + fetched;
+    if (!backend.didSendEnd && (fetched == 0 || backend.baseFrame >= backend.sample.frames)) {
+        backend.didSendEnd = YES;
+        id<AudioPlaybackBackendDelegate> delegate = backend.delegate;
+        if (delegate && [delegate respondsToSelector:@selector(playbackBackendDidEnd:)]) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [delegate playbackBackendDidEnd:backend];
+            });
+        }
+    }
     return noErr;
 }
 
@@ -865,6 +880,10 @@ OSStatus AUPlaybackTapNotify(void* inRefCon, AudioUnitRenderActionFlags* ioActio
                              UInt32 inNumberFrames, AudioBufferList* ioData)
 {
     AUPlaybackBackend* backend = (__bridge AUPlaybackBackend*) inRefCon;
+    // The render notify fires both pre- and post-render; we only want post-render audio.
+    if ((ioActionFlags == NULL) || ((*ioActionFlags & kAudioUnitRenderAction_PostRender) == 0)) {
+        return noErr;
+    }
     if (backend.tapBlock == nil || ioData->mNumberBuffers < 1) {
         return noErr;
     }
@@ -888,11 +907,5 @@ OSStatus AUPlaybackTapNotify(void* inRefCon, AudioUnitRenderActionFlags* ioActio
     unsigned long long framePos = backend.tapFrame;
     backend.tapFrame = backend.tapFrame + frames;
     backend.tapBlock(framePos, interleaved, frames);
-    if (backend.tapDumpEnabled && backend.tapDumpHandle != NULL && interleaved != NULL && frames > 0 && channels > 0) {
-        size_t toWrite = (size_t) frames * channels;
-        fwrite(interleaved, sizeof(float), toWrite, backend.tapDumpHandle);
-        fflush(backend.tapDumpHandle);
-    }
-
     return noErr;
 }

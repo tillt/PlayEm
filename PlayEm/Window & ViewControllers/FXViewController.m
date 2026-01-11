@@ -30,17 +30,19 @@ static NSString* const kFXLastEffectEnabledKey = @"FXLastEffectEnabled";
 - (instancetype)initWithAudioController:(AudioController*)audioController
 {
     NSPanel* panel = [[NSPanel alloc] initWithContentRect:NSMakeRect(0, 0, 380, 200)
-                                                styleMask:(NSWindowStyleMaskTitled | NSWindowStyleMaskClosable | NSWindowStyleMaskUtilityWindow)
+                                                styleMask:(NSWindowStyleMaskTitled | NSWindowStyleMaskClosable | NSWindowStyleMaskMiniaturizable)
                                                   backing:NSBackingStoreBuffered
                                                     defer:NO];
     self = [super initWithWindow:panel];
     if (self) {
         _audioController = audioController;
         _effects = @[];
-        panel.floatingPanel = YES;
-        panel.level = NSFloatingWindowLevel;
+        panel.floatingPanel = NO;
+        panel.level = NSNormalWindowLevel;
         panel.becomesKeyOnlyIfNeeded = YES;
-        panel.hidesOnDeactivate = YES;
+        panel.titlebarAppearsTransparent = YES;
+        panel.hidesOnDeactivate = NO;
+        panel.title = @"Effect";
         panel.collectionBehavior = NSWindowCollectionBehaviorTransient;
         [self buildUI];
     }
@@ -62,8 +64,9 @@ static NSString* const kFXLastEffectEnabledKey = @"FXLastEffectEnabled";
     self.rootStack = [[NSStackView alloc] initWithFrame:NSZeroRect];
     self.rootStack.orientation = NSUserInterfaceLayoutOrientationVertical;
     self.rootStack.alignment = NSLayoutAttributeLeading;
-    self.rootStack.spacing = 4.0;
-    self.rootStack.edgeInsets = NSEdgeInsetsMake(10.0, 10.0, 10.0, 10.0);
+    self.rootStack.spacing = 0.0;
+    // Top inset reduced; keep original horizontal padding.
+    self.rootStack.edgeInsets = NSEdgeInsetsMake(0.0, 20.0, 10.0, 20.0);
     self.rootStack.translatesAutoresizingMaskIntoConstraints = NO;
     [self.content addSubview:self.rootStack];
 
@@ -74,31 +77,43 @@ static NSString* const kFXLastEffectEnabledKey = @"FXLastEffectEnabled";
     [NSLayoutConstraint activateConstraints:@[ rootTop, rootLeading, rootTrailing, rootBottom ]];
 
     // Header row
-    self.effectLabel = [NSTextField labelWithString:@"Effect"];
-    self.effectLabel.font = [[Defaults sharedDefaults] smallFont];
-    self.effectLabel.accessibilityLabel = @"Effect";
-    [self.effectLabel.widthAnchor constraintEqualToConstant:60.0].active = YES;
-    [self.effectLabel.heightAnchor constraintEqualToConstant:20.0].active = YES;
-
-    self.effectMenu = [[NSPopUpButton alloc] initWithFrame:NSZeroRect pullsDown:NO];
-    self.effectMenu.target = self;
-    self.effectMenu.action = @selector(effectChanged:);
-    self.effectMenu.translatesAutoresizingMaskIntoConstraints = NO;
-    [self.effectMenu.heightAnchor constraintEqualToConstant:24.0].active = YES;
-    self.effectMenu.accessibilityLabel = @"Effect selection";
-
     self.effectToggle = [NSButton checkboxWithTitle:@"On" target:self action:@selector(effectToggleChanged:)];
     self.effectToggle.controlSize = NSControlSizeSmall;
     self.effectToggle.state = NSControlStateValueOff;
     self.effectToggle.translatesAutoresizingMaskIntoConstraints = NO;
-    [self.effectToggle.heightAnchor constraintEqualToConstant:20.0].active = YES;
 
-    NSStackView* header = [NSStackView stackViewWithViews:@[ self.effectLabel, self.effectMenu, self.effectToggle ]];
-    header.orientation = NSUserInterfaceLayoutOrientationHorizontal;
-    header.alignment = NSLayoutAttributeCenterY;
-    header.spacing = 10.0;
+    self.effectMenu = [[NSPopUpButton alloc] initWithFrame:NSZeroRect pullsDown:NO];
+    self.effectMenu.target = self;
+    self.effectMenu.font = [[Defaults sharedDefaults] smallFont];
+    self.effectMenu.action = @selector(effectChanged:);
+    self.effectMenu.translatesAutoresizingMaskIntoConstraints = NO;
+    self.effectMenu.accessibilityLabel = @"Effect selection";
+
+    NSView* header = [[NSView alloc] initWithFrame:NSZeroRect];
     header.translatesAutoresizingMaskIntoConstraints = NO;
     [self.rootStack addArrangedSubview:header];
+
+    [NSLayoutConstraint activateConstraints:@[
+        [header.heightAnchor constraintEqualToConstant:40.0]
+    ]];
+
+    // Place the toggle on the left and let the menu fill remaining space.
+    CGFloat margin = 0.0; // rely on rootStack edgeInsets for horizontal inset
+    CGFloat spacing = 8.0;
+    [header addSubview:self.effectToggle];
+    [header addSubview:self.effectMenu];
+
+    [NSLayoutConstraint activateConstraints:@[
+        [self.effectToggle.leadingAnchor constraintEqualToAnchor:header.leadingAnchor constant:margin],
+        [self.effectToggle.centerYAnchor constraintEqualToAnchor:header.centerYAnchor],
+        [self.effectToggle.heightAnchor constraintEqualToConstant:20.0],
+
+        [self.effectMenu.centerXAnchor constraintEqualToAnchor:header.centerXAnchor],
+        [self.effectMenu.leadingAnchor constraintGreaterThanOrEqualToAnchor:self.effectToggle.trailingAnchor constant:spacing],
+        [self.effectMenu.trailingAnchor constraintLessThanOrEqualToAnchor:header.trailingAnchor constant:-10.0],
+        [self.effectMenu.centerYAnchor constraintEqualToAnchor:header.centerYAnchor],
+        [self.effectMenu.heightAnchor constraintEqualToConstant:24.0]
+    ]];
 
     self.paramsStack = [[NSStackView alloc] initWithFrame:NSZeroRect];
     self.paramsStack.orientation = NSUserInterfaceLayoutOrientationVertical;
@@ -183,7 +198,7 @@ static NSString* const kFXLastEffectEnabledKey = @"FXLastEffectEnabled";
         if (selected >= 0) {
             // If already selected, just ensure it is enabled.
             if (self.audioController.currentEffectIndex == selected) {
-                [self.audioController setEffectEnabled:YES];
+                [self.audioController applyEffectEnabled:YES];
                 [[NSUserDefaults standardUserDefaults] setBool:YES forKey:kFXLastEffectEnabledKey];
                 [self applyStoredParametersForCurrentEffect];
             } else {
@@ -191,7 +206,7 @@ static NSString* const kFXLastEffectEnabledKey = @"FXLastEffectEnabled";
             }
         }
     } else {
-        [self.audioController setEffectEnabled:NO];
+        [self.audioController applyEffectEnabled:NO];
         [[NSUserDefaults standardUserDefaults] setBool:NO forKey:kFXLastEffectEnabledKey];
         // Keep current UI/values; do not reload to avoid pulling defaults from the unit.
     }
@@ -278,6 +293,7 @@ static NSString* const kFXLastEffectEnabledKey = @"FXLastEffectEnabled";
 
         NSTextField* nameField = [NSTextField labelWithString:name];
         nameField.font = [[Defaults sharedDefaults] smallFont];
+        nameField.textColor = [[Defaults sharedDefaults] secondaryLabelColor];
         nameField.lineBreakMode = NSLineBreakByTruncatingTail;
         nameField.accessibilityLabel = name;
         [nameField.widthAnchor constraintEqualToConstant:nameWidth].active = YES;
@@ -330,6 +346,7 @@ static NSString* const kFXLastEffectEnabledKey = @"FXLastEffectEnabled";
         valueField.font = [[Defaults sharedDefaults] smallFont];
         valueField.alignment = NSTextAlignmentRight;
         valueField.tag = control.tag;
+        valueField.textColor = [[Defaults sharedDefaults] secondaryLabelColor];
         valueField.identifier = @"valueLabel";
         valueField.toolTip = isBoolean ? @"boolean" : unitText;
         valueField.accessibilityLabel = name;

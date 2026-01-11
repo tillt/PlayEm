@@ -430,11 +430,17 @@
                                     <action selector="showActivity:" target="-1" id="nTl-f0-EpN"/>
                                 </connections>
                             </menuItem>
-                            <menuItem isSeparatorItem="YES" id="43A-u3-e8F"/>
-                            <menuItem title="Effects" id="Tg2-rB-gts">
+                            <menuItem title="Graph Info" id="Tg2-rB-gts">
                                 <modifierMask key="keyEquivalentModifierMask"/>
                                 <connections>
-                                    <action selector="showEffects:" target="-1" id="PfU-C9-wbh"/>
+                                    <action selector="showGraphStatus:" target="-1" id="q8X-l1-mgS"/>
+                                </connections>
+                            </menuItem>
+                            <menuItem isSeparatorItem="YES" id="Fb4-L2-BPK"/>
+                            <menuItem title="Effects" id="4tv-s1-1ma">
+                                <modifierMask key="keyEquivalentModifierMask"/>
+                                <connections>
+                                    <action selector="showEffects:" target="-1" id="WEZ-sZ-SWy"/>
                                 </connections>
                             </menuItem>
                             <menuItem isSeparatorItem="YES" id="vnJ-qL-XYw"/>

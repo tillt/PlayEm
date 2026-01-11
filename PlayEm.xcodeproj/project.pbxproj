@@ -16,6 +16,7 @@
 		BB1614B92AACB0C300F6C5E6 /* libaubio.5.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = BB1614B82AACB0C300F6C5E6 /* libaubio.5.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		BB1614BA2AACB0DF00F6C5E6 /* libaubio.5.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = BB1614B82AACB0C300F6C5E6 /* libaubio.5.dylib */; };
 		BB17E2692F0F0F68004F94F5 /* FXViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = BB17E2682F0F0F68004F94F5 /* FXViewController.m */; };
+		BB17E6362F1302B1004F94F5 /* GraphStatusViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = BB17E6352F1302B1004F94F5 /* GraphStatusViewController.m */; };
 		BB19A3772C5FAE0C00E5B4D2 /* CoreWLAN.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BB19A3762C5FAE0C00E5B4D2 /* CoreWLAN.framework */; };
 		BB2CB5652481A92600D47258 /* WaveWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = BB2CB5642481A92600D47258 /* WaveWindowController.m */; };
 		BB3926FF2C14B43E009C7B32 /* TableRowView.m in Sources */ = {isa = PBXBuildFile; fileRef = BB3926FE2C14B43E009C7B32 /* TableRowView.m */; };
@@ -201,6 +202,8 @@
 		BB1614B82AACB0C300F6C5E6 /* libaubio.5.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libaubio.5.dylib; sourceTree = "<group>"; };
 		BB17E2672F0F0F68004F94F5 /* FXViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FXViewController.h; sourceTree = "<group>"; };
 		BB17E2682F0F0F68004F94F5 /* FXViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FXViewController.m; sourceTree = "<group>"; };
+		BB17E6342F1302B1004F94F5 /* GraphStatusViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GraphStatusViewController.h; sourceTree = "<group>"; };
+		BB17E6352F1302B1004F94F5 /* GraphStatusViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GraphStatusViewController.m; sourceTree = "<group>"; };
 		BB19A3762C5FAE0C00E5B4D2 /* CoreWLAN.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreWLAN.framework; path = System/Library/Frameworks/CoreWLAN.framework; sourceTree = SDKROOT; };
 		BB25CF55255758CC005BFC32 /* LoadState.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LoadState.h; sourceTree = "<group>"; };
 		BB2CB5632481A92600D47258 /* WaveWindowController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WaveWindowController.h; sourceTree = "<group>"; };
@@ -479,6 +482,8 @@
 				BB51C1E82E5A4A320049355F /* CreditsViewController.m */,
 				BB7C626A2932E1540019AF25 /* ControlPanelController.h */,
 				BB7C626B2932E1540019AF25 /* ControlPanelController.m */,
+				BB17E6342F1302B1004F94F5 /* GraphStatusViewController.h */,
+				BB17E6352F1302B1004F94F5 /* GraphStatusViewController.m */,
 				BBC43B6E28D28CDD00CD1080 /* InfoPanel.h */,
 				BBC43B6F28D28CDD00CD1080 /* InfoPanel.m */,
 				BB5DC1F32F00A52100CCA2D6 /* ActivityViewController.h */,
@@ -946,6 +951,7 @@
 				BBA456E129395B970062D470 /* IdentifyViewController.m in Sources */,
 				BB5A4D9128FC5C2B003A733C /* NSBezierPath+CGPath.m in Sources */,
 				BB097A092921967700D33E44 /* LevelIndicatorCell.m in Sources */,
+				BB17E6362F1302B1004F94F5 /* GraphStatusViewController.m in Sources */,
 				BBDBBA7B2BA4B013003A80C1 /* WaveShaders.metal in Sources */,
 				BB2CB5652481A92600D47258 /* WaveWindowController.m in Sources */,
 				BB8A100728FF49E400FC6013 /* Scroller.m in Sources */,
@@ -1119,7 +1125,8 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
-				CODE_SIGN_IDENTITY = "Developer ID Application";
+				CODE_SIGN_IDENTITY = "Apple Development";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
@@ -1432,7 +1439,7 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = YK4D72U3YW;
-				"DEVELOPMENT_TEAM[sdk=macosx*]" = "";
+				"DEVELOPMENT_TEAM[sdk=macosx*]" = YK4D72U3YW;
 				ENABLE_HARDENED_RUNTIME = YES;
 				EXCLUDED_SOURCE_FILE_NAMES = AudioController.mm;
 				FRAMEWORK_SEARCH_PATHS = (

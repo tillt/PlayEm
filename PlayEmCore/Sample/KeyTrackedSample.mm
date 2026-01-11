@@ -108,7 +108,7 @@ const double kBeatSampleDurationThreshold = 30.0 * 60.0;
     }
 
     _audioData.setChannels(channels);
-    _audioData.setFrameRate((unsigned int) self->_sample.sampleFormat.rate);
+    _audioData.setFrameRate((unsigned int) self->_sample.renderedSampleRate);
     _audioData.addToSampleCount((unsigned int) self->_windowWidth * channels);
 
     unsigned long long sourceWindowFrameOffset = 0LL;

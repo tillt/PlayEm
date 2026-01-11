@@ -238,6 +238,9 @@ void performFFT(FFTSetup fft, float* data, size_t numberOfFrames, float* frequen
     // calculation.
     vDSP_fft_zript(fft, cache->output, 1, cache->computeBuffer, bufferLog2, kFFTDirection_Forward);
     // Take the absolute value of the output.
+    // NOTE: We intentionally copy only the first kFrequencyDataLength bins, dropping the upper half
+    // of the FFT before visualization/mel-scaling. This keeps the visual focus on lows/mids and
+    // reduces workload. melScaleFFT further caps the mel bank to the source Nyquist.
     vDSP_zvabs(cache->output, 1, frequencyData, 1, kFrequencyDataLength);
     // Scale the FFT data.
     float scale = framesOver2 / 2.0f;
@@ -459,13 +462,22 @@ static float* makeBiasedFilterBank(NSRange frequencyRange, int sampleCount, int 
 ///     (3 * 0.5 + 4 * 0.5) = 3.5 ]
 /// ```
 // Convert linear FFT magnitudes into mel-spaced bins of length
-// kScaledFrequencyDataLength in-place.
-void melScaleFFT(float* frequencyData)
+// kScaledFrequencyDataLength in-place. sampleRate caps the upper frequency to the source Nyquist.
+void melScaleFFT(float* frequencyData, double sampleRate, double renderRate)
 {
     static float* filterBank = NULL;
     static float* melBuffer = NULL;
-    if (filterBank == NULL) {
-        filterBank = makeFilterBank(NSMakeRange(20.0f, 19980.0f), (int) kFrequencyDataLength, kFilterBankCount);
+    static float lastMaxHz = 0.0f;
+    float maxHz = 20000.0f;  // cap visuals to ~20 kHz regardless of source rate
+    size_t sampleCount = kFrequencyDataLength;
+
+    if (filterBank == NULL || fabsf(lastMaxHz - maxHz) > 1.0f) {
+        if (filterBank != NULL) {
+            free(filterBank);
+            filterBank = NULL;
+        }
+        filterBank = makeFilterBank(NSMakeRange(20.0f, maxHz - 20.0f), (int) sampleCount, kFilterBankCount);
+        lastMaxHz = maxHz;
     }
     if (melBuffer == NULL) {
         int err = posix_memalign((void**) &melBuffer, 64, sizeof(float) * kFilterBankCount);
@@ -475,15 +487,46 @@ void melScaleFFT(float* frequencyData)
     // Ensure magnitudes are non-negative.
     vDSP_vabs(frequencyData, 1, frequencyData, 1, kFrequencyDataLength);
 
-    cblas_sgemm(CblasRowMajor, CblasNoTrans, CblasTrans, 1, kFilterBankCount, (int) kFrequencyDataLength, 1.0f, frequencyData, (int) kFrequencyDataLength,
-                filterBank, (int) kFrequencyDataLength, 0.0f, melBuffer, kFilterBankCount);
+    // Resample/warp the linear spectrum so 0..maxHz spans the entire buffer.
+    static float* warped = NULL;
+    static size_t warpedSize = 0;
+    if (warpedSize != kFrequencyDataLength) {
+        free(warped);
+        warped = calloc(kFrequencyDataLength, sizeof(float));
+        warpedSize = kFrequencyDataLength;
+    }
+    size_t activeBins = kFrequencyDataLength;
+    if (renderRate > 0.0) {
+        double renderNyquist = renderRate / 2.0;
+        if (renderNyquist > 0.0) {
+            activeBins = (size_t) llrint((maxHz / renderNyquist) * (double) kFrequencyDataLength);
+            activeBins = MIN(MAX(activeBins, (size_t) 1), (size_t) kFrequencyDataLength);
+        }
+    }
+    for (size_t j = 0; j < kFrequencyDataLength; j++) {
+        double srcPos = ((double) j / (double) (kFrequencyDataLength - 1)) * (double) (activeBins - 1);
+        size_t idx = (size_t) floor(srcPos);
+        double frac = srcPos - (double) idx;
+        float a = frequencyData[idx];
+        float b = (idx + 1 < activeBins) ? frequencyData[idx + 1] : a;
+        warped[j] = a + (float) (frac * (b - a));
+    }
+    // Preserve overall energy when expanding a smaller active range across the full buffer.
+    if (activeBins > 0 && activeBins < kFrequencyDataLength) {
+        // Scale gently to preserve some brightness without overamplifying highs.
+        float energyScale = sqrtf((float) activeBins / (float) kFrequencyDataLength);
+        vDSP_vsmul(warped, 1, &energyScale, warped, 1, kFrequencyDataLength);
+    }
+
+    // Project the warped linear bins into the mel bank.
+    cblas_sgemm(CblasRowMajor, CblasNoTrans, CblasTrans, 1, kFilterBankCount, (int) sampleCount, 1.0f, warped, (int) kFrequencyDataLength,
+                filterBank, (int) sampleCount, 0.0f, melBuffer, kFilterBankCount);
 
     // Use RMS of the mel bins as reference so single loud bins (e.g., bass) don't
     // suppress mids/highs.
     float meanSquare = 0.0f;
     vDSP_measqv(melBuffer, 1, &meanSquare, kFilterBankCount);
     float rms = sqrtf(meanSquare);
-    const float maxScale = 2.0f;
     float scale = MIN(1.0f / rms, 2.0);
     vDSP_vsmul(melBuffer, 1, &scale, frequencyData, 1, kFilterBankCount);
     float zero = 0.0f;

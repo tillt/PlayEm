@@ -123,7 +123,7 @@ unsigned long long AQPlaybackAdjustedFrame(unsigned long long baseFrame, double 
         return;
     }
     AudioStreamBasicDescription fmt = {0};
-    fmt.mSampleRate = (Float64) self.sample.sampleFormat.rate;
+    fmt.mSampleRate = (Float64) self.sample.renderedSampleRate;
     fmt.mFormatID = kAudioFormatLinearPCM;
     fmt.mFormatFlags = kLinearPCMFormatFlagIsFloat | kAudioFormatFlagIsPacked;
     fmt.mFramesPerPacket = 1;
@@ -260,7 +260,7 @@ unsigned long long AQPlaybackAdjustedFrame(unsigned long long baseFrame, double 
 
 - (NSTimeInterval)currentTime
 {
-    return ((NSTimeInterval)[self currentFrame] / self.sample.sampleFormat.rate);
+    return ((NSTimeInterval)[self currentFrame] / self.sample.renderedSampleRate);
 }
 
 - (void)setVolume:(float)volume

@@ -25,6 +25,8 @@
 #import "TimedMediaMetaData.h"
 #import "TrackList.h"
 #import "WaveView.h"
+#import "../NSData+Hashing.h"
+#import "MediaMetaData+ImageController.h"
 
 typedef enum : NSUInteger { NormalHandle = 0, HoverHandle = 1, PressedHandle, ActiveHandle } TrackMarkHandleState;
 
@@ -730,33 +732,53 @@ const CGFloat kMarkerHandleWidth = 6.0f;
 
         // Placeholder initially - we may need to resolve the data (unlikely for a
         // tracklist, very likely for a playlist).
-        imageLayer.contents = [NSImage resizedImageWithData:[MediaMetaData defaultArtworkData] size:imageLayer.frame.size];
         __weak CALayer* weakLayer = imageLayer;
-
-        void (^applyImage)(NSData*) = ^(NSData* data) {
-            [[ImageController shared] imageForData:data
-                                               key:track.meta.artworkHash
-                                              size:imageLayer.frame.size.width
-                                        completion:^(NSImage* image) {
-                                            if (image == nil || weakLayer == nil) {
-                                                return;
-                                            }
-                                            weakLayer.contents = image;
-                                        }];
-        };
-
-        if (track.meta.artwork != nil) {
-            applyImage(track.meta.artwork);
-        } else {
-            if (track.meta.artworkLocation != nil) {
-                assert(NO);
-                [[ImageController shared] resolveDataForURL:track.meta.artworkLocation
-                                                   callback:^(NSData* data) {
-                                                       track.meta.artwork = data;
-                                                       applyImage(track.meta.artwork);
-                                                   }];
+        [track.meta resolvedArtworkForSize:imageLayer.frame.size.width callback:^(NSImage* image) {
+            CALayer* strongLayer = weakLayer;
+            if (image == nil || strongLayer == nil) {
+                return;
             }
-        }
+            strongLayer.contents = image;
+        }];
+//        
+//        
+//        imageLayer.contents = [NSImage resizedImageWithData:[MediaMetaData defaultArtworkData] size:imageLayer.frame.size];
+//        __weak CALayer* weakLayer = imageLayer;
+//
+//        void (^applyImage)(NSData*) = ^(NSData* data) {
+//            [[ImageController shared] imageForData:data
+//                                               key:[data shortSHA256]
+//                                              size:imageLayer.frame.size.width
+//                                        completion:^(NSImage* image) {
+//                                            if (image == nil || weakLayer == nil) {
+//                                                return;
+//                                            }
+//                                            weakLayer.contents = image;
+//                                        }];
+//        };
+//
+//        [[ImageController shared] imageForData:[MediaMetaData defaultArtworkData]
+//                                           key:@"Default"
+//                                          size:imageLayer.frame.size.width
+//                                    completion:^(NSImage* image) {
+//            if (image == nil || weakLayer == nil) {
+//                return;
+//            }
+//            imageLayer.contents = image;
+//            
+//            if (track.meta.artwork != nil) {
+//                applyImage(track.meta.artwork);
+//            } else {
+//                if (track.meta.artworkLocation != nil) {
+//                    assert(NO);
+//                    [[ImageController shared] resolveDataForURL:track.meta.artworkLocation
+//                                                       callback:^(NSData* data) {
+//                        track.meta.artwork = data;
+//                        applyImage(track.meta.artwork);
+//                    }];
+//                }
+//            }
+//        }];
 
         NSAttributedString* title = [self textWithFont:_titleFont color:_titleColor text:track.meta.title != nil ? track.meta.title : @""];
         titleLayer.string = title;
@@ -1512,6 +1534,27 @@ const CGFloat kMarkerHandleWidth = 6.0f;
     [super mouseDragged:event];
 }
 
+- (void)removeFromTracklist:(id)sender
+{
+//    NSArray* framesToRemove = [self selectedFrames];
+//    for (NSNumber* number in framesToRemove) {
+//        unsigned long long frame = [number unsignedLongLongValue];
+//        [_current.trackList removeTrackAtFrame:frame];
+//    }
+//    // TODO: Add logic to spare us a reload.
+//    [_table reloadData];
+//    [_delegate updatedTracks];
+//
+//    _current.frameToSeconds = [self frameToSecondsBlock];
+//
+//    NSError* error = nil;
+//    BOOL done = [_current storeTracklistWithError:&error];
+//    if (!done) {
+//        NSLog(@"failed to write tracklist: %@", error);
+//    }
+//    _detectButton.hidden = _current.trackList.tracks.count > 0;
+}
+
 - (void)rightMouseDown:(NSEvent*)event
 {
     if (self.view.enclosingScrollView != nil) {
@@ -1530,7 +1573,13 @@ const CGFloat kMarkerHandleWidth = 6.0f;
             TimedMediaMetaData* track = [_trackList trackAtFrameNumber:frameOffset];
 
             NSMenu* menu = [[NSMenu alloc] initWithTitle:@""];
+ 
             NSMenuItem* item = [menu addItemWithTitle:@"Open in Apple Music" action:@selector(musicURLClickedWithTrack:) keyEquivalent:@""];
+            item.representedObject = track;
+            
+            [menu addItem:[NSMenuItem separatorItem]];
+
+            item = [menu addItemWithTitle:@"Remove from Tracklist" action:@selector(removeFromTracklist:) keyEquivalent:@""];
             item.representedObject = track;
 
             NSPoint mouseLocation = [NSEvent mouseLocation];

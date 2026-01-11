@@ -49,6 +49,10 @@ void performFFT(FFTSetup fft, float* data, size_t numberOfFrames, float* frequen
 ///
 /// Uses a wide mel bank (~20 Hz–20 kHz) and assumes input magnitudes of length kFrequencyDataLength (as produced by performFFT);
 /// overwrites the buffer with mel bins. No band remapping, tilt, or resampling is applied here.
-void melScaleFFT(float* frequencyData);
+/// Convert linear FFT magnitudes into mel-spaced bins in-place.
+/// @param frequencyData Pointer to linear magnitude buffer of length kFrequencyDataLength.
+/// @param sampleRate    Source sample rate (Hz); used to cap the mel range to the source Nyquist.
+/// @param renderRate    Actual render sample rate (Hz); bins beyond the source Nyquist relative to renderRate are zeroed.
+void melScaleFFT(float* frequencyData, double sampleRate, double renderRate);
 
 #endif /* AudioProcessing_h */

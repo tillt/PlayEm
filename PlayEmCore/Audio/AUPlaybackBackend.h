@@ -29,6 +29,12 @@
 - (NSArray<NSDictionary*>*)availableEffects;
 
 /// Enable or bypass the currently instantiated effect (keeps parameters intact).
-- (BOOL)setEffectEnabled:(BOOL)enabled;
+- (BOOL)applyEffectEnabled:(BOOL)enabled;
+
+/// Current effect enabled state (YES = audible, NO = bypassed).
+@property (nonatomic, assign, readonly) BOOL effectEnabled;
+
+/// Whether the tempo/time-pitch unit is bypassed (tempo near 1.0).
+@property (nonatomic, assign, readonly) BOOL tempoBypassed;
 
 @end

@@ -397,6 +397,23 @@ extern NSString* const kPlaybackStatePlaying;
     _effectsButton.layer.needsDisplayOnBoundsChange = YES;
     [self.view addSubview:_effectsButton];
 
+//    const CGFloat infoSize = 22.0;
+//    _infoButton = [[NSButton alloc] initWithFrame:NSMakeRect(_effectsButton.frame.origin.x + 18.0,
+//                                                             _effectsButton.frame.origin.y + infoSize - 8.0,
+//                                                             infoSize,
+//                                                             infoSize)];
+//    _infoButton.bezelStyle = NSBezelStyleTexturedRounded;
+//    _infoButton.bordered = NO;
+//    _infoButton.focusRingType = NSFocusRingTypeNone;
+//    NSImage *image = [NSImage imageWithSystemSymbolName:@"info.circle" accessibilityDescription:@"Device Information"];
+//    NSImageSymbolConfiguration* sc = [NSImageSymbolConfiguration configurationWithPaletteColors:@[[NSColor secondaryLabelColor]]];
+//    _infoButton.image = [image imageWithSymbolConfiguration:sc];
+//    _infoButton.imagePosition = NSImageOnly;
+//    _infoButton.contentTintColor = [NSColor controlTextColor];
+//    _infoButton.target = self;
+//    _infoButton.action = @selector(showGraphStatus:);
+//    [self.view addSubview:_infoButton];
+
     _level = [[NSLevelIndicator alloc] initWithFrame:NSMakeRect(_volumeSlider.frame.origin.x + 2.0,
                                                                 _volumeSlider.frame.origin.y + levelHeight - 4.0,
                                                                 sliderWidth - 4,
@@ -460,8 +477,8 @@ extern NSString* const kPlaybackStatePlaying;
     [self.view addSubview:_bpm];
     
     const CGFloat chaserSize = 46;
-    CGFloat chaserX = _beatIndicator.frame.origin.x + 104.0;
-    CGFloat chaserY = _bpm.frame.origin.y + 8.0 - ((chaserSize / 2.0));
+    CGFloat chaserX = _beatIndicator.frame.origin.x + 98.0;
+    CGFloat chaserY = _bpm.frame.origin.y + 6.0 - ((chaserSize / 2.0));
     _activityChaser = [[PhosphorChaserView alloc] initWithFrame:NSMakeRect(chaserX, chaserY, chaserSize, chaserSize)];
     _activityChaser.autoresizingMask = NSViewNotSizable;
     [self.view addSubview:_activityChaser];

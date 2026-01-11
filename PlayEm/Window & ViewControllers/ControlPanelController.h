@@ -13,6 +13,7 @@ NS_ASSUME_NONNULL_BEGIN
 @class ScrollingTextView;
 @class MediaMetaData;
 @class SymbolButton;
+@class GraphStatusViewController;
 
 @protocol ControlPanelControllerDelegate <NSObject>
 
@@ -23,6 +24,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)tempoChange:(id)sender;
 - (void)resetTempo:(id)sender;
 - (void)effectsToggle:(id)sender;
+- (void)showGraphStatus:(id)sender;
 
 @end
 
@@ -39,6 +41,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (strong, nonatomic) CIFilter* zoomBlur;
 @property (strong, nonatomic) MediaMetaData* meta;
 @property (strong, nonatomic) NSButton* effectsButton;
+//@property (strong, nonatomic) NSButton* infoButton;
 
 @property (assign, nonatomic) BOOL durationUnitTime;
 

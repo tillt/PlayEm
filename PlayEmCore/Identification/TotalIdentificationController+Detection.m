@@ -69,7 +69,7 @@ static uint64_t HashAudioSlice(float* const* channels, uint32_t channelCount, AV
     AVAudioFrameCount matchWindowFrameCount = _hopSize;
     AVAudioChannelLayout* layout = [[AVAudioChannelLayout alloc] initWithLayoutTag:kAudioChannelLayoutTag_Mono];
     AVAudioFormat* format = [[AVAudioFormat alloc] initWithCommonFormat:AVAudioPCMFormatFloat32
-                                                             sampleRate:sampleFormat.rate
+                                                             sampleRate:_sample.renderedSampleRate
                                                             interleaved:NO
                                                           channelLayout:layout];
 
@@ -151,7 +151,7 @@ static uint64_t HashAudioSlice(float* const* channels, uint32_t channelCount, AV
             });
             _matchRequestCount += 1;
 
-            AVAudioTime* time = [AVAudioTime timeWithSampleTime:chunkStartFrame atRate:sampleFormat.rate];
+            AVAudioTime* time = [AVAudioTime timeWithSampleTime:chunkStartFrame atRate:_sample.renderedSampleRate];
             [_session matchStreamingBuffer:stream atTime:time];
         };
         _totalFrameCursor += received;
@@ -162,11 +162,11 @@ static uint64_t HashAudioSlice(float* const* channels, uint32_t channelCount, AV
 
 - (BOOL)detectTracklist
 {
-    NSUserDefaults* defaults = [NSUserDefaults standardUserDefaults];
-    self.useStreamingMatch = [defaults boolForKey:@"UseStreamingMatch"];
-    if (self.useStreamingMatch) {
-        return [self detectTracklistStreaming];
-    }
+//    NSUserDefaults* defaults = [NSUserDefaults standardUserDefaults];
+//    self.useStreamingMatch = [defaults boolForKey:@"UseStreamingMatch"];
+//    if (self.useStreamingMatch) {
+//        return [self detectTracklistStreaming];
+//    }
 
     NSLog(@"detectTracklist");
     _session = [[SHSession alloc] init];
@@ -175,11 +175,10 @@ static uint64_t HashAudioSlice(float* const* channels, uint32_t channelCount, AV
     SampleFormat sampleFormat = _sample.sampleFormat;
 
     AVAudioFrameCount matchWindowFrameCount = _hopSize;
-    defaults = [NSUserDefaults standardUserDefaults];
-    BOOL downmixToMono = [defaults boolForKey:@"DownmixToMono"];
+    BOOL downmixToMono = NO;
     AVAudioChannelLayout* layout = [[AVAudioChannelLayout alloc] initWithLayoutTag:downmixToMono ? kAudioChannelLayoutTag_Mono : kAudioChannelLayoutTag_Stereo];
     AVAudioFormat* format = [[AVAudioFormat alloc] initWithCommonFormat:AVAudioPCMFormatFloat32
-                                                             sampleRate:sampleFormat.rate
+                                                             sampleRate:_sample.renderedSampleRate
                                                             interleaved:NO
                                                           channelLayout:layout];
 
@@ -194,28 +193,15 @@ static uint64_t HashAudioSlice(float* const* channels, uint32_t channelCount, AV
 #ifdef DEBUG_TAPPING
     FILE* fp = fopen("/tmp/debug_tap.out", "wb");
 #endif
-    const double minSignatureSeconds = 3.0;
-    defaults = [NSUserDefaults standardUserDefaults];
-    double targetSignatureSeconds = [defaults doubleForKey:@"SignatureWindowSeconds"];
-    if (targetSignatureSeconds <= 0.0) {
-        targetSignatureSeconds = 8.0;
-    }
-    double maxSignatureSeconds = [defaults doubleForKey:@"SignatureWindowMaxSeconds"];
-    if (maxSignatureSeconds <= 0.0) {
-        maxSignatureSeconds = targetSignatureSeconds;
-    }
-    self.signatureWindowSeconds = targetSignatureSeconds;
-    self.signatureWindowMaxSeconds = maxSignatureSeconds;
-    if (_debugScoring && (targetSignatureSeconds < minSignatureSeconds || targetSignatureSeconds > 12.0)) {
-        NSLog(@"[Detect] signature window %.2fs outside recommended 3–12s range", targetSignatureSeconds);
-    }
+    // min is 3, max is 12.
+    double targetSignatureSeconds = 10.0;
     SHSignatureGenerator* generator = [[SHSignatureGenerator alloc] init];
     double accumulatedSeconds = 0.0;
     unsigned long long signatureStartFrame = 0;
     unsigned long long signatureLocalFrame = 0;
     uint64_t lastSliceHash = 0;
-    defaults = [NSUserDefaults standardUserDefaults];
-    BOOL useNilTime = ![defaults boolForKey:@"UseSignatureTimes"];
+    //defaults = [NSUserDefaults standardUserDefaults];
+    BOOL useNilTime = NO;
 
     static BOOL loggedAppendFailure = NO;
     static BOOL loggedAppendSuccess = NO;
@@ -293,7 +279,7 @@ static uint64_t HashAudioSlice(float* const* channels, uint32_t channelCount, AV
             NSError* signatureError = nil;
             AVAudioTime* time = nil;
             if (!useNilTime) {
-                time = [AVAudioTime timeWithSampleTime:(AVAudioFramePosition) signatureLocalFrame atRate:sampleFormat.rate];
+                time = [AVAudioTime timeWithSampleTime:(AVAudioFramePosition) signatureLocalFrame atRate:_sample.renderedSampleRate];
             }
             BOOL appended = AppendSignatureBuffer(generator, stream, time, &signatureError);
             if (!appended) {
@@ -308,9 +294,9 @@ static uint64_t HashAudioSlice(float* const* channels, uint32_t channelCount, AV
             if (_debugScoring && !loggedAppendSuccess) {
                 loggedAppendSuccess = YES;
             }
-            accumulatedSeconds += (double) inputWindowFrameCount / sampleFormat.rate;
+            accumulatedSeconds += (double) inputWindowFrameCount / _sample.renderedSampleRate;
 
-            BOOL shouldMatch = (accumulatedSeconds >= targetSignatureSeconds) || (accumulatedSeconds >= maxSignatureSeconds);
+            BOOL shouldMatch = (accumulatedSeconds >= targetSignatureSeconds);
             if (shouldMatch) {
                 SHSignature* signature = [generator signature];
                 if (signature == nil) {
@@ -343,24 +329,6 @@ static uint64_t HashAudioSlice(float* const* channels, uint32_t channelCount, AV
         };
         _totalFrameCursor += received;
     };
-    if (accumulatedSeconds >= minSignatureSeconds) {
-        SHSignature* signature = generator.signature;
-        if (signature != nil) {
-            _sessionFrameOffset = signatureStartFrame;
-            NSNumber* offset = [NSNumber numberWithUnsignedLongLong:signatureStartFrame];
-            dispatch_sync(_identifyQueue, ^{
-                [_pendingMatchOffsets addObject:offset];
-                _inFlightCount += 1;
-                if (_inFlightCount > _maxInFlightCount) {
-                    _maxInFlightCount = _inFlightCount;
-                }
-                _requestStartTimeByOffset[offset] = @(CFAbsoluteTimeGetCurrent());
-                _requestSliceHashByOffset[offset] = [NSString stringWithFormat:@"%016llx", lastSliceHash];
-            });
-            _matchRequestCount += 1;
-            [_session matchSignature:signature];
-        }
-    }
     _finishedFeeding = YES;
     return YES;
 }
@@ -463,7 +431,7 @@ static uint64_t HashAudioSlice(float* const* channels, uint32_t channelCount, AV
               minLatency, _responseLatencyMax);
     }
     if (_debugScoring && _firstMatchFrame != ULLONG_MAX) {
-        double rate = _sample != nil ? _sample.sampleFormat.rate : 0.0;
+        double rate = _sample != nil ? _sample.renderedSampleRate : 0.0;
         double firstMatchSeconds = rate > 0.0 ? ((double) _firstMatchFrame / rate) : 0.0;
         NSMutableArray<NSNumber*>* sorted = [_matchFrames mutableCopy];
         [sorted sortUsingComparator:^NSComparisonResult(NSNumber* a, NSNumber* b) {

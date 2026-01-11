@@ -11,6 +11,7 @@
 #import "../Defaults.h"
 #import "../NSImage+Resize.h"
 #import "ImageController.h"
+#import "MediaMetaData+ImageController.h"
 
 static const NSAutoresizingMaskOptions kViewFullySizeable = NSViewHeightSizable | NSViewWidthSizable;
 
@@ -329,8 +330,6 @@ static const NSAutoresizingMaskOptions kViewFullySizeable = NSViewHeightSizable 
     NSUInteger historyLength = _history.count;
 
     if ([tableColumn.identifier isEqualToString:@"CoverColumn"]) {
-        NSImageView* iv = (NSImageView*) result.subviews[0];
-
         MediaMetaData* source;
 
         if (row >= historyLength) {
@@ -339,40 +338,21 @@ static const NSAutoresizingMaskOptions kViewFullySizeable = NSViewHeightSizable 
             assert(_history.count > row);
             source = _history[row];
         }
-        // Placeholder initially - we may need to resolve the data (unlikely for a
-        // tracklist, very likely for a playlist).
-        iv.image = [NSImage resizedImageWithData:[MediaMetaData defaultArtworkData] size:iv.frame.size];
 
+        NSImageView* iv = (NSImageView*) result.subviews[0];
         __weak NSView* weakView = result;
         __weak NSTableView* weakTable = tableView;
-
-        void (^applyImage)(NSData*) = ^(NSData* data) {
-            [[ImageController shared] imageForData:data
-                                               key:source.artworkHash
-                                              size:iv.frame.size.width
-                                        completion:^(NSImage* image) {
-                                            if (image == nil || weakView == nil || weakTable == nil) {
-                                                return;
-                                            }
-                                            if ([weakTable rowForView:weakView] == row) {
-                                                NSImageView* iv = (NSImageView*) result.subviews[0];
-                                                iv.image = image;
-                                            }
-                                        }];
-        };
-
-        if (source != nil) {
-            applyImage(source.artwork);
-        } else {
-            if (source.artworkLocation != nil) {
-                assert(NO);
-                [[ImageController shared] resolveDataForURL:source.artworkLocation
-                                                   callback:^(NSData* data) {
-                                                       source.artwork = data;
-                                                       applyImage(source.artwork);
-                                                   }];
+        [source resolvedArtworkForSize:iv.frame.size.width callback:^(NSImage* image) {
+            __weak NSView* strongView = weakView;
+            __weak NSTableView* strongTable = weakTable;
+            if (image == nil || strongView == nil || strongTable == nil) {
+                return;
             }
-        }
+            if ([strongTable rowForView:strongView] == row) {
+                NSImageView* iv = (NSImageView*)strongView.subviews[0];
+                iv.image = image;
+            }
+        }];
     } else {
         NSString* title = nil;
         NSString* artist = nil;

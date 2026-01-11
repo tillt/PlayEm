@@ -18,9 +18,8 @@
 #import "ActivityManager.h"
 #import "ActivityViewController.h"
 #import "AudioController.h"
+#import "AudioDevice.h"
 
-static NSString* const kFXLastEffectDefaultsKey = @"FXLastEffectComponent";
-static NSString* const kFXLastEffectEnabledKey = @"FXLastEffectEnabled";
 #import "BeatTrackedSample.h"
 #import "BrowserController.h"
 #import "ControlPanelController.h"
@@ -40,6 +39,7 @@ static NSString* const kFXLastEffectEnabledKey = @"FXLastEffectEnabled";
 #import "PhosphorChaserView.h"
 #import "PlaylistController.h"
 #import "ProfilingPointsOfInterest.h"
+#import "GraphStatusViewController.h"
 #import "ScopeRenderer.h"
 #import "SymbolButton.h"
 #import "TableHeaderCell.h"
@@ -51,6 +51,10 @@ static NSString* const kFXLastEffectEnabledKey = @"FXLastEffectEnabled";
 #import "WaveScrollView.h"
 #import "WaveView.h"
 #import "WaveViewController.h"
+
+static NSString* const kFXLastEffectDefaultsKey = @"FXLastEffectComponent";
+static NSString* const kFXLastEffectEnabledKey = @"FXLastEffectEnabled";
+static NSString *const kSkipRateMismatchWarning = @"SkipRateMismatchWarning";
 
 @class BeatLayerDelegate;
 @class WaveLayerDelegate;
@@ -148,6 +152,7 @@ os_log_t pointsOfInterest;
 @property (strong, nonatomic) NSWindowController* identifyWindowController;
 @property (strong, nonatomic) NSWindowController* aboutWindowController;
 @property (strong, nonatomic) NSWindowController* activityWindowController;
+@property (strong, nonatomic) NSWindowController* graphStatusWindowController;
 @property (strong, nonatomic) FXViewController* fxViewController;
 
 @property (strong, nonatomic) NSViewController* aboutViewController;
@@ -204,9 +209,8 @@ os_log_t pointsOfInterest;
     // os_signpost_interval_begin(pointsOfInterest, POICADisplayLink,
     // "CADisplayLink");
     //  Substract the latency introduced by the output device setup to compensate
-    //  and get video in sync with audible audio.
-    const AVAudioFramePosition delta = [self.audioController totalLatency];
-    AVAudioFramePosition frame = self.audioController.currentFrame >= delta ? self.audioController.currentFrame - delta : 0;
+    //  and get video in sync with audible audio. (done by the abstraction)
+    AVAudioFramePosition frame = self.audioController.currentFrame;
 
     // Add the delay until the video gets visible to the playhead position for
     // compensation.
@@ -1548,6 +1552,7 @@ call super's supplementalTargetForAction:sender:.
     [sharedApplication runModalForWindow:_infoWindowController.window];
 }
 
+
 - (void)showInfoForCurrentSong:(id)sender
 {
     [_browser showInfoForCurrentSong:sender];
@@ -1573,15 +1578,60 @@ call super's supplementalTargetForAction:sender:.
         window.styleMask &= ~(NSWindowStyleMaskResizable | NSWindowStyleMaskMiniaturizable);
         window.titleVisibility = NSWindowTitleVisible;
         window.movableByWindowBackground = YES;
-        window.titlebarAppearsTransparent = YES;
-        window.level = NSFloatingWindowLevel;
+        window.hidesOnDeactivate = NO;
+        window.floatingPanel = NO;
+        window.titlebarAppearsTransparent = NO;
+        window.titlebarSeparatorStyle = NSTitlebarSeparatorStyleShadow;
+        window.level = NSNormalWindowLevel;
         window.title = @"Activity";
         _activityWindowController.window = window;
     } else {
         window = (NSPanel*) self.activityWindowController.window;
     }
-    [window setFloatingPanel:YES];
+    window.floatingPanel = NO;
     [window makeKeyAndOrderFront:nil];
+}
+
+- (void)showGraphStatus:(id)sender
+{
+    NSPanel* window = nil;
+
+    if (_graphStatusWindowController == nil) {
+        self.graphStatusWindowController = [NSWindowController new];
+    }
+
+    if (_graphStatusWindowController.window == nil) {
+        GraphStatusViewController* vc = [[GraphStatusViewController alloc] initWithAudioController:self.audioController sample:self.sample];
+        [vc updateSample:self.sample];
+        [vc view];
+        NSPanel* panel = [NSPanel windowWithContentViewController:vc];
+        window = panel;
+        window.styleMask &= ~(NSWindowStyleMaskResizable);
+        window.titleVisibility = NSWindowTitleVisible;
+        window.movableByWindowBackground = YES;
+        window.titlebarAppearsTransparent = NO;
+        window.level = NSNormalWindowLevel;
+        window.hidesOnDeactivate = NO;
+        window.floatingPanel = NO;
+        window.titlebarSeparatorStyle = NSTitlebarSeparatorStyleShadow;
+        window.title = @"Audio Graph Status";
+        NSSize size = NSMakeSize(360.0, 220.0);
+        [window setContentSize:size];
+        _graphStatusWindowController.window = window;
+    } else {
+        window = (NSPanel*) _graphStatusWindowController.window;
+        if ([window.contentViewController isKindOfClass:[GraphStatusViewController class]]) {
+            GraphStatusViewController* vc = (GraphStatusViewController*) window.contentViewController;
+            [vc updateSample:self.sample];
+        }
+    }
+    [window makeKeyAndOrderFront:nil];
+}
+
+- (void)showEffects:(id)sender
+{
+    [_fxViewController updateEffects:_audioController.availableEffects];
+    [_fxViewController showWithParent:self.window];
 }
 
 - (void)showPlaylist:(id)sender
@@ -1613,6 +1663,50 @@ call super's supplementalTargetForAction:sender:.
                 self.effectBelowPlaylist.alphaValue = 0.0f;
             }
         }];
+}
+
+- (void)showIdentifier:(id)sender
+{
+    _identifyToolbarButton.state = NSControlStateValueOn;
+
+    NSApplication* sharedApplication = [NSApplication sharedApplication];
+
+    NSPanel* window = (NSPanel*) _identifyWindowController.window;
+    if (window.isVisible) {
+        [window close];
+        return;
+    }
+
+    if (_identifyWindowController == nil) {
+        self.identifyWindowController = [NSWindowController new];
+    }
+
+    if (_iffy == nil) {
+        self.iffy = [[IdentifyViewController alloc] initWithAudioController:_audioController delegate:self];
+        [_iffy view];
+
+        NSPanel* panel = [NSPanel windowWithContentViewController:_iffy];
+        window = panel;
+        window.styleMask &= ~NSWindowStyleMaskResizable | NSWindowStyleMaskTitled;
+        window.floatingPanel = NO;
+        window.level = NSNormalWindowLevel;
+        window.titleVisibility = NSWindowTitleHidden;
+        window.movableByWindowBackground = YES;
+        window.becomesKeyOnlyIfNeeded = YES;
+        window.hidesOnDeactivate = NO;
+        window.titlebarAppearsTransparent = YES;
+        window.appearance = sharedApplication.mainWindow.appearance;
+        [window standardWindowButton:NSWindowCloseButton].hidden = NO;
+        [window standardWindowButton:NSWindowZoomButton].hidden = YES;
+        [window standardWindowButton:NSWindowMiniaturizeButton].hidden = YES;
+        _identifyWindowController.window = window;
+    } else {
+        window = (NSPanel*) _identifyWindowController.window;
+    }
+    [_iffy setCurrentIdentificationSource:_meta.location];
+    window.floatingPanel = NO;
+
+    [window makeKeyAndOrderFront:nil];
 }
 
 - (void)showAbout:(id)sender
@@ -1717,48 +1811,6 @@ call super's supplementalTargetForAction:sender:.
     }
 }
 
-- (void)showIdentifier:(id)sender
-{
-    _identifyToolbarButton.state = NSControlStateValueOn;
-
-    NSApplication* sharedApplication = [NSApplication sharedApplication];
-
-    NSPanel* window = (NSPanel*) _identifyWindowController.window;
-    if (window.isVisible) {
-        [window close];
-        return;
-    }
-
-    if (_identifyWindowController == nil) {
-        self.identifyWindowController = [NSWindowController new];
-    }
-
-    if (_iffy == nil) {
-        self.iffy = [[IdentifyViewController alloc] initWithAudioController:_audioController delegate:self];
-        [_iffy view];
-
-        NSPanel* panel = [NSPanel windowWithContentViewController:_iffy];
-        window = panel;
-        window.styleMask &= ~NSWindowStyleMaskResizable | NSWindowStyleMaskTitled;
-        window.styleMask |= NSWindowStyleMaskUtilityWindow;
-        window.titleVisibility = NSWindowTitleHidden;
-        window.movableByWindowBackground = YES;
-        window.titlebarAppearsTransparent = YES;
-        window.level = NSFloatingWindowLevel;
-        window.appearance = sharedApplication.mainWindow.appearance;
-        [window standardWindowButton:NSWindowZoomButton].hidden = NO;
-        [window standardWindowButton:NSWindowCloseButton].hidden = NO;
-        [window standardWindowButton:NSWindowMiniaturizeButton].hidden = YES;
-        _identifyWindowController.window = window;
-    } else {
-        window = (NSPanel*) _identifyWindowController.window;
-    }
-    [_iffy setCurrentIdentificationSource:_meta.location];
-
-    [window setFloatingPanel:YES];
-    [window makeKeyAndOrderFront:nil];
-}
-
 - (void)setBPM:(float)bpm
 {
     if (_visibleBPM == bpm) {
@@ -1793,6 +1845,9 @@ call super's supplementalTargetForAction:sender:.
                 return;
             }
             LazySample* sample = strongSelf->_audioController.sample;
+            if (sample == nil) {
+                return;
+            }
             unsigned long long adaptedFrame = (unsigned long long)((float)frame / strongSelf->_audioController.tempoShift);
             unsigned long long adaptedFramesLeft = (unsigned long long)(((float)(sample.frames - frame) + 1.0f) / strongSelf->_audioController.tempoShift);
             NSString* duration = [sample beautifulTimeWithFrame:adaptedFramesLeft];
@@ -2262,16 +2317,86 @@ typedef struct {
     }
     [[NSDocumentController sharedDocumentController] noteNewRecentDocumentURL:[NSURL fileURLWithPath:context.path]];
 
+    Float64 sourceRate = lazySample.fileSampleRate;
+
+    // We now know about the sample rate used for encoding the file, tell the world.
+    [[NSNotificationCenter defaultCenter] postNotificationName:kPlaybackGraphChanged
+                                                        object:self.audioController
+                                                      userInfo:@{kGraphChangeReasonKey : @"fileRate",
+                                                                 @"sample" : lazySample ?: [NSNull null]}];
+
     self->_loaderState = LoaderStateAbortingKeyDetection;
     // The loader may already be active at this moment -- we abort it and hand
     // over our payload block when abort did its job.
     [self abortLoader:^{
-        NSLog(@"loading new sample from: %@ ...", context.path);
-        self->_loaderState = LoaderStateDecoder;
-        [weakSelf loadSample:lazySample];
+        AudioObjectID deviceId = [AudioDevice defaultOutputDevice];
+        BOOL followFileRate = ([[[NSProcessInfo processInfo] environment][@"PLAYEM_FIXED_DEVICE_RATE"] length] == 0);
+        Float64 targetRate = sourceRate;
+        if (!followFileRate) {
+            Float64 highest = [AudioDevice highestSupportedSampleRateForDevice:deviceId];
+            if (highest > 0) {
+                targetRate = highest;
+            } else {
+                Float64 current = [AudioDevice sampleRateForDevice:deviceId];
+                if (current > 0) {
+                    targetRate = current;
+                }
+            }
+        }
+        // Reflect intended render rate/length early so visuals/UI scale correctly before decode completes.
+        if (targetRate > 0) {
+            lazySample.renderedSampleRate = targetRate;
+            if (lazySample.fileSampleRate > 0 && lazySample.source.length > 0) {
+                double factor = targetRate / lazySample.fileSampleRate;
+                unsigned long long predictedFrames = (unsigned long long) llrint((double) lazySample.source.length * factor);
+                lazySample.renderedLength = predictedFrames;
+                lazySample.sampleFormat = (SampleFormat){.channels = lazySample.sampleFormat.channels, .rate = (long) targetRate};
+            }
+        }
+        // Try to switch to a new rate, if needed.
+        [AudioDevice switchDevice:deviceId toSampleRate:targetRate timeout:3.0 completion:^(BOOL done) {
+            NSLog(@"loading new sample from %@ to match %.1f kHz device rate ...", context.path, targetRate);
+            Float64 deviceRate = [AudioDevice sampleRateForDevice:deviceId];
 
-        NSLog(@"playback starting...");
-        [weakSelf.audioController playSample:lazySample frame:context.frame paused:!context.playing];
+            // We now know the device rate to be used in our pipeline, lets tell the world.
+            [[NSNotificationCenter defaultCenter] postNotificationName:kPlaybackGraphChanged
+                                                                object:weakSelf.audioController
+                                                              userInfo:@{kGraphChangeReasonKey : @"deviceRate",
+                                                                         kGraphChangeDeviceIdKey : @(deviceId),
+                                                                         kGraphChangeDeviceRateKey : @(deviceRate)}];
+
+            if (!done && followFileRate && ![[NSUserDefaults standardUserDefaults] boolForKey:kSkipRateMismatchWarning]) {
+                NSString* deviceName = [AudioDevice nameForDevice:deviceId] ?: @"audio device";
+
+                NSAlert* alert = [[NSAlert alloc] init];
+                alert.alertStyle = NSAlertStyleInformational;
+                alert.messageText = @"Resampling to match your audio device";
+                alert.informativeText = [NSString stringWithFormat:@"This file is %.1f kHz.\n%@ runs at %.1f kHz.\nWe'll resample before playback. This may take a little longer.",
+                                                                   sourceRate / 1000.0,
+                                                                   deviceName,
+                                                                   deviceRate / 1000.0];
+                [alert addButtonWithTitle:@"OK"];
+
+                NSButton* checkbox = [[NSButton alloc] initWithFrame:NSZeroRect];
+                checkbox.buttonType = NSButtonTypeSwitch;
+                checkbox.title = @"Don’t show this again";
+                [checkbox sizeToFit];
+                NSView* accessory = [[NSView alloc] initWithFrame:NSMakeRect(0, 0, checkbox.frame.size.width, checkbox.frame.size.height)];
+                [accessory addSubview:checkbox];
+                alert.accessoryView = accessory;
+
+                __block NSButton* blockCheckbox = checkbox;
+                [alert beginSheetModalForWindow:self.window
+                              completionHandler:^(NSModalResponse response) {
+                                  if (blockCheckbox.state == NSControlStateValueOn) {
+                                      [[NSUserDefaults standardUserDefaults] setBool:YES forKey:kSkipRateMismatchWarning];
+                                  }
+                              }];
+            }
+
+            self->_loaderState = LoaderStateDecoder;
+            [weakSelf loadSample:lazySample context:context];
+        }];
     }];
 }
 
@@ -2343,7 +2468,7 @@ typedef struct {
     }
 }
 
-- (void)loadSample:(LazySample*)sample
+- (void)loadSample:(LazySample*)sample context:(LoaderContext)context
 {
     if (_loaderState == LoaderStateAborted) {
         return;
@@ -2361,11 +2486,17 @@ typedef struct {
     _totalWaveViewController.visualSample = nil;
 
     [self setBPM:0.0];
-
+    
     _visualSample = [[VisualSample alloc] initWithSample:sample pixelPerSecond:kPixelPerSecond tileWidth:_scrollingWaveViewController.tileWidth];
-
     _scrollingWaveViewController.visualSample = _visualSample;
-
+    assert(sample.renderedSampleRate > 0);
+    
+    // Ensure visuals size themselves using the actual render rate; warn if we are still at file rate in max-rate mode.
+    BOOL followFileRate = ([[[NSProcessInfo processInfo] environment][@"PLAYEM_FIXED_DEVICE_RATE"] length] == 0);
+    if (!followFileRate && fabs(sample.renderedSampleRate - sample.fileSampleRate) < 1.0) {
+        NSLog(@"WaveWindowController: visuals created before renderedSampleRate updated (still at file rate %.1f kHz)",
+              sample.fileSampleRate / 1000.0);
+    }
     _totalVisual = [[VisualSample alloc] initWithSample:sample
                                          pixelPerSecond:_totalWaveViewController.view.bounds.size.width / sample.duration
                                               tileWidth:_totalWaveViewController.tileWidth
@@ -2381,18 +2512,66 @@ typedef struct {
     NSTimeInterval duration = [self.visualSample.sample timeForFrame:sample.frames];
     [_controlPanelController setKeyHidden:duration > kBeatSampleDurationThreshold];
     [_controlPanelController setKey:@"" hint:@""];
+    
+//    AudioObjectID deviceId = [AudioDevice defaultOutputDevice];
+//    Float64 deviceRate = [AudioDevice sampleRateForDevice:deviceId];
+//    Float64 sourceRate = sample.fileSampleRate;
+//
+//    // Inform the user if we will resample (mismatch), but do not switch device rates to avoid pops.
+//    if (sourceRate > 0 && deviceRate > 0 && fabs(deviceRate - sourceRate) > 0.5 &&
+//        ![[NSUserDefaults standardUserDefaults] boolForKey:kSkipRateMismatchWarning]) {
+//        NSString* deviceName = [AudioDevice nameForDevice:deviceId] ?: @"audio device";
+//
+//        NSAlert* alert = [[NSAlert alloc] init];
+//        alert.alertStyle = NSAlertStyleInformational;
+//        alert.messageText = @"Resampling to match your audio device";
+//        alert.informativeText = [NSString stringWithFormat:@"This file is %.1f kHz.\n%@ runs at %.1f kHz.\nWe'll resample before playback. This may take a little longer.",
+//                                                           sourceRate / 1000.0,
+//                                                           deviceName,
+//                                                           deviceRate / 1000.0];
+//        [alert addButtonWithTitle:@"OK"];
+//
+//        NSButton* checkbox = [[NSButton alloc] initWithFrame:NSZeroRect];
+//        checkbox.buttonType = NSButtonTypeSwitch;
+//        checkbox.title = @"Don’t show this again";
+//        [checkbox sizeToFit];
+//        NSView* accessory = [[NSView alloc] initWithFrame:NSMakeRect(0, 0, checkbox.frame.size.width, checkbox.frame.size.height)];
+//        [accessory addSubview:checkbox];
+//        alert.accessoryView = accessory;
+//
+//        __block NSButton* blockCheckbox = checkbox;
+//        [alert beginSheetModalForWindow:self.window
+//                      completionHandler:^(NSModalResponse response) {
+//                          if (blockCheckbox.state == NSControlStateValueOn) {
+//                              [[NSUserDefaults standardUserDefaults] setBool:YES forKey:kSkipRateMismatchWarning];
+//                          }
+//                      }];
+//    }
+
+    NSLog(@"playback starting...");
+    //[weakSelf.audioController playSample:lazySample frame:context.frame paused:!context.playing];
+
 
     _loaderState = LoaderStateDecoder;
-
     WaveWindowController* __weak weakSelf = self;
     [_audioController decodeAsyncWithSample:_sample
-                                   callback:^(BOOL decodeFinished) {
-                                       if (decodeFinished) {
-                                           [weakSelf sampleDecoded];
-                                       } else {
-                                           NSLog(@"never finished the decoding");
-                                       }
-                                   }];
+                         notifyEarlyAtFrame:context.frame
+                                   callback:^(BOOL decodeFinished, BOOL frameReached) {
+        NSLog(@"decoder has something to say");
+        if (decodeFinished) {
+            NSLog(@"decoder done");
+            [weakSelf sampleDecoded];
+        } else {
+            if (frameReached) {
+                NSLog(@"decoder reached requested frame");
+                [weakSelf.audioController playSample:sample
+                                               frame:context.frame
+                                              paused:!context.playing];
+            } else {
+                NSLog(@"never finished the decoding");
+            }
+       }
+   }];
 }
 
 - (void)sampleDecoded
@@ -2776,12 +2955,6 @@ typedef struct {
     _controlPanelController.tempoSlider.doubleValue = 1.0;
 }
 
-- (void)showEffects:(id)sender
-{
-    [_fxViewController updateEffects:_audioController.availableEffects];
-    [_fxViewController showWithParent:self.window];
-}
-
 - (void)effectsToggle:(id)sender
 {
     // Toggle FX window visibility. Effect on/off depends on selection (None keeps FX off but window open).
@@ -2797,7 +2970,7 @@ typedef struct {
             }
         }
         // Ensure effect is audibly enabled when turning FX on.
-        [_audioController setEffectEnabled:(currentIdx >= 0)];
+        [_audioController applyEffectEnabled:(currentIdx >= 0)];
         [[NSUserDefaults standardUserDefaults] setBool:(currentIdx >= 0) forKey:kFXLastEffectEnabledKey];
         [_fxViewController selectEffectIndex:currentIdx];
         [_fxViewController applyCurrentSelection];
@@ -2805,7 +2978,7 @@ typedef struct {
         [_controlPanelController setEffectsEnabled:(currentIdx >= 0)];
     } else {
         // Bypass current effect but keep selection state and sliders.
-        [_audioController setEffectEnabled:NO];
+        [_audioController applyEffectEnabled:NO];
         [[NSUserDefaults standardUserDefaults] setBool:NO forKey:kFXLastEffectEnabledKey];
         [_controlPanelController setEffectsEnabled:NO];
     }

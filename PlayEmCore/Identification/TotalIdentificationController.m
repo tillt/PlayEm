@@ -75,7 +75,7 @@ NS_ASSUME_NONNULL_BEGIN
         if (hopOverride > 0.0) {
             hopSize = (AVAudioFrameCount) hopOverride;
         }
-        AVAudioFrameCount maxHopFrames = (AVAudioFrameCount) (12.0 * sample.sampleFormat.rate);
+        AVAudioFrameCount maxHopFrames = (AVAudioFrameCount) (12.0 * sample.renderedSampleRate);
         if (maxHopFrames > 0 && hopSize > maxHopFrames) {
             hopSize = maxHopFrames;
             if (_debugScoring) {

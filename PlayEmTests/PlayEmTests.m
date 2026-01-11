@@ -235,7 +235,8 @@ static BOOL IsUnknownTrack(TimedMediaMetaData* track)
     XCTestExpectation* expectDecodeFinish = [self expectationWithDescription:@"decoding finished"];
 
     [audioController decodeAsyncWithSample:sample
-                                  callback:^(BOOL decodeFinished) {
+                        notifyEarlyAtFrame:0
+                                  callback:^(BOOL decodeFinished, BOOL frameReached) {
                                       if (decodeFinished) {
                                           [expectDecodeFinish fulfill];
                                       }

@@ -19,6 +19,7 @@
 #import "Sample/LazySample.h"
 #import "TimedMediaMetaData.h"
 #import "TrackList.h"
+#import "MediaMetaData+ImageController.h"
 
 const CGFloat kTimeHeight = 22.0;
 const CGFloat kTotalRowHeight = 52.0 + kTimeHeight;
@@ -582,50 +583,29 @@ static const NSAutoresizingMaskOptions kViewFullySizeable = NSViewHeightSizable 
     }
 
     NSColor* titleColor = row == _currentTrackIndex ? [[Defaults sharedDefaults] lightFakeBeamColor] : [[Defaults sharedDefaults] secondaryLabelColor];
-    ;
     NSColor* artistColor = row == _currentTrackIndex ? [[Defaults sharedDefaults] regularFakeBeamColor] : [[Defaults sharedDefaults] secondaryLabelColor];
 
     NSArray<NSNumber*>* frames = [_current.trackList.frames sortedArrayUsingSelector:@selector(compare:)];
     unsigned long long frame = [frames[row] unsignedLongLongValue];
     TimedMediaMetaData* track = [_current.trackList trackAtFrame:frame];
 
-    NSImageView* iv = [result viewWithTag:kImageViewTag];
-
     // Placeholder initially - we may need to resolve the data (unlikely for a
     // tracklist, very likely for a playlist).
-    iv.image = [NSImage resizedImageWithData:[MediaMetaData defaultArtworkData] size:iv.frame.size];
-
+    NSImageView* iv = [result viewWithTag:kImageViewTag];
     __weak NSView* weakView = result;
     __weak NSTableView* weakTable = tableView;
-
-    void (^applyImage)(NSData*) = ^(NSData* data) {
-        [[ImageController shared] imageForData:data
-                                           key:track.meta.artworkHash
-                                          size:iv.frame.size.width
-                                    completion:^(NSImage* image) {
-                                        if (image == nil || weakView == nil || weakTable == nil) {
-                                            return;
-                                        }
-                                        if ([weakTable rowForView:weakView] == row) {
-                                            NSImageView* iv = [weakView viewWithTag:kImageViewTag];
-                                            iv.image = image;
-                                        }
-                                    }];
-    };
-
-    if (track.meta.artwork != nil) {
-        applyImage(track.meta.artwork);
-    } else {
-        if (track.meta.artworkLocation != nil) {
-            assert(NO);
-            [[ImageController shared] resolveDataForURL:track.meta.artworkLocation
-                                               callback:^(NSData* data) {
-                                                   track.meta.artwork = data;
-                                                   applyImage(track.meta.artwork);
-                                               }];
+    [track.meta resolvedArtworkForSize:iv.frame.size.width callback:^(NSImage* image) {
+        __weak NSView* strongView = weakView;
+        __weak NSTableView* strongTable = weakTable;
+        if (image == nil || strongView == nil || strongTable == nil) {
+            return;
         }
-    }
-
+        if ([strongTable rowForView:strongView] == row) {
+            NSImageView* iv = [strongView viewWithTag:kImageViewTag];
+            iv.image = image;
+        }
+    }];
+    
     NSTextField* tf = [result viewWithTag:kTitleViewTag];
     tf.textColor = titleColor;
     NSString* title = track.meta.title;
@@ -658,8 +638,9 @@ static const NSAutoresizingMaskOptions kViewFullySizeable = NSViewHeightSizable 
         confidence = [decimalStyleFormatter stringFromNumber:track.confidence];
     }
 
-    NSString* output = [NSString stringWithFormat:@"%@, confidence %@", time, confidence];
-    [tf setStringValue:output];
+    //NSString* output = [NSString stringWithFormat:@"%@, confidence %@", time, confidence];
+    //[tf setStringValue:output];
+    [tf setStringValue:time];
 
     return result;
 }

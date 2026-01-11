@@ -23,6 +23,14 @@ extern NSString* const kPlaybackStatePaused;
 extern NSString* const kPlaybackStatePlaying;
 extern NSString* const kPlaybackStateEnded;
 extern NSString* const kPlaybackFXStateChanged;
+/// Graph/audio pipeline changed (effect, tempo, device/rate).
+extern NSString* const kPlaybackGraphChanged;
+extern NSString* const kGraphChangeReasonKey;
+extern NSString* const kGraphChangeEffectEnabledKey;
+extern NSString* const kGraphChangeEffectIndexKey;
+extern NSString* const kGraphChangeTempoKey;
+extern NSString* const kGraphChangeDeviceRateKey;
+extern NSString* const kGraphChangeDeviceIdKey;
 
 @class LazySample;
 
@@ -38,8 +46,10 @@ typedef void (^TapBlock)(unsigned long long framePosition, float* frameData, uns
 @property (nonatomic, assign, readonly) BOOL playing;
 @property (nonatomic, assign, readonly) BOOL paused;
 @property (nonatomic, assign) float tempoShift;
+@property (nonatomic, assign, readonly) BOOL tempoBypassed;
 @property (nonatomic, strong, readonly) NSArray<NSDictionary*>* availableEffects;
 @property (nonatomic, assign, readonly) NSInteger currentEffectIndex;
+@property (nonatomic, assign, readonly) BOOL effectEnabled;
 
 - (instancetype)init;
 
@@ -85,15 +95,18 @@ typedef void (^TapBlock)(unsigned long long framePosition, float* frameData, uns
 /// - Parameters:
 ///   - sample: Sample to decode.
 ///   - callback: Completion invoked on main queue.
-- (void)decodeAsyncWithSample:(LazySample*)sample callback:(void (^)(BOOL))callback;
+- (void)decodeAsyncWithSample:(LazySample*)sample notifyEarlyAtFrame:(unsigned long long)frame callback:(void (^)(BOOL,BOOL))callback;
+
+/// Check whether the current default output device supports the sample's native rate.
+///
+/// - Parameter sample: Sample to test.
+/// - Returns: YES if supported; NO if the device will require resampling.
+- (BOOL)defaultDeviceSupportsSampleRateForSample:(LazySample*)sample;
 
 /// Abort pending decode; callback once aborted.
 ///
 /// - Parameter callback: Invoked when abort finishes.
 - (void)decodeAbortWithCallback:(void (^)(void))callback;
-
-/// Total device/graph latency in frames.
-- (AVAudioFramePosition)totalLatency;
 
 /// Convert time delta to frame delta.
 ///
@@ -143,7 +156,7 @@ typedef void (^TapBlock)(unsigned long long framePosition, float* frameData, uns
 ///
 /// - Parameter enabled: YES to enable, NO to bypass.
 /// - Returns: YES on success.
-- (BOOL)setEffectEnabled:(BOOL)enabled;
+- (BOOL)applyEffectEnabled:(BOOL)enabled;
 
 @end
 

@@ -14,12 +14,17 @@
 #import "../Defaults.h"
 #import "../NSImage+Average.h"
 #import "../NSImage+Resize.h"
+#import <AudioToolbox/AudioToolbox.h>
 #import "AudioController.h"
 #import "IdentificationCoverView.h"
 #import "ImageController.h"
 #import "LazySample.h"
 #import "MediaMetaData.h"
 #import "TimedMediaMetaData.h"
+#import "MediaMetaData+ImageController.h"
+#import "AudioDevice.h"
+
+#define DEBUG_TAPPING 1
 
 NSString* const kTitleColumnIdenfifier = @"TitleColumn";
 NSString* const kCoverColumnIdenfifier = @"CoverColumn";
@@ -64,6 +69,9 @@ const CGFloat kTableRowHeight = 52.0f;
 @property (strong, nonatomic) NSURL* sampleLocation;
 
 @end
+
+static AVAudioFile* gShzDumpFile = nil;
+static NSString* gShzDumpPath = nil;
 
 @implementation IdentifyViewController
 
@@ -140,12 +148,12 @@ const CGFloat kTableRowHeight = 52.0f;
     _identifieds = [NSMutableArray array];
     _sampleLocation = url;
     [self.tableView reloadData];
-    [self updateCoverData:nil animated:YES];
+    [self updateBigCoverAnimated:YES];
 }
 
 - (void)viewWillAppear
 {
-    [self updateCoverData:nil animated:NO];
+    [self updateBigCoverAnimated:NO];
 
     [_identificationCoverView setStill:!_audioController.playing animated:NO];
     [_identificationCoverView startAnimating];
@@ -166,6 +174,12 @@ const CGFloat kTableRowHeight = 52.0f;
     [[NSApplication sharedApplication] stopModal];
     [_audioController stopTapping];
 
+    // Finalize dump header if active.
+#ifdef DEBUG_TAPPING
+    if (gShzDumpFile != nil) {
+        gShzDumpFile = nil;
+    }
+#endif
     [[NSNotificationCenter defaultCenter] removeObserver:self name:kAudioControllerChangedPlaybackStateNotification object:nil];
 }
 
@@ -240,7 +254,7 @@ const CGFloat kTableRowHeight = 52.0f;
 
     // This better be square
     _identificationCoverView =
-        [[IdentificationCoverView alloc] initWithFrame:NSMakeRect(0, 0, kCoverViewWidth + kBorderWidth + kBorderWidth, kPopoverHeight + 20.0)
+        [[IdentificationCoverView alloc] initWithFrame:NSMakeRect(0, 0, kCoverViewWidth + kBorderWidth + kBorderWidth, kPopoverHeight + 26.0)
                                         contentsInsets:NSEdgeInsetsMake(kBorderWidth, kBorderWidth, 20.0, kBorderWidth)
                                                  style:CoverViewStyleGlowBehindCoverAtLaser | CoverViewStyleSepiaForSecondImageLayer |
                                                        CoverViewStylePumpingToTheBeat | CoverViewStyleRotatingLaser];
@@ -407,14 +421,34 @@ const CGFloat kTableRowHeight = 52.0f;
     AVAudioFrameCount matchWindowFrameCount = kPlaybackBufferFrames;
     AVAudioChannelLayout* layout = [[AVAudioChannelLayout alloc] initWithLayoutTag:kAudioChannelLayoutTag_Mono];
     AVAudioFormat* format = [[AVAudioFormat alloc] initWithCommonFormat:AVAudioPCMFormatFloat32
-                                                             sampleRate:sampleFormat.rate
+                                                             sampleRate:_audioController.sample.renderedSampleRate
                                                             interleaved:NO
                                                           channelLayout:layout];
 
     _stream = [[AVAudioPCMBuffer alloc] initWithPCMFormat:format frameCapacity:matchWindowFrameCount];
 
 #ifdef DEBUG_TAPPING
-    FILE* fp = fopen("/tmp/debug_tap.out", "wb");
+    static dispatch_once_t dumpOnce;
+    dispatch_once(&dumpOnce, ^{
+        gShzDumpPath = @"/tmp/shazam_stream.wav";
+        NSLog(@"[ShazamStream] dump sample=%ld)", _audioController.sample.renderedSampleRate);
+        // Create a WAV file via AVAudioFile using the tap format.
+        NSError* fileErr = nil;
+        NSURL* url = [NSURL fileURLWithPath:gShzDumpPath];
+        // Remove existing file if present.
+        [[NSFileManager defaultManager] removeItemAtURL:url error:nil];
+        AVAudioFormat* fileFormat = [[AVAudioFormat alloc] initWithCommonFormat:AVAudioPCMFormatFloat32
+                                                                     sampleRate:_audioController.sample.renderedSampleRate
+                                                                       channels:1
+                                                                    interleaved:NO];
+        gShzDumpFile = [[AVAudioFile alloc] initForWriting:url settings:fileFormat.settings commonFormat:fileFormat.commonFormat interleaved:NO error:&fileErr];
+        if (gShzDumpFile == nil || fileErr != nil) {
+            NSLog(@"[ShazamStream] failed to open dump file at %@ err=%@", gShzDumpPath, fileErr);
+            gShzDumpFile = nil;
+            return;
+        }
+        NSLog(@"[ShazamStream] dumping mono float32 stream to %@ at %.0f Hz", gShzDumpPath, fileFormat.sampleRate);
+    });
 #endif
 
     __weak IdentifyViewController* weakSelf = self;
@@ -431,24 +465,38 @@ const CGFloat kTableRowHeight = 52.0f;
             if (!innerSelf) {
                 return;
             }
+            static double s_totalSeconds = 0.0;
+            double seconds = (double) frames / innerSelf->_audioController.sample.renderedSampleRate;
+            s_totalSeconds += seconds;
+//#ifdef DEBUG_TAPPING
+//                NSLog(@"[ShazamStream] offset=%llu frames=%u ch=%d totalSeconds=%.3f",
+//                      offset, frames, sampleFormat.channels, s_totalSeconds);
+//#endif
             [innerSelf.stream setFrameLength:frames];
-            // TODO: Yikes, this is a total nono -- we are writing to a read-only
-            // pointer!
             float* outputBuffer = innerSelf.stream.floatChannelData[0];
+            int channelCount = (sampleFormat.channels > 0) ? sampleFormat.channels : 2;
             for (int i = 0; i < frames; i++) {
                 float s = 0.0;
-                for (int channel = 0; channel < sampleFormat.channels; channel++) {
-                    s += input[(sampleFormat.channels * i) + channel];
+                for (int channel = 0; channel < channelCount; channel++) {
+                    s += input[(channelCount * i) + channel];
                 }
-                s /= sampleFormat.channels;
+                s /= (channelCount > 0 ? channelCount : 1);
                 outputBuffer[i] = s;
             }
 #ifdef DEBUG_TAPPING
-            fwrite(outputBuffer, sizeof(float), frames, fp);
+            if (gShzDumpFile != nil && frames > 0) {
+                NSError* writeErr = nil;
+                AVAudioPCMBuffer* dumpBuffer = [[AVAudioPCMBuffer alloc] initWithPCMFormat:gShzDumpFile.processingFormat frameCapacity:frames];
+                dumpBuffer.frameLength = frames;
+                memcpy(dumpBuffer.floatChannelData[0], outputBuffer, frames * sizeof(float));
+                if (![gShzDumpFile writeFromBuffer:dumpBuffer error:&writeErr]) {
+                    NSLog(@"[ShazamStream] failed to write dump frame err=%@", writeErr);
+                }
 #endif
+            }
             innerSelf.sessionFrame = offset;
 
-            AVAudioTime* time = [AVAudioTime timeWithSampleTime:offset atRate:sampleFormat.rate];
+            AVAudioTime* time = [AVAudioTime timeWithSampleTime:offset atRate:innerSelf->_audioController.sample.renderedSampleRate];
             [innerSelf.session matchStreamingBuffer:innerSelf.stream atTime:time];
         });
     }];
@@ -456,12 +504,32 @@ const CGFloat kTableRowHeight = 52.0f;
 
 #pragma mark - Shazam session delegate
 
-- (void)updateCoverData:(NSData* _Nullable)data animated:(BOOL)animated
+- (void)updateBigCoverAnimated:(BOOL)animated
 {
-    [self->_identificationCoverView setImage:[NSImage resizedImageWithData:data size:self->_identificationCoverView.frame.size] animated:animated];
+    MediaMetaData* meta = nil;
+
+    if (_identifieds.count > 0) {
+        meta = _identifieds[0].meta;
+    } else {
+        // We need some metadata object to begin with - even if that is just for the process
+        // and not even stored. We run into this when the list is empty but we need to show
+        // something.
+        meta = [MediaMetaData unknownMediaMetaData];
+    }
+    
+    __weak IdentifyViewController* weakSelf = self;
+
+    [meta resolvedArtworkForSize:_identificationCoverView.frame.size.width
+                        callback:^(NSImage* image){
+        IdentifyViewController* strongSelf = weakSelf;
+        if (image == nil || strongSelf == nil) {
+            return;
+        }
+        [strongSelf->_identificationCoverView setImage:image animated:animated];
+    }];
 }
 
-- (void)session:(SHSession*)session didFindMatch:(SHMatch*)match
+- (void)processMatchResult:(SHMatch*)match
 {
     __weak IdentifyViewController* weakSelf = self;
 
@@ -471,74 +539,118 @@ const CGFloat kTableRowHeight = 52.0f;
             return;
         }
 
-        if (match.mediaItems[0].artworkURL != nil && ![match.mediaItems[0].artworkURL.absoluteString isEqualToString:strongSelf.imageURL.absoluteString]) {
-            NSLog(@"need to re/load the image as the displayed URL %@ wouldnt match "
-                  @"the requested URL %@",
-                  strongSelf.imageURL.absoluteString, match.mediaItems[0].artworkURL.absoluteString);
+        TimedMediaMetaData* lastTrack = nil;
+        if (strongSelf->_identifieds.count > 0) {
+            lastTrack = self->_identifieds[0];
+        }
 
-            TimedMediaMetaData* track = [[TimedMediaMetaData alloc] initWithMatchedMediaItem:match.mediaItems[0]
-                                                                                       frame:[NSNumber numberWithUnsignedLongLong:strongSelf.sessionFrame]];
+        TimedMediaMetaData* insertTrack = nil;
 
-            NSLog(@"track starts at frame: %@", track.frame);
-
-            void (^continuation)(void) = ^(void) {
-                IdentifyViewController* strongSelf = weakSelf;
-                if (!strongSelf) {
-                    return;
-                }
-
-                strongSelf.imageURL = match.mediaItems[0].artworkURL;
-                [strongSelf updateCoverData:track.meta.artwork animated:YES];
-
-                [strongSelf->_identifieds insertObject:track atIndex:0];
-                [strongSelf->_tableView beginUpdates];
-                NSIndexSet* indexSet = [NSIndexSet indexSetWithIndex:0];
-                [strongSelf->_tableView insertRowsAtIndexes:indexSet withAnimation:NSTableViewAnimationSlideRight];
-                [strongSelf->_tableView endUpdates];
-            };
-
-            if (track.meta.artwork != nil) {
-                continuation();
+        if (match == nil) {
+            if (lastTrack &&
+                lastTrack.meta.artworkLocation == nil &&
+                lastTrack.meta.appleLocation == nil) {
+                NSLog(@"unknown already on top, no need to add more");
             } else {
-                if (track.meta.artworkLocation != nil) {
-                    [[ImageController shared] resolveDataForURL:track.meta.artworkLocation
-                                                       callback:^(NSData* data) {
-                                                           track.meta.artwork = data;
-                                                           continuation();
-                                                       }];
-                }
+                // we need to insert an unknown track
+                insertTrack = [TimedMediaMetaData unknownTrackAtFrame:[NSNumber numberWithUnsignedLongLong:strongSelf.sessionFrame]];
+            }
+        } else {
+            if (lastTrack &&
+                match.mediaItems[0].artworkURL != nil &&
+                [match.mediaItems[0].artworkURL.absoluteString isEqualToString:lastTrack.meta.artworkLocation.absoluteString]) {
+                NSLog(@"this track already is on top, no need to add more");
+            } else {
+                // we need to insert this track
+                insertTrack = [[TimedMediaMetaData alloc] initWithMatchedMediaItem:match.mediaItems[0]
+                                                                             frame:[NSNumber numberWithUnsignedLongLong:strongSelf.sessionFrame]];
             }
         }
+
+        if (insertTrack == nil) {
+            return;
+        }
+
+        [strongSelf->_identifieds insertObject:insertTrack atIndex:0];
+        [strongSelf updateBigCoverAnimated:YES];
+
+        [strongSelf->_tableView beginUpdates];
+        NSIndexSet* indexSet = [NSIndexSet indexSetWithIndex:0];
+        [strongSelf->_tableView insertRowsAtIndexes:indexSet withAnimation:NSTableViewAnimationSlideRight];
+        [strongSelf->_tableView endUpdates];
     });
+    
+    
+//
+//    // FIXME: While the logic is sound, this just doesnt make sense.
+//    // FIXME: We should instead have the view decide what to do, not the feeding unit.
+//    // FIXME: This part here should feed all the results we have (unfiltered for dupes)
+//    // FIXME: Into something that then decides transparently about keepers.
+//    if (match.mediaItems[0].artworkURL != nil &&
+//        ![match.mediaItems[0].artworkURL.absoluteString isEqualToString:strongSelf.imageURL.absoluteString]) {
+//        NSLog(@"need to re/load the image as the displayed URL %@ wouldnt match "
+//              @"the requested URL %@",
+//              strongSelf.imageURL.absoluteString, match.mediaItems[0].artworkURL.absoluteString);
+//
+//        TimedMediaMetaData* track = [[TimedMediaMetaData alloc] initWithMatchedMediaItem:match.mediaItems[0]
+//                                                                                   frame:[NSNumber numberWithUnsignedLongLong:strongSelf.sessionFrame]];
+//
+//        NSLog(@"track starts at frame: %@", track.frame);
+//        
+//        NSImageView* iv = [result viewWithTag:kImageViewTag];
+//        __weak IdentifyViewController* weakContinuedSelf = strongSelf;
+//
+//        [track.meta resolvedArtworkForSize:iv.frame.size.width callback:^(NSImage* image) {
+//            __weak NSView* strongView = weakView;
+//            __weak NSTableView* strongTable = weakTable;
+//            if (image == nil || strongView == nil || strongTable == nil) {
+//                return;
+//            }
+//            if ([strongTable rowForView:strongView] == row) {
+//                NSImageView* iv = [strongView viewWithTag:kImageViewTag];
+//                iv.image = image;
+//            }
+//        }];
+//
+//        
+//        void (^continuation)(void) = ^(void) {
+//            IdentifyViewController* strongSelf = weakContinuedSelf;
+//            if (!strongSelf) {
+//                return;
+//            }
+//
+//            strongSelf.imageURL = match.mediaItems[0].artworkURL;
+//            [strongSelf->_identifieds insertObject:track atIndex:0];
+//            [strongSelf updateBigCoverAnimated:YES];
+//            [strongSelf->_tableView beginUpdates];
+//            NSIndexSet* indexSet = [NSIndexSet indexSetWithIndex:0];
+//            [strongSelf->_tableView insertRowsAtIndexes:indexSet withAnimation:NSTableViewAnimationSlideRight];
+//            [strongSelf->_tableView endUpdates];
+//        };
+//
+//        if (track.meta.artwork != nil) {
+//            continuation();
+//        } else {
+//            if (track.meta.artworkLocation != nil) {
+//                [[ImageController shared] resolveDataForURL:track.meta.artworkLocation
+//                                                   callback:^(NSData* data) {
+//                                                       track.meta.artwork = data;
+//                                                       continuation();
+//                                                   }];
+//            }
+//        }
+//    }
+}
+
+- (void)session:(SHSession*)session didFindMatch:(SHMatch*)match
+{
+    [self processMatchResult:match];
 }
 
 - (void)session:(SHSession*)session didNotFindMatchForSignature:(SHSignature*)signature error:(nullable NSError*)error
 {
-    NSLog(@"didNotFindMatchForSignature - error was: %@", error);
-    dispatch_async(dispatch_get_main_queue(), ^{
-        //[self->_tableView selectRowIndexes:[NSIndexSet indexSet]
-        //byExtendingSelection:NO];
-        if (self->_identifieds.count > 0) {
-            TimedMediaMetaData* lastTrack = self->_identifieds[0];
-
-            if (lastTrack.meta.artworkLocation == nil && lastTrack.meta.appleLocation == nil) {
-                NSLog(@"unknown already on top, no need to add more");
-                return;
-            }
-        }
-
-        TimedMediaMetaData* item = [TimedMediaMetaData unknownTrackAtFrame:[NSNumber numberWithUnsignedLongLong:self.sessionFrame]];
-
-        NSLog(@"item frame: %@", item.frame);
-        [self updateCoverData:nil animated:YES];
-
-        [self->_identifieds insertObject:item atIndex:0];
-
-        [self->_tableView beginUpdates];
-        NSIndexSet* indexSet = [NSIndexSet indexSetWithIndex:0];
-        [self->_tableView insertRowsAtIndexes:indexSet withAnimation:NSTableViewAnimationSlideRight];
-        [self->_tableView endUpdates];
-    });
+    NSLog(@"didNotFindMatchForSignature offset=%llu error=%@", self.sessionFrame, error);
+    [self processMatchResult:nil];
 }
 
 #pragma mark - Table View delegate
@@ -570,26 +682,24 @@ const CGFloat kTableRowHeight = 52.0f;
         } else {
             imageView = (NSImageView*) result;
         }
-        imageView.identifier = tableColumn.identifier;
-
-        imageView.image = [NSImage resizedImageWithData:_identifieds[row].meta.artworkWithDefault size:NSMakeSize(kArtworkSize, kArtworkSize)];
+        result.identifier = tableColumn.identifier;
 
         __weak NSImageView* weakView = imageView;
         __weak NSTableView* weakTable = tableView;
 
-        if (_identifieds[row].meta.artwork != nil) {
-            [[ImageController shared] imageForData:track.meta.artwork
-                                               key:track.meta.artworkHash
-                                              size:imageView.frame.size.width
-                                        completion:^(NSImage* image) {
-                                            if (image == nil || weakView == nil || weakTable == nil) {
-                                                return;
-                                            }
-                                            if ([weakTable rowForView:weakView] == row) {
-                                                weakView.image = image;
-                                            }
-                                        }];
-        }
+        [track.meta resolvedArtworkForSize:_identificationCoverView.frame.size.width
+                                  callback:^(NSImage* image){
+            NSImageView* strongView = weakView;
+            NSTableView* strongTable = weakTable;
+            
+            if (image == nil || strongView == nil || strongTable == nil) {
+                return;
+            }
+            //if ([strongTable columnForView:strongView] == 0) {
+            strongView.image = image;
+            
+        //}
+        }];
     } else if ([tableColumn.identifier isEqualToString:kButtonColumnIdenfifier]) {
         NSButton* menuButton = nil;
         if (result == nil) {

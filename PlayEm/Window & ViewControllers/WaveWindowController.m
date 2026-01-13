@@ -195,6 +195,11 @@ os_log_t pointsOfInterest;
 @property (strong, nonatomic) ActivityToken* decoderToken;
 @property (strong, nonatomic) PhosphorChaserView* activityChaser;
 
+@property (strong, nonatomic) NSButton* importButton;
+@property (strong, nonatomic) NSTextField* importLabel;
+@property (strong, nonatomic) NSProgressIndicator* importProgress;
+@property (strong, nonatomic) ActivityToken* importToken;
+
 @end
 
 // FIXME: Refactor the shit out of this -- it is far too big.
@@ -239,6 +244,7 @@ os_log_t pointsOfInterest;
         _videoDelay = 0.0;
         _metaController = [MetaController new];
         _timeUpdateScheduled = NO;
+        _importToken = nil;
     }
     return self;
 }
@@ -274,6 +280,15 @@ os_log_t pointsOfInterest;
         _songsCount.stringValue = [NSString stringWithFormat:@"%@", value];
     } else {
         _songsCount.stringValue = [NSString stringWithFormat:@"%@ %@", value, unit];
+    }
+
+    // Show import prompt when the library is empty.
+    if (_importToken != nil) {
+        _importLabel.hidden = NO;
+        _importProgress.hidden = NO;
+        _importButton.hidden = YES;
+    } else {
+        _importButton.hidden = (songs > 0);
     }
 }
 
@@ -558,6 +573,11 @@ static const NSString* kIdentifyToolbarIdentifier = @"Live Identify";
 
     [menu addItem:[NSMenuItem separatorItem]];
 
+    item = [menu addItemWithTitle:@"Remove from Library" action:@selector(removeFromLibrary:) keyEquivalent:@""];
+    item.target = _browser;
+
+    [menu addItem:[NSMenuItem separatorItem]];
+
     item = [menu addItemWithTitle:@"Show Info" action:@selector(showInfoForSelectedSongs:) keyEquivalent:@""];
     item.target = _browser;
 
@@ -629,10 +649,10 @@ static const NSString* kIdentifyToolbarIdentifier = @"Live Identify";
 - (void)loadViews
 {
     const CGFloat totalHeight = self.window.contentView.bounds.size.height;
-
+    
     const CGFloat totalWaveViewHeight = 46.0;
     const CGFloat scrollingWaveViewHeight = 158.0;
-
+    
     const CGFloat playlistFxViewWidth = 320.0f;
     const CGFloat statusLineHeight = 20.0f;
     const CGFloat searchFieldHeight = 25.0f;
@@ -640,11 +660,11 @@ static const NSString* kIdentifyToolbarIdentifier = @"Live Identify";
     const CGFloat selectorTableViewWidth = floor(self.window.contentView.bounds.size.width / 7.0f);
     const CGFloat selectorTableViewHeight = floor(totalHeight / 5.0f);
     const CGFloat selectorTableViewMinWidth = 70.0f;
-
+    
     const CGFloat selectorTableViewHalfWidth = floor(selectorTableViewWidth / 2.0f);
-
+    
     const CGFloat selectorColumnInset = 17.0;
-
+    
     const CGFloat trackColumnWidth = 54.0f;
     const CGFloat titleColumnWidth = 220.0f;
     const CGFloat timeColumnWidth = 80.0f;
@@ -656,20 +676,22 @@ static const NSString* kIdentifyToolbarIdentifier = @"Live Identify";
     const CGFloat keyColumnWidth = 60.0f;
     const CGFloat ratingColumnWidth = 60.0f;
     const CGFloat tagsColumnWidth = 160.0f;
-
+    
     const CGFloat progressIndicatorWidth = 32.0f;
     const CGFloat progressIndicatorHeight = 32.0f;
-
+    
     CGFloat scopeViewHeight =
-        self.window.contentView.bounds.size.height - (songsTableViewHeight + selectorTableViewHeight + totalWaveViewHeight + scrollingWaveViewHeight);
+    self.window.contentView.bounds.size.height - (songsTableViewHeight + selectorTableViewHeight + totalWaveViewHeight + scrollingWaveViewHeight);
     if (scopeViewHeight <= kMinScopeHeight) {
         scopeViewHeight = kMinScopeHeight;
     }
     const NSAutoresizingMaskOptions kViewFullySizeable = NSViewHeightSizable | NSViewWidthSizable;
-
+    
     // Status Line.
-    _songsCount = [[NSTextField alloc] initWithFrame:NSMakeRect(self.window.contentView.bounds.origin.x, self.window.contentView.bounds.origin.y,
-                                                                self.window.contentView.bounds.size.width, statusLineHeight - 3)];
+    _songsCount = [[NSTextField alloc] initWithFrame:NSMakeRect(self.window.contentView.bounds.origin.x,
+                                                                self.window.contentView.bounds.origin.y,
+                                                                self.window.contentView.bounds.size.width,
+                                                                statusLineHeight - 3)];
     _songsCount.font = [[Defaults sharedDefaults] smallFont];
     _songsCount.textColor = [[Defaults sharedDefaults] tertiaryLabelColor];
     _songsCount.bordered = NO;
@@ -677,9 +699,9 @@ static const NSString* kIdentifyToolbarIdentifier = @"Live Identify";
     _songsCount.selectable = NO;
     _songsCount.autoresizingMask = NSViewWidthSizable;
     _songsCount.translatesAutoresizingMaskIntoConstraints = YES;
-
+    
     [self.window.contentView addSubview:_songsCount];
-
+    
     //    const CGFloat chaserSize = 30;
     //    // Phosphor chaser busy indicator (top-right).
     //    CGFloat chaserX = self.window.contentView.bounds.origin.x + 10.0;
@@ -695,10 +717,10 @@ static const NSString* kIdentifyToolbarIdentifier = @"Live Identify";
     //                                                                                     action:@selector(showActivity:)];
     //    recognizer.numberOfClicksRequired = 1;
     //    [_activityChaser addGestureRecognizer:recognizer];
-
+    
     // Below Visuals.
     CGFloat height = scopeViewHeight + scrollingWaveViewHeight + totalWaveViewHeight;
-
+    
     NSRect availableRect = NSMakeRect(self.window.contentView.bounds.origin.x, self.window.contentView.bounds.origin.y + statusLineHeight,
                                       self.window.contentView.bounds.size.width, self.window.contentView.bounds.size.height - statusLineHeight);
     _horizontalSplitView = [[NSSplitView alloc] initWithFrame:availableRect];
@@ -708,62 +730,62 @@ static const NSString* kIdentifyToolbarIdentifier = @"Live Identify";
     _horizontalSplitView.delegate = self;
     _horizontalSplitView.identifier = @"VerticalSplitterID";
     _horizontalSplitView.translatesAutoresizingMaskIntoConstraints = YES;
-
+    
     _belowVisuals = [[NSView alloc] initWithFrame:NSMakeRect(self.window.contentView.bounds.origin.x, self.window.contentView.bounds.origin.y,
                                                              self.window.contentView.bounds.size.width, height)];
     _belowVisuals.autoresizingMask = kViewFullySizeable;
     _belowVisuals.autoresizesSubviews = YES;
     _belowVisuals.wantsLayer = YES;
     _belowVisuals.translatesAutoresizingMaskIntoConstraints = YES;
-
+    
     _totalWaveViewController.view.frame =
-        NSMakeRect(_belowVisuals.bounds.origin.x, _belowVisuals.bounds.origin.y, _belowVisuals.bounds.size.width, totalWaveViewHeight);
+    NSMakeRect(_belowVisuals.bounds.origin.x, _belowVisuals.bounds.origin.y, _belowVisuals.bounds.size.width, totalWaveViewHeight);
     _totalWaveViewController.view.autoresizingMask = NSViewWidthSizable;
     _totalWaveViewController.view.translatesAutoresizingMaskIntoConstraints = YES;
     [_belowVisuals addSubview:_totalWaveViewController.view];
     //[_totalWaveViewController resetTracking];
-
+    
     WaveScrollView* tiledSV =
-        [[WaveScrollView alloc] initWithFrame:NSMakeRect(_belowVisuals.bounds.origin.x, _belowVisuals.bounds.origin.y + totalWaveViewHeight,
-                                                         _belowVisuals.bounds.size.width, scrollingWaveViewHeight)];
+    [[WaveScrollView alloc] initWithFrame:NSMakeRect(_belowVisuals.bounds.origin.x, _belowVisuals.bounds.origin.y + totalWaveViewHeight,
+                                                     _belowVisuals.bounds.size.width, scrollingWaveViewHeight)];
     tiledSV.wantsLayer = YES;
     tiledSV.autoresizingMask = NSViewWidthSizable;
     tiledSV.drawsBackground = NO;
     tiledSV.translatesAutoresizingMaskIntoConstraints = YES;
     tiledSV.verticalScrollElasticity = NSScrollElasticityNone;
-
+    
     _scrollingWaveViewController.view.frame = tiledSV.bounds;
     //[_scrollingWaveViewController resetTracking];
-
+    
     tiledSV.documentView = _scrollingWaveViewController.view;
     [_belowVisuals addSubview:tiledSV];
-
+    
     // Horizontal Line below total wave view.
     NSBox* line = [[NSBox alloc] initWithFrame:NSMakeRect(_belowVisuals.bounds.origin.x, _belowVisuals.bounds.origin.y, _belowVisuals.bounds.size.width, 1.0)];
     line.boxType = NSBoxCustom;
     line.borderColor = [[[Defaults sharedDefaults] lightBeamColor] colorWithAlphaComponent:0.2];
     line.autoresizingMask = NSViewWidthSizable;
     [_belowVisuals addSubview:line];
-
+    
     // Horizontal Line above total wave view.
     line = [[NSBox alloc]
-        initWithFrame:NSMakeRect(_belowVisuals.bounds.origin.x, _belowVisuals.bounds.origin.y + totalWaveViewHeight, _belowVisuals.bounds.size.width, 1.0)];
+            initWithFrame:NSMakeRect(_belowVisuals.bounds.origin.x, _belowVisuals.bounds.origin.y + totalWaveViewHeight, _belowVisuals.bounds.size.width, 1.0)];
     line.boxType = NSBoxCustom;
     line.borderColor = [[[Defaults sharedDefaults] lightBeamColor] colorWithAlphaComponent:0.2];
     line.autoresizingMask = NSViewWidthSizable;
     [_belowVisuals addSubview:line];
-
+    
     line = [[NSBox alloc] initWithFrame:NSMakeRect(_belowVisuals.bounds.origin.x, _belowVisuals.bounds.origin.y + scrollingWaveViewHeight + totalWaveViewHeight,
                                                    _belowVisuals.bounds.size.width, 1.0)];
     line.boxType = NSBoxCustom;
     line.borderColor = [[[Defaults sharedDefaults] lightBeamColor] colorWithAlphaComponent:0.2];
     line.autoresizingMask = NSViewWidthSizable;
     [_belowVisuals addSubview:line];
-
+    
     _effectBelowPlaylist =
-        [[NSVisualEffectView alloc] initWithFrame:NSMakeRect(_belowVisuals.bounds.size.width, _belowVisuals.bounds.origin.y, playlistFxViewWidth, height)];
+    [[NSVisualEffectView alloc] initWithFrame:NSMakeRect(_belowVisuals.bounds.size.width, _belowVisuals.bounds.origin.y, playlistFxViewWidth, height)];
     _effectBelowPlaylist.autoresizingMask = NSViewHeightSizable | NSViewMinXMargin;
-
+    
     NSSegmentedControl* segment = [NSSegmentedControl segmentedControlWithLabels:@[ @"Playlist", @"Tracklist" ]
                                                                     trackingMode:NSSegmentSwitchTrackingSelectOne
                                                                           target:self
@@ -775,13 +797,13 @@ static const NSString* kIdentifyToolbarIdentifier = @"Live Identify";
     segment.frame = NSMakeRect(sideMargin, _effectBelowPlaylist.bounds.size.height - 35.0, _effectBelowPlaylist.bounds.size.width - (sideMargin * 2.0), 30.0);
     [_effectBelowPlaylist addSubview:segment];
     [segment setSelectedSegment:0];
-
+    
     _listsTabView =
-        [[NSTabView alloc] initWithFrame:NSMakeRect(0.0, 0.0, _effectBelowPlaylist.bounds.size.width, _effectBelowPlaylist.bounds.size.height - 30.0)];
+    [[NSTabView alloc] initWithFrame:NSMakeRect(0.0, 0.0, _effectBelowPlaylist.bounds.size.width, _effectBelowPlaylist.bounds.size.height - 30.0)];
     _listsTabView.tabPosition = NSTabPositionTop;
     _listsTabView.tabViewType = NSNoTabsNoBorder;
     _listsTabView.autoresizingMask = kViewFullySizeable;
-
+    
     // Playlist
     _playlist = [PlaylistController new];
     _playlist.delegate = self;
@@ -790,7 +812,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Live Identify";
     _playlistTabViewItem.initialFirstResponder = _playlist.view;
     [_playlistTabViewItem setLabel:@"playlist"];
     [_listsTabView addTabViewItem:_playlistTabViewItem];
-
+    
     // Tracklist
     _tracklist = [TracklistController new];
     _tracklist.delegate = self;
@@ -799,16 +821,16 @@ static const NSString* kIdentifyToolbarIdentifier = @"Live Identify";
     _tracklistTabViewItem.initialFirstResponder = _tracklist.view;
     [_tracklistTabViewItem setLabel:@"tracklist"];
     [_listsTabView addTabViewItem:_tracklistTabViewItem];
-
+    
     [_effectBelowPlaylist addSubview:_listsTabView];
-
+    
     // Scope / FFT View
     ScopeView* scv = [[ScopeView alloc]
-        initWithFrame:NSMakeRect(_belowVisuals.bounds.origin.x, _belowVisuals.bounds.origin.y + totalWaveViewHeight + scrollingWaveViewHeight + 1.0,
-                                 _belowVisuals.bounds.size.width, scopeViewHeight - 2.0)
-               device:MTLCreateSystemDefaultDevice()];
+                      initWithFrame:NSMakeRect(_belowVisuals.bounds.origin.x, _belowVisuals.bounds.origin.y + totalWaveViewHeight + scrollingWaveViewHeight + 1.0,
+                                               _belowVisuals.bounds.size.width, scopeViewHeight - 2.0)
+                      device:MTLCreateSystemDefaultDevice()];
     [_belowVisuals addSubview:scv];
-
+    
     line = [[NSBox alloc] initWithFrame:NSMakeRect(_belowVisuals.bounds.origin.x,
                                                    _belowVisuals.bounds.origin.y + scrollingWaveViewHeight + totalWaveViewHeight + scv.frame.size.height,
                                                    _belowVisuals.bounds.size.width, 1.0)];
@@ -817,7 +839,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Live Identify";
     // line.borderColor = [NSColor redColor];
     line.autoresizingMask = NSViewWidthSizable | NSViewMinYMargin;
     [_belowVisuals addSubview:line];
-
+    
     [_belowVisuals addConstraint:[NSLayoutConstraint constraintWithItem:scv
                                                               attribute:NSLayoutAttributeHeight
                                                               relatedBy:NSLayoutRelationGreaterThanOrEqual
@@ -825,12 +847,12 @@ static const NSString* kIdentifyToolbarIdentifier = @"Live Identify";
                                                               attribute:NSLayoutAttributeNotAnAttribute
                                                              multiplier:1.0
                                                                constant:kMinScopeHeight]];
-
+    
     [_scopeView removeFromSuperview];
     _scopeView = scv;
-
+    
     [_belowVisuals addSubview:_effectBelowPlaylist positioned:NSWindowAbove relativeTo:nil];
-
+    
     _renderer = [[ScopeRenderer alloc] initWithMetalKitView:scv
                                                       color:[[Defaults sharedDefaults] lightBeamColor]
                                                    fftColor:[[Defaults sharedDefaults] fftColor]
@@ -838,37 +860,37 @@ static const NSString* kIdentifyToolbarIdentifier = @"Live Identify";
                                                    delegate:self];
     _renderer.level = self.controlPanelController.level;
     scv.delegate = _renderer;
-
+    
     [_renderer mtkView:scv drawableSizeWillChange:scv.bounds.size];
-
+    
     if (_audioController && _visualSample) {
         [_renderer play:_audioController visual:_visualSample scope:scv];
     }
-
+    
     _smallScopeView = _scopeView;
-
+    
     [_belowVisuals addSubview:_effectBelowPlaylist];
-
+    
     [_horizontalSplitView addArrangedSubview:_belowVisuals];
-
+    
     ///
     /// Genre, Artist, Album, BPM, Key Tables.
     ///
     NSRect verticalRect =
-        NSMakeRect(_horizontalSplitView.bounds.origin.x, _horizontalSplitView.bounds.origin.y, _horizontalSplitView.bounds.size.width, selectorTableViewHeight);
+    NSMakeRect(_horizontalSplitView.bounds.origin.x, _horizontalSplitView.bounds.origin.y, _horizontalSplitView.bounds.size.width, selectorTableViewHeight);
     _browserColumnSplitView = [[NSSplitView alloc] initWithFrame:verticalRect];
     _browserColumnSplitView.vertical = YES;
     _browserColumnSplitView.delegate = self;
     _browserColumnSplitView.identifier = @"HorizontalSplittersID";
     _browserColumnSplitView.dividerStyle = NSSplitViewDividerStyleThin;
-
+    
     NSScrollView* sv = [[NSScrollView alloc] initWithFrame:NSMakeRect(0.0, 0.0, selectorTableViewWidth, selectorTableViewHeight)];
     sv.hasVerticalScroller = YES;
     sv.autoresizingMask = kViewFullySizeable;
     sv.drawsBackground = NO;
     _genreTable = [[NSTableView alloc] initWithFrame:NSZeroRect];
     _genreTable.tag = VIEWTAG_GENRE;
-
+    
     NSTableColumn* col = [[NSTableColumn alloc] init];
     col.title = @"Genre";
     col.identifier = @"Genre";
@@ -884,7 +906,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Live Identify";
                                                                         attribute:NSLayoutAttributeNotAnAttribute
                                                                        multiplier:1.0
                                                                          constant:selectorTableViewMinWidth]];
-
+    
     [_browserColumnSplitView addConstraint:[NSLayoutConstraint constraintWithItem:sv
                                                                         attribute:NSLayoutAttributeHeight
                                                                         relatedBy:NSLayoutRelationGreaterThanOrEqual
@@ -892,14 +914,14 @@ static const NSString* kIdentifyToolbarIdentifier = @"Live Identify";
                                                                         attribute:NSLayoutAttributeNotAnAttribute
                                                                        multiplier:1.0
                                                                          constant:kMinTableHeight]];
-
+    
     sv = [[NSScrollView alloc] initWithFrame:NSMakeRect(0.0, 0.0, selectorTableViewWidth, selectorTableViewHeight)];
     sv.drawsBackground = NO;
     sv.hasVerticalScroller = YES;
     sv.autoresizingMask = kViewFullySizeable;
     _artistsTable = [[NSTableView alloc] initWithFrame:NSZeroRect];
     _artistsTable.tag = VIEWTAG_ARTISTS;
-
+    
     col = [[NSTableColumn alloc] init];
     col.title = @"Artist";
     col.width = selectorTableViewWidth - selectorColumnInset;
@@ -914,14 +936,14 @@ static const NSString* kIdentifyToolbarIdentifier = @"Live Identify";
                                                                         attribute:NSLayoutAttributeNotAnAttribute
                                                                        multiplier:1.0
                                                                          constant:selectorTableViewMinWidth]];
-
+    
     sv = [[NSScrollView alloc] initWithFrame:NSMakeRect(0.0, 0.0, selectorTableViewWidth, selectorTableViewHeight)];
     sv.hasVerticalScroller = YES;
     sv.autoresizingMask = kViewFullySizeable;
     sv.drawsBackground = NO;
     _albumsTable = [[NSTableView alloc] initWithFrame:sv.bounds];
     _albumsTable.tag = VIEWTAG_ALBUMS;
-
+    
     col = [[NSTableColumn alloc] init];
     col.title = @"Album";
     col.width = selectorTableViewWidth - selectorColumnInset;
@@ -936,7 +958,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Live Identify";
                                                                         attribute:NSLayoutAttributeNotAnAttribute
                                                                        multiplier:1.0
                                                                          constant:selectorTableViewMinWidth]];
-
+    
     sv = [[NSScrollView alloc] initWithFrame:NSMakeRect(0.0, 0.0, selectorTableViewHalfWidth, selectorTableViewHeight)];
     sv.hasVerticalScroller = YES;
     sv.autoresizingMask = kViewFullySizeable;
@@ -957,7 +979,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Live Identify";
                                                                         attribute:NSLayoutAttributeNotAnAttribute
                                                                        multiplier:1.0
                                                                          constant:selectorTableViewMinWidth]];
-
+    
     sv = [[NSScrollView alloc] initWithFrame:NSMakeRect(0.0, 0.0, selectorTableViewHalfWidth, selectorTableViewHeight)];
     sv.hasVerticalScroller = YES;
     sv.autoresizingMask = kViewFullySizeable;
@@ -978,7 +1000,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Live Identify";
                                                                         attribute:NSLayoutAttributeNotAnAttribute
                                                                        multiplier:1.0
                                                                          constant:selectorTableViewMinWidth]];
-
+    
     sv = [[NSScrollView alloc] initWithFrame:NSMakeRect(0.0, 0.0, selectorTableViewHalfWidth, selectorTableViewHeight)];
     sv.hasVerticalScroller = YES;
     sv.autoresizingMask = kViewFullySizeable;
@@ -999,7 +1021,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Live Identify";
                                                                         attribute:NSLayoutAttributeNotAnAttribute
                                                                        multiplier:1.0
                                                                          constant:selectorTableViewMinWidth]];
-
+    
     sv = [[NSScrollView alloc] initWithFrame:NSMakeRect(0.0, 0.0, selectorTableViewHalfWidth, selectorTableViewHeight)];
     sv.hasVerticalScroller = YES;
     sv.autoresizingMask = kViewFullySizeable;
@@ -1020,7 +1042,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Live Identify";
                                                                         attribute:NSLayoutAttributeNotAnAttribute
                                                                        multiplier:1.0
                                                                          constant:selectorTableViewMinWidth]];
-
+    
     [_horizontalSplitView addArrangedSubview:_browserColumnSplitView];
     NSLayoutConstraint* constraint = [NSLayoutConstraint constraintWithItem:_browserColumnSplitView
                                                                   attribute:NSLayoutAttributeHeight
@@ -1030,7 +1052,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Live Identify";
                                                                  multiplier:1.0
                                                                    constant:kMinTableHeight];
     [_horizontalSplitView addConstraint:constraint];
-
+    
     _searchField = [[NSSearchField alloc] initWithFrame:NSMakeRect(0, 0, _horizontalSplitView.bounds.size.width, searchFieldHeight)];
     _searchField.sendsWholeSearchString = NO;
     _searchField.sendsSearchStringImmediately = YES;
@@ -1040,7 +1062,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Live Identify";
     NSImage* image = [NSImage imageWithSystemSymbolName:@"line.3.horizontal.decrease" accessibilityDescription:@"filter"];
     NSSearchFieldCell* cell = _searchField.cell;
     cell.searchButtonCell.image = image;
-
+    
     ///
     /// Songs Table.
     ///
@@ -1056,7 +1078,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Live Identify";
     _songsTable.columnAutoresizingStyle = NSTableViewLastColumnOnlyAutoresizingStyle;
     _songsTable.allowsMultipleSelection = YES;
     [_songsTable selectionHighlightStyle];
-
+    
     col = [[NSTableColumn alloc] initWithIdentifier:kSongsColTrackNumber];
     col.title = @"Track";
     col.width = trackColumnWidth - selectorColumnInset;
@@ -1064,7 +1086,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Live Identify";
     col.resizingMask = NSTableColumnUserResizingMask;
     col.sortDescriptorPrototype = [[NSSortDescriptor alloc] initWithKey:@"track" ascending:YES selector:@selector(compare:)];
     [_songsTable addTableColumn:col];
-
+    
     col = [[NSTableColumn alloc] initWithIdentifier:kSongsColTitle];
     col.title = @"Title";
     col.width = titleColumnWidth - selectorColumnInset;
@@ -1072,7 +1094,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Live Identify";
     col.resizingMask = NSTableColumnUserResizingMask;
     col.sortDescriptorPrototype = [[NSSortDescriptor alloc] initWithKey:@"title" ascending:YES selector:@selector(compare:)];
     [_songsTable addTableColumn:col];
-
+    
     col = [[NSTableColumn alloc] initWithIdentifier:kSongsColTime];
     col.title = @"Time";
     col.width = timeColumnWidth - selectorColumnInset;
@@ -1080,7 +1102,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Live Identify";
     col.resizingMask = NSTableColumnUserResizingMask;
     col.sortDescriptorPrototype = [[NSSortDescriptor alloc] initWithKey:@"duration" ascending:YES selector:@selector(compare:)];
     [_songsTable addTableColumn:col];
-
+    
     col = [[NSTableColumn alloc] initWithIdentifier:kSongsColArtist];
     col.title = @"Artist";
     col.width = artistColumnWidth - selectorColumnInset;
@@ -1088,7 +1110,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Live Identify";
     col.resizingMask = NSTableColumnUserResizingMask;
     col.sortDescriptorPrototype = [[NSSortDescriptor alloc] initWithKey:@"artist" ascending:YES selector:@selector(compare:)];
     [_songsTable addTableColumn:col];
-
+    
     col = [[NSTableColumn alloc] initWithIdentifier:kSongsColAlbum];
     col.title = @"Album";
     col.width = albumColumnWidth - selectorColumnInset;
@@ -1096,7 +1118,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Live Identify";
     col.resizingMask = NSTableColumnUserResizingMask;
     col.sortDescriptorPrototype = [[NSSortDescriptor alloc] initWithKey:@"album" ascending:YES selector:@selector(compare:)];
     [_songsTable addTableColumn:col];
-
+    
     col = [[NSTableColumn alloc] initWithIdentifier:kSongsColGenre];
     col.title = @"Genre";
     col.width = genreColumnWidth - selectorColumnInset;
@@ -1104,7 +1126,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Live Identify";
     col.resizingMask = NSTableColumnAutoresizingMask | NSTableColumnUserResizingMask;
     col.sortDescriptorPrototype = [[NSSortDescriptor alloc] initWithKey:@"genre" ascending:YES selector:@selector(compare:)];
     [_songsTable addTableColumn:col];
-
+    
     col = [[NSTableColumn alloc] initWithIdentifier:kSongsColAdded];
     col.title = @"Added";
     col.width = addedColumnWidth - selectorColumnInset;
@@ -1112,7 +1134,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Live Identify";
     col.resizingMask = NSTableColumnUserResizingMask;
     col.sortDescriptorPrototype = [[NSSortDescriptor alloc] initWithKey:@"added" ascending:YES selector:@selector(compare:)];
     [_songsTable addTableColumn:col];
-
+    
     col = [[NSTableColumn alloc] initWithIdentifier:kSongsColTempo];
     col.title = @"Tempo";
     col.width = tempoColumnWidth - selectorColumnInset;
@@ -1120,7 +1142,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Live Identify";
     col.resizingMask = NSTableColumnUserResizingMask;
     col.sortDescriptorPrototype = [[NSSortDescriptor alloc] initWithKey:@"tempo" ascending:YES selector:@selector(compare:)];
     [_songsTable addTableColumn:col];
-
+    
     col = [[NSTableColumn alloc] initWithIdentifier:kSongsColKey];
     col.title = @"Key";
     col.width = keyColumnWidth - selectorColumnInset;
@@ -1128,7 +1150,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Live Identify";
     col.resizingMask = NSTableColumnUserResizingMask;
     col.sortDescriptorPrototype = [[NSSortDescriptor alloc] initWithKey:@"key" ascending:YES selector:@selector(compare:)];
     [_songsTable addTableColumn:col];
-
+    
     col = [[NSTableColumn alloc] initWithIdentifier:kSongsColRating];
     col.title = @"Rating";
     col.width = ratingColumnWidth - selectorColumnInset;
@@ -1136,25 +1158,62 @@ static const NSString* kIdentifyToolbarIdentifier = @"Live Identify";
     col.resizingMask = NSTableColumnUserResizingMask;
     col.sortDescriptorPrototype = [[NSSortDescriptor alloc] initWithKey:@"rating" ascending:YES selector:@selector(compare:)];
     [_songsTable addTableColumn:col];
-
+    
     col = [[NSTableColumn alloc] initWithIdentifier:kSongsColTags];
     col.title = @"Tags";
     col.minWidth = (tagsColumnWidth - selectorColumnInset) / 2.0;
     col.resizingMask = NSTableColumnAutoresizingMask;
     col.sortDescriptorPrototype = [[NSSortDescriptor alloc] initWithKey:@"tags" ascending:YES selector:@selector(compare:)];
     [_songsTable addTableColumn:col];
-
+    
     sv.documentView = _songsTable;
     [_horizontalSplitView addArrangedSubview:sv];
+    
+    // Empty-state prompt to import from Apple Music. Overlays the songs table.
+    _importButton = [NSButton buttonWithTitle:@"Import from Apple Music" target:self action:@selector(loadITunesLibrary:)];
+    _importButton.translatesAutoresizingMaskIntoConstraints = NO;
+    _importButton.bezelStyle = NSBezelStyleRounded;
+    _importButton.hidden = YES;
+    [sv.contentView addSubview:_importButton];
+    [NSLayoutConstraint activateConstraints:@[
+        [_importButton.centerXAnchor constraintEqualToAnchor:sv.contentView.centerXAnchor],
+        [_importButton.centerYAnchor constraintEqualToAnchor:sv.contentView.centerYAnchor]
+    ]];
+    
+    _importLabel = [NSTextField textFieldWithString:@"Import in Progress"];
+    _importLabel.translatesAutoresizingMaskIntoConstraints = NO;
+    _importLabel.editable = NO;
+    _importLabel.font = [[Defaults sharedDefaults] smallFont];
+    _importLabel.hidden = YES;
+    _importLabel.drawsBackground = NO;
+    _importLabel.textColor = [NSColor secondaryLabelColor];
+    _importLabel.bordered = NO;
+    _importLabel.cell.truncatesLastVisibleLine = YES;
+    _importLabel.cell.lineBreakMode = NSLineBreakByTruncatingTail;
+    _importLabel.alignment = NSTextAlignmentCenter;
+    [sv.contentView addSubview:_importLabel];
+    [NSLayoutConstraint activateConstraints:@[
+        [_importLabel.centerXAnchor constraintEqualToAnchor:sv.contentView.centerXAnchor],
+        [_importLabel.centerYAnchor constraintEqualToAnchor:sv.contentView.centerYAnchor]
+    ]];
 
-    constraint = [NSLayoutConstraint constraintWithItem:sv
-                                              attribute:NSLayoutAttributeHeight
-                                              relatedBy:NSLayoutRelationGreaterThanOrEqual
-                                                 toItem:nil
-                                              attribute:NSLayoutAttributeNotAnAttribute
-                                             multiplier:1.0
-                                               constant:kMinTableHeight];
-    [_horizontalSplitView addConstraint:constraint];
+    _importProgress = [[NSProgressIndicator alloc] initWithFrame:NSZeroRect];
+    _importProgress.translatesAutoresizingMaskIntoConstraints = NO;
+    _importProgress.indeterminate = NO;
+    _importProgress.minValue = 0.0;
+    _importProgress.maxValue = 1.0;
+    _importProgress.hidden = YES;
+    _importProgress.style = NSProgressIndicatorStyleBar;
+    _importProgress.controlSize = NSControlSizeMini;
+    CIColor* color = [[CIColor alloc] initWithColor:[NSColor whiteColor]];
+    CIFilter* colorFilter = [CIFilter filterWithName:@"CIColorMonochrome" withInputParameters:@{@"inputColor" : color}];
+    _importProgress.contentFilters = @[ colorFilter ];
+    [sv.contentView addSubview:_importProgress];
+    [NSLayoutConstraint activateConstraints:@[
+        [_importProgress.centerXAnchor constraintEqualToAnchor:sv.contentView.centerXAnchor],
+        [_importProgress.topAnchor constraintEqualToAnchor:_importLabel.bottomAnchor constant:8.0],
+        [_importProgress.widthAnchor constraintEqualToConstant:300.0]
+    ]];
 
     [self.window.contentView addSubview:_horizontalSplitView];
 }
@@ -1217,36 +1276,6 @@ static const NSString* kIdentifyToolbarIdentifier = @"Live Identify";
 
     _smallBelowVisualsFrame = _belowVisuals.frame;
 
-    {
-        CIFilter* colorFilter = [CIFilter filterWithName:@ "CIFalseColor"];
-
-        [colorFilter setDefaults];
-
-        CIColor* color1 = [CIColor colorWithRed:(CGFloat) 0xFA / 255.0 green:(CGFloat) 0xB0 / 255.0 blue:(CGFloat) 0x59 / 255.0 alpha:(CGFloat) 0.4];
-
-        CIColor* color2 = [CIColor colorWithRed:(CGFloat) 0xFA / 255.0 green:(CGFloat) 0xB0 / 255.0 blue:(CGFloat) 0x59 / 255.0 alpha:(CGFloat) 1.0];
-
-        [colorFilter setValue:color1 forKey:@"inputColor0"];
-        [colorFilter setValue:color2 forKey:@"inputColor1"];
-
-        self.trackLoadProgress.contentFilters = @[ colorFilter ];
-    }
-
-    {
-        CIFilter* colorFilter = [CIFilter filterWithName:@ "CIFalseColor"];
-
-        [colorFilter setDefaults];
-
-        CIColor* color1 = [CIColor colorWithRed:(CGFloat) 0x00 / 255.0 green:(CGFloat) 0x00 / 255.0 blue:(CGFloat) 0x00 / 255.0 alpha:(CGFloat) 0.0];
-
-        CIColor* color2 = [CIColor colorWithRed:(CGFloat) 0xFA / 255.0 green:(CGFloat) 0xB0 / 255.0 blue:(CGFloat) 0x59 / 255.0 alpha:(CGFloat) 1.0];
-
-        [colorFilter setValue:color1 forKey:@"inputColor0"];
-        [colorFilter setValue:color2 forKey:@"inputColor1"];
-
-        self.trackRenderProgress.contentFilters = @[ colorFilter ];
-    }
-
     CGRect rect = CGRectMake(0.0, 0.0, self.window.frame.size.width, self.window.frame.size.height);
     CGRect contentRect = [self.window contentRectForFrameRect:rect];
     _windowBarHeight = self.window.frame.size.height - contentRect.size.height;
@@ -1259,6 +1288,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Live Identify";
     [self setupDisplayLink];
 
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(someWindowWillClose:) name:@"NSWindowWillCloseNotification" object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(activitiesUpdated:) name:ActivityManagerDidUpdateNotification object:nil];
 
     NSNumber* fullscreenValue = [userDefaults objectForKey:@"fullscreen"];
     if ([fullscreenValue boolValue]) {
@@ -1876,7 +1906,11 @@ call super's supplementalTargetForAction:sender:.
 
 - (IBAction)loadITunesLibrary:(id)sender
 {
-    [_browser loadITunesLibrary];
+    _importButton.hidden = YES;
+    _importLabel.hidden = NO;
+    _importProgress.hidden = NO;
+    _importToken = [[ActivityManager shared] beginActivityWithTitle:@"Updating from Apple Library" detail:@"" cancellable:NO cancelHandler:nil];
+    [_browser loadITunesLibraryWithToken:_importToken];
 }
 
 #pragma mark - Splitter delegate
@@ -2751,17 +2785,23 @@ typedef struct {
 
 - (BOOL)performDragOperation:(id<NSDraggingInfo>)sender
 {
+    BOOL ret = NO;
+
     NSPasteboard* pboard = [sender draggingPasteboard];
 
+    // When just one item got dropped we know we can play that right away.
     if (pboard.pasteboardItems.count <= 1) {
         NSURL* url = [NSURL URLFromPasteboard:pboard];
-        if (url) {
-            if ([self loadDocumentFromURL:[WaveWindowController encodeQueryItemsWithUrl:url frame:0LL playing:YES] meta:nil]) {
-                return YES;
-            }
+        if (url != nil) {
+            ret = [self loadDocumentFromURL:[WaveWindowController encodeQueryItemsWithUrl:url frame:0LL playing:YES] meta:nil];
         }
     }
-    return NO;
+
+    // At least one item got dropped, maybe the user wants to add them to our DB?
+    if (pboard.pasteboardItems.count >= 1) {
+    }
+
+    return ret;
 }
 
 #pragma mark - Browser delegate
@@ -3187,5 +3227,28 @@ typedef struct {
 // FIXME: WHY?
 - (void)encodeWithCoder:(nonnull NSCoder*)coder
 {}
+
+
+#pragma mark - Notifications
+
+- (void)activitiesUpdated:(NSNotification*)note
+{
+    // Should we care?
+    if (_importToken == nil) {
+        return;
+    }
+
+    // Did our token expire?
+    if (![[ActivityManager shared] isActive:_importToken]) {
+        _importToken = nil;
+        _importLabel.hidden = YES;
+        _importProgress.hidden = YES;
+        return;
+    }
+
+    ActivityEntry* entry = [[ActivityManager shared] activityWithToken:_importToken];
+    _importProgress.doubleValue = entry.progress;
+    [_importProgress setNeedsDisplay:YES];
+}
 
 @end

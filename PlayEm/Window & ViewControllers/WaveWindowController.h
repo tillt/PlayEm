@@ -41,7 +41,6 @@ NS_ASSUME_NONNULL_BEGIN
     : NSWindowController <NSWindowDelegate, NSToolbarDelegate, NSToolbarItemValidation, BrowserControllerDelegate, PlaylistControllerDelegate,
                           TracklistControllerDelegate, ScopeRendererDelegate, ControlPanelControllerDelegate, InfoPanelControllerDelegate,
                           IdentifyViewControllerDelegate, WaveViewControllerDelegate, NSSplitViewDelegate, NSMenuDelegate, AVRoutePickerViewDelegate>
-// SPMediaKeyTapDelegate>
 
 @property (nonatomic, strong) AudioController* audioController;
 
@@ -53,17 +52,9 @@ NS_ASSUME_NONNULL_BEGIN
 @property (strong, nonatomic) BrowserController* browser;
 @property (strong, nonatomic) ScopeView* smallScopeView;
 @property (strong, nonatomic) IBOutlet NSView* belowVisuals;
-//@property (strong, nonatomic) IBOutlet TotalWaveView* totalView;
-//@property (strong, nonatomic) IBOutlet WaveView* waveView;
-//@property (strong, nonatomic) IBOutlet MetalWaveView* metalWaveView;
 @property (strong, nonatomic) IBOutlet ScopeView* scopeView;
 @property (strong, nonatomic) IBOutlet NSVisualEffectView* effectBelowPlaylist;
 @property (strong, nonatomic) IBOutlet NSTextField* songsCount;
-
-@property (strong, nonatomic) IBOutlet NSProgressIndicator* progress;
-@property (strong, nonatomic) IBOutlet NSProgressIndicator* trackLoadProgress;
-@property (strong, nonatomic) IBOutlet NSProgressIndicator* trackRenderProgress;
-@property (strong, nonatomic) IBOutlet NSProgressIndicator* trackSeekingProgress;
 
 @property (strong, nonatomic) IBOutlet NSSplitView* horizontalSplitView;
 @property (strong, nonatomic) IBOutlet NSSplitView* browserColumnSplitView;

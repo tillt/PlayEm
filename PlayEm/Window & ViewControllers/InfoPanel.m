@@ -11,7 +11,7 @@
 #import <Quartz/Quartz.h>
 
 #import "../Defaults.h"
-#import "../NSImage+Resize.h"
+#import "NSImage+Resize.h"
 #import "../NSString+OccurenceCount.h"
 #import "CAShapeLayer+Path.h"
 #import "DragImageFileView.h"

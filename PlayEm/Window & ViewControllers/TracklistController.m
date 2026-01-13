@@ -11,7 +11,7 @@
 #import <CoreImage/CoreImage.h>
 
 #import "../Defaults.h"
-#import "../NSImage+Resize.h"
+#import "NSImage+Resize.h"
 #import "ActivityManager.h"
 #import "Audio/AudioController.h"
 #import "ImageController.h"
@@ -594,7 +594,9 @@ static const NSAutoresizingMaskOptions kViewFullySizeable = NSViewHeightSizable 
     NSImageView* iv = [result viewWithTag:kImageViewTag];
     __weak NSView* weakView = result;
     __weak NSTableView* weakTable = tableView;
-    [track.meta resolvedArtworkForSize:iv.frame.size.width callback:^(NSImage* image) {
+    [track.meta resolvedArtworkForSize:iv.frame.size.width
+                           placeholder:YES
+                              callback:^(NSImage* image) {
         __weak NSView* strongView = weakView;
         __weak NSTableView* strongTable = weakTable;
         if (image == nil || strongView == nil || strongTable == nil) {

@@ -12,7 +12,7 @@
 #import <Quartz/Quartz.h>
 
 #import "../CAShapeLayer+Path.h"
-#import "../NSImage+Resize.h"
+#import "NSImage+Resize.h"
 #import "../Views/WaveScrollView.h"
 #import "Defaults.h"
 #import "ImageController.h"
@@ -25,7 +25,7 @@
 #import "TimedMediaMetaData.h"
 #import "TrackList.h"
 #import "WaveView.h"
-#import "../NSData+Hashing.h"
+#import "NSData+Hashing.h"
 #import "MediaMetaData+ImageController.h"
 
 typedef enum : NSUInteger { NormalHandle = 0, HoverHandle = 1, PressedHandle, ActiveHandle } TrackMarkHandleState;
@@ -733,7 +733,7 @@ const CGFloat kMarkerHandleWidth = 6.0f;
         // Placeholder initially - we may need to resolve the data (unlikely for a
         // tracklist, very likely for a playlist).
         __weak CALayer* weakLayer = imageLayer;
-        [track.meta resolvedArtworkForSize:imageLayer.frame.size.width callback:^(NSImage* image) {
+        [track.meta resolvedArtworkForSize:imageLayer.frame.size.width placeholder:YES callback:^(NSImage* image) {
             CALayer* strongLayer = weakLayer;
             if (image == nil || strongLayer == nil) {
                 return;

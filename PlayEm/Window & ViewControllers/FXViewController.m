@@ -103,15 +103,16 @@ static NSString* const kFXLastEffectEnabledKey = @"FXLastEffectEnabled";
     [header addSubview:self.effectToggle];
     [header addSubview:self.effectMenu];
 
+    CGFloat topPadding = 6.0;
     [NSLayoutConstraint activateConstraints:@[
         [self.effectToggle.leadingAnchor constraintEqualToAnchor:header.leadingAnchor constant:margin],
-        [self.effectToggle.centerYAnchor constraintEqualToAnchor:header.centerYAnchor],
+        [self.effectToggle.topAnchor constraintEqualToAnchor:header.topAnchor constant:topPadding],
         [self.effectToggle.heightAnchor constraintEqualToConstant:20.0],
 
         [self.effectMenu.centerXAnchor constraintEqualToAnchor:header.centerXAnchor],
         [self.effectMenu.leadingAnchor constraintGreaterThanOrEqualToAnchor:self.effectToggle.trailingAnchor constant:spacing],
         [self.effectMenu.trailingAnchor constraintLessThanOrEqualToAnchor:header.trailingAnchor constant:-10.0],
-        [self.effectMenu.centerYAnchor constraintEqualToAnchor:header.centerYAnchor],
+        [self.effectMenu.topAnchor constraintEqualToAnchor:header.topAnchor constant:topPadding - 2.0],
         [self.effectMenu.heightAnchor constraintEqualToConstant:24.0]
     ]];
 

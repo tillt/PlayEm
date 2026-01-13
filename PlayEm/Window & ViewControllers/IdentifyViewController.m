@@ -12,8 +12,8 @@
 #import <WebKit/WebKit.h>
 
 #import "../Defaults.h"
-#import "../NSImage+Average.h"
-#import "../NSImage+Resize.h"
+#import "NSImage+Average.h"
+#import "NSImage+Resize.h"
 #import <AudioToolbox/AudioToolbox.h>
 #import "AudioController.h"
 #import "IdentificationCoverView.h"
@@ -520,6 +520,7 @@ static NSString* gShzDumpPath = nil;
     __weak IdentifyViewController* weakSelf = self;
 
     [meta resolvedArtworkForSize:_identificationCoverView.frame.size.width
+                     placeholder:NO
                         callback:^(NSImage* image){
         IdentifyViewController* strongSelf = weakSelf;
         if (image == nil || strongSelf == nil) {
@@ -688,6 +689,7 @@ static NSString* gShzDumpPath = nil;
         __weak NSTableView* weakTable = tableView;
 
         [track.meta resolvedArtworkForSize:_identificationCoverView.frame.size.width
+                               placeholder:YES
                                   callback:^(NSImage* image){
             NSImageView* strongView = weakView;
             NSTableView* strongTable = weakTable;

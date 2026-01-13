@@ -17,6 +17,7 @@
 
 #import "ActivityManager.h"
 #import "CAShapeLayer+Path.h"
+#import "LibraryStore.h"
 #import "MediaMetaData.h"
 #import "NSBezierPath+CGPath.h"
 #import "NSString+BeautifulPast.h"
@@ -41,6 +42,7 @@ NSString* const kSongsColGenre = @"GenreCell";
 @interface BrowserController ()
 @property (nonatomic, strong) ITLibrary* library;
 @property (nonatomic, strong) NSMutableArray<MediaMetaData*>* cachedLibrary;
+@property (nonatomic, strong) LibraryStore* libraryStore;
 
 @property (nonatomic, weak) NSTableView* genresTable;
 @property (nonatomic, weak) NSTableView* artistsTable;
@@ -65,6 +67,9 @@ NSString* const kSongsColGenre = @"GenreCell";
 
 @property (strong, nonatomic) dispatch_queue_t filterQueue;
 
+- (void)mergeMetasIntoCache:(NSArray<MediaMetaData*>*)metas;
+- (void)refreshUIWithLibrary:(NSArray<MediaMetaData*>*)library;
+
 @end
 
 @implementation BrowserController {
@@ -79,6 +84,45 @@ NSString* const kSongsColGenre = @"GenreCell";
     BOOL _reloadingLibrary;
 
     MediaMetaData* _lazyUpdatedMeta;
+}
+
+- (void)mergeMetasIntoCache:(NSArray<MediaMetaData*>*)metas
+{
+    if (metas.count == 0) {
+        return;
+    }
+    NSMutableArray<MediaMetaData*>* merged = self.cachedLibrary ? [self.cachedLibrary mutableCopy] : [NSMutableArray array];
+    NSSet<NSString*>* newURLs = [NSSet setWithArray:[metas valueForKeyPath:@"location.absoluteString"]];
+    NSIndexSet* toRemove = [merged indexesOfObjectsPassingTest:^BOOL(MediaMetaData* obj, NSUInteger idx, BOOL* stop) {
+        return [newURLs containsObject:obj.location.absoluteString];
+    }];
+    if (toRemove.count > 0) {
+        [merged removeObjectsAtIndexes:toRemove];
+    }
+    [merged addObjectsFromArray:metas];
+    self.cachedLibrary = merged;
+}
+
+- (void)refreshUIWithLibrary:(NSArray<MediaMetaData*>*)library
+{
+    self.filteredItems = [library sortedArrayUsingDescriptors:[_songsTable sortDescriptors]];
+    [self columnsFromMediaItems:self.filteredItems
+                         genres:self.genres
+                        artists:self.artists
+                         albums:self.albums
+                         tempos:self.tempos
+                           keys:self.keys
+                        ratings:self.ratings
+                           tags:self.tags];
+    [self reloadTableView:_genresTable];
+    [self.delegate updateSongsCount:self.cachedLibrary.count filtered:self.filteredItems.count];
+    [self reloadTableView:_albumsTable];
+    [self reloadTableView:_artistsTable];
+    [self reloadTableView:_temposTable];
+    [self reloadTableView:_keysTable];
+    [self reloadTableView:_ratingsTable];
+    [self reloadTableView:_tagsTable];
+    [self reloadTableView:_songsTable];
 }
 
 - (id)initWithGenresTable:(NSTableView*)genresTable
@@ -114,6 +158,11 @@ NSString* const kSongsColGenre = @"GenreCell";
         _keys = [NSMutableArray array];
         _ratings = [NSMutableArray array];
         _tags = [NSMutableArray array];
+
+        NSURL* appSupport = [[[NSFileManager defaultManager] URLsForDirectory:NSApplicationSupportDirectory inDomains:NSUserDomainMask] firstObject];
+        NSURL* dbDir = [appSupport URLByAppendingPathComponent:@"PlayEm" isDirectory:YES];
+        NSURL* dbURL = [dbDir URLByAppendingPathComponent:@"library.sqlite"];
+        _libraryStore = [[LibraryStore alloc] initWithDatabaseURL:dbURL];
 
         _searchField = searchField;
         _searchField.delegate = self;
@@ -164,7 +213,7 @@ NSString* const kSongsColGenre = @"GenreCell";
         dispatch_queue_attr_t attr = dispatch_queue_attr_make_with_qos_class(DISPATCH_QUEUE_SERIAL, QOS_CLASS_USER_INTERACTIVE, 0);
         _filterQueue = dispatch_queue_create("PlayEm.BrowserFilterQueue", attr);
 
-        [self loadITunesLibrary];
+        [self loadCachedLibrary];
     }
     return self;
 }
@@ -428,22 +477,9 @@ NSString* const kSongsColGenre = @"GenreCell";
     [table endUpdates];
 }
 
-- (void)loadITunesLibrary
+- (void)loadCachedLibrary
 {
-    if (_reloadingLibrary) {
-        NSLog(@"patience, young padawan - loading already");
-    }
-    ActivityToken* libraryToken = [[ActivityManager shared] beginActivityWithTitle:@"Loading Music Library" detail:@"" cancellable:NO cancelHandler:nil];
-
-    NSError* error = nil;
-    [[ActivityManager shared] updateActivity:libraryToken progress:0.00 detail:@"locating Music library"];
-    _library = [ITLibrary libraryWithAPIVersion:@"1.0" options:ITLibInitOptionLazyLoadData error:&error];
-    if (!_library) {
-        NSLog(@"Failed accessing iTunes Library: %@", error);
-        return;
-    }
-
-    NSLog(@"Media folder location: %@", _library.mediaFolderLocation.path);
+    ActivityToken* libraryToken = [[ActivityManager shared] beginActivityWithTitle:@"Loading Library" detail:@"" cancellable:NO cancelHandler:nil];
 
     _filteredItems = nil;
     _cachedLibrary = nil;
@@ -477,9 +513,93 @@ NSString* const kSongsColGenre = @"GenreCell";
             return;
         }
 
-        [[ActivityManager shared] updateActivity:libraryToken progress:0.01 detail:@"fetching Music library"];
+        [[ActivityManager shared] updateActivity:libraryToken progress:0.01 detail:@"reading from database"];
 
+        NSMutableArray<MediaMetaData*>* cachedLibrary = nil;
+        NSError* storeLoadError = nil;
+
+        NSArray<MediaMetaData*>* stored = [strongSelf.libraryStore loadAllMediaItems:&storeLoadError];
+
+        if (stored && stored.count > 0) {
+            cachedLibrary = self.cachedLibrary ? [self.cachedLibrary mutableCopy] : [stored mutableCopy];
+            NSLog(@"Loaded %lu items from LibraryStore cache", (unsigned long) cachedLibrary.count);
+        } else {
+            NSLog(@"LibraryStore load failed or empty: %@", storeLoadError);
+
+            [[ActivityManager shared] updateActivity:libraryToken progress:1.0 detail:@"no library found"];
+            strongSelf->_reloadingLibrary = NO;
+
+            dispatch_async(dispatch_get_main_queue(), ^{
+                BrowserController* strongSelf = weakSelf;
+                if (strongSelf) {
+                    [strongSelf.delegate updateSongsCount:0 filtered:0];
+                }
+            });
+            [[ActivityManager shared] completeActivity:libraryToken];
+            return;
+        }
+
+        [strongSelf mergeMetasIntoCache:cachedLibrary];
+        NSArray<MediaMetaData*>* filtered = [strongSelf.cachedLibrary sortedArrayUsingDescriptors:descriptors];
+
+        dispatch_sync(dispatch_get_main_queue(), ^{
+            BrowserController* strongSelf = weakSelf;
+            if (!strongSelf) {
+                return;
+            }
+
+            strongSelf.filteredItems = filtered;
+            [strongSelf refreshUIWithLibrary:strongSelf.filteredItems];
+            strongSelf->_updatingGenres = NO;
+            strongSelf->_updatingArtists = NO;
+            strongSelf->_updatingAlbums = NO;
+            strongSelf->_updatingTempos = NO;
+            strongSelf->_updatingKeys = NO;
+            strongSelf->_updatingRatings = NO;
+            strongSelf->_updatingTags = NO;
+            [strongSelf setNowPlayingWithMeta:strongSelf->_lazyUpdatedMeta];
+
+            [[ActivityManager shared] completeActivity:libraryToken];
+            strongSelf->_reloadingLibrary = NO;
+        });
+    });
+}
+
+- (void)loadITunesLibraryWithToken:(ActivityToken*)libraryToken
+{
+    if (_reloadingLibrary) {
+        NSLog(@"patience, young padawan - loading already");
+    }
+
+    NSError* error = nil;
+    [[ActivityManager shared] updateActivity:libraryToken progress:0.00 detail:@"locating Music library"];
+    _library = [ITLibrary libraryWithAPIVersion:@"1.0" options:ITLibInitOptionLazyLoadData error:&error];
+    if (!_library) {
+        NSLog(@"Failed accessing iTunes Library: %@", error);
+        [[ActivityManager shared] completeActivity:libraryToken];
+        return;
+    }
+
+    NSLog(@"Media folder location: %@", _library.mediaFolderLocation.path);
+
+    BrowserController* __weak weakSelf = self;
+    _reloadingLibrary = YES;
+    NSArray<NSSortDescriptor*>* descriptors = [_songsTable sortDescriptors];
+
+    dispatch_async(_filterQueue, ^{
+        BrowserController* strongSelf = weakSelf;
+        if (!strongSelf) {
+            return;
+        }
+        
+        // Get Library from Music App.
         NSMutableArray<MediaMetaData*>* cachedLibrary = [strongSelf cacheFromiTunesLibrary:strongSelf.library token:libraryToken];
+
+        // Import all the things now gathered in our DB.
+        NSError* storeError = nil;
+        if (![strongSelf.libraryStore importMediaItems:cachedLibrary error:&storeError]) {
+            NSLog(@"LibraryStore import failed: %@", storeError);
+        }
 
         // Apply sorting.
         strongSelf.filteredItems = [cachedLibrary sortedArrayUsingDescriptors:descriptors];
@@ -524,9 +644,122 @@ NSString* const kSongsColGenre = @"GenreCell";
             [strongSelf setNowPlayingWithMeta:strongSelf->_lazyUpdatedMeta];
             [[ActivityManager shared] completeActivity:libraryToken];
 
-            strongSelf->_reloadingLibrary = YES;
+            strongSelf->_reloadingLibrary = NO;
         });
     });
+}
+
+- (IBAction)reconcileLibrary:(id)sender
+{
+    ActivityToken* activity = [[ActivityManager shared] beginActivityWithTitle:@"Reconciling library" detail:@"" cancellable:NO cancelHandler:nil];
+    [[ActivityManager shared] updateActivity:activity progress:0.0 detail:@"starting"];
+
+    BrowserController* __weak weakSelf = self;
+    [self.libraryStore reconcileLibraryWithCompletion:^(NSArray<MediaMetaData*>* _Nullable refreshedMetas,
+                                                        NSArray<MediaMetaData*>* _Nullable changedMetas,
+                                                        NSArray<NSURL*>* missingFiles,
+                                                        NSError* _Nullable error) {
+        BrowserController* strongSelf = weakSelf;
+        if (!strongSelf) {
+            [[ActivityManager shared] completeActivity:activity];
+            return;
+        }
+
+        NSArray<MediaMetaData*>* metas = refreshedMetas ?: @[];
+        NSArray<MediaMetaData*>* changed = changedMetas ?: @[];
+        NSArray<NSURL*>* missing = missingFiles ?: @[];
+        NSUInteger refreshedCount = metas.count;
+        NSUInteger changedCount = changed.count;
+        NSUInteger missingCount = missing.count;
+        NSArray<NSSortDescriptor*>* descriptors = [strongSelf.songsTable sortDescriptors];
+
+        [[ActivityManager shared] updateActivity:activity progress:0.25 detail:@"merging results"];
+
+        dispatch_async(strongSelf->_filterQueue, ^{
+            BrowserController* strongSelf = weakSelf;
+            if (!strongSelf) {
+                [[ActivityManager shared] completeActivity:activity];
+                return;
+            }
+
+            if (refreshedCount > 0) {
+                [strongSelf mergeMetasIntoCache:metas];
+            }
+
+            NSArray<MediaMetaData*>* sorted = strongSelf.cachedLibrary ? [strongSelf.cachedLibrary sortedArrayUsingDescriptors:descriptors] : @[];
+
+            dispatch_async(dispatch_get_main_queue(), ^{
+                BrowserController* strongSelf = weakSelf;
+                if (!strongSelf) {
+                    [[ActivityManager shared] completeActivity:activity];
+                    return;
+                }
+
+                if (refreshedCount > 0) {
+                    [strongSelf refreshUIWithLibrary:sorted];
+                }
+
+                NSMutableArray<NSString*>* lines = [NSMutableArray array];
+                if (refreshedCount > 0) {
+                    [lines addObject:[NSString stringWithFormat:@"Updated %lu item%@ (metadata refreshed from disk).",
+                                                (unsigned long) refreshedCount,
+                                                refreshedCount == 1 ? @"" : @"s"]];
+                } else {
+                    [lines addObject:@"No items needed updates (library already up to date)."];
+                }
+
+                if (changedCount > 0) {
+                    [lines addObject:[NSString stringWithFormat:@"Changed metadata detected in %lu item%@.",
+                                                (unsigned long) changedCount,
+                                                changedCount == 1 ? @"" : @"s"]];
+
+                    NSUInteger toShowChanged = MIN(changedCount, 5);
+                    NSArray<MediaMetaData*>* sampleChanged = [changed subarrayWithRange:NSMakeRange(0, toShowChanged)];
+                    for (MediaMetaData* meta in sampleChanged) {
+                        NSString* name = meta.title.length > 0 ? meta.title : meta.location.lastPathComponent;
+                        [lines addObject:[NSString stringWithFormat:@" • %@", name ?: @"<unknown>"]];
+                    }
+                    if (changedCount > toShowChanged) {
+                        [lines addObject:@" • …"];
+                    }
+                }
+
+                if (missingCount > 0) {
+                    [lines addObject:[NSString stringWithFormat:@"Missing files: %lu.", (unsigned long) missingCount]];
+
+                    NSUInteger toShow = MIN(missingCount, 5);
+                    NSArray<NSURL*>* sampleMissing = [missing subarrayWithRange:NSMakeRange(0, toShow)];
+                    for (NSURL* url in sampleMissing) {
+                        [lines addObject:[NSString stringWithFormat:@" • %@", url.lastPathComponent ?: url.path]];
+                    }
+                    if (missingCount > toShow) {
+                        [lines addObject:@" • …"];
+                    }
+                } else {
+                    [lines addObject:@"Missing files: 0."];
+                }
+
+                if (error) {
+                    [lines addObject:[NSString stringWithFormat:@"Error: %@.", error.localizedDescription]];
+                }
+
+                NSAlert* alert = [NSAlert new];
+                alert.alertStyle = NSAlertStyleInformational;
+                alert.messageText = @"Library Reconciliation";
+                alert.informativeText = [lines componentsJoinedByString:@"\n"];
+                [alert addButtonWithTitle:@"OK"];
+
+                NSWindow* targetWindow = strongSelf.songsTable.window;
+                if (targetWindow) {
+                    [alert beginSheetModalForWindow:targetWindow completionHandler:nil];
+                } else {
+                    [alert runModal];
+                }
+
+                [[ActivityManager shared] completeActivity:activity];
+            });
+        });
+    }];
 }
 
 - (void)setNowPlayingWithMeta:(MediaMetaData*)meta
@@ -1724,6 +1957,43 @@ NSString* const kSongsColGenre = @"GenreCell";
 {
     [self.delegate closeFilter];
     [self updatedNeedle];
+}
+
+- (void)importFilesAtURLs:(NSArray<NSURL*>*)urls
+{
+    if (urls.count == 0) {
+        return;
+    }
+    BrowserController* __weak weakSelf = self;
+    [self.libraryStore importFileURLs:urls
+                           completion:^(NSArray<MediaMetaData*>* _Nullable metas, NSError* _Nullable err) {
+                               if (err) {
+                                   NSLog(@"Library import failed: %@", err);
+                               }
+                               if (metas.count == 0) {
+                                   return;
+                               }
+                               dispatch_async(_filterQueue, ^{
+                                   BrowserController* strongSelf = weakSelf;
+                                   if (!strongSelf) {
+                                       return;
+                                   }
+
+                                   [strongSelf mergeMetasIntoCache:metas];
+
+                                   NSArray<NSSortDescriptor*>* descriptors = [strongSelf.songsTable sortDescriptors];
+                                   NSArray<MediaMetaData*>* sorted = [strongSelf.cachedLibrary sortedArrayUsingDescriptors:descriptors];
+
+                                   dispatch_async(dispatch_get_main_queue(), ^{
+                                       BrowserController* strongSelf = weakSelf;
+                                       if (!strongSelf) {
+                                           return;
+                                       }
+                                       strongSelf.filteredItems = sorted;
+                                       [strongSelf refreshUIWithLibrary:sorted];
+                                   });
+                               });
+                           }];
 }
 
 @end

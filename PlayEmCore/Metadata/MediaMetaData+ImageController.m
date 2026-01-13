@@ -11,7 +11,7 @@
 
 @implementation MediaMetaData (ImageController)
 
-- (void)resolvedArtworkForSize:(CGFloat)size callback:(void (^)(NSImage*))callback
+- (void)resolvedArtworkForSize:(CGFloat)size placeholder:(BOOL)placeholder callback:(void (^)(NSImage*))callback
 {
     // We may have data available but not resized properly.
     // We may have exactly the right graphics available through the image cache.
@@ -24,38 +24,58 @@
         data = [MediaMetaData defaultArtworkData];
         hash = @"Default";
     }
-    
-    [[ImageController shared] imageForData:data
-                                       key:hash
-                                      size:size
-                                completion:^(NSImage* image) {
-        if (image == nil) {
-            return;
-        }
-        // We got an early image, lets allow the callback to set use it already.
-        callback(image);
 
+    typedef void (^InletBlock)(NSImage*);
+    
+    void (^resize)(NSData*, NSString*, InletBlock handover) = ^void(NSData* data, NSString* hash, InletBlock handover) {
+        [[ImageController shared] imageForData:data
+                                           key:hash
+                                          size:size
+                                    completion:^(NSImage* image) {
+            if (image == nil) {
+                return;
+            }
+            // We got an image, lets allow the callback to set it to the
+            // resized, cached artwork.
+            handover(image);
+        }];
+    };
+
+    void (^resolve)(InletBlock handover) = ^void(InletBlock handover) {
         // Do we still need proper artwork data, or is that done?
+        [[ImageController shared] resolveDataForURL:self.artworkLocation
+                                           callback:^(NSData* data) {
+            self.artwork = data;
+            resize(self.artwork, self.artworkHash, handover);
+        }];
+    };
+
+    if (placeholder) {
+        resize(data, hash, ^(NSImage* image){
+            if (image == nil) {
+                return;
+            }
+            callback(image);
+            
+            if (self.artwork == nil) {
+                if (self.artworkLocation != nil) {
+                    resolve(callback);
+                }
+            } else {
+                resize(self.artwork, self.artworkHash, callback);
+            }
+        });
+    } else {
         if (self.artwork == nil) {
             if (self.artworkLocation != nil) {
-                [[ImageController shared] resolveDataForURL:self.artworkLocation
-                                                   callback:^(NSData* data) {
-                    self.artwork = data;
-                    [[ImageController shared] imageForData:self.artwork
-                                                       key:self.artworkHash
-                                                      size:size
-                                                completion:^(NSImage* image) {
-                        if (image == nil) {
-                            return;
-                        }
-                        // We got an image, lets allow the callback to set it to the
-                        // resized, cached artwork.
-                        callback(image);
-                    }];
-                }];
+                resolve(callback);
+            } else {
+                resize(data, hash, callback);
             }
+        } else {
+            resize(data, hash, callback);
         }
-    }];
+    }
 }
 
 @end

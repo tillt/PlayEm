@@ -12,7 +12,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface MediaMetaData (ImageController)
 
-- (void)resolvedArtworkForSize:(CGFloat)size callback:(void (^)(NSImage*))callback;
+- (void)resolvedArtworkForSize:(CGFloat)size placeholder:(BOOL)placeholder callback:(void (^)(NSImage*))callback;
 
 @end
 

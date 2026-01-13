@@ -81,16 +81,30 @@
                                 </menu>
                             </menuItem>
                             <menuItem isSeparatorItem="YES" id="m54-Is-iLE"/>
-                            <menuItem title="Reload iTunes Library" keyEquivalent="r" id="rfL-Hs-n8P" userLabel="Reload iTunes Library">
-                                <connections>
-                                    <action selector="loadITunesLibrary:" target="-1" id="kal-V7-a4r"/>
-                                </connections>
+                            <menuItem title="Library" id="RoW-bR-O5g">
+                                <modifierMask key="keyEquivalentModifierMask"/>
+                                <menu key="submenu" id="7Zw-9P-Nki">
+                                    <items>
+                                        <menuItem title="Import from Apple Music" id="SKb-VB-hqe">
+                                            <modifierMask key="keyEquivalentModifierMask"/>
+                                            <connections>
+                                                <action selector="loadITunesLibrary:" target="-1" id="cNU-l6-q6g"/>
+                                            </connections>
+                                        </menuItem>
+                                        <menuItem title="Reconciliate" id="cRa-NH-lE4">
+                                            <modifierMask key="keyEquivalentModifierMask"/>
+                                            <connections>
+                                                <action selector="reconcileLibrary:" target="-1" id="v4a-XI-Yaa"/>
+                                            </connections>
+                                        </menuItem>
+                                    </items>
+                                </menu>
                             </menuItem>
                             <menuItem isSeparatorItem="YES" id="dgq-hZ-iAt"/>
-                            <menuItem title="Detect Tracklist" id="RoW-bR-O5g" userLabel="Detect Tracklist">
+                            <menuItem title="Detect Tracklist" id="gr1-Ps-TCn" userLabel="Detect Tracklist">
                                 <modifierMask key="keyEquivalentModifierMask"/>
                                 <connections>
-                                    <action selector="startTrackDetection:" target="-1" id="RTn-Xo-NNh"/>
+                                    <action selector="startTrackDetection:" target="-1" id="Wcv-vd-YrY"/>
                                 </connections>
                             </menuItem>
                             <menuItem title="Export Tracklist..." id="tJp-ce-Iox">

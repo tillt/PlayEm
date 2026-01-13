@@ -33,7 +33,10 @@ static NSString* cf_hexUTF8(NSString* s)
 static NSInteger cf_replacementCount(NSString* s)
 {
     __block NSInteger count = 0;
+
     NSUInteger len = MIN(s.length, kCFMaxScanCharacters);
+
+    // Ugly a.f.!
     [s enumerateSubstringsInRange:NSMakeRange(0, len)
                           options:NSStringEnumerationByComposedCharacterSequences
                        usingBlock:^(NSString* substring, NSRange __, NSRange ___, BOOL* stop) {
@@ -131,9 +134,6 @@ static NSInteger cf_accentPriority(NSString* s)
     return priority;
 }
 
-// Align the final sanitizer pass with the simple Python flow:
-// normalize -> replacements -> (if markers remain) strip markers ->
-// replacements -> normalize.
 static NSString* cf_applyReplacements(NSString* input)
 {
     // Generate a complete Latin-1/CP1252/MacRoman mojibake map dynamically.
@@ -380,6 +380,25 @@ static void cf_logStage(NSString* label, NSString* value)
 
     cf_logStage(@"final.output", s);
     return s;
+}
+
+- (BOOL)isLikelyMojibakeMetadata
+{
+    if (self.length == 0) {
+        return NO;
+    }
+
+    NSInteger score = cf_mojibakeScore(self);
+    if (score == 0) {
+        return NO;
+    }
+
+    NSString* sanitized = [self sanitizedMetadataString];
+    if (![sanitized isEqualToString:self]) {
+        return YES;
+    }
+
+    return score > 2;
 }
 
 @end

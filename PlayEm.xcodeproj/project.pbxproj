@@ -42,7 +42,6 @@
 		BB57DE4D2F05D614008FFBD1 /* PlayEmCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BB57DE442F05D614008FFBD1 /* PlayEmCore.framework */; };
 		BB57DE572F05D614008FFBD1 /* PlayEmCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BB57DE442F05D614008FFBD1 /* PlayEmCore.framework */; };
 		BB57DE582F05D614008FFBD1 /* PlayEmCore.framework in Embed Libraries */ = {isa = PBXBuildFile; fileRef = BB57DE442F05D614008FFBD1 /* PlayEmCore.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		BB57DEA22F05D7E9008FFBD1 /* tag_c.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BB3B8D962B86C9B7006AEFCA /* tag_c.framework */; };
 		BB57DEA32F05D7E9008FFBD1 /* tag_c.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = BB3B8D962B86C9B7006AEFCA /* tag_c.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		BB57DEA52F05D7F9008FFBD1 /* tag.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BB3B8D972B86C9B7006AEFCA /* tag.framework */; };
 		BB57DEA62F05D7F9008FFBD1 /* tag.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = BB3B8D972B86C9B7006AEFCA /* tag.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
@@ -64,6 +63,7 @@
 		BB5DC1F52F00A52100CCA2D6 /* ActivityViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = BB5DC1F42F00A52100CCA2D6 /* ActivityViewController.m */; };
 		BB694CA32E6BB09C00818B01 /* BloomyText.m in Sources */ = {isa = PBXBuildFile; fileRef = BB694CA22E6BB09C00818B01 /* BloomyText.m */; };
 		BB6994962EEF5BDA00242456 /* VideoToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BB6994952EEF5BDA00242456 /* VideoToolbox.framework */; };
+		BB71CF392F15C2D70057064D /* tag_c.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BB3B8D962B86C9B7006AEFCA /* tag_c.framework */; };
 		BB7C6269293144890019AF25 /* Defaults.m in Sources */ = {isa = PBXBuildFile; fileRef = BB7C6268293144890019AF25 /* Defaults.m */; };
 		BB7C626C2932E1540019AF25 /* ControlPanelController.m in Sources */ = {isa = PBXBuildFile; fileRef = BB7C626B2932E1540019AF25 /* ControlPanelController.m */; };
 		BB8571032972152B0004218B /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = BB8571022972152B0004218B /* README.md */; };
@@ -361,16 +361,16 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				BB57DEA52F05D7F9008FFBD1 /* tag.framework in Frameworks */,
+				BB71CF392F15C2D70057064D /* tag_c.framework in Frameworks */,
 				BB57E0272F05E903008FFBD1 /* AVFoundation.framework in Frameworks */,
 				BB57DFE42F05D9B7008FFBD1 /* ChapterForge.framework in Frameworks */,
-				BB57DEA22F05D7E9008FFBD1 /* tag_c.framework in Frameworks */,
 				BB57E01B2F05E231008FFBD1 /* libaubio.5.dylib in Frameworks */,
 				BB57E0152F05E202008FFBD1 /* libkeyfinder.2.dylib in Frameworks */,
 				BBCB80112F05F44A005F2C5E /* ShazamKit.framework in Frameworks */,
 				BB57E0172F05E210008FFBD1 /* libsamplerate.0.dylib in Frameworks */,
 				BB57E01D2F05E240008FFBD1 /* librubberband.2.dylib in Frameworks */,
 				BB57E0192F05E224008FFBD1 /* libfftw3.3.dylib in Frameworks */,
-				BB57DEA52F05D7F9008FFBD1 /* tag.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1086,8 +1086,6 @@
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GENERATE_INFOPLIST_FILE = YES;
 				HEADER_SEARCH_PATHS = (
-					"$(SRCROOT)/PlayEm",
-					"$(SRCROOT)/PlayEm/**",
 					"$(SRCROOT)/ThirdParty/ChapterForge.framework/Headers",
 					"$(SRCROOT)/ThirdParty/tag.framework/Headers",
 					"$(SRCROOT)/ThirdParty/tag_c.framework/Headers",
@@ -1144,8 +1142,6 @@
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GENERATE_INFOPLIST_FILE = YES;
 				HEADER_SEARCH_PATHS = (
-					"$(SRCROOT)/PlayEm",
-					"$(SRCROOT)/PlayEm/**",
 					"$(SRCROOT)/ThirdParty/ChapterForge.framework/Headers",
 					"$(SRCROOT)/ThirdParty/tag.framework/Headers",
 					"$(SRCROOT)/ThirdParty/tag_c.framework/Headers",
@@ -1394,7 +1390,7 @@
 				HEADER_SEARCH_PATHS = (
 					/usr/local/include,
 					/opt/homebrew/include,
-					"PlayEmCore/**",
+					PlayEmCore,
 				);
 				INFOPLIST_FILE = PlayEm/Info.plist;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.music";
@@ -1452,7 +1448,7 @@
 				HEADER_SEARCH_PATHS = (
 					/usr/local/include,
 					/opt/homebrew/include,
-					"PlayEmCore/**",
+					PlayEmCore,
 				);
 				INFOPLIST_FILE = PlayEm/Info.plist;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.music";

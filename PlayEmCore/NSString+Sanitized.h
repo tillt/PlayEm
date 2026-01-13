@@ -25,5 +25,8 @@ NS_ASSUME_NONNULL_BEGIN
 /// - Returns: A sanitized string suitable for display or comparison.
 - (NSString*)sanitizedMetadataString;
 
+/// Heuristic: returns YES if the string likely contains mojibake (mis-decoded UTF-8).
+- (BOOL)isLikelyMojibakeMetadata;
+
 @end
 NS_ASSUME_NONNULL_END

@@ -1124,8 +1124,13 @@ NSString* const kMediaMetaDataMapTypeNumber = @"number";
         return valueObject;
     }
 
-    if ([valueObject isKindOfClass:[NSNumber class]] && [valueObject intValue] > 0) {
-        return [valueObject stringValue];
+    if ([valueObject isKindOfClass:[NSNumber class]]) {
+        // Keep integers for display; format non-integers without losing precision.
+        double d = [valueObject doubleValue];
+        if (ceil(d) == floor(d)) {
+            return [valueObject stringValue];
+        }
+        return [NSString stringWithFormat:@"%.2f", d];
     }
 
     if ([valueObject isKindOfClass:[NSURL class]]) {
@@ -1196,6 +1201,37 @@ NSString* const kMediaMetaDataMapTypeNumber = @"number";
 
     NSArray<NSString*>* supportedKeys = [MediaMetaData mediaDataKeysWithFileFormatType:thisType];
     return [self isEqualToMediaMetaData:other forKeys:supportedKeys];
+}
+
+- (BOOL)isSemanticallyEqualToMeta:(MediaMetaData*)other
+{
+    if (other == nil) {
+        return NO;
+    }
+
+    NSArray<NSString*>* keys = @[
+        @"title",
+        @"artist",
+        @"album",
+        @"albumArtist",
+        @"genre",
+        @"year",
+        @"track",
+        @"tracks",
+        @"disk",
+        @"disks",
+        @"tempo",
+        @"key",
+        @"rating",
+        @"comment",
+        @"tags",
+        @"compilation",
+        @"artworkLocation",
+        @"locationType",
+        @"appleLocation"
+    ];
+
+    return [self isEqualToMediaMetaData:other forKeys:keys];
 }
 
 - (void)updateWithKey:(NSString*)key string:(NSString*)string
@@ -1301,6 +1337,11 @@ NSString* const kMediaMetaDataMapTypeNumber = @"number";
             key = [NSString stringWithFormat:@"%@#%@", [key substringToIndex:1], [key substringFromIndex:2]];
         } else if ([s isEqualToString:@"♭"]) {
             key = [NSString stringWithFormat:@"%@b%@", [key substringToIndex:1], [key substringFromIndex:2]];
+        }
+        // Easy cases map now, shortcut those.
+        NSString* mappedKey = [mixWheel objectForKey:key];
+        if (mappedKey != nil) {
+            return mappedKey;
         }
     }
 

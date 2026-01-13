@@ -6,9 +6,6 @@
 //  Copyright © 2025 Till Toenshoff. All rights reserved.
 //
 
-#import <fcntl.h>
-#import <unistd.h>
-
 #import "../Metadata/TimedMediaMetaData.h"
 #import "../Sample/LazySample.h"
 #import "TotalIdentificationController+Private.h"

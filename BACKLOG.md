@@ -33,15 +33,29 @@
   - Function/method opening brace on the next line; control-flow blocks (if/for/while) keep the brace on the same line but always use braces (no single-line, brace-less blocks). Applies to Objective-C, C++, and C.
 - Clang-format: added repo-wide config (4-space indents, 160 cols, Allman for functions/methods only, include sorting with Foundation → other system → PlayEm → project) and `Scripts/clang_format.sh` to format .h/.hpp/.m/.mm.
 - AudioQueue backend: visual playhead jumps on pause/resume. Likely because the queue has already pulled buffered frames when pausing (currentFrame reflects queued sampleTime). On resume we reset baseFrame and visuals snap back. Possible fixes: track last confirmed played frame (not queued sampleTime) for visuals, or flush/re-prime on pause to align queue with the visual playhead.
+- Header template: use `PlayEmCore/Docs/HEADER_TEMPLATE.txt` or `Scripts/new_header.sh` for new files; DocC comments per rule (/// summary, blank only before Parameters/Returns). Always apply the standard PlayEm header with Till Toenshoff + current date + copyright.
 
 - TODO: FFT visualizer performance—explore a branch to keep the “lower-half” look but reduce FFT cost (smaller FFT plus controlled remap) without affecting visuals; current code still uses the larger FFT and discards the top band.
+- TODO: Audit current NotificationCenter vs delegation usage; prefer delegation for direct 1:1 action flows and keep notifications only where fan-out/loose coupling is needed.
+- TODO/Idea: Sneaky streaming visualization – optionally flip system default output to a loopback (e.g., BlackHole), let MusicKit playback route there, tap the loopback to visualize streamed content, then restore the original device. Needs opt-in UI, failure handling, and policy review.
+- BIG TODO: Replace all GPL-linked dependencies/code with permissive alternatives to enable future App Store submission and avoid GPL obligations.
+- HIGH PRIORITY (today): Refactor playback state ownership to a single source of truth (sample/metadata). Stop caching LazySample/metadata in multiple controllers; have listeners observe one owner (AudioController or a playback store) and fetch current sample/metadata on change via a single notification/delegate path.
 - Process hygiene: avoid resurfacing resolved issues without justification; keep backlog/status in sync to prevent rehashing closed items.
 - Machine-wide note: Xcode builds from the assistant session are unreliable—DerivedData is not writable here and code signing fails; disabling signing lets builds run but then execution/signature breaks. Outcome: user should trigger Xcode builds/tests; assistant should prototype in Python first, then translate to Objective-C/Swift; avoid chasing signing fixes.
 - Machine-wide note: ripgrep is available; use `rg`/`rg --files` as default. Avoid re-checking its syntax; remember flags and usage to prevent churn.
 - TODO: Ensure new files carry the standard header (filename, PlayEm, created by Till Toenshoff with date, and copyright).
 - Code docs: Objective-C/Objective-C++ headers should use DocC-style comments (`///` summary, blank line, `- Parameters:`/`- Returns:` as needed) for API documentation.
+- TODO: Prefer async APIs by default for UI-triggered work; UI must never hang. Offload library imports/scans, metadata loads, and heavy operations to background queues with main-thread UI updates only.
+- Style note: Let the code breathe—use intentional blank lines to separate logical blocks for readability. Keep guard/early-return blocks together, then add spacing between each cohesive step (collect, filter, remove, append, sort, etc.) to improve scanability.
 
 - Feature idea: add VST3 effect hosting (audio FX only, no instruments/MIDI). Scope: scan/load VST3 bundles, host IAudioProcessor/Controller for audio in/out, expose parameters (UI + state save/restore), optional editor embedding, map buffers into process(), minimal process context (tempo optional), and crash-safe scanning/instantiation.
+- Library persistence (planned lightweight DB cache):
+  - Keep current in-memory model; add SQLite (or similar) as a metadata cache/source-of-truth with a thin async wrapper (no Core Data).
+  - Schema: mirror `MediaMetaData` fields. Tracks keyed by file URL (UNIQUE), with file info (url, file_size, file_mtime, content_hash optional, imported_from persistentID), plus metadata columns: title, artist, album, albumArtist, genre, year, trackNumber, trackCount, discNumber, discCount, duration, bpm, key, rating, comments/notes, tags, compilation flag, artwork_hash/artwork_path (or blob pointer), added_at, last_seen, deleted_flag. Add indices on url, artist/album/title, bpm/key, artwork_hash. Add FTS table for text search over title/artist/album/comments/tags.
+  - Import path: pull ITLibrary into DB once, then load from DB on launch; incremental sync keeps in-memory + DB aligned.
+  - Change detection: watch music folders via FSEvents and/or periodic sweep; if missing/mtime/size/hash differ, rescan tags and update DB + in-memory entry.
+  - Keep artwork/thumb cache separate (file cache keyed by hash/URL); migrations via simple schema versioning.
+  - Tracklists: a meta entry can own a tracklist (array of `TimedMediaMetaData`). Persist as a child table keyed by parent track URL + frame with columns: parent_url FK, frame, endFrame, confidence, score, supportCount, and either embedded child meta columns or a FK to another track row (for matched content). Ensure load/write helpers serialize/deserialize the tracklist alongside the parent meta.
 
 - Wave visuals/coarse rendering: multiple attempts caused UI stalls and zero-filled coarse data. Root cause: coarse sampling ran during decode; `rawSampleFromFrameOffset` returned zeros when pages weren’t decoded yet, and segments were marked built. Best-known stable approach is the old baseline (non-progressive coarse). Future attempt should:
   - Keep `rawSample` non-blocking only while decoding; after decode complete it must deliver real PCM.
@@ -50,3 +64,10 @@
   - WaveViewController already has per-range coarse invalidation to limit redraws.
 - AcceleratedBiquadFilter refactor: now uses per-instance coeff storage, cleans up vDSP setup in dealloc, and expects deinterleaved buffers via `applyToInputs`. Added tests with `MockLazySample` to sanity-check mono/stereo cases; callers must supply per-channel pointers. No further issues pending.
 - Audio playback timing: playtime display should be multiplied by the current tempo factor (time-stretch) so UI reflects adjusted duration/progress.
+- Multi-device output (synchronized): plan if we pursue later:
+  - Use a CoreAudio Aggregate (or Multi-Output) device to get a single HAL endpoint; pick the master clock (best accuracy device).
+  - CoreAudio rate-matches secondary devices to the master; app must still compensate fixed per-device latency (hardware + buffer) with per-output delay.
+  - Collect latencies via `AudioObject` properties; apply offsets in the graph or via device channel delays; adjust if device/settings change.
+  - UX: allow selecting devices to aggregate; handle hot-plug and sample-rate mismatches gracefully; tear down if any device disappears.
+  - AirPlay multiroom is not exposed; rely on system-selected AirPlay group instead of app-managed grouping.
+- Bug: ShazamKit rejects signature duration ~2.999s (Code=201, valid range 3.0–12.0). Seeing `didNotFindMatchForSignature` with duration 2.999547; need to ensure signatures meet the minimum duration (pad/extend capture window).

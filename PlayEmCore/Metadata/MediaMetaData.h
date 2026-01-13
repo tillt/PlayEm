@@ -132,6 +132,7 @@ extern NSString* const kMediaMetaDataMapTypeNumber;
 
 - (BOOL)isEqualToMediaMetaData:(MediaMetaData*)other;
 - (BOOL)isEqualToMediaMetaData:(MediaMetaData*)other atKey:key;
+- (BOOL)isSemanticallyEqualToMeta:(MediaMetaData*)other;
 
 - (NSString* _Nullable)stringForKey:(NSString*)key;
 - (void)updateWithKey:(NSString*)key string:(NSString*)string;

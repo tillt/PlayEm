@@ -37,6 +37,7 @@ extern NSString* const kSongsColAdded;
 extern NSString* const kSongsColGenre;
 
 @class MediaMetaData;
+@class ActivityToken;
 
 @protocol BrowserControllerDelegate <NSObject>
 - (MediaMetaData*)currentSongMeta;
@@ -63,7 +64,8 @@ extern NSString* const kSongsColGenre;
                 tagsTable:(NSTableView*)tagsTable
               searchField:(NSSearchField*)searchField
                  delegate:(id<BrowserControllerDelegate>)delegate;
-- (void)loadITunesLibrary;
+- (void)loadITunesLibraryWithToken:(ActivityToken*)token;
+- (void)loadCachedLibrary;
 - (void)reloadData;
 - (void)setPlaying:(BOOL)playing;
 - (void)setNowPlayingWithMeta:(MediaMetaData*)meta;
@@ -76,6 +78,14 @@ extern NSString* const kSongsColGenre;
 - (IBAction)showInfoForCurrentSong:(id)sender;
 - (MediaMetaData* _Nullable)nextSong;
 - (NSArray<MediaMetaData*>*)selectedSongMetas;
+
+/// Import one or more files/folders directly into the library (file tags are authoritative).
+- (void)importFilesAtURLs:(NSArray<NSURL*>*)urls;
+
+/// Reconcile the cached library (validate files on disk and refresh metadata).
+- (IBAction)reconcileLibrary:(id)sender;
+
+- (void)removeFilesAtURLs:(NSArray<NSURL*>*)urls;
 
 @end
 

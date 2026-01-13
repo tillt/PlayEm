@@ -52,7 +52,7 @@ OSStatus AUPlaybackTapNotify(void* inRefCon, AudioUnitRenderActionFlags* ioActio
     list.mBuffers[0] = buffers[0];
     list.mBuffers[1] = buffers[1];
 
-    AudioUnitRenderActionFlags flags = 0;
+    AudioUnitRenderActionFlags flags = kAudioUnitRenderAction_PostRender;
     OSStatus res = AUPlaybackTapNotify((__bridge void*) backend, &flags, NULL, 0, frames, &list);
     XCTAssertEqual(res, noErr);
 

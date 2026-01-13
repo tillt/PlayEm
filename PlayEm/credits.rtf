@@ -24,7 +24,7 @@
 Acknowledgements\
 \pard\tx220\tx720\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\li720\fi-720\pardirnatural\partightenfactor0
 \ls1\ilvl0
-\fs20 \cf2 {\listtext	\uc0\u8226 	}Tempo detection by Aubio 0.4.9\
+\fs20 \cf2 \cb3 {\listtext	\uc0\u8226 	}Tempo detection by Aubio 0.4.9\
 {\listtext	\uc0\u8226 	}Key detection by KeyFinder 2.2.8\
 \pard\tx220\tx720\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\li720\fi-720\pardirnatural\partightenfactor0
 \ls2\ilvl0\cf2 {\listtext	\uc0\u8226 	}Tags by TagLib 2.1.1\
@@ -92,6 +92,17 @@ This rhythm-awareness unlocked a wave of beat-synced animations\'97like the \'93
 \pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
 
 \f0\fs20 \cf2 \cb3 \kerning1\expnd0\expndtw0 Speaking of detection: PlayEm does it different from Apple\'92s built-in Shazam engine. It goes one step further by constantly feeding the mix into Shazam and updating results in real-time. In a mix of tracks where ID\'92ing a song can be a chore, this has proven immensely helpful. But why stop here? Now that we know which song was currently playing, wouldn\'92t it great if we could  persist that information in the file so that in the end, the audio file contains the entire track list of the set? Well, that is what PlayEm now does with M4A audio files. The individual title, artist and cover image of an identified song will get stored within the M4A file itself. One beautiful side effect is that any player from Apple and others will actually show those track titles - you can even jump directly to specific song that way. But why stop here? The next barrier was detecting a track list while improving the noisy results Shazam offers. \
+\
+\
+
+\f2\fs72 \cf6 \cb1 \expnd0\expndtw0\kerning0
+\uc0\u55356 \u57255 
+\f0\fs24 \cf2 \cb3 \kerning1\expnd0\expndtw0  Premium Sound
+\f1\fs30 \cb5 \expnd0\expndtw0\kerning0
+\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardeftab720\pardirnatural\partightenfactor0
+
+\f0\fs20 \cf2 \cb3 \kerning1\expnd0\expndtw0 The most important job of a player is good sound and that is what PlayEm is going for. Your music is likely encoded in at least two different sample rates; 44.1kHz or 48kHz. Your soundcard likely is able to support both rates natively - well at least mine do. For asserting the best possible playback quality, PlayEm dynamically sets your output device to exactly the sample rate your content is meant for. That is not a common thing for macOS players, they commonly lock to the currently selected rate of your device. That means that when your device is currently setup for 48kHz, you better have a player switching your device to that sample-rate or the results will get resampled. \
 \pard\pardeftab720\partightenfactor0
 
 \f1\fs30 \cf4 \cb5 \expnd0\expndtw0\kerning0
@@ -114,7 +125,7 @@ I also experimented with tempo-shifting while maintaining key using Rubberband, 
 Volume adaptation depending on the average volume and / or metadata from the file itself is something I felt a proper player needs to have while PlayEm currently does not. \
 Some more ideas I had but quickly put to a deep freezer: \
 \pard\tx220\tx720\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\li720\fi-720\pardirnatural\partightenfactor0
-\ls3\ilvl0\cf2 {\listtext	\uc0\u8226 	}Multi Room Audio - those Apple engineers do not want applications to support that. Market dominators like Sonos equally do not share any of their technology with OSS developers and thus there is no way to go for PlayEm at the moment.\
+\ls3\ilvl0\cf2 \cb3 {\listtext	\uc0\u8226 	}Multi Room Audio - those Apple engineers do not want applications to support that. Market dominators like Sonos equally do not share any of their technology with OSS developers and thus there is no way to go for PlayEm at the moment.\
 \pard\tx560\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
 
 \f1\fs30 \cf4 \cb5 \expnd0\expndtw0\kerning0
@@ -150,7 +161,7 @@ It's my personal playground for building something beautiful and functional. A t
 {\listtext	\uc0\u8226 	}And ultimately, it\'92s a passion project\'97born from personal necessity, shaped by curiosity, and driven by rhythm\
 \pard\pardeftab720\partightenfactor0
 
-\f1 \cf2  
+\f1 \cf2 \cb3  
 \fs30 \cf4 \cb5 \expnd0\expndtw0\kerning0
 \
 \pard\tx0\tx0\tx0\tx80\tx280\tx440\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
@@ -169,7 +180,7 @@ Stay tuned. The beat goes on!\
 \f0\fs24 \cf2 \cb3 \kerning1\expnd0\expndtw0  Credits\
 \pard\tx220\tx720\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\li720\fi-720\pardirnatural\partightenfactor0
 \ls5\ilvl0
-\fs20 \cf2 {\listtext	\uc0\u8226 	}My ex-wife - you started this\
+\fs20 \cf2 \cb3 {\listtext	\uc0\u8226 	}My ex-wife - you started this\
 {\listtext	\uc0\u8226 	}My ex-girlfriend - you made this even better\
 {\listtext	\uc0\u8226 	}My mom - miss you so much\
 {\listtext	\uc0\u8226 	}My amazingly cool daughter - love you a lot\

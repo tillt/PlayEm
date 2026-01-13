@@ -5,20 +5,24 @@
 //  Created by Till Toenshoff on 12/9/25.
 //  Copyright © 2025 Till Toenshoff. All rights reserved.
 //
+#include <fstream>
+#include <math.h>
+
+#include "ChapterForge/chapterforge.hpp"
+#include "ChapterForge/logging.hpp"
+
 #import <Foundation/Foundation.h>
+
+#import "MediaMetaData+ChapterForge.hpp"
 
 #import <AVFoundation/AVFoundation.h>
 #import <AppKit/AppKit.h>
 #import <CoreMedia/CMFormatDescription.h>
 #import <CoreMedia/CoreMedia.h>
-#include <fstream>
 #import <iTunesLibrary/ITLibMediaItem.h>
-#include <math.h>
 
-#import "../NSError+BetterError.h"
+#import "NSError+BetterError.h"
 #import "AVMetadataItem+THAdditions.h"
-#include "ChapterForge/chapterforge.hpp"
-#include "ChapterForge/logging.hpp"
 #import "MediaMetaData+AVAsset.h"
 #import "MediaMetaData+JPEGTool.h"
 #import "MediaMetaData.h"

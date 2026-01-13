@@ -12,11 +12,11 @@
 #import <CoreImage/CoreImage.h>
 #import <Quartz/Quartz.h>
 
-#import "../Audio/AudioProcessing.h"
+#import "Audio/AudioProcessing.h"
 #import "../Defaults.h"
 #import "../NSBezierPath+CGPath.h"
-#import "../NSImage+Average.h"
-#import "../NSImage+Resize.h"
+#import "NSImage+Average.h"
+#import "NSImage+Resize.h"
 #import "CALayer+PauseAnimations.h"
 #import "CAShapeLayer+Path.h"
 #import "MediaMetaData.h"
@@ -199,6 +199,13 @@ extern NSString* const kBeatTrackedSampleTempoChangeNotification;
 
     [self animateChannelSeparationWithRed:_red green:_green blue:_blue beatEnergy:slopedEnergy currentTempo:currentTempo];
 
+    // Small parallax kick of the core artwork for additional depth on each beat.
+    [self applyParallaxKickToLayer:_red energy:slopedEnergy tempo:currentTempo];
+    // Small parallax kick of the core artwork for additional depth on each beat.
+    [self applyParallaxKickToLayer:_green energy:slopedEnergy tempo:currentTempo];
+    // Small parallax kick of the core artwork for additional depth on each beat.
+    [self applyParallaxKickToLayer:_blue energy:slopedEnergy tempo:currentTempo];
+
 #ifdef WITH_HELO
     CAKeyframeAnimation* glow = [CAKeyframeAnimation animationWithKeyPath:@"opacity"];
     // We want the lighting to be very dim for low values and to only become
@@ -229,10 +236,6 @@ extern NSString* const kBeatTrackedSampleTempoChangeNotification;
     CABasicAnimation* animation = [self beatShakeRotationForAngle:angleToAdd duration:phaseLength beginTime:anchorTime];
 
     [layer addAnimation:animation forKey:@"beatShaking"];
-
-    //    [self applyStaggeredChannelShakeWithAngle:angleToAdd
-    //                                   phaseLength:phaseLength
-    //                                     anchorTime:anchorTime];
 }
 
 - (CABasicAnimation*)beatShakeRotationForAngle:(double)angle duration:(CFTimeInterval)duration beginTime:(CFTimeInterval)beginTime
@@ -251,30 +254,66 @@ extern NSString* const kBeatTrackedSampleTempoChangeNotification;
     return animation;
 }
 
-- (void)applyStaggeredChannelShakeWithAngle:(double)angle phaseLength:(double)phaseLength anchorTime:(CFTimeInterval)anchorTime
+
+- (void)applyBeatScaleToLayer:(CALayer*)layer energy:(double)energy duration:(double)beatDuration
 {
-    if (_red == nil || _green == nil || _blue == nil) {
+    if (layer == nil || beatDuration <= 0.0) {
         return;
     }
 
-    // Slight offsets: red starts first, blue follows, green last. All share the
-    // same speed/duration.
-    const double blueDelay = phaseLength * 1.33;
-    const double greenDelay = phaseLength * 0.96;
+    // Keep the bump subtle; square the energy so stronger beats stand out.
+    const CGFloat bump = 0.01f + 0.07f * (CGFloat) (energy * energy);
 
-    const double redDuration = phaseLength;
-    const double blueDuration = phaseLength;
-    const double greenDuration = phaseLength;
+    [layer removeAnimationForKey:@"beatScale"];
 
-    //    [_red removeAnimationForKey:@"beatShaking.red"];
-    //    [_blue removeAnimationForKey:@"beatShaking.blue"];
-    //    [_green removeAnimationForKey:@"beatShaking.green"];
+    CATransform3D identity = CATransform3DIdentity;
+    CATransform3D up = CATransform3DScale(identity, 1.0f + bump, 1.0f + bump, 1.0f);
 
-    [_red addAnimation:[self beatShakeRotationForAngle:angle duration:redDuration beginTime:anchorTime] forKey:@"beatShaking.red"];
+    CAKeyframeAnimation* a = [CAKeyframeAnimation animationWithKeyPath:@"transform"];
+    a.values = @[ [NSValue valueWithCATransform3D:identity], [NSValue valueWithCATransform3D:up], [NSValue valueWithCATransform3D:identity] ];
+    a.keyTimes = @[ @0.0, @0.35, @1.0 ];
+    a.timingFunctions = @[
+        [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseOut],
+        [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut]
+    ];
+    a.duration = beatDuration;
+    a.removedOnCompletion = YES;
 
-    [_blue addAnimation:[self beatShakeRotationForAngle:angle duration:blueDuration beginTime:anchorTime + blueDelay] forKey:@"beatShaking.blue"];
+    layer.transform = CATransform3DIdentity;
+    [layer addAnimation:a forKey:@"beatScale"];
+}
 
-    [_green addAnimation:[self beatShakeRotationForAngle:angle duration:greenDuration beginTime:anchorTime + greenDelay] forKey:@"beatShaking.green"];
+- (void)applyParallaxKickToLayer:(CALayer*)layer energy:(double)energy tempo:(double)tempo
+{
+    if (layer == nil || energy <= 0.0 || tempo <= 0.0) {
+        return;
+    }
+
+    const double beatDuration = 60.0 / tempo;
+    // Favor stronger beats and keep the excursion small.
+    const CGFloat radius = 8.0f * (CGFloat) (energy * energy);
+    const CGFloat angle = (CGFloat) arc4random_uniform(1000) / 1000.0f * (CGFloat) (2.0 * M_PI);
+    const CGFloat dx = cosf(angle) * radius;
+    const CGFloat dy = sinf(angle) * radius;
+    const CGFloat twist = ((CGFloat) M_PI / 180.0f) * (2.5f * (CGFloat) energy);
+
+    [layer removeAnimationForKey:@"parallaxKick"];
+
+    CATransform3D identity = CATransform3DIdentity;
+    CATransform3D kick = CATransform3DConcat(CATransform3DMakeTranslation(dx, dy, 0.0), CATransform3DMakeRotation(twist, 0.0, 0.0, 1.0));
+
+    CAKeyframeAnimation* a = [CAKeyframeAnimation animationWithKeyPath:@"transform"];
+    a.values = @[ [NSValue valueWithCATransform3D:identity], [NSValue valueWithCATransform3D:kick], [NSValue valueWithCATransform3D:identity] ];
+    a.keyTimes = @[ @0.0, @0.45, @1.0 ];
+    a.timingFunctions = @[
+        [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseOut],
+        [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut]
+    ];
+    a.duration = beatDuration;
+    a.removedOnCompletion = YES;
+
+    layer.transform = CATransform3DIdentity;
+    [layer addAnimation:a forKey:@"parallaxKick"];
 }
 
 - (void)tempoChange:(NSNotification*)notification
@@ -512,7 +551,28 @@ extern NSString* const kBeatTrackedSampleTempoChangeNotification;
         [self beatShakingLayer:_backingLayer];
     }
 
+    int layerIndex = (int)round([self randInRange:2]);
+    // Alternate subtle per-beat scale bump across R/G/B/all.
+    double beatDuration = 60.0 / currentTempo;
+    double energy = slopedEnergy;
+    CALayer* target = nil;
+    switch (layerIndex) {
+        case 0:
+            target = _red;
+            break;
+        case 1:
+            target = _green;
+            break;
+        case 2:
+            target = _blue;
+            break;
+    }
+    [self applyBeatScaleToLayer:target energy:energy duration:beatDuration];
+
     [CATransaction commit];
+
+    // Small parallax kick of the core artwork for additional depth on each beat.
+    //[self applyParallaxKickToLayer:_backingLayer energy:slopedEnergy tempo:currentTempo];
 }
 
 - (CGFloat)randInRange:(CGFloat)r
@@ -583,6 +643,7 @@ extern NSString* const kBeatTrackedSampleTempoChangeNotification;
         CGFloat a = (CGFloat) arc4random_uniform(1000) / 1000.0f * 2.0f * (CGFloat) M_PI;
         return NSMakePoint(cos(a) * maxRadius, sin(a) * maxRadius);
     };
+    
     NSPoint target = randomTarget();
     NSPoint rNext = NSMakePoint(_rCurrent.x * (1.0f - blend) + target.x * blend, _rCurrent.y * (1.0f - blend) + target.y * blend);
     target = randomTarget();
@@ -591,12 +652,14 @@ extern NSString* const kBeatTrackedSampleTempoChangeNotification;
     NSPoint bNext = NSMakePoint(_bCurrent.x * (1.0f - blend) + target.x * blend, _bCurrent.y * (1.0f - blend) + target.y * blend);
 
     CAKeyframeAnimation* (^shift)(NSPoint, NSPoint) = ^CAKeyframeAnimation*(NSPoint from, NSPoint to) {
+        //CAKeyframeAnimation* a = [CAKeyframeAnimation animationWithKeyPath:@"transform.translation"];
         CAKeyframeAnimation* a = [CAKeyframeAnimation animationWithKeyPath:@"transform.translation"];
         a.values = @[
             [NSValue valueWithPoint:from],         // max at beat
             [NSValue valueWithPoint:NSZeroPoint],  // origin mid-beat
             [NSValue valueWithPoint:to]            // drift to next peak
         ];
+
         // Keep maximum separation on-beat (0 and 1); return to center shortly
         // before the next beat.
         a.keyTimes = @[ @0.0, @0.8, @1.0 ];

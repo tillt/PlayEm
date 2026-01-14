@@ -1,13 +1,24 @@
 //
 //  MediaMetaData+TrackList.h
-//  PlayEm
+//  PlayEmCore
 //
 //  Created by Till Toenshoff on 1/14/26.
 //  Copyright © 2026 Till Toenshoff. All rights reserved.
 //
 
-#ifndef MediaMetaData_TrackList_h
-#define MediaMetaData_TrackList_h
+#import "MediaMetaData.h"
 
+NS_ASSUME_NONNULL_BEGIN
 
-#endif /* MediaMetaData_TrackList_h */
+@interface MediaMetaData (TrackList)
+
+- (void)recoverTracklistWithCallback:(void (^)(BOOL, NSError*))callback;
+- (void)recoverSidecarWithCallback:(void (^)(BOOL, NSError*))callback;
+- (BOOL)storeTracklistWithError:(NSError* __autoreleasing _Nullable*)error;
+- (NSString*)readableTracklistWithFrameEncoder:(FrameToString)encoder;
+- (BOOL)exportTracklistToFile:(NSURL*)url frameEncoder:(FrameToString)encoder error:(NSError* __autoreleasing _Nullable*)error;
+- (NSURL*)trackListURL;
+
+@end
+
+NS_ASSUME_NONNULL_END

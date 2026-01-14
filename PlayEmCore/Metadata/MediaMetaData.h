@@ -101,16 +101,9 @@ extern NSString* const kMediaMetaDataMapTypeNumber;
 
 @property (strong, nonatomic, nullable) TrackList* trackList;
 
-- (NSURL*)trackListURL;
-
-- (BOOL)storeTracklistWithError:(NSError**)error;
-
-- (void)recoverTracklistWithCallback:(void (^)(BOOL, NSError*))callback;
-
 - (void)setArtworkFromImage:(NSImage*)image;
 
-- (BOOL)exportTracklistToFile:(NSURL*)url frameEncoder:(FrameToString)encoder error:(NSError* __autoreleasing _Nullable*)error;
-- (NSString*)readableTracklistWithFrameEncoder:(FrameToString)encoder;
++ (MediaMetaDataFileFormatType)fileTypeWithURL:(NSURL*)url error:(NSError**)error;
 
 + (MediaMetaData*)mediaMetaDataWithURL:(NSURL*)url error:(NSError**)error;
 + (MediaMetaData*)mediaMetaDataWithITLibMediaItem:(ITLibMediaItem*)item error:(NSError**)error;
@@ -125,7 +118,6 @@ extern NSString* const kMediaMetaDataMapTypeNumber;
 + (NSArray<NSString*>*)mediaMetaKeys;
 + (NSArray<NSString*>*)mediaDataKeysWithFileFormatType:(MediaMetaDataFileFormatType)type;
 
-+ (NSString*)mimeTypeForArtworkFormat:(ITLibArtworkFormat)formatNumber;
 + (ITLibArtworkFormat)artworkFormatForData:(NSData*)data;
 
 + (NSData*)defaultArtworkData;
@@ -141,9 +133,6 @@ extern NSString* const kMediaMetaDataMapTypeNumber;
 
 - (BOOL)readFromFileWithError:(NSError**)error;
 - (BOOL)writeToFileWithError:(NSError**)error;
-
-/// Converts whatever comes in into a MixWheel key value.
-+ (NSString* _Nullable)correctedKeyNotation:(NSString* _Nullable)key;
 
 + (NSString*)starsWithRating:(NSNumber*)rating;
 + (NSArray<NSString*>*)starRatings;

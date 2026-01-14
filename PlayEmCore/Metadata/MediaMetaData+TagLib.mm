@@ -230,10 +230,14 @@ static NSData* cf_extractArtworkFromRawID3(NSString* path)
     return nil;
 }
 
-
 // Directly parse the on-disk ID3v2 tag to recover the INITIALKEY frame.
 // We go this crazy route as tagLib is unfortunately not allowing us to
 // recover incorrectly marked UTF16LE TXXX fields.
+//
+// Assumption is this implementation is anything but stable against variations
+// - doesnt really matter too much. It does cover a case I have seen A LOT
+// in the wild. Tags incorrecly marked as UTF16 while being latin - some windows
+// coder likely is to blame.
 NSString* cf_extractKeyFromRawID3(NSString* path)
 {
     NSData* data = [NSData dataWithContentsOfFile:path];
@@ -486,26 +490,47 @@ static NSString* SanitizeTagValue(const TagLib::String& s)
     value = [value sanitizedMetadataString];
     value = [value stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
 
-    // Drop clearly non-ASCII values (we only expect simple keys/fields here).
-    static NSCharacterSet* nonASCII = nil;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        nonASCII = [[NSCharacterSet characterSetWithRange:NSMakeRange(0, 0x80)] invertedSet];
-    });
-    if ([value rangeOfCharacterFromSet:nonASCII].location != NSNotFound) {
+    // Drop clearly invalid or mojibake-looking values.
+    if (value.length == 0 || [value isLikelyMojibakeMetadata]) {
         value = nil;
     }
 
-    if (value.length == 0 || [value isLikelyMojibakeMetadata]) {
-        // Last resort: pull ASCII-ish characters from the raw UTF-8 bytes.
-        std::string utf8 = s.to8Bit(true);
-        NSMutableString* ascii = [NSMutableString string];
-        for (unsigned char c : utf8) {
-            if ((c >= '0' && c <= '9') || (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || c == '#' || c == 'b') {
-                [ascii appendFormat:@"%c", c];
-            }
+    // Disallow characters outside Latin/extended-Latin plus common punctuation/whitespace to keep umlauts
+    // while rejecting obvious garbage (e.g., fullwidth or CJK glyphs in keys).
+    static NSCharacterSet* allowed = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        NSMutableCharacterSet* m = [[NSMutableCharacterSet alloc] init];
+        [m formUnionWithCharacterSet:[NSCharacterSet letterCharacterSet]];
+        [m formUnionWithCharacterSet:[NSCharacterSet decimalDigitCharacterSet]];
+        [m formUnionWithCharacterSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+        [m formUnionWithCharacterSet:[NSCharacterSet punctuationCharacterSet]];
+        [m formUnionWithCharacterSet:[NSCharacterSet symbolCharacterSet]];
+        // Explicitly include Latin-1 Supplement and Latin Extended-A/B.
+        [m addCharactersInRange:NSMakeRange(0x00A0, 0x0250 - 0x00A0)];
+        allowed = [m copy];
+    });
+    if (value && [value rangeOfCharacterFromSet:[allowed invertedSet]].location != NSNotFound) {
+        value = nil;
+    }
+
+    // Additional guard: if too many codepoints are beyond the Latin-1 supplement, treat as mojibake.
+    if (value) {
+        __block NSUInteger highCount = 0;
+        [value enumerateSubstringsInRange:NSMakeRange(0, value.length)
+                                   options:NSStringEnumerationByComposedCharacterSequences
+                                usingBlock:^(NSString* substring, NSRange __, NSRange ___, BOOL* stop) {
+                                    unichar c = [substring characterAtIndex:0];
+                                    if (c > 0x024F) {
+                                        highCount++;
+                                        if (highCount > 3) {
+                                            *stop = YES;
+                                        }
+                                    }
+                                }];
+        if (highCount > 3) {
+            value = nil;
         }
-        value = (ascii.length > 0) ? ascii : nil;
     }
     return value;
 }

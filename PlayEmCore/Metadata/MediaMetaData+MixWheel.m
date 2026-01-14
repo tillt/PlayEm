@@ -1,3 +1,13 @@
+//
+//  MediaMetaData+MixWheel.m
+//  PlayEm
+//
+//  Created by Till Toenshoff on 1/14/26.
+//  Copyright © 2026 Till Toenshoff. All rights reserved.
+//
+#import "MediaMetaData.h"
+
+@implementation MediaMetaData (MixWheel)
 
 + (NSString* _Nullable)correctedKeyNotation:(NSString* _Nullable)key
 {
@@ -104,3 +114,5 @@
 
     return key;
 }
+
+@end

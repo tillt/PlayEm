@@ -137,7 +137,7 @@
 {
     NSDictionary* id3Genres = [MediaMetaData id3GenreMap];
 
-    NSLog(@"%@ (%@): %@ dataType: %@ extra:%@", [item commonKey], [item keyString], [item value], [item dataType], [item extraAttributes]);
+    //NSLog(@"%@ (%@): %@ dataType: %@ extra:%@", [item commonKey], [item keyString], [item value], [item dataType], [item extraAttributes]);
 
     if ([item commonKey] == nil) {
         if ([[item keyString] isEqualToString:@"TYER"] || [[item keyString] isEqualToString:@"@day"] || [[item keyString] isEqualToString:@"TDRL"]) {
@@ -217,7 +217,7 @@
 - (BOOL)readFromAVAsset:(AVAsset*)asset error:(NSError* __autoreleasing _Nullable* _Nullable)error
 {
     for (NSString* format in [asset availableMetadataFormats]) {
-        NSLog(@"format: %@", format);
+        //NSLog(@"format: %@", format);
         // TODO: We could neatly weave this into async AVAsset processing.
         for (AVMetadataItem* item in [asset metadataForFormat:format]) {
             [self updateWithMetadataItem:item];
@@ -228,14 +228,14 @@
 
 - (void)readChaperMarksFromMP4FileWithCallback:(void (^)(BOOL, NSError*))callback
 {
-    NSLog(@"readChaperMarksFromMP4FileWithCallback");
+    //NSLog(@"readChaperMarksFromMP4FileWithCallback");
     AVAsset* asset = [AVURLAsset URLAssetWithURL:self.location options:nil];
     [self readChapterMarksFromAVAsset:asset callback:callback];
 }
 
 - (BOOL)readFromMP4FileWithError:(NSError**)error
 {
-    NSLog(@"readFromMP4FileWithError");
+    //NSLog(@"readFromMP4FileWithError");
     AVAsset* asset = [AVURLAsset URLAssetWithURL:self.location options:nil];
     return [self readFromAVAsset:asset error:error];
 }

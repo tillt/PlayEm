@@ -88,13 +88,7 @@ static NSString* cf_normalize(NSString* s)
     NSMutableString* m = [[s precomposedStringWithCanonicalMapping] mutableCopy];
     [m replaceOccurrencesOfString:@"\u00A0" withString:@" " options:0 range:NSMakeRange(0, m.length)];
 
-    static NSRegularExpression* wsRE;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        wsRE = [NSRegularExpression regularExpressionWithPattern:@"\\s+" options:0 error:nil];
-    });
-    NSString* collapsed = [wsRE stringByReplacingMatchesInString:m options:0 range:NSMakeRange(0, m.length) withTemplate:@" "];
-    return [collapsed stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+    return [m stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
 }
 
 // Reinterpret the string's bytes from one encoding to another, then normalize.

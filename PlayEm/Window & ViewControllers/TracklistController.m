@@ -20,6 +20,7 @@
 #import "TimedMediaMetaData.h"
 #import "TrackList.h"
 #import "MediaMetaData+ImageController.h"
+#import "MediaMetaData+TrackList.h"
 
 const CGFloat kTimeHeight = 22.0;
 const CGFloat kTotalRowHeight = 52.0 + kTimeHeight;

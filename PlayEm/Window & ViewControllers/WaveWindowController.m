@@ -33,6 +33,7 @@
 #import "LazySample.h"
 #import "LoadState.h"
 #import "MediaMetaData.h"
+#import "MediaMetaData+TrackList.h"
 #import "MetaController.h"
 #import "MusicAuthenticationController.h"
 #import "NSAlert+BetterError.h"

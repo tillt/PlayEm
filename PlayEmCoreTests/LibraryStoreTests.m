@@ -10,6 +10,7 @@
 
 #import "LibraryStore.h"
 #import "MediaMetaData.h"
+#import "MediaMetaData+TagLib.h"
 
 @interface LibraryStoreTests : XCTestCase
 @end
@@ -21,6 +22,12 @@
     NSString* path = [NSTemporaryDirectory() stringByAppendingPathComponent:@"playem_librarystore_test.sqlite"];
     [[NSFileManager defaultManager] removeItemAtPath:path error:nil];
     return [NSURL fileURLWithPath:path];
+}
+
+- (NSURL*)testMP3URL
+{
+    NSString* path = [[NSBundle bundleForClass:[self class]] pathForResource:@"taglib_sample" ofType:@"mp3" inDirectory:@"Fixtures"];
+    return path ? [NSURL fileURLWithPath:path] : nil;
 }
 
 - (MediaMetaData*)sampleMeta
@@ -122,6 +129,94 @@
 
     // Should be considered equal for reconciliation purposes.
     XCTAssertTrue([a isSemanticallyEqualToMeta:b]);
+}
+
+- (void)testReconcileDoesNotReportUnchangedMeta
+{
+    NSURL* dbURL = [self temporaryDatabaseURL];
+    LibraryStore* store = [[LibraryStore alloc] initWithDatabaseURL:dbURL];
+
+    NSURL* srcURL = [self testMP3URL];
+    if (!srcURL || ![[NSFileManager defaultManager] fileExistsAtPath:srcURL.path]) {
+        XCTSkip(@"TagLib test file missing; set PLAYEM_TAGLIB_TEST_FILE to a valid MP3 path.");
+        return;
+    }
+
+    // Seed the DB with a temp copy of the MP3, preserving its ID3 metadata.
+    NSString* tmpDir = [NSTemporaryDirectory() stringByAppendingPathComponent:[[NSUUID UUID] UUIDString]];
+    [[NSFileManager defaultManager] createDirectoryAtPath:tmpDir withIntermediateDirectories:YES attributes:nil error:nil];
+    NSString* dstPath = [tmpDir stringByAppendingPathComponent:srcURL.lastPathComponent];
+    NSError* copyErr = nil;
+    XCTAssertTrue([[NSFileManager defaultManager] copyItemAtPath:srcURL.path toPath:dstPath error:&copyErr], @"copy failed: %@", copyErr);
+    NSURL* dstURL = [NSURL fileURLWithPath:dstPath];
+
+    MediaMetaData* original = [MediaMetaData emptyMediaDataWithURL:dstURL];
+    NSError* error = nil;
+    XCTAssertTrue([original readFromFileWithError:&error], @"read failed: %@", error);
+    XCTAssertTrue([store importMediaItems:@[ original ] error:&error], @"import failed: %@", error);
+
+    // Reconcile against the same file list (no changes).
+    XCTestExpectation* exp = [self expectationWithDescription:@"reconcile"];
+    [store reconcileLibraryWithCompletion:^(NSArray<MediaMetaData*>* _Nullable refreshedMetas,
+                                            NSArray<MediaMetaData*>* _Nullable changedMetas,
+                                            NSArray<NSURL*>* missingFiles,
+                                            NSError* _Nullable error) {
+        XCTAssertNil(error, @"reconcile error: %@", error);
+        XCTAssertNotNil(refreshedMetas);
+        XCTAssertEqual(changedMetas.count, 0u, @"No diffs expected for identical meta");
+        XCTAssertEqual(missingFiles.count, 0u);
+        [exp fulfill];
+    }];
+
+    [self waitForExpectationsWithTimeout:5 handler:nil];
+}
+
+- (void)testReconcileIgnoresWhitespaceAndUmlautStability
+{
+    NSURL* dbURL = [self temporaryDatabaseURL];
+    LibraryStore* store = [[LibraryStore alloc] initWithDatabaseURL:dbURL];
+
+    NSURL* srcURL = [self testMP3URL];
+    if (!srcURL || ![[NSFileManager defaultManager] fileExistsAtPath:srcURL.path]) {
+        XCTSkip(@"TagLib test file missing; set PLAYEM_TAGLIB_TEST_FILE to a valid MP3 path.");
+        return;
+    }
+
+    // Work on a temp copy and embed metadata with umlauts/double spaces.
+    NSString* tmpDir = [NSTemporaryDirectory() stringByAppendingPathComponent:[[NSUUID UUID] UUIDString]];
+    [[NSFileManager defaultManager] createDirectoryAtPath:tmpDir withIntermediateDirectories:YES attributes:nil error:nil];
+    NSString* dstPath = [tmpDir stringByAppendingPathComponent:srcURL.lastPathComponent];
+    NSError* copyErr = nil;
+    XCTAssertTrue([[NSFileManager defaultManager] copyItemAtPath:srcURL.path toPath:dstPath error:&copyErr], @"copy failed: %@", copyErr);
+    NSURL* dstURL = [NSURL fileURLWithPath:dstPath];
+
+    MediaMetaData* meta = [MediaMetaData emptyMediaDataWithURL:dstURL];
+    NSError* error = nil;
+    XCTAssertTrue([meta readFromFileWithError:&error], @"read failed: %@", error);
+    meta.title = @"Faust  Hörspiel  Übergröße";  // double spaces + umlauts
+    meta.artist = @"Müller  & Söhne";
+    meta.album = @"Über  Album";
+    meta.comment = @"Kommentar  mit  Doppel  Leerzeichen";
+    XCTAssertEqual(0, [meta writeToMP3FileWithError:&error], @"write failed: %@", error);
+
+    // Re-read to get exactly what the file stores.
+    MediaMetaData* storedMeta = [MediaMetaData emptyMediaDataWithURL:dstURL];
+    XCTAssertTrue([storedMeta readFromFileWithError:&error], @"re-read failed: %@", error);
+
+    XCTAssertTrue([store importMediaItems:@[ storedMeta ] error:&error], @"import failed: %@", error);
+
+    XCTestExpectation* exp = [self expectationWithDescription:@"reconcile2"];
+    [store reconcileLibraryWithCompletion:^(NSArray<MediaMetaData*>* _Nullable refreshedMetas,
+                                            NSArray<MediaMetaData*>* _Nullable changedMetas,
+                                            NSArray<NSURL*>* missingFiles,
+                                            NSError* _Nullable error) {
+        XCTAssertNil(error, @"reconcile error: %@", error);
+        XCTAssertEqual(changedMetas.count, 0u, @"Whitespace/umlaut stability should not produce diffs");
+        XCTAssertEqual(missingFiles.count, 0u);
+        [exp fulfill];
+    }];
+
+    [self waitForExpectationsWithTimeout:5 handler:nil];
 }
 
 @end

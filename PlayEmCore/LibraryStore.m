@@ -283,6 +283,9 @@ static BOOL isLikelyMojibakeString(NSString* s)
         if (metas.count > 0) {
             [self importMediaItems:metas error:&err];
         }
+        if (err) {
+            NSLog(@"LibraryStore: importMediaItems failed: %@", err.localizedDescription);
+        }
         dispatch_async(dispatch_get_main_queue(), ^{
             if (completion) {
                 completion(metas.count > 0 ? [metas copy] : @[], err);
@@ -331,6 +334,9 @@ static BOOL isLikelyMojibakeString(NSString* s)
                   completion:^(NSArray<MediaMetaData*>* _Nullable metas, NSError* _Nullable importErr) {
                       NSArray<MediaMetaData*>* refreshed = metas ?: @[];
                       NSMutableArray<MediaMetaData*>* changed = [NSMutableArray array];
+                      if (importErr) {
+                          NSLog(@"LibraryStore: reconcile import error: %@", importErr.localizedDescription);
+                      }
                       for (MediaMetaData* meta in refreshed) {
                           MediaMetaData* old = existingByURL[meta.location.absoluteString];
                           if (old && old.added) {

@@ -41,7 +41,7 @@ static const BOOL kActivityDebugLogging = NO;
     if (self) {
         self.wantsLayer = YES;
         self.accessibilityRole = NSAccessibilityProgressIndicatorRole;
-        self.accessibilityLabel = @"Activity progress";
+        self.accessibilityLabel = NSLocalizedString(@"activity.progress.accessibility_label", @"Accessibility label for activity progress indicator");
         self.accessibilityMinValue = @0;
         self.accessibilityMaxValue = @100;
 
@@ -373,7 +373,7 @@ static const BOOL kActivityDebugLogging = NO;
         detailField.textColor = [NSColor secondaryLabelColor];
         detailField.lineBreakMode = NSLineBreakByTruncatingTail;
         detailField.identifier = @"detail";
-        detailField.stringValue = entry.detail ?: (entry.completed ? @"Done" : @"");
+        detailField.stringValue = entry.detail ?: (entry.completed ? NSLocalizedString(@"activity.detail.done", @"Fallback activity detail when completed") : @"");
         [view addSubview:detailField];
 
         return view;
@@ -412,7 +412,9 @@ static const BOOL kActivityDebugLogging = NO;
             [NSImageSymbolConfiguration configurationWithPaletteColors:@[ [NSColor labelColor], [NSColor tertiaryLabelColor] ]];
         NSImageSymbolConfiguration* config = [baseConfig configurationByApplyingConfiguration:palette];
 
-        NSImage* closeImage = [NSImage imageWithSystemSymbolName:@"xmark.circle.fill" accessibilityDescription:@"Cancel"];
+        NSImage* closeImage = [NSImage imageWithSystemSymbolName:@"xmark.circle.fill"
+                                         accessibilityDescription:NSLocalizedString(@"activity.cancel.accessibility_label",
+                                                                                   @"Accessibility label for activity cancel button")];
         closeImage = [closeImage imageWithSymbolConfiguration:config];
 
         cancelButton.image = closeImage;

@@ -42,7 +42,7 @@ static NSString* const kFXLastEffectEnabledKey = @"FXLastEffectEnabled";
         panel.becomesKeyOnlyIfNeeded = YES;
         panel.titlebarAppearsTransparent = YES;
         panel.hidesOnDeactivate = NO;
-        panel.title = @"Effect";
+        panel.title = NSLocalizedString(@"fx.window_title", @"Title for the effects window");
         panel.collectionBehavior = NSWindowCollectionBehaviorTransient;
         [self buildUI];
     }
@@ -77,7 +77,7 @@ static NSString* const kFXLastEffectEnabledKey = @"FXLastEffectEnabled";
     [NSLayoutConstraint activateConstraints:@[ rootTop, rootLeading, rootTrailing, rootBottom ]];
 
     // Header row
-    self.effectToggle = [NSButton checkboxWithTitle:@"On" target:self action:@selector(effectToggleChanged:)];
+    self.effectToggle = [NSButton checkboxWithTitle:NSLocalizedString(@"fx.toggle_on", @"Label for enabling effects") target:self action:@selector(effectToggleChanged:)];
     self.effectToggle.controlSize = NSControlSizeSmall;
     self.effectToggle.state = NSControlStateValueOff;
     self.effectToggle.translatesAutoresizingMaskIntoConstraints = NO;
@@ -87,7 +87,7 @@ static NSString* const kFXLastEffectEnabledKey = @"FXLastEffectEnabled";
     self.effectMenu.font = [[Defaults sharedDefaults] smallFont];
     self.effectMenu.action = @selector(effectChanged:);
     self.effectMenu.translatesAutoresizingMaskIntoConstraints = NO;
-    self.effectMenu.accessibilityLabel = @"Effect selection";
+    self.effectMenu.accessibilityLabel = NSLocalizedString(@"fx.effect_selection_accessibility", @"Accessibility label for effect selection");
 
     NSView* header = [[NSView alloc] initWithFrame:NSZeroRect];
     header.translatesAutoresizingMaskIntoConstraints = NO;
@@ -239,7 +239,7 @@ static NSString* const kFXLastEffectEnabledKey = @"FXLastEffectEnabled";
     }
 
     if (self.audioController.currentEffectIndex < 0) {
-        NSTextField* disabled = [NSTextField labelWithString:@"Effect disabled."];
+        NSTextField* disabled = [NSTextField labelWithString:NSLocalizedString(@"fx.effect_disabled", @"Label when effects are disabled")];
         disabled.font = [[Defaults sharedDefaults] smallFont];
         [self.paramsStack addArrangedSubview:disabled];
         [self adjustWindowToFitContent];
@@ -248,7 +248,7 @@ static NSString* const kFXLastEffectEnabledKey = @"FXLastEffectEnabled";
 
     NSDictionary<NSNumber*, NSDictionary*>* info = [self.audioController effectParameterInfo];
     if (info.count == 0) {
-        NSTextField* none = [NSTextField labelWithString:@"No adjustable parameters."];
+        NSTextField* none = [NSTextField labelWithString:NSLocalizedString(@"fx.no_parameters", @"Label when no effect parameters are available")];
         none.font = [[Defaults sharedDefaults] smallFont];
         [self.paramsStack addArrangedSubview:none];
         [self adjustWindowToFitContent];

@@ -18,7 +18,8 @@
 
 + (IdentifiedTrack*)unknownTrackAtFrame:(NSNumber*)frame
 {
-    IdentifiedTrack* track = [[IdentifiedTrack alloc] initWithTitle:@"unknown" artist:@"unknown" genre:@"" musicURL:nil imageURL:nil frame:frame];
+    NSString* unknown = NSLocalizedString(@"common.unknown", @"Placeholder when value is unknown");
+    IdentifiedTrack* track = [[IdentifiedTrack alloc] initWithTitle:unknown artist:unknown genre:@"" musicURL:nil imageURL:nil frame:frame];
     track.artwork = [NSImage imageNamed:@"UnknownSong"];
     return track;
 }

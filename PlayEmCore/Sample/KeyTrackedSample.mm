@@ -13,6 +13,7 @@
 #include <keyfinder/keyfinder.h>
 
 #import "ActivityManager.h"
+#import "../PECLocalization.h"
 #import "CancelableBlockOperation.h"
 #import "LazySample.h"
 
@@ -98,7 +99,10 @@ const double kBeatSampleDurationThreshold = 30.0 * 60.0;
         return YES;
     }
 
-    ActivityToken* token = [[ActivityManager shared] beginActivityWithTitle:@"Detecting Key" detail:@"" cancellable:NO cancelHandler:nil];
+    ActivityToken* token = [[ActivityManager shared] beginActivityWithTitle:PECLocalizedString(@"activity.key_detection.title", @"Title for key detection activity")
+                                                                     detail:@""
+                                                                cancellable:NO
+                                                              cancelHandler:nil];
 
     const int channels = self->_sample.sampleFormat.channels;
 
@@ -115,7 +119,7 @@ const double kBeatSampleDurationThreshold = 30.0 * 60.0;
 
     while (sourceWindowFrameOffset < self->_sample.frames) {
         double progress = (double) sourceWindowFrameOffset / self->_sample.frames;
-        [[ActivityManager shared] updateActivity:token progress:progress detail:@"detecting key"];
+        [[ActivityManager shared] updateActivity:token progress:progress detail:PECLocalizedString(@"activity.key_detection.detecting", @"Detail while detecting key")];
 
         if (dispatch_block_testcancel(self.queueOperation) != 0) {
             NSLog(@"aborted key detection");

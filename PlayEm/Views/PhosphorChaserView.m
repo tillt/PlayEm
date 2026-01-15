@@ -52,7 +52,8 @@
         self.layerContentsRedrawPolicy = NSViewLayerContentsRedrawDuringViewResize;
         self.hidden = YES;
         self.alphaValue = 0.0;
-        self.accessibilityLabel = @"Background activity indicator";
+        self.accessibilityLabel = NSLocalizedString(@"accessibility.background_activity_indicator",
+                                                     @"Accessibility label for background activity indicator");
 
         _period = 1.0;
         _decayFactor = 0.97;  // how much of the tail persists each frame

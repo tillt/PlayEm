@@ -25,13 +25,7 @@
 
 - (NSURL*)testFileURL
 {
-    NSDictionary<NSString*, NSString*>* env = [[NSProcessInfo processInfo] environment];
-    NSString* path = env[@"PLAYEM_TAGLIB_TEST_FILE"];
-
-    if (path.length == 0) {
-        path = @"/Users/till/Music/Music2Go/Media.localized/Kaufmann (DE)/Ibu 3000/1-02 Ibu 3000 (Metodi Hristov Remix).mp3";
-    }
-
+    NSString* path = @"/Users/till/Music/Music2Go/Media.localized/Compilations/Solid Steel Radio Show/14-09-12-02.mp3";
     if (path.length == 0) {
         return nil;
     }
@@ -53,6 +47,7 @@
     NSArray<NSString*>* textKeys = @[ @"title", @"artist", @"album", @"albumArtist", @"genre", @"comment", @"tags", @"key" ];
     for (NSString* key in textKeys) {
         NSString* value = [meta valueForKey:key];
+        NSLog(@"key: %@ = value: %@", key, value);
         if (value.length == 0) {
             continue;
         }

@@ -60,6 +60,8 @@
 		BB5DC1F52F00A52100CCA2D6 /* ActivityViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = BB5DC1F42F00A52100CCA2D6 /* ActivityViewController.m */; };
 		BB694CA32E6BB09C00818B01 /* BloomyText.m in Sources */ = {isa = PBXBuildFile; fileRef = BB694CA22E6BB09C00818B01 /* BloomyText.m */; };
 		BB6994962EEF5BDA00242456 /* VideoToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BB6994952EEF5BDA00242456 /* VideoToolbox.framework */; };
+		BB71CF5C2F196B240057064D /* LocalizablePlural.stringsdict in Resources */ = {isa = PBXBuildFile; fileRef = BB71CF5B2F196B240057064D /* LocalizablePlural.stringsdict */; };
+		BB71CF5F2F196CB10057064D /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = BB71CF5E2F196CB10057064D /* Localizable.xcstrings */; };
 		BB7C6269293144890019AF25 /* Defaults.m in Sources */ = {isa = PBXBuildFile; fileRef = BB7C6268293144890019AF25 /* Defaults.m */; };
 		BB7C626C2932E1540019AF25 /* ControlPanelController.m in Sources */ = {isa = PBXBuildFile; fileRef = BB7C626B2932E1540019AF25 /* ControlPanelController.m */; };
 		BB8571032972152B0004218B /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = BB8571022972152B0004218B /* README.md */; };
@@ -240,6 +242,8 @@
 		BB694CA22E6BB09C00818B01 /* BloomyText.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = BloomyText.m; sourceTree = "<group>"; };
 		BB6994952EEF5BDA00242456 /* VideoToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = VideoToolbox.framework; path = System/Library/Frameworks/VideoToolbox.framework; sourceTree = SDKROOT; };
 		BB71CF4D2F181E6B0057064D /* MediaMetaData+TrackList.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "MediaMetaData+TrackList.h"; path = "PlayEmCore/Metadata/MediaMetaData+TrackList.h"; sourceTree = "<group>"; };
+		BB71CF5B2F196B240057064D /* LocalizablePlural.stringsdict */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; path = LocalizablePlural.stringsdict; sourceTree = "<group>"; };
+		BB71CF5E2F196CB10057064D /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
 		BB7C6267293144890019AF25 /* Defaults.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Defaults.h; sourceTree = "<group>"; };
 		BB7C6268293144890019AF25 /* Defaults.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Defaults.m; sourceTree = "<group>"; };
 		BB7C626A2932E1540019AF25 /* ControlPanelController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ControlPanelController.h; sourceTree = "<group>"; };
@@ -305,7 +309,6 @@
 		BBE2846C246765A700BE9D7F /* Shaders.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = Shaders.metal; sourceTree = "<group>"; };
 		BBE2846E2467669500BE9D7F /* MetalKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MetalKit.framework; path = System/Library/Frameworks/MetalKit.framework; sourceTree = SDKROOT; };
 		BBECB0242D4FF33E00C6A6F3 /* LargeRastaPattern.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = LargeRastaPattern.png; sourceTree = "<group>"; };
-		BBEF94AE2F0A9CCF00295C23 /* PlayEmCoreTests.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = PlayEmCoreTests.xctestplan; sourceTree = "<group>"; };
 		BBF0D0012F0ABC0000A1B2C1 /* PlayEmCoreTests/TotalIdentificationControllerTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = PlayEmCoreTests/TotalIdentificationControllerTests.m; sourceTree = SOURCE_ROOT; };
 		BBF7982B2ADC4BAA00893533 /* NSString+BeautifulPast.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSString+BeautifulPast.h"; sourceTree = "<group>"; };
 		BBF7982C2ADC4BAA00893533 /* NSString+BeautifulPast.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSString+BeautifulPast.m"; sourceTree = "<group>"; };
@@ -334,6 +337,13 @@
 			);
 			target = BBD24D5C2432948800DC2A81 /* PlayEm */;
 		};
+		BB71CF5D2F196BB20057064D /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				PlayEmCoreTests.xctestplan,
+			);
+			target = BB57DE4B2F05D614008FFBD1 /* PlayEmCoreTests */;
+		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet section */
@@ -349,7 +359,7 @@
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		BB0632572F05C76800A3381E /* PlayEmTests */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = PlayEmTests; sourceTree = "<group>"; };
 		BB57DE452F05D614008FFBD1 /* PlayEmCore */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (BB57E0232F05E7D6008FFBD1 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, BB57DE5D2F05D614008FFBD1 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, BB71CF522F1824570057064D /* PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = PlayEmCore; sourceTree = "<group>"; };
-		BB57DE522F05D614008FFBD1 /* PlayEmCoreTests */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = PlayEmCoreTests; sourceTree = "<group>"; };
+		BB57DE522F05D614008FFBD1 /* PlayEmCoreTests */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (BB71CF5D2F196BB20057064D /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = PlayEmCoreTests; sourceTree = "<group>"; };
 		BBDBBC2A2F062ED200ACC632 /* PlayEmRefineCLI */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = PlayEmRefineCLI; sourceTree = "<group>"; };
 /* End PBXFileSystemSynchronizedRootGroup section */
 
@@ -538,7 +548,6 @@
 		BBD24D542432948800DC2A81 = {
 			isa = PBXGroup;
 			children = (
-				BBEF94AE2F0A9CCF00295C23 /* PlayEmCoreTests.xctestplan */,
 				BBAD5EF72D038D5100F664AB /* ci_scripts */,
 				BBDB1B3B2B640A5100A953F7 /* Scripts */,
 				BBD24D5F2432948800DC2A81 /* PlayEm */,
@@ -597,7 +606,9 @@
 				BBECB0242D4FF33E00C6A6F3 /* LargeRastaPattern.png */,
 				BBBBF94A2EF30ADF001035DA /* UnknownSong.png */,
 				BB51C1F02E5D18940049355F /* credits.rtf */,
+				BB71CF5E2F196CB10057064D /* Localizable.xcstrings */,
 				BB0A62D42EAD690A00BAF444 /* TODO.md */,
+				BB71CF5B2F196B240057064D /* LocalizablePlural.stringsdict */,
 				BBD24D682432948B00DC2A81 /* Info.plist */,
 				BBD24D692432948B00DC2A81 /* main.m */,
 				BBD24D6B2432948B00DC2A81 /* PlayEm.entitlements */,
@@ -809,6 +820,12 @@
 			knownRegions = (
 				en,
 				Base,
+				de,
+				es,
+				fr,
+				uk,
+				ar,
+				ja,
 			);
 			mainGroup = BBD24D542432948800DC2A81;
 			preferredProjectObjectVersion = 50;
@@ -853,9 +870,11 @@
 			files = (
 				BBBBF94B2EF30B8E001035DA /* UnknownSong.png in Resources */,
 				BB51C1F12E5D18940049355F /* credits.rtf in Resources */,
+				BB71CF5F2F196CB10057064D /* Localizable.xcstrings in Resources */,
 				BBECB0252D4FF33E00C6A6F3 /* LargeRastaPattern.png in Resources */,
 				BB8571032972152B0004218B /* README.md in Resources */,
 				BBD24D642432948B00DC2A81 /* Assets.xcassets in Resources */,
+				BB71CF5C2F196B240057064D /* LocalizablePlural.stringsdict in Resources */,
 				BB9CE9B128D388F3008DFF91 /* MainMenu.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1106,6 +1125,11 @@
 					"$(PROJECT_DIR)/ThirdParty",
 				);
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				LOCALIZED_STRING_MACRO_NAMES = (
+					NSLocalizedString,
+					CFCopyLocalizedString,
+					PECLocalizedString,
+				);
 				MACOSX_DEPLOYMENT_TARGET = 15.7;
 				MARKETING_VERSION = 1.0;
 				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
@@ -1162,6 +1186,11 @@
 					"$(PROJECT_DIR)/ThirdParty",
 				);
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				LOCALIZED_STRING_MACRO_NAMES = (
+					NSLocalizedString,
+					CFCopyLocalizedString,
+					PECLocalizedString,
+				);
 				MACOSX_DEPLOYMENT_TARGET = 15.7;
 				MARKETING_VERSION = 1.0;
 				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
@@ -1406,6 +1435,11 @@
 					"$(PROJECT_DIR)",
 					"$(PROJECT_DIR)/ThirdParty",
 				);
+				LOCALIZED_STRING_MACRO_NAMES = (
+					NSLocalizedString,
+					CFCopyLocalizedString,
+					PECLocalizedString,
+				);
 				MACOSX_DEPLOYMENT_TARGET = 15.6;
 				OTHER_CFLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = com.toenshoff.playem;
@@ -1463,6 +1497,11 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)",
 					"$(PROJECT_DIR)/ThirdParty",
+				);
+				LOCALIZED_STRING_MACRO_NAMES = (
+					NSLocalizedString,
+					CFCopyLocalizedString,
+					PECLocalizedString,
 				);
 				MACOSX_DEPLOYMENT_TARGET = 15.6;
 				ONLY_ACTIVE_ARCH = NO;

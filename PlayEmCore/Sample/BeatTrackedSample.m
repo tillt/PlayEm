@@ -11,6 +11,7 @@
 
 #import "../Audio/AudioProcessing.h"
 #import "ActivityManager.h"
+#import "../PECLocalization.h"
 #import "CancelableBlockOperation.h"
 #import "ConstantBeatRefiner.h"
 #import "EnergyDetector.h"
@@ -197,7 +198,7 @@ void beatsContextReset(BeatsParserContext* context)
 {
     NSLog(@"beats tracking...");
 
-    [[ActivityManager shared] updateActivity:token progress:0.0 detail:@"initializing beat detection"];
+    [[ActivityManager shared] updateActivity:token progress:0.0 detail:PECLocalizedString(@"activity.beat_detection.initializing", @"Detail when initializing beat detection")];
 
     [self setupTracking];
 
@@ -220,7 +221,7 @@ void beatsContextReset(BeatsParserContext* context)
     unsigned long long sourceWindowFrameOffset = 0LL;
     while (sourceWindowFrameOffset < self->_sample.frames) {
         double progress = (double) sourceWindowFrameOffset / (double) self->_sample.frames;
-        [[ActivityManager shared] updateActivity:token progress:progress detail:@"detecting beats"];
+        [[ActivityManager shared] updateActivity:token progress:progress detail:PECLocalizedString(@"activity.beat_detection.detecting", @"Detail while detecting beats")];
 
         if (dispatch_block_testcancel(self.queueOperation) != 0) {
             NSLog(@"aborted beat detection");
@@ -297,7 +298,7 @@ void beatsContextReset(BeatsParserContext* context)
     NSLog(@"initial silence ends at %lld frames after start of sample", _initialSilenceEndsAtFrame);
     NSLog(@"trailing silence starts %lld frames before end of sample", _sample.frames - _trailingSilenceStartsAtFrame);
 
-    [[ActivityManager shared] updateActivity:token progress:1.0 detail:@"refining beats"];
+    [[ActivityManager shared] updateActivity:token progress:1.0 detail:PECLocalizedString(@"activity.beat_detection.refining", @"Detail while refining beats")];
 
     // Generate a constant grid pattern out of the detected beats.
     NSData* constantRegions = [self retrieveConstantRegions];
@@ -306,7 +307,7 @@ void beatsContextReset(BeatsParserContext* context)
     [self measureEnergyAtBeats];
 
     NSLog(@"...beats tracking done - total beats: %lld", [self beatCount]);
-    [[ActivityManager shared] updateActivity:token progress:1.0 detail:@"beats tracked"];
+    [[ActivityManager shared] updateActivity:token progress:1.0 detail:PECLocalizedString(@"activity.beat_detection.done", @"Detail when beat detection completes")];
 
     return YES;
 }
@@ -379,7 +380,7 @@ void beatsContextReset(BeatsParserContext* context)
 
     BeatTrackedSample* __weak weakSelf = self;
 
-    ActivityToken* beatsToken = [[ActivityManager shared] beginActivityWithTitle:@"Beat Detection"
+    ActivityToken* beatsToken = [[ActivityManager shared] beginActivityWithTitle:PECLocalizedString(@"activity.beat_detection.title", @"Title for beat detection activity")
                                                                           detail:@""
                                                                      cancellable:NO
                                                                    cancelHandler:nil];

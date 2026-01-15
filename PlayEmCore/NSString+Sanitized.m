@@ -359,7 +359,8 @@ static void cf_logStage(NSString* label, NSString* value)
     // normalize.
     if (hasBadMarkers(s)) {
         cf_logStage(@"markers.present", s);
-        NSCharacterSet* markerSet = [NSCharacterSet characterSetWithCharactersInString:@"ÃÂðÐÑ"];
+        // Intentionally left "Â" out of the list to allow Ame to get through this.
+        NSCharacterSet* markerSet = [NSCharacterSet characterSetWithCharactersInString:@"ÃðÐÑ"];
         NSMutableString* cleaned = [NSMutableString stringWithCapacity:s.length];
         [s enumerateSubstringsInRange:NSMakeRange(0, s.length)
                               options:NSStringEnumerationByComposedCharacterSequences

@@ -68,14 +68,14 @@ static NSString* const kValueColumnIdentifier = @"ValueColumn";
     _tableView.dataSource = self;
 
     NSTableColumn* statusCol = [[NSTableColumn alloc] initWithIdentifier:kStatusColumnIdentifier];
-    statusCol.title = @"Status";
+    statusCol.title = NSLocalizedString(@"graph.status.column.status", @"Graph status table column title");
     statusCol.minWidth = 0.0;
     statusCol.maxWidth = CGFLOAT_MAX;
     statusCol.resizingMask = NSTableColumnAutoresizingMask;
     [_tableView addTableColumn:statusCol];
 
     NSTableColumn* valueCol = [[NSTableColumn alloc] initWithIdentifier:kValueColumnIdentifier];
-    valueCol.title = @"Value";
+    valueCol.title = NSLocalizedString(@"graph.status.column.value", @"Graph status table column title");
     valueCol.minWidth = 0.0;
     valueCol.maxWidth = CGFLOAT_MAX;
     valueCol.resizingMask = NSTableColumnAutoresizingMask;

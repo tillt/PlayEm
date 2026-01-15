@@ -437,7 +437,7 @@ NSString* const kSongsColGenre = @"GenreCell";
         processCounter++;
         // Lets throttle our state updates -- be a good boy.
         if (processCounter % 10 == 0) {
-            [[ActivityManager shared] updateActivity:token progress:progress detail:@"identifying playable entries"];
+            [[ActivityManager shared] updateActivity:token progress:progress detail:NSLocalizedString(@"activity.library.identifying_entries", @"Detail while identifying playable entries")];
         }
 
         // We cannot support cloud based items, unfortunately.
@@ -453,7 +453,12 @@ NSString* const kSongsColGenre = @"GenreCell";
         MediaMetaData* m = [MediaMetaData mediaMetaDataWithITLibMediaItem:d error:nil];
         [cache addObject:m];
     }
-    [[ActivityManager shared] updateActivity:token progress:1.0 detail:[NSString stringWithFormat:@"accepted %ld of %ld entries", cache.count, total]];
+    NSString* acceptedFormat = NSLocalizedStringFromTable(@"activity.library.accepted_count",
+                                                         @"LocalizablePlural",
+                                                         @"Format for accepted entries count");
+    [[ActivityManager shared] updateActivity:token
+                                    progress:1.0
+                                      detail:[NSString localizedStringWithFormat:acceptedFormat, cache.count, total, total]];
 
     NSLog(@"%ld cloud based items ignored", skippedCloudItems);
     NSLog(@"%ld encrypted audiobooks ignored", skippedAAXFiles);
@@ -479,7 +484,10 @@ NSString* const kSongsColGenre = @"GenreCell";
 
 - (void)loadCachedLibrary
 {
-    ActivityToken* libraryToken = [[ActivityManager shared] beginActivityWithTitle:@"Loading Library" detail:@"" cancellable:NO cancelHandler:nil];
+    ActivityToken* libraryToken = [[ActivityManager shared] beginActivityWithTitle:NSLocalizedString(@"activity.library.loading.title", @"Title for library loading activity")
+                                                                            detail:@""
+                                                                       cancellable:NO
+                                                                     cancelHandler:nil];
 
     _filteredItems = nil;
     _cachedLibrary = nil;
@@ -513,7 +521,7 @@ NSString* const kSongsColGenre = @"GenreCell";
             return;
         }
 
-        [[ActivityManager shared] updateActivity:libraryToken progress:0.01 detail:@"reading from database"];
+        [[ActivityManager shared] updateActivity:libraryToken progress:0.01 detail:NSLocalizedString(@"activity.library.loading.reading_db", @"Detail while reading library from database")];
 
         NSMutableArray<MediaMetaData*>* cachedLibrary = nil;
         NSError* storeLoadError = nil;
@@ -526,7 +534,7 @@ NSString* const kSongsColGenre = @"GenreCell";
         } else {
             NSLog(@"LibraryStore load failed or empty: %@", storeLoadError);
 
-            [[ActivityManager shared] updateActivity:libraryToken progress:1.0 detail:@"no library found"];
+            [[ActivityManager shared] updateActivity:libraryToken progress:1.0 detail:NSLocalizedString(@"activity.library.loading.no_library", @"Detail when no library is found")];
             strongSelf->_reloadingLibrary = NO;
 
             dispatch_async(dispatch_get_main_queue(), ^{
@@ -572,7 +580,7 @@ NSString* const kSongsColGenre = @"GenreCell";
     }
 
     NSError* error = nil;
-    [[ActivityManager shared] updateActivity:libraryToken progress:0.00 detail:@"locating Music library"];
+    [[ActivityManager shared] updateActivity:libraryToken progress:0.00 detail:NSLocalizedString(@"activity.library.loading.locating_music", @"Detail while locating Music library")];
     _library = [ITLibrary libraryWithAPIVersion:@"1.0" options:ITLibInitOptionLazyLoadData error:&error];
     if (!_library) {
         NSLog(@"Failed accessing iTunes Library: %@", error);
@@ -597,7 +605,7 @@ NSString* const kSongsColGenre = @"GenreCell";
 
         // Import all the things now gathered in our DB.
         NSError* storeError = nil;
-        if (![strongSelf.libraryStore importMediaItems:cachedLibrary error:&storeError]) {
+        if (![strongSelf.libraryStore importMediaItems:cachedLibrary preferExisting:YES error:&storeError]) {
             NSLog(@"LibraryStore import failed: %@", storeError);
         }
 
@@ -651,8 +659,11 @@ NSString* const kSongsColGenre = @"GenreCell";
 
 - (IBAction)reconcileLibrary:(id)sender
 {
-    ActivityToken* activity = [[ActivityManager shared] beginActivityWithTitle:@"Reconciling library" detail:@"" cancellable:NO cancelHandler:nil];
-    [[ActivityManager shared] updateActivity:activity progress:0.0 detail:@"starting"];
+    ActivityToken* activity = [[ActivityManager shared] beginActivityWithTitle:NSLocalizedString(@"activity.library.reconcile.title", @"Title for library reconciliation activity")
+                                                                        detail:@""
+                                                                   cancellable:NO
+                                                                 cancelHandler:nil];
+    [[ActivityManager shared] updateActivity:activity progress:0.0 detail:NSLocalizedString(@"activity.library.reconcile.starting", @"Detail when library reconciliation starts")];
 
     BrowserController* __weak weakSelf = self;
     [self.libraryStore reconcileLibraryWithCompletion:^(NSArray<MediaMetaData*>* _Nullable refreshedMetas,
@@ -673,7 +684,7 @@ NSString* const kSongsColGenre = @"GenreCell";
         NSUInteger missingCount = missing.count;
         NSArray<NSSortDescriptor*>* descriptors = [strongSelf.songsTable sortDescriptors];
 
-        [[ActivityManager shared] updateActivity:activity progress:0.25 detail:@"merging results"];
+        [[ActivityManager shared] updateActivity:activity progress:0.25 detail:NSLocalizedString(@"activity.library.reconcile.merging", @"Detail while merging reconciliation results")];
 
         dispatch_async(strongSelf->_filterQueue, ^{
             BrowserController* strongSelf = weakSelf;
@@ -701,53 +712,65 @@ NSString* const kSongsColGenre = @"GenreCell";
 
                 NSMutableArray<NSString*>* lines = [NSMutableArray array];
                 if (refreshedCount > 0) {
-                    [lines addObject:[NSString stringWithFormat:@"Updated %lu item%@ (metadata refreshed from disk).",
-                                                (unsigned long) refreshedCount,
-                                                refreshedCount == 1 ? @"" : @"s"]];
+                    NSString* format = NSLocalizedStringFromTable(@"alert.reconcile.updated_count",
+                                                                 @"LocalizablePlural",
+                                                                 @"Reconcile alert updated count");
+                    [lines addObject:[NSString localizedStringWithFormat:format, (unsigned long) refreshedCount, (unsigned long) refreshedCount]];
                 } else {
-                    [lines addObject:@"No items needed updates (library already up to date)."];
+                    [lines addObject:NSLocalizedString(@"alert.reconcile.no_updates", @"Reconcile alert no updates text")];
                 }
 
                 if (changedCount > 0) {
-                    [lines addObject:[NSString stringWithFormat:@"Changed metadata detected in %lu item%@.",
-                                                (unsigned long) changedCount,
-                                                changedCount == 1 ? @"" : @"s"]];
+                    NSString* format = NSLocalizedStringFromTable(@"alert.reconcile.changed_count",
+                                                                 @"LocalizablePlural",
+                                                                 @"Reconcile alert changed count");
+                    [lines addObject:[NSString localizedStringWithFormat:format, (unsigned long) changedCount, (unsigned long) changedCount]];
 
                     NSUInteger toShowChanged = MIN(changedCount, 5);
                     NSArray<MediaMetaData*>* sampleChanged = [changed subarrayWithRange:NSMakeRange(0, toShowChanged)];
                     for (MediaMetaData* meta in sampleChanged) {
                         NSString* name = meta.title.length > 0 ? meta.title : meta.location.lastPathComponent;
-                        [lines addObject:[NSString stringWithFormat:@" • %@", name ?: @"<unknown>"]];
+                        NSString* itemFormat = NSLocalizedString(@"alert.reconcile.bullet_item_format", @"Reconcile alert bullet item format");
+                        [lines addObject:[NSString stringWithFormat:itemFormat, name ?: @"<unknown>"]];
                     }
                     if (changedCount > toShowChanged) {
-                        [lines addObject:@" • …"];
+                        [lines addObject:NSLocalizedString(@"alert.reconcile.bullet_more", @"Reconcile alert bullet more indicator")];
                     }
                 }
 
                 if (missingCount > 0) {
-                    [lines addObject:[NSString stringWithFormat:@"Missing files: %lu.", (unsigned long) missingCount]];
+                    NSString* format = NSLocalizedStringFromTable(@"alert.reconcile.missing_count",
+                                                                 @"LocalizablePlural",
+                                                                 @"Reconcile alert missing files count");
+                    [lines addObject:[NSString localizedStringWithFormat:format, (unsigned long) missingCount, (unsigned long) missingCount]];
 
                     NSUInteger toShow = MIN(missingCount, 5);
                     NSArray<NSURL*>* sampleMissing = [missing subarrayWithRange:NSMakeRange(0, toShow)];
                     for (NSURL* url in sampleMissing) {
-                        [lines addObject:[NSString stringWithFormat:@" • %@", url.lastPathComponent ?: url.path]];
+                        NSString* itemFormat = NSLocalizedString(@"alert.reconcile.bullet_item_format", @"Reconcile alert bullet item format");
+                        [lines addObject:[NSString stringWithFormat:itemFormat, url.lastPathComponent ?: url.path]];
                     }
                     if (missingCount > toShow) {
-                        [lines addObject:@" • …"];
-                    }
-                } else {
-                    [lines addObject:@"Missing files: 0."];
+                        [lines addObject:NSLocalizedString(@"alert.reconcile.bullet_more", @"Reconcile alert bullet more indicator")];
+                }
+                }
+                if (missingCount == 0) {
+                    NSString* format = NSLocalizedStringFromTable(@"alert.reconcile.missing_count",
+                                                                 @"LocalizablePlural",
+                                                                 @"Reconcile alert missing files count");
+                    [lines addObject:[NSString localizedStringWithFormat:format, (unsigned long) missingCount, (unsigned long) missingCount]];
                 }
 
                 if (error) {
-                    [lines addObject:[NSString stringWithFormat:@"Error: %@.", error.localizedDescription]];
+                    NSString* format = NSLocalizedString(@"alert.reconcile.error_format", @"Reconcile alert error format");
+                    [lines addObject:[NSString stringWithFormat:format, error.localizedDescription]];
                 }
 
                 NSAlert* alert = [NSAlert new];
                 alert.alertStyle = NSAlertStyleInformational;
-                alert.messageText = @"Library Reconciliation";
+                alert.messageText = NSLocalizedString(@"alert.reconcile.title", @"Reconcile alert title");
                 alert.informativeText = [lines componentsJoinedByString:@"\n"];
-                [alert addButtonWithTitle:@"OK"];
+                [alert addButtonWithTitle:NSLocalizedString(@"alert.ok", @"Alert OK button title")];
 
                 NSWindow* targetWindow = strongSelf.songsTable.window;
                 if (targetWindow) {
@@ -961,7 +984,45 @@ NSString* const kSongsColGenre = @"GenreCell";
           genre, artist, album, tempo, key, rating, tag, needle);
     NSMutableArray* filtered = [NSMutableArray array];
 
+    // We need to match a bit more elaborately here. The challenge is that ie on a US-
+    // keyboard entering a U-umlaut will be hard. If now the song of desire happens to
+    // be using that letter, how shall the user ever find it? On the other hand, maybe
+    // that user actually uses a German keyboard layout and has no issue entering U-umlaut.
+    // For those users, the assumption is that a perfect match is desired and no diacritic
+    // variants should match, but the one entered.
+    //
+    // The solution is dynamically chosen matching: When entering without diacritics the
+    // diacritics-insensitive matcher is used (U matches U-umlaut). When searching for a
+    // needly with diacritics the plain matcher is used (U-umlaut only matches U-umlaut).
+    //
+    BOOL (^matching)(NSString*, NSString*) = NULL;
+
+    // Does the folded version equal the unfolded one? -> that baby has no diacritics.
+    NSString* folded = [needle stringByFoldingWithOptions:NSDiacriticInsensitiveSearch
+                                                   locale:[NSLocale currentLocale]];
+    if (![needle isEqualToString:folded]) {
+        // Our needle has diacritics, we shall match exactly.
+        matching = ^BOOL(NSString* haystack, NSString* needle) {
+            return [haystack localizedCaseInsensitiveContainsString:needle];
+        };
+    } else {
+        // Our needle has no diacritics, we shall match insensitive to those.
+        matching = ^BOOL(NSString* haystack, NSString* foldedNeedle) {
+            NSString* foldedHay = [haystack stringByFoldingWithOptions:(NSDiacriticInsensitiveSearch |
+                                                                        NSCaseInsensitiveSearch |
+                                                                        NSWidthInsensitiveSearch)
+                                                                locale:[NSLocale currentLocale]];
+            return [foldedHay containsString:foldedNeedle];
+        };
+        needle = [needle stringByFoldingWithOptions:(NSDiacriticInsensitiveSearch |
+                                                     NSCaseInsensitiveSearch |
+                                                     NSWidthInsensitiveSearch)
+                                             locale:[NSLocale currentLocale]];
+    }
+
     for (MediaMetaData* d in items) {
+        // FIXME: WTF is this, midway in a filter function, we are starting to parse and
+        // FIXME: separate? This appears to be a bad spot for doing so.
         NSArray* tags = nil;
         if (d.tags && d.tags.length) {
             if ([[d.tags substringToIndex:1] isEqualToString:@"#"]) {
@@ -976,10 +1037,10 @@ NSString* const kSongsColGenre = @"GenreCell";
             (tempo == nil || (d.tempo && [[d.tempo stringValue] isEqualTo:tempo]))) {
             // When the user entered a search needle, we additionally filter for that.
             if (needle.length) {
-                if ((d.genre && d.genre.length && [d.genre localizedCaseInsensitiveContainsString:needle]) ||
-                    (d.title && d.title.length && [d.title localizedCaseInsensitiveContainsString:needle]) ||
-                    (d.artist && d.artist.length && [d.artist localizedCaseInsensitiveContainsString:needle]) ||
-                    (d.album && d.album.length && [d.album localizedCaseInsensitiveContainsString:needle]) ||
+                if ((d.genre && d.genre.length && matching(d.genre, needle)) ||
+                    (d.title && d.title.length && matching(d.title, needle)) ||
+                    (d.artist && d.artist.length && matching(d.artist, needle)) ||
+                    (d.album && d.album.length && matching(d.album, needle)) ||
                     (d.key && d.key.length && [d.key localizedCaseInsensitiveContainsString:needle]) ||
                     (d.rating && d.stars.length && [d.stars localizedCaseInsensitiveContainsString:needle]) || ([tags containsObject:needle]) ||
                     ([[d.tempo stringValue] localizedCaseInsensitiveContainsString:needle])) {
@@ -993,6 +1054,8 @@ NSString* const kSongsColGenre = @"GenreCell";
 
     NSLog(@"filtered narrowed from %ld to %ld entries", items.count, filtered.count);
 
+    // FIXME: Definitely not a fan of this implementation on notifying others about
+    // FIXME: the a possibly changed displayed song count.
     NSUInteger count = filtered.count;
     dispatch_async(dispatch_get_main_queue(), ^{
         [self.delegate updateSongsCount:self->_cachedLibrary.count filtered:count];
@@ -1627,19 +1690,10 @@ NSString* const kSongsColGenre = @"GenreCell";
 
     MediaMetaData* item = _filteredItems[row];
     NSURL* url = item.location;
-    switch ([item.locationType intValue]) {
-    case MediaMetaDataLocationTypeFile:
+    if (url.isFileURL) {
         NSLog(@"that item is a file");
-        break;
-    case MediaMetaDataLocationTypeURL:
+    } else {
         NSLog(@"that item is a URL");
-        break;
-    case MediaMetaDataLocationTypeRemote:
-        NSLog(@"that item is remote");
-        break;
-    case MediaMetaDataLocationTypeUnknown:
-    default:
-        NSLog(@"that item (%p) is of unknown location type %@", item, item.locationType);
     }
     if (url != nil && _delegate != nil) {
         [self.delegate browseSelectedUrl:url meta:item];

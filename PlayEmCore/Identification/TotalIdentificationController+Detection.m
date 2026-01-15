@@ -12,6 +12,7 @@
 #import <math.h>
 
 #import "../ActivityManager.h"
+#import "../PECLocalization.h"
 #import "../ImageController.h"
 #import "../Metadata/TimedMediaMetaData.h"
 #import "../Sample/LazySample.h"
@@ -356,7 +357,7 @@ static uint64_t HashAudioSlice(float* const* channels, uint32_t channelCount, AV
     [_pendingMatchOffsets removeAllObjects];
     [_requestStartTimeByOffset removeAllObjects];
 
-    _token = [[ActivityManager shared] beginActivityWithTitle:@"Tracklist Detection"
+    _token = [[ActivityManager shared] beginActivityWithTitle:PECLocalizedString(@"activity.tracklist_detection.title", @"Title for tracklist detection activity")
                                                        detail:nil
                                                   cancellable:YES
                                                 cancelHandler:^{
@@ -365,7 +366,7 @@ static uint64_t HashAudioSlice(float* const* channels, uint32_t channelCount, AV
                                                         if (strongSelf == nil) {
                                                             return;
                                                         }
-                                                        [[ActivityManager shared] updateActivity:strongSelf->_token detail:@"aborted"];
+                                                        [[ActivityManager shared] updateActivity:strongSelf->_token detail:PECLocalizedString(@"activity.tracklist_detection.aborted", @"Detail when tracklist detection is aborted")];
                                                         [[ActivityManager shared] completeActivity:strongSelf->_token];
                                                         strongSelf->_completionHandler(NO, nil, nil);
                                                     }];
@@ -488,11 +489,11 @@ static uint64_t HashAudioSlice(float* const* channels, uint32_t channelCount, AV
         if (_debugScoring) {
             [self logTracklist:refined tag:@"Shazam" includeDuration:NO];
         }
-        [[ActivityManager shared] updateActivity:_token detail:@"baseline done"];
+        [[ActivityManager shared] updateActivity:_token detail:PECLocalizedString(@"activity.tracklist_detection.baseline_done", @"Detail when baseline detection is done")];
     } else {
-        [[ActivityManager shared] updateActivity:_token detail:@"refining tracklist"];
+        [[ActivityManager shared] updateActivity:_token detail:PECLocalizedString(@"activity.tracklist_detection.refining", @"Detail while refining tracklist")];
         refined = [self refineTracklist];
-        [[ActivityManager shared] updateActivity:_token detail:@"refinement done"];
+        [[ActivityManager shared] updateActivity:_token detail:PECLocalizedString(@"activity.tracklist_detection.refinement_done", @"Detail when tracklist refinement is done")];
     }
     [[ActivityManager shared] completeActivity:_token];
 
@@ -610,7 +611,7 @@ static uint64_t HashAudioSlice(float* const* channels, uint32_t channelCount, AV
             //                      track.meta.artist ?: @"",
             //                      track.meta.title ?: @"");
             //            }
-            [[ActivityManager shared] updateActivity:strongSelf->_token detail:[NSString stringWithFormat:@"Maybe: %@", track.meta.title]];
+            [[ActivityManager shared] updateActivity:strongSelf->_token detail:[NSString stringWithFormat:PECLocalizedString(@"activity.tracklist_detection.maybe_format", @"Format for tentative track match detail"), track.meta.title]];
 
             NSUserDefaults* defaults = [NSUserDefaults standardUserDefaults];
             BOOL excludeUnknown = [defaults boolForKey:@"ExcludeUnknownInputs"];
@@ -627,7 +628,7 @@ static uint64_t HashAudioSlice(float* const* channels, uint32_t channelCount, AV
         for (SHMatchedMediaItem* item in items) {
             TimedMediaMetaData* track = [[TimedMediaMetaData alloc] initWithMatchedMediaItem:item frame:offset];
             [tracks addObject:track];
-            [[ActivityManager shared] updateActivity:strongSelf->_token detail:[NSString stringWithFormat:@"Maybe: %@", track.meta.title]];
+            [[ActivityManager shared] updateActivity:strongSelf->_token detail:[NSString stringWithFormat:PECLocalizedString(@"activity.tracklist_detection.maybe_format", @"Format for tentative track match detail"), track.meta.title]];
         }
         //        if (strongSelf->_debugScoring) {
         //            for (TimedMediaMetaData* track in tracks) {
@@ -721,7 +722,7 @@ static uint64_t HashAudioSlice(float* const* channels, uint32_t channelCount, AV
             //                      track.meta.title ?: @"");
             //            }
 
-            [[ActivityManager shared] updateActivity:strongSelf->_token detail:[NSString stringWithFormat:@"Maybe: %@", track.meta.title]];
+            [[ActivityManager shared] updateActivity:strongSelf->_token detail:[NSString stringWithFormat:PECLocalizedString(@"activity.tracklist_detection.maybe_format", @"Format for tentative track match detail"), track.meta.title]];
 
             NSUserDefaults* defaults = [NSUserDefaults standardUserDefaults];
             BOOL excludeUnknown = [defaults boolForKey:@"ExcludeUnknownInputs"];

@@ -28,6 +28,7 @@
 #import "NSString+Sanitized.h"
 #import "NSData+Hashing.h"
 #import "NSURL+WithoutParameters.h"
+#import "PECLocalization.h"
 #import "TemporaryFiles.h"
 #import "TrackList.h"
 
@@ -73,7 +74,7 @@ NSString* const kMediaMetaDataMapTypeNumber = @"number";
 + (MediaMetaDataFileFormatType)fileTypeWithURL:(NSURL*)url error:(NSError**)error
 {
     if (url == nil) {
-        NSString* description = @"Cannot identify item as it lacks a location";
+        NSString* description = PECLocalizedString(@"error.missing_location_identify", @"Error when media item lacks a location for identify");
         if (error) {
             NSDictionary* userInfo = @{
                 NSLocalizedDescriptionKey : description,
@@ -100,7 +101,8 @@ NSString* const kMediaMetaDataMapTypeNumber = @"number";
         return MediaMetaDataFileFormatTypeWAV;
     }
 
-    NSString* description = [NSString stringWithFormat:@"Unknown file type (%@)", fileExtension];
+    NSString* description = [NSString stringWithFormat:PECLocalizedString(@"error.unknown_file_type_format",
+                                                                          @"Error format for unknown file type"), fileExtension];
     if (error) {
         NSDictionary* userInfo = @{
             NSLocalizedDescriptionKey : description,
@@ -189,7 +191,7 @@ NSString* const kMediaMetaDataMapTypeNumber = @"number";
 {
     MediaMetaData* meta = [MediaMetaData new];
 
-    meta.title = @"unknown";
+    meta.title = PECLocalizedString(@"common.unknown", @"Placeholder when value is unknown");
 
     return meta;
 }
@@ -583,7 +585,7 @@ NSString* const kMediaMetaDataMapTypeNumber = @"number";
 
     if (_channels == nil) {
         // FIXME: This looks rather faky - why is that?
-        _channels = @"stereo";
+        _channels = PECLocalizedString(@"media.channels.stereo", @"Audio channel label for stereo");
     }
 
     return _channels;
@@ -1342,7 +1344,7 @@ NSString* const kMediaMetaDataMapTypeNumber = @"number";
 - (BOOL)writeToFileWithError:(NSError**)error
 {
     if (self.location == nil) {
-        NSString* description = @"Cannot sync item back as it lacks a location";
+        NSString* description = PECLocalizedString(@"error.missing_location_sync", @"Error when media item lacks a location for sync");
         if (error) {
             NSDictionary* userInfo = @{
                 NSLocalizedDescriptionKey : description,

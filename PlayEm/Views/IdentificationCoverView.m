@@ -178,32 +178,10 @@ extern NSString* const kBeatTrackedSampleTempoChangeNotification;
     //valueWithCATransform3D:CATransform3DIdentity] forKey:@"transform"];
     [layer addAnimation:pump forKey:@"beatPumping"];
 
-    // Blur: soften in parallel, ending at 0 within one beat.
-    //     CAKeyframeAnimation* blur = [CAKeyframeAnimation
-    //     animationWithKeyPath:@"backgroundFilters.CIZoomBlur.inputAmount"];
-    //     blur.values = @[
-    //         @(peakZoomBlurAmount * 0.1),
-    //         @(peakZoomBlurAmount * 0.01),
-    //         @(0.0)
-    //     ];
-    //     blur.keyTimes = @[@0.0, @0.6, @1.0];
-    //     blur.timingFunctions = @[
-    //         [CAMediaTimingFunction
-    //         functionWithName:kCAMediaTimingFunctionEaseInEaseOut],
-    //         [CAMediaTimingFunction
-    //         functionWithName:kCAMediaTimingFunctionEaseIn]
-    //     ];
-    //     blur.duration = beatDuration;
-    //     blur.autoreverses = NO;
-    //     [_finalFxLayer addAnimation:blur forKey:@"beatWarping"];
-
     [self animateChannelSeparationWithRed:_red green:_green blue:_blue beatEnergy:slopedEnergy currentTempo:currentTempo];
 
-    // Small parallax kick of the core artwork for additional depth on each beat.
     [self applyParallaxKickToLayer:_red energy:slopedEnergy tempo:currentTempo];
-    // Small parallax kick of the core artwork for additional depth on each beat.
     [self applyParallaxKickToLayer:_green energy:slopedEnergy tempo:currentTempo];
-    // Small parallax kick of the core artwork for additional depth on each beat.
     [self applyParallaxKickToLayer:_blue energy:slopedEnergy tempo:currentTempo];
 
 #ifdef WITH_HELO
@@ -271,7 +249,7 @@ extern NSString* const kBeatTrackedSampleTempoChangeNotification;
 
     CAKeyframeAnimation* a = [CAKeyframeAnimation animationWithKeyPath:@"transform"];
     a.values = @[ [NSValue valueWithCATransform3D:identity], [NSValue valueWithCATransform3D:up], [NSValue valueWithCATransform3D:identity] ];
-    a.keyTimes = @[ @0.0, @0.35, @1.0 ];
+    a.keyTimes = @[ @0.0, @0.30, @1.0 ];
     a.timingFunctions = @[
         [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseOut],
         [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut]
@@ -291,8 +269,8 @@ extern NSString* const kBeatTrackedSampleTempoChangeNotification;
 
     const double beatDuration = 60.0 / tempo;
     // Favor stronger beats and keep the excursion small.
-    const CGFloat radius = 8.0f * (CGFloat) (energy * energy);
-    const CGFloat angle = (CGFloat) arc4random_uniform(1000) / 1000.0f * (CGFloat) (2.0 * M_PI);
+    const CGFloat radius = 12.0f * (CGFloat) (energy * energy);
+    const CGFloat angle = (CGFloat) arc4random_uniform(4000) / 1000.0f * (CGFloat) (2.0 * M_PI);
     const CGFloat dx = cosf(angle) * radius;
     const CGFloat dy = sinf(angle) * radius;
     const CGFloat twist = ((CGFloat) M_PI / 180.0f) * (2.5f * (CGFloat) energy);
@@ -304,7 +282,7 @@ extern NSString* const kBeatTrackedSampleTempoChangeNotification;
 
     CAKeyframeAnimation* a = [CAKeyframeAnimation animationWithKeyPath:@"transform"];
     a.values = @[ [NSValue valueWithCATransform3D:identity], [NSValue valueWithCATransform3D:kick], [NSValue valueWithCATransform3D:identity] ];
-    a.keyTimes = @[ @0.0, @0.45, @1.0 ];
+    a.keyTimes = @[ @0.0, @0.50, @1.0 ];
     a.timingFunctions = @[
         [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseOut],
         [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut]

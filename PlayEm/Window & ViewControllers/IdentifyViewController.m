@@ -277,31 +277,41 @@ static NSString* gShzDumpPath = nil;
 - (NSMenu*)itemMenuForTag:(int)tag
 {
     NSMenu* menu = [NSMenu new];
-    NSMenuItem* item = [[NSMenuItem alloc] initWithTitle:@"Add to Track List" action:@selector(addToTrackList:) keyEquivalent:@""];
+    NSMenuItem* item = [[NSMenuItem alloc] initWithTitle:NSLocalizedString(@"menu.identify.add_to_track_list", @"Identify menu item: add to track list")
+                                                  action:@selector(addToTrackList:)
+                                           keyEquivalent:@""];
     [item setKeyEquivalentModifierMask:NSEventModifierFlagCommand];
     item.tag = tag;
     [menu addItem:item];
 
     [menu addItem:[NSMenuItem separatorItem]];
 
-    item = [[NSMenuItem alloc] initWithTitle:@"Copy to Clipboard" action:@selector(copyQueryToPasteboard:) keyEquivalent:@""];
+    item = [[NSMenuItem alloc] initWithTitle:NSLocalizedString(@"menu.identify.copy_to_clipboard", @"Identify menu item: copy to clipboard")
+                                      action:@selector(copyQueryToPasteboard:)
+                               keyEquivalent:@""];
     [item setKeyEquivalentModifierMask:NSEventModifierFlagCommand];
     item.tag = tag;
     [menu addItem:item];
 
     [menu addItem:[NSMenuItem separatorItem]];
 
-    item = [[NSMenuItem alloc] initWithTitle:@"Open in Soundcloud" action:@selector(openSoundcloud:) keyEquivalent:@""];
+    item = [[NSMenuItem alloc] initWithTitle:NSLocalizedString(@"menu.identify.open_in_soundcloud", @"Identify menu item: open in Soundcloud")
+                                      action:@selector(openSoundcloud:)
+                               keyEquivalent:@""];
     [item setKeyEquivalentModifierMask:NSEventModifierFlagCommand];
     item.tag = tag;
     [menu addItem:item];
 
-    item = [[NSMenuItem alloc] initWithTitle:@"Open in Beatport" action:@selector(openBeatport:) keyEquivalent:@""];
+    item = [[NSMenuItem alloc] initWithTitle:NSLocalizedString(@"menu.identify.open_in_beatport", @"Identify menu item: open in Beatport")
+                                      action:@selector(openBeatport:)
+                               keyEquivalent:@""];
     [item setKeyEquivalentModifierMask:NSEventModifierFlagCommand];
     item.tag = tag;
     [menu addItem:item];
 
-    item = [menu addItemWithTitle:@"Open in Apple Music" action:@selector(musicURLClicked:) keyEquivalent:@""];
+    item = [menu addItemWithTitle:NSLocalizedString(@"menu.common.open_in_apple_music", @"Menu item: open in Apple Music")
+                           action:@selector(musicURLClicked:)
+                    keyEquivalent:@""];
     item.tag = tag;
     item.target = self;
 

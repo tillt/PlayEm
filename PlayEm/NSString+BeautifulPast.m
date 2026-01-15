@@ -36,21 +36,21 @@
                 if ([thisWeek compare:past] == NSOrderedAscending) {
                     if ([yesterday compare:past] == NSOrderedAscending) {
                         if ([hourAgo compare:past] == NSOrderedAscending) {
-                            beauty = @"brandnew";
+                            beauty = NSLocalizedString(@"date.beautiful.brandnew", @"Recent date description");
                         } else {
-                            beauty = @"yesterday";
+                            beauty = NSLocalizedString(@"date.beautiful.yesterday", @"Date description for yesterday");
                         }
                     } else {
-                        beauty = @"this week";
+                        beauty = NSLocalizedString(@"date.beautiful.this_week", @"Date description for this week");
                     }
                 } else {
-                    beauty = @"last week";
+                    beauty = NSLocalizedString(@"date.beautiful.last_week", @"Date description for last week");
                 }
             } else {
-                beauty = @"this month";
+                beauty = NSLocalizedString(@"date.beautiful.this_month", @"Date description for this month");
             }
         } else {
-            beauty = @"last month";
+            beauty = NSLocalizedString(@"date.beautiful.last_month", @"Date description for last month");
         }
     } else {
         beauty = [NSDateFormatter localizedStringFromDate:past dateStyle:NSDateFormatterShortStyle timeStyle:NSDateFormatterNoStyle];
@@ -73,28 +73,28 @@
     NSString* const formatRest = @"%.1f %@";
 
     float multiplier = 1.0;
-    NSString* unit = @"Byte";
+    NSString* unit = NSLocalizedString(@"unit.byte", @"Size unit: byte");
     NSString* format = formatByte;
 
     if (size.longLongValue >= petabyte) {
         multiplier = size.longLongValue / petabyte;
-        unit = @"PB";
+        unit = NSLocalizedString(@"unit.pb", @"Size unit: petabyte");
         format = formatRest;
     } else if (size.longLongValue >= terrabyte) {
         multiplier = size.longLongValue / terrabyte;
-        unit = @"TB";
+        unit = NSLocalizedString(@"unit.tb", @"Size unit: terabyte");
         format = formatRest;
     } else if (size.longLongValue >= gigabyte) {
         multiplier = size.longLongValue / gigabyte;
-        unit = @"GB";
+        unit = NSLocalizedString(@"unit.gb", @"Size unit: gigabyte");
         format = formatRest;
     } else if (size.longLongValue >= megabyte) {
         multiplier = size.longLongValue / megabyte;
-        unit = @"MB";
+        unit = NSLocalizedString(@"unit.mb", @"Size unit: megabyte");
         format = formatRest;
     } else if (size.longLongValue >= kilobyte) {
         multiplier = size.longLongValue / kilobyte;
-        unit = @"KB";
+        unit = NSLocalizedString(@"unit.kb", @"Size unit: kilobyte");
         format = formatRest;
     }
     beauty = [NSString stringWithFormat:format, multiplier, unit];

@@ -25,6 +25,7 @@ NS_ASSUME_NONNULL_BEGIN
 /// Import a batch of media items (e.g., from ITLibrary) into the store.
 /// Existing rows are replaced based on URL.
 - (BOOL)importMediaItems:(NSArray<MediaMetaData*>*)items error:(NSError**)error;
+- (BOOL)importMediaItems:(NSArray<MediaMetaData*>*)items preferExisting:(BOOL)preferExisting error:(NSError**)error;
 
 /// Asynchronous file import. Completion is invoked on the main queue.
 - (void)importFileURLs:(NSArray<NSURL*>*)urls completion:(void (^)(NSArray<MediaMetaData*>* _Nullable metas, NSError* _Nullable error))completion;

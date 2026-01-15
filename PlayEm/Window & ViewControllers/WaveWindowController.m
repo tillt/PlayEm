@@ -378,10 +378,12 @@ static const NSString* kIdentifyToolbarIdentifier = @"Live Identify";
 
     if (itemIdentifier == kPlaylistToolbarIdentifier) {
         item = [[NSToolbarItem alloc] initWithItemIdentifier:itemIdentifier];
-        image = [NSImage imageWithSystemSymbolName:@"list.bullet" accessibilityDescription:@"playlist"];
+        image = [NSImage imageWithSystemSymbolName:@"list.bullet"
+                          accessibilityDescription:NSLocalizedString(@"accessibility.playlist", @"Accessibility label for playlist button")];
     } else if (itemIdentifier == kIdentifyToolbarIdentifier) {
         item = [[NSToolbarItem alloc] initWithItemIdentifier:itemIdentifier];
-        image = [NSImage imageWithSystemSymbolName:@"waveform.and.magnifyingglass" accessibilityDescription:@"live identify"];
+        image = [NSImage imageWithSystemSymbolName:@"waveform.and.magnifyingglass"
+                          accessibilityDescription:NSLocalizedString(@"accessibility.live_identify", @"Accessibility label for live identify button")];
     } else {
         assert(NO);
     }
@@ -564,27 +566,37 @@ static const NSString* kIdentifyToolbarIdentifier = @"Live Identify";
 {
     NSMenu* menu = [NSMenu new];
 
-    NSMenuItem* item = [[NSMenuItem alloc] initWithTitle:@"Play Next" action:@selector(playNextInPlaylist:) keyEquivalent:@"n"];
+    NSMenuItem* item = [[NSMenuItem alloc] initWithTitle:NSLocalizedString(@"menu.song.play_next", @"Song context menu item: play next")
+                                                  action:@selector(playNextInPlaylist:)
+                                           keyEquivalent:@"n"];
     [item setKeyEquivalentModifierMask:NSEventModifierFlagCommand];
     [menu addItem:item];
 
-    item = [[NSMenuItem alloc] initWithTitle:@"Play Later" action:@selector(playLaterInPlaylist:) keyEquivalent:@"l"];
+    item = [[NSMenuItem alloc] initWithTitle:NSLocalizedString(@"menu.song.play_later", @"Song context menu item: play later")
+                                      action:@selector(playLaterInPlaylist:)
+                               keyEquivalent:@"l"];
     [item setKeyEquivalentModifierMask:NSEventModifierFlagCommand];
     [menu addItem:item];
 
     [menu addItem:[NSMenuItem separatorItem]];
 
-    item = [menu addItemWithTitle:@"Remove from Library" action:@selector(removeFromLibrary:) keyEquivalent:@""];
+    item = [menu addItemWithTitle:NSLocalizedString(@"menu.song.remove_from_library", @"Song context menu item: remove from library")
+                           action:@selector(removeFromLibrary:)
+                    keyEquivalent:@""];
     item.target = _browser;
 
     [menu addItem:[NSMenuItem separatorItem]];
 
-    item = [menu addItemWithTitle:@"Show Info" action:@selector(showInfoForSelectedSongs:) keyEquivalent:@""];
+    item = [menu addItemWithTitle:NSLocalizedString(@"menu.common.show_info", @"Menu item: show info")
+                           action:@selector(showInfoForSelectedSongs:)
+                    keyEquivalent:@""];
     item.target = _browser;
 
     [menu addItem:[NSMenuItem separatorItem]];
 
-    item = [menu addItemWithTitle:@"Show in Finder" action:@selector(showInFinder:) keyEquivalent:@""];
+    item = [menu addItemWithTitle:NSLocalizedString(@"menu.song.show_in_finder", @"Song context menu item: show in Finder")
+                           action:@selector(showInFinder:)
+                    keyEquivalent:@""];
     item.target = _browser;
 
     // TODO: allow disabling depending on the number of songs selected. Note to
@@ -636,7 +648,8 @@ static const NSString* kIdentifyToolbarIdentifier = @"Live Identify";
             NSLog(@"we can spare the screen we are already on (%@)", screen.localizedName);
             continue;
         }
-        item = [[NSMenuItem alloc] initWithTitle:[NSString stringWithFormat:@"􀢹 Move to %@", screen.localizedName]
+        NSString* moveFormat = NSLocalizedString(@"menu.window.move_to_screen_format", @"Format for menu item that moves window to another screen");
+        item = [[NSMenuItem alloc] initWithTitle:[NSString localizedStringWithFormat:moveFormat, screen.localizedName]
                                           action:@selector(moveToOtherScreen:)
                                    keyEquivalent:@"m"];
         item.tag = i;
@@ -787,7 +800,10 @@ static const NSString* kIdentifyToolbarIdentifier = @"Live Identify";
     [[NSVisualEffectView alloc] initWithFrame:NSMakeRect(_belowVisuals.bounds.size.width, _belowVisuals.bounds.origin.y, playlistFxViewWidth, height)];
     _effectBelowPlaylist.autoresizingMask = NSViewHeightSizable | NSViewMinXMargin;
     
-    NSSegmentedControl* segment = [NSSegmentedControl segmentedControlWithLabels:@[ @"Playlist", @"Tracklist" ]
+    NSSegmentedControl* segment = [NSSegmentedControl segmentedControlWithLabels:@[
+        NSLocalizedString(@"tab.playlist", @"Playlist tab title"),
+        NSLocalizedString(@"tab.tracklist", @"Tracklist tab title"),
+    ]
                                                                     trackingMode:NSSegmentSwitchTrackingSelectOne
                                                                           target:self
                                                                           action:@selector(listsSwitched:)];
@@ -811,7 +827,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Live Identify";
     _playlistTabViewItem = [NSTabViewItem tabViewItemWithViewController:_playlist];
     _playlistTabViewItem.view.frame = _listsTabView.bounds;
     _playlistTabViewItem.initialFirstResponder = _playlist.view;
-    [_playlistTabViewItem setLabel:@"playlist"];
+    [_playlistTabViewItem setLabel:NSLocalizedString(@"tab.playlist", @"Playlist tab title")];
     [_listsTabView addTabViewItem:_playlistTabViewItem];
     
     // Tracklist
@@ -820,7 +836,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Live Identify";
     _tracklistTabViewItem = [NSTabViewItem tabViewItemWithViewController:_tracklist];
     _tracklistTabViewItem.view.frame = _listsTabView.bounds;
     _tracklistTabViewItem.initialFirstResponder = _tracklist.view;
-    [_tracklistTabViewItem setLabel:@"tracklist"];
+    [_tracklistTabViewItem setLabel:NSLocalizedString(@"tab.tracklist", @"Tracklist tab title")];
     [_listsTabView addTabViewItem:_tracklistTabViewItem];
     
     [_effectBelowPlaylist addSubview:_listsTabView];
@@ -893,7 +909,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Live Identify";
     _genreTable.tag = VIEWTAG_GENRE;
     
     NSTableColumn* col = [[NSTableColumn alloc] init];
-    col.title = @"Genre";
+    col.title = NSLocalizedString(@"table.songs.genre", @"Genre table column title");
     col.identifier = @"Genre";
     col.width = selectorTableViewWidth - selectorColumnInset;
     col.minWidth = selectorTableViewMinWidth;
@@ -924,7 +940,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Live Identify";
     _artistsTable.tag = VIEWTAG_ARTISTS;
     
     col = [[NSTableColumn alloc] init];
-    col.title = @"Artist";
+    col.title = NSLocalizedString(@"table.songs.artist", @"Artist table column title");
     col.width = selectorTableViewWidth - selectorColumnInset;
     col.minWidth = selectorTableViewMinWidth;
     [_artistsTable addTableColumn:col];
@@ -946,7 +962,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Live Identify";
     _albumsTable.tag = VIEWTAG_ALBUMS;
     
     col = [[NSTableColumn alloc] init];
-    col.title = @"Album";
+    col.title = NSLocalizedString(@"table.songs.album", @"Album table column title");
     col.width = selectorTableViewWidth - selectorColumnInset;
     col.minWidth = selectorTableViewMinWidth;
     [_albumsTable addTableColumn:col];
@@ -967,7 +983,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Live Identify";
     _temposTable = [[NSTableView alloc] initWithFrame:sv.bounds];
     _temposTable.tag = VIEWTAG_TEMPO;
     col = [[NSTableColumn alloc] init];
-    col.title = @"BPM";
+    col.title = NSLocalizedString(@"table.songs.bpm", @"Tempo table column title");
     col.width = selectorTableViewHalfWidth - selectorColumnInset;
     col.minWidth = selectorTableViewMinWidth;
     [_temposTable addTableColumn:col];
@@ -988,7 +1004,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Live Identify";
     _keysTable = [[NSTableView alloc] initWithFrame:NSZeroRect];
     _keysTable.tag = VIEWTAG_KEY;
     col = [[NSTableColumn alloc] init];
-    col.title = @"Key";
+    col.title = NSLocalizedString(@"table.songs.key", @"Key table column title");
     col.width = selectorTableViewHalfWidth - selectorColumnInset;
     col.minWidth = selectorTableViewMinWidth;
     [_keysTable addTableColumn:col];
@@ -1009,7 +1025,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Live Identify";
     _ratingsTable = [[NSTableView alloc] initWithFrame:NSZeroRect];
     _ratingsTable.tag = VIEWTAG_RATING;
     col = [[NSTableColumn alloc] init];
-    col.title = @"Rating";
+    col.title = NSLocalizedString(@"table.songs.rating", @"Rating table column title");
     col.width = selectorTableViewHalfWidth - selectorColumnInset;
     col.minWidth = selectorTableViewMinWidth;
     [_ratingsTable addTableColumn:col];
@@ -1030,7 +1046,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Live Identify";
     _tagsTable = [[NSTableView alloc] initWithFrame:NSZeroRect];
     _tagsTable.tag = VIEWTAG_TAGS;
     col = [[NSTableColumn alloc] init];
-    col.title = @"Tags";
+    col.title = NSLocalizedString(@"table.tags.title", @"Table column title");
     col.width = selectorTableViewWidth - selectorColumnInset;
     col.minWidth = selectorTableViewMinWidth;
     [_tagsTable addTableColumn:col];
@@ -1059,8 +1075,9 @@ static const NSString* kIdentifyToolbarIdentifier = @"Live Identify";
     _searchField.sendsSearchStringImmediately = YES;
     _searchField.textColor = [[Defaults sharedDefaults] lightFakeBeamColor];
     _searchField.font = [[Defaults sharedDefaults] normalFont];
-    _searchField.placeholderString = @"Filter";
-    NSImage* image = [NSImage imageWithSystemSymbolName:@"line.3.horizontal.decrease" accessibilityDescription:@"filter"];
+    _searchField.placeholderString = NSLocalizedString(@"search.placeholder.filter", @"Search field placeholder");
+    NSImage* image = [NSImage imageWithSystemSymbolName:@"line.3.horizontal.decrease"
+                                accessibilityDescription:NSLocalizedString(@"search.accessibility.filter", @"Accessibility label for filter search button")];
     NSSearchFieldCell* cell = _searchField.cell;
     cell.searchButtonCell.image = image;
     
@@ -1081,7 +1098,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Live Identify";
     [_songsTable selectionHighlightStyle];
     
     col = [[NSTableColumn alloc] initWithIdentifier:kSongsColTrackNumber];
-    col.title = @"Track";
+    col.title = NSLocalizedString(@"table.songs.track", @"Table column title");
     col.width = trackColumnWidth - selectorColumnInset;
     col.minWidth = (trackColumnWidth - selectorColumnInset) / 2.0f;
     col.resizingMask = NSTableColumnUserResizingMask;
@@ -1089,7 +1106,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Live Identify";
     [_songsTable addTableColumn:col];
     
     col = [[NSTableColumn alloc] initWithIdentifier:kSongsColTitle];
-    col.title = @"Title";
+    col.title = NSLocalizedString(@"table.songs.title", @"Table column title");
     col.width = titleColumnWidth - selectorColumnInset;
     col.minWidth = (titleColumnWidth - selectorColumnInset) / 2.0f;
     col.resizingMask = NSTableColumnUserResizingMask;
@@ -1097,7 +1114,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Live Identify";
     [_songsTable addTableColumn:col];
     
     col = [[NSTableColumn alloc] initWithIdentifier:kSongsColTime];
-    col.title = @"Time";
+    col.title = NSLocalizedString(@"table.songs.time", @"Table column title");
     col.width = timeColumnWidth - selectorColumnInset;
     col.minWidth = (timeColumnWidth - selectorColumnInset) / 2.0;
     col.resizingMask = NSTableColumnUserResizingMask;
@@ -1105,7 +1122,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Live Identify";
     [_songsTable addTableColumn:col];
     
     col = [[NSTableColumn alloc] initWithIdentifier:kSongsColArtist];
-    col.title = @"Artist";
+    col.title = NSLocalizedString(@"table.songs.artist", @"Table column title");
     col.width = artistColumnWidth - selectorColumnInset;
     col.minWidth = (artistColumnWidth - selectorColumnInset) / 2.0;
     col.resizingMask = NSTableColumnUserResizingMask;
@@ -1113,7 +1130,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Live Identify";
     [_songsTable addTableColumn:col];
     
     col = [[NSTableColumn alloc] initWithIdentifier:kSongsColAlbum];
-    col.title = @"Album";
+    col.title = NSLocalizedString(@"table.songs.album", @"Table column title");
     col.width = albumColumnWidth - selectorColumnInset;
     col.minWidth = (albumColumnWidth - selectorColumnInset) / 2.0;
     col.resizingMask = NSTableColumnUserResizingMask;
@@ -1121,7 +1138,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Live Identify";
     [_songsTable addTableColumn:col];
     
     col = [[NSTableColumn alloc] initWithIdentifier:kSongsColGenre];
-    col.title = @"Genre";
+    col.title = NSLocalizedString(@"table.songs.genre", @"Table column title");
     col.width = genreColumnWidth - selectorColumnInset;
     col.minWidth = (genreColumnWidth - selectorColumnInset) / 2.0;
     col.resizingMask = NSTableColumnAutoresizingMask | NSTableColumnUserResizingMask;
@@ -1129,7 +1146,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Live Identify";
     [_songsTable addTableColumn:col];
     
     col = [[NSTableColumn alloc] initWithIdentifier:kSongsColAdded];
-    col.title = @"Added";
+    col.title = NSLocalizedString(@"table.songs.added", @"Table column title");
     col.width = addedColumnWidth - selectorColumnInset;
     col.minWidth = (addedColumnWidth - selectorColumnInset) / 2.0;
     col.resizingMask = NSTableColumnUserResizingMask;
@@ -1137,7 +1154,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Live Identify";
     [_songsTable addTableColumn:col];
     
     col = [[NSTableColumn alloc] initWithIdentifier:kSongsColTempo];
-    col.title = @"Tempo";
+    col.title = NSLocalizedString(@"table.songs.tempo", @"Table column title");
     col.width = tempoColumnWidth - selectorColumnInset;
     col.minWidth = (tempoColumnWidth - selectorColumnInset) / 2.0;
     col.resizingMask = NSTableColumnUserResizingMask;
@@ -1145,7 +1162,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Live Identify";
     [_songsTable addTableColumn:col];
     
     col = [[NSTableColumn alloc] initWithIdentifier:kSongsColKey];
-    col.title = @"Key";
+    col.title = NSLocalizedString(@"table.songs.key", @"Table column title");
     col.width = keyColumnWidth - selectorColumnInset;
     col.minWidth = (keyColumnWidth - selectorColumnInset) / 2.0;
     col.resizingMask = NSTableColumnUserResizingMask;
@@ -1153,7 +1170,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Live Identify";
     [_songsTable addTableColumn:col];
     
     col = [[NSTableColumn alloc] initWithIdentifier:kSongsColRating];
-    col.title = @"Rating";
+    col.title = NSLocalizedString(@"table.songs.rating", @"Table column title");
     col.width = ratingColumnWidth - selectorColumnInset;
     col.minWidth = (ratingColumnWidth - selectorColumnInset) / 2.0;
     col.resizingMask = NSTableColumnUserResizingMask;
@@ -1161,7 +1178,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Live Identify";
     [_songsTable addTableColumn:col];
     
     col = [[NSTableColumn alloc] initWithIdentifier:kSongsColTags];
-    col.title = @"Tags";
+    col.title = NSLocalizedString(@"table.songs.tags", @"Table column title");
     col.minWidth = (tagsColumnWidth - selectorColumnInset) / 2.0;
     col.resizingMask = NSTableColumnAutoresizingMask;
     col.sortDescriptorPrototype = [[NSSortDescriptor alloc] initWithKey:@"tags" ascending:YES selector:@selector(compare:)];
@@ -1171,7 +1188,9 @@ static const NSString* kIdentifyToolbarIdentifier = @"Live Identify";
     [_horizontalSplitView addArrangedSubview:sv];
     
     // Empty-state prompt to import from Apple Music. Overlays the songs table.
-    _importButton = [NSButton buttonWithTitle:@"Import from Apple Music" target:self action:@selector(loadITunesLibrary:)];
+    _importButton = [NSButton buttonWithTitle:NSLocalizedString(@"library.import.button_title", @"Import library button title")
+                                       target:self
+                                       action:@selector(loadITunesLibrary:)];
     _importButton.translatesAutoresizingMaskIntoConstraints = NO;
     _importButton.bezelStyle = NSBezelStyleRounded;
     _importButton.hidden = YES;
@@ -1181,7 +1200,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Live Identify";
         [_importButton.centerYAnchor constraintEqualToAnchor:sv.contentView.centerYAnchor]
     ]];
     
-    _importLabel = [NSTextField textFieldWithString:@"Import in Progress"];
+    _importLabel = [NSTextField textFieldWithString:NSLocalizedString(@"library.import.in_progress", @"Import in progress label")];
     _importLabel.translatesAutoresizingMaskIntoConstraints = NO;
     _importLabel.editable = NO;
     _importLabel.font = [[Defaults sharedDefaults] smallFont];
@@ -1614,7 +1633,7 @@ call super's supplementalTargetForAction:sender:.
         window.titlebarAppearsTransparent = NO;
         window.titlebarSeparatorStyle = NSTitlebarSeparatorStyleShadow;
         window.level = NSNormalWindowLevel;
-        window.title = @"Activity";
+        window.title = NSLocalizedString(@"activity.window_title", @"Title for the Activity window");
         _activityWindowController.window = window;
     } else {
         window = (NSPanel*) self.activityWindowController.window;
@@ -1645,7 +1664,7 @@ call super's supplementalTargetForAction:sender:.
         window.hidesOnDeactivate = NO;
         window.floatingPanel = NO;
         window.titlebarSeparatorStyle = NSTitlebarSeparatorStyleShadow;
-        window.title = @"Audio Graph Status";
+        window.title = NSLocalizedString(@"graph.status.window_title", @"Title for the audio graph status window");
         NSSize size = NSMakeSize(360.0, 220.0);
         [window setContentSize:size];
         _graphStatusWindowController.window = window;
@@ -1815,10 +1834,10 @@ call super's supplementalTargetForAction:sender:.
     // Detect is destructive when it comes to our tracklist.
     if (_meta.trackList.tracks.count > 0) {
         NSAlert* alert = [[NSAlert alloc] init];
-        [alert setMessageText:@"Drop the existing Tracklist?"];
-        [alert setInformativeText:@"Tracklist will get overwritten"];
-        [alert addButtonWithTitle:@"Drop"];
-        [alert addButtonWithTitle:@"Cancel"];
+        [alert setMessageText:NSLocalizedString(@"alert.tracklist.drop.message", @"Alert message for dropping existing tracklist")];
+        [alert setInformativeText:NSLocalizedString(@"alert.tracklist.drop.informative", @"Alert info when dropping tracklist")];
+        [alert addButtonWithTitle:NSLocalizedString(@"alert.tracklist.drop.confirm", @"Drop tracklist button title")];
+        [alert addButtonWithTitle:NSLocalizedString(@"alert.tracklist.drop.cancel", @"Cancel drop tracklist button title")];
         [alert setAlertStyle:NSAlertStyleWarning];
 
         [alert beginSheetModalForWindow:self.window
@@ -1910,7 +1929,10 @@ call super's supplementalTargetForAction:sender:.
     _importButton.hidden = YES;
     _importLabel.hidden = NO;
     _importProgress.hidden = NO;
-    _importToken = [[ActivityManager shared] beginActivityWithTitle:@"Updating from Apple Library" detail:@"" cancellable:NO cancelHandler:nil];
+    _importToken = [[ActivityManager shared] beginActivityWithTitle:NSLocalizedString(@"activity.library.update_from_apple", @"Title for updating from Apple Music library")
+                                                            detail:@""
+                                                       cancellable:NO
+                                                     cancelHandler:nil];
     [_browser loadITunesLibraryWithToken:_importToken];
 }
 
@@ -2253,7 +2275,9 @@ typedef struct {
     // Check if that file is even readable.
     if (![url checkResourceIsReachableAndReturnError:&error]) {
         if (error != nil) {
-            NSAlert* alert = [NSAlert betterAlertWithError:error action:@"load" url:url];
+            NSAlert* alert = [NSAlert betterAlertWithError:error
+                                                   action:NSLocalizedString(@"error.action.load", @"Error action: load")
+                                                      url:url];
             [alert runModal];
         }
         return NO;
@@ -2290,14 +2314,14 @@ typedef struct {
     _loaderState = LoaderStateMeta;
     WaveWindowController* __weak weakSelf = self;
 
-    ActivityToken* token = [[ActivityManager shared] beginActivityWithTitle:@"Parsing Metadata"
-                                                                     detail:@"loading core metadata"
+    ActivityToken* token = [[ActivityManager shared] beginActivityWithTitle:NSLocalizedString(@"activity.metadata.parse.title", @"Title for metadata parsing activity")
+                                                                     detail:NSLocalizedString(@"activity.metadata.parse.loading_core", @"Detail while loading core metadata")
                                                                 cancellable:NO
                                                               cancelHandler:nil];
 
     [_metaController loadAsyncWithPath:context.path
                               callback:^(MediaMetaData* meta) {
-                                  [[ActivityManager shared] updateActivity:token progress:-1.0 detail:@"metadata loaded"];
+                                  [[ActivityManager shared] updateActivity:token progress:-1.0 detail:NSLocalizedString(@"activity.metadata.parse.loaded", @"Detail when metadata is loaded")];
                                   if (meta != nil) {
                                       LoaderContext c = context;
                                       c.meta = meta;
@@ -2312,7 +2336,7 @@ typedef struct {
                                               if (!completed) {
                                                   NSLog(@"tracklist recovery failed: %@", error);
                                               }
-                                              [[ActivityManager shared] updateActivity:token progress:-1.0 detail:@"tracklist loaded"];
+                                              [[ActivityManager shared] updateActivity:token progress:-1.0 detail:NSLocalizedString(@"activity.metadata.tracklist.loaded", @"Detail when tracklist is loaded")];
                                               [weakSelf metaLoadedWithContext:c];
                                               [[ActivityManager shared] completeActivity:token];
                                           }];
@@ -2345,7 +2369,9 @@ typedef struct {
     LazySample* lazySample = [[LazySample alloc] initWithPath:context.path error:&error];
     if (lazySample == nil) {
         if (error) {
-            NSAlert* alert = [NSAlert betterAlertWithError:error action:@"read" url:[NSURL fileURLWithPath:context.path]];
+            NSAlert* alert = [NSAlert betterAlertWithError:error
+                                                   action:NSLocalizedString(@"error.action.read", @"Error action: read")
+                                                      url:[NSURL fileURLWithPath:context.path]];
             [alert runModal];
         }
         return;
@@ -2405,16 +2431,17 @@ typedef struct {
 
                 NSAlert* alert = [[NSAlert alloc] init];
                 alert.alertStyle = NSAlertStyleInformational;
-                alert.messageText = @"Resampling to match your audio device";
-                alert.informativeText = [NSString stringWithFormat:@"This file is %.1f kHz.\n%@ runs at %.1f kHz.\nWe'll resample before playback. This may take a little longer.",
-                                                                   sourceRate / 1000.0,
-                                                                   deviceName,
-                                                                   deviceRate / 1000.0];
-                [alert addButtonWithTitle:@"OK"];
+                alert.messageText = NSLocalizedString(@"alert.resample.message", @"Resample alert title");
+                NSString* infoFormat = NSLocalizedString(@"alert.resample.informative_format", @"Resample alert body format");
+                alert.informativeText = [NSString localizedStringWithFormat:infoFormat,
+                                         sourceRate / 1000.0,
+                                         deviceName,
+                                         deviceRate / 1000.0];
+                [alert addButtonWithTitle:NSLocalizedString(@"alert.resample.ok", @"Resample alert OK button")];
 
                 NSButton* checkbox = [[NSButton alloc] initWithFrame:NSZeroRect];
                 checkbox.buttonType = NSButtonTypeSwitch;
-                checkbox.title = @"Don’t show this again";
+                checkbox.title = NSLocalizedString(@"alert.resample.dont_show_again", @"Resample alert checkbox title");
                 [checkbox sizeToFit];
                 NSView* accessory = [[NSView alloc] initWithFrame:NSMakeRect(0, 0, checkbox.frame.size.width, checkbox.frame.size.height)];
                 [accessory addSubview:checkbox];

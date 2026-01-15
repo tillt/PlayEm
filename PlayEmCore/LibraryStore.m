@@ -13,6 +13,7 @@
 #import "MediaMetaData.h"
 #import "NSString+Sanitized.h"
 #import "MetaController.h"
+#import "NSData+Hashing.h"
 
 static NSString* const kLibrarySchema =
     @"CREATE TABLE IF NOT EXISTS tracks ("
@@ -34,11 +35,16 @@ static NSString* const kLibrarySchema =
     @" comment TEXT,"
     @" tags TEXT,"
     @" compilation INTEGER,"
+    @" artworkHash TEXT,"
     @" artworkLocation TEXT,"
     @" addedAt REAL,"
     @" lastSeen REAL,"
-    @" locationType INTEGER,"
     @" appleLocation TEXT"
+    @");"
+    @"CREATE TABLE IF NOT EXISTS artwork ("
+    @" hash TEXT PRIMARY KEY,"
+    @" format INTEGER,"
+    @" data BLOB"
     @");";
 
 @interface LibraryStore ()
@@ -110,12 +116,28 @@ static BOOL isLikelyMojibakeString(NSString* s)
 
 - (BOOL)importMediaItems:(NSArray<MediaMetaData*>*)items error:(NSError**)error
 {
+    return [self importMediaItems:items preferExisting:NO error:error];
+}
+
+- (BOOL)importMediaItems:(NSArray<MediaMetaData*>*)items preferExisting:(BOOL)preferExisting error:(NSError**)error
+{
     if (![self open:error]) {
         return NO;
     }
 
-    const char* sql = "INSERT INTO tracks "
-                      "(url,title,artist,album,albumArtist,genre,year,trackNumber,trackCount,discNumber,discCount,duration,bpm,key,rating,comment,tags,compilation,artworkLocation,addedAt,lastSeen,locationType,appleLocation) "
+    // preferExisting == YES keeps DB/file-derived metadata and only updates bookkeeping fields.
+    const char* sqlPreferExisting =
+                      "INSERT INTO tracks "
+                      "(url,title,artist,album,albumArtist,genre,year,trackNumber,trackCount,discNumber,discCount,duration,bpm,key,rating,comment,tags,compilation,artworkHash,artworkLocation,addedAt,lastSeen,appleLocation) "
+                      "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) "
+                      "ON CONFLICT(url) DO UPDATE SET "
+                        // keep existing metadata; only update bookkeeping.
+                      "addedAt=COALESCE(tracks.addedAt, excluded.addedAt),"
+                      "lastSeen=excluded.lastSeen";
+
+    const char* sqlOverwrite =
+                      "INSERT INTO tracks "
+                      "(url,title,artist,album,albumArtist,genre,year,trackNumber,trackCount,discNumber,discCount,duration,bpm,key,rating,comment,tags,compilation,artworkHash,artworkLocation,addedAt,lastSeen,appleLocation) "
                       "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) "
                       "ON CONFLICT(url) DO UPDATE SET "
                       "title=excluded.title,"
@@ -135,11 +157,19 @@ static BOOL isLikelyMojibakeString(NSString* s)
                       "comment=excluded.comment,"
                       "tags=excluded.tags,"
                       "compilation=excluded.compilation,"
+                      "artworkHash=excluded.artworkHash,"
                       "artworkLocation=excluded.artworkLocation,"
-                        // `addedAt` is carved out.
+                      "addedAt=COALESCE(tracks.addedAt, excluded.addedAt),"
                       "lastSeen=excluded.lastSeen,"
-                      "locationType=excluded.locationType,"
                       "appleLocation=excluded.appleLocation";
+
+    const char* sql = preferExisting ? sqlPreferExisting : sqlOverwrite;
+
+    const char* artSql = "INSERT INTO artwork (hash, format, data) "
+                         "VALUES (?,?,?) "
+                         "ON CONFLICT(hash) DO UPDATE SET "
+                         "format=excluded.format,"
+                         "data=excluded.data";
 
     sqlite3_stmt* stmt = NULL;
     int rc = sqlite3_prepare_v2(self.db, sql, -1, &stmt, NULL);
@@ -147,6 +177,16 @@ static BOOL isLikelyMojibakeString(NSString* s)
         if (error) {
             *error = [NSError errorWithDomain:@"LibraryStore" code:rc userInfo:@{NSLocalizedDescriptionKey : @"Failed to prepare insert"}];
         }
+        return NO;
+    }
+
+    sqlite3_stmt* artStmt = NULL;
+    rc = sqlite3_prepare_v2(self.db, artSql, -1, &artStmt, NULL);
+    if (rc != SQLITE_OK) {
+        if (error) {
+            *error = [NSError errorWithDomain:@"LibraryStore" code:rc userInfo:@{NSLocalizedDescriptionKey : @"Failed to prepare artwork insert"}];
+        }
+        sqlite3_finalize(stmt);
         return NO;
     }
 
@@ -172,13 +212,41 @@ static BOOL isLikelyMojibakeString(NSString* s)
         sqlite3_bind_text(stmt, 16, (meta.comment ?: @"").UTF8String, -1, SQLITE_TRANSIENT);
         sqlite3_bind_text(stmt, 17, (meta.tags ?: @"").UTF8String, -1, SQLITE_TRANSIENT);
         sqlite3_bind_int(stmt, 18, meta.compilation.boolValue ? 1 : 0);
-        sqlite3_bind_text(stmt, 19, meta.artworkLocation.absoluteString.UTF8String, -1, SQLITE_TRANSIENT);
+
+        // artworkHash matches the ImageController cache key for the same data blob.
+        NSString* artworkHash = meta.artworkHash;
+        if (meta.artwork != nil && artworkHash.length > 0) {
+            NSString* defaultHash = [MediaMetaData defaultArtworkData].shortSHA256;
+            NSAssert(![artworkHash isEqualToString:defaultHash], @"LibraryStore: default artwork should not be persisted for %@", meta.location);
+            if ([artworkHash isEqualToString:defaultHash]) {
+                artworkHash = nil;
+            }
+        }
+
+        if (meta.artwork != nil && artworkHash.length > 0) {
+            sqlite3_reset(artStmt);
+            sqlite3_clear_bindings(artStmt);
+            sqlite3_bind_text(artStmt, 1, artworkHash.UTF8String, -1, SQLITE_TRANSIENT);
+            sqlite3_bind_int(artStmt, 2, meta.artworkFormat.intValue);
+            sqlite3_bind_blob(artStmt, 3, meta.artwork.bytes, (int) meta.artwork.length, SQLITE_TRANSIENT);
+            int artRc = sqlite3_step(artStmt);
+            if (artRc != SQLITE_DONE) {
+                if (error) {
+                    *error = [NSError errorWithDomain:@"LibraryStore" code:artRc userInfo:@{NSLocalizedDescriptionKey : @"Failed to insert artwork"}];
+                }
+                sqlite3_finalize(stmt);
+                sqlite3_finalize(artStmt);
+                return NO;
+            }
+        }
+
+        sqlite3_bind_text(stmt, 19, artworkHash.UTF8String, -1, SQLITE_TRANSIENT);
+        sqlite3_bind_text(stmt, 20, meta.artworkLocation.absoluteString.UTF8String, -1, SQLITE_TRANSIENT);
         double now = [NSDate date].timeIntervalSince1970;
         double addedAt = meta.added ? meta.added.timeIntervalSince1970 : now;
-        // addedAt bind is at index 20; lastSeen is 21.
-        sqlite3_bind_double(stmt, 20, addedAt);
-        sqlite3_bind_double(stmt, 21, now);
-        sqlite3_bind_int(stmt, 22, meta.locationType.intValue);
+        // addedAt bind is at index 21; lastSeen is 22.
+        sqlite3_bind_double(stmt, 21, addedAt);
+        sqlite3_bind_double(stmt, 22, now);
         sqlite3_bind_text(stmt, 23, meta.appleLocation.absoluteString.UTF8String, -1, SQLITE_TRANSIENT);
 
         rc = sqlite3_step(stmt);
@@ -187,11 +255,13 @@ static BOOL isLikelyMojibakeString(NSString* s)
                 *error = [NSError errorWithDomain:@"LibraryStore" code:rc userInfo:@{NSLocalizedDescriptionKey : @"Failed to insert row"}];
             }
             sqlite3_finalize(stmt);
+            sqlite3_finalize(artStmt);
             return NO;
         }
     }
 
     sqlite3_finalize(stmt);
+    sqlite3_finalize(artStmt);
     return YES;
 }
 
@@ -201,13 +271,23 @@ static BOOL isLikelyMojibakeString(NSString* s)
         return nil;
     }
 
-    const char* sql = "SELECT url,title,artist,album,albumArtist,genre,year,trackNumber,trackCount,discNumber,discCount,duration,bpm,key,rating,comment,tags,compilation,artworkLocation,addedAt,lastSeen,locationType,appleLocation FROM tracks";
+    const char* sql = "SELECT url,title,artist,album,albumArtist,genre,year,trackNumber,trackCount,discNumber,discCount,duration,bpm,key,rating,comment,tags,compilation,artworkHash,artworkLocation,addedAt,lastSeen,appleLocation FROM tracks";
     sqlite3_stmt* stmt = NULL;
     int rc = sqlite3_prepare_v2(self.db, sql, -1, &stmt, NULL);
     if (rc != SQLITE_OK) {
         if (error) {
             *error = [NSError errorWithDomain:@"LibraryStore" code:rc userInfo:@{NSLocalizedDescriptionKey : @"Failed to prepare select"}];
         }
+        return nil;
+    }
+
+    sqlite3_stmt* artStmt = NULL;
+    rc = sqlite3_prepare_v2(self.db, "SELECT data, format FROM artwork WHERE hash = ?", -1, &artStmt, NULL);
+    if (rc != SQLITE_OK) {
+        if (error) {
+            *error = [NSError errorWithDomain:@"LibraryStore" code:rc userInfo:@{NSLocalizedDescriptionKey : @"Failed to prepare artwork select"}];
+        }
+        sqlite3_finalize(stmt);
         return nil;
     }
 
@@ -236,20 +316,36 @@ static BOOL isLikelyMojibakeString(NSString* s)
         meta.comment = sqlite3_column_text(stmt, 15) ? @((const char*) sqlite3_column_text(stmt, 15)) : nil;
         meta.tags = sqlite3_column_text(stmt, 16) ? @((const char*) sqlite3_column_text(stmt, 16)) : nil;
         meta.compilation = @(sqlite3_column_int(stmt, 17) != 0);
-        const char* artLoc = (const char*) sqlite3_column_text(stmt, 18);
+        const char* artHash = (const char*) sqlite3_column_text(stmt, 18);
+        const char* artLoc = (const char*) sqlite3_column_text(stmt, 19);
         meta.artworkLocation = artLoc ? [NSURL URLWithString:@(artLoc)] : nil;
-        double addedAt = sqlite3_column_double(stmt, 19);
+        double addedAt = sqlite3_column_double(stmt, 20);
         if (addedAt > 0.0) {
             meta.added = [NSDate dateWithTimeIntervalSince1970:addedAt];
         }
-        meta.locationType = @(sqlite3_column_int(stmt, 21));
         const char* appleLoc = (const char*) sqlite3_column_text(stmt, 22);
         meta.appleLocation = appleLoc ? [NSURL URLWithString:@(appleLoc)] : nil;
+
+        if (artHash) {
+            sqlite3_reset(artStmt);
+            sqlite3_clear_bindings(artStmt);
+            sqlite3_bind_text(artStmt, 1, artHash, -1, SQLITE_TRANSIENT);
+            int artRc = sqlite3_step(artStmt);
+            if (artRc == SQLITE_ROW) {
+                const void* data = sqlite3_column_blob(artStmt, 0);
+                int length = sqlite3_column_bytes(artStmt, 0);
+                if (data && length > 0) {
+                    meta.artwork = [NSData dataWithBytes:data length:length];
+                }
+                meta.artworkFormat = @(sqlite3_column_int(artStmt, 1));
+            }
+        }
 
         [result addObject:meta];
     }
 
     sqlite3_finalize(stmt);
+    sqlite3_finalize(artStmt);
 
     return result;
 }
@@ -281,7 +377,7 @@ static BOOL isLikelyMojibakeString(NSString* s)
 
         NSError* err = nil;
         if (metas.count > 0) {
-            [self importMediaItems:metas error:&err];
+            [self importMediaItems:metas preferExisting:NO error:&err];
         }
         if (err) {
             NSLog(@"LibraryStore: importMediaItems failed: %@", err.localizedDescription);
@@ -289,6 +385,40 @@ static BOOL isLikelyMojibakeString(NSString* s)
         dispatch_async(dispatch_get_main_queue(), ^{
             if (completion) {
                 completion(metas.count > 0 ? [metas copy] : @[], err);
+            }
+        });
+    });
+}
+
+// Read metadata from files without touching the database.
+- (void)readFileURLs:(NSArray<NSURL*>*)urls completion:(void (^)(NSArray<MediaMetaData*>* _Nullable metas, NSError* _Nullable error))completion
+{
+    dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0), ^{
+        NSMutableArray<MediaMetaData*>* metas = [NSMutableArray array];
+        MetaController* loader = [MetaController new];
+        dispatch_group_t group = dispatch_group_create();
+        dispatch_queue_t mergeQueue = dispatch_queue_create("PlayEm.LibraryStore.ReadMerge", DISPATCH_QUEUE_SERIAL);
+
+        for (NSURL* url in urls) {
+            dispatch_group_enter(group);
+            [loader loadAsyncWithPath:url.path
+                             callback:^(MediaMetaData* meta) {
+                                 if (meta) {
+                                     dispatch_async(mergeQueue, ^{
+                                         [metas addObject:meta];
+                                     });
+                                 } else {
+                                     NSLog(@"LibraryStore: failed to read metadata for %@", url);
+                                 }
+                                 dispatch_group_leave(group);
+                             }];
+        }
+
+        dispatch_group_wait(group, DISPATCH_TIME_FOREVER);
+
+        dispatch_async(dispatch_get_main_queue(), ^{
+            if (completion) {
+                completion(metas.count > 0 ? [metas copy] : @[], nil);
             }
         });
     });
@@ -330,55 +460,93 @@ static BOOL isLikelyMojibakeString(NSString* s)
             [existingURLs addObject:url];
         }
 
-        [self importFileURLs:existingURLs
+        [self readFileURLs:existingURLs
                   completion:^(NSArray<MediaMetaData*>* _Nullable metas, NSError* _Nullable importErr) {
-                      NSArray<MediaMetaData*>* refreshed = metas ?: @[];
-                      NSMutableArray<MediaMetaData*>* changed = [NSMutableArray array];
-                      if (importErr) {
-                          NSLog(@"LibraryStore: reconcile import error: %@", importErr.localizedDescription);
-                      }
-                      for (MediaMetaData* meta in refreshed) {
-                          MediaMetaData* old = existingByURL[meta.location.absoluteString];
-                          if (old && old.added) {
-                              meta.added = old.added;
+                      dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0), ^{
+                          NSArray<MediaMetaData*>* refreshed = metas ?: @[];
+                          NSMutableArray<MediaMetaData*>* changed = [NSMutableArray array];
+                          NSMutableArray<MediaMetaData*>* toUpdate = [NSMutableArray array];
+                          if (importErr) {
+                              NSLog(@"LibraryStore: reconcile read error: %@", importErr.localizedDescription);
                           }
-                          if (old && old.duration) {
-                              meta.duration = old.duration;
-                          }
-                          if (old && old.locationType) {
-                              meta.locationType = old.locationType;
-                          }
-                          // Avoid overwriting good metadata with obvious mojibake.
-                          if (old) {
-                              NSArray<NSString*>* textKeys = @[ @"title", @"artist", @"album", @"albumArtist", @"genre", @"comment", @"tags", @"key" ];
-                              for (NSString* key in textKeys) {
-                                  NSString* newVal = [meta valueForKey:key];
-                                  if (newVal.length > 0) {
-                                      NSString* sanitized = [newVal sanitizedMetadataString];
-                                      if (![sanitized isEqualToString:newVal]) {
-                                          [meta setValue:sanitized forKey:key];
-                                          newVal = sanitized;
+
+                          NSArray<NSString*>* writableKeys = @[
+                              @"title",
+                              @"artist",
+                              @"album",
+                              @"albumArtist",
+                              @"genre",
+                              @"comment",
+                              @"tags",
+                              @"key",
+                              @"year",
+                              @"track",
+                              @"tracks",
+                              @"disk",
+                              @"disks",
+                              @"tempo",
+                              @"rating",
+                              @"compilation",
+                              @"artwork",
+                              @"artworkFormat",
+                              @"artworkLocation",
+                              @"appleLocation",
+                          ];
+
+                          for (MediaMetaData* meta in refreshed) {
+                              MediaMetaData* old = existingByURL[meta.location.absoluteString];
+                              if (old && old.added) {
+                                  meta.added = old.added;
+                              }
+                              if (old && old.duration) {
+                                  meta.duration = old.duration;
+                              }
+                              // Avoid overwriting good metadata with obvious mojibake.
+                              if (old) {
+                                  NSArray<NSString*>* textKeys = @[ @"title", @"artist", @"album", @"albumArtist", @"genre", @"comment", @"tags", @"key" ];
+                                  for (NSString* key in textKeys) {
+                                      NSString* newVal = [meta valueForKey:key];
+                                      if (newVal.length > 0) {
+                                          NSString* sanitized = [newVal sanitizedMetadataString];
+                                          if (![sanitized isEqualToString:newVal]) {
+                                              [meta setValue:sanitized forKey:key];
+                                              newVal = sanitized;
+                                          }
                                       }
-                                  }
-                                  NSString* oldVal = [old valueForKey:key];
-                                  if ([newVal isLikelyMojibakeMetadata]) {
-                                      if (oldVal.length > 0) {
-                                          [meta setValue:oldVal forKey:key];
-                                      } else {
-                                          [meta setValue:@"" forKey:key];
+                                      NSString* oldVal = [old valueForKey:key];
+                                      if ([newVal isLikelyMojibakeMetadata]) {
+                                          if (oldVal.length > 0) {
+                                              [meta setValue:oldVal forKey:key];
+                                          } else {
+                                              [meta setValue:@"" forKey:key];
+                                          }
                                       }
                                   }
                               }
-                          }
-                          if (old && ![old isSemanticallyEqualToMeta:meta]) {
-                              [changed addObject:meta];
-                          }
-                      }
+                              if (old && ![old isSemanticallyEqualToMeta:meta]) {
+                                  [changed addObject:meta];
 
-                      dispatch_async(dispatch_get_main_queue(), ^{
-                          if (completion) {
-                              completion(refreshed, changed, missing, importErr);
+                                  MediaMetaData* merged = [old copy];
+                                  for (NSString* key in writableKeys) {
+                                      id newValue = [meta valueForKey:key];
+                                      if (newValue != nil) {
+                                          [merged setValue:newValue forKey:key];
+                                      }
+                                  }
+                                  [toUpdate addObject:merged];
+                              }
                           }
+
+                          NSError* updateErr = nil;
+                          if (toUpdate.count > 0) {
+                              [self importMediaItems:toUpdate preferExisting:NO error:&updateErr];
+                          }
+
+                          dispatch_async(dispatch_get_main_queue(), ^{
+                              if (completion) {
+                                  completion(refreshed, changed, missing, updateErr ?: importErr);
+                              }
+                          });
                       });
                   }];
     });

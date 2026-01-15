@@ -491,36 +491,21 @@ static NSString* SanitizeTagValue(const TagLib::String& s)
     value = [value stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
 
     // Drop clearly invalid or mojibake-looking values.
-    if (value.length == 0 || [value isLikelyMojibakeMetadata]) {
-        value = nil;
-    }
-
-    // Disallow characters outside Latin/extended-Latin plus common punctuation/whitespace to keep umlauts
-    // while rejecting obvious garbage (e.g., fullwidth or CJK glyphs in keys).
-    static NSCharacterSet* allowed = nil;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        NSMutableCharacterSet* m = [[NSMutableCharacterSet alloc] init];
-        [m formUnionWithCharacterSet:[NSCharacterSet letterCharacterSet]];
-        [m formUnionWithCharacterSet:[NSCharacterSet decimalDigitCharacterSet]];
-        [m formUnionWithCharacterSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
-        [m formUnionWithCharacterSet:[NSCharacterSet punctuationCharacterSet]];
-        [m formUnionWithCharacterSet:[NSCharacterSet symbolCharacterSet]];
-        // Explicitly include Latin-1 Supplement and Latin Extended-A/B.
-        [m addCharactersInRange:NSMakeRange(0x00A0, 0x0250 - 0x00A0)];
-        allowed = [m copy];
-    });
-    if (value && [value rangeOfCharacterFromSet:[allowed invertedSet]].location != NSNotFound) {
-        value = nil;
-    }
-
-    // Additional guard: if too many codepoints are beyond the Latin-1 supplement, treat as mojibake.
-    if (value) {
+    BOOL isClearlyBroken = NO;
+    if (value.length > 0) {
+        if (value.length >= 2) {
+            unichar first = [value characterAtIndex:0];
+            unichar second = [value characterAtIndex:1];
+            if (first == 0x00FE && second >= 0xFF00 && second <= 0xFFEF) {
+                isClearlyBroken = YES;
+            }
+        }
         __block NSUInteger highCount = 0;
         [value enumerateSubstringsInRange:NSMakeRange(0, value.length)
                                    options:NSStringEnumerationByComposedCharacterSequences
                                 usingBlock:^(NSString* substring, NSRange __, NSRange ___, BOOL* stop) {
                                     unichar c = [substring characterAtIndex:0];
+                                    // Allow basic/Latin‑1/extended Latin; flag heavy use of high codepoints.
                                     if (c > 0x024F) {
                                         highCount++;
                                         if (highCount > 3) {
@@ -529,8 +514,12 @@ static NSString* SanitizeTagValue(const TagLib::String& s)
                                     }
                                 }];
         if (highCount > 3) {
-            value = nil;
+            isClearlyBroken = YES;
         }
+    }
+
+    if (value.length == 0 || [value isLikelyMojibakeMetadata] || isClearlyBroken) {
+        value = nil;
     }
     return value;
 }
@@ -539,7 +528,8 @@ static void ApplyPropertyMap(const TagLib::PropertyMap& props, MediaMetaData* me
 {
     auto setIfPresent = ^(const char* key, NSString* metaKey) {
         if (props.contains(TagLib::String(key))) {
-            NSString* value = SanitizeTagValue(props[TagLib::String(key) ].toString());
+            TagLib::String rawString = props[TagLib::String(key) ].toString();
+            NSString* value = SanitizeTagValue(rawString);
             if (value.length > 0) {
                 [meta setValue:value forKey:metaKey];
             }
@@ -607,6 +597,11 @@ static void ApplyPropertyMap(const TagLib::PropertyMap& props, MediaMetaData* me
 
     TagLib::PropertyMap props = file.properties();
     ApplyPropertyMap(props, self);
+
+	// As a fallback, use the filename as title if nothing else was found.
+	if (self.title.length == 0) {
+		self.title = self.location.lastPathComponent.stringByDeletingPathExtension;
+	}
 
     TagLib::StringList names = file.complexPropertyKeys();
     for (const auto& name : names) {

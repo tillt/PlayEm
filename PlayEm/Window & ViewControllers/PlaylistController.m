@@ -261,13 +261,17 @@ static const NSAutoresizingMaskOptions kViewFullySizeable = NSViewHeightSizable 
 {
     NSMenu* menu = [NSMenu new];
 
-    NSMenuItem* item = [[NSMenuItem alloc] initWithTitle:@"Remove from Playlist" action:@selector(removeFromPlaylist:) keyEquivalent:@""];
+    NSMenuItem* item = [[NSMenuItem alloc] initWithTitle:NSLocalizedString(@"menu.playlist.remove_from_playlist", @"Playlist menu item: remove from playlist")
+                                                  action:@selector(removeFromPlaylist:)
+                                           keyEquivalent:@""];
     item.target = self;
     [menu addItem:item];
 
     [menu addItem:[NSMenuItem separatorItem]];
 
-    item = [menu addItemWithTitle:@"Show Info" action:@selector(showInfoForSelectedSongs:) keyEquivalent:@""];
+    item = [menu addItemWithTitle:NSLocalizedString(@"menu.common.show_info", @"Menu item: show info")
+                           action:@selector(showInfoForSelectedSongs:)
+                    keyEquivalent:@""];
     item.target = self;
     [menu addItem:[NSMenuItem separatorItem]];
 

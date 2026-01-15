@@ -94,10 +94,12 @@ static const NSAutoresizingMaskOptions kViewFullySizeable = NSViewHeightSizable 
 
     sv.documentView = _table;
 
-    _detectButton = [NSButton buttonWithTitle:@"Detect Tracklist" target:nil action:@selector(startTrackDetection:)];
+    _detectButton = [NSButton buttonWithTitle:NSLocalizedString(@"tracklist.detect.button_title", @"Tracklist detect button title")
+                                       target:nil
+                                       action:@selector(startTrackDetection:)];
     [self.view addSubview:_detectButton];
 
-    _detectLabel = [NSTextField textFieldWithString:@"Tracklist Detection in Progress"];
+    _detectLabel = [NSTextField textFieldWithString:NSLocalizedString(@"tracklist.detect.in_progress", @"Tracklist detection status label")];
     _detectLabel.editable = NO;
     _detectLabel.font = [[Defaults sharedDefaults] smallFont];
     _detectLabel.drawsBackground = NO;
@@ -441,22 +443,30 @@ static const NSAutoresizingMaskOptions kViewFullySizeable = NSViewHeightSizable 
 {
     NSMenu* menu = [NSMenu new];
 
-    NSMenuItem* item = [menu addItemWithTitle:@"Remove from Tracklist" action:@selector(removeFromTracklist:) keyEquivalent:@""];
+    NSMenuItem* item = [menu addItemWithTitle:NSLocalizedString(@"menu.common.remove_from_tracklist", @"Menu item: remove from tracklist")
+                                       action:@selector(removeFromTracklist:)
+                                keyEquivalent:@""];
 
     [menu addItem:[NSMenuItem separatorItem]];
 
-    item = [menu addItemWithTitle:@"Open in Apple Music" action:@selector(musicURLClicked:) keyEquivalent:@""];
+    item = [menu addItemWithTitle:NSLocalizedString(@"menu.common.open_in_apple_music", @"Menu item: open in Apple Music")
+                           action:@selector(musicURLClicked:)
+                    keyEquivalent:@""];
 
     [menu addItem:[NSMenuItem separatorItem]];
 
-    item = [[NSMenuItem alloc] initWithTitle:@"Export Tracklist..." action:@selector(exportTracklist:) keyEquivalent:@""];
+    item = [[NSMenuItem alloc] initWithTitle:NSLocalizedString(@"menu.tracklist.export_tracklist", @"Tracklist menu item: export tracklist")
+                                      action:@selector(exportTracklist:)
+                               keyEquivalent:@""];
     [item setKeyEquivalentModifierMask:NSEventModifierFlagCommand];
     item.target = self;
     [menu addItem:item];
 
     [menu addItem:[NSMenuItem separatorItem]];
 
-    item = [[NSMenuItem alloc] initWithTitle:@"Copy Tracklist to Clipboard" action:@selector(copyTracklist:) keyEquivalent:@""];
+    item = [[NSMenuItem alloc] initWithTitle:NSLocalizedString(@"menu.tracklist.copy_to_clipboard", @"Tracklist menu item: copy to clipboard")
+                                      action:@selector(copyTracklist:)
+                               keyEquivalent:@""];
     [item setKeyEquivalentModifierMask:NSEventModifierFlagCommand];
     item.target = self;
     [menu addItem:item];
@@ -634,7 +644,7 @@ static const NSAutoresizingMaskOptions kViewFullySizeable = NSViewHeightSizable 
 
     NSString* confidence = nil;
     if (track.confidence == nil) {
-        confidence = @"unknown";
+        confidence = NSLocalizedString(@"tracklist.confidence.unknown", @"Tracklist confidence when unknown");
     } else {
         NSNumberFormatter* decimalStyleFormatter = [[NSNumberFormatter alloc] init];
         [decimalStyleFormatter setMaximumFractionDigits:2];

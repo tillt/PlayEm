@@ -1574,12 +1574,16 @@ const CGFloat kMarkerHandleWidth = 6.0f;
 
             NSMenu* menu = [[NSMenu alloc] initWithTitle:@""];
  
-            NSMenuItem* item = [menu addItemWithTitle:@"Open in Apple Music" action:@selector(musicURLClickedWithTrack:) keyEquivalent:@""];
+            NSMenuItem* item = [menu addItemWithTitle:NSLocalizedString(@"menu.common.open_in_apple_music", @"Menu item: open in Apple Music")
+                                               action:@selector(musicURLClickedWithTrack:)
+                                        keyEquivalent:@""];
             item.representedObject = track;
             
             [menu addItem:[NSMenuItem separatorItem]];
 
-            item = [menu addItemWithTitle:@"Remove from Tracklist" action:@selector(removeFromTracklist:) keyEquivalent:@""];
+            item = [menu addItemWithTitle:NSLocalizedString(@"menu.common.remove_from_tracklist", @"Menu item: remove from tracklist")
+                                   action:@selector(removeFromTracklist:)
+                            keyEquivalent:@""];
             item.representedObject = track;
 
             NSPoint mouseLocation = [NSEvent mouseLocation];

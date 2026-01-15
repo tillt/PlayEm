@@ -14,6 +14,7 @@
 
 #import "AUPlaybackBackend.h"
 #import "ActivityManager.h"
+#import "../PECLocalization.h"
 #import "AudioDevice.h"
 #import "AQPlaybackBackend.h"
 #import "LazySample.h"
@@ -123,6 +124,8 @@ static OSStatus DefaultOutputDeviceChanged(AudioObjectID objectId, UInt32 number
 
 - (void)playSample:(LazySample*)sample frame:(unsigned long long)frame paused:(BOOL)paused
 {
+    BOOL effectWasEnabled = self.effectEnabled;
+    NSInteger effectIndex = self.currentEffectIndex;
     self.sampleRef = sample;
     dispatch_async(dispatch_get_main_queue(), ^{
         [[NSNotificationCenter defaultCenter] postNotificationName:kPlaybackGraphChanged
@@ -136,6 +139,9 @@ static OSStatus DefaultOutputDeviceChanged(AudioObjectID objectId, UInt32 number
     self.backend.tempo = self.tempoShift;
     if (self.tapBlock && [self.backend respondsToSelector:@selector(setTapBlock:)]) {
         [(id) self.backend setTapBlock:self.tapBlock];
+    }
+    if (effectIndex >= 0 || effectWasEnabled) {
+        [self applyEffectEnabled:effectWasEnabled];
     }
     if (!paused) {
         [self play];
@@ -492,7 +498,7 @@ static OSStatus DefaultOutputDeviceChanged(AudioObjectID objectId, UInt32 number
 
 - (BOOL)decode:(LazySample*)encodedSample frame:(unsigned long long)frame token:(ActivityToken*)token reachedFrame:(void (^)(void))reachedFrame cancelTest:(BOOL (^)(void))cancelTest
 {
-    [[ActivityManager shared] updateActivity:token progress:0.0 detail:@"initializing engine"];
+    [[ActivityManager shared] updateActivity:token progress:0.0 detail:PECLocalizedString(@"activity.decode.initializing_engine", @"Detail when initializing audio decode engine")];
 
     AudioObjectID deviceId = [AudioDevice defaultOutputDevice];
     Float64 deviceRate = [AudioDevice sampleRateForDevice:deviceId];
@@ -599,9 +605,9 @@ static OSStatus DefaultOutputDeviceChanged(AudioObjectID objectId, UInt32 number
             double estimatedTotalFrames = (double) encodedSample.source.length * (renderRate / sourceRate);
             progress = MIN(1.0, totalRenderedFrames / estimatedTotalFrames);
         }
-        [[ActivityManager shared] updateActivity:token progress:progress detail:@"decoding compressed audio data"];
+        [[ActivityManager shared] updateActivity:token progress:progress detail:PECLocalizedString(@"activity.decode.decoding_data", @"Detail while decoding compressed audio data")];
     }
-    [[ActivityManager shared] updateActivity:token progress:1.0 detail:@"decoding audio done"];
+    [[ActivityManager shared] updateActivity:token progress:1.0 detail:PECLocalizedString(@"activity.decode.done", @"Detail when audio decoding completes")];
 
     // Update sample metadata to reflect the rendered rate so playback/tap stay at the device rate.
     encodedSample.sampleFormat = (SampleFormat){.channels = encodedSample.sampleFormat.channels, .rate = (long) renderRate};
@@ -617,7 +623,10 @@ static OSStatus DefaultOutputDeviceChanged(AudioObjectID objectId, UInt32 number
     __block BOOL done = NO;
     __weak __block dispatch_block_t weakBlock;
 
-    ActivityToken* decoderToken = [[ActivityManager shared] beginActivityWithTitle:@"Decoding Sample" detail:@"" cancellable:NO cancelHandler:nil];
+    ActivityToken* decoderToken = [[ActivityManager shared] beginActivityWithTitle:PECLocalizedString(@"activity.decode.title", @"Title for audio decode activity")
+                                                                           detail:@""
+                                                                      cancellable:NO
+                                                                    cancelHandler:nil];
 
     dispatch_block_t block = dispatch_block_create(DISPATCH_BLOCK_NO_QOS_CLASS, ^{
         done = [weakSelf decode:sample

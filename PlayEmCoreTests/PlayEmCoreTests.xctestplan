@@ -1,0 +1,35 @@
+{
+  "configurations" : [
+    {
+      "id" : "C8820E86-B248-42A5-BE30-1411A61C1F6C",
+      "name" : "Test Scheme Action",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "environmentVariableEntries" : [
+      {
+        "key" : "IDEPreferLogStreaming",
+        "value" : "YES"
+      },
+      {
+        "key" : "CFLOG_FORCE_DISABLE_STDERR",
+        "value" : "0"
+      }
+    ],
+    "performanceAntipatternCheckerEnabled" : true
+  },
+  "testTargets" : [
+    {
+      "parallelizable" : true,
+      "target" : {
+        "containerPath" : "container:PlayEm.xcodeproj",
+        "identifier" : "BB57DE4B2F05D614008FFBD1",
+        "name" : "PlayEmCoreTests"
+      }
+    }
+  ],
+  "version" : 1
+}

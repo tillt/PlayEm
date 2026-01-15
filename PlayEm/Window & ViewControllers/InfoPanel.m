@@ -25,13 +25,13 @@ typedef enum : NSUInteger {
     InfoControlTypePopup,
 } InfoControlType;
 
-NSString* const kInfoPageKeyDetails = @"Details";
-NSString* const kInfoPageKeyArtwork = @"Artwork";
-NSString* const kInfoPageKeyLyrics = @"Lyrics";
-NSString* const kInfoPageKeyFile = @"File";
+NSString* const kInfoPageKeyDetails = @"details";
+NSString* const kInfoPageKeyArtwork = @"artwork";
+NSString* const kInfoPageKeyLyrics = @"lyrics";
+NSString* const kInfoPageKeyFile = @"file";
 
-NSString* const kInfoTextMultipleValues = @"Mixed";
-NSString* const kInfoNumberMultipleValues = @"-";
+NSString* const kInfoTextMultipleValuesKey = @"info.placeholder.mixed";
+NSString* const kInfoNumberMultipleValuesKey = @"info.placeholder.number";
 
 /*static const CGFloat kBigFontSize = 24.0f;
 static const CGFloat kNormalFontSize = 13.0f;*/
@@ -81,6 +81,66 @@ static const CGFloat kViewLeftMargin = 10.0f;
 
 @implementation InfoPanelController
 
+- (NSString*)localizedInfoPageTitleForKey:(NSString*)key
+{
+    static NSDictionary<NSString*, NSString*>* pageTitleKeys = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        pageTitleKeys = @{
+            kInfoPageKeyDetails : @"info.page.details",
+            kInfoPageKeyArtwork : @"info.page.artwork",
+            kInfoPageKeyLyrics : @"info.page.lyrics",
+            kInfoPageKeyFile : @"info.page.file",
+        };
+    });
+
+    NSString* titleKey = pageTitleKeys[key];
+    if (titleKey == nil) {
+        return key;
+    }
+    return NSLocalizedString(titleKey, @"Info panel page title");
+}
+
+- (NSString*)localizedInfoLabelForKey:(NSString*)key
+{
+    static NSDictionary<NSString*, NSString*>* labelKeys = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        labelKeys = @{
+            @"title" : @"info.label.title",
+            @"artist" : @"info.label.artist",
+            @"album" : @"info.label.album",
+            @"album artist" : @"info.label.album_artist",
+            @"tags" : @"info.label.tags",
+            @"genre" : @"info.label.genre",
+            @"year" : @"info.label.year",
+            @"track" : @"info.label.track",
+            @"disk" : @"info.label.disk",
+            @"compilation" : @"info.label.compilation",
+            @"rating" : @"info.label.rating",
+            @"tempo" : @"info.label.tempo",
+            @"comment" : @"info.label.comment",
+            @"size" : @"info.label.size",
+            @"duration" : @"info.label.duration",
+            @"bit rate" : @"info.label.bit_rate",
+            @"sample rate" : @"info.label.sample_rate",
+            @"channels" : @"info.label.channels",
+            @"format" : @"info.label.format",
+            @"volume" : @"info.label.volume",
+            @"location" : @"info.label.location",
+            @"key" : @"info.label.key",
+            @"tracks" : @"info.label.track",
+            @"disks" : @"info.label.disk",
+        };
+    });
+
+    NSString* labelKey = labelKeys[key];
+    if (labelKey == nil) {
+        return key;
+    }
+    return NSLocalizedString(labelKey, @"Info panel label");
+}
+
 + (CIFilter*)sharedBloomFilter
 {
     static dispatch_once_t once;
@@ -101,68 +161,73 @@ static const CGFloat kViewLeftMargin = 10.0f;
         _metas = metas;
 
         NSNumber* bigWidth = @475;
+        NSString* textPlaceholder = NSLocalizedString(kInfoTextMultipleValuesKey, @"Placeholder when values differ across selection");
+        NSString* numberPlaceholder = NSLocalizedString(kInfoNumberMultipleValuesKey, @"Placeholder when numeric values differ across selection");
+        NSString* extraOf = NSLocalizedString(@"info.label.of", @"Info panel label: of");
+        NSString* extraKey = NSLocalizedString(@"info.label.key", @"Info panel label: key");
+        NSString* compilationDescription = NSLocalizedString(@"info.description.compilation", @"Info panel description for compilation toggle");
 
         _viewConfiguration = @{
             kInfoPageKeyDetails : @{
                 @"title" : @{
                     @"order" : @1,
                     @"width" : bigWidth,
-                    @"placeholder" : kInfoTextMultipleValues,
+                    @"placeholder" : textPlaceholder,
                 },
                 @"artist" : @{
                     @"order" : @2,
                     @"width" : bigWidth,
-                    @"placeholder" : kInfoTextMultipleValues,
+                    @"placeholder" : textPlaceholder,
                 },
                 @"album" : @{
                     @"order" : @3,
                     @"width" : bigWidth,
-                    @"placeholder" : kInfoTextMultipleValues,
+                    @"placeholder" : textPlaceholder,
                 },
                 @"album artist" : @{
                     @"order" : @4,
                     @"width" : bigWidth,
                     @"key" : @"albumArtist",
-                    @"placeholder" : kInfoTextMultipleValues,
+                    @"placeholder" : textPlaceholder,
                 },
                 @"tags" : @{
                     @"order" : @5,
                     @"width" : bigWidth,
-                    @"placeholder" : kInfoTextMultipleValues,
+                    @"placeholder" : textPlaceholder,
                 },
                 @"genre" : @{
                     @"order" : @6,
                     @"width" : @180,
                     @"type" : @(InfoControlTypeCombo),
-                    @"placeholder" : kInfoTextMultipleValues,
+                    @"placeholder" : textPlaceholder,
                 },
                 @"year" : @{
                     @"order" : @7,
                     @"width" : @60,
-                    @"placeholder" : kInfoNumberMultipleValues,
+                    @"placeholder" : numberPlaceholder,
                 },
                 @"track" : @{
                     @"order" : @8,
                     @"width" : @40,
-                    @"placeholder" : kInfoNumberMultipleValues,
+                    @"placeholder" : numberPlaceholder,
                     @"extra" : @{
-                        @"title" : @"of",
+                        @"title" : extraOf,
                         @"key" : @"tracks",
                     }
                 },
                 @"disk" : @{
                     @"order" : @9,
                     @"width" : @40,
-                    @"placeholder" : kInfoNumberMultipleValues,
+                    @"placeholder" : numberPlaceholder,
                     @"extra" : @{
-                        @"title" : @"of",
+                        @"title" : extraOf,
                         @"key" : @"disks",
                     }
                 },
                 @"compilation" : @{
                     @"order" : @10,
                     @"width" : bigWidth,
-                    @"description" : @"Album is a compilation of songs by various artists",
+                    @"description" : compilationDescription,
                     @"type" : @(InfoControlTypeCheck),
                 },
                 @"rating" : @{
@@ -175,9 +240,9 @@ static const CGFloat kViewLeftMargin = 10.0f;
                 @"tempo" : @{
                     @"order" : @12,
                     @"width" : @40,
-                    @"placeholder" : kInfoNumberMultipleValues,
+                    @"placeholder" : numberPlaceholder,
                     @"extra" : @{
-                        @"title" : @"key",
+                        @"title" : extraKey,
                         @"key" : @"key",
                     }
                 },
@@ -185,7 +250,7 @@ static const CGFloat kViewLeftMargin = 10.0f;
                     @"order" : @13,
                     @"width" : bigWidth,
                     @"rows" : @6,
-                    @"placeholder" : kInfoTextMultipleValues,
+                    @"placeholder" : textPlaceholder,
                 },
             },
             kInfoPageKeyFile : @{
@@ -301,7 +366,8 @@ static const CGFloat kViewLeftMargin = 10.0f;
 
         NSDictionary* extra = [_viewConfiguration[pageKey][key] objectForKey:@"extra"];
 
-        NSTextField* textField = [NSTextField textFieldWithString:key];
+        NSString* label = [self localizedInfoLabelForKey:key];
+        NSTextField* textField = [NSTextField textFieldWithString:label];
         textField.bordered = NO;
         textField.textColor = [[Defaults sharedDefaults] secondaryLabelColor];
         textField.drawsBackground = NO;
@@ -625,13 +691,13 @@ static const CGFloat kViewLeftMargin = 10.0f;
     y = 10.0;
     x = view.frame.size.width - 200.0;
 
-    NSButton* button = [NSButton buttonWithTitle:@"Cancel" target:self action:@selector(cancel:)];
+    NSButton* button = [NSButton buttonWithTitle:NSLocalizedString(@"action.cancel", @"Cancel button title") target:self action:@selector(cancel:)];
     button.frame = NSMakeRect(x, y, 100.0, 25.0);
     [view addSubview:button];
 
     x += 100.0;
 
-    button = [NSButton buttonWithTitle:@"OK" target:self action:@selector(okPressed:)];
+    button = [NSButton buttonWithTitle:NSLocalizedString(@"alert.ok", @"OK button title") target:self action:@selector(okPressed:)];
     button.frame = NSMakeRect(x, y, 100.0, 25.0);
     button.keyEquivalent = @"\r";
     [view addSubview:button];
@@ -689,7 +755,11 @@ static const CGFloat kViewLeftMargin = 10.0f;
         [_tabView removeFromSuperview];
     }
 
-    NSSegmentedControl* segment = [NSSegmentedControl segmentedControlWithLabels:@[ kInfoPageKeyDetails, kInfoPageKeyArtwork, kInfoPageKeyLyrics ]
+    NSSegmentedControl* segment = [NSSegmentedControl segmentedControlWithLabels:@[
+        [self localizedInfoPageTitleForKey:kInfoPageKeyDetails],
+        [self localizedInfoPageTitleForKey:kInfoPageKeyArtwork],
+        [self localizedInfoPageTitleForKey:kInfoPageKeyLyrics],
+    ]
                                                                     trackingMode:NSSegmentSwitchTrackingSelectOne
                                                                           target:self
                                                                           action:@selector(listsSwitched:)];
@@ -725,36 +795,40 @@ static const CGFloat kViewLeftMargin = 10.0f;
 
     NSViewController* vc = [NSViewController new];
     _detailsTabViewItem = [NSTabViewItem tabViewItemWithViewController:vc];
-    [_detailsTabViewItem setLabel:kInfoPageKeyDetails];
+    _detailsTabViewItem.identifier = kInfoPageKeyDetails;
+    [_detailsTabViewItem setLabel:[self localizedInfoPageTitleForKey:kInfoPageKeyDetails]];
     [_tabView addTabViewItem:_detailsTabViewItem];
     [self loadControlsWithView:_detailsTabViewItem.view pageKey:kInfoPageKeyDetails];
 
     vc = [NSViewController new];
     _artworkTabViewItem = [NSTabViewItem tabViewItemWithViewController:vc];
-    [_artworkTabViewItem setLabel:kInfoPageKeyArtwork];
+    _artworkTabViewItem.identifier = kInfoPageKeyArtwork;
+    [_artworkTabViewItem setLabel:[self localizedInfoPageTitleForKey:kInfoPageKeyArtwork]];
     [_tabView addTabViewItem:_artworkTabViewItem];
     [self loadArtworkWithView:_artworkTabViewItem.view];
 
     vc = [NSViewController new];
     _lyricsTabViewItem = [NSTabViewItem tabViewItemWithViewController:vc];
-    [_lyricsTabViewItem setLabel:kInfoPageKeyLyrics];
+    _lyricsTabViewItem.identifier = kInfoPageKeyLyrics;
+    [_lyricsTabViewItem setLabel:[self localizedInfoPageTitleForKey:kInfoPageKeyLyrics]];
     [_tabView addTabViewItem:_lyricsTabViewItem];
     [self loadLyricsWithView:_lyricsTabViewItem.view];
 
     if ([_metas count] == 1) {
         vc = [NSViewController new];
         _fileTabViewItem = [NSTabViewItem tabViewItemWithViewController:vc];
-        [_fileTabViewItem setLabel:kInfoPageKeyFile];
+        _fileTabViewItem.identifier = kInfoPageKeyFile;
+        [_fileTabViewItem setLabel:[self localizedInfoPageTitleForKey:kInfoPageKeyFile]];
         [_tabView addTabViewItem:_fileTabViewItem];
         [self loadControlsWithView:_fileTabViewItem.view pageKey:kInfoPageKeyFile];
 
         [segment setSegmentCount:segment.segmentCount + 1];
-        [segment setLabel:kInfoPageKeyFile forSegment:segment.segmentCount - 1];
+        [segment setLabel:[self localizedInfoPageTitleForKey:kInfoPageKeyFile] forSegment:segment.segmentCount - 1];
     }
 
     [self.view addSubview:_tabView];
 
-    if ([_tabView.selectedTabViewItem.label isEqualToString:@"Lyrics"]) {
+    if ([_tabView.selectedTabViewItem.identifier isEqual:kInfoPageKeyLyrics]) {
         [_lyricsTextView.window makeFirstResponder:_lyricsTextView];
     }
 
@@ -763,9 +837,10 @@ static const CGFloat kViewLeftMargin = 10.0f;
     _progress.hidden = NO;
     [_progress startAnimation:self];
 
-    _titleTextField.stringValue = @"loading...";
-    _artistTextField.stringValue = @"loading...";
-    _albumTextField.stringValue = @"loading...";
+    NSString* loading = NSLocalizedString(@"info.status.loading", @"Info panel loading status");
+    _titleTextField.stringValue = loading;
+    _artistTextField.stringValue = loading;
+    _albumTextField.stringValue = loading;
 
     // Lets confirm the metadata from the files - iTunes doesnt give us all the
     // beauty we need and it may also rely on outdated informations. iTunes does
@@ -792,13 +867,15 @@ static const CGFloat kViewLeftMargin = 10.0f;
     }
 
     if ([_metas count] > 1) {
-        _titleTextField.stringValue = [NSString stringWithFormat:@"%ld artists selected", [[occurances [@"artist"] allKeys] count]];
+        NSString* format = NSLocalizedStringFromTable(@"info.header.artists_selected", @"LocalizablePlural", @"Header for selected artists count");
+        _titleTextField.stringValue = [NSString localizedStringWithFormat:format, (long) [[occurances [@"artist"] allKeys] count]];
     } else {
         _titleTextField.stringValue = _commonMeta.title == nil ? @"" : _commonMeta.title;
     }
 
     if ([_metas count] > 1) {
-        _artistTextField.stringValue = [NSString stringWithFormat:@"%ld albums selected", [[occurances [@"album"] allKeys] count]];
+        NSString* format = NSLocalizedStringFromTable(@"info.header.albums_selected", @"LocalizablePlural", @"Header for selected albums count");
+        _artistTextField.stringValue = [NSString localizedStringWithFormat:format, (long) [[occurances [@"album"] allKeys] count]];
     } else {
         _artistTextField.stringValue = _commonMeta.artist == nil ? @"" : _commonMeta.artist;
     }
@@ -806,7 +883,8 @@ static const CGFloat kViewLeftMargin = 10.0f;
     if ([_metas count] == 1) {
         _albumTextField.stringValue = _commonMeta.album == nil ? @"" : _commonMeta.album;
     } else {
-        _albumTextField.stringValue = [NSString stringWithFormat:@"%ld songs selected", [_metas count]];
+        NSString* format = NSLocalizedStringFromTable(@"info.header.songs_selected", @"LocalizablePlural", @"Header for selected songs count");
+        _albumTextField.stringValue = [NSString localizedStringWithFormat:format, (long) [_metas count]];
     }
 }
 
@@ -858,7 +936,8 @@ static const CGFloat kViewLeftMargin = 10.0f;
                 NSForegroundColorAttributeName : [[Defaults sharedDefaults] tertiaryLabelColor],
                 NSFontAttributeName : [NSFont systemFontOfSize:[NSFont systemFontSize]],
             };
-            _lyricsTextView.placeholderAttributedString = [[NSAttributedString alloc] initWithString:kInfoTextMultipleValues attributes:attrs];
+            NSString* mixed = NSLocalizedString(kInfoTextMultipleValuesKey, @"Placeholder when values differ across selection");
+            _lyricsTextView.placeholderAttributedString = [[NSAttributedString alloc] initWithString:mixed attributes:attrs];
         }
     }
     self.deltaKeys = deltaKeys;
@@ -1112,7 +1191,7 @@ static const CGFloat kViewLeftMargin = 10.0f;
 
 - (void)tabView:(NSTabView*)tabView didSelectTabViewItem:(NSTabViewItem*)tabViewItem
 {
-    if ([tabViewItem.label isEqualToString:@"Lyrics"]) {
+    if ([tabViewItem.identifier isEqual:kInfoPageKeyLyrics]) {
         [_lyricsTextView.window makeFirstResponder:_lyricsTextView];
     }
 }

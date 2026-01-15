@@ -60,7 +60,7 @@
 		BB5DC1F52F00A52100CCA2D6 /* ActivityViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = BB5DC1F42F00A52100CCA2D6 /* ActivityViewController.m */; };
 		BB694CA32E6BB09C00818B01 /* BloomyText.m in Sources */ = {isa = PBXBuildFile; fileRef = BB694CA22E6BB09C00818B01 /* BloomyText.m */; };
 		BB6994962EEF5BDA00242456 /* VideoToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BB6994952EEF5BDA00242456 /* VideoToolbox.framework */; };
-		BB71CF5C2F196B240057064D /* LocalizablePlural.stringsdict in Resources */ = {isa = PBXBuildFile; fileRef = BB71CF5B2F196B240057064D /* LocalizablePlural.stringsdict */; };
+		BB71CF5C2F196B240057064D /* LocalizablePlural.stringsdict in Resources */ = {isa = PBXBuildFile; fileRef = A7F82968777440EB9DD2B927 /* LocalizablePlural.stringsdict */; };
 		BB71CF5F2F196CB10057064D /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = BB71CF5E2F196CB10057064D /* Localizable.xcstrings */; };
 		BB7C6269293144890019AF25 /* Defaults.m in Sources */ = {isa = PBXBuildFile; fileRef = BB7C6268293144890019AF25 /* Defaults.m */; };
 		BB7C626C2932E1540019AF25 /* ControlPanelController.m in Sources */ = {isa = PBXBuildFile; fileRef = BB7C626B2932E1540019AF25 /* ControlPanelController.m */; };
@@ -101,6 +101,7 @@
 		BBECB0252D4FF33E00C6A6F3 /* LargeRastaPattern.png in Resources */ = {isa = PBXBuildFile; fileRef = BBECB0242D4FF33E00C6A6F3 /* LargeRastaPattern.png */; };
 		BBF7982D2ADC4BAA00893533 /* NSString+BeautifulPast.m in Sources */ = {isa = PBXBuildFile; fileRef = BBF7982C2ADC4BAA00893533 /* NSString+BeautifulPast.m */; };
 		BBF81D932CBB025C0086AECB /* NSColor+Metal.m in Sources */ = {isa = PBXBuildFile; fileRef = BBF81D922CBB025C0086AECB /* NSColor+Metal.m */; };
+		F84E9E26F579447E8484796A /* MainMenu.strings in Resources */ = {isa = PBXBuildFile; fileRef = ACF09F10743242108FD4B324 /* MainMenu.strings */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -181,6 +182,15 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		3346661EDDB944918DE31EE1 /* de */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = de; path = de.lproj/LocalizablePlural.stringsdict; sourceTree = "<group>"; };
+		3F33C6069F584F60A07F850E /* ar */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ar; path = ar.lproj/MainMenu.strings; sourceTree = "<group>"; };
+		64A4E0C0BD1D407E8F70D3B8 /* es */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = es; path = es.lproj/LocalizablePlural.stringsdict; sourceTree = "<group>"; };
+		6DEF8A6A4C694648BB79905C /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = ja; path = ja.lproj/LocalizablePlural.stringsdict; sourceTree = "<group>"; };
+		90DAFC6EB9DA438AB7C4FD99 /* es */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = es; path = es.lproj/MainMenu.strings; sourceTree = "<group>"; };
+		960BB95F7056469AA053D342 /* uk */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = uk; path = uk.lproj/LocalizablePlural.stringsdict; sourceTree = "<group>"; };
+		9D916A357A8C4BF8BC24C903 /* de */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = de; path = de.lproj/MainMenu.strings; sourceTree = "<group>"; };
+		9F9862E45BB24D26BAEC2B98 /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fr; path = fr.lproj/MainMenu.strings; sourceTree = "<group>"; };
+		B0209856E23D4DD6AB3960A0 /* ar */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = ar; path = ar.lproj/LocalizablePlural.stringsdict; sourceTree = "<group>"; };
 		BB0632562F05C76700A3381E /* PlayEmTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PlayEmTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		BB097A072921967700D33E44 /* LevelIndicatorCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LevelIndicatorCell.h; sourceTree = "<group>"; };
 		BB097A082921967700D33E44 /* LevelIndicatorCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = LevelIndicatorCell.m; sourceTree = "<group>"; };
@@ -242,7 +252,7 @@
 		BB694CA22E6BB09C00818B01 /* BloomyText.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = BloomyText.m; sourceTree = "<group>"; };
 		BB6994952EEF5BDA00242456 /* VideoToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = VideoToolbox.framework; path = System/Library/Frameworks/VideoToolbox.framework; sourceTree = SDKROOT; };
 		BB71CF4D2F181E6B0057064D /* MediaMetaData+TrackList.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "MediaMetaData+TrackList.h"; path = "PlayEmCore/Metadata/MediaMetaData+TrackList.h"; sourceTree = "<group>"; };
-		BB71CF5B2F196B240057064D /* LocalizablePlural.stringsdict */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; path = LocalizablePlural.stringsdict; sourceTree = "<group>"; };
+		BB71CF5B2F196B240057064D /* LocalizablePlural.stringsdict */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = en; path = LocalizablePlural.stringsdict; sourceTree = "<group>"; };
 		BB71CF5E2F196CB10057064D /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
 		BB7C6267293144890019AF25 /* Defaults.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Defaults.h; sourceTree = "<group>"; };
 		BB7C6268293144890019AF25 /* Defaults.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Defaults.m; sourceTree = "<group>"; };
@@ -314,6 +324,11 @@
 		BBF7982C2ADC4BAA00893533 /* NSString+BeautifulPast.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSString+BeautifulPast.m"; sourceTree = "<group>"; };
 		BBF81D912CBB025C0086AECB /* NSColor+Metal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSColor+Metal.h"; sourceTree = "<group>"; };
 		BBF81D922CBB025C0086AECB /* NSColor+Metal.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSColor+Metal.m"; sourceTree = "<group>"; };
+		C0D58F84BF0B497BAD12B28E /* uk */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = uk; path = uk.lproj/MainMenu.strings; sourceTree = "<group>"; };
+		C4871CE91D46465B9A95707D /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/MainMenu.strings"; sourceTree = "<group>"; };
+		C855BF3A9186494AB0CE3759 /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = "zh-Hans"; path = "zh-Hans.lproj/LocalizablePlural.stringsdict"; sourceTree = "<group>"; };
+		DA46DBE24600402884138103 /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = fr; path = fr.lproj/LocalizablePlural.stringsdict; sourceTree = "<group>"; };
+		FC5D50EB1D1047F6A0B6CDEF /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/MainMenu.strings; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -608,7 +623,8 @@
 				BB51C1F02E5D18940049355F /* credits.rtf */,
 				BB71CF5E2F196CB10057064D /* Localizable.xcstrings */,
 				BB0A62D42EAD690A00BAF444 /* TODO.md */,
-				BB71CF5B2F196B240057064D /* LocalizablePlural.stringsdict */,
+				A7F82968777440EB9DD2B927 /* LocalizablePlural.stringsdict */,
+				ACF09F10743242108FD4B324 /* MainMenu.strings */,
 				BBD24D682432948B00DC2A81 /* Info.plist */,
 				BBD24D692432948B00DC2A81 /* main.m */,
 				BBD24D6B2432948B00DC2A81 /* PlayEm.entitlements */,
@@ -826,6 +842,7 @@
 				uk,
 				ar,
 				ja,
+				"zh-Hans",
 			);
 			mainGroup = BBD24D542432948800DC2A81;
 			preferredProjectObjectVersion = 50;
@@ -875,6 +892,7 @@
 				BB8571032972152B0004218B /* README.md in Resources */,
 				BBD24D642432948B00DC2A81 /* Assets.xcassets in Resources */,
 				BB71CF5C2F196B240057064D /* LocalizablePlural.stringsdict in Resources */,
+				F84E9E26F579447E8484796A /* MainMenu.strings in Resources */,
 				BB9CE9B128D388F3008DFF91 /* MainMenu.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1028,6 +1046,38 @@
 			targetProxy = BBDBBCDE2F06DAD300ACC632 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
+
+/* Begin PBXVariantGroup section */
+		A7F82968777440EB9DD2B927 /* LocalizablePlural.stringsdict */ = {
+			isa = PBXVariantGroup;
+			children = (
+				BB71CF5B2F196B240057064D /* en */,
+				B0209856E23D4DD6AB3960A0 /* ar */,
+				3346661EDDB944918DE31EE1 /* de */,
+				64A4E0C0BD1D407E8F70D3B8 /* es */,
+				DA46DBE24600402884138103 /* fr */,
+				6DEF8A6A4C694648BB79905C /* ja */,
+				960BB95F7056469AA053D342 /* uk */,
+				C855BF3A9186494AB0CE3759 /* zh-Hans */,
+			);
+			name = LocalizablePlural.stringsdict;
+			sourceTree = "<group>";
+		};
+		ACF09F10743242108FD4B324 /* MainMenu.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				3F33C6069F584F60A07F850E /* ar */,
+				9D916A357A8C4BF8BC24C903 /* de */,
+				90DAFC6EB9DA438AB7C4FD99 /* es */,
+				9F9862E45BB24D26BAEC2B98 /* fr */,
+				FC5D50EB1D1047F6A0B6CDEF /* ja */,
+				C0D58F84BF0B497BAD12B28E /* uk */,
+				C4871CE91D46465B9A95707D /* zh-Hans */,
+			);
+			name = MainMenu.strings;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
 		BB06325C2F05C76800A3381E /* Debug */ = {

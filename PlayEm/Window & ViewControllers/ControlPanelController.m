@@ -477,7 +477,7 @@ extern NSString* const kPlaybackStatePlaying;
     [self.view addSubview:_bpm];
     
     const CGFloat chaserSize = 46;
-    CGFloat chaserX = _beatIndicator.frame.origin.x + 98.0;
+    CGFloat chaserX = _beatIndicator.frame.origin.x + 104.0;
     CGFloat chaserY = _bpm.frame.origin.y + 6.0 - ((chaserSize / 2.0));
     _activityChaser = [[PhosphorChaserView alloc] initWithFrame:NSMakeRect(chaserX, chaserY, chaserSize, chaserSize)];
     _activityChaser.autoresizingMask = NSViewNotSizable;

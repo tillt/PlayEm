@@ -2813,23 +2813,61 @@ typedef struct {
 
 - (BOOL)performDragOperation:(id<NSDraggingInfo>)sender
 {
-    BOOL ret = NO;
-
     NSPasteboard* pboard = [sender draggingPasteboard];
+    NSArray<NSURL*>* droppedURLs =
+        [pboard readObjectsForClasses:@[ [NSURL class] ] options:@{ NSPasteboardURLReadingFileURLsOnlyKey : @YES }];
+    if (droppedURLs.count == 0) {
+        return NO;
+    }
 
-    // When just one item got dropped we know we can play that right away.
-    if (pboard.pasteboardItems.count <= 1) {
-        NSURL* url = [NSURL URLFromPasteboard:pboard];
-        if (url != nil) {
-            ret = [self loadDocumentFromURL:[WaveWindowController encodeQueryItemsWithUrl:url frame:0LL playing:YES] meta:nil];
+    NSMutableArray<NSURL*>* fileURLs = [NSMutableArray array];
+    for (NSURL* url in droppedURLs) {
+        [fileURLs addObjectsFromArray:[self mediaFileURLsFromURL:url]];
+    }
+    if (fileURLs.count == 0) {
+        return NO;
+    }
+
+    // Add everything to the library and play the first item.
+    [_browser importFilesAtURLs:fileURLs];
+
+    NSURL* firstURL = fileURLs.firstObject;
+    return [self loadDocumentFromURL:[WaveWindowController encodeQueryItemsWithUrl:firstURL frame:0LL playing:YES] meta:nil];
+}
+
+- (NSArray<NSURL*>*)mediaFileURLsFromURL:(NSURL*)url
+{
+    if (url == nil || !url.isFileURL) {
+        return @[];
+    }
+
+    NSNumber* isDirectory = nil;
+    if (![url getResourceValue:&isDirectory forKey:NSURLIsDirectoryKey error:nil]) {
+        return @[];
+    }
+
+    if (![isDirectory boolValue]) {
+        return @[ url ];
+    }
+
+    NSMutableArray<NSURL*>* files = [NSMutableArray array];
+    NSFileManager* fileManager = [NSFileManager defaultManager];
+    NSArray<NSURLResourceKey>* keys = @[ NSURLIsDirectoryKey, NSURLIsRegularFileKey ];
+    NSDirectoryEnumerator<NSURL*>* enumerator =
+        [fileManager enumeratorAtURL:url
+          includingPropertiesForKeys:keys
+                             options:NSDirectoryEnumerationSkipsHiddenFiles | NSDirectoryEnumerationSkipsPackageDescendants
+                        errorHandler:^BOOL(NSURL* _Nonnull errorURL, NSError* _Nonnull error) {
+                            NSLog(@"[WaveWindowController] skip %@ due to error: %@", errorURL, error);
+                            return YES;
+                        }];
+    for (NSURL* itemURL in enumerator) {
+        NSNumber* isFile = nil;
+        if ([itemURL getResourceValue:&isFile forKey:NSURLIsRegularFileKey error:nil] && [isFile boolValue]) {
+            [files addObject:itemURL];
         }
     }
-
-    // At least one item got dropped, maybe the user wants to add them to our DB?
-    if (pboard.pasteboardItems.count >= 1) {
-    }
-
-    return ret;
+    return files;
 }
 
 #pragma mark - Browser delegate

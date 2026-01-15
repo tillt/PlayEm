@@ -45,6 +45,12 @@
             "state" : "translated",
             "value" : "Індикатор фонової активності"
           }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "后台活动指示器"
+          }
         }
       }
     },
@@ -91,6 +97,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "живе визначення"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "实时识别"
           }
         }
       }
@@ -139,6 +151,12 @@
             "state" : "translated",
             "value" : "плейлист"
           }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "播放列表"
+          }
         }
       }
     },
@@ -185,6 +203,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Скасувати"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "取消"
           }
         }
       }
@@ -233,6 +257,12 @@
             "state" : "translated",
             "value" : "Скасувати"
           }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "取消"
+          }
         }
       }
     },
@@ -280,6 +310,12 @@
             "state" : "translated",
             "value" : "Готово"
           }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "完成"
+          }
         }
       }
     },
@@ -295,7 +331,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Erkenne abspielbare Eintraege"
+            "value" : "Erkenne abspielbare Einträge"
           }
         },
         "en" : {
@@ -326,6 +362,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "визначення відтворюваних записів"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "正在识别可播放条目"
           }
         }
       }
@@ -374,6 +416,12 @@
             "state" : "translated",
             "value" : "пошук бібліотеки Музика"
           }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "正在定位音乐资料库"
+          }
         }
       }
     },
@@ -420,6 +468,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "бібліотеку не знайдено"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "未找到资料库"
           }
         }
       }
@@ -468,6 +522,12 @@
             "state" : "translated",
             "value" : "читання з бази даних"
           }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "正在读取数据库"
+          }
         }
       }
     },
@@ -514,6 +574,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Завантаження бібліотеки"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "正在加载资料库"
           }
         }
       }
@@ -562,6 +628,12 @@
             "state" : "translated",
             "value" : "об’єднання результатів"
           }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "正在合并结果"
+          }
         }
       }
     },
@@ -608,6 +680,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "запуск"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "正在开始"
           }
         }
       }
@@ -656,6 +734,12 @@
             "state" : "translated",
             "value" : "Зіставлення бібліотеки"
           }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "资料库对账"
+          }
         }
       }
     },
@@ -702,6 +786,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Оновлення з бібліотеки Apple"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "正在从 Apple 资料库更新"
           }
         }
       }
@@ -750,6 +840,12 @@
             "state" : "translated",
             "value" : "метадані завантажено"
           }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "元数据已加载"
+          }
         }
       }
     },
@@ -796,6 +892,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "завантаження основних метаданих"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "正在加载核心元数据"
           }
         }
       }
@@ -844,6 +946,12 @@
             "state" : "translated",
             "value" : "Аналіз метаданих"
           }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "正在解析元数据"
+          }
         }
       }
     },
@@ -890,6 +998,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "треклист завантажено"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "曲目列表已加载"
           }
         }
       }
@@ -938,6 +1052,12 @@
             "state" : "translated",
             "value" : "Прогрес активності"
           }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "活动进度"
+          }
         }
       }
     },
@@ -985,11 +1105,17 @@
             "state" : "translated",
             "value" : "Активність"
           }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "活动"
+          }
         }
       }
     },
     "alert.ok" : {
-      "comment" : "Alert OK button title",
+      "comment" : "Alert OK button title\nOK button title",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -1031,6 +1157,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Гаразд"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "好"
           }
         }
       }
@@ -1075,6 +1207,12 @@
           }
         },
         "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : " • %@"
+          }
+        },
+        "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : " • %@"
@@ -1126,6 +1264,12 @@
             "state" : "translated",
             "value" : " • ..."
           }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : " • ..."
+          }
         }
       }
     },
@@ -1172,6 +1316,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Помилка: %@."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "错误：%@。"
           }
         }
       }
@@ -1220,6 +1370,12 @@
             "state" : "translated",
             "value" : "Оновлення не потрібні (бібліотека вже актуальна)."
           }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "没有需要更新的项目（资料库已是最新）。"
+          }
         }
       }
     },
@@ -1266,6 +1422,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Зіставлення бібліотеки"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "资料库对账"
           }
         }
       }
@@ -1314,6 +1476,12 @@
             "state" : "translated",
             "value" : "Більше не показувати"
           }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "不再显示"
+          }
         }
       }
     },
@@ -1329,7 +1497,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Diese Datei ist %.1f kHz.\n%@ laeuft auf %.1f kHz.\nWir resamplen vor der Wiedergabe. Das kann bissle dauern."
+            "value" : "Diese Datei ist %.1f kHz.\n%@ läuft auf %.1f kHz.\nWir resamplen vor der Wiedergabe. Das kann bissle dauern."
           }
         },
         "en" : {
@@ -1360,6 +1528,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Цей файл має %.1f кГц.\n%@ працює на %.1f кГц.\nПеред відтворенням виконаємо ресемплінг. Це може зайняти трохи більше часу."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "此文件为 %.1f kHz。\n%@ 运行于 %.1f kHz。\n播放前将重新采样，这可能需要更长时间。"
           }
         }
       }
@@ -1408,6 +1582,12 @@
             "state" : "translated",
             "value" : "Ресемплінг для відповідності вашому аудіопристрою"
           }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "重新采样以匹配你的音频设备"
+          }
         }
       }
     },
@@ -1454,6 +1634,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Гаразд"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "好"
           }
         }
       }
@@ -1502,6 +1688,12 @@
             "state" : "translated",
             "value" : "Скасувати"
           }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "取消"
+          }
         }
       }
     },
@@ -1548,6 +1740,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Видалити"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "删除"
           }
         }
       }
@@ -1596,6 +1794,12 @@
             "state" : "translated",
             "value" : "Треклист буде перезаписано"
           }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "曲目列表将被覆盖"
+          }
         }
       }
     },
@@ -1643,11 +1847,18 @@
             "state" : "translated",
             "value" : "Видалити наявний треклист?"
           }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "删除现有曲目列表？"
+          }
         }
       }
     },
     "common.unknown" : {
       "comment" : "Placeholder when value is unknown",
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -1689,6 +1900,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "невідомо"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "未知"
           }
         }
       }
@@ -1737,6 +1954,12 @@
             "state" : "translated",
             "value" : "щойно"
           }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "刚刚"
+          }
         }
       }
     },
@@ -1783,6 +2006,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "минулого місяця"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "上月"
           }
         }
       }
@@ -1831,6 +2060,12 @@
             "state" : "translated",
             "value" : "минулого тижня"
           }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "上周"
+          }
         }
       }
     },
@@ -1877,6 +2112,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "цього місяця"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "本月"
           }
         }
       }
@@ -1925,6 +2166,12 @@
             "state" : "translated",
             "value" : "цього тижня"
           }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "本周"
+          }
         }
       }
     },
@@ -1971,6 +2218,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "вчора"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "昨天"
           }
         }
       }
@@ -2019,6 +2272,12 @@
             "state" : "translated",
             "value" : "завантажити"
           }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "加载"
+          }
         }
       }
     },
@@ -2065,6 +2324,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "читати"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "读取"
           }
         }
       }
@@ -2113,6 +2378,12 @@
             "state" : "translated",
             "value" : "Ефект вимкнено."
           }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "效果已禁用。"
+          }
         }
       }
     },
@@ -2159,6 +2430,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Вибір ефекту"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "效果选择"
           }
         }
       }
@@ -2207,6 +2484,12 @@
             "state" : "translated",
             "value" : "Немає регульованих параметрів."
           }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "没有可调参数。"
+          }
         }
       }
     },
@@ -2253,6 +2536,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Увімкнено"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "开"
           }
         }
       }
@@ -2301,6 +2590,12 @@
             "state" : "translated",
             "value" : "Ефект"
           }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "效果"
+          }
         }
       }
     },
@@ -2347,6 +2642,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Стан"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "状态"
           }
         }
       }
@@ -2395,6 +2696,12 @@
             "state" : "translated",
             "value" : "Значення"
           }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "数值"
+          }
         }
       }
     },
@@ -2441,6 +2748,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Стан аудіографа"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "音频图状态"
           }
         }
       }
@@ -2489,11 +2802,18 @@
             "state" : "translated",
             "value" : "Альбом є збіркою пісень різних виконавців"
           }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "该专辑是由多位艺人歌曲组成的合集"
+          }
         }
       }
     },
     "info.label.album" : {
       "comment" : "Info panel label",
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -2536,11 +2856,18 @@
             "state" : "translated",
             "value" : "Альбом"
           }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "专辑"
+          }
         }
       }
     },
     "info.label.album_artist" : {
       "comment" : "Info panel label",
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -2583,11 +2910,18 @@
             "state" : "translated",
             "value" : "Виконавець альбому"
           }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "专辑艺人"
+          }
         }
       }
     },
     "info.label.artist" : {
       "comment" : "Info panel label",
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -2630,11 +2964,18 @@
             "state" : "translated",
             "value" : "Виконавець"
           }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "艺人"
+          }
         }
       }
     },
     "info.label.bit_rate" : {
       "comment" : "Info panel label",
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -2677,11 +3018,18 @@
             "state" : "translated",
             "value" : "Бітрейт"
           }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "比特率"
+          }
         }
       }
     },
     "info.label.channels" : {
       "comment" : "Info panel label",
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -2724,11 +3072,18 @@
             "state" : "translated",
             "value" : "Канали"
           }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "声道"
+          }
         }
       }
     },
     "info.label.comment" : {
       "comment" : "Info panel label",
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -2771,11 +3126,18 @@
             "state" : "translated",
             "value" : "Коментар"
           }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "注释"
+          }
         }
       }
     },
     "info.label.compilation" : {
       "comment" : "Info panel label",
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -2818,11 +3180,18 @@
             "state" : "translated",
             "value" : "Збірка"
           }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "合辑"
+          }
         }
       }
     },
     "info.label.disk" : {
       "comment" : "Info panel label",
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -2865,11 +3234,18 @@
             "state" : "translated",
             "value" : "Диск"
           }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "碟"
+          }
         }
       }
     },
     "info.label.duration" : {
       "comment" : "Info panel label",
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -2912,11 +3288,18 @@
             "state" : "translated",
             "value" : "Тривалість"
           }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "时长"
+          }
         }
       }
     },
     "info.label.format" : {
       "comment" : "Info panel label",
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -2959,11 +3342,18 @@
             "state" : "translated",
             "value" : "Формат"
           }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "格式"
+          }
         }
       }
     },
     "info.label.genre" : {
       "comment" : "Info panel label",
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -3005,6 +3395,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Жанр"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "流派"
           }
         }
       }
@@ -3053,11 +3449,18 @@
             "state" : "translated",
             "value" : "Тональність"
           }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "调性"
+          }
         }
       }
     },
     "info.label.location" : {
       "comment" : "Info panel label",
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -3099,6 +3502,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Розташування"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "位置"
           }
         }
       }
@@ -3147,11 +3556,18 @@
             "state" : "translated",
             "value" : "з"
           }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "/"
+          }
         }
       }
     },
     "info.label.rating" : {
       "comment" : "Info panel label",
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -3194,11 +3610,18 @@
             "state" : "translated",
             "value" : "Оцінка"
           }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "评分"
+          }
         }
       }
     },
     "info.label.sample_rate" : {
       "comment" : "Info panel label",
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -3241,11 +3664,18 @@
             "state" : "translated",
             "value" : "Частота дискретизації"
           }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "采样率"
+          }
         }
       }
     },
     "info.label.size" : {
       "comment" : "Info panel label",
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -3288,11 +3718,18 @@
             "state" : "translated",
             "value" : "Розмір"
           }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "大小"
+          }
         }
       }
     },
     "info.label.tags" : {
       "comment" : "Info panel label",
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -3335,11 +3772,18 @@
             "state" : "translated",
             "value" : "Теги"
           }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "标签"
+          }
         }
       }
     },
     "info.label.tempo" : {
       "comment" : "Info panel label",
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -3382,11 +3826,18 @@
             "state" : "translated",
             "value" : "Темп"
           }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "速度"
+          }
         }
       }
     },
     "info.label.title" : {
       "comment" : "Info panel label",
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -3429,11 +3880,18 @@
             "state" : "translated",
             "value" : "Назва"
           }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "标题"
+          }
         }
       }
     },
     "info.label.track" : {
       "comment" : "Info panel label",
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -3476,11 +3934,18 @@
             "state" : "translated",
             "value" : "Трек"
           }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "曲目"
+          }
         }
       }
     },
     "info.label.volume" : {
       "comment" : "Info panel label",
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -3523,11 +3988,18 @@
             "state" : "translated",
             "value" : "Гучність"
           }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "音量"
+          }
         }
       }
     },
     "info.label.year" : {
       "comment" : "Info panel label",
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -3570,11 +4042,18 @@
             "state" : "translated",
             "value" : "Рік"
           }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "年份"
+          }
         }
       }
     },
     "info.page.artwork" : {
       "comment" : "Info panel page title",
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -3617,11 +4096,18 @@
             "state" : "translated",
             "value" : "Обкладинка"
           }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "封面"
+          }
         }
       }
     },
     "info.page.details" : {
       "comment" : "Info panel page title",
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -3664,11 +4150,18 @@
             "state" : "translated",
             "value" : "Деталі"
           }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "详情"
+          }
         }
       }
     },
     "info.page.file" : {
       "comment" : "Info panel page title",
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -3711,11 +4204,18 @@
             "state" : "translated",
             "value" : "Файл"
           }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "文件"
+          }
         }
       }
     },
     "info.page.lyrics" : {
       "comment" : "Info panel page title",
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -3758,11 +4258,18 @@
             "state" : "translated",
             "value" : "Текст"
           }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "歌词"
+          }
         }
       }
     },
     "info.placeholder.mixed" : {
       "comment" : "Placeholder when values differ across selection",
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -3805,11 +4312,18 @@
             "state" : "translated",
             "value" : "Змішано"
           }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "混合"
+          }
         }
       }
     },
     "info.placeholder.number" : {
       "comment" : "Placeholder when numeric values differ across selection",
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -3848,6 +4362,12 @@
           }
         },
         "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "-"
+          }
+        },
+        "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "-"
@@ -3899,6 +4419,12 @@
             "state" : "translated",
             "value" : "Завантаження..."
           }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "正在加载..."
+          }
         }
       }
     },
@@ -3945,6 +4471,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Імпортувати з Apple Music"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "从 Apple Music 导入"
           }
         }
       }
@@ -3993,6 +4525,12 @@
             "state" : "translated",
             "value" : "Імпорт триває"
           }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "导入中"
+          }
         }
       }
     },
@@ -4039,6 +4577,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Відкрити в Apple Music"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在 Apple Music 中打开"
           }
         }
       }
@@ -4087,6 +4631,12 @@
             "state" : "translated",
             "value" : "Видалити з треклиста"
           }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "从曲目列表移除"
+          }
         }
       }
     },
@@ -4133,6 +4683,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Показати інформацію"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "显示信息"
           }
         }
       }
@@ -4181,6 +4737,12 @@
             "state" : "translated",
             "value" : "Додати до треклиста"
           }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "添加到曲目列表"
+          }
         }
       }
     },
@@ -4228,6 +4790,12 @@
             "state" : "translated",
             "value" : "Копіювати до буфера"
           }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "复制到剪贴板"
+          }
         }
       }
     },
@@ -4243,7 +4811,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Auf Beatport oeffnen"
+            "value" : "Auf Beatport öffnen"
           }
         },
         "en" : {
@@ -4275,6 +4843,12 @@
             "state" : "translated",
             "value" : "Відкрити в Beatport"
           }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在 Beatport 打开"
+          }
         }
       }
     },
@@ -4290,7 +4864,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Auf Soundcloud oeffnen"
+            "value" : "Auf Soundcloud öffnen"
           }
         },
         "en" : {
@@ -4321,6 +4895,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Відкрити в Soundcloud"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在 Soundcloud 打开"
           }
         }
       }
@@ -4369,6 +4949,12 @@
             "state" : "translated",
             "value" : "Видалити з плейлиста"
           }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "从播放列表移除"
+          }
         }
       }
     },
@@ -4415,6 +5001,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Відтворити пізніше"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "稍后播放"
           }
         }
       }
@@ -4463,6 +5055,12 @@
             "state" : "translated",
             "value" : "Відтворити наступним"
           }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "下一首播放"
+          }
         }
       }
     },
@@ -4509,6 +5107,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Видалити з бібліотеки"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "从资料库移除"
           }
         }
       }
@@ -4557,6 +5161,12 @@
             "state" : "translated",
             "value" : "Показати в Finder"
           }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在 Finder 中显示"
+          }
         }
       }
     },
@@ -4603,6 +5213,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Копіювати треклист до буфера"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "将曲目列表复制到剪贴板"
           }
         }
       }
@@ -4651,6 +5267,12 @@
             "state" : "translated",
             "value" : "Експортувати треклист..."
           }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "导出曲目列表..."
+          }
         }
       }
     },
@@ -4697,6 +5319,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "􀢹 Перемістити на %@"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "􀢹 移动到 %@"
           }
         }
       }
@@ -4745,6 +5373,12 @@
             "state" : "translated",
             "value" : "фільтр"
           }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "过滤"
+          }
         }
       }
     },
@@ -4791,6 +5425,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Фільтр"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "过滤"
           }
         }
       }
@@ -4839,6 +5479,12 @@
             "state" : "translated",
             "value" : "Плейлист"
           }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "播放列表"
+          }
         }
       }
     },
@@ -4885,6 +5531,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Треклист"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "曲目列表"
           }
         }
       }
@@ -4933,11 +5585,17 @@
             "state" : "translated",
             "value" : "Додано"
           }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "添加"
+          }
         }
       }
     },
     "table.songs.album" : {
-      "comment" : "Table column title",
+      "comment" : "Album table column title\nTable column title",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -4980,11 +5638,17 @@
             "state" : "translated",
             "value" : "Альбом"
           }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "专辑"
+          }
         }
       }
     },
     "table.songs.artist" : {
-      "comment" : "Table column title",
+      "comment" : "Artist table column title\nTable column title",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -5026,6 +5690,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Виконавець"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "艺人"
           }
         }
       }
@@ -5074,11 +5744,17 @@
             "state" : "translated",
             "value" : "BPM"
           }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "BPM"
+          }
         }
       }
     },
     "table.songs.genre" : {
-      "comment" : "Table column title",
+      "comment" : "Genre table column title\nTable column title",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -5121,11 +5797,17 @@
             "state" : "translated",
             "value" : "Жанр"
           }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "流派"
+          }
         }
       }
     },
     "table.songs.key" : {
-      "comment" : "Table column title",
+      "comment" : "Key table column title\nTable column title",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -5168,11 +5850,17 @@
             "state" : "translated",
             "value" : "Тональність"
           }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "调性"
+          }
         }
       }
     },
     "table.songs.rating" : {
-      "comment" : "Table column title",
+      "comment" : "Rating table column title\nTable column title",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -5214,6 +5902,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Оцінка"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "评分"
           }
         }
       }
@@ -5262,6 +5956,12 @@
             "state" : "translated",
             "value" : "Теги"
           }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "标签"
+          }
         }
       }
     },
@@ -5308,6 +6008,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Темп"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "速度"
           }
         }
       }
@@ -5356,6 +6062,12 @@
             "state" : "translated",
             "value" : "Час"
           }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "时间"
+          }
         }
       }
     },
@@ -5402,6 +6114,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Назва"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "标题"
           }
         }
       }
@@ -5450,6 +6168,12 @@
             "state" : "translated",
             "value" : "Трек"
           }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "曲目"
+          }
         }
       }
     },
@@ -5496,6 +6220,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Теги"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "标签"
           }
         }
       }
@@ -5544,6 +6274,12 @@
             "state" : "translated",
             "value" : "невідомо"
           }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "未知"
+          }
         }
       }
     },
@@ -5590,6 +6326,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Виявити треклист"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "检测曲目列表"
           }
         }
       }
@@ -5638,6 +6380,12 @@
             "state" : "translated",
             "value" : "Виявлення треклиста триває"
           }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "曲目列表检测中"
+          }
         }
       }
     },
@@ -5684,6 +6432,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "байт"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "字节"
           }
         }
       }
@@ -5732,6 +6486,12 @@
             "state" : "translated",
             "value" : "ГБ"
           }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "GB"
+          }
         }
       }
     },
@@ -5778,6 +6538,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "КБ"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "KB"
           }
         }
       }
@@ -5826,6 +6592,12 @@
             "state" : "translated",
             "value" : "МБ"
           }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "MB"
+          }
         }
       }
     },
@@ -5873,6 +6645,12 @@
             "state" : "translated",
             "value" : "ПБ"
           }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "PB"
+          }
         }
       }
     },
@@ -5919,6 +6697,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "ТБ"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "TB"
           }
         }
       }

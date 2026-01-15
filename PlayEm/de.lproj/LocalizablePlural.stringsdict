@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>activity.library.accepted_count</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>akzeptiert %1$ld von %2$ld %3$#@entries@</string>
+		<key>entries</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>Eintrag</string>
+			<key>other</key>
+			<string>Einträge</string>
+		</dict>
+	</dict>
+	<key>alert.reconcile.changed_count</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>Geänderte Metadaten in %1$ld %2$#@items@ erkannt.</string>
+		<key>items</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>Element</string>
+			<key>other</key>
+			<string>Elemente</string>
+		</dict>
+	</dict>
+	<key>alert.reconcile.missing_count</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>Fehlende Dateien: %1$ld %2$#@files@.</string>
+		<key>files</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>Datei</string>
+			<key>other</key>
+			<string>Dateien</string>
+		</dict>
+	</dict>
+	<key>alert.reconcile.updated_count</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>Aktualisiert: %1$ld %2$#@items@ (Metadaten vom Datenträger aktualisiert).</string>
+		<key>items</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>Element</string>
+			<key>other</key>
+			<string>Elemente</string>
+		</dict>
+	</dict>
+	<key>info.header.albums_selected</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%1$ld %2$#@albums@ ausgewählt</string>
+		<key>albums</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>Album</string>
+			<key>other</key>
+			<string>Alben</string>
+		</dict>
+	</dict>
+	<key>info.header.artists_selected</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%1$ld %2$#@artists@ ausgewählt</string>
+		<key>artists</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>Künstler</string>
+			<key>other</key>
+			<string>Künstler</string>
+		</dict>
+	</dict>
+	<key>info.header.songs_selected</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%1$ld %2$#@songs@ ausgewählt</string>
+		<key>songs</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>Titel</string>
+			<key>other</key>
+			<string>Titel</string>
+		</dict>
+	</dict>
+</dict>
+</plist>

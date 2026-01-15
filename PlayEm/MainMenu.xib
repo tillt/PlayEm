@@ -91,7 +91,7 @@
                                                 <action selector="loadITunesLibrary:" target="-1" id="cNU-l6-q6g"/>
                                             </connections>
                                         </menuItem>
-                                        <menuItem title="Reconciliate" id="cRa-NH-lE4">
+                                        <menuItem title="Reconciliate from Media Files" id="cRa-NH-lE4">
                                             <modifierMask key="keyEquivalentModifierMask"/>
                                             <connections>
                                                 <action selector="reconcileLibrary:" target="-1" id="v4a-XI-Yaa"/>

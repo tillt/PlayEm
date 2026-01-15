@@ -269,11 +269,12 @@ extern NSString* const kBeatTrackedSampleTempoChangeNotification;
 
     const double beatDuration = 60.0 / tempo;
     // Favor stronger beats and keep the excursion small.
-    const CGFloat radius = 12.0f * (CGFloat) (energy * energy);
-    const CGFloat angle = (CGFloat) arc4random_uniform(4000) / 1000.0f * (CGFloat) (2.0 * M_PI);
+    const CGFloat radius = 52.0f * (CGFloat) (energy * energy);
+    const CGFloat angle = (CGFloat) arc4random_uniform(1000) / 1000.0f * (CGFloat) (2.0 * M_PI);
     const CGFloat dx = cosf(angle) * radius;
     const CGFloat dy = sinf(angle) * radius;
-    const CGFloat twist = ((CGFloat) M_PI / 180.0f) * (2.5f * (CGFloat) energy);
+    const int twistDirection = ((arc4random_uniform(2000) / 1000.0) - 1.0) >= 0.0 ? 1 : -1;
+    const CGFloat twist = ((CGFloat) M_PI / 180.0f) * (8.0f * twistDirection * (CGFloat) energy);
 
     [layer removeAnimationForKey:@"parallaxKick"];
 

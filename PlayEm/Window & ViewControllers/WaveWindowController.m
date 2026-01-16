@@ -7,6 +7,8 @@
 //
 
 #import "WaveWindowController.h"
+#import "WaveWindowController+PlaybackState.h"
+#import "WaveWindowController+RemoteCommands.h"
 
 #import <AVFoundation/AVFoundation.h>
 #import <AVKit/AVKit.h>
@@ -53,9 +55,9 @@
 #import "WaveView.h"
 #import "WaveViewController.h"
 
-static NSString* const kFXLastEffectDefaultsKey = @"FXLastEffectComponent";
-static NSString* const kFXLastEffectEnabledKey = @"FXLastEffectEnabled";
-static NSString *const kSkipRateMismatchWarning = @"SkipRateMismatchWarning";
+NSString* const kFXLastEffectDefaultsKey = @"FXLastEffectComponent";
+NSString* const kFXLastEffectEnabledKey = @"FXLastEffectEnabled";
+NSString* const kSkipRateMismatchWarning = @"SkipRateMismatchWarning";
 
 @class BeatLayerDelegate;
 @class WaveLayerDelegate;
@@ -63,8 +65,8 @@ static NSString *const kSkipRateMismatchWarning = @"SkipRateMismatchWarning";
 
 static const float kShowHidePanelAnimationDuration = 0.3f;
 
-static const float kPixelPerSecond = 120.0f;
-static const size_t kReducedVisualSampleWidth = 8000;
+const float kPixelPerSecond = 120.0f;
+const size_t kReducedVisualSampleWidth = 8000;
 
 const CGFloat kDefaultWindowWidth = 1280.0f;
 const CGFloat kDefaultWindowHeight = 920.0f;
@@ -89,22 +91,6 @@ const size_t kBrowserSplitIndexTags = 6;
 const size_t kWindowSplitIndexVisuals = 0;
 const size_t kWindowSplitIndexBrowser = 1;
 
-typedef enum : NSUInteger {
-    LoaderStateReady,
-
-    LoaderStateMeta,
-    LoaderStateDecoder,
-    LoaderStateBeatDetection,
-    LoaderStateKeyDetection,
-
-    LoaderStateAbortingMeta,
-    LoaderStateAbortingDecoder,
-    LoaderStateAbortingBeatDetection,
-    LoaderStateAbortingKeyDetection,
-
-    LoaderStateAborted,
-} LoaderState;
-
 os_log_t pointsOfInterest;
 
 @interface WaveWindowController () {
@@ -123,7 +109,6 @@ os_log_t pointsOfInterest;
     
     BOOL _timeUpdateScheduled;
 
-    LoaderState _loaderState;
 }
 @property (nonatomic, strong) MetaController* metaController;
 
@@ -241,7 +226,6 @@ os_log_t pointsOfInterest;
         pointsOfInterest = os_log_create("com.toenshoff.playem", OS_LOG_CATEGORY_POINTS_OF_INTEREST);
         _noSleepAssertionID = 0;
         _noSleepAssertionID = 0;
-        _loaderState = LoaderStateReady;
         _videoDelay = 0.0;
         _metaController = [MetaController new];
         _timeUpdateScheduled = NO;
@@ -2015,96 +1999,6 @@ call super's supplementalTargetForAction:sender:.
     }
 }
 
-#pragma mark - Media Remote Commands
-
-- (NSArray*)remoteCommands
-{
-    MPRemoteCommandCenter* cc = [MPRemoteCommandCenter sharedCommandCenter];
-    return @[
-        cc.playCommand,
-        cc.pauseCommand,
-        cc.stopCommand,
-        cc.togglePlayPauseCommand,
-        cc.nextTrackCommand,
-        cc.previousTrackCommand,
-        cc.skipForwardCommand,
-        cc.skipBackwardCommand,
-        cc.changePlaybackPositionCommand,
-    ];
-}
-
-- (MPRemoteCommandHandlerStatus)remoteCommandEvent:(MPRemoteCommandEvent*)event
-{
-    MPRemoteCommandCenter* cc = [MPRemoteCommandCenter sharedCommandCenter];
-    if (event.command == cc.playCommand) {
-        [_audioController play];
-        return MPRemoteCommandHandlerStatusSuccess;
-    }
-    if (event.command == cc.pauseCommand) {
-        [_audioController pause];
-        return MPRemoteCommandHandlerStatusSuccess;
-    }
-    if (event.command == cc.togglePlayPauseCommand) {
-        [_audioController togglePause];
-        return MPRemoteCommandHandlerStatusSuccess;
-    }
-    if (event.command == cc.changePlaybackPositionCommand) {
-        MPChangePlaybackPositionCommandEvent* positionEvent = (MPChangePlaybackPositionCommandEvent*) event;
-        [self seekToTime:positionEvent.positionTime + 1];
-        return MPRemoteCommandHandlerStatusSuccess;
-    }
-    if (event.command == cc.nextTrackCommand) {
-        [self playNext:self];
-        return MPRemoteCommandHandlerStatusSuccess;
-    }
-    if (event.command == cc.previousTrackCommand) {
-        [self playPrevious:self];
-        return MPRemoteCommandHandlerStatusSuccess;
-    }
-    if (event.command == cc.skipForwardCommand) {
-        [self seekToTime:_audioController.currentTime + 10.0];
-        return MPRemoteCommandHandlerStatusSuccess;
-    }
-    if (event.command == cc.skipBackwardCommand) {
-        [self seekToTime:_audioController.currentTime - 10.0];
-        return MPRemoteCommandHandlerStatusSuccess;
-    }
-
-    NSLog(@"%s was not able to handle remote control event '%s'", __PRETTY_FUNCTION__, [event.description UTF8String]);
-
-    return MPRemoteCommandHandlerStatusCommandFailed;
-}
-
-/// Adds this controller as a target for remote commands as issued by
-/// the media menu and keys.
-- (void)subscribeToRemoteCommands
-{
-    MPRemoteCommandCenter* commandCenter = [MPRemoteCommandCenter sharedCommandCenter];
-
-    commandCenter.ratingCommand.enabled = NO;
-    commandCenter.likeCommand.enabled = NO;
-    commandCenter.dislikeCommand.enabled = NO;
-    commandCenter.bookmarkCommand.enabled = NO;
-    commandCenter.enableLanguageOptionCommand.enabled = NO;
-    commandCenter.disableLanguageOptionCommand.enabled = NO;
-    commandCenter.seekForwardCommand.enabled = NO;
-    commandCenter.seekBackwardCommand.enabled = NO;
-    commandCenter.skipForwardCommand.preferredIntervals = @[ @(10.0) ];
-    commandCenter.skipBackwardCommand.preferredIntervals = @[ @(10.0) ];
-    for (MPRemoteCommand* command in [self remoteCommands]) {
-        [command addTarget:self action:@selector(remoteCommandEvent:)];
-    }
-}
-
-- (void)unsubscribeFromRemoteCommands
-{
-    [MPNowPlayingInfoCenter defaultCenter].nowPlayingInfo = nil;
-
-    for (MPRemoteCommand* command in [self remoteCommands]) {
-        [command removeTarget:self];
-    }
-}
-
 #pragma mark - Document lifecycle
 
 - (IBAction)openDocument:(id)sender
@@ -2123,20 +2017,6 @@ call super's supplementalTargetForAction:sender:.
     }
 }
 
-- (void)AudioControllerPlaybackStateChange:(NSNotification*)notification
-{
-    NSString* state = notification.object;
-    if ([state isEqualToString:kPlaybackStateStarted]) {
-        [self audioControllerPlaybackStarted];
-    } else if ([state isEqualToString:kPlaybackStatePlaying]) {
-        [self audioControllerPlaybackPlaying];
-    } else if ([state isEqualToString:kPlaybackStatePaused]) {
-        [self audioControllerPlaybackPaused];
-    } else if ([state isEqualToString:kPlaybackStateEnded]) {
-        [self audioControllerPlaybackEnded];
-    }
-}
-
 - (void)AudioControllerFXStateChange:(NSNotification*)notification
 {
     NSDictionary* info = notification.userInfo ?: @{};
@@ -2150,35 +2030,6 @@ call super's supplementalTargetForAction:sender:.
             [self.fxViewController selectEffectIndex:idx];
         }
     });
-}
-
-typedef struct {
-    BOOL playing;
-    unsigned long long frame;
-    NSString* path;
-    MediaMetaData* meta;
-} LoaderContext;
-
-- (LoaderContext)loaderSetupWithURL:(NSURL*)url
-{
-    LoaderContext loaderOut;
-    NSURLComponents* components = [NSURLComponents componentsWithURL:url resolvingAgainstBaseURL:YES];
-
-    NSPredicate* predicate = [NSPredicate predicateWithFormat:@"name=%@", @"CurrentFrame"];
-    NSURLQueryItem* item = [[components.queryItems filteredArrayUsingPredicate:predicate] firstObject];
-    long long frame = [[item value] longLongValue];
-
-    if (frame < 0) {
-        NSLog(@"not fixing a bug here due to lazyness -- hope it happens rarely");
-        frame = 0;
-    }
-
-    predicate = [NSPredicate predicateWithFormat:@"name=%@", @"Playing"];
-    item = [[components.queryItems filteredArrayUsingPredicate:predicate] firstObject];
-    loaderOut.playing = [[item value] boolValue];
-    loaderOut.path = url.path;
-    loaderOut.frame = frame;
-    return loaderOut;
 }
 
 - (NSInteger)storedEffectSelectionIndex
@@ -2232,527 +2083,6 @@ typedef struct {
     [defaults setBool:NO forKey:kFXLastEffectEnabledKey];
 }
 
-- (BOOL)loadDocumentFromURL:(NSURL*)url meta:(MediaMetaData*)meta
-{
-    NSError* error = nil;
-    if (_audioController == nil) {
-        _audioController = [AudioController new];
-        _fxViewController.audioController = _audioController;
-        [[NSNotificationCenter defaultCenter] addObserver:self
-                                                 selector:@selector(AudioControllerPlaybackStateChange:)
-                                                     name:kAudioControllerChangedPlaybackStateNotification
-                                                   object:nil];
-        [[NSNotificationCenter defaultCenter] addObserver:self
-                                                 selector:@selector(AudioControllerFXStateChange:)
-                                                     name:kPlaybackFXStateChanged
-                                                   object:nil];
-        __weak typeof(self) weakSelf = self;
-        [_audioController refreshAvailableEffectsAsync:^(NSArray<NSDictionary*>* effects) {
-            [weakSelf.fxViewController updateEffects:effects];
-            BOOL enabled = (weakSelf.audioController.currentEffectIndex >= 0);
-            if (!enabled) {
-                NSInteger stored = [weakSelf storedEffectSelectionIndex];
-                BOOL storedEnabled = [[NSUserDefaults standardUserDefaults] boolForKey:kFXLastEffectEnabledKey];
-                if (storedEnabled && stored >= 0) {
-                    if ([weakSelf.audioController selectEffectAtIndex:stored]) {
-                        enabled = YES;
-                        [weakSelf.fxViewController selectEffectIndex:stored];
-                        [weakSelf.fxViewController applyCurrentSelection];
-                        [weakSelf.fxViewController setEffectEnabledState:YES];
-                    }
-                }
-            }
-            [weakSelf.controlPanelController setEffectsEnabled:(weakSelf.audioController.currentEffectIndex >= 0)];
-        }];
-    }
-
-    if (url == nil) {
-        return NO;
-    }
-
-    NSLog(@"loadDocumentFromURL url: %@ - known meta: %@", url, meta);
-
-    // Check if that file is even readable.
-    if (![url checkResourceIsReachableAndReturnError:&error]) {
-        if (error != nil) {
-            NSAlert* alert = [NSAlert betterAlertWithError:error
-                                                   action:NSLocalizedString(@"error.action.load", @"Error action: load")
-                                                      url:url];
-            [alert runModal];
-        }
-        return NO;
-    }
-
-    LoaderContext context = [self loaderSetupWithURL:url];
-
-    // This seems pointless by now -- we will re-read that meta anyway.
-    context.meta = meta;
-
-    // FIXME: This is far too localized -- lets not update the screen whenever we
-    // change the status explicitly -- this should happen implicitly.
-
-    _loaderState = LoaderStateAbortingKeyDetection;
-
-    WaveWindowController* __weak weakSelf = self;
-    // The loader may already be active at this moment -- we abort it and hand
-    // over our payload block when abort did its job.
-    [self abortLoader:^{
-        NSLog(@"loading new meta from: %@ ...", context.path);
-        self->_loaderState = LoaderStateMeta;
-        [weakSelf loadMetaWithContext:context];
-    }];
-
-    return YES;
-}
-
-- (void)loadMetaWithContext:(LoaderContext)context
-{
-    if (_loaderState == LoaderStateAborted) {
-        return;
-    }
-
-    _loaderState = LoaderStateMeta;
-    WaveWindowController* __weak weakSelf = self;
-
-    ActivityToken* token = [[ActivityManager shared] beginActivityWithTitle:NSLocalizedString(@"activity.metadata.parse.title", @"Title for metadata parsing activity")
-                                                                     detail:NSLocalizedString(@"activity.metadata.parse.loading_core", @"Detail while loading core metadata")
-                                                                cancellable:NO
-                                                              cancelHandler:nil];
-
-    [_metaController loadAsyncWithPath:context.path
-                              callback:^(MediaMetaData* meta) {
-                                  [[ActivityManager shared] updateActivity:token progress:-1.0 detail:NSLocalizedString(@"activity.metadata.parse.loaded", @"Detail when metadata is loaded")];
-                                  if (meta != nil) {
-                                      LoaderContext c = context;
-                                      c.meta = meta;
-
-                                      if (meta.trackList == nil || meta.trackList.tracks.count == 0) {
-                                          NSLog(@"We dont seem to have a tracklist yet - lets see "
-                                                @"if we can recover one...");
-
-                                          // Not being able to get the tracklist is not a reason to
-                                          // fail the load process.
-                                          [meta recoverTracklistWithCallback:^(BOOL completed, NSError* error) {
-                                              if (!completed) {
-                                                  NSLog(@"tracklist recovery failed: %@", error);
-                                              }
-                                              [[ActivityManager shared] updateActivity:token progress:-1.0 detail:NSLocalizedString(@"activity.metadata.tracklist.loaded", @"Detail when tracklist is loaded")];
-                                              [weakSelf metaLoadedWithContext:c];
-                                              [[ActivityManager shared] completeActivity:token];
-                                          }];
-                                      } else {
-                                          [weakSelf metaLoadedWithContext:c];
-                                          [[ActivityManager shared] completeActivity:token];
-                                      }
-                                  } else {
-                                      LoaderContext c = context;
-                                      c.meta = nil;
-                                      [weakSelf metaLoadedWithContext:c];
-                                      [[ActivityManager shared] completeActivity:token];
-                                  }
-                              }];
-}
-
-- (void)metaLoadedWithContext:(LoaderContext)context
-{
-    WaveWindowController* __weak weakSelf = self;
-
-    MediaMetaData* meta = context.meta;
-    if (context.meta == nil) {
-        NSLog(@"!!!no meta available - makeing something up!!!");
-        meta = [MediaMetaData emptyMediaDataWithURL:[NSURL fileURLWithPath:context.path]];
-    }
-
-    [self setMeta:meta];
-
-    NSError* error = nil;
-    LazySample* lazySample = [[LazySample alloc] initWithPath:context.path error:&error];
-    if (lazySample == nil) {
-        if (error) {
-            NSAlert* alert = [NSAlert betterAlertWithError:error
-                                                   action:NSLocalizedString(@"error.action.read", @"Error action: read")
-                                                      url:[NSURL fileURLWithPath:context.path]];
-            [alert runModal];
-        }
-        return;
-    }
-    [[NSDocumentController sharedDocumentController] noteNewRecentDocumentURL:[NSURL fileURLWithPath:context.path]];
-
-    Float64 sourceRate = lazySample.fileSampleRate;
-
-    // We now know about the sample rate used for encoding the file, tell the world.
-    [[NSNotificationCenter defaultCenter] postNotificationName:kPlaybackGraphChanged
-                                                        object:self.audioController
-                                                      userInfo:@{kGraphChangeReasonKey : @"fileRate",
-                                                                 @"sample" : lazySample ?: [NSNull null]}];
-
-    self->_loaderState = LoaderStateAbortingKeyDetection;
-    // The loader may already be active at this moment -- we abort it and hand
-    // over our payload block when abort did its job.
-    [self abortLoader:^{
-        AudioObjectID deviceId = [AudioDevice defaultOutputDevice];
-        BOOL followFileRate = ([[[NSProcessInfo processInfo] environment][@"PLAYEM_FIXED_DEVICE_RATE"] length] == 0);
-        Float64 targetRate = sourceRate;
-        if (!followFileRate) {
-            Float64 highest = [AudioDevice highestSupportedSampleRateForDevice:deviceId];
-            if (highest > 0) {
-                targetRate = highest;
-            } else {
-                Float64 current = [AudioDevice sampleRateForDevice:deviceId];
-                if (current > 0) {
-                    targetRate = current;
-                }
-            }
-        }
-        // Reflect intended render rate/length early so visuals/UI scale correctly before decode completes.
-        if (targetRate > 0) {
-            lazySample.renderedSampleRate = targetRate;
-            if (lazySample.fileSampleRate > 0 && lazySample.source.length > 0) {
-                double factor = targetRate / lazySample.fileSampleRate;
-                unsigned long long predictedFrames = (unsigned long long) llrint((double) lazySample.source.length * factor);
-                lazySample.renderedLength = predictedFrames;
-                lazySample.sampleFormat = (SampleFormat){.channels = lazySample.sampleFormat.channels, .rate = (long) targetRate};
-            }
-        }
-        // Try to switch to a new rate, if needed.
-        [AudioDevice switchDevice:deviceId toSampleRate:targetRate timeout:3.0 completion:^(BOOL done) {
-            NSLog(@"loading new sample from %@ to match %.1f kHz device rate ...", context.path, targetRate);
-            Float64 deviceRate = [AudioDevice sampleRateForDevice:deviceId];
-
-            // We now know the device rate to be used in our pipeline, lets tell the world.
-            [[NSNotificationCenter defaultCenter] postNotificationName:kPlaybackGraphChanged
-                                                                object:weakSelf.audioController
-                                                              userInfo:@{kGraphChangeReasonKey : @"deviceRate",
-                                                                         kGraphChangeDeviceIdKey : @(deviceId),
-                                                                         kGraphChangeDeviceRateKey : @(deviceRate)}];
-
-            if (!done && followFileRate && ![[NSUserDefaults standardUserDefaults] boolForKey:kSkipRateMismatchWarning]) {
-                NSString* deviceName = [AudioDevice nameForDevice:deviceId] ?: @"audio device";
-
-                NSAlert* alert = [[NSAlert alloc] init];
-                alert.alertStyle = NSAlertStyleInformational;
-                alert.messageText = NSLocalizedString(@"alert.resample.message", @"Resample alert title");
-                NSString* infoFormat = NSLocalizedString(@"alert.resample.informative_format", @"Resample alert body format");
-                alert.informativeText = [NSString localizedStringWithFormat:infoFormat,
-                                         sourceRate / 1000.0,
-                                         deviceName,
-                                         deviceRate / 1000.0];
-                [alert addButtonWithTitle:NSLocalizedString(@"alert.resample.ok", @"Resample alert OK button")];
-
-                NSButton* checkbox = [[NSButton alloc] initWithFrame:NSZeroRect];
-                checkbox.buttonType = NSButtonTypeSwitch;
-                checkbox.title = NSLocalizedString(@"alert.resample.dont_show_again", @"Resample alert checkbox title");
-                [checkbox sizeToFit];
-                NSView* accessory = [[NSView alloc] initWithFrame:NSMakeRect(0, 0, checkbox.frame.size.width, checkbox.frame.size.height)];
-                [accessory addSubview:checkbox];
-                alert.accessoryView = accessory;
-
-                __block NSButton* blockCheckbox = checkbox;
-                [alert beginSheetModalForWindow:self.window
-                              completionHandler:^(NSModalResponse response) {
-                                  if (blockCheckbox.state == NSControlStateValueOn) {
-                                      [[NSUserDefaults standardUserDefaults] setBool:YES forKey:kSkipRateMismatchWarning];
-                                  }
-                              }];
-            }
-
-            self->_loaderState = LoaderStateDecoder;
-            [weakSelf loadSample:lazySample context:context];
-        }];
-    }];
-}
-
-- (void)abortLoader:(void (^)(void))callback
-{
-    WaveWindowController* __weak weakSelf = self;
-
-    switch (_loaderState) {
-    case LoaderStateAbortingKeyDetection:
-        if (_keySample != nil) {
-            NSLog(@"attempting to abort key detection...");
-            [self->_keySample abortWithCallback:^{
-                NSLog(@"key detector aborted, calling back...");
-                self->_loaderState = LoaderStateAbortingBeatDetection;
-                [weakSelf abortLoader:callback];
-            }];
-        } else {
-            NSLog(@"key detector was not active, calling back...");
-            _loaderState = LoaderStateAbortingBeatDetection;
-            [self abortLoader:callback];
-        }
-        break;
-    case LoaderStateAbortingBeatDetection:
-        if (_beatSample != nil) {
-            NSLog(@"attempting to abort beat detection...");
-            [self->_beatSample abortWithCallback:^{
-                NSLog(@"beat detector aborted, calling back...");
-                self->_loaderState = LoaderStateAbortingDecoder;
-                [weakSelf abortLoader:callback];
-            }];
-        } else {
-            NSLog(@"beat detector was not active, calling back...");
-            _loaderState = LoaderStateAbortingDecoder;
-            [self abortLoader:callback];
-        }
-        break;
-    case LoaderStateAbortingDecoder:
-        if (_sample != nil) {
-            NSLog(@"attempting to abort decoder...");
-            [self->_audioController decodeAbortWithCallback:^{
-                NSLog(@"decoder aborted, calling back...");
-                self->_loaderState = LoaderStateAbortingMeta;
-                [self abortLoader:callback];
-            }];
-        } else {
-            NSLog(@"decoder wasnt active, calling back...");
-            _loaderState = LoaderStateAbortingMeta;
-            [self abortLoader:callback];
-        }
-        break;
-    case LoaderStateAbortingMeta:
-        if (_meta != nil) {
-            NSLog(@"attempting to abort meta loader...");
-            [self->_metaController loadAbortWithCallback:^{
-                NSLog(@"meta loader aborted, calling back...");
-                self->_loaderState = LoaderStateAborted;
-                callback();
-            }];
-        } else {
-            NSLog(@"meta loader wasnt active, calling back...");
-            _loaderState = LoaderStateAborted;
-            callback();
-        }
-        break;
-    default:
-        NSLog(@"catch all states, claiming all stages aborted...");
-        _loaderState = LoaderStateAbortingKeyDetection;
-        [self abortLoader:callback];
-    }
-}
-
-- (void)loadSample:(LazySample*)sample context:(LoaderContext)context
-{
-    if (_loaderState == LoaderStateAborted) {
-        return;
-    }
-    NSLog(@"previous sample %p should get unretained now", _sample);
-    _sample = sample;
-    _visualSample = nil;
-    _totalVisual = nil;
-    _beatSample = nil;
-    _keySample = nil;
-    _scrollingWaveViewController.beatSample = nil;
-    _scrollingWaveViewController.visualSample = nil;
-    _totalWaveViewController.beatSample = nil;
-    _totalWaveViewController.frames = 0;
-    _totalWaveViewController.visualSample = nil;
-
-    [self setBPM:0.0];
-    
-    _visualSample = [[VisualSample alloc] initWithSample:sample pixelPerSecond:kPixelPerSecond tileWidth:_scrollingWaveViewController.tileWidth];
-    _scrollingWaveViewController.visualSample = _visualSample;
-    assert(sample.renderedSampleRate > 0);
-    
-    // Ensure visuals size themselves using the actual render rate; warn if we are still at file rate in max-rate mode.
-    BOOL followFileRate = ([[[NSProcessInfo processInfo] environment][@"PLAYEM_FIXED_DEVICE_RATE"] length] == 0);
-    if (!followFileRate && fabs(sample.renderedSampleRate - sample.fileSampleRate) < 1.0) {
-        NSLog(@"WaveWindowController: visuals created before renderedSampleRate updated (still at file rate %.1f kHz)",
-              sample.fileSampleRate / 1000.0);
-    }
-    _totalVisual = [[VisualSample alloc] initWithSample:sample
-                                         pixelPerSecond:_totalWaveViewController.view.bounds.size.width / sample.duration
-                                              tileWidth:_totalWaveViewController.tileWidth
-                                           reducedWidth:kReducedVisualSampleWidth];
-
-    _totalWaveViewController.visualSample = _totalVisual;
-
-    _scrollingWaveViewController.frames = sample.frames;
-    _totalWaveViewController.frames = sample.frames;
-
-    _scrollingWaveViewController.view.frame = CGRectMake(0.0, 0.0, self.visualSample.width, _scrollingWaveViewController.view.bounds.size.height);
-
-    NSTimeInterval duration = [self.visualSample.sample timeForFrame:sample.frames];
-    [_controlPanelController setKeyHidden:duration > kBeatSampleDurationThreshold];
-    [_controlPanelController setKey:@"" hint:@""];
-    
-//    AudioObjectID deviceId = [AudioDevice defaultOutputDevice];
-//    Float64 deviceRate = [AudioDevice sampleRateForDevice:deviceId];
-//    Float64 sourceRate = sample.fileSampleRate;
-//
-//    // Inform the user if we will resample (mismatch), but do not switch device rates to avoid pops.
-//    if (sourceRate > 0 && deviceRate > 0 && fabs(deviceRate - sourceRate) > 0.5 &&
-//        ![[NSUserDefaults standardUserDefaults] boolForKey:kSkipRateMismatchWarning]) {
-//        NSString* deviceName = [AudioDevice nameForDevice:deviceId] ?: @"audio device";
-//
-//        NSAlert* alert = [[NSAlert alloc] init];
-//        alert.alertStyle = NSAlertStyleInformational;
-//        alert.messageText = @"Resampling to match your audio device";
-//        alert.informativeText = [NSString stringWithFormat:@"This file is %.1f kHz.\n%@ runs at %.1f kHz.\nWe'll resample before playback. This may take a little longer.",
-//                                                           sourceRate / 1000.0,
-//                                                           deviceName,
-//                                                           deviceRate / 1000.0];
-//        [alert addButtonWithTitle:@"OK"];
-//
-//        NSButton* checkbox = [[NSButton alloc] initWithFrame:NSZeroRect];
-//        checkbox.buttonType = NSButtonTypeSwitch;
-//        checkbox.title = @"Don’t show this again";
-//        [checkbox sizeToFit];
-//        NSView* accessory = [[NSView alloc] initWithFrame:NSMakeRect(0, 0, checkbox.frame.size.width, checkbox.frame.size.height)];
-//        [accessory addSubview:checkbox];
-//        alert.accessoryView = accessory;
-//
-//        __block NSButton* blockCheckbox = checkbox;
-//        [alert beginSheetModalForWindow:self.window
-//                      completionHandler:^(NSModalResponse response) {
-//                          if (blockCheckbox.state == NSControlStateValueOn) {
-//                              [[NSUserDefaults standardUserDefaults] setBool:YES forKey:kSkipRateMismatchWarning];
-//                          }
-//                      }];
-//    }
-
-    NSLog(@"playback starting...");
-    //[weakSelf.audioController playSample:lazySample frame:context.frame paused:!context.playing];
-
-
-    _loaderState = LoaderStateDecoder;
-    WaveWindowController* __weak weakSelf = self;
-    [_audioController decodeAsyncWithSample:_sample
-                         notifyEarlyAtFrame:context.frame
-                                   callback:^(BOOL decodeFinished, BOOL frameReached) {
-        NSLog(@"decoder has something to say");
-        if (decodeFinished) {
-            NSLog(@"decoder done");
-            [weakSelf sampleDecoded];
-        } else {
-            if (frameReached) {
-                NSLog(@"decoder reached requested frame");
-                [weakSelf.audioController playSample:sample
-                                               frame:context.frame
-                                              paused:!context.playing];
-            } else {
-                NSLog(@"never finished the decoding");
-            }
-       }
-   }];
-}
-
-- (void)sampleDecoded
-{
-    BeatTrackedSample* beatSample = [[BeatTrackedSample alloc] initWithSample:_sample];
-
-    _scrollingWaveViewController.beatSample = beatSample;
-    _totalWaveViewController.beatSample = beatSample;
-
-    WaveWindowController* __weak weakSelf = self;
-
-    if (_beatSample != nil) {
-        NSLog(@"beats tracking may need aborting");
-        [_beatSample abortWithCallback:^{
-            [weakSelf loadBeats:beatSample];
-        }];
-    } else {
-        [self loadBeats:beatSample];
-    }
-}
-
-- (void)loadBeats:(BeatTrackedSample*)beatsSample
-{
-    if (_loaderState == LoaderStateAborted) {
-        return;
-    }
-    _loaderState = LoaderStateBeatDetection;
-
-    _beatSample = beatsSample;
-
-    WaveWindowController* __weak weakSelf = self;
-
-    [_beatSample trackBeatsAsyncWithCallback:^(BOOL beatsFinished) {
-        if (beatsFinished) {
-            [weakSelf beatsTracked];
-        } else {
-            NSLog(@"never finished the beat tracking");
-        }
-    }];
-}
-
-- (void)beatsTracked
-{
-    [_scrollingWaveViewController updateBeatMarkLayer];
-    [_totalWaveViewController updateBeatMarkLayer];
-
-    [self beatEffectStart];
-
-    KeyTrackedSample* keySample = [[KeyTrackedSample alloc] initWithSample:_sample];
-    WaveWindowController* __weak weakSelf = self;
-
-    if (_keySample != nil) {
-        NSLog(@"key tracking may need aborting");
-        [_keySample abortWithCallback:^{
-            [weakSelf detectKey:keySample];
-        }];
-    } else {
-        [self detectKey:keySample];
-    }
-}
-
-- (void)detectKey:(KeyTrackedSample*)keySample
-{
-    if (_loaderState == LoaderStateAborted) {
-        return;
-    }
-
-    _loaderState = LoaderStateKeyDetection;
-
-    _keySample = keySample;
-    [_keySample trackKeyAsyncWithCallback:^(BOOL keyFinished) {
-        if (keyFinished) {
-            NSLog(@"key tracking finished");
-            [self->_controlPanelController setKey:self->_keySample.key hint:self->_keySample.hint];
-        } else {
-            NSLog(@"never finished the key tracking");
-        }
-    }];
-}
-
-- (void)setPlaybackState:(MPNowPlayingPlaybackState)state
-{
-    MPNowPlayingInfoCenter* center = [MPNowPlayingInfoCenter defaultCenter];
-    center.playbackState = state;
-}
-
-- (void)setNowPlayingWithMeta:(MediaMetaData*)meta
-{
-    NSMutableDictionary* songInfo = [[NSMutableDictionary alloc] init];
-    [songInfo setObject:meta.title == nil ? @"" : meta.title forKey:MPMediaItemPropertyTitle];
-    [songInfo setObject:meta.artist == nil ? @"" : meta.artist forKey:MPMediaItemPropertyArtist];
-    [songInfo setObject:meta.album == nil ? @"" : meta.album forKey:MPMediaItemPropertyAlbumTitle];
-    if (meta.track != nil) {
-        [songInfo setObject:meta.track forKey:MPMediaItemPropertyAlbumTrackNumber];
-    }
-    if (meta.tracks != nil) {
-        [songInfo setObject:meta.tracks forKey:MPMediaItemPropertyAlbumTrackCount];
-    }
-    if (meta.genre != nil) {
-        [songInfo setObject:meta.genre forKey:MPMediaItemPropertyGenre];
-    }
-    if (meta.year != nil) {
-        [songInfo setObject:meta.year forKey:MPMediaItemPropertyReleaseDate];
-    }
-    NSImage* artworkImage = [meta imageFromArtwork];
-    MPMediaItemArtwork* artwork = [[MPMediaItemArtwork alloc] initWithBoundsSize:artworkImage.size
-                                                                  requestHandler:^(CGSize size) {
-                                                                      return artworkImage;
-                                                                  }];
-    [songInfo setObject:artwork forKey:MPMediaItemPropertyArtwork];
-
-    [songInfo setObject:@(_audioController.expectedDuration) forKey:MPMediaItemPropertyPlaybackDuration];
-    [songInfo setObject:@(_audioController.currentTime) forKey:MPNowPlayingInfoPropertyElapsedPlaybackTime];
-    [songInfo setObject:@(_audioController.tempoShift) forKey:MPNowPlayingInfoPropertyPlaybackRate];
-
-    MPNowPlayingInfoCenter* center = [MPNowPlayingInfoCenter defaultCenter];
-    center.nowPlayingInfo = songInfo;
-}
-
 - (void)setMeta:(MediaMetaData*)meta
 {
     NSLog(@"WaveWindowController setMeta: %@", meta);
@@ -2769,6 +2099,9 @@ typedef struct {
     _controlPanelController.meta = meta;
     // Update browser controller to show current song.
     _browser.currentMeta = meta;
+    if (meta.location != nil) {
+        [_browser boostDeepScanForURL:meta.location];
+    }
 
     [_iffy setCurrentIdentificationSource:meta.location];
 
@@ -2777,97 +2110,6 @@ typedef struct {
 
     _scrollingWaveViewController.trackList = meta.trackList;
     _totalWaveViewController.trackList = meta.trackList;
-}
-
-- (void)updateRemotePosition
-{
-    NSMutableDictionary* songInfo = [NSMutableDictionary dictionaryWithDictionary:[[MPNowPlayingInfoCenter defaultCenter] nowPlayingInfo]];
-    [songInfo setObject:@(_audioController.expectedDuration) forKey:MPMediaItemPropertyPlaybackDuration];
-    [songInfo setObject:@(_audioController.currentTime) forKey:MPNowPlayingInfoPropertyElapsedPlaybackTime];
-    [[MPNowPlayingInfoCenter defaultCenter] setNowPlayingInfo:songInfo];
-}
-
-#pragma mark - Drag & Drop
-
-- (NSDragOperation)draggingEntered:(id<NSDraggingInfo>)sender
-{
-    NSPasteboard* pboard = [sender draggingPasteboard];
-    NSDragOperation sourceDragMask = [sender draggingSourceOperationMask];
-
-    if ([[pboard types] containsObject:NSPasteboardTypeFileURL]) {
-        if (sourceDragMask & NSDragOperationGeneric) {
-            return NSDragOperationGeneric;
-        } else if (sourceDragMask & NSDragOperationLink) {
-            return NSDragOperationLink;
-        } else if (sourceDragMask & NSDragOperationCopy) {
-            return NSDragOperationCopy;
-        }
-    }
-    return NSDragOperationNone;
-}
-
-- (BOOL)prepareForDragOperation:(id<NSDraggingInfo>)sender
-{
-    return YES;
-}
-
-- (BOOL)performDragOperation:(id<NSDraggingInfo>)sender
-{
-    NSPasteboard* pboard = [sender draggingPasteboard];
-    NSArray<NSURL*>* droppedURLs =
-        [pboard readObjectsForClasses:@[ [NSURL class] ] options:@{ NSPasteboardURLReadingFileURLsOnlyKey : @YES }];
-    if (droppedURLs.count == 0) {
-        return NO;
-    }
-
-    NSMutableArray<NSURL*>* fileURLs = [NSMutableArray array];
-    for (NSURL* url in droppedURLs) {
-        [fileURLs addObjectsFromArray:[self mediaFileURLsFromURL:url]];
-    }
-    if (fileURLs.count == 0) {
-        return NO;
-    }
-
-    // Add everything to the library and play the first item.
-    [_browser importFilesAtURLs:fileURLs];
-
-    NSURL* firstURL = fileURLs.firstObject;
-    return [self loadDocumentFromURL:[WaveWindowController encodeQueryItemsWithUrl:firstURL frame:0LL playing:YES] meta:nil];
-}
-
-- (NSArray<NSURL*>*)mediaFileURLsFromURL:(NSURL*)url
-{
-    if (url == nil || !url.isFileURL) {
-        return @[];
-    }
-
-    NSNumber* isDirectory = nil;
-    if (![url getResourceValue:&isDirectory forKey:NSURLIsDirectoryKey error:nil]) {
-        return @[];
-    }
-
-    if (![isDirectory boolValue]) {
-        return @[ url ];
-    }
-
-    NSMutableArray<NSURL*>* files = [NSMutableArray array];
-    NSFileManager* fileManager = [NSFileManager defaultManager];
-    NSArray<NSURLResourceKey>* keys = @[ NSURLIsDirectoryKey, NSURLIsRegularFileKey ];
-    NSDirectoryEnumerator<NSURL*>* enumerator =
-        [fileManager enumeratorAtURL:url
-          includingPropertiesForKeys:keys
-                             options:NSDirectoryEnumerationSkipsHiddenFiles | NSDirectoryEnumerationSkipsPackageDescendants
-                        errorHandler:^BOOL(NSURL* _Nonnull errorURL, NSError* _Nonnull error) {
-                            NSLog(@"[WaveWindowController] skip %@ due to error: %@", errorURL, error);
-                            return YES;
-                        }];
-    for (NSURL* itemURL in enumerator) {
-        NSNumber* isFile = nil;
-        if ([itemURL getResourceValue:&isFile forKey:NSURLIsRegularFileKey error:nil] && [isFile boolValue]) {
-            [files addObject:itemURL];
-        }
-    }
-    return files;
 }
 
 #pragma mark - Browser delegate
@@ -2923,73 +2165,6 @@ typedef struct {
 
     // Start the scope renderer.
     [_renderer play:_audioController visual:_visualSample scope:_scopeView];
-}
-
-- (void)audioControllerPlaybackStarted
-{
-    NSLog(@"audioControllerPlaybackStarted");
-    [self startVisuals];
-    [_playlist playedMeta:_meta];
-}
-
-- (void)audioControllerPlaybackPlaying
-{
-    NSLog(@"audioControllerPlaybackPlaying");
-    // Make state obvious to user.
-    [self setPlaybackActive:YES];
-
-    [_playlist setPlaying:YES];
-
-    // Mark the current song in the browser for we are playing.
-    [_browser setNowPlayingWithMeta:_meta];
-
-    // Tell the control bar item for media playback about our song.
-    [self setNowPlayingWithMeta:_meta];
-    [self setPlaybackState:MPNowPlayingPlaybackStatePlaying];
-
-    [self updateRemotePosition];
-
-    [self lockScreen];
-}
-
-- (void)audioControllerPlaybackPaused
-{
-    NSLog(@"audioControllerPlaybackPaused");
-    // Make state obvious to user.
-    [self setPlaybackActive:NO];
-    [_playlist setPlaying:NO];
-    [_browser setPlaying:NO];
-
-    [self setNowPlayingWithMeta:_meta];
-    [self setPlaybackState:MPNowPlayingPlaybackStatePaused];
-    [self updateRemotePosition];
-
-    [self unlockScreen];
-}
-
-- (void)audioControllerPlaybackEnded
-{
-    NSLog(@"audioControllerPlaybackEnded");
-    // Make state obvious to user.
-    [self setPlaybackActive:NO];
-    [_playlist setPlaying:NO];
-    [_browser setPlaying:NO];
-
-    [self setNowPlayingWithMeta:_meta];
-    [self setPlaybackState:MPNowPlayingPlaybackStateStopped];
-    [self updateRemotePosition];
-
-    [self unlockScreen];
-
-    // Stop the scope rendering.
-    [_renderer stop:_scopeView];
-
-    if (_controlPanelController.loop.state == NSControlStateValueOn) {
-        [_audioController play];
-        return;
-    }
-
-    [self playNext:self];
 }
 
 #pragma mark - Control Panel delegate

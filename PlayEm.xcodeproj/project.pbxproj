@@ -19,6 +19,10 @@
 		BB17E6362F1302B1004F94F5 /* GraphStatusViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = BB17E6352F1302B1004F94F5 /* GraphStatusViewController.m */; };
 		BB19A3772C5FAE0C00E5B4D2 /* CoreWLAN.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BB19A3762C5FAE0C00E5B4D2 /* CoreWLAN.framework */; };
 		BB2CB5652481A92600D47258 /* WaveWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = BB2CB5642481A92600D47258 /* WaveWindowController.m */; };
+		BBF0D00330A1A00100D0D001 /* WaveWindowController+DragDrop.m in Sources */ = {isa = PBXBuildFile; fileRef = BBF0D00230A1A00100D0D001 /* WaveWindowController+DragDrop.m */; };
+		BBF0D00630A1A10100D0D001 /* WaveWindowController+Loader.m in Sources */ = {isa = PBXBuildFile; fileRef = BBF0D00530A1A10100D0D001 /* WaveWindowController+Loader.m */; };
+		BBF0D00930A1A30100D0D001 /* WaveWindowController+RemoteCommands.m in Sources */ = {isa = PBXBuildFile; fileRef = BBF0D00830A1A30100D0D001 /* WaveWindowController+RemoteCommands.m */; };
+		BBF0D00C30A1A40100D0D001 /* WaveWindowController+PlaybackState.m in Sources */ = {isa = PBXBuildFile; fileRef = BBF0D00B30A1A40100D0D001 /* WaveWindowController+PlaybackState.m */; };
 		BB3926FF2C14B43E009C7B32 /* TableRowView.m in Sources */ = {isa = PBXBuildFile; fileRef = BB3926FE2C14B43E009C7B32 /* TableRowView.m */; };
 		BB3927022C14C606009C7B32 /* TableCellView.m in Sources */ = {isa = PBXBuildFile; fileRef = BB3927012C14C606009C7B32 /* TableCellView.m */; };
 		BB3927092C1BA8BD009C7B32 /* NSURL+WithoutParameters.m in Sources */ = {isa = PBXBuildFile; fileRef = BB3927082C1BA8BD009C7B32 /* NSURL+WithoutParameters.m */; };
@@ -94,6 +98,7 @@
 		BBDBBC302F062EE500ACC632 /* PlayEmCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BB57DE442F05D614008FFBD1 /* PlayEmCore.framework */; };
 		BBDBBC322F06328800ACC632 /* PlayEmCore.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = BB57DE442F05D614008FFBD1 /* PlayEmCore.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		BBDC988A250E81D0008B19D1 /* BrowserController.m in Sources */ = {isa = PBXBuildFile; fileRef = BBDC9889250E81D0008B19D1 /* BrowserController.m */; };
+		BBDC98FA27A1B2C3008B19D1 /* BrowserController+DeepScan.m in Sources */ = {isa = PBXBuildFile; fileRef = BBDC98F927A1B2C3008B19D1 /* BrowserController+DeepScan.m */; };
 		BBDC988C250E8347008B19D1 /* iTunesLibrary.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BBDC988B250E8347008B19D1 /* iTunesLibrary.framework */; };
 		BBE284682467612F00BE9D7F /* ScopeRenderer.m in Sources */ = {isa = PBXBuildFile; fileRef = BBE284672467612F00BE9D7F /* ScopeRenderer.m */; };
 		BBE2846D246765BD00BE9D7F /* Shaders.metal in Sources */ = {isa = PBXBuildFile; fileRef = BBE2846C246765A700BE9D7F /* Shaders.metal */; };
@@ -214,6 +219,14 @@
 		BB25CF55255758CC005BFC32 /* LoadState.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LoadState.h; sourceTree = "<group>"; };
 		BB2CB5632481A92600D47258 /* WaveWindowController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WaveWindowController.h; sourceTree = "<group>"; };
 		BB2CB5642481A92600D47258 /* WaveWindowController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WaveWindowController.m; sourceTree = "<group>"; };
+		BBF0D00130A1A00100D0D001 /* WaveWindowController+DragDrop.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "WaveWindowController+DragDrop.h"; sourceTree = "<group>"; };
+		BBF0D00230A1A00100D0D001 /* WaveWindowController+DragDrop.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "WaveWindowController+DragDrop.m"; sourceTree = "<group>"; };
+		BBF0D00430A1A10100D0D001 /* WaveWindowController+Loader.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "WaveWindowController+Loader.h"; sourceTree = "<group>"; };
+		BBF0D00530A1A10100D0D001 /* WaveWindowController+Loader.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "WaveWindowController+Loader.m"; sourceTree = "<group>"; };
+		BBF0D00730A1A30100D0D001 /* WaveWindowController+RemoteCommands.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "WaveWindowController+RemoteCommands.h"; sourceTree = "<group>"; };
+		BBF0D00830A1A30100D0D001 /* WaveWindowController+RemoteCommands.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "WaveWindowController+RemoteCommands.m"; sourceTree = "<group>"; };
+		BBF0D00A30A1A40100D0D001 /* WaveWindowController+PlaybackState.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "WaveWindowController+PlaybackState.h"; sourceTree = "<group>"; };
+		BBF0D00B30A1A40100D0D001 /* WaveWindowController+PlaybackState.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "WaveWindowController+PlaybackState.m"; sourceTree = "<group>"; };
 		BB3926FD2C14B3FA009C7B32 /* TableRowView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TableRowView.h; sourceTree = "<group>"; };
 		BB3926FE2C14B43E009C7B32 /* TableRowView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TableRowView.m; sourceTree = "<group>"; };
 		BB3927002C14C606009C7B32 /* TableCellView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TableCellView.h; sourceTree = "<group>"; };
@@ -312,6 +325,8 @@
 		BBDBBC292F062ED200ACC632 /* PlayEmRefineCLI */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = PlayEmRefineCLI; sourceTree = BUILT_PRODUCTS_DIR; };
 		BBDC9888250E81CF008B19D1 /* BrowserController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BrowserController.h; sourceTree = "<group>"; };
 		BBDC9889250E81D0008B19D1 /* BrowserController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = BrowserController.m; sourceTree = "<group>"; };
+		BBDC98F827A1B2C3008B19D1 /* BrowserController+DeepScan.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "BrowserController+DeepScan.h"; sourceTree = "<group>"; };
+		BBDC98F927A1B2C3008B19D1 /* BrowserController+DeepScan.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "BrowserController+DeepScan.m"; sourceTree = "<group>"; };
 		BBDC988B250E8347008B19D1 /* iTunesLibrary.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = iTunesLibrary.framework; path = System/Library/Frameworks/iTunesLibrary.framework; sourceTree = SDKROOT; };
 		BBE284662467612F00BE9D7F /* ScopeRenderer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ScopeRenderer.h; sourceTree = "<group>"; };
 		BBE284672467612F00BE9D7F /* ScopeRenderer.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ScopeRenderer.m; sourceTree = "<group>"; };
@@ -496,6 +511,14 @@
 			children = (
 				BB2CB5632481A92600D47258 /* WaveWindowController.h */,
 				BB2CB5642481A92600D47258 /* WaveWindowController.m */,
+				BBF0D00130A1A00100D0D001 /* WaveWindowController+DragDrop.h */,
+				BBF0D00230A1A00100D0D001 /* WaveWindowController+DragDrop.m */,
+				BBF0D00430A1A10100D0D001 /* WaveWindowController+Loader.h */,
+				BBF0D00530A1A10100D0D001 /* WaveWindowController+Loader.m */,
+				BBF0D00A30A1A40100D0D001 /* WaveWindowController+PlaybackState.h */,
+				BBF0D00B30A1A40100D0D001 /* WaveWindowController+PlaybackState.m */,
+				BBF0D00730A1A30100D0D001 /* WaveWindowController+RemoteCommands.h */,
+				BBF0D00830A1A30100D0D001 /* WaveWindowController+RemoteCommands.m */,
 				BB17E2672F0F0F68004F94F5 /* FXViewController.h */,
 				BB17E2682F0F0F68004F94F5 /* FXViewController.m */,
 				BBB37D1F290F4A7E0007A6BB /* PlaylistController.h */,
@@ -605,6 +628,8 @@
 				BBE284672467612F00BE9D7F /* ScopeRenderer.m */,
 				BBDC9888250E81CF008B19D1 /* BrowserController.h */,
 				BBDC9889250E81D0008B19D1 /* BrowserController.m */,
+				BBDC98F827A1B2C3008B19D1 /* BrowserController+DeepScan.h */,
+				BBDC98F927A1B2C3008B19D1 /* BrowserController+DeepScan.m */,
 				BBC2AF7B2B8FD97C0077EB5E /* MusicAuthenticationController.h */,
 				BBC2AF7C2B8FD97C0077EB5E /* MusicAuthenticationController.m */,
 				BBC2AF752B8DE2770077EB5E /* NSError+BetterError.h */,
@@ -978,6 +1003,7 @@
 				BB46D4AC2D8DCD150090CD56 /* NSString+OccurenceCount.m in Sources */,
 				BBC76D912CCD9D6A00772DD2 /* IdentificationCoverView.m in Sources */,
 				BBDC988A250E81D0008B19D1 /* BrowserController.m in Sources */,
+				BBDC98FA27A1B2C3008B19D1 /* BrowserController+DeepScan.m in Sources */,
 				BB0A62CE2E88796A00BAF444 /* TracklistController.m in Sources */,
 				BBC43B7028D28CDD00CD1080 /* InfoPanel.m in Sources */,
 				BB3927092C1BA8BD009C7B32 /* NSURL+WithoutParameters.m in Sources */,
@@ -994,6 +1020,10 @@
 				BB17E6362F1302B1004F94F5 /* GraphStatusViewController.m in Sources */,
 				BBDBBA7B2BA4B013003A80C1 /* WaveShaders.metal in Sources */,
 				BB2CB5652481A92600D47258 /* WaveWindowController.m in Sources */,
+				BBF0D00330A1A00100D0D001 /* WaveWindowController+DragDrop.m in Sources */,
+				BBF0D00630A1A10100D0D001 /* WaveWindowController+Loader.m in Sources */,
+				BBF0D00C30A1A40100D0D001 /* WaveWindowController+PlaybackState.m in Sources */,
+				BBF0D00930A1A30100D0D001 /* WaveWindowController+RemoteCommands.m in Sources */,
 				BB8A100728FF49E400FC6013 /* Scroller.m in Sources */,
 				BBDBBA792BA3AF9F003A80C1 /* DragImageFileView.m in Sources */,
 				BBE2846D246765BD00BE9D7F /* Shaders.metal in Sources */,

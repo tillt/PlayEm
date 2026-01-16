@@ -641,7 +641,7 @@ static void ApplyPropertyMap(const TagLib::PropertyMap& props, MediaMetaData* me
     if (file.audioProperties()) {
         const TagLib::AudioProperties* ap = file.audioProperties();
         if (!self.duration) {
-            self.duration = @((double) ap->length());
+            self.duration = @((double) ap->length() * 1000.0);
         }
         self.channels = ap->channels() == 1 ? @"Mono" : @"Stereo";
         self.samplerate = [NSString stringWithFormat:@"%.1f kHz", ap->sampleRate() / 1000.0f];

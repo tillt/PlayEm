@@ -86,6 +86,7 @@ extern NSString* const kSongsColGenre;
 - (IBAction)reconcileLibrary:(id)sender;
 
 - (void)removeFilesAtURLs:(NSArray<NSURL*>*)urls;
+- (void)boostDeepScanForURL:(NSURL*)url;
 
 @end
 

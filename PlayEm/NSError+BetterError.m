@@ -136,8 +136,8 @@
         @(kAudioUnitErr_ExtensionNotFound) : @"extension not found",
         @(kAudioUnitErr_InvalidParameterValue) : @"invalid parameter value",
         @(kAudioUnitErr_InvalidFilePath) : @"invalid file path",
-        @(kAudioUnitErr_MissingKey) : @"missing key",
-        @(kAudioUnitErr_ComponentManagerNotSupported) : @"content manager not supported",
+        @(kAudioUnitErr_MissingKey) : @"a required key is missing from a dictionary object",
+        @(kAudioUnitErr_ComponentManagerNotSupported) : @"the operation can not be performed for a component instance instantiated using the deprecated Component Manager",
         // AudioToolbox/ExtendedAudioFile.h
         @(kExtAudioFileError_InvalidProperty) : @"invalid property",
         @(kExtAudioFileError_InvalidPropertySize) : @"invalid property size",

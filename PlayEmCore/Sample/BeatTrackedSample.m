@@ -81,6 +81,7 @@ const NSUInteger BeatEventMaskMarkers = BeatEventStyleMarkIntro | BeatEventStyle
 @property (strong, nonatomic) NSMutableArray<NSMutableData*>* sampleBuffers;
 @property (strong, nonatomic) NSMutableDictionary* beatEventPages;
 @property (strong, nonatomic) dispatch_block_t queueOperation;
+@property (assign, nonatomic) double sampleRate;
 
 @end
 
@@ -126,7 +127,9 @@ const NSUInteger BeatEventMaskMarkers = BeatEventStyleMarkIntro | BeatEventStyle
         _aubio_tempo = NULL;
 
         _beats = [NSMutableDictionary dictionary];
-        _shardFrameCount = ceil(sample.renderedSampleRate * kBeatsShardSecondCount);
+        _sampleRate = (sample.renderedSampleRate > 0.0 ? sample.renderedSampleRate :
+                       (sample.fileSampleRate > 0.0 ? sample.fileSampleRate : sample.sampleFormat.rate));
+        _shardFrameCount = ceil(_sampleRate * kBeatsShardSecondCount);
         _constantBeats = nil;
 
         unsigned long long framesNeeded = _hopSize * 1024;
@@ -146,12 +149,12 @@ const NSUInteger BeatEventMaskMarkers = BeatEventStyleMarkIntro | BeatEventStyle
     assert(_aubio_input_buffer);
     _aubio_output_buffer = new_fvec((unsigned int) 1);
     assert(_aubio_output_buffer);
-    _aubio_tempo = new_aubio_tempo("default", (unsigned int) _windowWidth, (unsigned int) _hopSize, (unsigned int) _sample.renderedSampleRate);
+    _aubio_tempo = new_aubio_tempo("default", (unsigned int) _windowWidth, (unsigned int) _hopSize, (unsigned int) _sampleRate);
     aubio_tempo_set_threshold(_aubio_tempo, 0.75f);
     assert(_aubio_tempo);
     _filterEnabled = YES;
     _filterFrequency = kParamFilterDefaultValue;
-    _filterConstant = _sample.renderedSampleRate / (2.0f * M_PI * _filterFrequency);
+    _filterConstant = _sampleRate / (2.0f * M_PI * _filterFrequency);
 }
 
 - (void)cleanupTracking
@@ -198,7 +201,9 @@ void beatsContextReset(BeatsParserContext* context)
 {
     NSLog(@"beats tracking...");
 
-    [[ActivityManager shared] updateActivity:token progress:0.0 detail:PECLocalizedString(@"activity.beat_detection.initializing", @"Detail when initializing beat detection")];
+    if (token != nil) {
+        [[ActivityManager shared] updateActivity:token progress:0.0 detail:PECLocalizedString(@"activity.beat_detection.initializing", @"Detail when initializing beat detection")];
+    }
 
     [self setupTracking];
 
@@ -221,7 +226,9 @@ void beatsContextReset(BeatsParserContext* context)
     unsigned long long sourceWindowFrameOffset = 0LL;
     while (sourceWindowFrameOffset < self->_sample.frames) {
         double progress = (double) sourceWindowFrameOffset / (double) self->_sample.frames;
-        [[ActivityManager shared] updateActivity:token progress:progress detail:PECLocalizedString(@"activity.beat_detection.detecting", @"Detail while detecting beats")];
+        if (token != nil) {
+            [[ActivityManager shared] updateActivity:token progress:progress detail:PECLocalizedString(@"activity.beat_detection.detecting", @"Detail while detecting beats")];
+        }
 
         if (dispatch_block_testcancel(self.queueOperation) != 0) {
             NSLog(@"aborted beat detection");
@@ -298,18 +305,37 @@ void beatsContextReset(BeatsParserContext* context)
     NSLog(@"initial silence ends at %lld frames after start of sample", _initialSilenceEndsAtFrame);
     NSLog(@"trailing silence starts %lld frames before end of sample", _sample.frames - _trailingSilenceStartsAtFrame);
 
-    [[ActivityManager shared] updateActivity:token progress:1.0 detail:PECLocalizedString(@"activity.beat_detection.refining", @"Detail while refining beats")];
+    if (token != nil) {
+        [[ActivityManager shared] updateActivity:token progress:1.0 detail:PECLocalizedString(@"activity.beat_detection.refining", @"Detail while refining beats")];
+    }
 
     // Generate a constant grid pattern out of the detected beats.
     NSData* constantRegions = [self retrieveConstantRegions];
     _constantBeats = [self makeConstantBeats:constantRegions];
 
     [self measureEnergyAtBeats];
+    [self updateAverageTempo];
 
     NSLog(@"...beats tracking done - total beats: %lld", [self beatCount]);
-    [[ActivityManager shared] updateActivity:token progress:1.0 detail:PECLocalizedString(@"activity.beat_detection.done", @"Detail when beat detection completes")];
+    if (token != nil) {
+        [[ActivityManager shared] updateActivity:token progress:1.0 detail:PECLocalizedString(@"activity.beat_detection.done", @"Detail when beat detection completes")];
+    }
 
     return YES;
+}
+
+- (void)updateAverageTempo
+{
+    const unsigned long long count = [self beatCount];
+    if (count == 0) {
+        return;
+    }
+
+    BeatEvent first;
+    [self getBeat:&first at:0];
+    if (first.bpm > 0.0) {
+        _lastTempo = (float) first.bpm;
+    }
 }
 
 - (void)measureEnergyAtBeats
@@ -376,21 +402,32 @@ void beatsContextReset(BeatsParserContext* context)
 
 - (void)trackBeatsAsyncWithCallback:(void (^)(BOOL))callback
 {
+    [self trackBeatsAsyncWithCompletionQueue:dispatch_get_main_queue() callback:callback];
+}
+
+- (void)trackBeatsAsyncWithCompletionQueue:(dispatch_queue_t _Nullable)queue
+                                  callback:(void (^)(BOOL))callback
+{
     __block BOOL done = NO;
 
     BeatTrackedSample* __weak weakSelf = self;
 
-    ActivityToken* beatsToken = [[ActivityManager shared] beginActivityWithTitle:PECLocalizedString(@"activity.beat_detection.title", @"Title for beat detection activity")
-                                                                          detail:@""
-                                                                     cancellable:NO
-                                                                   cancelHandler:nil];
+    ActivityToken* beatsToken = nil;
+    if (!self.suppressActivity) {
+        beatsToken = [[ActivityManager shared] beginActivityWithTitle:PECLocalizedString(@"activity.beat_detection.title", @"Title for beat detection activity")
+                                                              detail:@""
+                                                         cancellable:NO
+                                                       cancelHandler:nil];
+    }
 
     _queueOperation = dispatch_block_create(DISPATCH_BLOCK_NO_QOS_CLASS, ^{
         done = [weakSelf trackBeatsWithToken:beatsToken];
     });
     dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0), _queueOperation);
-    dispatch_block_notify(_queueOperation, dispatch_get_main_queue(), ^{
-        [[ActivityManager shared] completeActivity:beatsToken];
+    dispatch_block_notify(_queueOperation, queue ?: dispatch_get_main_queue(), ^{
+        if (beatsToken != nil) {
+            [[ActivityManager shared] completeActivity:beatsToken];
+        }
         self->_ready = done;
         callback(done);
     });
@@ -399,6 +436,11 @@ void beatsContextReset(BeatsParserContext* context)
 - (NSString*)description
 {
     return [NSString stringWithFormat:@"Average tempo: %.0f BPM", _lastTempo];
+}
+
+- (float)averageTempo
+{
+    return _lastTempo;
 }
 
 - (void)abortWithCallback:(void (^)(void))callback

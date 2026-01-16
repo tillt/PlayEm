@@ -10,10 +10,20 @@
 
 #import <sqlite3.h>
 
+#import "KeyTrackedSample.h"
 #import "MediaMetaData.h"
 #import "NSString+Sanitized.h"
 #import "MetaController.h"
 #import "NSData+Hashing.h"
+
+static const NSInteger kDeepScanVersion = 1;
+static const int kDeepScanStateNever = 0;
+static const int kDeepScanStatePending = 1;
+static const int kDeepScanStateRunning = 2;
+static const int kDeepScanStateDone = 3;
+static const int kDeepScanStateFailed = 4;
+static const int kDeepScanPriorityLow = 0;
+static const int kDeepScanPriorityHigh = 1;
 
 static NSString* const kLibrarySchema =
     @"CREATE TABLE IF NOT EXISTS tracks ("
@@ -39,7 +49,12 @@ static NSString* const kLibrarySchema =
     @" artworkLocation TEXT,"
     @" addedAt REAL,"
     @" lastSeen REAL,"
-    @" appleLocation TEXT"
+    @" appleLocation TEXT,"
+    @" deepScanState INTEGER,"
+    @" deepScanPriority INTEGER,"
+    @" deepScanVersion INTEGER,"
+    @" deepScanUpdatedAt REAL,"
+    @" deepScanError TEXT"
     @");"
     @"CREATE TABLE IF NOT EXISTS artwork ("
     @" hash TEXT PRIMARY KEY,"
@@ -91,7 +106,10 @@ static BOOL isLikelyMojibakeString(NSString* s)
         [fm createDirectoryAtURL:dir withIntermediateDirectories:YES attributes:nil error:nil];
     }
 
-    int rc = sqlite3_open(self.databaseURL.fileSystemRepresentation, &_db);
+    int rc = sqlite3_open_v2(self.databaseURL.fileSystemRepresentation,
+                             &_db,
+                             SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE | SQLITE_OPEN_FULLMUTEX,
+                             NULL);
     if (rc != SQLITE_OK) {
         if (error) {
             *error = [NSError errorWithDomain:@"LibraryStore" code:rc userInfo:@{NSLocalizedDescriptionKey : @"Failed to open database"}];
@@ -128,8 +146,8 @@ static BOOL isLikelyMojibakeString(NSString* s)
     // preferExisting == YES keeps DB/file-derived metadata and only updates bookkeeping fields.
     const char* sqlPreferExisting =
                       "INSERT INTO tracks "
-                      "(url,title,artist,album,albumArtist,genre,year,trackNumber,trackCount,discNumber,discCount,duration,bpm,key,rating,comment,tags,compilation,artworkHash,artworkLocation,addedAt,lastSeen,appleLocation) "
-                      "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) "
+                      "(url,title,artist,album,albumArtist,genre,year,trackNumber,trackCount,discNumber,discCount,duration,bpm,key,rating,comment,tags,compilation,artworkHash,artworkLocation,addedAt,lastSeen,appleLocation,deepScanState,deepScanPriority,deepScanVersion,deepScanUpdatedAt,deepScanError) "
+                      "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) "
                       "ON CONFLICT(url) DO UPDATE SET "
                         // keep existing metadata; only update bookkeeping.
                       "addedAt=COALESCE(tracks.addedAt, excluded.addedAt),"
@@ -137,8 +155,8 @@ static BOOL isLikelyMojibakeString(NSString* s)
 
     const char* sqlOverwrite =
                       "INSERT INTO tracks "
-                      "(url,title,artist,album,albumArtist,genre,year,trackNumber,trackCount,discNumber,discCount,duration,bpm,key,rating,comment,tags,compilation,artworkHash,artworkLocation,addedAt,lastSeen,appleLocation) "
-                      "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) "
+                      "(url,title,artist,album,albumArtist,genre,year,trackNumber,trackCount,discNumber,discCount,duration,bpm,key,rating,comment,tags,compilation,artworkHash,artworkLocation,addedAt,lastSeen,appleLocation,deepScanState,deepScanPriority,deepScanVersion,deepScanUpdatedAt,deepScanError) "
+                      "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) "
                       "ON CONFLICT(url) DO UPDATE SET "
                       "title=excluded.title,"
                       "artist=excluded.artist,"
@@ -161,7 +179,12 @@ static BOOL isLikelyMojibakeString(NSString* s)
                       "artworkLocation=excluded.artworkLocation,"
                       "addedAt=COALESCE(tracks.addedAt, excluded.addedAt),"
                       "lastSeen=excluded.lastSeen,"
-                      "appleLocation=excluded.appleLocation";
+                      "appleLocation=excluded.appleLocation,"
+                      "deepScanState=excluded.deepScanState,"
+                      "deepScanPriority=excluded.deepScanPriority,"
+                      "deepScanVersion=excluded.deepScanVersion,"
+                      "deepScanUpdatedAt=excluded.deepScanUpdatedAt,"
+                      "deepScanError=excluded.deepScanError";
 
     const char* sql = preferExisting ? sqlPreferExisting : sqlOverwrite;
 
@@ -248,6 +271,21 @@ static BOOL isLikelyMojibakeString(NSString* s)
         sqlite3_bind_double(stmt, 21, addedAt);
         sqlite3_bind_double(stmt, 22, now);
         sqlite3_bind_text(stmt, 23, meta.appleLocation.absoluteString.UTF8String, -1, SQLITE_TRANSIENT);
+        double durationSeconds = meta.duration != nil ? (meta.duration.doubleValue / 1000.0) : 0.0;
+        BOOL needsKey = (meta.key == nil || meta.key.length == 0) &&
+                        [KeyTrackedSample needsKeyForSampleDuration:durationSeconds];
+        BOOL needsDeepScan = (durationSeconds <= 0.0 ||
+                              meta.tempo == nil || meta.tempo.doubleValue <= 0.0 ||
+                              needsKey);
+        int deepScanState = needsDeepScan ? kDeepScanStatePending : kDeepScanStateDone;
+        int deepScanPriority = kDeepScanPriorityLow;
+        int deepScanVersion = needsDeepScan ? 0 : (int) kDeepScanVersion;
+        double deepScanUpdatedAt = needsDeepScan ? 0.0 : now;
+        sqlite3_bind_int(stmt, 24, deepScanState);
+        sqlite3_bind_int(stmt, 25, deepScanPriority);
+        sqlite3_bind_int(stmt, 26, deepScanVersion);
+        sqlite3_bind_double(stmt, 27, deepScanUpdatedAt);
+        sqlite3_bind_null(stmt, 28);
 
         rc = sqlite3_step(stmt);
         if (rc != SQLITE_DONE) {
@@ -363,6 +401,9 @@ static BOOL isLikelyMojibakeString(NSString* s)
             [loader loadAsyncWithPath:url.path
                              callback:^(MediaMetaData* meta) {
                                  if (meta) {
+                                     if (meta.added == nil) {
+                                         meta.added = [NSDate date];
+                                     }
                                      dispatch_async(mergeQueue, ^{
                                          [metas addObject:meta];
                                      });
@@ -374,6 +415,7 @@ static BOOL isLikelyMojibakeString(NSString* s)
         }
 
         dispatch_group_wait(group, DISPATCH_TIME_FOREVER);
+        dispatch_sync(mergeQueue, ^{});
 
         NSError* err = nil;
         if (metas.count > 0) {
@@ -415,6 +457,7 @@ static BOOL isLikelyMojibakeString(NSString* s)
         }
 
         dispatch_group_wait(group, DISPATCH_TIME_FOREVER);
+        dispatch_sync(mergeQueue, ^{});
 
         dispatch_async(dispatch_get_main_queue(), ^{
             if (completion) {
@@ -631,6 +674,287 @@ static BOOL isLikelyMojibakeString(NSString* s)
             }
         });
     });
+}
+
+- (BOOL)resetDeepScanRunningState:(NSError**)error
+{
+    if (![self open:error]) {
+        return NO;
+    }
+
+    const char* sql = "UPDATE tracks SET deepScanState = ? WHERE deepScanState = ?";
+    sqlite3_stmt* stmt = NULL;
+    int rc = sqlite3_prepare_v2(self.db, sql, -1, &stmt, NULL);
+    if (rc != SQLITE_OK) {
+        if (error) {
+            *error = [NSError errorWithDomain:@"LibraryStore" code:rc userInfo:@{NSLocalizedDescriptionKey : @"Failed to prepare deep scan reset"}];
+        }
+        return NO;
+    }
+
+    sqlite3_bind_int(stmt, 1, kDeepScanStatePending);
+    sqlite3_bind_int(stmt, 2, kDeepScanStateRunning);
+    rc = sqlite3_step(stmt);
+    sqlite3_finalize(stmt);
+
+    if (rc != SQLITE_DONE) {
+        if (error) {
+            *error = [NSError errorWithDomain:@"LibraryStore" code:rc userInfo:@{NSLocalizedDescriptionKey : @"Failed to reset deep scan state"}];
+        }
+        return NO;
+    }
+
+    return YES;
+}
+
+- (BOOL)enqueueDeepScanForURLs:(NSArray<NSURL*>*)urls priority:(NSInteger)priority error:(NSError**)error
+{
+    if (urls.count == 0) {
+        return YES;
+    }
+    if (![self open:error]) {
+        return NO;
+    }
+
+    const char* sql = "UPDATE tracks "
+                      "SET deepScanState = ?, deepScanPriority = ?, deepScanUpdatedAt = 0, deepScanError = NULL "
+                      "WHERE url = ?";
+    sqlite3_stmt* stmt = NULL;
+    int rc = sqlite3_prepare_v2(self.db, sql, -1, &stmt, NULL);
+    if (rc != SQLITE_OK) {
+        if (error) {
+            *error = [NSError errorWithDomain:@"LibraryStore" code:rc userInfo:@{NSLocalizedDescriptionKey : @"Failed to prepare deep scan enqueue"}];
+        }
+        return NO;
+    }
+
+    BOOL ok = YES;
+    for (NSURL* url in urls) {
+        sqlite3_reset(stmt);
+        sqlite3_clear_bindings(stmt);
+        sqlite3_bind_int(stmt, 1, kDeepScanStatePending);
+        sqlite3_bind_int(stmt, 2, (int) priority);
+        sqlite3_bind_text(stmt, 3, url.absoluteString.UTF8String, -1, SQLITE_TRANSIENT);
+        rc = sqlite3_step(stmt);
+        if (rc != SQLITE_DONE) {
+            ok = NO;
+            if (error) {
+                *error = [NSError errorWithDomain:@"LibraryStore" code:rc userInfo:@{NSLocalizedDescriptionKey : @"Failed to enqueue deep scan"}];
+            }
+            break;
+        }
+    }
+
+    sqlite3_finalize(stmt);
+    return ok;
+}
+
+- (NSURL* _Nullable)nextDeepScanURL:(NSError**)error
+{
+    if (![self open:error]) {
+        return nil;
+    }
+
+    const char* sql = "SELECT url FROM tracks "
+                      "WHERE (duration IS NULL OR duration <= 0 OR bpm IS NULL OR bpm <= 0 "
+                      "OR ((key IS NULL OR key = '') AND (duration IS NULL OR duration <= ?))) "
+                      "AND (COALESCE(deepScanState, 0) IN (0, 1) OR (deepScanState = 4 AND COALESCE(deepScanVersion, 0) < ?)) "
+                      "ORDER BY COALESCE(deepScanPriority, 0) DESC, COALESCE(deepScanUpdatedAt, 0) ASC "
+                      "LIMIT 1";
+    sqlite3_stmt* stmt = NULL;
+    int rc = sqlite3_prepare_v2(self.db, sql, -1, &stmt, NULL);
+    if (rc != SQLITE_OK) {
+        if (error) {
+            *error = [NSError errorWithDomain:@"LibraryStore" code:rc userInfo:@{NSLocalizedDescriptionKey : @"Failed to prepare deep scan select"}];
+        }
+        return nil;
+    }
+
+    sqlite3_bind_double(stmt, 1, kBeatSampleDurationThreshold * 1000.0);
+    sqlite3_bind_int(stmt, 2, (int) kDeepScanVersion);
+    NSURL* url = nil;
+    rc = sqlite3_step(stmt);
+    if (rc == SQLITE_ROW) {
+        const char* urlText = (const char*) sqlite3_column_text(stmt, 0);
+        if (urlText) {
+            url = [NSURL URLWithString:@(urlText)];
+        }
+    } else if (rc != SQLITE_DONE) {
+        if (error) {
+            *error = [NSError errorWithDomain:@"LibraryStore" code:rc userInfo:@{NSLocalizedDescriptionKey : @"Failed to select deep scan candidate"}];
+        }
+    }
+
+    sqlite3_finalize(stmt);
+    return url;
+}
+
+- (BOOL)markDeepScanRunningForURL:(NSURL*)url error:(NSError**)error
+{
+    if (![self open:error]) {
+        return NO;
+    }
+
+    const char* sql = "UPDATE tracks SET deepScanState = ?, deepScanUpdatedAt = ? WHERE url = ?";
+    sqlite3_stmt* stmt = NULL;
+    int rc = sqlite3_prepare_v2(self.db, sql, -1, &stmt, NULL);
+    if (rc != SQLITE_OK) {
+        if (error) {
+            *error = [NSError errorWithDomain:@"LibraryStore" code:rc userInfo:@{NSLocalizedDescriptionKey : @"Failed to prepare deep scan running update"}];
+        }
+        return NO;
+    }
+
+    sqlite3_bind_int(stmt, 1, kDeepScanStateRunning);
+    sqlite3_bind_double(stmt, 2, [NSDate date].timeIntervalSince1970);
+    sqlite3_bind_text(stmt, 3, url.absoluteString.UTF8String, -1, SQLITE_TRANSIENT);
+    rc = sqlite3_step(stmt);
+    sqlite3_finalize(stmt);
+
+    if (rc != SQLITE_DONE) {
+        if (error) {
+            *error = [NSError errorWithDomain:@"LibraryStore" code:rc userInfo:@{NSLocalizedDescriptionKey : @"Failed to mark deep scan running"}];
+        }
+        return NO;
+    }
+
+    return YES;
+}
+
+- (BOOL)completeDeepScanForURL:(NSURL*)url
+                      duration:(NSNumber* _Nullable)duration
+                         tempo:(NSNumber* _Nullable)tempo
+                           key:(NSString* _Nullable)key
+                         error:(NSError**)error
+{
+    if (![self open:error]) {
+        return NO;
+    }
+
+    const char* sql = "UPDATE tracks SET "
+                      "duration = COALESCE(?, duration),"
+                      "bpm = COALESCE(?, bpm),"
+                      "key = COALESCE(?, key),"
+                      "deepScanState = ?,"
+                      "deepScanPriority = ?,"
+                      "deepScanVersion = ?,"
+                      "deepScanUpdatedAt = ?,"
+                      "deepScanError = NULL "
+                      "WHERE url = ?";
+    sqlite3_stmt* stmt = NULL;
+    int rc = sqlite3_prepare_v2(self.db, sql, -1, &stmt, NULL);
+    if (rc != SQLITE_OK) {
+        if (error) {
+            *error = [NSError errorWithDomain:@"LibraryStore" code:rc userInfo:@{NSLocalizedDescriptionKey : @"Failed to prepare deep scan completion update"}];
+        }
+        return NO;
+    }
+
+    if (duration != nil) {
+        sqlite3_bind_double(stmt, 1, floor(duration.doubleValue));
+    } else {
+        sqlite3_bind_null(stmt, 1);
+    }
+    if (tempo != nil) {
+        sqlite3_bind_double(stmt, 2, floor(tempo.doubleValue));
+    } else {
+        sqlite3_bind_null(stmt, 2);
+    }
+    if (key != nil) {
+        sqlite3_bind_text(stmt, 3, key.UTF8String, -1, SQLITE_TRANSIENT);
+    } else {
+        sqlite3_bind_null(stmt, 3);
+    }
+    sqlite3_bind_int(stmt, 4, kDeepScanStateDone);
+    sqlite3_bind_int(stmt, 5, kDeepScanPriorityLow);
+    sqlite3_bind_int(stmt, 6, (int) kDeepScanVersion);
+    sqlite3_bind_double(stmt, 7, [NSDate date].timeIntervalSince1970);
+    sqlite3_bind_text(stmt, 8, url.absoluteString.UTF8String, -1, SQLITE_TRANSIENT);
+    rc = sqlite3_step(stmt);
+    sqlite3_finalize(stmt);
+
+    if (rc != SQLITE_DONE) {
+        if (error) {
+            *error = [NSError errorWithDomain:@"LibraryStore" code:rc userInfo:@{NSLocalizedDescriptionKey : @"Failed to mark deep scan completed"}];
+        }
+        return NO;
+    }
+
+    return YES;
+}
+
+- (BOOL)markDeepScanFailedForURL:(NSURL*)url reason:(NSString*)reason error:(NSError**)error
+{
+    if (![self open:error]) {
+        return NO;
+    }
+
+    const char* sql = "UPDATE tracks SET "
+                      "deepScanState = ?,"
+                      "deepScanVersion = ?,"
+                      "deepScanUpdatedAt = ?,"
+                      "deepScanError = ? "
+                      "WHERE url = ?";
+    sqlite3_stmt* stmt = NULL;
+    int rc = sqlite3_prepare_v2(self.db, sql, -1, &stmt, NULL);
+    if (rc != SQLITE_OK) {
+        if (error) {
+            *error = [NSError errorWithDomain:@"LibraryStore" code:rc userInfo:@{NSLocalizedDescriptionKey : @"Failed to prepare deep scan failure update"}];
+        }
+        return NO;
+    }
+
+    sqlite3_bind_int(stmt, 1, kDeepScanStateFailed);
+    sqlite3_bind_int(stmt, 2, (int) kDeepScanVersion);
+    sqlite3_bind_double(stmt, 3, [NSDate date].timeIntervalSince1970);
+    sqlite3_bind_text(stmt, 4, reason.UTF8String, -1, SQLITE_TRANSIENT);
+    sqlite3_bind_text(stmt, 5, url.absoluteString.UTF8String, -1, SQLITE_TRANSIENT);
+    rc = sqlite3_step(stmt);
+    sqlite3_finalize(stmt);
+
+    if (rc != SQLITE_DONE) {
+        if (error) {
+            *error = [NSError errorWithDomain:@"LibraryStore" code:rc userInfo:@{NSLocalizedDescriptionKey : @"Failed to mark deep scan failed"}];
+        }
+        return NO;
+    }
+
+    return YES;
+}
+
+- (NSInteger)deepScanOutstandingCount:(NSError**)error
+{
+    if (![self open:error]) {
+        return -1;
+    }
+
+    const char* sql = "SELECT COUNT(*) FROM tracks "
+                      "WHERE (duration IS NULL OR duration <= 0 OR bpm IS NULL OR bpm <= 0 "
+                      "OR ((key IS NULL OR key = '') AND (duration IS NULL OR duration <= ?))) "
+                      "AND (COALESCE(deepScanState, 0) IN (0, 1, 2) OR (deepScanState = 4 AND COALESCE(deepScanVersion, 0) < ?))";
+    sqlite3_stmt* stmt = NULL;
+    int rc = sqlite3_prepare_v2(self.db, sql, -1, &stmt, NULL);
+    if (rc != SQLITE_OK) {
+        if (error) {
+            *error = [NSError errorWithDomain:@"LibraryStore" code:rc userInfo:@{NSLocalizedDescriptionKey : @"Failed to prepare deep scan count"}];
+        }
+        return -1;
+    }
+
+    sqlite3_bind_double(stmt, 1, kBeatSampleDurationThreshold * 1000.0);
+    sqlite3_bind_int(stmt, 2, (int) kDeepScanVersion);
+    rc = sqlite3_step(stmt);
+    NSInteger count = -1;
+    if (rc == SQLITE_ROW) {
+        count = (NSInteger) sqlite3_column_int(stmt, 0);
+    } else {
+        if (error) {
+            *error = [NSError errorWithDomain:@"LibraryStore" code:rc userInfo:@{NSLocalizedDescriptionKey : @"Failed to read deep scan count"}];
+        }
+    }
+
+    sqlite3_finalize(stmt);
+    return count;
 }
 
 @end

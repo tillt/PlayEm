@@ -23,6 +23,12 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+extern NSString* const kFXLastEffectDefaultsKey;
+extern NSString* const kFXLastEffectEnabledKey;
+extern NSString* const kSkipRateMismatchWarning;
+extern const float kPixelPerSecond;
+extern const size_t kReducedVisualSampleWidth;
+
 @class MTKView;
 
 @class MediaMetaData;

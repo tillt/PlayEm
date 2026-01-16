@@ -19,6 +19,11 @@ extern const double kBeatSampleDurationThreshold;
 
 @interface KeyTrackedSample : NSObject
 
+// Central policy for deciding if key detection is meaningful for a duration.
++ (BOOL)needsKeyForSampleDuration:(NSTimeInterval)duration;
+
+@property (assign, nonatomic) BOOL suppressActivity;
+
 @property (strong, nonatomic) LazySample* sample;
 @property (assign, readonly, nonatomic) BOOL ready;
 @property (copy, nonatomic, nullable) NSString* key;
@@ -28,6 +33,8 @@ extern const double kBeatSampleDurationThreshold;
 
 - (id)initWithSample:(LazySample*)sample;
 - (void)trackKeyAsyncWithCallback:(void (^)(BOOL))callback;
+- (void)trackKeyAsyncWithCompletionQueue:(dispatch_queue_t _Nullable)queue
+                                callback:(void (^)(BOOL))callback;
 
 @end
 

@@ -97,6 +97,16 @@ typedef void (^TapBlock)(unsigned long long framePosition, float* frameData, uns
 ///   - callback: Completion invoked on main queue.
 - (void)decodeAsyncWithSample:(LazySample*)sample notifyEarlyAtFrame:(unsigned long long)frame callback:(void (^)(BOOL,BOOL))callback;
 
+/// Asynchronously decode a sample for analysis without playback notifications.
+///
+/// - Parameters:
+///   - sample: Sample to decode.
+///   - queue: Completion queue (defaults to global utility queue when nil).
+///   - callback: Completion invoked on the queue.
+- (void)decodeAsyncForAnalysisWithSample:(LazySample*)sample
+                        completionQueue:(dispatch_queue_t _Nullable)queue
+                                callback:(void (^)(BOOL))callback;
+
 /// Check whether the current default output device supports the sample's native rate.
 ///
 /// - Parameter sample: Sample to test.

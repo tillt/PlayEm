@@ -26,6 +26,8 @@
 #import "TableCellView.h"
 #import "TableHeaderCell.h"
 #import "TableRowView.h"
+#import "BrowserController+DeepScan.h"
+#import "Audio/AudioController.h"
 
 NSString* const kSongsColTrackNumber = @"TrackCell";
 NSString* const kSongsColTitle = @"TitleCell";
@@ -66,6 +68,19 @@ NSString* const kSongsColGenre = @"GenreCell";
 @property (nonatomic, strong) NSArray<MediaMetaData*>* filteredItems;
 
 @property (strong, nonatomic) dispatch_queue_t filterQueue;
+@property (strong, nonatomic) dispatch_queue_t deepScanQueue;
+@property (strong, nonatomic) dispatch_semaphore_t deepScanWake;
+@property (assign, nonatomic) BOOL deepScanStop;
+@property (strong, nonatomic) ActivityToken* deepScanToken;
+@property (assign, nonatomic) NSInteger deepScanTotalCount;
+@property (assign, nonatomic) NSInteger deepScanCompletedCount;
+@property (strong, nonatomic) AudioController* deepScanAudioController;
+@property (assign, nonatomic) BOOL reconcileRequested;
+@property (assign, nonatomic) BOOL reconcileRunning;
+@property (copy, nonatomic) void (^reconcileCompletion)(NSArray<MediaMetaData*>* _Nullable refreshedMetas,
+                                                        NSArray<MediaMetaData*>* _Nullable changedMetas,
+                                                        NSArray<NSURL*>* missingFiles,
+                                                        NSError* _Nullable error);
 
 - (void)mergeMetasIntoCache:(NSArray<MediaMetaData*>*)metas;
 - (void)refreshUIWithLibrary:(NSArray<MediaMetaData*>*)library;
@@ -569,6 +584,7 @@ NSString* const kSongsColGenre = @"GenreCell";
 
             [[ActivityManager shared] completeActivity:libraryToken];
             strongSelf->_reloadingLibrary = NO;
+            [strongSelf startDeepScanSchedulerIfNeeded];
         });
     });
 }
@@ -653,26 +669,20 @@ NSString* const kSongsColGenre = @"GenreCell";
             [[ActivityManager shared] completeActivity:libraryToken];
 
             strongSelf->_reloadingLibrary = NO;
+            [strongSelf startDeepScanSchedulerIfNeeded];
         });
     });
 }
 
 - (IBAction)reconcileLibrary:(id)sender
 {
-    ActivityToken* activity = [[ActivityManager shared] beginActivityWithTitle:NSLocalizedString(@"activity.library.reconcile.title", @"Title for library reconciliation activity")
-                                                                        detail:@""
-                                                                   cancellable:NO
-                                                                 cancelHandler:nil];
-    [[ActivityManager shared] updateActivity:activity progress:0.0 detail:NSLocalizedString(@"activity.library.reconcile.starting", @"Detail when library reconciliation starts")];
-
     BrowserController* __weak weakSelf = self;
-    [self.libraryStore reconcileLibraryWithCompletion:^(NSArray<MediaMetaData*>* _Nullable refreshedMetas,
-                                                        NSArray<MediaMetaData*>* _Nullable changedMetas,
-                                                        NSArray<NSURL*>* missingFiles,
-                                                        NSError* _Nullable error) {
+    [self enqueueReconcileWithCompletion:^(NSArray<MediaMetaData*>* _Nullable refreshedMetas,
+                                           NSArray<MediaMetaData*>* _Nullable changedMetas,
+                                           NSArray<NSURL*>* missingFiles,
+                                           NSError* _Nullable error) {
         BrowserController* strongSelf = weakSelf;
         if (!strongSelf) {
-            [[ActivityManager shared] completeActivity:activity];
             return;
         }
 
@@ -684,12 +694,9 @@ NSString* const kSongsColGenre = @"GenreCell";
         NSUInteger missingCount = missing.count;
         NSArray<NSSortDescriptor*>* descriptors = [strongSelf.songsTable sortDescriptors];
 
-        [[ActivityManager shared] updateActivity:activity progress:0.25 detail:NSLocalizedString(@"activity.library.reconcile.merging", @"Detail while merging reconciliation results")];
-
         dispatch_async(strongSelf->_filterQueue, ^{
             BrowserController* strongSelf = weakSelf;
             if (!strongSelf) {
-                [[ActivityManager shared] completeActivity:activity];
                 return;
             }
 
@@ -702,7 +709,6 @@ NSString* const kSongsColGenre = @"GenreCell";
             dispatch_async(dispatch_get_main_queue(), ^{
                 BrowserController* strongSelf = weakSelf;
                 if (!strongSelf) {
-                    [[ActivityManager shared] completeActivity:activity];
                     return;
                 }
 
@@ -778,8 +784,6 @@ NSString* const kSongsColGenre = @"GenreCell";
                 } else {
                     [alert runModal];
                 }
-
-                [[ActivityManager shared] completeActivity:activity];
             });
         });
     }];
@@ -2027,6 +2031,24 @@ NSString* const kSongsColGenre = @"GenreCell";
                                if (metas.count == 0) {
                                    return;
                                }
+                               [self startDeepScanSchedulerIfNeeded];
+                               NSError* enqueueError = nil;
+                               NSArray<NSURL*>* urls = [metas valueForKeyPath:@"location"];
+                               NSMutableArray<NSURL*>* enqueueURLs = [NSMutableArray array];
+                               for (NSURL* url in urls) {
+                                   if ([self shouldSuppressDeepScanForURL:url]) {
+                                       [self beginForegroundDeepScanForURL:url];
+                                       continue;
+                                   }
+                                   [enqueueURLs addObject:url];
+                               }
+                               if (enqueueURLs.count > 0) {
+                                   if (![self.libraryStore enqueueDeepScanForURLs:enqueueURLs priority:0 error:&enqueueError]) {
+                                       NSLog(@"Deep scan enqueue failed: %@", enqueueError);
+                                   } else {
+                                       [self wakeDeepScanScheduler];
+                                   }
+                               }
                                dispatch_async(_filterQueue, ^{
                                    BrowserController* strongSelf = weakSelf;
                                    if (!strongSelf) {
@@ -2046,7 +2068,7 @@ NSString* const kSongsColGenre = @"GenreCell";
                                        strongSelf.filteredItems = sorted;
                                        [strongSelf refreshUIWithLibrary:sorted];
                                    });
-                               });
+                                   });
                            }];
 }
 

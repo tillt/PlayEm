@@ -46,6 +46,29 @@ NS_ASSUME_NONNULL_BEGIN
 /// Asynchronous removal of entries matching the given URLs. Completion on main queue.
 - (void)removeEntriesForURLs:(NSArray<NSURL*>*)urls completion:(void (^)(BOOL success, NSError* _Nullable error))completion;
 
+/// Reset running deep scans to pending (e.g., after restart).
+- (BOOL)resetDeepScanRunningState:(NSError**)error;
+
+/// Mark URLs for deep scan with optional priority (0 = low, 1 = high).
+- (BOOL)enqueueDeepScanForURLs:(NSArray<NSURL*>*)urls priority:(NSInteger)priority error:(NSError**)error;
+
+/// Returns the next URL that needs deep scanning, or nil when none are pending.
+- (NSURL* _Nullable)nextDeepScanURL:(NSError**)error;
+
+/// Mark a URL as actively being scanned.
+- (BOOL)markDeepScanRunningForURL:(NSURL*)url error:(NSError**)error;
+
+/// Update deep scan results for a URL and mark completed.
+- (BOOL)completeDeepScanForURL:(NSURL*)url
+                      duration:(NSNumber* _Nullable)duration
+                         tempo:(NSNumber* _Nullable)tempo
+                           key:(NSString* _Nullable)key
+                         error:(NSError**)error;
+
+/// Mark a deep scan as failed for the given URL.
+- (BOOL)markDeepScanFailedForURL:(NSURL*)url reason:(NSString*)reason error:(NSError**)error;
+- (NSInteger)deepScanOutstandingCount:(NSError**)error;
+
 @end
 
 NS_ASSUME_NONNULL_END

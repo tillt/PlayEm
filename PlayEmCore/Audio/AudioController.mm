@@ -47,6 +47,7 @@ static OSStatus DefaultOutputDeviceChanged(AudioObjectID objectId, UInt32 number
 @property (nonatomic, strong) id<AudioPlaybackBackend> backend;
 @property (nonatomic, strong, nullable) LazySample* sampleRef;
 @property (nonatomic, strong, nullable) dispatch_block_t decodeOperation;
+@property (nonatomic, assign) BOOL suppressDecodeNotifications;
 @property (nonatomic, copy, nullable) TapBlock tapBlock;
 @property (nonatomic, assign) AVAudioFramePosition cachedLatency;
 @property (nonatomic, assign) AudioObjectID cachedDeviceId;
@@ -498,7 +499,9 @@ static OSStatus DefaultOutputDeviceChanged(AudioObjectID objectId, UInt32 number
 
 - (BOOL)decode:(LazySample*)encodedSample frame:(unsigned long long)frame token:(ActivityToken*)token reachedFrame:(void (^)(void))reachedFrame cancelTest:(BOOL (^)(void))cancelTest
 {
-    [[ActivityManager shared] updateActivity:token progress:0.0 detail:PECLocalizedString(@"activity.decode.initializing_engine", @"Detail when initializing audio decode engine")];
+    if (token != nil) {
+        [[ActivityManager shared] updateActivity:token progress:0.0 detail:PECLocalizedString(@"activity.decode.initializing_engine", @"Detail when initializing audio decode engine")];
+    }
 
     AudioObjectID deviceId = [AudioDevice defaultOutputDevice];
     Float64 deviceRate = [AudioDevice sampleRateForDevice:deviceId];
@@ -527,12 +530,14 @@ static OSStatus DefaultOutputDeviceChanged(AudioObjectID objectId, UInt32 number
     [encodedSample setRenderedLength:(unsigned long long) ceil(expectedRenderedFrames)];
 
     // We now know which rate that file will get decoded/resampled to, lets tell the world.
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [[NSNotificationCenter defaultCenter] postNotificationName:kPlaybackGraphChanged
-                                                            object:self
-                                                          userInfo:@{kGraphChangeReasonKey : @"sample",
-                                                                     @"sample" : encodedSample ?: [NSNull null]}];
-    });
+    if (!self.suppressDecodeNotifications) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [[NSNotificationCenter defaultCenter] postNotificationName:kPlaybackGraphChanged
+                                                                object:self
+                                                              userInfo:@{kGraphChangeReasonKey : @"sample",
+                                                                         @"sample" : encodedSample ?: [NSNull null]}];
+        });
+    }
 
     AVAudioFormat* renderFormat = [[AVAudioFormat alloc] initWithCommonFormat:AVAudioPCMFormatFloat32
                                                                    sampleRate:renderRate
@@ -605,9 +610,13 @@ static OSStatus DefaultOutputDeviceChanged(AudioObjectID objectId, UInt32 number
             double estimatedTotalFrames = (double) encodedSample.source.length * (renderRate / sourceRate);
             progress = MIN(1.0, totalRenderedFrames / estimatedTotalFrames);
         }
-        [[ActivityManager shared] updateActivity:token progress:progress detail:PECLocalizedString(@"activity.decode.decoding_data", @"Detail while decoding compressed audio data")];
+        if (token != nil) {
+            [[ActivityManager shared] updateActivity:token progress:progress detail:PECLocalizedString(@"activity.decode.decoding_data", @"Detail while decoding compressed audio data")];
+        }
     }
-    [[ActivityManager shared] updateActivity:token progress:1.0 detail:PECLocalizedString(@"activity.decode.done", @"Detail when audio decoding completes")];
+    if (token != nil) {
+        [[ActivityManager shared] updateActivity:token progress:1.0 detail:PECLocalizedString(@"activity.decode.done", @"Detail when audio decoding completes")];
+    }
 
     // Update sample metadata to reflect the rendered rate so playback/tap stay at the device rate.
     encodedSample.sampleFormat = (SampleFormat){.channels = encodedSample.sampleFormat.channels, .rate = (long) renderRate};
@@ -650,6 +659,39 @@ static OSStatus DefaultOutputDeviceChanged(AudioObjectID objectId, UInt32 number
     dispatch_block_notify(self.decodeOperation, dispatch_get_main_queue(), ^{
         [[ActivityManager shared] completeActivity:decoderToken];
         callback(done,YES);
+    });
+}
+
+- (void)decodeAsyncForAnalysisWithSample:(LazySample*)sample
+                        completionQueue:(dispatch_queue_t _Nullable)queue
+                                callback:(void (^)(BOOL))callback
+{
+    __weak AudioController* weakSelf = self;
+
+    __block BOOL done = NO;
+    __weak __block dispatch_block_t weakBlock;
+
+    dispatch_block_t block = dispatch_block_create(DISPATCH_BLOCK_NO_QOS_CLASS, ^{
+        AudioController* strongSelf = weakSelf;
+        if (!strongSelf) {
+            return;
+        }
+        strongSelf.suppressDecodeNotifications = YES;
+        done = [strongSelf decode:sample
+                            frame:0
+                            token:nil
+                     reachedFrame:^{}
+                       cancelTest:^BOOL {
+            return dispatch_block_testcancel(weakBlock) != 0 ? YES : NO;
+        }];
+        strongSelf.suppressDecodeNotifications = NO;
+    });
+
+    weakBlock = block;
+    dispatch_async(dispatch_get_global_queue(QOS_CLASS_UTILITY, 0), block);
+
+    dispatch_block_notify(block, queue ?: dispatch_get_global_queue(QOS_CLASS_UTILITY, 0), ^{
+        callback(done);
     });
 }
 

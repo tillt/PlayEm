@@ -12,6 +12,7 @@
 #import <math.h>
 
 #import "../ActivityManager.h"
+#import "../PECLocalization.h"
 #import "../ImageController.h"
 #import "../Metadata/TimedMediaMetaData.h"
 #import "../Sample/LazySample.h"
@@ -69,7 +70,7 @@ static uint64_t HashAudioSlice(float* const* channels, uint32_t channelCount, AV
     AVAudioFrameCount matchWindowFrameCount = _hopSize;
     AVAudioChannelLayout* layout = [[AVAudioChannelLayout alloc] initWithLayoutTag:kAudioChannelLayoutTag_Mono];
     AVAudioFormat* format = [[AVAudioFormat alloc] initWithCommonFormat:AVAudioPCMFormatFloat32
-                                                             sampleRate:sampleFormat.rate
+                                                             sampleRate:_sample.renderedSampleRate
                                                             interleaved:NO
                                                           channelLayout:layout];
 
@@ -151,7 +152,7 @@ static uint64_t HashAudioSlice(float* const* channels, uint32_t channelCount, AV
             });
             _matchRequestCount += 1;
 
-            AVAudioTime* time = [AVAudioTime timeWithSampleTime:chunkStartFrame atRate:sampleFormat.rate];
+            AVAudioTime* time = [AVAudioTime timeWithSampleTime:chunkStartFrame atRate:_sample.renderedSampleRate];
             [_session matchStreamingBuffer:stream atTime:time];
         };
         _totalFrameCursor += received;
@@ -162,11 +163,11 @@ static uint64_t HashAudioSlice(float* const* channels, uint32_t channelCount, AV
 
 - (BOOL)detectTracklist
 {
-    NSUserDefaults* defaults = [NSUserDefaults standardUserDefaults];
-    self.useStreamingMatch = [defaults boolForKey:@"UseStreamingMatch"];
-    if (self.useStreamingMatch) {
-        return [self detectTracklistStreaming];
-    }
+//    NSUserDefaults* defaults = [NSUserDefaults standardUserDefaults];
+//    self.useStreamingMatch = [defaults boolForKey:@"UseStreamingMatch"];
+//    if (self.useStreamingMatch) {
+//        return [self detectTracklistStreaming];
+//    }
 
     NSLog(@"detectTracklist");
     _session = [[SHSession alloc] init];
@@ -175,11 +176,10 @@ static uint64_t HashAudioSlice(float* const* channels, uint32_t channelCount, AV
     SampleFormat sampleFormat = _sample.sampleFormat;
 
     AVAudioFrameCount matchWindowFrameCount = _hopSize;
-    defaults = [NSUserDefaults standardUserDefaults];
-    BOOL downmixToMono = [defaults boolForKey:@"DownmixToMono"];
+    BOOL downmixToMono = NO;
     AVAudioChannelLayout* layout = [[AVAudioChannelLayout alloc] initWithLayoutTag:downmixToMono ? kAudioChannelLayoutTag_Mono : kAudioChannelLayoutTag_Stereo];
     AVAudioFormat* format = [[AVAudioFormat alloc] initWithCommonFormat:AVAudioPCMFormatFloat32
-                                                             sampleRate:sampleFormat.rate
+                                                             sampleRate:_sample.renderedSampleRate
                                                             interleaved:NO
                                                           channelLayout:layout];
 
@@ -194,28 +194,15 @@ static uint64_t HashAudioSlice(float* const* channels, uint32_t channelCount, AV
 #ifdef DEBUG_TAPPING
     FILE* fp = fopen("/tmp/debug_tap.out", "wb");
 #endif
-    const double minSignatureSeconds = 3.0;
-    defaults = [NSUserDefaults standardUserDefaults];
-    double targetSignatureSeconds = [defaults doubleForKey:@"SignatureWindowSeconds"];
-    if (targetSignatureSeconds <= 0.0) {
-        targetSignatureSeconds = 8.0;
-    }
-    double maxSignatureSeconds = [defaults doubleForKey:@"SignatureWindowMaxSeconds"];
-    if (maxSignatureSeconds <= 0.0) {
-        maxSignatureSeconds = targetSignatureSeconds;
-    }
-    self.signatureWindowSeconds = targetSignatureSeconds;
-    self.signatureWindowMaxSeconds = maxSignatureSeconds;
-    if (_debugScoring && (targetSignatureSeconds < minSignatureSeconds || targetSignatureSeconds > 12.0)) {
-        NSLog(@"[Detect] signature window %.2fs outside recommended 3–12s range", targetSignatureSeconds);
-    }
+    // min is 3, max is 12.
+    double targetSignatureSeconds = 10.0;
     SHSignatureGenerator* generator = [[SHSignatureGenerator alloc] init];
     double accumulatedSeconds = 0.0;
     unsigned long long signatureStartFrame = 0;
     unsigned long long signatureLocalFrame = 0;
     uint64_t lastSliceHash = 0;
-    defaults = [NSUserDefaults standardUserDefaults];
-    BOOL useNilTime = ![defaults boolForKey:@"UseSignatureTimes"];
+    //defaults = [NSUserDefaults standardUserDefaults];
+    BOOL useNilTime = NO;
 
     static BOOL loggedAppendFailure = NO;
     static BOOL loggedAppendSuccess = NO;
@@ -293,7 +280,7 @@ static uint64_t HashAudioSlice(float* const* channels, uint32_t channelCount, AV
             NSError* signatureError = nil;
             AVAudioTime* time = nil;
             if (!useNilTime) {
-                time = [AVAudioTime timeWithSampleTime:(AVAudioFramePosition) signatureLocalFrame atRate:sampleFormat.rate];
+                time = [AVAudioTime timeWithSampleTime:(AVAudioFramePosition) signatureLocalFrame atRate:_sample.renderedSampleRate];
             }
             BOOL appended = AppendSignatureBuffer(generator, stream, time, &signatureError);
             if (!appended) {
@@ -308,9 +295,9 @@ static uint64_t HashAudioSlice(float* const* channels, uint32_t channelCount, AV
             if (_debugScoring && !loggedAppendSuccess) {
                 loggedAppendSuccess = YES;
             }
-            accumulatedSeconds += (double) inputWindowFrameCount / sampleFormat.rate;
+            accumulatedSeconds += (double) inputWindowFrameCount / _sample.renderedSampleRate;
 
-            BOOL shouldMatch = (accumulatedSeconds >= targetSignatureSeconds) || (accumulatedSeconds >= maxSignatureSeconds);
+            BOOL shouldMatch = (accumulatedSeconds >= targetSignatureSeconds);
             if (shouldMatch) {
                 SHSignature* signature = [generator signature];
                 if (signature == nil) {
@@ -343,24 +330,6 @@ static uint64_t HashAudioSlice(float* const* channels, uint32_t channelCount, AV
         };
         _totalFrameCursor += received;
     };
-    if (accumulatedSeconds >= minSignatureSeconds) {
-        SHSignature* signature = generator.signature;
-        if (signature != nil) {
-            _sessionFrameOffset = signatureStartFrame;
-            NSNumber* offset = [NSNumber numberWithUnsignedLongLong:signatureStartFrame];
-            dispatch_sync(_identifyQueue, ^{
-                [_pendingMatchOffsets addObject:offset];
-                _inFlightCount += 1;
-                if (_inFlightCount > _maxInFlightCount) {
-                    _maxInFlightCount = _inFlightCount;
-                }
-                _requestStartTimeByOffset[offset] = @(CFAbsoluteTimeGetCurrent());
-                _requestSliceHashByOffset[offset] = [NSString stringWithFormat:@"%016llx", lastSliceHash];
-            });
-            _matchRequestCount += 1;
-            [_session matchSignature:signature];
-        }
-    }
     _finishedFeeding = YES;
     return YES;
 }
@@ -369,7 +338,7 @@ static uint64_t HashAudioSlice(float* const* channels, uint32_t channelCount, AV
 {
     __weak typeof(self) weakSelf = self;
     __block BOOL done = NO;
-    __weak __block dispatch_block_t weakBlock;
+    __block dispatch_block_t queueBlock = NULL;
 
     _completionHandler = [callback copy];
     [_identifieds removeAllObjects];
@@ -388,7 +357,7 @@ static uint64_t HashAudioSlice(float* const* channels, uint32_t channelCount, AV
     [_pendingMatchOffsets removeAllObjects];
     [_requestStartTimeByOffset removeAllObjects];
 
-    _token = [[ActivityManager shared] beginActivityWithTitle:@"Tracklist Detection"
+    _token = [[ActivityManager shared] beginActivityWithTitle:PECLocalizedString(@"activity.tracklist_detection.title", @"Title for tracklist detection activity")
                                                        detail:nil
                                                   cancellable:YES
                                                 cancelHandler:^{
@@ -397,19 +366,23 @@ static uint64_t HashAudioSlice(float* const* channels, uint32_t channelCount, AV
                                                         if (strongSelf == nil) {
                                                             return;
                                                         }
-                                                        [[ActivityManager shared] updateActivity:strongSelf->_token detail:@"aborted"];
+                                                        [[ActivityManager shared] updateActivity:strongSelf->_token detail:PECLocalizedString(@"activity.tracklist_detection.aborted", @"Detail when tracklist detection is aborted")];
                                                         [[ActivityManager shared] completeActivity:strongSelf->_token];
                                                         strongSelf->_completionHandler(NO, nil, nil);
                                                     }];
                                                 }];
 
     dispatch_block_t block = dispatch_block_create(DISPATCH_BLOCK_NO_QOS_CLASS, ^{
-        done = [weakSelf detectTracklist];
+        __strong typeof(weakSelf) strongSelf = weakSelf;
+        if (strongSelf == nil) {
+            return;
+        }
+        done = [strongSelf detectTracklist];
     });
 
-    weakBlock = block;
+    queueBlock = block;
     _queueOperation = block;
-    dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0), _queueOperation);
+    dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0), queueBlock);
 
     NSLog(@"starting track list detection");
     dispatch_block_notify(_queueOperation, dispatch_get_main_queue(), ^{
@@ -417,7 +390,7 @@ static uint64_t HashAudioSlice(float* const* channels, uint32_t channelCount, AV
         if (strongSelf == nil) {
             return;
         }
-        if (dispatch_block_testcancel(weakBlock) != 0) {
+        if (queueBlock != NULL && dispatch_block_testcancel(queueBlock) != 0) {
             return;
         }
         NSLog(@"track detection feed finished with %d - checking completion", done);
@@ -459,7 +432,7 @@ static uint64_t HashAudioSlice(float* const* channels, uint32_t channelCount, AV
               minLatency, _responseLatencyMax);
     }
     if (_debugScoring && _firstMatchFrame != ULLONG_MAX) {
-        double rate = _sample != nil ? _sample.sampleFormat.rate : 0.0;
+        double rate = _sample != nil ? _sample.renderedSampleRate : 0.0;
         double firstMatchSeconds = rate > 0.0 ? ((double) _firstMatchFrame / rate) : 0.0;
         NSMutableArray<NSNumber*>* sorted = [_matchFrames mutableCopy];
         [sorted sortUsingComparator:^NSComparisonResult(NSNumber* a, NSNumber* b) {
@@ -516,11 +489,11 @@ static uint64_t HashAudioSlice(float* const* channels, uint32_t channelCount, AV
         if (_debugScoring) {
             [self logTracklist:refined tag:@"Shazam" includeDuration:NO];
         }
-        [[ActivityManager shared] updateActivity:_token detail:@"baseline done"];
+        [[ActivityManager shared] updateActivity:_token detail:PECLocalizedString(@"activity.tracklist_detection.baseline_done", @"Detail when baseline detection is done")];
     } else {
-        [[ActivityManager shared] updateActivity:_token detail:@"refining tracklist"];
+        [[ActivityManager shared] updateActivity:_token detail:PECLocalizedString(@"activity.tracklist_detection.refining", @"Detail while refining tracklist")];
         refined = [self refineTracklist];
-        [[ActivityManager shared] updateActivity:_token detail:@"refinement done"];
+        [[ActivityManager shared] updateActivity:_token detail:PECLocalizedString(@"activity.tracklist_detection.refinement_done", @"Detail when tracklist refinement is done")];
     }
     [[ActivityManager shared] completeActivity:_token];
 
@@ -638,7 +611,7 @@ static uint64_t HashAudioSlice(float* const* channels, uint32_t channelCount, AV
             //                      track.meta.artist ?: @"",
             //                      track.meta.title ?: @"");
             //            }
-            [[ActivityManager shared] updateActivity:strongSelf->_token detail:[NSString stringWithFormat:@"Maybe: %@", track.meta.title]];
+            [[ActivityManager shared] updateActivity:strongSelf->_token detail:[NSString stringWithFormat:PECLocalizedString(@"activity.tracklist_detection.maybe_format", @"Format for tentative track match detail"), track.meta.title]];
 
             NSUserDefaults* defaults = [NSUserDefaults standardUserDefaults];
             BOOL excludeUnknown = [defaults boolForKey:@"ExcludeUnknownInputs"];
@@ -655,7 +628,7 @@ static uint64_t HashAudioSlice(float* const* channels, uint32_t channelCount, AV
         for (SHMatchedMediaItem* item in items) {
             TimedMediaMetaData* track = [[TimedMediaMetaData alloc] initWithMatchedMediaItem:item frame:offset];
             [tracks addObject:track];
-            [[ActivityManager shared] updateActivity:strongSelf->_token detail:[NSString stringWithFormat:@"Maybe: %@", track.meta.title]];
+            [[ActivityManager shared] updateActivity:strongSelf->_token detail:[NSString stringWithFormat:PECLocalizedString(@"activity.tracklist_detection.maybe_format", @"Format for tentative track match detail"), track.meta.title]];
         }
         //        if (strongSelf->_debugScoring) {
         //            for (TimedMediaMetaData* track in tracks) {
@@ -749,7 +722,7 @@ static uint64_t HashAudioSlice(float* const* channels, uint32_t channelCount, AV
             //                      track.meta.title ?: @"");
             //            }
 
-            [[ActivityManager shared] updateActivity:strongSelf->_token detail:[NSString stringWithFormat:@"Maybe: %@", track.meta.title]];
+            [[ActivityManager shared] updateActivity:strongSelf->_token detail:[NSString stringWithFormat:PECLocalizedString(@"activity.tracklist_detection.maybe_format", @"Format for tentative track match detail"), track.meta.title]];
 
             NSUserDefaults* defaults = [NSUserDefaults standardUserDefaults];
             BOOL excludeUnknown = [defaults boolForKey:@"ExcludeUnknownInputs"];

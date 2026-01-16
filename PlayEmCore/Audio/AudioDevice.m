@@ -99,6 +99,19 @@
     return name;
 }
 
++ (Float64)sampleRateForDevice:(AudioObjectID)deviceId
+{
+    AudioObjectPropertyAddress address = {kAudioDevicePropertyNominalSampleRate, kAudioObjectPropertyScopeOutput, kAudioObjectPropertyElementMain};
+    Float64 rate = 0;
+    UInt32 size = sizeof(rate);
+    OSStatus result = AudioObjectGetPropertyData(deviceId, &address, 0, NULL, &size, &rate);
+    if (result != noErr) {
+        NSLog(@"Failed to get device sample rate, err: %d", result);
+        return 0;
+    }
+    return rate;
+}
+
 + (AudioObjectID)defaultOutputDevice
 {
     UInt32 deviceId;
@@ -112,6 +125,148 @@
     }
 
     return deviceId;
+}
+
++ (BOOL)device:(AudioObjectID)deviceId supportsSampleRate:(Float64)rate
+{
+    if (deviceId == 0 || rate <= 0) {
+        return NO;
+    }
+    AudioObjectPropertyAddress addr = {kAudioDevicePropertyAvailableNominalSampleRates, kAudioObjectPropertyScopeOutput, kAudioObjectPropertyElementMain};
+    UInt32 dataSize = 0;
+    OSStatus result = AudioObjectGetPropertyDataSize(deviceId, &addr, 0, NULL, &dataSize);
+    if (result != noErr || dataSize == 0) {
+        return NO;
+    }
+    UInt32 rangeCount = dataSize / sizeof(AudioValueRange);
+    NSMutableData* data = [NSMutableData dataWithLength:dataSize];
+    result = AudioObjectGetPropertyData(deviceId, &addr, 0, NULL, &dataSize, data.mutableBytes);
+    if (result != noErr) {
+        return NO;
+    }
+    AudioValueRange* ranges = (AudioValueRange*) data.mutableBytes;
+    for (UInt32 i = 0; i < rangeCount; i++) {
+        if (rate >= ranges[i].mMinimum && rate <= ranges[i].mMaximum) {
+            return YES;
+        }
+    }
+    return NO;
+}
+
++ (BOOL)setSampleRate:(Float64)rate forDevice:(AudioObjectID)deviceId
+{
+    if (deviceId == 0 || rate <= 0) {
+        return NO;
+    }
+    AudioObjectPropertyAddress address = {kAudioDevicePropertyNominalSampleRate, kAudioObjectPropertyScopeOutput, kAudioObjectPropertyElementMain};
+    UInt32 size = sizeof(rate);
+    OSStatus result = AudioObjectSetPropertyData(deviceId, &address, 0, NULL, size, &rate);
+    if (result != noErr) {
+        NSLog(@"Failed to set device sample rate to %.2f Hz, err: %d", rate, result);
+        return NO;
+    }
+    return YES;
+}
+
++ (void)switchDevice:(AudioObjectID)deviceId
+       toSampleRate:(Float64)rate
+            timeout:(NSTimeInterval)timeoutSeconds
+         completion:(void (^)(BOOL success))completion
+{
+    if (deviceId == 0 || rate <= 0 || timeoutSeconds < 0) {
+        if (completion) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                completion(NO);
+            });
+        }
+        return;
+    }
+    if (![self device:deviceId supportsSampleRate:rate]) {
+        if (completion) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                completion(NO);
+            });
+        }
+        return;
+    }
+    Float64 before = [self sampleRateForDevice:deviceId];
+    if (fabs(before - rate) < 0.5) {
+        if (completion) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                completion(YES);
+            });
+        }
+        return;
+    }
+    if (![self setSampleRate:rate forDevice:deviceId]) {
+        if (completion) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                completion(NO);
+            });
+        }
+        return;
+    }
+    const NSTimeInterval interval = 0.05;
+    NSUInteger attempts = (NSUInteger) ceil(timeoutSeconds / interval);
+    if (attempts == 0) {
+        attempts = 1;
+    }
+
+    __block BOOL matched = NO;
+    __block NSUInteger remaining = attempts;
+    dispatch_queue_t queue = dispatch_get_global_queue(QOS_CLASS_UTILITY, 0);
+
+    __block void (^checkBlock)(void) = ^{
+        Float64 current = [self sampleRateForDevice:deviceId];
+        if (fabs(current - rate) < 0.5) {
+            matched = YES;
+            if (completion) {
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    completion(YES);
+                });
+            }
+            return;
+        }
+        if (remaining == 0) {
+            if (completion) {
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    completion(NO);
+                });
+            }
+            return;
+        }
+        remaining--;
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(interval * NSEC_PER_SEC)), queue, checkBlock);
+    };
+
+    dispatch_async(queue, checkBlock);
+}
+
++ (Float64)highestSupportedSampleRateForDevice:(AudioObjectID)deviceId
+{
+    if (deviceId == 0) {
+        return 0;
+    }
+    AudioObjectPropertyAddress addr = {kAudioDevicePropertyAvailableNominalSampleRates, kAudioObjectPropertyScopeOutput, kAudioObjectPropertyElementMain};
+    UInt32 dataSize = 0;
+    OSStatus result = AudioObjectGetPropertyDataSize(deviceId, &addr, 0, NULL, &dataSize);
+    if (result != noErr || dataSize < sizeof(AudioValueRange)) {
+        return 0;
+    }
+    UInt32 rangeCount = dataSize / sizeof(AudioValueRange);
+    NSMutableData* data = [NSMutableData dataWithLength:dataSize];
+    result = AudioObjectGetPropertyData(deviceId, &addr, 0, NULL, &dataSize, data.mutableBytes);
+    if (result != noErr) {
+        return 0;
+    }
+    AudioValueRange* ranges = (AudioValueRange*) data.mutableBytes;
+    Float64 maxRate = 0;
+    for (UInt32 i = 0; i < rangeCount; i++) {
+        if (ranges[i].mMaximum > maxRate) {
+            maxRate = ranges[i].mMaximum;
+        }
+    }
+    return maxRate;
 }
 
 @end

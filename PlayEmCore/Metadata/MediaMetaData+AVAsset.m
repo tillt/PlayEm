@@ -137,23 +137,23 @@
 {
     NSDictionary* id3Genres = [MediaMetaData id3GenreMap];
 
-    NSLog(@"%@ (%@): %@ dataType: %@ extra:%@", [item commonKey], [item keyString], [item value], [item dataType], [item extraAttributes]);
+    //NSLog(@"%@ (%@): %@ dataType: %@ extra:%@", [item commonKey], [item keyString], [item value], [item dataType], [item extraAttributes]);
 
     if ([item commonKey] == nil) {
         if ([[item keyString] isEqualToString:@"TYER"] || [[item keyString] isEqualToString:@"@day"] || [[item keyString] isEqualToString:@"TDRL"]) {
             self.year = [NSNumber numberWithInt:[(NSString*) [item value] intValue]];
         } else if ([[item keyString] isEqualToString:@"@gen"]) {
-            self.genre = [(NSString*) [item value] sanitizedMetadataString];
+            self.genre = (NSString*) [item value];
         } else if ([[item keyString] isEqualToString:@"tmpo"]) {
             self.tempo = [NSNumber numberWithInt:[(NSString*) [item value] intValue]];
         } else if ([[item keyString] isEqualToString:@"aART"]) {
-            self.albumArtist = [(NSString*) [item value] sanitizedMetadataString];
+            self.albumArtist = (NSString*) [item value];
         } else if ([[item keyString] isEqualToString:@"@cmt"]) {
-            self.comment = [(NSString*) [item value] sanitizedMetadataString];
+            self.comment = (NSString*) [item value];
         } else if ([[item keyString] isEqualToString:@"@wrt"]) {
-            self.composer = [(NSString*) [item value] sanitizedMetadataString];
+            self.composer = (NSString*) [item value];
         } else if ([[item keyString] isEqualToString:@"@lyr"]) {
-            self.lyrics = [(NSString*) [item value] sanitizedMetadataString];
+            self.lyrics = (NSString*) [item value];
         } else if ([[item keyString] isEqualToString:@"cpil"]) {
             self.compilation = [NSNumber numberWithBool:[(NSString*) [item value] boolValue]];
         } else if ([[item keyString] isEqualToString:@"trkn"]) {
@@ -178,7 +178,7 @@
         if (item.extraAttributes != nil && [item.extraAttributes objectForKey:@"dataType"] == nil) {
             if ([item.extraAttributes objectForKey:@"HREF"]) {
                 self.appleLocation = [NSURL URLWithString:[item.extraAttributes objectForKey:@"HREF"]];
-                self.title = [(NSString*) [item value] sanitizedMetadataString];
+                self.title = (NSString*) [item value];
             } else {
                 NSLog(@"skip titles meant for extras - skipping \"%@\" for  %@", [item value], [item extraAttributes]);
             }
@@ -186,9 +186,9 @@
             self.title = (NSString*) [item value];
         }
     } else if ([[item commonKey] isEqualToString:@"artist"]) {
-        self.artist = [(NSString*) [item value] sanitizedMetadataString];
+        self.artist = (NSString*) [item value];
     } else if ([[item commonKey] isEqualToString:@"albumName"]) {
-        self.album = [(NSString*) [item value] sanitizedMetadataString];
+        self.album = (NSString*) [item value];
     } else if ([[item commonKey] isEqualToString:@"type"]) {
         NSData* data = item.dataValue;
         NSAssert(data.length >= 2, @"unexpected genre encoding");
@@ -217,7 +217,7 @@
 - (BOOL)readFromAVAsset:(AVAsset*)asset error:(NSError* __autoreleasing _Nullable* _Nullable)error
 {
     for (NSString* format in [asset availableMetadataFormats]) {
-        NSLog(@"format: %@", format);
+        //NSLog(@"format: %@", format);
         // TODO: We could neatly weave this into async AVAsset processing.
         for (AVMetadataItem* item in [asset metadataForFormat:format]) {
             [self updateWithMetadataItem:item];
@@ -228,14 +228,14 @@
 
 - (void)readChaperMarksFromMP4FileWithCallback:(void (^)(BOOL, NSError*))callback
 {
-    NSLog(@"readChaperMarksFromMP4FileWithCallback");
+    //NSLog(@"readChaperMarksFromMP4FileWithCallback");
     AVAsset* asset = [AVURLAsset URLAssetWithURL:self.location options:nil];
     [self readChapterMarksFromAVAsset:asset callback:callback];
 }
 
 - (BOOL)readFromMP4FileWithError:(NSError**)error
 {
-    NSLog(@"readFromMP4FileWithError");
+    //NSLog(@"readFromMP4FileWithError");
     AVAsset* asset = [AVURLAsset URLAssetWithURL:self.location options:nil];
     return [self readFromAVAsset:asset error:error];
 }

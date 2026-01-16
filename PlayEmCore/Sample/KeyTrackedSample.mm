@@ -13,6 +13,7 @@
 #include <keyfinder/keyfinder.h>
 
 #import "ActivityManager.h"
+#import "../PECLocalization.h"
 #import "CancelableBlockOperation.h"
 #import "LazySample.h"
 
@@ -39,6 +40,14 @@ const double kBeatSampleDurationThreshold = 30.0 * 60.0;
     unsigned long long _currentFrame;
     unsigned long long _totalFrames;
     unsigned long long _maxFramesToProcess;
+}
+
++ (BOOL)needsKeyForSampleDuration:(NSTimeInterval)duration
+{
+    if (duration <= 0.0) {
+        return YES;
+    }
+    return duration <= kBeatSampleDurationThreshold;
 }
 
 - (id)initWithSample:(LazySample*)sample
@@ -73,6 +82,12 @@ const double kBeatSampleDurationThreshold = 30.0 * 60.0;
 
 - (void)trackKeyAsyncWithCallback:(void (^)(BOOL))callback;
 {
+    [self trackKeyAsyncWithCompletionQueue:dispatch_get_main_queue() callback:callback];
+}
+
+- (void)trackKeyAsyncWithCompletionQueue:(dispatch_queue_t _Nullable)queue
+                                callback:(void (^)(BOOL))callback
+{
     __block BOOL done = NO;
 
     KeyTrackedSample* __weak weakSelf = self;
@@ -81,7 +96,7 @@ const double kBeatSampleDurationThreshold = 30.0 * 60.0;
         done = [weakSelf trackKey];
     });
     dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0), _queueOperation);
-    dispatch_block_notify(_queueOperation, dispatch_get_main_queue(), ^{
+    dispatch_block_notify(_queueOperation, queue ?: dispatch_get_main_queue(), ^{
         self->_ready = done;
         callback(done);
     });
@@ -91,14 +106,20 @@ const double kBeatSampleDurationThreshold = 30.0 * 60.0;
 {
     NSLog(@"key tracking...");
 
-    if (_sample.duration > kBeatSampleDurationThreshold) {
+    if (![[self class] needsKeyForSampleDuration:_sample.duration]) {
         NSLog(@"skipping key tracking - sample is too long to get any value out.");
         _key = @"";
         _hint = @"";
         return YES;
     }
 
-    ActivityToken* token = [[ActivityManager shared] beginActivityWithTitle:@"Detecting Key" detail:@"" cancellable:NO cancelHandler:nil];
+    ActivityToken* token = nil;
+    if (!self.suppressActivity) {
+        token = [[ActivityManager shared] beginActivityWithTitle:PECLocalizedString(@"activity.key_detection.title", @"Title for key detection activity")
+                                                         detail:@""
+                                                    cancellable:NO
+                                                  cancelHandler:nil];
+    }
 
     const int channels = self->_sample.sampleFormat.channels;
 
@@ -108,18 +129,22 @@ const double kBeatSampleDurationThreshold = 30.0 * 60.0;
     }
 
     _audioData.setChannels(channels);
-    _audioData.setFrameRate((unsigned int) self->_sample.sampleFormat.rate);
+    _audioData.setFrameRate((unsigned int) self->_sample.renderedSampleRate);
     _audioData.addToSampleCount((unsigned int) self->_windowWidth * channels);
 
     unsigned long long sourceWindowFrameOffset = 0LL;
 
     while (sourceWindowFrameOffset < self->_sample.frames) {
         double progress = (double) sourceWindowFrameOffset / self->_sample.frames;
-        [[ActivityManager shared] updateActivity:token progress:progress detail:@"detecting key"];
+        if (token != nil) {
+            [[ActivityManager shared] updateActivity:token progress:progress detail:PECLocalizedString(@"activity.key_detection.detecting", @"Detail while detecting key")];
+        }
 
         if (dispatch_block_testcancel(self.queueOperation) != 0) {
             NSLog(@"aborted key detection");
-            [[ActivityManager shared] completeActivity:token];
+            if (token != nil) {
+                [[ActivityManager shared] completeActivity:token];
+            }
             return NO;
         }
         unsigned long long sourceWindowFrameCount = MIN(self->_windowWidth * 1024, self->_sample.frames - sourceWindowFrameOffset);
@@ -128,7 +153,9 @@ const double kBeatSampleDurationThreshold = 30.0 * 60.0;
         unsigned long int sourceFrameIndex = 0;
         while (sourceFrameIndex < received) {
             if (dispatch_block_testcancel(self.queueOperation) != 0) {
-                [[ActivityManager shared] completeActivity:token];
+                if (token != nil) {
+                    [[ActivityManager shared] completeActivity:token];
+                }
                 NSLog(@"aborted key detection");
                 return NO;
             }
@@ -257,10 +284,14 @@ const double kBeatSampleDurationThreshold = 30.0 * 60.0;
     NSLog(@"key %d", key);
     [self cleanupTracking];
 
-    [[ActivityManager shared] updateActivity:token progress:1.0 detail:@"key detection done"];
+    if (token != nil) {
+        [[ActivityManager shared] updateActivity:token progress:1.0 detail:@"key detection done"];
+    }
 
     NSLog(@"...key tracking done");
-    [[ActivityManager shared] completeActivity:token];
+    if (token != nil) {
+        [[ActivityManager shared] completeActivity:token];
+    }
 
     return YES;
 }

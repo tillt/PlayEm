@@ -7,9 +7,34 @@
 //
 
 #import <Foundation/Foundation.h>
+#import <AudioToolbox/AudioToolbox.h>
 
 #import "AudioPlaybackBackend.h"
 
 @interface AUPlaybackBackend : NSObject <AudioPlaybackBackend>
+
+/// Select an AudioUnit effect by component description (nil to disable).
+- (BOOL)setEffectWithDescription:(AudioComponentDescription)description;
+
+/// List parameter IDs for the current effect.
+- (NSArray<NSNumber*>*)effectParameterList;
+
+/// Metadata for current effect parameters keyed by ID.
+- (NSDictionary<NSNumber*, NSDictionary*>*)effectParameterInfo;
+
+/// Set a parameter on the active effect.
+- (BOOL)setEffectParameter:(AudioUnitParameterID)parameter value:(AudioUnitParameterValue)value;
+
+/// Available AudioUnit effects (array of dictionaries with name/component).
+- (NSArray<NSDictionary*>*)availableEffects;
+
+/// Enable or bypass the currently instantiated effect (keeps parameters intact).
+- (BOOL)applyEffectEnabled:(BOOL)enabled;
+
+/// Current effect enabled state (YES = audible, NO = bypassed).
+@property (nonatomic, assign, readonly) BOOL effectEnabled;
+
+/// Whether the tempo/time-pitch unit is bypassed (tempo near 1.0).
+@property (nonatomic, assign, readonly) BOOL tempoBypassed;
 
 @end

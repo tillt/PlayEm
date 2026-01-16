@@ -33,7 +33,10 @@ static NSString* cf_hexUTF8(NSString* s)
 static NSInteger cf_replacementCount(NSString* s)
 {
     __block NSInteger count = 0;
+
     NSUInteger len = MIN(s.length, kCFMaxScanCharacters);
+
+    // Ugly a.f.!
     [s enumerateSubstringsInRange:NSMakeRange(0, len)
                           options:NSStringEnumerationByComposedCharacterSequences
                        usingBlock:^(NSString* substring, NSRange __, NSRange ___, BOOL* stop) {
@@ -85,13 +88,7 @@ static NSString* cf_normalize(NSString* s)
     NSMutableString* m = [[s precomposedStringWithCanonicalMapping] mutableCopy];
     [m replaceOccurrencesOfString:@"\u00A0" withString:@" " options:0 range:NSMakeRange(0, m.length)];
 
-    static NSRegularExpression* wsRE;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        wsRE = [NSRegularExpression regularExpressionWithPattern:@"\\s+" options:0 error:nil];
-    });
-    NSString* collapsed = [wsRE stringByReplacingMatchesInString:m options:0 range:NSMakeRange(0, m.length) withTemplate:@" "];
-    return [collapsed stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+    return [m stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
 }
 
 // Reinterpret the string's bytes from one encoding to another, then normalize.
@@ -131,9 +128,6 @@ static NSInteger cf_accentPriority(NSString* s)
     return priority;
 }
 
-// Align the final sanitizer pass with the simple Python flow:
-// normalize -> replacements -> (if markers remain) strip markers ->
-// replacements -> normalize.
 static NSString* cf_applyReplacements(NSString* input)
 {
     // Generate a complete Latin-1/CP1252/MacRoman mojibake map dynamically.
@@ -365,7 +359,8 @@ static void cf_logStage(NSString* label, NSString* value)
     // normalize.
     if (hasBadMarkers(s)) {
         cf_logStage(@"markers.present", s);
-        NSCharacterSet* markerSet = [NSCharacterSet characterSetWithCharactersInString:@"ÃÂðÐÑ"];
+        // Intentionally left "Â" out of the list to allow Ame to get through this.
+        NSCharacterSet* markerSet = [NSCharacterSet characterSetWithCharactersInString:@"ÃðÐÑ"];
         NSMutableString* cleaned = [NSMutableString stringWithCapacity:s.length];
         [s enumerateSubstringsInRange:NSMakeRange(0, s.length)
                               options:NSStringEnumerationByComposedCharacterSequences
@@ -380,6 +375,25 @@ static void cf_logStage(NSString* label, NSString* value)
 
     cf_logStage(@"final.output", s);
     return s;
+}
+
+- (BOOL)isLikelyMojibakeMetadata
+{
+    if (self.length == 0) {
+        return NO;
+    }
+
+    NSInteger score = cf_mojibakeScore(self);
+    if (score == 0) {
+        return NO;
+    }
+
+    NSString* sanitized = [self sanitizedMetadataString];
+    if (![sanitized isEqualToString:self]) {
+        return YES;
+    }
+
+    return score > 2;
 }
 
 @end

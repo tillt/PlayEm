@@ -8,7 +8,7 @@
 
 #import <XCTest/XCTest.h>
 
-#import "AudioQueuePlaybackBackend.h"
+#import "AQPlaybackBackend.h"
 
 // Expose the helper for testing.
 extern unsigned long long AQPlaybackAdjustedFrame(unsigned long long baseFrame, double sampleTime, signed long long latencyFrames,

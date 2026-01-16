@@ -46,6 +46,7 @@ extern NSString* const kPlaybackStatePlaying;
 @property (strong, nonatomic) IdentificationCoverView* coverButton;
 @property (strong, nonatomic) PhosphorChaserView* activityChaser;
 @property (weak, nonatomic) id<ControlPanelControllerDelegate> delegate;
+@property (strong, nonatomic) NSArray<NSDictionary*>* effectOptions;
 @end
 
 @implementation ControlPanelController
@@ -123,7 +124,7 @@ extern NSString* const kPlaybackStatePlaying;
 
     const CGFloat volumeSliderY = 10.0;
 
-    const CGFloat controlPanelWidth = 826.0;
+    const CGFloat controlPanelWidth = 890.0;
     const CGFloat controlPanelHeight = 56.0;
 
     const CGFloat timeLabelWidth = 152.0;
@@ -200,9 +201,10 @@ extern NSString* const kPlaybackStatePlaying;
     layer.mask = [CAShapeLayer MaskLayerFromRect:layer.bounds];
     [_titleView.layer addSublayer:layer];
 
-    _albumArtistView =
-        [[ScrollingTextView alloc] initWithFrame:NSMakeRect(_titleView.frame.origin.x, _titleView.frame.origin.y - (scrollingTextViewHeight - 14.0),
-                                                            scrollingTextViewWidth, scrollingTextViewHeight - 12.0f)];
+    _albumArtistView = [[ScrollingTextView alloc] initWithFrame:NSMakeRect(_titleView.frame.origin.x,
+                                                                           _titleView.frame.origin.y - (scrollingTextViewHeight - 14.0),
+                                                                           scrollingTextViewWidth,
+                                                                           scrollingTextViewHeight - 12.0f)];
     _albumArtistView.textColor = [[Defaults sharedDefaults] regularFakeBeamColor];
     _albumArtistView.font = [NSFont systemFontOfSize:_albumArtistView.frame.size.height - 5.0];
     [self.view addSubview:_albumArtistView];
@@ -215,8 +217,10 @@ extern NSString* const kPlaybackStatePlaying;
     layer.mask = [CAShapeLayer MaskLayerFromRect:layer.bounds];
     [_albumArtistView.layer addSublayer:layer];
 
-    _playPause = [[SymbolButton alloc] initWithFrame:CGRectMake(_titleView.frame.origin.x + scrollingTextViewWidth + 64.0f, playPauseButtonY,
-                                                                playPauseButtonWidth + 8.0, [[Defaults sharedDefaults] largeFontSize] + 14.0)];
+    _playPause = [[SymbolButton alloc] initWithFrame:CGRectMake(_titleView.frame.origin.x + scrollingTextViewWidth + 64.0f,
+                                                                playPauseButtonY,
+                                                                playPauseButtonWidth + 8.0,
+                                                                [[Defaults sharedDefaults] largeFontSize] + 14.0)];
 
     _playPause.symbolName = @"play.fill";
     _playPause.alternateSymbolName = @"pause.fill";
@@ -226,20 +230,9 @@ extern NSString* const kPlaybackStatePlaying;
     _playPause.action = @selector(togglePause:);
     [self.view addSubview:_playPause];
 
-    const CGFloat chaserSize = 46;
-    // Phosphor chaser busy indicator (top-right).
-    CGFloat chaserX = _playPause.frame.origin.x - chaserSize + 6.0;
-    CGFloat chaserY = loopButtonY + 8.0 - ((chaserSize / 2.0));
-    _activityChaser = [[PhosphorChaserView alloc] initWithFrame:NSMakeRect(chaserX, chaserY, chaserSize, chaserSize)];
-    _activityChaser.autoresizingMask = NSViewNotSizable;
-    [self.view addSubview:_activityChaser];
-    [self refreshChaserState];
-
-    recognizer = [[NSClickGestureRecognizer alloc] initWithTarget:_delegate action:@selector(showActivity:)];
-    recognizer.numberOfClicksRequired = 1;
-    [_activityChaser addGestureRecognizer:recognizer];
-
-    _loop = [[SymbolButton alloc] initWithFrame:NSMakeRect(_playPause.frame.origin.x + _playPause.frame.size.width - 8.0, loopButtonY, loopButtonWidth,
+    _loop = [[SymbolButton alloc] initWithFrame:NSMakeRect(_playPause.frame.origin.x + _playPause.frame.size.width - 8.0,
+                                                           loopButtonY,
+                                                           loopButtonWidth,
                                                            [[Defaults sharedDefaults] normalFontSize] + 8.0)];
 
     _loop.symbolName = @"arrow.right";
@@ -257,8 +250,10 @@ extern NSString* const kPlaybackStatePlaying;
     _time.drawsBackground = NO;
     _time.textColor = [[Defaults sharedDefaults] secondaryLabelColor];
     _time.alignment = NSTextAlignmentRight;
-    _time.frame =
-        NSMakeRect(_playPause.frame.origin.x - timeLabelWidth + 10.0, _playPause.frame.origin.y + timeLabelHeight + 8.0, timeLabelWidth, timeLabelHeight);
+    _time.frame = NSMakeRect(_playPause.frame.origin.x - timeLabelWidth + 10.0,
+                             _playPause.frame.origin.y + timeLabelHeight + 8.0,
+                             timeLabelWidth,
+                             timeLabelHeight);
     [self.view addSubview:_time];
 
     NSClickGestureRecognizer* gesture = [[NSClickGestureRecognizer alloc] initWithTarget:self action:@selector(toggleProgressUnit:)];
@@ -272,7 +267,10 @@ extern NSString* const kPlaybackStatePlaying;
     textField.editable = NO;
     textField.selectable = NO;
     textField.alignment = NSTextAlignmentCenter;
-    textField.frame = NSMakeRect(_playPause.frame.origin.x + _playPause.frame.size.width - 16.0, _time.frame.origin.y, 10.0, timeLabelHeight);
+    textField.frame = NSMakeRect(_playPause.frame.origin.x + _playPause.frame.size.width - 16.0,
+                                 _time.frame.origin.y,
+                                 10.0,
+                                 timeLabelHeight);
     [self.view addSubview:textField];
 
     _duration = [NSTextField textFieldWithString:@"--:--:--"];
@@ -283,15 +281,20 @@ extern NSString* const kPlaybackStatePlaying;
     _duration.textColor = [[Defaults sharedDefaults] secondaryLabelColor];
     _duration.drawsBackground = NO;
     _duration.alignment = NSTextAlignmentLeft;
-    _duration.frame = NSMakeRect(textField.frame.origin.x + textField.frame.size.width, _time.frame.origin.y, timeLabelWidth, timeLabelHeight);
+    _duration.frame = NSMakeRect(textField.frame.origin.x + textField.frame.size.width,
+                                 _time.frame.origin.y,
+                                 timeLabelWidth,
+                                 timeLabelHeight);
     [self.view addSubview:_duration];
 
     gesture = [[NSClickGestureRecognizer alloc] initWithTarget:self action:@selector(toggleProgressUnit:)];
     gesture.buttonMask = 0x1;
     [_duration addGestureRecognizer:gesture];
 
-    _volumeSlider =
-        [[NSSlider alloc] initWithFrame:NSMakeRect(_playPause.frame.origin.x + _playPause.frame.size.width + 70.0, volumeSliderY, sliderWidth, sliderHeight)];
+    _volumeSlider = [[NSSlider alloc] initWithFrame:NSMakeRect(_playPause.frame.origin.x + _playPause.frame.size.width + 70.0,
+                                                               volumeSliderY,
+                                                               sliderWidth,
+                                                               sliderHeight)];
     _volumeSlider.trackFillColor = [[Defaults sharedDefaults] lightFakeBeamColor];
     _volumeSlider.vertical = NO;
     _volumeSlider.maxValue = 1.0;
@@ -310,7 +313,10 @@ extern NSString* const kPlaybackStatePlaying;
     textField.selectable = NO;
     textField.alignment = NSTextAlignmentRight;
     textField.font = [NSFont systemFontOfSize:15.0f];
-    textField.frame = NSMakeRect(_volumeSlider.frame.origin.x - 30.0, _volumeSlider.frame.origin.y, 30.0, sliderHeight);
+    textField.frame = NSMakeRect(_volumeSlider.frame.origin.x - 30.0,
+                                 _volumeSlider.frame.origin.y,
+                                 30.0,
+                                 sliderHeight);
     [self.view addSubview:textField];
 
     textField = [NSTextField textFieldWithString:@"􀊩"];
@@ -321,11 +327,16 @@ extern NSString* const kPlaybackStatePlaying;
     textField.selectable = NO;
     textField.alignment = NSTextAlignmentLeft;
     textField.font = [NSFont systemFontOfSize:15.0f];
-    textField.frame = NSMakeRect(_volumeSlider.frame.origin.x + _volumeSlider.frame.size.width, _volumeSlider.frame.origin.y, 30.0, sliderHeight);
+    textField.frame = NSMakeRect(_volumeSlider.frame.origin.x + _volumeSlider.frame.size.width,
+                                 _volumeSlider.frame.origin.y,
+                                 30.0,
+                                 sliderHeight);
     [self.view addSubview:textField];
 
-    _tempoSlider = [[NSSlider alloc]
-        initWithFrame:NSMakeRect(_volumeSlider.frame.origin.x + _volumeSlider.frame.size.width + 50, volumeSliderY, sliderWidth, sliderHeight)];
+    _tempoSlider = [[NSSlider alloc] initWithFrame:NSMakeRect(_volumeSlider.frame.origin.x + _volumeSlider.frame.size.width + 50,
+                                                              volumeSliderY,
+                                                              sliderWidth,
+                                                              sliderHeight)];
     _tempoSlider.trackFillColor = [NSColor labelColor];
     _tempoSlider.vertical = NO;
     _tempoSlider.maxValue = 1.2;
@@ -347,7 +358,10 @@ extern NSString* const kPlaybackStatePlaying;
     textField.selectable = NO;
     textField.alignment = NSTextAlignmentRight;
     textField.font = [NSFont systemFontOfSize:16.0f];
-    textField.frame = NSMakeRect(_tempoSlider.frame.origin.x - 30.0, _tempoSlider.frame.origin.y, 30.0, sliderHeight);
+    textField.frame = NSMakeRect(_tempoSlider.frame.origin.x - 30.0,
+                                 _tempoSlider.frame.origin.y,
+                                 30.0,
+                                 sliderHeight);
     [self.view addSubview:textField];
 
     textField = [NSTextField textFieldWithString:@"􀰫"];
@@ -358,11 +372,52 @@ extern NSString* const kPlaybackStatePlaying;
     textField.selectable = NO;
     textField.alignment = NSTextAlignmentLeft;
     textField.font = [NSFont systemFontOfSize:16.0f];
-    textField.frame = NSMakeRect(_tempoSlider.frame.origin.x + _tempoSlider.frame.size.width, _volumeSlider.frame.origin.y, 30.0, sliderHeight);
+    textField.frame = NSMakeRect(_tempoSlider.frame.origin.x + _tempoSlider.frame.size.width,
+                                 _volumeSlider.frame.origin.y,
+                                 30.0,
+                                 sliderHeight);
     [self.view addSubview:textField];
 
-    _level = [[NSLevelIndicator alloc]
-        initWithFrame:NSMakeRect(_volumeSlider.frame.origin.x + 2.0, _volumeSlider.frame.origin.y + levelHeight - 4.0, sliderWidth - 4, levelHeight)];
+    _effectsButton = [[NSButton alloc] initWithFrame:NSMakeRect(_tempoSlider.frame.origin.x + _tempoSlider.frame.size.width + 15.0,
+                                                                _tempoSlider.frame.origin.y,
+                                                                60.0,
+                                                                sliderHeight)];
+    _effectsButton.bezelStyle = NSBezelStyleTexturedRounded;
+    _effectsButton.title = @"FX";
+    _effectsButton.font = [[Defaults sharedDefaults] smallFont];
+    _effectsButton.state = NSControlStateValueOff;
+    _effectsButton.target = self;
+    _effectsButton.action = @selector(effectsToggle:);
+    _effectsButton.contentTintColor = [NSColor controlTextColor];
+    _effectsButton.bordered = NO;
+    _effectsButton.focusRingType = NSFocusRingTypeNone;
+    _effectsButton.wantsLayer = YES;
+    _effectsButton.layerUsesCoreImageFilters = YES;
+    _effectsButton.layer.masksToBounds = NO;
+    _effectsButton.layer.needsDisplayOnBoundsChange = YES;
+    [self.view addSubview:_effectsButton];
+
+//    const CGFloat infoSize = 22.0;
+//    _infoButton = [[NSButton alloc] initWithFrame:NSMakeRect(_effectsButton.frame.origin.x + 18.0,
+//                                                             _effectsButton.frame.origin.y + infoSize - 8.0,
+//                                                             infoSize,
+//                                                             infoSize)];
+//    _infoButton.bezelStyle = NSBezelStyleTexturedRounded;
+//    _infoButton.bordered = NO;
+//    _infoButton.focusRingType = NSFocusRingTypeNone;
+//    NSImage *image = [NSImage imageWithSystemSymbolName:@"info.circle" accessibilityDescription:@"Device Information"];
+//    NSImageSymbolConfiguration* sc = [NSImageSymbolConfiguration configurationWithPaletteColors:@[[NSColor secondaryLabelColor]]];
+//    _infoButton.image = [image imageWithSymbolConfiguration:sc];
+//    _infoButton.imagePosition = NSImageOnly;
+//    _infoButton.contentTintColor = [NSColor controlTextColor];
+//    _infoButton.target = self;
+//    _infoButton.action = @selector(showGraphStatus:);
+//    [self.view addSubview:_infoButton];
+
+    _level = [[NSLevelIndicator alloc] initWithFrame:NSMakeRect(_volumeSlider.frame.origin.x + 2.0,
+                                                                _volumeSlider.frame.origin.y + levelHeight - 4.0,
+                                                                sliderWidth - 4,
+                                                                levelHeight)];
     _level.levelIndicatorStyle = NSLevelIndicatorStyleContinuousCapacity;
     _level.wantsLayer = YES;
     _level.layer.masksToBounds = NO;
@@ -420,7 +475,19 @@ extern NSString* const kPlaybackStatePlaying;
     _bpm.frame = NSMakeRect(_beatIndicator.frame.origin.x + _beatIndicator.frame.size.width - 4.0f, _playPause.frame.origin.y + bpmLabelHeight + 8.0,
                             bpmLabelWidth, bpmLabelHeight);
     [self.view addSubview:_bpm];
+    
+    const CGFloat chaserSize = 46;
+    CGFloat chaserX = _beatIndicator.frame.origin.x + 104.0;
+    CGFloat chaserY = _bpm.frame.origin.y + 6.0 - ((chaserSize / 2.0));
+    _activityChaser = [[PhosphorChaserView alloc] initWithFrame:NSMakeRect(chaserX, chaserY, chaserSize, chaserSize)];
+    _activityChaser.autoresizingMask = NSViewNotSizable;
+    [self.view addSubview:_activityChaser];
+    [self refreshChaserState];
 
+    recognizer = [[NSClickGestureRecognizer alloc] initWithTarget:_delegate action:@selector(showActivity:)];
+    recognizer.numberOfClicksRequired = 1;
+    [_activityChaser addGestureRecognizer:recognizer];
+    
     layer = [CALayer new];
     layer.backgroundFilters = @[ intenseBloomFilter ];
     layer.drawsAsynchronously = YES;
@@ -452,6 +519,37 @@ extern NSString* const kPlaybackStatePlaying;
 - (void)setKeyHidden:(BOOL)hidden
 {
     _keyField.hidden = hidden;
+}
+
+- (void)setEffectsEnabled:(BOOL)enabled
+{
+    _effectsButton.state = enabled ? NSControlStateValueOn : NSControlStateValueOff;
+    //_effectsButton.title = @"FX";
+    NSColor* activeColor = [[Defaults sharedDefaults] lightFakeBeamColor];
+    NSColor* color = enabled ? activeColor : [[Defaults sharedDefaults] tertiaryLabelColor];
+    NSDictionary* attrs = @{NSForegroundColorAttributeName : color, NSFontAttributeName : _effectsButton.font ?: [NSFont systemFontOfSize:NSFont.systemFontSize]};
+    NSAttributedString* title = [[NSAttributedString alloc] initWithString:_effectsButton.title attributes:attrs];
+    _effectsButton.attributedTitle = title;
+    _effectsButton.contentTintColor = color;
+    _effectsButton.layer.cornerRadius = _effectsButton.bounds.size.height / 4.0;
+    _effectsButton.layer.bounds = NSRectToCGRect(NSMakeRect(0, 0, _effectsButton.bounds.size.width, _effectsButton.bounds.size.height));
+    if (enabled) {
+        _effectsButton.layer.shadowColor = [activeColor CGColor];
+        _effectsButton.layer.shadowOpacity = 0.85f;
+        _effectsButton.layer.shadowRadius = 3.0f;
+        _effectsButton.layer.shadowOffset = CGSizeMake(0.0, 0.0);
+    } else {
+        _effectsButton.layer.backgroundFilters = nil;
+        _effectsButton.layer.shadowOpacity = 0.0f;
+    }
+    [_effectsButton.layer setNeedsDisplay];
+}
+
+- (void)effectsToggle:(id)sender
+{
+    if ([_delegate respondsToSelector:@selector(effectsToggle:)]) {
+        [_delegate effectsToggle:sender];
+    }
 }
 
 - (void)resetTempo:(id)sender
@@ -554,8 +652,6 @@ extern NSString* const kPlaybackStatePlaying;
     if (!_durationUnitTime) {
         const unsigned long long totalBeats = [dict[kBeatNotificationKeyTotalBeats] unsignedLongLongValue];
         const unsigned long long remainingBeats = totalBeats - (beat + 1);
-
-        // NSLog(@"remain: %lld", remainingBeats);
 
         const unsigned long long barIndex = (beat / 4) + 1;
         const unsigned int beatIndex = (beat % 4) + 1;

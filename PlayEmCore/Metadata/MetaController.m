@@ -35,7 +35,7 @@
 
 - (MediaMetaData*)loadWithPath:(NSString*)path cancelTest:(BOOL (^)(void))cancelTest
 {
-    NSLog(@"loading metadata from %@...", path);
+    //NSLog(@"loading metadata from %@...", path);
     NSError* error = nil;
 
     //    if (![engine startAndReturnError:&error]) {
@@ -81,10 +81,10 @@
 
     // Dispatch a callback on the main thread once decoding is done.
     dispatch_block_notify(_loadOperation, dispatch_get_main_queue(), ^{
-        NSLog(@"meta loader phase one is done - we are back on the main thread - "
-              @"run the callback block with %@",
-              meta);
-        NSLog(@"container meta loading done");
+//        NSLog(@"meta loader phase one is done - we are back on the main thread - "
+//              @"run the callback block with %@",
+//              meta);
+//        NSLog(@"container meta loading done");
         callback(meta);
     });
 }

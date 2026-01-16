@@ -17,8 +17,13 @@ NS_ASSUME_NONNULL_BEGIN
 @interface LazySample : NSObject
 
 @property (assign, nonatomic) SampleFormat sampleFormat;
+/// Original file sample rate (Hz) before any resampling.
+@property (assign, nonatomic) double fileSampleRate;
+/// Rendered/decoded sample rate (Hz) actually stored in buffers.
+@property (assign, nonatomic) double renderedSampleRate;
 @property (readonly, nonatomic) NSTimeInterval duration;
 @property (readonly, assign, nonatomic) unsigned long long decodedFrames;
+@property (readonly, assign, nonatomic) unsigned long long renderedLength;
 
 @property (strong, nonatomic) AVAudioFile* source;
 
@@ -38,6 +43,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)addLazyPageIndex:(unsigned long long)pageIndex channels:(NSArray<NSData*>*)channels;
 - (void)markDecodingComplete;
+- (void)setRenderedLength:(unsigned long long)frames;
+- (void)setRenderedLength:(unsigned long long)frames;
 
 @end
 

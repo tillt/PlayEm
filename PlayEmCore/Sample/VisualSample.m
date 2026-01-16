@@ -50,8 +50,9 @@
         assert(pixelPerSecond);
         _pixelPerSecond = pixelPerSecond;
         _operations = [ConcurrentAccessDictionary new];
-        //_framesPerPixel = (double)sample.sampleFormat.rate / pixelPerSecond;
-        _framesPerPixel = ceil((double) sample.sampleFormat.rate / pixelPerSecond);
+        double renderRate = sample.renderedSampleRate;
+        assert(renderRate > 0.0);
+        _framesPerPixel = ceil(renderRate / pixelPerSecond);
         _tileWidth = tileWidth;
         _energy = [EnergyDetector new];
         assert(_framesPerPixel >= 1.0);
@@ -100,6 +101,8 @@
     if (_pixelPerSecond == pixelPerSecond) {
         return;
     }
+    
+    assert(_sample.renderedSampleRate > 0.0);
 
     [self reset];
 
@@ -109,7 +112,7 @@
     _pixelPerSecond = pixelPerSecond;
     assert(_pixelPerSecond > 0.0f);
 
-    _framesPerPixel = (double) _sample.sampleFormat.rate / pixelPerSecond;
+    _framesPerPixel = _sample.renderedSampleRate / pixelPerSecond;
     assert(_framesPerPixel >= 1.0);
 }
 

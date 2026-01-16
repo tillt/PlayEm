@@ -1,0 +1,10 @@
+//  FILENAME
+//  PlayEm
+//
+//  Created by Till Toenshoff on YYYY-MM-DD.
+//  Copyright © YYYY Till Toenshoff. All rights reserved.
+//
+
+// DocC rule: use `///` summary, blank `///` only before `- Parameters:`/`- Returns:` when present.
+// Style: Pointer asterisk binds to the type (`float* p`); Allman brace for functions/methods only; control flow braces on same line.
+

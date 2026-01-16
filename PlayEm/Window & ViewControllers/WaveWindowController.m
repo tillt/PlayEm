@@ -7,6 +7,8 @@
 //
 
 #import "WaveWindowController.h"
+#import "WaveWindowController+PlaybackState.h"
+#import "WaveWindowController+RemoteCommands.h"
 
 #import <AVFoundation/AVFoundation.h>
 #import <AVKit/AVKit.h>
@@ -18,24 +20,29 @@
 #import "ActivityManager.h"
 #import "ActivityViewController.h"
 #import "AudioController.h"
+#import "AudioDevice.h"
+
 #import "BeatTrackedSample.h"
 #import "BrowserController.h"
 #import "ControlPanelController.h"
 #import "CreditsViewController.h"
 #import "Defaults.h"
 #import "EnergyDetector.h"
+#import "FXViewController.h"
 #import "IdentifyViewController.h"
 #import "InfoPanel.h"
 #import "KeyTrackedSample.h"
 #import "LazySample.h"
 #import "LoadState.h"
 #import "MediaMetaData.h"
+#import "MediaMetaData+TrackList.h"
 #import "MetaController.h"
 #import "MusicAuthenticationController.h"
 #import "NSAlert+BetterError.h"
 #import "PhosphorChaserView.h"
 #import "PlaylistController.h"
 #import "ProfilingPointsOfInterest.h"
+#import "GraphStatusViewController.h"
 #import "ScopeRenderer.h"
 #import "SymbolButton.h"
 #import "TableHeaderCell.h"
@@ -48,14 +55,18 @@
 #import "WaveView.h"
 #import "WaveViewController.h"
 
+NSString* const kFXLastEffectDefaultsKey = @"FXLastEffectComponent";
+NSString* const kFXLastEffectEnabledKey = @"FXLastEffectEnabled";
+NSString* const kSkipRateMismatchWarning = @"SkipRateMismatchWarning";
+
 @class BeatLayerDelegate;
 @class WaveLayerDelegate;
 @class MarkLayerDelegate;
 
 static const float kShowHidePanelAnimationDuration = 0.3f;
 
-static const float kPixelPerSecond = 120.0f;
-static const size_t kReducedVisualSampleWidth = 8000;
+const float kPixelPerSecond = 120.0f;
+const size_t kReducedVisualSampleWidth = 8000;
 
 const CGFloat kDefaultWindowWidth = 1280.0f;
 const CGFloat kDefaultWindowHeight = 920.0f;
@@ -80,22 +91,6 @@ const size_t kBrowserSplitIndexTags = 6;
 const size_t kWindowSplitIndexVisuals = 0;
 const size_t kWindowSplitIndexBrowser = 1;
 
-typedef enum : NSUInteger {
-    LoaderStateReady,
-
-    LoaderStateMeta,
-    LoaderStateDecoder,
-    LoaderStateBeatDetection,
-    LoaderStateKeyDetection,
-
-    LoaderStateAbortingMeta,
-    LoaderStateAbortingDecoder,
-    LoaderStateAbortingBeatDetection,
-    LoaderStateAbortingKeyDetection,
-
-    LoaderStateAborted,
-} LoaderState;
-
 os_log_t pointsOfInterest;
 
 @interface WaveWindowController () {
@@ -111,8 +106,9 @@ os_log_t pointsOfInterest;
 
     BOOL _mediakeyJustJumped;
     BOOL _filtering;
+    
+    BOOL _timeUpdateScheduled;
 
-    LoaderState _loaderState;
 }
 @property (nonatomic, strong) MetaController* metaController;
 
@@ -142,6 +138,8 @@ os_log_t pointsOfInterest;
 @property (strong, nonatomic) NSWindowController* identifyWindowController;
 @property (strong, nonatomic) NSWindowController* aboutWindowController;
 @property (strong, nonatomic) NSWindowController* activityWindowController;
+@property (strong, nonatomic) NSWindowController* graphStatusWindowController;
+@property (strong, nonatomic) FXViewController* fxViewController;
 
 @property (strong, nonatomic) NSViewController* aboutViewController;
 @property (strong, nonatomic) NSViewController* activityViewController;
@@ -183,6 +181,11 @@ os_log_t pointsOfInterest;
 @property (strong, nonatomic) ActivityToken* decoderToken;
 @property (strong, nonatomic) PhosphorChaserView* activityChaser;
 
+@property (strong, nonatomic) NSButton* importButton;
+@property (strong, nonatomic) NSTextField* importLabel;
+@property (strong, nonatomic) NSProgressIndicator* importProgress;
+@property (strong, nonatomic) ActivityToken* importToken;
+
 @end
 
 // FIXME: Refactor the shit out of this -- it is far too big.
@@ -197,9 +200,8 @@ os_log_t pointsOfInterest;
     // os_signpost_interval_begin(pointsOfInterest, POICADisplayLink,
     // "CADisplayLink");
     //  Substract the latency introduced by the output device setup to compensate
-    //  and get video in sync with audible audio.
-    const AVAudioFramePosition delta = [self.audioController totalLatency];
-    AVAudioFramePosition frame = self.audioController.currentFrame >= delta ? self.audioController.currentFrame - delta : 0;
+    //  and get video in sync with audible audio. (done by the abstraction)
+    AVAudioFramePosition frame = self.audioController.currentFrame;
 
     // Add the delay until the video gets visible to the playhead position for
     // compensation.
@@ -224,9 +226,10 @@ os_log_t pointsOfInterest;
         pointsOfInterest = os_log_create("com.toenshoff.playem", OS_LOG_CATEGORY_POINTS_OF_INTEREST);
         _noSleepAssertionID = 0;
         _noSleepAssertionID = 0;
-        _loaderState = LoaderStateReady;
         _videoDelay = 0.0;
         _metaController = [MetaController new];
+        _timeUpdateScheduled = NO;
+        _importToken = nil;
     }
     return self;
 }
@@ -262,6 +265,15 @@ os_log_t pointsOfInterest;
         _songsCount.stringValue = [NSString stringWithFormat:@"%@", value];
     } else {
         _songsCount.stringValue = [NSString stringWithFormat:@"%@ %@", value, unit];
+    }
+
+    // Show import prompt when the library is empty.
+    if (_importToken != nil) {
+        _importLabel.hidden = NO;
+        _importProgress.hidden = NO;
+        _importButton.hidden = YES;
+    } else {
+        _importButton.hidden = (songs > 0);
     }
 }
 
@@ -350,10 +362,12 @@ static const NSString* kIdentifyToolbarIdentifier = @"Live Identify";
 
     if (itemIdentifier == kPlaylistToolbarIdentifier) {
         item = [[NSToolbarItem alloc] initWithItemIdentifier:itemIdentifier];
-        image = [NSImage imageWithSystemSymbolName:@"list.bullet" accessibilityDescription:@"playlist"];
+        image = [NSImage imageWithSystemSymbolName:@"list.bullet"
+                          accessibilityDescription:NSLocalizedString(@"accessibility.playlist", @"Accessibility label for playlist button")];
     } else if (itemIdentifier == kIdentifyToolbarIdentifier) {
         item = [[NSToolbarItem alloc] initWithItemIdentifier:itemIdentifier];
-        image = [NSImage imageWithSystemSymbolName:@"waveform.and.magnifyingglass" accessibilityDescription:@"live identify"];
+        image = [NSImage imageWithSystemSymbolName:@"waveform.and.magnifyingglass"
+                          accessibilityDescription:NSLocalizedString(@"accessibility.live_identify", @"Accessibility label for live identify button")];
     } else {
         assert(NO);
     }
@@ -479,11 +493,28 @@ static const NSString* kIdentifyToolbarIdentifier = @"Live Identify";
     _controlPanelController.layoutAttribute = NSLayoutAttributeLeft;
     [self.window addTitlebarAccessoryViewController:_controlPanelController];
 
-    _splitViewController = [NSSplitViewController new];
+    [_controlPanelController setEffectsEnabled:NO];
 
+    _fxViewController = [[FXViewController alloc] initWithAudioController:_audioController];
+
+    __weak typeof(self) weakSelf = self;
+    _fxViewController.effectSelectionChanged = ^(NSInteger index) {
+        __strong typeof(weakSelf) strongSelf = weakSelf;
+        if (!strongSelf) {
+            return;
+        }
+        BOOL enabled = index >= 0;
+        [strongSelf.controlPanelController setEffectsEnabled:enabled];
+        if (enabled) {
+            [strongSelf persistEffectSelectionIndex:index];
+        }
+        [strongSelf.fxViewController setEffectEnabledState:enabled];
+    };
+
+    _splitViewController = [NSSplitViewController new];
     [self loadViews];
 
-    WaveWindowController* __weak weakSelf = self;
+    //WaveWindowController* __weak weakSelf = self;
 
     _scrollingWaveViewController.visualSample = self.visualSample;
     _scrollingWaveViewController.offsetBlock = ^CGFloat {
@@ -519,22 +550,37 @@ static const NSString* kIdentifyToolbarIdentifier = @"Live Identify";
 {
     NSMenu* menu = [NSMenu new];
 
-    NSMenuItem* item = [[NSMenuItem alloc] initWithTitle:@"Play Next" action:@selector(playNextInPlaylist:) keyEquivalent:@"n"];
+    NSMenuItem* item = [[NSMenuItem alloc] initWithTitle:NSLocalizedString(@"menu.song.play_next", @"Song context menu item: play next")
+                                                  action:@selector(playNextInPlaylist:)
+                                           keyEquivalent:@"n"];
     [item setKeyEquivalentModifierMask:NSEventModifierFlagCommand];
     [menu addItem:item];
 
-    item = [[NSMenuItem alloc] initWithTitle:@"Play Later" action:@selector(playLaterInPlaylist:) keyEquivalent:@"l"];
+    item = [[NSMenuItem alloc] initWithTitle:NSLocalizedString(@"menu.song.play_later", @"Song context menu item: play later")
+                                      action:@selector(playLaterInPlaylist:)
+                               keyEquivalent:@"l"];
     [item setKeyEquivalentModifierMask:NSEventModifierFlagCommand];
     [menu addItem:item];
 
     [menu addItem:[NSMenuItem separatorItem]];
 
-    item = [menu addItemWithTitle:@"Show Info" action:@selector(showInfoForSelectedSongs:) keyEquivalent:@""];
+    item = [menu addItemWithTitle:NSLocalizedString(@"menu.song.remove_from_library", @"Song context menu item: remove from library")
+                           action:@selector(removeFromLibrary:)
+                    keyEquivalent:@""];
     item.target = _browser;
 
     [menu addItem:[NSMenuItem separatorItem]];
 
-    item = [menu addItemWithTitle:@"Show in Finder" action:@selector(showInFinder:) keyEquivalent:@""];
+    item = [menu addItemWithTitle:NSLocalizedString(@"menu.common.show_info", @"Menu item: show info")
+                           action:@selector(showInfoForSelectedSongs:)
+                    keyEquivalent:@""];
+    item.target = _browser;
+
+    [menu addItem:[NSMenuItem separatorItem]];
+
+    item = [menu addItemWithTitle:NSLocalizedString(@"menu.song.show_in_finder", @"Song context menu item: show in Finder")
+                           action:@selector(showInFinder:)
+                    keyEquivalent:@""];
     item.target = _browser;
 
     // TODO: allow disabling depending on the number of songs selected. Note to
@@ -586,7 +632,8 @@ static const NSString* kIdentifyToolbarIdentifier = @"Live Identify";
             NSLog(@"we can spare the screen we are already on (%@)", screen.localizedName);
             continue;
         }
-        item = [[NSMenuItem alloc] initWithTitle:[NSString stringWithFormat:@"􀢹 Move to %@", screen.localizedName]
+        NSString* moveFormat = NSLocalizedString(@"menu.window.move_to_screen_format", @"Format for menu item that moves window to another screen");
+        item = [[NSMenuItem alloc] initWithTitle:[NSString localizedStringWithFormat:moveFormat, screen.localizedName]
                                           action:@selector(moveToOtherScreen:)
                                    keyEquivalent:@"m"];
         item.tag = i;
@@ -600,10 +647,10 @@ static const NSString* kIdentifyToolbarIdentifier = @"Live Identify";
 - (void)loadViews
 {
     const CGFloat totalHeight = self.window.contentView.bounds.size.height;
-
+    
     const CGFloat totalWaveViewHeight = 46.0;
     const CGFloat scrollingWaveViewHeight = 158.0;
-
+    
     const CGFloat playlistFxViewWidth = 320.0f;
     const CGFloat statusLineHeight = 20.0f;
     const CGFloat searchFieldHeight = 25.0f;
@@ -611,11 +658,11 @@ static const NSString* kIdentifyToolbarIdentifier = @"Live Identify";
     const CGFloat selectorTableViewWidth = floor(self.window.contentView.bounds.size.width / 7.0f);
     const CGFloat selectorTableViewHeight = floor(totalHeight / 5.0f);
     const CGFloat selectorTableViewMinWidth = 70.0f;
-
+    
     const CGFloat selectorTableViewHalfWidth = floor(selectorTableViewWidth / 2.0f);
-
+    
     const CGFloat selectorColumnInset = 17.0;
-
+    
     const CGFloat trackColumnWidth = 54.0f;
     const CGFloat titleColumnWidth = 220.0f;
     const CGFloat timeColumnWidth = 80.0f;
@@ -627,20 +674,22 @@ static const NSString* kIdentifyToolbarIdentifier = @"Live Identify";
     const CGFloat keyColumnWidth = 60.0f;
     const CGFloat ratingColumnWidth = 60.0f;
     const CGFloat tagsColumnWidth = 160.0f;
-
+    
     const CGFloat progressIndicatorWidth = 32.0f;
     const CGFloat progressIndicatorHeight = 32.0f;
-
+    
     CGFloat scopeViewHeight =
-        self.window.contentView.bounds.size.height - (songsTableViewHeight + selectorTableViewHeight + totalWaveViewHeight + scrollingWaveViewHeight);
+    self.window.contentView.bounds.size.height - (songsTableViewHeight + selectorTableViewHeight + totalWaveViewHeight + scrollingWaveViewHeight);
     if (scopeViewHeight <= kMinScopeHeight) {
         scopeViewHeight = kMinScopeHeight;
     }
     const NSAutoresizingMaskOptions kViewFullySizeable = NSViewHeightSizable | NSViewWidthSizable;
-
+    
     // Status Line.
-    _songsCount = [[NSTextField alloc] initWithFrame:NSMakeRect(self.window.contentView.bounds.origin.x, self.window.contentView.bounds.origin.y,
-                                                                self.window.contentView.bounds.size.width, statusLineHeight - 3)];
+    _songsCount = [[NSTextField alloc] initWithFrame:NSMakeRect(self.window.contentView.bounds.origin.x,
+                                                                self.window.contentView.bounds.origin.y,
+                                                                self.window.contentView.bounds.size.width,
+                                                                statusLineHeight - 3)];
     _songsCount.font = [[Defaults sharedDefaults] smallFont];
     _songsCount.textColor = [[Defaults sharedDefaults] tertiaryLabelColor];
     _songsCount.bordered = NO;
@@ -648,9 +697,9 @@ static const NSString* kIdentifyToolbarIdentifier = @"Live Identify";
     _songsCount.selectable = NO;
     _songsCount.autoresizingMask = NSViewWidthSizable;
     _songsCount.translatesAutoresizingMaskIntoConstraints = YES;
-
+    
     [self.window.contentView addSubview:_songsCount];
-
+    
     //    const CGFloat chaserSize = 30;
     //    // Phosphor chaser busy indicator (top-right).
     //    CGFloat chaserX = self.window.contentView.bounds.origin.x + 10.0;
@@ -666,10 +715,10 @@ static const NSString* kIdentifyToolbarIdentifier = @"Live Identify";
     //                                                                                     action:@selector(showActivity:)];
     //    recognizer.numberOfClicksRequired = 1;
     //    [_activityChaser addGestureRecognizer:recognizer];
-
+    
     // Below Visuals.
     CGFloat height = scopeViewHeight + scrollingWaveViewHeight + totalWaveViewHeight;
-
+    
     NSRect availableRect = NSMakeRect(self.window.contentView.bounds.origin.x, self.window.contentView.bounds.origin.y + statusLineHeight,
                                       self.window.contentView.bounds.size.width, self.window.contentView.bounds.size.height - statusLineHeight);
     _horizontalSplitView = [[NSSplitView alloc] initWithFrame:availableRect];
@@ -679,63 +728,66 @@ static const NSString* kIdentifyToolbarIdentifier = @"Live Identify";
     _horizontalSplitView.delegate = self;
     _horizontalSplitView.identifier = @"VerticalSplitterID";
     _horizontalSplitView.translatesAutoresizingMaskIntoConstraints = YES;
-
+    
     _belowVisuals = [[NSView alloc] initWithFrame:NSMakeRect(self.window.contentView.bounds.origin.x, self.window.contentView.bounds.origin.y,
                                                              self.window.contentView.bounds.size.width, height)];
     _belowVisuals.autoresizingMask = kViewFullySizeable;
     _belowVisuals.autoresizesSubviews = YES;
     _belowVisuals.wantsLayer = YES;
     _belowVisuals.translatesAutoresizingMaskIntoConstraints = YES;
-
+    
     _totalWaveViewController.view.frame =
-        NSMakeRect(_belowVisuals.bounds.origin.x, _belowVisuals.bounds.origin.y, _belowVisuals.bounds.size.width, totalWaveViewHeight);
+    NSMakeRect(_belowVisuals.bounds.origin.x, _belowVisuals.bounds.origin.y, _belowVisuals.bounds.size.width, totalWaveViewHeight);
     _totalWaveViewController.view.autoresizingMask = NSViewWidthSizable;
     _totalWaveViewController.view.translatesAutoresizingMaskIntoConstraints = YES;
     [_belowVisuals addSubview:_totalWaveViewController.view];
     //[_totalWaveViewController resetTracking];
-
+    
     WaveScrollView* tiledSV =
-        [[WaveScrollView alloc] initWithFrame:NSMakeRect(_belowVisuals.bounds.origin.x, _belowVisuals.bounds.origin.y + totalWaveViewHeight,
-                                                         _belowVisuals.bounds.size.width, scrollingWaveViewHeight)];
+    [[WaveScrollView alloc] initWithFrame:NSMakeRect(_belowVisuals.bounds.origin.x, _belowVisuals.bounds.origin.y + totalWaveViewHeight,
+                                                     _belowVisuals.bounds.size.width, scrollingWaveViewHeight)];
     tiledSV.wantsLayer = YES;
     tiledSV.autoresizingMask = NSViewWidthSizable;
     tiledSV.drawsBackground = NO;
     tiledSV.translatesAutoresizingMaskIntoConstraints = YES;
     tiledSV.verticalScrollElasticity = NSScrollElasticityNone;
-
+    
     _scrollingWaveViewController.view.frame = tiledSV.bounds;
     //[_scrollingWaveViewController resetTracking];
-
+    
     tiledSV.documentView = _scrollingWaveViewController.view;
     [_belowVisuals addSubview:tiledSV];
-
+    
     // Horizontal Line below total wave view.
     NSBox* line = [[NSBox alloc] initWithFrame:NSMakeRect(_belowVisuals.bounds.origin.x, _belowVisuals.bounds.origin.y, _belowVisuals.bounds.size.width, 1.0)];
     line.boxType = NSBoxCustom;
     line.borderColor = [[[Defaults sharedDefaults] lightBeamColor] colorWithAlphaComponent:0.2];
     line.autoresizingMask = NSViewWidthSizable;
     [_belowVisuals addSubview:line];
-
+    
     // Horizontal Line above total wave view.
     line = [[NSBox alloc]
-        initWithFrame:NSMakeRect(_belowVisuals.bounds.origin.x, _belowVisuals.bounds.origin.y + totalWaveViewHeight, _belowVisuals.bounds.size.width, 1.0)];
+            initWithFrame:NSMakeRect(_belowVisuals.bounds.origin.x, _belowVisuals.bounds.origin.y + totalWaveViewHeight, _belowVisuals.bounds.size.width, 1.0)];
     line.boxType = NSBoxCustom;
     line.borderColor = [[[Defaults sharedDefaults] lightBeamColor] colorWithAlphaComponent:0.2];
     line.autoresizingMask = NSViewWidthSizable;
     [_belowVisuals addSubview:line];
-
+    
     line = [[NSBox alloc] initWithFrame:NSMakeRect(_belowVisuals.bounds.origin.x, _belowVisuals.bounds.origin.y + scrollingWaveViewHeight + totalWaveViewHeight,
                                                    _belowVisuals.bounds.size.width, 1.0)];
     line.boxType = NSBoxCustom;
     line.borderColor = [[[Defaults sharedDefaults] lightBeamColor] colorWithAlphaComponent:0.2];
     line.autoresizingMask = NSViewWidthSizable;
     [_belowVisuals addSubview:line];
-
+    
     _effectBelowPlaylist =
-        [[NSVisualEffectView alloc] initWithFrame:NSMakeRect(_belowVisuals.bounds.size.width, _belowVisuals.bounds.origin.y, playlistFxViewWidth, height)];
+    [[NSVisualEffectView alloc] initWithFrame:NSMakeRect(_belowVisuals.bounds.size.width, _belowVisuals.bounds.origin.y, playlistFxViewWidth, height)];
     _effectBelowPlaylist.autoresizingMask = NSViewHeightSizable | NSViewMinXMargin;
-
-    NSSegmentedControl* segment = [NSSegmentedControl segmentedControlWithLabels:@[ @"Playlist", @"Tracklist" ]
+    
+    NSSegmentedControl* segment = [NSSegmentedControl segmentedControlWithLabels:@[
+        NSLocalizedString(@"tab.playlist", @"Playlist tab title"),
+        NSLocalizedString(@"tab.tracklist", @"Tracklist tab title"),
+    ]
                                                                     trackingMode:NSSegmentSwitchTrackingSelectOne
                                                                           target:self
                                                                           action:@selector(listsSwitched:)];
@@ -746,40 +798,40 @@ static const NSString* kIdentifyToolbarIdentifier = @"Live Identify";
     segment.frame = NSMakeRect(sideMargin, _effectBelowPlaylist.bounds.size.height - 35.0, _effectBelowPlaylist.bounds.size.width - (sideMargin * 2.0), 30.0);
     [_effectBelowPlaylist addSubview:segment];
     [segment setSelectedSegment:0];
-
+    
     _listsTabView =
-        [[NSTabView alloc] initWithFrame:NSMakeRect(0.0, 0.0, _effectBelowPlaylist.bounds.size.width, _effectBelowPlaylist.bounds.size.height - 30.0)];
+    [[NSTabView alloc] initWithFrame:NSMakeRect(0.0, 0.0, _effectBelowPlaylist.bounds.size.width, _effectBelowPlaylist.bounds.size.height - 30.0)];
     _listsTabView.tabPosition = NSTabPositionTop;
     _listsTabView.tabViewType = NSNoTabsNoBorder;
     _listsTabView.autoresizingMask = kViewFullySizeable;
-
+    
     // Playlist
     _playlist = [PlaylistController new];
     _playlist.delegate = self;
     _playlistTabViewItem = [NSTabViewItem tabViewItemWithViewController:_playlist];
     _playlistTabViewItem.view.frame = _listsTabView.bounds;
     _playlistTabViewItem.initialFirstResponder = _playlist.view;
-    [_playlistTabViewItem setLabel:@"playlist"];
+    [_playlistTabViewItem setLabel:NSLocalizedString(@"tab.playlist", @"Playlist tab title")];
     [_listsTabView addTabViewItem:_playlistTabViewItem];
-
+    
     // Tracklist
     _tracklist = [TracklistController new];
     _tracklist.delegate = self;
     _tracklistTabViewItem = [NSTabViewItem tabViewItemWithViewController:_tracklist];
     _tracklistTabViewItem.view.frame = _listsTabView.bounds;
     _tracklistTabViewItem.initialFirstResponder = _tracklist.view;
-    [_tracklistTabViewItem setLabel:@"tracklist"];
+    [_tracklistTabViewItem setLabel:NSLocalizedString(@"tab.tracklist", @"Tracklist tab title")];
     [_listsTabView addTabViewItem:_tracklistTabViewItem];
-
+    
     [_effectBelowPlaylist addSubview:_listsTabView];
-
+    
     // Scope / FFT View
     ScopeView* scv = [[ScopeView alloc]
-        initWithFrame:NSMakeRect(_belowVisuals.bounds.origin.x, _belowVisuals.bounds.origin.y + totalWaveViewHeight + scrollingWaveViewHeight + 1.0,
-                                 _belowVisuals.bounds.size.width, scopeViewHeight - 2.0)
-               device:MTLCreateSystemDefaultDevice()];
+                      initWithFrame:NSMakeRect(_belowVisuals.bounds.origin.x, _belowVisuals.bounds.origin.y + totalWaveViewHeight + scrollingWaveViewHeight + 1.0,
+                                               _belowVisuals.bounds.size.width, scopeViewHeight - 2.0)
+                      device:MTLCreateSystemDefaultDevice()];
     [_belowVisuals addSubview:scv];
-
+    
     line = [[NSBox alloc] initWithFrame:NSMakeRect(_belowVisuals.bounds.origin.x,
                                                    _belowVisuals.bounds.origin.y + scrollingWaveViewHeight + totalWaveViewHeight + scv.frame.size.height,
                                                    _belowVisuals.bounds.size.width, 1.0)];
@@ -788,7 +840,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Live Identify";
     // line.borderColor = [NSColor redColor];
     line.autoresizingMask = NSViewWidthSizable | NSViewMinYMargin;
     [_belowVisuals addSubview:line];
-
+    
     [_belowVisuals addConstraint:[NSLayoutConstraint constraintWithItem:scv
                                                               attribute:NSLayoutAttributeHeight
                                                               relatedBy:NSLayoutRelationGreaterThanOrEqual
@@ -796,12 +848,12 @@ static const NSString* kIdentifyToolbarIdentifier = @"Live Identify";
                                                               attribute:NSLayoutAttributeNotAnAttribute
                                                              multiplier:1.0
                                                                constant:kMinScopeHeight]];
-
+    
     [_scopeView removeFromSuperview];
     _scopeView = scv;
-
+    
     [_belowVisuals addSubview:_effectBelowPlaylist positioned:NSWindowAbove relativeTo:nil];
-
+    
     _renderer = [[ScopeRenderer alloc] initWithMetalKitView:scv
                                                       color:[[Defaults sharedDefaults] lightBeamColor]
                                                    fftColor:[[Defaults sharedDefaults] fftColor]
@@ -809,39 +861,39 @@ static const NSString* kIdentifyToolbarIdentifier = @"Live Identify";
                                                    delegate:self];
     _renderer.level = self.controlPanelController.level;
     scv.delegate = _renderer;
-
+    
     [_renderer mtkView:scv drawableSizeWillChange:scv.bounds.size];
-
+    
     if (_audioController && _visualSample) {
         [_renderer play:_audioController visual:_visualSample scope:scv];
     }
-
+    
     _smallScopeView = _scopeView;
-
+    
     [_belowVisuals addSubview:_effectBelowPlaylist];
-
+    
     [_horizontalSplitView addArrangedSubview:_belowVisuals];
-
+    
     ///
     /// Genre, Artist, Album, BPM, Key Tables.
     ///
     NSRect verticalRect =
-        NSMakeRect(_horizontalSplitView.bounds.origin.x, _horizontalSplitView.bounds.origin.y, _horizontalSplitView.bounds.size.width, selectorTableViewHeight);
+    NSMakeRect(_horizontalSplitView.bounds.origin.x, _horizontalSplitView.bounds.origin.y, _horizontalSplitView.bounds.size.width, selectorTableViewHeight);
     _browserColumnSplitView = [[NSSplitView alloc] initWithFrame:verticalRect];
     _browserColumnSplitView.vertical = YES;
     _browserColumnSplitView.delegate = self;
     _browserColumnSplitView.identifier = @"HorizontalSplittersID";
     _browserColumnSplitView.dividerStyle = NSSplitViewDividerStyleThin;
-
+    
     NSScrollView* sv = [[NSScrollView alloc] initWithFrame:NSMakeRect(0.0, 0.0, selectorTableViewWidth, selectorTableViewHeight)];
     sv.hasVerticalScroller = YES;
     sv.autoresizingMask = kViewFullySizeable;
     sv.drawsBackground = NO;
     _genreTable = [[NSTableView alloc] initWithFrame:NSZeroRect];
     _genreTable.tag = VIEWTAG_GENRE;
-
+    
     NSTableColumn* col = [[NSTableColumn alloc] init];
-    col.title = @"Genre";
+    col.title = NSLocalizedString(@"table.songs.genre", @"Genre table column title");
     col.identifier = @"Genre";
     col.width = selectorTableViewWidth - selectorColumnInset;
     col.minWidth = selectorTableViewMinWidth;
@@ -855,7 +907,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Live Identify";
                                                                         attribute:NSLayoutAttributeNotAnAttribute
                                                                        multiplier:1.0
                                                                          constant:selectorTableViewMinWidth]];
-
+    
     [_browserColumnSplitView addConstraint:[NSLayoutConstraint constraintWithItem:sv
                                                                         attribute:NSLayoutAttributeHeight
                                                                         relatedBy:NSLayoutRelationGreaterThanOrEqual
@@ -863,16 +915,16 @@ static const NSString* kIdentifyToolbarIdentifier = @"Live Identify";
                                                                         attribute:NSLayoutAttributeNotAnAttribute
                                                                        multiplier:1.0
                                                                          constant:kMinTableHeight]];
-
+    
     sv = [[NSScrollView alloc] initWithFrame:NSMakeRect(0.0, 0.0, selectorTableViewWidth, selectorTableViewHeight)];
     sv.drawsBackground = NO;
     sv.hasVerticalScroller = YES;
     sv.autoresizingMask = kViewFullySizeable;
     _artistsTable = [[NSTableView alloc] initWithFrame:NSZeroRect];
     _artistsTable.tag = VIEWTAG_ARTISTS;
-
+    
     col = [[NSTableColumn alloc] init];
-    col.title = @"Artist";
+    col.title = NSLocalizedString(@"table.songs.artist", @"Artist table column title");
     col.width = selectorTableViewWidth - selectorColumnInset;
     col.minWidth = selectorTableViewMinWidth;
     [_artistsTable addTableColumn:col];
@@ -885,16 +937,16 @@ static const NSString* kIdentifyToolbarIdentifier = @"Live Identify";
                                                                         attribute:NSLayoutAttributeNotAnAttribute
                                                                        multiplier:1.0
                                                                          constant:selectorTableViewMinWidth]];
-
+    
     sv = [[NSScrollView alloc] initWithFrame:NSMakeRect(0.0, 0.0, selectorTableViewWidth, selectorTableViewHeight)];
     sv.hasVerticalScroller = YES;
     sv.autoresizingMask = kViewFullySizeable;
     sv.drawsBackground = NO;
     _albumsTable = [[NSTableView alloc] initWithFrame:sv.bounds];
     _albumsTable.tag = VIEWTAG_ALBUMS;
-
+    
     col = [[NSTableColumn alloc] init];
-    col.title = @"Album";
+    col.title = NSLocalizedString(@"table.songs.album", @"Album table column title");
     col.width = selectorTableViewWidth - selectorColumnInset;
     col.minWidth = selectorTableViewMinWidth;
     [_albumsTable addTableColumn:col];
@@ -907,7 +959,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Live Identify";
                                                                         attribute:NSLayoutAttributeNotAnAttribute
                                                                        multiplier:1.0
                                                                          constant:selectorTableViewMinWidth]];
-
+    
     sv = [[NSScrollView alloc] initWithFrame:NSMakeRect(0.0, 0.0, selectorTableViewHalfWidth, selectorTableViewHeight)];
     sv.hasVerticalScroller = YES;
     sv.autoresizingMask = kViewFullySizeable;
@@ -915,7 +967,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Live Identify";
     _temposTable = [[NSTableView alloc] initWithFrame:sv.bounds];
     _temposTable.tag = VIEWTAG_TEMPO;
     col = [[NSTableColumn alloc] init];
-    col.title = @"BPM";
+    col.title = NSLocalizedString(@"table.songs.bpm", @"Tempo table column title");
     col.width = selectorTableViewHalfWidth - selectorColumnInset;
     col.minWidth = selectorTableViewMinWidth;
     [_temposTable addTableColumn:col];
@@ -928,7 +980,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Live Identify";
                                                                         attribute:NSLayoutAttributeNotAnAttribute
                                                                        multiplier:1.0
                                                                          constant:selectorTableViewMinWidth]];
-
+    
     sv = [[NSScrollView alloc] initWithFrame:NSMakeRect(0.0, 0.0, selectorTableViewHalfWidth, selectorTableViewHeight)];
     sv.hasVerticalScroller = YES;
     sv.autoresizingMask = kViewFullySizeable;
@@ -936,7 +988,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Live Identify";
     _keysTable = [[NSTableView alloc] initWithFrame:NSZeroRect];
     _keysTable.tag = VIEWTAG_KEY;
     col = [[NSTableColumn alloc] init];
-    col.title = @"Key";
+    col.title = NSLocalizedString(@"table.songs.key", @"Key table column title");
     col.width = selectorTableViewHalfWidth - selectorColumnInset;
     col.minWidth = selectorTableViewMinWidth;
     [_keysTable addTableColumn:col];
@@ -949,7 +1001,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Live Identify";
                                                                         attribute:NSLayoutAttributeNotAnAttribute
                                                                        multiplier:1.0
                                                                          constant:selectorTableViewMinWidth]];
-
+    
     sv = [[NSScrollView alloc] initWithFrame:NSMakeRect(0.0, 0.0, selectorTableViewHalfWidth, selectorTableViewHeight)];
     sv.hasVerticalScroller = YES;
     sv.autoresizingMask = kViewFullySizeable;
@@ -957,7 +1009,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Live Identify";
     _ratingsTable = [[NSTableView alloc] initWithFrame:NSZeroRect];
     _ratingsTable.tag = VIEWTAG_RATING;
     col = [[NSTableColumn alloc] init];
-    col.title = @"Rating";
+    col.title = NSLocalizedString(@"table.songs.rating", @"Rating table column title");
     col.width = selectorTableViewHalfWidth - selectorColumnInset;
     col.minWidth = selectorTableViewMinWidth;
     [_ratingsTable addTableColumn:col];
@@ -970,7 +1022,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Live Identify";
                                                                         attribute:NSLayoutAttributeNotAnAttribute
                                                                        multiplier:1.0
                                                                          constant:selectorTableViewMinWidth]];
-
+    
     sv = [[NSScrollView alloc] initWithFrame:NSMakeRect(0.0, 0.0, selectorTableViewHalfWidth, selectorTableViewHeight)];
     sv.hasVerticalScroller = YES;
     sv.autoresizingMask = kViewFullySizeable;
@@ -978,7 +1030,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Live Identify";
     _tagsTable = [[NSTableView alloc] initWithFrame:NSZeroRect];
     _tagsTable.tag = VIEWTAG_TAGS;
     col = [[NSTableColumn alloc] init];
-    col.title = @"Tags";
+    col.title = NSLocalizedString(@"table.tags.title", @"Table column title");
     col.width = selectorTableViewWidth - selectorColumnInset;
     col.minWidth = selectorTableViewMinWidth;
     [_tagsTable addTableColumn:col];
@@ -991,7 +1043,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Live Identify";
                                                                         attribute:NSLayoutAttributeNotAnAttribute
                                                                        multiplier:1.0
                                                                          constant:selectorTableViewMinWidth]];
-
+    
     [_horizontalSplitView addArrangedSubview:_browserColumnSplitView];
     NSLayoutConstraint* constraint = [NSLayoutConstraint constraintWithItem:_browserColumnSplitView
                                                                   attribute:NSLayoutAttributeHeight
@@ -1001,17 +1053,18 @@ static const NSString* kIdentifyToolbarIdentifier = @"Live Identify";
                                                                  multiplier:1.0
                                                                    constant:kMinTableHeight];
     [_horizontalSplitView addConstraint:constraint];
-
+    
     _searchField = [[NSSearchField alloc] initWithFrame:NSMakeRect(0, 0, _horizontalSplitView.bounds.size.width, searchFieldHeight)];
     _searchField.sendsWholeSearchString = NO;
     _searchField.sendsSearchStringImmediately = YES;
     _searchField.textColor = [[Defaults sharedDefaults] lightFakeBeamColor];
     _searchField.font = [[Defaults sharedDefaults] normalFont];
-    _searchField.placeholderString = @"Filter";
-    NSImage* image = [NSImage imageWithSystemSymbolName:@"line.3.horizontal.decrease" accessibilityDescription:@"filter"];
+    _searchField.placeholderString = NSLocalizedString(@"search.placeholder.filter", @"Search field placeholder");
+    NSImage* image = [NSImage imageWithSystemSymbolName:@"line.3.horizontal.decrease"
+                                accessibilityDescription:NSLocalizedString(@"search.accessibility.filter", @"Accessibility label for filter search button")];
     NSSearchFieldCell* cell = _searchField.cell;
     cell.searchButtonCell.image = image;
-
+    
     ///
     /// Songs Table.
     ///
@@ -1027,105 +1080,144 @@ static const NSString* kIdentifyToolbarIdentifier = @"Live Identify";
     _songsTable.columnAutoresizingStyle = NSTableViewLastColumnOnlyAutoresizingStyle;
     _songsTable.allowsMultipleSelection = YES;
     [_songsTable selectionHighlightStyle];
-
+    
     col = [[NSTableColumn alloc] initWithIdentifier:kSongsColTrackNumber];
-    col.title = @"Track";
+    col.title = NSLocalizedString(@"table.songs.track", @"Table column title");
     col.width = trackColumnWidth - selectorColumnInset;
     col.minWidth = (trackColumnWidth - selectorColumnInset) / 2.0f;
     col.resizingMask = NSTableColumnUserResizingMask;
     col.sortDescriptorPrototype = [[NSSortDescriptor alloc] initWithKey:@"track" ascending:YES selector:@selector(compare:)];
     [_songsTable addTableColumn:col];
-
+    
     col = [[NSTableColumn alloc] initWithIdentifier:kSongsColTitle];
-    col.title = @"Title";
+    col.title = NSLocalizedString(@"table.songs.title", @"Table column title");
     col.width = titleColumnWidth - selectorColumnInset;
     col.minWidth = (titleColumnWidth - selectorColumnInset) / 2.0f;
     col.resizingMask = NSTableColumnUserResizingMask;
     col.sortDescriptorPrototype = [[NSSortDescriptor alloc] initWithKey:@"title" ascending:YES selector:@selector(compare:)];
     [_songsTable addTableColumn:col];
-
+    
     col = [[NSTableColumn alloc] initWithIdentifier:kSongsColTime];
-    col.title = @"Time";
+    col.title = NSLocalizedString(@"table.songs.time", @"Table column title");
     col.width = timeColumnWidth - selectorColumnInset;
     col.minWidth = (timeColumnWidth - selectorColumnInset) / 2.0;
     col.resizingMask = NSTableColumnUserResizingMask;
     col.sortDescriptorPrototype = [[NSSortDescriptor alloc] initWithKey:@"duration" ascending:YES selector:@selector(compare:)];
     [_songsTable addTableColumn:col];
-
+    
     col = [[NSTableColumn alloc] initWithIdentifier:kSongsColArtist];
-    col.title = @"Artist";
+    col.title = NSLocalizedString(@"table.songs.artist", @"Table column title");
     col.width = artistColumnWidth - selectorColumnInset;
     col.minWidth = (artistColumnWidth - selectorColumnInset) / 2.0;
     col.resizingMask = NSTableColumnUserResizingMask;
     col.sortDescriptorPrototype = [[NSSortDescriptor alloc] initWithKey:@"artist" ascending:YES selector:@selector(compare:)];
     [_songsTable addTableColumn:col];
-
+    
     col = [[NSTableColumn alloc] initWithIdentifier:kSongsColAlbum];
-    col.title = @"Album";
+    col.title = NSLocalizedString(@"table.songs.album", @"Table column title");
     col.width = albumColumnWidth - selectorColumnInset;
     col.minWidth = (albumColumnWidth - selectorColumnInset) / 2.0;
     col.resizingMask = NSTableColumnUserResizingMask;
     col.sortDescriptorPrototype = [[NSSortDescriptor alloc] initWithKey:@"album" ascending:YES selector:@selector(compare:)];
     [_songsTable addTableColumn:col];
-
+    
     col = [[NSTableColumn alloc] initWithIdentifier:kSongsColGenre];
-    col.title = @"Genre";
+    col.title = NSLocalizedString(@"table.songs.genre", @"Table column title");
     col.width = genreColumnWidth - selectorColumnInset;
     col.minWidth = (genreColumnWidth - selectorColumnInset) / 2.0;
     col.resizingMask = NSTableColumnAutoresizingMask | NSTableColumnUserResizingMask;
     col.sortDescriptorPrototype = [[NSSortDescriptor alloc] initWithKey:@"genre" ascending:YES selector:@selector(compare:)];
     [_songsTable addTableColumn:col];
-
+    
     col = [[NSTableColumn alloc] initWithIdentifier:kSongsColAdded];
-    col.title = @"Added";
+    col.title = NSLocalizedString(@"table.songs.added", @"Table column title");
     col.width = addedColumnWidth - selectorColumnInset;
     col.minWidth = (addedColumnWidth - selectorColumnInset) / 2.0;
     col.resizingMask = NSTableColumnUserResizingMask;
     col.sortDescriptorPrototype = [[NSSortDescriptor alloc] initWithKey:@"added" ascending:YES selector:@selector(compare:)];
     [_songsTable addTableColumn:col];
-
+    
     col = [[NSTableColumn alloc] initWithIdentifier:kSongsColTempo];
-    col.title = @"Tempo";
+    col.title = NSLocalizedString(@"table.songs.tempo", @"Table column title");
     col.width = tempoColumnWidth - selectorColumnInset;
     col.minWidth = (tempoColumnWidth - selectorColumnInset) / 2.0;
     col.resizingMask = NSTableColumnUserResizingMask;
     col.sortDescriptorPrototype = [[NSSortDescriptor alloc] initWithKey:@"tempo" ascending:YES selector:@selector(compare:)];
     [_songsTable addTableColumn:col];
-
+    
     col = [[NSTableColumn alloc] initWithIdentifier:kSongsColKey];
-    col.title = @"Key";
+    col.title = NSLocalizedString(@"table.songs.key", @"Table column title");
     col.width = keyColumnWidth - selectorColumnInset;
     col.minWidth = (keyColumnWidth - selectorColumnInset) / 2.0;
     col.resizingMask = NSTableColumnUserResizingMask;
     col.sortDescriptorPrototype = [[NSSortDescriptor alloc] initWithKey:@"key" ascending:YES selector:@selector(compare:)];
     [_songsTable addTableColumn:col];
-
+    
     col = [[NSTableColumn alloc] initWithIdentifier:kSongsColRating];
-    col.title = @"Rating";
+    col.title = NSLocalizedString(@"table.songs.rating", @"Table column title");
     col.width = ratingColumnWidth - selectorColumnInset;
     col.minWidth = (ratingColumnWidth - selectorColumnInset) / 2.0;
     col.resizingMask = NSTableColumnUserResizingMask;
     col.sortDescriptorPrototype = [[NSSortDescriptor alloc] initWithKey:@"rating" ascending:YES selector:@selector(compare:)];
     [_songsTable addTableColumn:col];
-
+    
     col = [[NSTableColumn alloc] initWithIdentifier:kSongsColTags];
-    col.title = @"Tags";
+    col.title = NSLocalizedString(@"table.songs.tags", @"Table column title");
     col.minWidth = (tagsColumnWidth - selectorColumnInset) / 2.0;
     col.resizingMask = NSTableColumnAutoresizingMask;
     col.sortDescriptorPrototype = [[NSSortDescriptor alloc] initWithKey:@"tags" ascending:YES selector:@selector(compare:)];
     [_songsTable addTableColumn:col];
-
+    
     sv.documentView = _songsTable;
     [_horizontalSplitView addArrangedSubview:sv];
+    
+    // Empty-state prompt to import from Apple Music. Overlays the songs table.
+    _importButton = [NSButton buttonWithTitle:NSLocalizedString(@"library.import.button_title", @"Import library button title")
+                                       target:self
+                                       action:@selector(loadITunesLibrary:)];
+    _importButton.translatesAutoresizingMaskIntoConstraints = NO;
+    _importButton.bezelStyle = NSBezelStyleRounded;
+    _importButton.hidden = YES;
+    [sv.contentView addSubview:_importButton];
+    [NSLayoutConstraint activateConstraints:@[
+        [_importButton.centerXAnchor constraintEqualToAnchor:sv.contentView.centerXAnchor],
+        [_importButton.centerYAnchor constraintEqualToAnchor:sv.contentView.centerYAnchor]
+    ]];
+    
+    _importLabel = [NSTextField textFieldWithString:NSLocalizedString(@"library.import.in_progress", @"Import in progress label")];
+    _importLabel.translatesAutoresizingMaskIntoConstraints = NO;
+    _importLabel.editable = NO;
+    _importLabel.font = [[Defaults sharedDefaults] smallFont];
+    _importLabel.hidden = YES;
+    _importLabel.drawsBackground = NO;
+    _importLabel.textColor = [NSColor secondaryLabelColor];
+    _importLabel.bordered = NO;
+    _importLabel.cell.truncatesLastVisibleLine = YES;
+    _importLabel.cell.lineBreakMode = NSLineBreakByTruncatingTail;
+    _importLabel.alignment = NSTextAlignmentCenter;
+    [sv.contentView addSubview:_importLabel];
+    [NSLayoutConstraint activateConstraints:@[
+        [_importLabel.centerXAnchor constraintEqualToAnchor:sv.contentView.centerXAnchor],
+        [_importLabel.centerYAnchor constraintEqualToAnchor:sv.contentView.centerYAnchor]
+    ]];
 
-    constraint = [NSLayoutConstraint constraintWithItem:sv
-                                              attribute:NSLayoutAttributeHeight
-                                              relatedBy:NSLayoutRelationGreaterThanOrEqual
-                                                 toItem:nil
-                                              attribute:NSLayoutAttributeNotAnAttribute
-                                             multiplier:1.0
-                                               constant:kMinTableHeight];
-    [_horizontalSplitView addConstraint:constraint];
+    _importProgress = [[NSProgressIndicator alloc] initWithFrame:NSZeroRect];
+    _importProgress.translatesAutoresizingMaskIntoConstraints = NO;
+    _importProgress.indeterminate = NO;
+    _importProgress.minValue = 0.0;
+    _importProgress.maxValue = 1.0;
+    _importProgress.hidden = YES;
+    _importProgress.style = NSProgressIndicatorStyleBar;
+    _importProgress.controlSize = NSControlSizeMini;
+    CIColor* color = [[CIColor alloc] initWithColor:[NSColor whiteColor]];
+    CIFilter* colorFilter = [CIFilter filterWithName:@"CIColorMonochrome" withInputParameters:@{@"inputColor" : color}];
+    _importProgress.contentFilters = @[ colorFilter ];
+    [sv.contentView addSubview:_importProgress];
+    [NSLayoutConstraint activateConstraints:@[
+        [_importProgress.centerXAnchor constraintEqualToAnchor:sv.contentView.centerXAnchor],
+        [_importProgress.topAnchor constraintEqualToAnchor:_importLabel.bottomAnchor constant:8.0],
+        [_importProgress.widthAnchor constraintEqualToConstant:300.0]
+    ]];
 
     [self.window.contentView addSubview:_horizontalSplitView];
 }
@@ -1188,36 +1280,6 @@ static const NSString* kIdentifyToolbarIdentifier = @"Live Identify";
 
     _smallBelowVisualsFrame = _belowVisuals.frame;
 
-    {
-        CIFilter* colorFilter = [CIFilter filterWithName:@ "CIFalseColor"];
-
-        [colorFilter setDefaults];
-
-        CIColor* color1 = [CIColor colorWithRed:(CGFloat) 0xFA / 255.0 green:(CGFloat) 0xB0 / 255.0 blue:(CGFloat) 0x59 / 255.0 alpha:(CGFloat) 0.4];
-
-        CIColor* color2 = [CIColor colorWithRed:(CGFloat) 0xFA / 255.0 green:(CGFloat) 0xB0 / 255.0 blue:(CGFloat) 0x59 / 255.0 alpha:(CGFloat) 1.0];
-
-        [colorFilter setValue:color1 forKey:@"inputColor0"];
-        [colorFilter setValue:color2 forKey:@"inputColor1"];
-
-        self.trackLoadProgress.contentFilters = @[ colorFilter ];
-    }
-
-    {
-        CIFilter* colorFilter = [CIFilter filterWithName:@ "CIFalseColor"];
-
-        [colorFilter setDefaults];
-
-        CIColor* color1 = [CIColor colorWithRed:(CGFloat) 0x00 / 255.0 green:(CGFloat) 0x00 / 255.0 blue:(CGFloat) 0x00 / 255.0 alpha:(CGFloat) 0.0];
-
-        CIColor* color2 = [CIColor colorWithRed:(CGFloat) 0xFA / 255.0 green:(CGFloat) 0xB0 / 255.0 blue:(CGFloat) 0x59 / 255.0 alpha:(CGFloat) 1.0];
-
-        [colorFilter setValue:color1 forKey:@"inputColor0"];
-        [colorFilter setValue:color2 forKey:@"inputColor1"];
-
-        self.trackRenderProgress.contentFilters = @[ colorFilter ];
-    }
-
     CGRect rect = CGRectMake(0.0, 0.0, self.window.frame.size.width, self.window.frame.size.height);
     CGRect contentRect = [self.window contentRectForFrameRect:rect];
     _windowBarHeight = self.window.frame.size.height - contentRect.size.height;
@@ -1230,6 +1292,7 @@ static const NSString* kIdentifyToolbarIdentifier = @"Live Identify";
     [self setupDisplayLink];
 
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(someWindowWillClose:) name:@"NSWindowWillCloseNotification" object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(activitiesUpdated:) name:ActivityManagerDidUpdateNotification object:nil];
 
     NSNumber* fullscreenValue = [userDefaults objectForKey:@"fullscreen"];
     if ([fullscreenValue boolValue]) {
@@ -1523,6 +1586,7 @@ call super's supplementalTargetForAction:sender:.
     [sharedApplication runModalForWindow:_infoWindowController.window];
 }
 
+
 - (void)showInfoForCurrentSong:(id)sender
 {
     [_browser showInfoForCurrentSong:sender];
@@ -1548,15 +1612,60 @@ call super's supplementalTargetForAction:sender:.
         window.styleMask &= ~(NSWindowStyleMaskResizable | NSWindowStyleMaskMiniaturizable);
         window.titleVisibility = NSWindowTitleVisible;
         window.movableByWindowBackground = YES;
-        window.titlebarAppearsTransparent = YES;
-        window.level = NSFloatingWindowLevel;
-        window.title = @"Activity";
+        window.hidesOnDeactivate = NO;
+        window.floatingPanel = NO;
+        window.titlebarAppearsTransparent = NO;
+        window.titlebarSeparatorStyle = NSTitlebarSeparatorStyleShadow;
+        window.level = NSNormalWindowLevel;
+        window.title = NSLocalizedString(@"activity.window_title", @"Title for the Activity window");
         _activityWindowController.window = window;
     } else {
         window = (NSPanel*) self.activityWindowController.window;
     }
-    [window setFloatingPanel:YES];
+    window.floatingPanel = NO;
     [window makeKeyAndOrderFront:nil];
+}
+
+- (void)showGraphStatus:(id)sender
+{
+    NSPanel* window = nil;
+
+    if (_graphStatusWindowController == nil) {
+        self.graphStatusWindowController = [NSWindowController new];
+    }
+
+    if (_graphStatusWindowController.window == nil) {
+        GraphStatusViewController* vc = [[GraphStatusViewController alloc] initWithAudioController:self.audioController sample:self.sample];
+        [vc updateSample:self.sample];
+        [vc view];
+        NSPanel* panel = [NSPanel windowWithContentViewController:vc];
+        window = panel;
+        window.styleMask &= ~(NSWindowStyleMaskResizable);
+        window.titleVisibility = NSWindowTitleVisible;
+        window.movableByWindowBackground = YES;
+        window.titlebarAppearsTransparent = NO;
+        window.level = NSNormalWindowLevel;
+        window.hidesOnDeactivate = NO;
+        window.floatingPanel = NO;
+        window.titlebarSeparatorStyle = NSTitlebarSeparatorStyleShadow;
+        window.title = NSLocalizedString(@"graph.status.window_title", @"Title for the audio graph status window");
+        NSSize size = NSMakeSize(360.0, 220.0);
+        [window setContentSize:size];
+        _graphStatusWindowController.window = window;
+    } else {
+        window = (NSPanel*) _graphStatusWindowController.window;
+        if ([window.contentViewController isKindOfClass:[GraphStatusViewController class]]) {
+            GraphStatusViewController* vc = (GraphStatusViewController*) window.contentViewController;
+            [vc updateSample:self.sample];
+        }
+    }
+    [window makeKeyAndOrderFront:nil];
+}
+
+- (void)showEffects:(id)sender
+{
+    [_fxViewController updateEffects:_audioController.availableEffects];
+    [_fxViewController showWithParent:self.window];
 }
 
 - (void)showPlaylist:(id)sender
@@ -1588,6 +1697,50 @@ call super's supplementalTargetForAction:sender:.
                 self.effectBelowPlaylist.alphaValue = 0.0f;
             }
         }];
+}
+
+- (void)showIdentifier:(id)sender
+{
+    _identifyToolbarButton.state = NSControlStateValueOn;
+
+    NSApplication* sharedApplication = [NSApplication sharedApplication];
+
+    NSPanel* window = (NSPanel*) _identifyWindowController.window;
+    if (window.isVisible) {
+        [window close];
+        return;
+    }
+
+    if (_identifyWindowController == nil) {
+        self.identifyWindowController = [NSWindowController new];
+    }
+
+    if (_iffy == nil) {
+        self.iffy = [[IdentifyViewController alloc] initWithAudioController:_audioController delegate:self];
+        [_iffy view];
+
+        NSPanel* panel = [NSPanel windowWithContentViewController:_iffy];
+        window = panel;
+        window.styleMask &= ~NSWindowStyleMaskResizable | NSWindowStyleMaskTitled;
+        window.floatingPanel = NO;
+        window.level = NSNormalWindowLevel;
+        window.titleVisibility = NSWindowTitleHidden;
+        window.movableByWindowBackground = YES;
+        window.becomesKeyOnlyIfNeeded = YES;
+        window.hidesOnDeactivate = NO;
+        window.titlebarAppearsTransparent = YES;
+        window.appearance = sharedApplication.mainWindow.appearance;
+        [window standardWindowButton:NSWindowCloseButton].hidden = NO;
+        [window standardWindowButton:NSWindowZoomButton].hidden = YES;
+        [window standardWindowButton:NSWindowMiniaturizeButton].hidden = YES;
+        _identifyWindowController.window = window;
+    } else {
+        window = (NSPanel*) _identifyWindowController.window;
+    }
+    [_iffy setCurrentIdentificationSource:_meta.location];
+    window.floatingPanel = NO;
+
+    [window makeKeyAndOrderFront:nil];
 }
 
 - (void)showAbout:(id)sender
@@ -1665,10 +1818,10 @@ call super's supplementalTargetForAction:sender:.
     // Detect is destructive when it comes to our tracklist.
     if (_meta.trackList.tracks.count > 0) {
         NSAlert* alert = [[NSAlert alloc] init];
-        [alert setMessageText:@"Drop the existing Tracklist?"];
-        [alert setInformativeText:@"Tracklist will get overwritten"];
-        [alert addButtonWithTitle:@"Drop"];
-        [alert addButtonWithTitle:@"Cancel"];
+        [alert setMessageText:NSLocalizedString(@"alert.tracklist.drop.message", @"Alert message for dropping existing tracklist")];
+        [alert setInformativeText:NSLocalizedString(@"alert.tracklist.drop.informative", @"Alert info when dropping tracklist")];
+        [alert addButtonWithTitle:NSLocalizedString(@"alert.tracklist.drop.confirm", @"Drop tracklist button title")];
+        [alert addButtonWithTitle:NSLocalizedString(@"alert.tracklist.drop.cancel", @"Cancel drop tracklist button title")];
         [alert setAlertStyle:NSAlertStyleWarning];
 
         [alert beginSheetModalForWindow:self.window
@@ -1692,48 +1845,6 @@ call super's supplementalTargetForAction:sender:.
     }
 }
 
-- (void)showIdentifier:(id)sender
-{
-    _identifyToolbarButton.state = NSControlStateValueOn;
-
-    NSApplication* sharedApplication = [NSApplication sharedApplication];
-
-    NSPanel* window = (NSPanel*) _identifyWindowController.window;
-    if (window.isVisible) {
-        [window close];
-        return;
-    }
-
-    if (_identifyWindowController == nil) {
-        self.identifyWindowController = [NSWindowController new];
-    }
-
-    if (_iffy == nil) {
-        self.iffy = [[IdentifyViewController alloc] initWithAudioController:_audioController delegate:self];
-        [_iffy view];
-
-        NSPanel* panel = [NSPanel windowWithContentViewController:_iffy];
-        window = panel;
-        window.styleMask &= ~NSWindowStyleMaskResizable | NSWindowStyleMaskTitled;
-        window.styleMask |= NSWindowStyleMaskUtilityWindow;
-        window.titleVisibility = NSWindowTitleHidden;
-        window.movableByWindowBackground = YES;
-        window.titlebarAppearsTransparent = YES;
-        window.level = NSFloatingWindowLevel;
-        window.appearance = sharedApplication.mainWindow.appearance;
-        [window standardWindowButton:NSWindowZoomButton].hidden = NO;
-        [window standardWindowButton:NSWindowCloseButton].hidden = NO;
-        [window standardWindowButton:NSWindowMiniaturizeButton].hidden = YES;
-        _identifyWindowController.window = window;
-    } else {
-        window = (NSPanel*) _identifyWindowController.window;
-    }
-    [_iffy setCurrentIdentificationSource:_meta.location];
-
-    [window setFloatingPanel:YES];
-    [window makeKeyAndOrderFront:nil];
-}
-
 - (void)setBPM:(float)bpm
 {
     if (_visibleBPM == bpm) {
@@ -1752,24 +1863,38 @@ call super's supplementalTargetForAction:sender:.
 {
     _renderer.currentFrame = frame;
 
+    // There is no deeper meaning in using the scrolling wave view controller as our
+    // source of truth here.
     if (_scrollingWaveViewController.currentFrame == frame) {
         return;
     }
-    if (_controlPanelController.durationUnitTime) {
-        os_signpost_interval_begin(pointsOfInterest, POIStringStuff, "StringStuff");
-        [_controlPanelController updateDuration:[_sample beautifulTimeWithFrame:(_sample.frames - frame) + 1.0] time:[_sample beautifulTimeWithFrame:frame]];
-        os_signpost_interval_end(pointsOfInterest, POIStringStuff, "StringStuff");
+
+    // We throttle the time / duration display updates to easy the load.
+    if (!_timeUpdateScheduled && _controlPanelController.durationUnitTime) {
+        _timeUpdateScheduled = YES;
+        __weak typeof(self) weakSelf = self;
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+            typeof(self) strongSelf = weakSelf;
+            if (strongSelf == nil) {
+                return;
+            }
+            LazySample* sample = strongSelf->_audioController.sample;
+            if (sample == nil) {
+                return;
+            }
+            unsigned long long adaptedFrame = (unsigned long long)((float)frame / strongSelf->_audioController.tempoShift);
+            unsigned long long adaptedFramesLeft = (unsigned long long)(((float)(sample.frames - frame) + 1.0f) / strongSelf->_audioController.tempoShift);
+            NSString* duration = [sample beautifulTimeWithFrame:adaptedFramesLeft];
+            NSString* time = [sample beautifulTimeWithFrame:adaptedFrame];
+            [strongSelf->_controlPanelController updateDuration:duration time:time];
+            strongSelf->_timeUpdateScheduled = NO;
+        });
     }
 
-    os_signpost_interval_begin(pointsOfInterest, POIWaveViewSetCurrentFrame, "WaveViewSetCurrentFrame");
     _scrollingWaveViewController.currentFrame = frame;
-    os_signpost_interval_end(pointsOfInterest, POIWaveViewSetCurrentFrame, "WaveViewSetCurrentFrame");
-
-    os_signpost_interval_begin(pointsOfInterest, POITotalViewSetCurrentFrame, "TotalViewSetCurrentFrame");
     _totalWaveViewController.currentFrame = frame;
-    os_signpost_interval_end(pointsOfInterest, POITotalViewSetCurrentFrame, "TotalViewSetCurrentFrame");
+    _tracklist.currentFrame = frame;
 
-    os_signpost_interval_begin(pointsOfInterest, POIBeatStuff, "BeatStuff");
     if (_beatSample.ready) {
         if (frame + _beatEffectRampUpFrames > _beatEffectAtFrame) {
             [self beatEffectRun];
@@ -1781,15 +1906,18 @@ call super's supplementalTargetForAction:sender:.
             };
         }
     }
-
-    _tracklist.currentFrame = frame;
-
-    os_signpost_interval_end(pointsOfInterest, POIBeatStuff, "BeatStuff");
 }
 
 - (IBAction)loadITunesLibrary:(id)sender
 {
-    [_browser loadITunesLibrary];
+    _importButton.hidden = YES;
+    _importLabel.hidden = NO;
+    _importProgress.hidden = NO;
+    _importToken = [[ActivityManager shared] beginActivityWithTitle:NSLocalizedString(@"activity.library.update_from_apple", @"Title for updating from Apple Music library")
+                                                            detail:@""
+                                                       cancellable:NO
+                                                     cancelHandler:nil];
+    [_browser loadITunesLibraryWithToken:_importToken];
 }
 
 #pragma mark - Splitter delegate
@@ -1871,96 +1999,6 @@ call super's supplementalTargetForAction:sender:.
     }
 }
 
-#pragma mark - Media Remote Commands
-
-- (NSArray*)remoteCommands
-{
-    MPRemoteCommandCenter* cc = [MPRemoteCommandCenter sharedCommandCenter];
-    return @[
-        cc.playCommand,
-        cc.pauseCommand,
-        cc.stopCommand,
-        cc.togglePlayPauseCommand,
-        cc.nextTrackCommand,
-        cc.previousTrackCommand,
-        cc.skipForwardCommand,
-        cc.skipBackwardCommand,
-        cc.changePlaybackPositionCommand,
-    ];
-}
-
-- (MPRemoteCommandHandlerStatus)remoteCommandEvent:(MPRemoteCommandEvent*)event
-{
-    MPRemoteCommandCenter* cc = [MPRemoteCommandCenter sharedCommandCenter];
-    if (event.command == cc.playCommand) {
-        [_audioController play];
-        return MPRemoteCommandHandlerStatusSuccess;
-    }
-    if (event.command == cc.pauseCommand) {
-        [_audioController pause];
-        return MPRemoteCommandHandlerStatusSuccess;
-    }
-    if (event.command == cc.togglePlayPauseCommand) {
-        [_audioController togglePause];
-        return MPRemoteCommandHandlerStatusSuccess;
-    }
-    if (event.command == cc.changePlaybackPositionCommand) {
-        MPChangePlaybackPositionCommandEvent* positionEvent = (MPChangePlaybackPositionCommandEvent*) event;
-        [self seekToTime:positionEvent.positionTime + 1];
-        return MPRemoteCommandHandlerStatusSuccess;
-    }
-    if (event.command == cc.nextTrackCommand) {
-        [self playNext:self];
-        return MPRemoteCommandHandlerStatusSuccess;
-    }
-    if (event.command == cc.previousTrackCommand) {
-        [self playPrevious:self];
-        return MPRemoteCommandHandlerStatusSuccess;
-    }
-    if (event.command == cc.skipForwardCommand) {
-        [self seekToTime:_audioController.currentTime + 10.0];
-        return MPRemoteCommandHandlerStatusSuccess;
-    }
-    if (event.command == cc.skipBackwardCommand) {
-        [self seekToTime:_audioController.currentTime - 10.0];
-        return MPRemoteCommandHandlerStatusSuccess;
-    }
-
-    NSLog(@"%s was not able to handle remote control event '%s'", __PRETTY_FUNCTION__, [event.description UTF8String]);
-
-    return MPRemoteCommandHandlerStatusCommandFailed;
-}
-
-/// Adds this controller as a target for remote commands as issued by
-/// the media menu and keys.
-- (void)subscribeToRemoteCommands
-{
-    MPRemoteCommandCenter* commandCenter = [MPRemoteCommandCenter sharedCommandCenter];
-
-    commandCenter.ratingCommand.enabled = NO;
-    commandCenter.likeCommand.enabled = NO;
-    commandCenter.dislikeCommand.enabled = NO;
-    commandCenter.bookmarkCommand.enabled = NO;
-    commandCenter.enableLanguageOptionCommand.enabled = NO;
-    commandCenter.disableLanguageOptionCommand.enabled = NO;
-    commandCenter.seekForwardCommand.enabled = NO;
-    commandCenter.seekBackwardCommand.enabled = NO;
-    commandCenter.skipForwardCommand.preferredIntervals = @[ @(10.0) ];
-    commandCenter.skipBackwardCommand.preferredIntervals = @[ @(10.0) ];
-    for (MPRemoteCommand* command in [self remoteCommands]) {
-        [command addTarget:self action:@selector(remoteCommandEvent:)];
-    }
-}
-
-- (void)unsubscribeFromRemoteCommands
-{
-    [MPNowPlayingInfoCenter defaultCenter].nowPlayingInfo = nil;
-
-    for (MPRemoteCommand* command in [self remoteCommands]) {
-        [command removeTarget:self];
-    }
-}
-
 #pragma mark - Document lifecycle
 
 - (IBAction)openDocument:(id)sender
@@ -1979,417 +2017,70 @@ call super's supplementalTargetForAction:sender:.
     }
 }
 
-- (void)AudioControllerPlaybackStateChange:(NSNotification*)notification
+- (void)AudioControllerFXStateChange:(NSNotification*)notification
 {
-    NSString* state = notification.object;
-    if ([state isEqualToString:kPlaybackStateStarted]) {
-        [self audioControllerPlaybackStarted];
-    } else if ([state isEqualToString:kPlaybackStatePlaying]) {
-        [self audioControllerPlaybackPlaying];
-    } else if ([state isEqualToString:kPlaybackStatePaused]) {
-        [self audioControllerPlaybackPaused];
-    } else if ([state isEqualToString:kPlaybackStateEnded]) {
-        [self audioControllerPlaybackEnded];
-    }
-}
-
-typedef struct {
-    BOOL playing;
-    unsigned long long frame;
-    NSString* path;
-    MediaMetaData* meta;
-} LoaderContext;
-
-- (LoaderContext)loaderSetupWithURL:(NSURL*)url
-{
-    LoaderContext loaderOut;
-    NSURLComponents* components = [NSURLComponents componentsWithURL:url resolvingAgainstBaseURL:YES];
-
-    NSPredicate* predicate = [NSPredicate predicateWithFormat:@"name=%@", @"CurrentFrame"];
-    NSURLQueryItem* item = [[components.queryItems filteredArrayUsingPredicate:predicate] firstObject];
-    long long frame = [[item value] longLongValue];
-
-    if (frame < 0) {
-        NSLog(@"not fixing a bug here due to lazyness -- hope it happens rarely");
-        frame = 0;
-    }
-
-    predicate = [NSPredicate predicateWithFormat:@"name=%@", @"Playing"];
-    item = [[components.queryItems filteredArrayUsingPredicate:predicate] firstObject];
-    loaderOut.playing = [[item value] boolValue];
-    loaderOut.path = url.path;
-    loaderOut.frame = frame;
-    return loaderOut;
-}
-
-- (BOOL)loadDocumentFromURL:(NSURL*)url meta:(MediaMetaData*)meta
-{
-    NSError* error = nil;
-    if (_audioController == nil) {
-        _audioController = [AudioController new];
-
-        [[NSNotificationCenter defaultCenter] addObserver:self
-                                                 selector:@selector(AudioControllerPlaybackStateChange:)
-                                                     name:kAudioControllerChangedPlaybackStateNotification
-                                                   object:nil];
-    }
-
-    if (url == nil) {
-        return NO;
-    }
-
-    NSLog(@"loadDocumentFromURL url: %@ - known meta: %@", url, meta);
-
-    // Check if that file is even readable.
-    if (![url checkResourceIsReachableAndReturnError:&error]) {
-        if (error != nil) {
-            NSAlert* alert = [NSAlert betterAlertWithError:error action:@"load" url:url];
-            [alert runModal];
+    NSDictionary* info = notification.userInfo ?: @{};
+    BOOL enabled = [info[@"enabled"] boolValue];
+    NSInteger idx = [info[@"index"] integerValue];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [[NSUserDefaults standardUserDefaults] setBool:enabled forKey:kFXLastEffectEnabledKey];
+        [self.controlPanelController setEffectsEnabled:enabled];
+        [self.fxViewController setEffectEnabledState:enabled];
+        if (idx >= 0) {
+            [self.fxViewController selectEffectIndex:idx];
         }
-        return NO;
-    }
-
-    LoaderContext context = [self loaderSetupWithURL:url];
-
-    // This seems pointless by now -- we will re-read that meta anyway.
-    context.meta = meta;
-
-    // FIXME: This is far too localized -- lets not update the screen whenever we
-    // change the status explicitly -- this should happen implicitly.
-
-    _loaderState = LoaderStateAbortingKeyDetection;
-
-    WaveWindowController* __weak weakSelf = self;
-    // The loader may already be active at this moment -- we abort it and hand
-    // over our payload block when abort did its job.
-    [self abortLoader:^{
-        NSLog(@"loading new meta from: %@ ...", context.path);
-        self->_loaderState = LoaderStateMeta;
-        [weakSelf loadMetaWithContext:context];
-    }];
-
-    return YES;
+    });
 }
 
-- (void)loadMetaWithContext:(LoaderContext)context
+- (NSInteger)storedEffectSelectionIndex
 {
-    if (_loaderState == LoaderStateAborted) {
+    NSUserDefaults* defaults = [NSUserDefaults standardUserDefaults];
+    NSDictionary* stored = [defaults dictionaryForKey:kFXLastEffectDefaultsKey];
+    if (stored == nil) {
+        return -1;
+    }
+    UInt32 storedType = (UInt32)[stored[@"type"] unsignedIntValue];
+    UInt32 storedSub = (UInt32)[stored[@"subtype"] unsignedIntValue];
+    UInt32 storedManuf = (UInt32)[stored[@"manuf"] unsignedIntValue];
+
+    for (NSUInteger i = 0; i < self.audioController.availableEffects.count; i++) {
+        NSDictionary* entry = self.audioController.availableEffects[i];
+        NSValue* packed = entry[@"component"];
+        if (packed == nil || strcmp([packed objCType], @encode(AudioComponentDescription)) != 0) {
+            continue;
+        }
+        AudioComponentDescription desc = {0};
+        [packed getValue:&desc];
+        if (desc.componentType == storedType && desc.componentSubType == storedSub && desc.componentManufacturer == storedManuf) {
+            return (NSInteger) i;
+        }
+    }
+    return -1;
+}
+
+- (void)persistEffectSelectionIndex:(NSInteger)index
+{
+    if (index < 0 || index >= (NSInteger) self.audioController.availableEffects.count) {
         return;
     }
-
-    _loaderState = LoaderStateMeta;
-    WaveWindowController* __weak weakSelf = self;
-
-    ActivityToken* token = [[ActivityManager shared] beginActivityWithTitle:@"Parsing Metadata"
-                                                                     detail:@"loading core metadata"
-                                                                cancellable:NO
-                                                              cancelHandler:nil];
-
-    [_metaController loadAsyncWithPath:context.path
-                              callback:^(MediaMetaData* meta) {
-                                  [[ActivityManager shared] updateActivity:token progress:-1.0 detail:@"metadata loaded"];
-                                  if (meta != nil) {
-                                      LoaderContext c = context;
-                                      c.meta = meta;
-
-                                      if (meta.trackList == nil || meta.trackList.tracks.count == 0) {
-                                          NSLog(@"We dont seem to have a tracklist yet - lets see "
-                                                @"if we can recover one...");
-
-                                          // Not being able to get the tracklist is not a reason to
-                                          // fail the load process.
-                                          [meta recoverTracklistWithCallback:^(BOOL completed, NSError* error) {
-                                              if (!completed) {
-                                                  NSLog(@"tracklist recovery failed: %@", error);
-                                              }
-                                              [[ActivityManager shared] updateActivity:token progress:-1.0 detail:@"tracklist loaded"];
-                                              [weakSelf metaLoadedWithContext:c];
-                                              [[ActivityManager shared] completeActivity:token];
-                                          }];
-                                      } else {
-                                          [weakSelf metaLoadedWithContext:c];
-                                          [[ActivityManager shared] completeActivity:token];
-                                      }
-                                  } else {
-                                      LoaderContext c = context;
-                                      c.meta = nil;
-                                      [weakSelf metaLoadedWithContext:c];
-                                      [[ActivityManager shared] completeActivity:token];
-                                  }
-                              }];
-}
-
-- (void)metaLoadedWithContext:(LoaderContext)context
-{
-    WaveWindowController* __weak weakSelf = self;
-
-    MediaMetaData* meta = context.meta;
-    if (context.meta == nil) {
-        NSLog(@"!!!no meta available - makeing something up!!!");
-        meta = [MediaMetaData emptyMediaDataWithURL:[NSURL fileURLWithPath:context.path]];
-    }
-
-    [self setMeta:meta];
-
-    NSError* error = nil;
-    LazySample* lazySample = [[LazySample alloc] initWithPath:context.path error:&error];
-    if (lazySample == nil) {
-        if (error) {
-            NSAlert* alert = [NSAlert betterAlertWithError:error action:@"read" url:[NSURL fileURLWithPath:context.path]];
-            [alert runModal];
-        }
+    NSDictionary* entry = self.audioController.availableEffects[(NSUInteger) index];
+    NSValue* packed = entry[@"component"];
+    if (packed == nil || strcmp([packed objCType], @encode(AudioComponentDescription)) != 0) {
         return;
     }
-    [[NSDocumentController sharedDocumentController] noteNewRecentDocumentURL:[NSURL fileURLWithPath:context.path]];
-
-    self->_loaderState = LoaderStateAbortingKeyDetection;
-    // The loader may already be active at this moment -- we abort it and hand
-    // over our payload block when abort did its job.
-    [self abortLoader:^{
-        NSLog(@"loading new sample from: %@ ...", context.path);
-        self->_loaderState = LoaderStateDecoder;
-        [weakSelf loadSample:lazySample];
-
-        NSLog(@"playback starting...");
-        [weakSelf.audioController playSample:lazySample frame:context.frame paused:!context.playing];
-    }];
+    AudioComponentDescription desc = {0};
+    [packed getValue:&desc];
+    NSDictionary* stored = @{@"type" : @(desc.componentType), @"subtype" : @(desc.componentSubType), @"manuf" : @(desc.componentManufacturer)};
+    NSUserDefaults* defaults = [NSUserDefaults standardUserDefaults];
+    [defaults setObject:stored forKey:kFXLastEffectDefaultsKey];
+    [defaults setBool:YES forKey:kFXLastEffectEnabledKey];
 }
 
-- (void)abortLoader:(void (^)(void))callback
+- (void)clearPersistedEffectSelection
 {
-    WaveWindowController* __weak weakSelf = self;
-
-    switch (_loaderState) {
-    case LoaderStateAbortingKeyDetection:
-        if (_keySample != nil) {
-            NSLog(@"attempting to abort key detection...");
-            [self->_keySample abortWithCallback:^{
-                NSLog(@"key detector aborted, calling back...");
-                self->_loaderState = LoaderStateAbortingBeatDetection;
-                [weakSelf abortLoader:callback];
-            }];
-        } else {
-            NSLog(@"key detector was not active, calling back...");
-            _loaderState = LoaderStateAbortingBeatDetection;
-            [self abortLoader:callback];
-        }
-        break;
-    case LoaderStateAbortingBeatDetection:
-        if (_beatSample != nil) {
-            NSLog(@"attempting to abort beat detection...");
-            [self->_beatSample abortWithCallback:^{
-                NSLog(@"beat detector aborted, calling back...");
-                self->_loaderState = LoaderStateAbortingDecoder;
-                [weakSelf abortLoader:callback];
-            }];
-        } else {
-            NSLog(@"beat detector was not active, calling back...");
-            _loaderState = LoaderStateAbortingDecoder;
-            [self abortLoader:callback];
-        }
-        break;
-    case LoaderStateAbortingDecoder:
-        if (_sample != nil) {
-            NSLog(@"attempting to abort decoder...");
-            [self->_audioController decodeAbortWithCallback:^{
-                NSLog(@"decoder aborted, calling back...");
-                self->_loaderState = LoaderStateAbortingMeta;
-                [self abortLoader:callback];
-            }];
-        } else {
-            NSLog(@"decoder wasnt active, calling back...");
-            _loaderState = LoaderStateAbortingMeta;
-            [self abortLoader:callback];
-        }
-        break;
-    case LoaderStateAbortingMeta:
-        if (_meta != nil) {
-            NSLog(@"attempting to abort meta loader...");
-            [self->_metaController loadAbortWithCallback:^{
-                NSLog(@"meta loader aborted, calling back...");
-                self->_loaderState = LoaderStateAborted;
-                callback();
-            }];
-        } else {
-            NSLog(@"meta loader wasnt active, calling back...");
-            _loaderState = LoaderStateAborted;
-            callback();
-        }
-        break;
-    default:
-        NSLog(@"catch all states, claiming all stages aborted...");
-        _loaderState = LoaderStateAbortingKeyDetection;
-        [self abortLoader:callback];
-    }
-}
-
-- (void)loadSample:(LazySample*)sample
-{
-    if (_loaderState == LoaderStateAborted) {
-        return;
-    }
-    NSLog(@"previous sample %p should get unretained now", _sample);
-    _sample = sample;
-    _visualSample = nil;
-    _totalVisual = nil;
-    _beatSample = nil;
-    _keySample = nil;
-    _scrollingWaveViewController.beatSample = nil;
-    _scrollingWaveViewController.visualSample = nil;
-    _totalWaveViewController.beatSample = nil;
-    _totalWaveViewController.frames = 0;
-    _totalWaveViewController.visualSample = nil;
-
-    [self setBPM:0.0];
-
-    _visualSample = [[VisualSample alloc] initWithSample:sample pixelPerSecond:kPixelPerSecond tileWidth:_scrollingWaveViewController.tileWidth];
-
-    _scrollingWaveViewController.visualSample = _visualSample;
-
-    _totalVisual = [[VisualSample alloc] initWithSample:sample
-                                         pixelPerSecond:_totalWaveViewController.view.bounds.size.width / sample.duration
-                                              tileWidth:_totalWaveViewController.tileWidth
-                                           reducedWidth:kReducedVisualSampleWidth];
-
-    _totalWaveViewController.visualSample = _totalVisual;
-
-    _scrollingWaveViewController.frames = sample.frames;
-    _totalWaveViewController.frames = sample.frames;
-
-    _scrollingWaveViewController.view.frame = CGRectMake(0.0, 0.0, self.visualSample.width, _scrollingWaveViewController.view.bounds.size.height);
-
-    NSTimeInterval duration = [self.visualSample.sample timeForFrame:sample.frames];
-    [_controlPanelController setKeyHidden:duration > kBeatSampleDurationThreshold];
-    [_controlPanelController setKey:@"" hint:@""];
-
-    _loaderState = LoaderStateDecoder;
-
-    WaveWindowController* __weak weakSelf = self;
-    [_audioController decodeAsyncWithSample:_sample
-                                   callback:^(BOOL decodeFinished) {
-                                       if (decodeFinished) {
-                                           [weakSelf sampleDecoded];
-                                       } else {
-                                           NSLog(@"never finished the decoding");
-                                       }
-                                   }];
-}
-
-- (void)sampleDecoded
-{
-    BeatTrackedSample* beatSample = [[BeatTrackedSample alloc] initWithSample:_sample];
-
-    _scrollingWaveViewController.beatSample = beatSample;
-    _totalWaveViewController.beatSample = beatSample;
-
-    WaveWindowController* __weak weakSelf = self;
-
-    if (_beatSample != nil) {
-        NSLog(@"beats tracking may need aborting");
-        [_beatSample abortWithCallback:^{
-            [weakSelf loadBeats:beatSample];
-        }];
-    } else {
-        [self loadBeats:beatSample];
-    }
-}
-
-- (void)loadBeats:(BeatTrackedSample*)beatsSample
-{
-    if (_loaderState == LoaderStateAborted) {
-        return;
-    }
-    _loaderState = LoaderStateBeatDetection;
-
-    _beatSample = beatsSample;
-
-    WaveWindowController* __weak weakSelf = self;
-
-    [_beatSample trackBeatsAsyncWithCallback:^(BOOL beatsFinished) {
-        if (beatsFinished) {
-            [weakSelf beatsTracked];
-        } else {
-            NSLog(@"never finished the beat tracking");
-        }
-    }];
-}
-
-- (void)beatsTracked
-{
-    [_scrollingWaveViewController updateBeatMarkLayer];
-    [_totalWaveViewController updateBeatMarkLayer];
-
-    [self beatEffectStart];
-
-    KeyTrackedSample* keySample = [[KeyTrackedSample alloc] initWithSample:_sample];
-    WaveWindowController* __weak weakSelf = self;
-
-    if (_keySample != nil) {
-        NSLog(@"key tracking may need aborting");
-        [_keySample abortWithCallback:^{
-            [weakSelf detectKey:keySample];
-        }];
-    } else {
-        [self detectKey:keySample];
-    }
-}
-
-- (void)detectKey:(KeyTrackedSample*)keySample
-{
-    if (_loaderState == LoaderStateAborted) {
-        return;
-    }
-
-    _loaderState = LoaderStateKeyDetection;
-
-    _keySample = keySample;
-    [_keySample trackKeyAsyncWithCallback:^(BOOL keyFinished) {
-        if (keyFinished) {
-            NSLog(@"key tracking finished");
-            [self->_controlPanelController setKey:self->_keySample.key hint:self->_keySample.hint];
-        } else {
-            NSLog(@"never finished the key tracking");
-        }
-    }];
-}
-
-- (void)setPlaybackState:(MPNowPlayingPlaybackState)state
-{
-    MPNowPlayingInfoCenter* center = [MPNowPlayingInfoCenter defaultCenter];
-    center.playbackState = state;
-}
-
-- (void)setNowPlayingWithMeta:(MediaMetaData*)meta
-{
-    NSMutableDictionary* songInfo = [[NSMutableDictionary alloc] init];
-    [songInfo setObject:meta.title == nil ? @"" : meta.title forKey:MPMediaItemPropertyTitle];
-    [songInfo setObject:meta.artist == nil ? @"" : meta.artist forKey:MPMediaItemPropertyArtist];
-    [songInfo setObject:meta.album == nil ? @"" : meta.album forKey:MPMediaItemPropertyAlbumTitle];
-    if (meta.track != nil) {
-        [songInfo setObject:meta.track forKey:MPMediaItemPropertyAlbumTrackNumber];
-    }
-    if (meta.tracks != nil) {
-        [songInfo setObject:meta.tracks forKey:MPMediaItemPropertyAlbumTrackCount];
-    }
-    if (meta.genre != nil) {
-        [songInfo setObject:meta.genre forKey:MPMediaItemPropertyGenre];
-    }
-    if (meta.year != nil) {
-        [songInfo setObject:meta.year forKey:MPMediaItemPropertyReleaseDate];
-    }
-    NSImage* artworkImage = [meta imageFromArtwork];
-    MPMediaItemArtwork* artwork = [[MPMediaItemArtwork alloc] initWithBoundsSize:artworkImage.size
-                                                                  requestHandler:^(CGSize size) {
-                                                                      return artworkImage;
-                                                                  }];
-    [songInfo setObject:artwork forKey:MPMediaItemPropertyArtwork];
-
-    [songInfo setObject:@(_audioController.expectedDuration) forKey:MPMediaItemPropertyPlaybackDuration];
-    [songInfo setObject:@(_audioController.currentTime) forKey:MPNowPlayingInfoPropertyElapsedPlaybackTime];
-    [songInfo setObject:@(_audioController.tempoShift) forKey:MPNowPlayingInfoPropertyPlaybackRate];
-
-    MPNowPlayingInfoCenter* center = [MPNowPlayingInfoCenter defaultCenter];
-    center.nowPlayingInfo = songInfo;
+    NSUserDefaults* defaults = [NSUserDefaults standardUserDefaults];
+    [defaults removeObjectForKey:kFXLastEffectDefaultsKey];
+    [defaults setBool:NO forKey:kFXLastEffectEnabledKey];
 }
 
 - (void)setMeta:(MediaMetaData*)meta
@@ -2408,6 +2099,9 @@ typedef struct {
     _controlPanelController.meta = meta;
     // Update browser controller to show current song.
     _browser.currentMeta = meta;
+    if (meta.location != nil) {
+        [_browser boostDeepScanForURL:meta.location];
+    }
 
     [_iffy setCurrentIdentificationSource:meta.location];
 
@@ -2416,53 +2110,6 @@ typedef struct {
 
     _scrollingWaveViewController.trackList = meta.trackList;
     _totalWaveViewController.trackList = meta.trackList;
-}
-
-- (void)updateRemotePosition
-{
-    NSMutableDictionary* songInfo = [NSMutableDictionary dictionaryWithDictionary:[[MPNowPlayingInfoCenter defaultCenter] nowPlayingInfo]];
-    [songInfo setObject:@(_audioController.expectedDuration) forKey:MPMediaItemPropertyPlaybackDuration];
-    [songInfo setObject:@(_audioController.currentTime) forKey:MPNowPlayingInfoPropertyElapsedPlaybackTime];
-    [[MPNowPlayingInfoCenter defaultCenter] setNowPlayingInfo:songInfo];
-}
-
-#pragma mark - Drag & Drop
-
-- (NSDragOperation)draggingEntered:(id<NSDraggingInfo>)sender
-{
-    NSPasteboard* pboard = [sender draggingPasteboard];
-    NSDragOperation sourceDragMask = [sender draggingSourceOperationMask];
-
-    if ([[pboard types] containsObject:NSPasteboardTypeFileURL]) {
-        if (sourceDragMask & NSDragOperationGeneric) {
-            return NSDragOperationGeneric;
-        } else if (sourceDragMask & NSDragOperationLink) {
-            return NSDragOperationLink;
-        } else if (sourceDragMask & NSDragOperationCopy) {
-            return NSDragOperationCopy;
-        }
-    }
-    return NSDragOperationNone;
-}
-
-- (BOOL)prepareForDragOperation:(id<NSDraggingInfo>)sender
-{
-    return YES;
-}
-
-- (BOOL)performDragOperation:(id<NSDraggingInfo>)sender
-{
-    NSPasteboard* pboard = [sender draggingPasteboard];
-
-    if (pboard.pasteboardItems.count <= 1) {
-        NSURL* url = [NSURL URLFromPasteboard:pboard];
-        if (url) {
-            if ([self loadDocumentFromURL:[WaveWindowController encodeQueryItemsWithUrl:url frame:0LL playing:YES] meta:nil]) {
-                return YES;
-            }
-        }
-    }
-    return NO;
 }
 
 #pragma mark - Browser delegate
@@ -2518,73 +2165,6 @@ typedef struct {
 
     // Start the scope renderer.
     [_renderer play:_audioController visual:_visualSample scope:_scopeView];
-}
-
-- (void)audioControllerPlaybackStarted
-{
-    NSLog(@"audioControllerPlaybackStarted");
-    [self startVisuals];
-    [_playlist playedMeta:_meta];
-}
-
-- (void)audioControllerPlaybackPlaying
-{
-    NSLog(@"audioControllerPlaybackPlaying");
-    // Make state obvious to user.
-    [self setPlaybackActive:YES];
-
-    [_playlist setPlaying:YES];
-
-    // Mark the current song in the browser for we are playing.
-    [_browser setNowPlayingWithMeta:_meta];
-
-    // Tell the control bar item for media playback about our song.
-    [self setNowPlayingWithMeta:_meta];
-    [self setPlaybackState:MPNowPlayingPlaybackStatePlaying];
-
-    [self updateRemotePosition];
-
-    [self lockScreen];
-}
-
-- (void)audioControllerPlaybackPaused
-{
-    NSLog(@"audioControllerPlaybackPaused");
-    // Make state obvious to user.
-    [self setPlaybackActive:NO];
-    [_playlist setPlaying:NO];
-    [_browser setPlaying:NO];
-
-    [self setNowPlayingWithMeta:_meta];
-    [self setPlaybackState:MPNowPlayingPlaybackStatePaused];
-    [self updateRemotePosition];
-
-    [self unlockScreen];
-}
-
-- (void)audioControllerPlaybackEnded
-{
-    NSLog(@"audioControllerPlaybackEnded");
-    // Make state obvious to user.
-    [self setPlaybackActive:NO];
-    [_playlist setPlaying:NO];
-    [_browser setPlaying:NO];
-
-    [self setNowPlayingWithMeta:_meta];
-    [self setPlaybackState:MPNowPlayingPlaybackStateStopped];
-    [self updateRemotePosition];
-
-    [self unlockScreen];
-
-    // Stop the scope rendering.
-    [_renderer stop:_scopeView];
-
-    if (_controlPanelController.loop.state == NSControlStateValueOn) {
-        [_audioController play];
-        return;
-    }
-
-    [self playNext:self];
 }
 
 #pragma mark - Control Panel delegate
@@ -2654,6 +2234,35 @@ typedef struct {
 {
     _audioController.tempoShift = 1.0;
     _controlPanelController.tempoSlider.doubleValue = 1.0;
+}
+
+- (void)effectsToggle:(id)sender
+{
+    // Toggle FX window visibility. Effect on/off depends on selection (None keeps FX off but window open).
+    if (_controlPanelController.effectsButton.state == NSControlStateValueOn) {
+        [_fxViewController updateEffects:_audioController.availableEffects];
+        NSInteger currentIdx = _audioController.currentEffectIndex;
+        if (currentIdx < 0) {
+            NSInteger stored = [self storedEffectSelectionIndex];
+            if (stored >= 0) {
+                if ([_audioController selectEffectAtIndex:stored]) {
+                    currentIdx = stored;
+                }
+            }
+        }
+        // Ensure effect is audibly enabled when turning FX on.
+        [_audioController applyEffectEnabled:(currentIdx >= 0)];
+        [[NSUserDefaults standardUserDefaults] setBool:(currentIdx >= 0) forKey:kFXLastEffectEnabledKey];
+        [_fxViewController selectEffectIndex:currentIdx];
+        [_fxViewController applyCurrentSelection];
+        [_fxViewController showWithParent:self.window];
+        [_controlPanelController setEffectsEnabled:(currentIdx >= 0)];
+    } else {
+        // Bypass current effect but keep selection state and sliders.
+        [_audioController applyEffectEnabled:NO];
+        [[NSUserDefaults standardUserDefaults] setBool:NO forKey:kFXLastEffectEnabledKey];
+        [_controlPanelController setEffectsEnabled:NO];
+    }
 }
 
 - (void)togglePause:(id)sender
@@ -2859,5 +2468,28 @@ typedef struct {
 // FIXME: WHY?
 - (void)encodeWithCoder:(nonnull NSCoder*)coder
 {}
+
+
+#pragma mark - Notifications
+
+- (void)activitiesUpdated:(NSNotification*)note
+{
+    // Should we care?
+    if (_importToken == nil) {
+        return;
+    }
+
+    // Did our token expire?
+    if (![[ActivityManager shared] isActive:_importToken]) {
+        _importToken = nil;
+        _importLabel.hidden = YES;
+        _importProgress.hidden = YES;
+        return;
+    }
+
+    ActivityEntry* entry = [[ActivityManager shared] activityWithToken:_importToken];
+    _importProgress.doubleValue = entry.progress;
+    [_importProgress setNeedsDisplay:YES];
+}
 
 @end

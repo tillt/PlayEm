@@ -20,7 +20,6 @@ static NSString* const kProgressColumnIdentifier = @"ProgressColumn";
 static NSString* const kCancelButtonIdentifier = @"CancelButton";
 static NSString* const kCancelButtonViewIdentifier = @"CancelButtonControl";
 static const CGFloat kRowHeight = 60.0;
-static const CGFloat kTitleColumnWidth = 360.0;
 static const CGFloat kCancelColumnWidth = 32.0;
 static const CGFloat kProgressColumnPadding = 8.0;
 static const BOOL kActivityDebugLogging = NO;
@@ -42,7 +41,7 @@ static const BOOL kActivityDebugLogging = NO;
     if (self) {
         self.wantsLayer = YES;
         self.accessibilityRole = NSAccessibilityProgressIndicatorRole;
-        self.accessibilityLabel = @"Activity progress";
+        self.accessibilityLabel = NSLocalizedString(@"activity.progress.accessibility_label", @"Accessibility label for activity progress indicator");
         self.accessibilityMinValue = @0;
         self.accessibilityMaxValue = @100;
 
@@ -268,7 +267,8 @@ static const BOOL kActivityDebugLogging = NO;
 {
     const NSAutoresizingMaskOptions kViewFullySizeable = NSViewHeightSizable | NSViewWidthSizable;
 
-    NSView* view = [[NSView alloc] initWithFrame:NSMakeRect(0, 0, 500, 300)];
+    NSView* view = [[NSView alloc] initWithFrame:NSMakeRect(0, 0, 340, 240)];
+    const CGFloat kTitleColumnWidth = view.frame.size.width - 86.0;
 
     // Measure the native spinner size for the chosen control size and give it
     // breathing room.
@@ -287,10 +287,11 @@ static const BOOL kActivityDebugLogging = NO;
     _table.delegate = self;
     _table.dataSource = self;
     _table.rowHeight = kRowHeight;
+    _table.backgroundColor = [NSColor clearColor];
     _table.headerView = nil;
     _table.autoresizingMask = kViewFullySizeable;
     _table.columnAutoresizingStyle = NSTableViewNoColumnAutoresizing;
-    _table.intercellSpacing = NSMakeSize(2.0, 0.0);  // tighter spacing between fixed-width columns
+    _table.intercellSpacing = NSMakeSize(0.0, 0.0);  // tighter spacing between fixed-width columns
 
     NSTableColumn* titleColumn = [[NSTableColumn alloc] init];
     titleColumn.identifier = kTitleColumnIdentifier;
@@ -340,7 +341,8 @@ static const BOOL kActivityDebugLogging = NO;
 
     ActivityEntry* entry = [ActivityManager shared].activities[(NSUInteger) row];
     NSString* identifier = tableColumn.identifier;
-    const CGFloat padding = 8.0;
+    const CGFloat paddingH = 0.0;
+    const CGFloat paddingV = 0.0;
     const CGFloat progressSize = self.spinnerSide;
 
     if ([identifier isEqualToString:kTitleColumnIdentifier]) {
@@ -350,8 +352,7 @@ static const BOOL kActivityDebugLogging = NO;
         const CGFloat titleHeight = 20.0;
         const CGFloat detailHeight = 16.0;
 
-        NSTextField* titleField = [[NSTextField alloc]
-            initWithFrame:NSMakeRect(padding, tableView.rowHeight - padding - titleHeight - 4.0, tableColumn.width - (padding * 2), titleHeight)];
+        NSTextField* titleField = [[NSTextField alloc] initWithFrame:NSMakeRect(paddingH, tableView.rowHeight - paddingV - titleHeight - 4.0, tableColumn.width - (paddingV * 2), titleHeight)];
         titleField.editable = NO;
         titleField.bordered = NO;
         titleField.drawsBackground = NO;
@@ -362,8 +363,8 @@ static const BOOL kActivityDebugLogging = NO;
         titleField.stringValue = entry.title;
         [view addSubview:titleField];
 
-        const CGFloat detailYOffset = padding + 6.0;  // tuck much closer to the title
-        NSTextField* detailField = [[NSTextField alloc] initWithFrame:NSMakeRect(padding, detailYOffset, tableColumn.width - (padding * 2), detailHeight)];
+        const CGFloat detailYOffset = detailHeight + 4.0;  // tuck much closer to the title
+        NSTextField* detailField = [[NSTextField alloc] initWithFrame:NSMakeRect(paddingH, detailYOffset, tableColumn.width - (paddingV * 2), detailHeight)];
         detailField.editable = NO;
         detailField.bordered = NO;
         detailField.drawsBackground = NO;
@@ -372,7 +373,7 @@ static const BOOL kActivityDebugLogging = NO;
         detailField.textColor = [NSColor secondaryLabelColor];
         detailField.lineBreakMode = NSLineBreakByTruncatingTail;
         detailField.identifier = @"detail";
-        detailField.stringValue = entry.detail ?: (entry.completed ? @"Done" : @"");
+        detailField.stringValue = entry.detail ?: (entry.completed ? NSLocalizedString(@"activity.detail.done", @"Fallback activity detail when completed") : @"");
         [view addSubview:detailField];
 
         return view;
@@ -389,7 +390,7 @@ static const BOOL kActivityDebugLogging = NO;
         circle.tokenUUID = entry.token.uuid;
         [view addSubview:circle];
 
-        const CGFloat progressY = round((tableView.rowHeight - progressSize) / 2.0);
+        const CGFloat progressY = round((tableView.rowHeight - progressSize) / 2.0) + 10.0;
         const CGFloat progressX = round((tableColumn.width - progressSize) / 2.0);
         spinner.frame = NSMakeRect(progressX, progressY, progressSize, progressSize);
         circle.frame = NSMakeRect(progressX, progressY, progressSize, progressSize);
@@ -402,8 +403,8 @@ static const BOOL kActivityDebugLogging = NO;
         view.identifier = identifier;
 
         const CGFloat cancelSize = 20.0;
-        const CGFloat cancelY = round((tableView.rowHeight - cancelSize) / 2.0);
-        const CGFloat cancelX = round((tableColumn.width - cancelSize) / 2.0);
+        const CGFloat cancelY = round((tableView.rowHeight - cancelSize) / 2.0) + 10.0;
+        const CGFloat cancelX = round((tableColumn.width - cancelSize) / 2.0) - 8.0;
         NSButton* cancelButton = [NSButton buttonWithTitle:@"" target:self action:@selector(cancelButtonPressed:)];
 
         NSImageSymbolConfiguration* baseConfig = [NSImageSymbolConfiguration configurationWithPointSize:18 weight:NSFontWeightBold];
@@ -411,7 +412,9 @@ static const BOOL kActivityDebugLogging = NO;
             [NSImageSymbolConfiguration configurationWithPaletteColors:@[ [NSColor labelColor], [NSColor tertiaryLabelColor] ]];
         NSImageSymbolConfiguration* config = [baseConfig configurationByApplyingConfiguration:palette];
 
-        NSImage* closeImage = [NSImage imageWithSystemSymbolName:@"xmark.circle.fill" accessibilityDescription:@"Cancel"];
+        NSImage* closeImage = [NSImage imageWithSystemSymbolName:@"xmark.circle.fill"
+                                         accessibilityDescription:NSLocalizedString(@"activity.cancel.accessibility_label",
+                                                                                   @"Accessibility label for activity cancel button")];
         closeImage = [closeImage imageWithSymbolConfiguration:config];
 
         cancelButton.image = closeImage;

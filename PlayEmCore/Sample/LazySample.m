@@ -23,6 +23,7 @@ const size_t kMaxFramesPerBuffer = 16384;
 @property (strong, nonatomic) dispatch_queue_t buffersQueue;
 @property (strong, nonatomic) dispatch_semaphore_t tileAvailable;
 @property (strong, nonatomic) NSMutableDictionary* buffers;
+@property (assign, nonatomic) unsigned long long renderedLength;
 
 @end
 
@@ -54,10 +55,13 @@ const size_t kMaxFramesPerBuffer = 16384;
         AVAudioFormat* format = _source.processingFormat;
         _sampleFormat.rate = format.sampleRate;
         _sampleFormat.channels = format.channelCount;
+        _fileSampleRate = format.sampleRate;
+        _renderedSampleRate = 0;
         _frameSize = format.channelCount * sizeof(float);
         _buffers = [NSMutableDictionary dictionary];
         atomic_init(&_decodingComplete, false);
         atomic_init(&_waiters, 0);
+        _renderedLength = 0;
         NSLog(@"...lazy sample %p initialized", self);
     }
     return self;
@@ -67,7 +71,7 @@ const size_t kMaxFramesPerBuffer = 16384;
 {
     // NOTE: Careful, this one can be really expensive for variable bitrate files
     // when invoked the first time -- avoid calling on mainthread!
-    return _source.length;
+    return (self.renderedLength > 0 ? self.renderedLength : _source.length);
 }
 
 - (unsigned long long)decodedFrames
@@ -102,20 +106,25 @@ const size_t kMaxFramesPerBuffer = 16384;
     }
 }
 
+- (void)setRenderedLength:(unsigned long long)frames
+{
+    _renderedLength = frames;
+}
+
 - (unsigned long long)rawSampleFromFrameOffset:(unsigned long long)offset
                                         frames:(unsigned long long)frames
                                           copy:(nonnull void (^)(unsigned long long, size_t, size_t, NSArray*))copy
 {
     unsigned long long orderedFrames = frames;
-    unsigned long long oldOffset = offset;
+    unsigned long long oldOffset =  offset;
 
-    if (_source.length <= offset) {
+    if (self.frames <= offset) {
         return 0;
     }
 
-    NSAssert(_source.length > offset, @"sample aint long enough");
+    NSAssert(self.frames > offset, @"sample aint long enough");
     // Cap frames requested, preventing overrun.
-    frames = MIN(_source.length - offset, frames);
+    frames = MIN(self.frames - offset, frames);
 
     while (frames) {
         unsigned long long pageIndex = offset / kMaxFramesPerBuffer;
@@ -284,20 +293,21 @@ const size_t kMaxFramesPerBuffer = 16384;
 
 - (NSTimeInterval)duration
 {
-    assert(_sampleFormat.rate != 0.0);
-    assert(_source.length != 0);
-    return _source.length / _sampleFormat.rate;
+    assert(_renderedSampleRate != 0.0);
+    unsigned long long len = self.frames;
+    assert(len != 0);
+    return len / _renderedSampleRate;
 }
 
 - (NSTimeInterval)timeForFrame:(unsigned long long)frame
 {
-    assert(_sampleFormat.rate != 0.0);
-    return frame / _sampleFormat.rate;
+    assert(_renderedSampleRate != 0.0);
+    return frame / _renderedSampleRate;
 }
 
 - (NSString*)beautifulTimeWithFrame:(unsigned long long)frame
 {
-    NSTimeInterval time = frame / _sampleFormat.rate;
+    NSTimeInterval time = frame / _renderedSampleRate;
     unsigned int hours = floor(time / 3600);
     unsigned int minutes = (unsigned int) floor(time) % 3600 / 60;
     unsigned int seconds = (unsigned int) floor(time) % 3600 % 60;
@@ -309,7 +319,7 @@ const size_t kMaxFramesPerBuffer = 16384;
 
 - (NSString*)cueTimeWithFrame:(unsigned long long)frame
 {
-    NSTimeInterval time = frame / _sampleFormat.rate;
+    NSTimeInterval time = frame / _renderedSampleRate;
     unsigned int minutes = (unsigned int) floor(time) / 60;
     unsigned int seconds = (unsigned int) floor(time) % 60;
     return [NSString stringWithFormat:@"%02d:%02d:00", minutes, seconds];
@@ -318,7 +328,7 @@ const size_t kMaxFramesPerBuffer = 16384;
 - (NSString*)description
 {
     return [NSString
-        stringWithFormat:@"file: %@, channels: %d, rate: %ld, duration: %.02f seconds", _source.url, _sampleFormat.channels, _sampleFormat.rate, self.duration];
+        stringWithFormat:@"file: %@, channels: %d, rate: %.0f, duration: %.02f seconds", _source.url, _sampleFormat.channels, _renderedSampleRate, self.duration];
 }
 
 @end

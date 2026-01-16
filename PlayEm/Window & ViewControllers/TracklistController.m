@@ -11,7 +11,7 @@
 #import <CoreImage/CoreImage.h>
 
 #import "../Defaults.h"
-#import "../NSImage+Resize.h"
+#import "NSImage+Resize.h"
 #import "ActivityManager.h"
 #import "Audio/AudioController.h"
 #import "ImageController.h"
@@ -19,6 +19,8 @@
 #import "Sample/LazySample.h"
 #import "TimedMediaMetaData.h"
 #import "TrackList.h"
+#import "MediaMetaData+ImageController.h"
+#import "MediaMetaData+TrackList.h"
 
 const CGFloat kTimeHeight = 22.0;
 const CGFloat kTotalRowHeight = 52.0 + kTimeHeight;
@@ -92,10 +94,12 @@ static const NSAutoresizingMaskOptions kViewFullySizeable = NSViewHeightSizable 
 
     sv.documentView = _table;
 
-    _detectButton = [NSButton buttonWithTitle:@"Detect Tracklist" target:nil action:@selector(startTrackDetection:)];
+    _detectButton = [NSButton buttonWithTitle:NSLocalizedString(@"tracklist.detect.button_title", @"Tracklist detect button title")
+                                       target:nil
+                                       action:@selector(startTrackDetection:)];
     [self.view addSubview:_detectButton];
 
-    _detectLabel = [NSTextField textFieldWithString:@"Tracklist Detection in Progress"];
+    _detectLabel = [NSTextField textFieldWithString:NSLocalizedString(@"tracklist.detect.in_progress", @"Tracklist detection status label")];
     _detectLabel.editable = NO;
     _detectLabel.font = [[Defaults sharedDefaults] smallFont];
     _detectLabel.drawsBackground = NO;
@@ -439,22 +443,30 @@ static const NSAutoresizingMaskOptions kViewFullySizeable = NSViewHeightSizable 
 {
     NSMenu* menu = [NSMenu new];
 
-    NSMenuItem* item = [menu addItemWithTitle:@"Remove from Tracklist" action:@selector(removeFromTracklist:) keyEquivalent:@""];
+    NSMenuItem* item = [menu addItemWithTitle:NSLocalizedString(@"menu.common.remove_from_tracklist", @"Menu item: remove from tracklist")
+                                       action:@selector(removeFromTracklist:)
+                                keyEquivalent:@""];
 
     [menu addItem:[NSMenuItem separatorItem]];
 
-    item = [menu addItemWithTitle:@"Open in Apple Music" action:@selector(musicURLClicked:) keyEquivalent:@""];
+    item = [menu addItemWithTitle:NSLocalizedString(@"menu.common.open_in_apple_music", @"Menu item: open in Apple Music")
+                           action:@selector(musicURLClicked:)
+                    keyEquivalent:@""];
 
     [menu addItem:[NSMenuItem separatorItem]];
 
-    item = [[NSMenuItem alloc] initWithTitle:@"Export Tracklist..." action:@selector(exportTracklist:) keyEquivalent:@""];
+    item = [[NSMenuItem alloc] initWithTitle:NSLocalizedString(@"menu.tracklist.export_tracklist", @"Tracklist menu item: export tracklist")
+                                      action:@selector(exportTracklist:)
+                               keyEquivalent:@""];
     [item setKeyEquivalentModifierMask:NSEventModifierFlagCommand];
     item.target = self;
     [menu addItem:item];
 
     [menu addItem:[NSMenuItem separatorItem]];
 
-    item = [[NSMenuItem alloc] initWithTitle:@"Copy Tracklist to Clipboard" action:@selector(copyTracklist:) keyEquivalent:@""];
+    item = [[NSMenuItem alloc] initWithTitle:NSLocalizedString(@"menu.tracklist.copy_to_clipboard", @"Tracklist menu item: copy to clipboard")
+                                      action:@selector(copyTracklist:)
+                               keyEquivalent:@""];
     [item setKeyEquivalentModifierMask:NSEventModifierFlagCommand];
     item.target = self;
     [menu addItem:item];
@@ -582,50 +594,31 @@ static const NSAutoresizingMaskOptions kViewFullySizeable = NSViewHeightSizable 
     }
 
     NSColor* titleColor = row == _currentTrackIndex ? [[Defaults sharedDefaults] lightFakeBeamColor] : [[Defaults sharedDefaults] secondaryLabelColor];
-    ;
     NSColor* artistColor = row == _currentTrackIndex ? [[Defaults sharedDefaults] regularFakeBeamColor] : [[Defaults sharedDefaults] secondaryLabelColor];
 
     NSArray<NSNumber*>* frames = [_current.trackList.frames sortedArrayUsingSelector:@selector(compare:)];
     unsigned long long frame = [frames[row] unsignedLongLongValue];
     TimedMediaMetaData* track = [_current.trackList trackAtFrame:frame];
 
-    NSImageView* iv = [result viewWithTag:kImageViewTag];
-
     // Placeholder initially - we may need to resolve the data (unlikely for a
     // tracklist, very likely for a playlist).
-    iv.image = [NSImage resizedImageWithData:[MediaMetaData defaultArtworkData] size:iv.frame.size];
-
+    NSImageView* iv = [result viewWithTag:kImageViewTag];
     __weak NSView* weakView = result;
     __weak NSTableView* weakTable = tableView;
-
-    void (^applyImage)(NSData*) = ^(NSData* data) {
-        [[ImageController shared] imageForData:data
-                                           key:track.meta.artworkHash
-                                          size:iv.frame.size.width
-                                    completion:^(NSImage* image) {
-                                        if (image == nil || weakView == nil || weakTable == nil) {
-                                            return;
-                                        }
-                                        if ([weakTable rowForView:weakView] == row) {
-                                            NSImageView* iv = [weakView viewWithTag:kImageViewTag];
-                                            iv.image = image;
-                                        }
-                                    }];
-    };
-
-    if (track.meta.artwork != nil) {
-        applyImage(track.meta.artwork);
-    } else {
-        if (track.meta.artworkLocation != nil) {
-            assert(NO);
-            [[ImageController shared] resolveDataForURL:track.meta.artworkLocation
-                                               callback:^(NSData* data) {
-                                                   track.meta.artwork = data;
-                                                   applyImage(track.meta.artwork);
-                                               }];
+    [track.meta resolvedArtworkForSize:iv.frame.size.width
+                           placeholder:YES
+                              callback:^(NSImage* image) {
+        __weak NSView* strongView = weakView;
+        __weak NSTableView* strongTable = weakTable;
+        if (image == nil || strongView == nil || strongTable == nil) {
+            return;
         }
-    }
-
+        if ([strongTable rowForView:strongView] == row) {
+            NSImageView* iv = [strongView viewWithTag:kImageViewTag];
+            iv.image = image;
+        }
+    }];
+    
     NSTextField* tf = [result viewWithTag:kTitleViewTag];
     tf.textColor = titleColor;
     NSString* title = track.meta.title;
@@ -651,15 +644,16 @@ static const NSAutoresizingMaskOptions kViewFullySizeable = NSViewHeightSizable 
 
     NSString* confidence = nil;
     if (track.confidence == nil) {
-        confidence = @"unknown";
+        confidence = NSLocalizedString(@"tracklist.confidence.unknown", @"Tracklist confidence when unknown");
     } else {
         NSNumberFormatter* decimalStyleFormatter = [[NSNumberFormatter alloc] init];
         [decimalStyleFormatter setMaximumFractionDigits:2];
         confidence = [decimalStyleFormatter stringFromNumber:track.confidence];
     }
 
-    NSString* output = [NSString stringWithFormat:@"%@, confidence %@", time, confidence];
-    [tf setStringValue:output];
+    //NSString* output = [NSString stringWithFormat:@"%@, confidence %@", time, confidence];
+    //[tf setStringValue:output];
+    [tf setStringValue:time];
 
     return result;
 }

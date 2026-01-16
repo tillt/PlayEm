@@ -6,9 +6,6 @@
 //  Copyright © 2025 Till Toenshoff. All rights reserved.
 //
 
-#import <fcntl.h>
-#import <unistd.h>
-
 #import "../Metadata/TimedMediaMetaData.h"
 #import "../Sample/LazySample.h"
 #import "TotalIdentificationController+Private.h"
@@ -135,7 +132,7 @@ typedef NSArray<TimedMediaMetaData*>* _Nonnull (^TracklistFilterBlock)(NSArray<T
 - (double)estimatedDurationForTrack:(TimedMediaMetaData*)track nextTrack:(TimedMediaMetaData* _Nullable)next
 {
     double durationSeconds = 0.0;
-    double sampleRate = (double) self->_sample.sampleFormat.rate;
+    double sampleRate = (double) self->_sample.renderedSampleRate;
     if (track.meta.duration != nil) {
         durationSeconds = track.meta.duration.doubleValue;
     } else if (track.endFrame != nil && track.frame != nil && track.endFrame.unsignedLongLongValue > track.frame.unsignedLongLongValue && sampleRate > 0.0) {
@@ -157,7 +154,7 @@ typedef NSArray<TimedMediaMetaData*>* _Nonnull (^TracklistFilterBlock)(NSArray<T
 - (unsigned long long)estimatedEndFrameForTrack:(TimedMediaMetaData*)track nextTrack:(TimedMediaMetaData* _Nullable)next
 {
     double start = track.frame != nil ? track.frame.doubleValue : 0.0;
-    double sampleRate = (double) self->_sample.sampleFormat.rate;
+    double sampleRate = (double) self->_sample.renderedSampleRate;
     double durationSeconds = [self estimatedDurationForTrack:track nextTrack:next];
 
     // If we already have a last detection frame, prefer that over derived
@@ -291,7 +288,7 @@ typedef NSArray<TimedMediaMetaData*>* _Nonnull (^TracklistFilterBlock)(NSArray<T
         return;
     }
     if ([tag isEqualToString:@"Shazam"]) {
-        double rate = self->_sample != nil ? self->_sample.sampleFormat.rate : 0.0;
+        double rate = self->_sample != nil ? self->_sample.renderedSampleRate : 0.0;
         unsigned long long frames = self->_sample != nil ? self->_sample.frames : 0;
         double signatureWindow = self.signatureWindowSeconds > 0.0 ? self.signatureWindowSeconds : 8.0;
         double signatureWindowMax = self.signatureWindowMaxSeconds > 0.0 ? self.signatureWindowMaxSeconds : signatureWindow;
@@ -314,7 +311,7 @@ typedef NSArray<TimedMediaMetaData*>* _Nonnull (^TracklistFilterBlock)(NSArray<T
 
 - (NSArray<TimedMediaMetaData*>*)aggregateIdentifieds:(NSArray<TimedMediaMetaData*>*)input
 {
-    double sampleRate = (double) self->_sample.sampleFormat.rate;
+    double sampleRate = (double) self->_sample.renderedSampleRate;
     unsigned long long clusterGapFrames = (unsigned long long) (sampleRate * 240.0);
     NSInteger minSupport = self.skipRefinement ? 1 : 2;
 
@@ -493,7 +490,7 @@ typedef NSArray<TimedMediaMetaData*>* _Nonnull (^TracklistFilterBlock)(NSArray<T
 {
     // Merge near-duplicates (same/related track within a small time window),
     // keeping the higher-scoring one.
-    double windowFrames = _duplicateMergeWindowSeconds * (double) self->_sample.sampleFormat.rate;
+    double windowFrames = _duplicateMergeWindowSeconds * (double) self->_sample.renderedSampleRate;
     NSMutableArray<TimedMediaMetaData*>* pruned = [NSMutableArray array];
     for (NSUInteger i = 0; i < tracks.count; i++) {
         TimedMediaMetaData* current = tracks[i];
@@ -533,7 +530,7 @@ typedef NSArray<TimedMediaMetaData*>* _Nonnull (^TracklistFilterBlock)(NSArray<T
     unsigned long long lastEnd = 0;
     double lastScore = 0.0;
     NSInteger lastSupport = 0;
-    double sampleRate = (double) self->_sample.sampleFormat.rate;
+    double sampleRate = (double) self->_sample.renderedSampleRate;
     unsigned long long changeoverFrames = (unsigned long long) (sampleRate * 90.0);
     for (NSUInteger i = 0; i < tracks.count; i++) {
         TimedMediaMetaData* current = tracks[i];
@@ -649,7 +646,7 @@ typedef NSArray<TimedMediaMetaData*>* _Nonnull (^TracklistFilterBlock)(NSArray<T
         double spanSeconds = 0.0;
         if (current.endFrame != nil && current.frame != nil && current.endFrame.unsignedLongLongValue > current.frame.unsignedLongLongValue) {
             double frameSpan = (double) (current.endFrame.unsignedLongLongValue - current.frame.unsignedLongLongValue);
-            spanSeconds = frameSpan / (double) self->_sample.sampleFormat.rate;
+            spanSeconds = frameSpan / (double) self->_sample.renderedSampleRate;
         }
 
         // For single-hit tracks, be stricter on short durations unless the score is
@@ -719,7 +716,7 @@ typedef NSArray<TimedMediaMetaData*>* _Nonnull (^TracklistFilterBlock)(NSArray<T
         return CompareTracksByFrameThenKey(a, b);
     }];
 
-    const double sampleRate = (double) self->_sample.sampleFormat.rate;
+    const double sampleRate = (double) self->_sample.renderedSampleRate;
     const double minSeconds = 120.0;
 
     NSUInteger count = sorted.count;
@@ -967,7 +964,7 @@ typedef NSArray<TimedMediaMetaData*>* _Nonnull (^TracklistFilterBlock)(NSArray<T
     }];
 
     NSMutableArray<TimedMediaMetaData*>* augmented = [sortedTracks mutableCopy];
-    double sampleRate = (double) self->_sample.sampleFormat.rate;
+    double sampleRate = (double) self->_sample.renderedSampleRate;
     const double gapMinSeconds = 600.0;
     const NSInteger minSupportThreshold = 3;
 

@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>activity.library.accepted_count</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>已接受 %1$ld / %2$ld %3$#@entries@</string>
+		<key>entries</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>条目</string>
+			<key>other</key>
+			<string>条目</string>
+		</dict>
+	</dict>
+	<key>alert.reconcile.changed_count</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>在 %1$ld %2$#@items@ 中检测到元数据更改。</string>
+		<key>items</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>项</string>
+			<key>other</key>
+			<string>项</string>
+		</dict>
+	</dict>
+	<key>alert.reconcile.missing_count</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>缺失文件：%1$ld %2$#@files@。</string>
+		<key>files</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>个文件</string>
+			<key>other</key>
+			<string>个文件</string>
+		</dict>
+	</dict>
+	<key>alert.reconcile.updated_count</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>已更新 %1$ld %2$#@items@（元数据从磁盘刷新）。</string>
+		<key>items</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>项</string>
+			<key>other</key>
+			<string>项</string>
+		</dict>
+	</dict>
+	<key>info.header.albums_selected</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>已选择 %1$ld %2$#@albums@</string>
+		<key>albums</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>张专辑</string>
+			<key>other</key>
+			<string>张专辑</string>
+		</dict>
+	</dict>
+	<key>info.header.artists_selected</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>已选择 %1$ld %2$#@artists@</string>
+		<key>artists</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>位艺人</string>
+			<key>other</key>
+			<string>位艺人</string>
+		</dict>
+	</dict>
+	<key>info.header.songs_selected</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>已选择 %1$ld %2$#@songs@</string>
+		<key>songs</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>首歌曲</string>
+			<key>other</key>
+			<string>首歌曲</string>
+		</dict>
+	</dict>
+</dict>
+</plist>

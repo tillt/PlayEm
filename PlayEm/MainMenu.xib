@@ -26,7 +26,6 @@
                                 </connections>
                             </menuItem>
                             <menuItem isSeparatorItem="YES" id="VOq-y0-SEH"/>
-                            <menuItem title="Preferences…" keyEquivalent="," id="BOF-NM-1cW"/>
                             <menuItem isSeparatorItem="YES" id="wFC-TO-SCJ"/>
                             <menuItem title="Services" id="NMo-om-nkz">
                                 <modifierMask key="keyEquivalentModifierMask"/>
@@ -82,16 +81,30 @@
                                 </menu>
                             </menuItem>
                             <menuItem isSeparatorItem="YES" id="m54-Is-iLE"/>
-                            <menuItem title="Reload iTunes Library" keyEquivalent="r" id="rfL-Hs-n8P" userLabel="Reload iTunes Library">
-                                <connections>
-                                    <action selector="loadITunesLibrary:" target="-1" id="kal-V7-a4r"/>
-                                </connections>
+                            <menuItem title="Library" id="RoW-bR-O5g">
+                                <modifierMask key="keyEquivalentModifierMask"/>
+                                <menu key="submenu" id="7Zw-9P-Nki">
+                                    <items>
+                                        <menuItem title="Import from Apple Music" id="SKb-VB-hqe">
+                                            <modifierMask key="keyEquivalentModifierMask"/>
+                                            <connections>
+                                                <action selector="loadITunesLibrary:" target="-1" id="cNU-l6-q6g"/>
+                                            </connections>
+                                        </menuItem>
+                                        <menuItem title="Reconciliate from Media Files" id="cRa-NH-lE4">
+                                            <modifierMask key="keyEquivalentModifierMask"/>
+                                            <connections>
+                                                <action selector="reconcileLibrary:" target="-1" id="v4a-XI-Yaa"/>
+                                            </connections>
+                                        </menuItem>
+                                    </items>
+                                </menu>
                             </menuItem>
                             <menuItem isSeparatorItem="YES" id="dgq-hZ-iAt"/>
-                            <menuItem title="Detect Tracklist" id="RoW-bR-O5g" userLabel="Detect Tracklist">
+                            <menuItem title="Detect Tracklist" id="gr1-Ps-TCn" userLabel="Detect Tracklist">
                                 <modifierMask key="keyEquivalentModifierMask"/>
                                 <connections>
-                                    <action selector="startTrackDetection:" target="-1" id="RTn-Xo-NNh"/>
+                                    <action selector="startTrackDetection:" target="-1" id="Wcv-vd-YrY"/>
                                 </connections>
                             </menuItem>
                             <menuItem title="Export Tracklist..." id="tJp-ce-Iox">
@@ -425,10 +438,23 @@
                                 </connections>
                             </menuItem>
                             <menuItem isSeparatorItem="YES" id="eu3-7i-yIM"/>
-                            <menuItem title="Activity" id="Tg2-rB-gts">
+                            <menuItem title="Activity" id="tBn-Qz-E0Y">
                                 <modifierMask key="keyEquivalentModifierMask"/>
                                 <connections>
-                                    <action selector="showActivity:" target="-1" id="ZK8-mz-BaE"/>
+                                    <action selector="showActivity:" target="-1" id="nTl-f0-EpN"/>
+                                </connections>
+                            </menuItem>
+                            <menuItem title="Graph Info" id="Tg2-rB-gts">
+                                <modifierMask key="keyEquivalentModifierMask"/>
+                                <connections>
+                                    <action selector="showGraphStatus:" target="-1" id="q8X-l1-mgS"/>
+                                </connections>
+                            </menuItem>
+                            <menuItem isSeparatorItem="YES" id="Fb4-L2-BPK"/>
+                            <menuItem title="Effects" id="4tv-s1-1ma">
+                                <modifierMask key="keyEquivalentModifierMask"/>
+                                <connections>
+                                    <action selector="showEffects:" target="-1" id="WEZ-sZ-SWy"/>
                                 </connections>
                             </menuItem>
                             <menuItem isSeparatorItem="YES" id="vnJ-qL-XYw"/>

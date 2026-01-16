@@ -112,8 +112,8 @@ static const int kMinRegionBeatCount = 10;
     // start with the region from the found beat to the end.
     //---
 
-    const double maxPhaseError = kMaxSecsPhaseError * self.sample.sampleFormat.rate;
-    const double maxPhaseErrorSum = kMaxSecsPhaseErrorSum * self.sample.sampleFormat.rate;
+    const double maxPhaseError = kMaxSecsPhaseError * self.sample.renderedSampleRate;
+    const double maxPhaseErrorSum = kMaxSecsPhaseErrorSum * self.sample.renderedSampleRate;
     const unsigned long long* coarseBeats = self.coarseBeats.bytes;
     const size_t coarseBeatCount = self.coarseBeats.length / sizeof(unsigned long long);
     if (coarseBeatCount == 0) {
@@ -253,8 +253,8 @@ static const int kMinRegionBeatCount = 10;
 
     NSLog(@"longest constant region: %.2f frames, %d beats", longestRegionLength, longestRegionNumberOfBeats);
 
-    double longestRegionBeatLengthMin = longestRegionBeatLength - ((kMaxSecsPhaseError * self.sample.sampleFormat.rate) / longestRegionNumberOfBeats);
-    double longestRegionBeatLengthMax = longestRegionBeatLength + ((kMaxSecsPhaseError * self.sample.sampleFormat.rate) / longestRegionNumberOfBeats);
+    double longestRegionBeatLengthMin = longestRegionBeatLength - ((kMaxSecsPhaseError * self.sample.renderedSampleRate) / longestRegionNumberOfBeats);
+    double longestRegionBeatLengthMax = longestRegionBeatLength + ((kMaxSecsPhaseError * self.sample.renderedSampleRate) / longestRegionNumberOfBeats);
 
     int startRegionIndex = midRegionIndex;
 
@@ -269,8 +269,8 @@ static const int kMinRegionBeatCount = 10;
             // Request short regions, too unstable.
             continue;
         }
-        const double thisRegionBeatLengthMin = regions[i].beatLength - ((kMaxSecsPhaseError * self.sample.sampleFormat.rate) / numberOfBeats);
-        const double thisRegionBeatLengthMax = regions[i].beatLength + ((kMaxSecsPhaseError * self.sample.sampleFormat.rate) / numberOfBeats);
+        const double thisRegionBeatLengthMin = regions[i].beatLength - ((kMaxSecsPhaseError * self.sample.renderedSampleRate) / numberOfBeats);
+        const double thisRegionBeatLengthMax = regions[i].beatLength + ((kMaxSecsPhaseError * self.sample.renderedSampleRate) / numberOfBeats);
         // Check if the tempo of the longest region is part of the rounding range of
         // this region.
         if (longestRegionBeatLength > thisRegionBeatLengthMin && longestRegionBeatLength < thisRegionBeatLengthMax) {
@@ -295,8 +295,8 @@ static const int kMinRegionBeatCount = 10;
                 longestRegionLength = newLongestRegionLength;
                 longestRegionBeatLength = newBeatLength;
                 longestRegionNumberOfBeats = numberOfBeats;
-                longestRegionBeatLengthMin = longestRegionBeatLength - ((kMaxSecsPhaseError * self.sample.sampleFormat.rate) / longestRegionNumberOfBeats);
-                longestRegionBeatLengthMax = longestRegionBeatLength + ((kMaxSecsPhaseError * self.sample.sampleFormat.rate) / longestRegionNumberOfBeats);
+                longestRegionBeatLengthMin = longestRegionBeatLength - ((kMaxSecsPhaseError * self.sample.renderedSampleRate) / longestRegionNumberOfBeats);
+                longestRegionBeatLengthMax = longestRegionBeatLength + ((kMaxSecsPhaseError * self.sample.renderedSampleRate) / longestRegionNumberOfBeats);
                 startRegionIndex = i;
                 break;
             }
@@ -315,8 +315,8 @@ static const int kMinRegionBeatCount = 10;
         if (numberOfBeats < kMinRegionBeatCount) {
             continue;
         }
-        const double thisRegionBeatLengthMin = regions[i].beatLength - ((kMaxSecsPhaseError * self.sample.sampleFormat.rate) / numberOfBeats);
-        const double thisRegionBeatLengthMax = regions[i].beatLength + ((kMaxSecsPhaseError * self.sample.sampleFormat.rate) / numberOfBeats);
+        const double thisRegionBeatLengthMin = regions[i].beatLength - ((kMaxSecsPhaseError * self.sample.renderedSampleRate) / numberOfBeats);
+        const double thisRegionBeatLengthMax = regions[i].beatLength + ((kMaxSecsPhaseError * self.sample.renderedSampleRate) / numberOfBeats);
         if (longestRegionBeatLength > thisRegionBeatLengthMin && longestRegionBeatLength < thisRegionBeatLengthMax) {
             // Now check if both regions are at the same phase.
             const double newLongestRegionLength = regions[i + 1].firstBeatFrame - regions[startRegionIndex].firstBeatFrame;
@@ -345,8 +345,8 @@ static const int kMinRegionBeatCount = 10;
 
     NSLog(@"longestRegionNumberOfBeats: %d", longestRegionNumberOfBeats);
 
-    longestRegionBeatLengthMin = longestRegionBeatLength - ((kMaxSecsPhaseError * self.sample.sampleFormat.rate) / longestRegionNumberOfBeats);
-    longestRegionBeatLengthMax = longestRegionBeatLength + ((kMaxSecsPhaseError * self.sample.sampleFormat.rate) / longestRegionNumberOfBeats);
+    longestRegionBeatLengthMin = longestRegionBeatLength - ((kMaxSecsPhaseError * self.sample.renderedSampleRate) / longestRegionNumberOfBeats);
+    longestRegionBeatLengthMax = longestRegionBeatLength + ((kMaxSecsPhaseError * self.sample.renderedSampleRate) / longestRegionNumberOfBeats);
 
     NSLog(@"start: %d, mid: %d, count: %ld, longest: %.2f", startRegionIndex, midRegionIndex, regionsCount, longestRegionLength);
     NSLog(@"first beat: %lld, longest region length: %.2f, number of beats: %d", regions[startRegionIndex].firstBeatFrame, longestRegionLength,
@@ -358,9 +358,9 @@ static const int kMinRegionBeatCount = 10;
     // Create a const region from the first beat of the first region to the last
     // beat of the last region.
 
-    const double minRoundBpm = (double) (60.0 * self.sample.sampleFormat.rate / longestRegionBeatLengthMax);
-    const double maxRoundBpm = (double) (60.0 * self.sample.sampleFormat.rate / longestRegionBeatLengthMin);
-    const double centerBpm = (double) (60.0 * self.sample.sampleFormat.rate / longestRegionBeatLength);
+    const double minRoundBpm = (double) (60.0 * self.sample.renderedSampleRate / longestRegionBeatLengthMax);
+    const double maxRoundBpm = (double) (60.0 * self.sample.renderedSampleRate / longestRegionBeatLengthMin);
+    const double centerBpm = (double) (60.0 * self.sample.renderedSampleRate / longestRegionBeatLength);
     const double roundBpm = roundBpmWithinRange(minRoundBpm, centerBpm, maxRoundBpm);
 
     NSLog(@"rounded BPM: %.4f", roundBpm);
@@ -383,7 +383,7 @@ static const int kMinRegionBeatCount = 10;
         // songs. For catching such cases, we check if such misplaced first beat
         // would be less than a quarter beat before the recording.
 
-        const double roundedBeatLength = 60.0 * self.sample.sampleFormat.rate / roundBpm;
+        const double roundedBeatLength = 60.0 * self.sample.renderedSampleRate / roundBpm;
 
         unsigned long long firstMeasuredGoodBeatFrame = regions[startRegionIndex].firstBeatFrame;
 
@@ -423,7 +423,7 @@ static const int kMinRegionBeatCount = 10;
  */
 - (unsigned long long)adjustPhase:(unsigned long long)firstBeat bpm:(double)bpm
 {
-    const double beatLength = 60 * self.sample.sampleFormat.rate / bpm;
+    const double beatLength = 60 * self.sample.renderedSampleRate / bpm;
     const unsigned long long startOffset = (unsigned long long) (fmod(firstBeat, beatLength));
     double offsetAdjust = 0;
     double offsetAdjustCount = 0;
@@ -436,7 +436,7 @@ static const int kMinRegionBeatCount = 10;
         if (offset > beatLength / 2) {
             offset -= beatLength;
         }
-        if (fabs(offset) < (kMaxSecsPhaseError * self.sample.sampleFormat.rate)) {
+        if (fabs(offset) < (kMaxSecsPhaseError * self.sample.renderedSampleRate)) {
             offsetAdjust += offset;
             offsetAdjustCount++;
         }
@@ -463,7 +463,7 @@ static const int kMinRegionBeatCount = 10;
     signed long long firstBeatFrame = 0;
 
     const double constBPM = [self makeConstBpm:constantRegions firstBeat:&firstBeatFrame];
-    const double beatLength = 60.0 * self.sample.sampleFormat.rate / constBPM;
+    const double beatLength = 60.0 * self.sample.renderedSampleRate / constBPM;
 
     firstBeatFrame = [self adjustPhase:firstBeatFrame bpm:constBPM];
 

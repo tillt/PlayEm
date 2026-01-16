@@ -13,6 +13,7 @@ NS_ASSUME_NONNULL_BEGIN
 @class ScrollingTextView;
 @class MediaMetaData;
 @class SymbolButton;
+@class GraphStatusViewController;
 
 @protocol ControlPanelControllerDelegate <NSObject>
 
@@ -22,6 +23,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)volumeChange:(id)sender;
 - (void)tempoChange:(id)sender;
 - (void)resetTempo:(id)sender;
+- (void)effectsToggle:(id)sender;
+- (void)showGraphStatus:(id)sender;
 
 @end
 
@@ -37,6 +40,8 @@ NS_ASSUME_NONNULL_BEGIN
 @property (strong, nonatomic) NSLevelIndicator* level;
 @property (strong, nonatomic) CIFilter* zoomBlur;
 @property (strong, nonatomic) MediaMetaData* meta;
+@property (strong, nonatomic) NSButton* effectsButton;
+//@property (strong, nonatomic) NSButton* infoButton;
 
 @property (assign, nonatomic) BOOL durationUnitTime;
 
@@ -47,6 +52,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)setKey:(NSString*)key hint:(NSString*)hint;
 - (void)setKeyHidden:(BOOL)hidden;
 - (void)updateDuration:(NSString*)duration time:(NSString*)time;
+- (void)setEffectsEnabled:(BOOL)enabled;
 
 @end
 

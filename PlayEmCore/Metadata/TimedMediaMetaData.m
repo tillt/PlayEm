@@ -20,7 +20,7 @@
 + (TimedMediaMetaData*)unknownTrackAtFrame:(NSNumber*)frame
 {
     TimedMediaMetaData* track = [TimedMediaMetaData new];
-    track.meta.title = @"unknown";
+    track.meta = [MediaMetaData unknownMediaMetaData];
     track.frame = frame;
     track.confidence = nil;
     return track;

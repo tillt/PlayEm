@@ -36,6 +36,8 @@ typedef struct _BeatsParserContext BeatsParserContext;
 // all too weird - feels like we should have something
 // FIXME: inbetween there. Screen stuff shouldnt be of any concern here.
 
+@property (assign, nonatomic) BOOL suppressActivity;
+
 @property (strong, nonatomic) LazySample* sample;
 // Beats as refined through the Mixx algorithm.
 @property (strong, nonatomic) NSMutableDictionary* beats;
@@ -59,6 +61,8 @@ typedef struct _BeatsParserContext BeatsParserContext;
 - (id)initWithSample:(LazySample*)sample;
 
 - (void)trackBeatsAsyncWithCallback:(void (^)(BOOL))callback;
+- (void)trackBeatsAsyncWithCompletionQueue:(dispatch_queue_t _Nullable)queue
+                                  callback:(void (^)(BOOL))callback;
 
 - (unsigned long long)seekToFirstBeat:(nonnull BeatEventIterator*)iterator;
 - (unsigned long long)seekToNextBeat:(nonnull BeatEventIterator*)iterator;
@@ -68,6 +72,8 @@ typedef struct _BeatsParserContext BeatsParserContext;
 //- (unsigned long long)lastBeatIndex;
 
 - (unsigned long long)beatCount;
+
+- (float)averageTempo;
 
 //- (unsigned long long)frameForPreviousBeat:(nonnull
 //BeatEventIterator*)iterator;

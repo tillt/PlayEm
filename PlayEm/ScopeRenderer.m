@@ -51,6 +51,7 @@ static const double kLevelDecreaseValue = 0.042;
 @property (weak, nonatomic) id<ScopeRendererDelegate> delegate;
 
 @property (strong, nonatomic) dispatch_queue_t renderQueue;
+@property (strong, nonatomic) dispatch_queue_t crunchQueue;
 
 @end
 
@@ -197,6 +198,8 @@ static const double kLevelDecreaseValue = 0.042;
 
         dispatch_queue_attr_t attr = dispatch_queue_attr_make_with_qos_class(DISPATCH_QUEUE_CONCURRENT, QOS_CLASS_USER_INTERACTIVE, 0);
         _renderQueue = dispatch_queue_create("PlayEm.RenderingQueue", attr);
+
+        _crunchQueue = dispatch_queue_create("PlayEm.CrunchQueue", attr);
 
         _device = view.device;
         _commandQueue = [_device newCommandQueue];
@@ -664,7 +667,15 @@ static const double kLevelDecreaseValue = 0.042;
 
     performFFT(self->_fftSetup, window, kWindowSamples, frequencyBufferAddress, APWindowTypeHanning);
 
-    melScaleFFT(frequencyBufferAddress);
+    double sourceRate = self.visual.sample.fileSampleRate;
+    if (sourceRate <= 0.0) {
+        sourceRate = self.visual.sample.sampleFormat.rate;
+    }
+    double renderRate = self.visual.sample.renderedSampleRate > 0.0 ? self.visual.sample.renderedSampleRate : self.visual.sample.sampleFormat.rate;
+    if (renderRate <= 0.0) {
+        renderRate = sourceRate;
+    }
+    melScaleFFT(frequencyBufferAddress, sourceRate > 0.0 ? sourceRate : 44100.0, renderRate);
 
     size_t previousAttemptAt = -1;
     while (bestPositiveStreakLength == 0) {

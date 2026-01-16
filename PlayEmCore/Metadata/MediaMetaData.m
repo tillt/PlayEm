@@ -5,6 +5,8 @@
 //  Created by Till Toenshoff on 08.11.20.
 //  Copyright © 2020 Till Toenshoff. All rights reserved.
 //
+#include <stdlib.h>
+
 #import "MediaMetaData.h"
 
 #import <Foundation/Foundation.h>
@@ -16,15 +18,17 @@
 #import <iTunesLibrary/ITLibAlbum.h>
 #import <iTunesLibrary/ITLibArtist.h>
 #import <objc/runtime.h>
-#include <stdlib.h>
 
 #import "MediaMetaData+AVAsset.h"
-#import "MediaMetaData+ChapterForge.hpp"
 #import "MediaMetaData+TagLib.h"
+#import "MediaMetaData+MixWheel.h"
+
 #import "NSString+BeautifulPast.h"
 #import "NSString+OccurenceCount.h"
 #import "NSString+Sanitized.h"
+#import "NSData+Hashing.h"
 #import "NSURL+WithoutParameters.h"
+#import "PECLocalization.h"
 #import "TemporaryFiles.h"
 #import "TrackList.h"
 
@@ -35,7 +39,6 @@
 /// asynchronously requested through ITLibMediaItem on demand.
 ///
 
-// NSString* const kStarSymbol = @"􀋃";
 NSString* const kMediaMetaDataMapKeyMP3 = @"mp3";
 NSString* const kMediaMetaDataMapKeyMP4 = @"mp4";
 NSString* const kMediaMetaDataMapKeyType = @"type";
@@ -71,7 +74,7 @@ NSString* const kMediaMetaDataMapTypeNumber = @"number";
 + (MediaMetaDataFileFormatType)fileTypeWithURL:(NSURL*)url error:(NSError**)error
 {
     if (url == nil) {
-        NSString* description = @"Cannot identify item as it lacks a location";
+        NSString* description = PECLocalizedString(@"error.missing_location_identify", @"Error when media item lacks a location for identify");
         if (error) {
             NSDictionary* userInfo = @{
                 NSLocalizedDescriptionKey : description,
@@ -98,7 +101,8 @@ NSString* const kMediaMetaDataMapTypeNumber = @"number";
         return MediaMetaDataFileFormatTypeWAV;
     }
 
-    NSString* description = [NSString stringWithFormat:@"Unknown file type (%@)", fileExtension];
+    NSString* description = [NSString stringWithFormat:PECLocalizedString(@"error.unknown_file_type_format",
+                                                                          @"Error format for unknown file type"), fileExtension];
     if (error) {
         NSDictionary* userInfo = @{
             NSLocalizedDescriptionKey : description,
@@ -112,7 +116,9 @@ NSString* const kMediaMetaDataMapTypeNumber = @"number";
 + (MediaMetaData*)mediaMetaDataWithURL:(NSURL*)url error:(NSError**)error
 {
     MediaMetaData* meta = [MediaMetaData new];
+
     meta.location = [[url filePathURL] URLWithoutParameters];
+
     if (![meta readFromFileWithError:error]) {
         return nil;
     }
@@ -122,7 +128,9 @@ NSString* const kMediaMetaDataMapTypeNumber = @"number";
 + (MediaMetaData*)mediaMetaDataWithURL:(NSURL*)url asset:(AVAsset*)asset error:(NSError**)error
 {
     MediaMetaData* meta = [MediaMetaData new];
+
     meta.location = [url URLWithoutParameters];
+
     if (![meta readFromAVAsset:asset error:error]) {
         return nil;
     }
@@ -140,8 +148,10 @@ NSString* const kMediaMetaDataMapTypeNumber = @"number";
 + (MediaMetaData*)mediaMetaDataWithITLibMediaItem:(ITLibMediaItem*)item error:(NSError**)error
 {
     MediaMetaData* meta = [MediaMetaData new];
+
     meta.shadow = item;
     meta.key = @"";
+
     return meta;
 }
 
@@ -170,8 +180,19 @@ NSString* const kMediaMetaDataMapTypeNumber = @"number";
 + (MediaMetaData*)emptyMediaDataWithURL:(NSURL*)url
 {
     MediaMetaData* meta = [MediaMetaData new];
+
     meta.location = [NSURL fileURLWithPath:url.path];
     meta.title = [[meta.location lastPathComponent] stringByDeletingPathExtension];
+
+    return meta;
+}
+
++ (MediaMetaData*)unknownMediaMetaData
+{
+    MediaMetaData* meta = [MediaMetaData new];
+
+    meta.title = PECLocalizedString(@"common.unknown", @"Placeholder when value is unknown");
+
     return meta;
 }
 
@@ -411,13 +432,13 @@ NSString* const kMediaMetaDataMapTypeNumber = @"number";
     NSString* typeKey = nil;
 
     switch (type) {
-    case MediaMetaDataFileFormatTypeMP3:
-        typeKey = kMediaMetaDataMapKeyMP3;
-        break;
-    case MediaMetaDataFileFormatTypeMP4:
-        typeKey = kMediaMetaDataMapKeyMP4;
-        break;
-    default:;
+        case MediaMetaDataFileFormatTypeMP3:
+            typeKey = kMediaMetaDataMapKeyMP3;
+            break;
+        case MediaMetaDataFileFormatTypeMP4:
+            typeKey = kMediaMetaDataMapKeyMP4;
+            break;
+        default:;
     }
 
     if (typeKey == nil) {
@@ -470,15 +491,6 @@ NSString* const kMediaMetaDataMapTypeNumber = @"number";
 - (TrackList*)trackList
 {
     return _trackList;
-}
-
-/// Default tracklist location derived from the source file location.
-///
-/// - Returns: tracklist file location URL
-///
-- (NSURL*)trackListURL
-{
-    return [[self.location URLByDeletingPathExtension] URLByAppendingPathExtension:@"tracklist"];
 }
 
 + (NSString*)mimeTypeForArtworkFormat:(ITLibArtworkFormat)format
@@ -573,7 +585,7 @@ NSString* const kMediaMetaDataMapTypeNumber = @"number";
 
     if (_channels == nil) {
         // FIXME: This looks rather faky - why is that?
-        _channels = @"stereo";
+        _channels = PECLocalizedString(@"media.channels.stereo", @"Audio channel label for stereo");
     }
 
     return _channels;
@@ -982,9 +994,9 @@ NSString* const kMediaMetaDataMapTypeNumber = @"number";
     return [NSString stringWithFormat:@"Title: %@ -- Album: %@ -- Artist: %@ -- Location: %@ -- Address: "
                                       @"%p -- Artwork data: %@  -- Artwork format: %@ -- Tempo: %@ -- Key: "
                                       @"%@ -- Duration: %@ -- Rating: %@ -- Comment: %@ -- Apple Location: "
-                                      @"%@ -- TrackList: %@",
+                                      @"%@ -- Tags: %@ -- TrackList: %@",
                                       self.title, self.album, self.artist, self.location, (void*) self, self.artwork, self.artworkFormat, self.tempo, self.key,
-                                      self.duration, self.rating, self.comment, self.appleLocation, self.trackList];
+                                      self.duration, self.rating, self.comment, self.appleLocation, self.tags, self.trackList];
 }
 
 - (id)initWithCoder:(NSCoder*)coder
@@ -1116,8 +1128,13 @@ NSString* const kMediaMetaDataMapTypeNumber = @"number";
         return valueObject;
     }
 
-    if ([valueObject isKindOfClass:[NSNumber class]] && [valueObject intValue] > 0) {
-        return [valueObject stringValue];
+    if ([valueObject isKindOfClass:[NSNumber class]]) {
+        // Keep integers for display; format non-integers without losing precision.
+        double d = [valueObject doubleValue];
+        if (ceil(d) == floor(d)) {
+            return [valueObject stringValue];
+        }
+        return [NSString stringWithFormat:@"%.2f", d];
     }
 
     if ([valueObject isKindOfClass:[NSURL class]]) {
@@ -1146,9 +1163,39 @@ NSString* const kMediaMetaDataMapTypeNumber = @"number";
             NSLog(@"mismatch at artwork");
             return NO;
         }
-    } else {
+    } else if ([key isEqualToString:@"year"]) {
         NSString* thisValue = [self stringForKey:key];
         NSString* otherValue = [other stringForKey:key];
+
+        NSString* thisYear = (thisValue.length >= 4) ? [thisValue substringToIndex:4] : thisValue;
+        NSString* otherYear = (otherValue.length >= 4) ? [otherValue substringToIndex:4] : otherValue;
+
+        BOOL thisEmpty = (thisYear.length == 0);
+        BOOL otherEmpty = (otherYear.length == 0);
+        BOOL thisZero = [thisYear isEqualToString:@"0"];
+        BOOL otherZero = [otherYear isEqualToString:@"0"];
+
+        if ((thisEmpty && otherEmpty) || (thisEmpty && otherZero) || (otherEmpty && thisZero)) {
+            return YES;
+        }
+
+        if (![thisYear isEqualToString:otherYear]) {
+            NSLog(@"mismatch at key %@ with \"%@\" != \"%@\"", key, thisValue, otherValue);
+            return NO;
+        }
+    } else {
+        NSString* thisValue = [self stringForKey:key] ?: @"";
+        NSString* otherValue = [other stringForKey:key] ?: @"";
+
+        // Treat empty/missing and zero equivalently for optional numeric/string fields.
+        BOOL thisEmpty = (thisValue.length == 0);
+        BOOL otherEmpty = (otherValue.length == 0);
+        BOOL thisZero = [thisValue isEqualToString:@"0"];
+        BOOL otherZero = [otherValue isEqualToString:@"0"];
+
+        if ((thisEmpty && otherEmpty) || (thisEmpty && otherZero) || (otherEmpty && thisZero)) {
+            return YES;
+        }
 
         if (![thisValue isEqualToString:otherValue]) {
             NSLog(@"mismatch at key %@ with \"%@\" != \"%@\"", key, thisValue, otherValue);
@@ -1190,6 +1237,37 @@ NSString* const kMediaMetaDataMapTypeNumber = @"number";
     return [self isEqualToMediaMetaData:other forKeys:supportedKeys];
 }
 
+- (BOOL)isSemanticallyEqualToMeta:(MediaMetaData*)other
+{
+    if (other == nil) {
+        return NO;
+    }
+
+    NSArray<NSString*>* keys = @[
+        @"title",
+        @"artist",
+        @"album",
+        @"albumArtist",
+        @"genre",
+        @"year",
+        @"track",
+        @"tracks",
+        @"disk",
+        @"disks",
+        @"tempo",
+        @"key",
+        @"rating",
+        @"comment",
+        @"tags",
+        @"compilation",
+        @"artworkLocation",
+        @"locationType",
+        @"appleLocation"
+    ];
+
+    return [self isEqualToMediaMetaData:other forKeys:keys];
+}
+
 - (void)updateWithKey:(NSString*)key string:(NSString*)string
 {
     // Rather involved way to retrieve the Class from a member (that may be set to
@@ -1226,227 +1304,19 @@ NSString* const kMediaMetaDataMapTypeNumber = @"number";
     NSAssert(NO, @"should never get here");
 }
 
-+ (NSString* _Nullable)correctedKeyNotation:(NSString* _Nullable)key
-{
-    // We are trying to catch all synonymous scales here additionally
-    // to the 24 sectors of the MixWheel.
-    NSDictionary* mixWheel = @{
-        @"Abmin" : @"1A",  // G♯ minor/A♭ minor
-        @"G#min" : @"1A",  // G♯ minor/A♭ minor
-        @"Cbmaj" : @"1B",  // B major/C♭ major
-        @"Bmaj" : @"1B",   // B major/C♭ major
-        @"Ebmin" : @"2A",  // D♯ minor/E♭ minor
-        @"D#min" : @"2A",  // D♯ minor/E♭ minor
-        @"F#maj" : @"2B",  // F♯ major/G♭ major
-        @"Gbmaj" : @"2B",  // F♯ major/G♭ major
-        @"A#min" : @"3A",  // A♯ minor/B♭ minor
-        @"Bbmin" : @"3A",  // A♯ minor/B♭ minor
-        @"C#maj" : @"3B",  // C♯ major/D♭ major
-        @"Dbmaj" : @"3B",  // C♯ major/D♭ major
-        @"Fmin" : @"4A",
-        @"Abmaj" : @"4B",  // G♯ major/A♭ major
-        @"G#maj" : @"4B",  // G♯ major/A♭ major
-        @"Cmin" : @"5A",
-        @"Ebmaj" : @"5B",  // D♯ major/E♭ major
-        @"D#maj" : @"5B",  // D♯ major/E♭ major
-        @"Gmin" : @"6A",
-        @"A#maj" : @"6B",  // A♯ major/B♭ major
-        @"Bbmaj" : @"6B",  // A♯ major/B♭ major
-        @"Dmin" : @"7A",
-        @"Fmaj" : @"7B",
-        @"Amin" : @"8A",
-        @"Cmaj" : @"8B",
-        @"Emin" : @"9A",
-        @"Gmaj" : @"9B",
-        @"Cbmin" : @"10A",  // B minor/C♭ minor
-        @"Bmin" : @"10A",   // B minor/C♭ minor
-        @"Dmaj" : @"10B",
-        @"Gbmin" : @"11A",  // F♯ minor/G♭ minor
-        @"F#min" : @"11A",  // F♯ minor/G♭ minor
-        @"Amaj" : @"11B",
-        @"C#min" : @"12A",  // C♯ minor/D♭ minor
-        @"Dbmin" : @"12A",
-        @"Emaj" : @"12B",
-    };
-
-    if (key == nil || key.length == 0) {
-        return key;
-    }
-
-    // Shortcut when the given key is a proper one already.
-    NSArray* properValues = [mixWheel allValues];
-    if ([properValues indexOfObject:key] != NSNotFound) {
-        return key;
-    }
-
-    // Easy cases map already, shortcut those.
-    NSString* mappedKey = [mixWheel objectForKey:key];
-    if (mappedKey != nil) {
-        return mappedKey;
-    }
-
-    if (key.length > 1) {
-        // Lets patch minor defects in place so we can map later...
-        // Get a possible note specifier.
-        NSString* s = [key substringWithRange:NSMakeRange(1, 1)];
-        if ([s isEqualToString:@"o"] || [s isEqualToString:@"♯"]) {
-            key = [NSString stringWithFormat:@"%@#%@", [key substringToIndex:1], [key substringFromIndex:2]];
-        } else if ([s isEqualToString:@"♭"]) {
-            key = [NSString stringWithFormat:@"%@b%@", [key substringToIndex:1], [key substringFromIndex:2]];
-        }
-    }
-
-    NSString* patchedKey = nil;
-    unichar p = [key characterAtIndex:0];
-    unichar t = [key characterAtIndex:key.length - 1];
-
-    if ((p >= '1' && p <= '9')) {
-        if (t == 'm' || t == 'n') {
-            patchedKey = [NSString stringWithFormat:@"%@A", [key substringToIndex:key.length - 1]];
-        } else {
-            patchedKey = [NSString stringWithFormat:@"%@B", key];
-        }
-        return patchedKey;
-    }
-
-    if (t == 'm') {
-        patchedKey = [NSString stringWithFormat:@"%@in", key];
-    } else if (t != 'n') {
-        patchedKey = [NSString stringWithFormat:@"%@maj", key];
-    } else {
-        patchedKey = key;
-    }
-
-    mappedKey = [mixWheel objectForKey:patchedKey];
-    if (mappedKey != nil) {
-        return mappedKey;
-    }
-
-    NSLog(@"couldnt map key %@ (%@)", key, patchedKey);
-
-    return key;
-}
 
 - (NSString*)artworkHash
 {
-    NSData* data = self.artwork;
-    if (data != nil && _artworkHashKey.length == 0) {
-        unsigned char digest[CC_SHA256_DIGEST_LENGTH];
-
-        CC_SHA256(data.bytes, (CC_LONG) data.length, digest);
-
-        NSMutableString* s = [NSMutableString stringWithCapacity:24];
-        for (int i = 0; i < 12; i++) {
-            [s appendFormat:@"%02x", digest[i]];
+    // Assert that without data we also have no hash.
+    if (self.artwork != nil) {
+        // Assert we calculate that hash dynamically.
+        if (_artworkHashKey.length == 0) {
+            _artworkHashKey = [self.artwork shortSHA256];
         }
-        _artworkHashKey = s;
+    } else {
+        _artworkHashKey = nil;
     }
     return _artworkHashKey;
-}
-
-- (void)recoverTracklistWithCallback:(void (^)(BOOL, NSError*))callback
-{
-    NSLog(@"attempting to recover tracklist");
-
-    NSError* error = nil;
-    MediaMetaDataFileFormatType type = [MediaMetaData fileTypeWithURL:self.location error:&error];
-    if (error != nil) {
-        NSLog(@"failed to determine file type: %@", error);
-        callback(NO, error);
-        return;
-    }
-
-    // We are using taglib for anything but MP4 for which we use the system
-    // provided functions.
-    if (type == MediaMetaDataFileFormatTypeMP4) {
-        MediaMetaData* __weak weakSelf = self;
-
-        [self readChaperMarksFromMP4FileWithCallback:^(BOOL done, NSError* error) {
-            if (!done) {
-                NSLog(@"failed to read chapter marks with error: %@", error);
-            }
-            NSLog(@"lets see if we can read chapters from our sidecar");
-            // Did we get some tracks, so far?
-            if (self.trackList.frames.count > 0) {
-                callback(YES, nil);
-                return;
-            }
-            [weakSelf recoverSidecarWithCallback:callback];
-        }];
-    } else {
-        // Did we get some tracks, so far?
-        if (self.trackList.frames.count > 0) {
-            callback(YES, nil);
-            return;
-        }
-
-        [self recoverSidecarWithCallback:callback];
-    }
-}
-
-- (void)recoverSidecarWithCallback:(void (^)(BOOL, NSError*))callback
-{
-    NSError* error = nil;
-
-    // Try a tracklist sidecar file as a source.
-    NSURL* url = [self trackListURL];
-    if (![_trackList readFromFile:url error:&error]) {
-        callback(NO, error);
-        return;
-    }
-
-    // No matter if we received tracks or not, an empty list is just fine.
-    callback(YES, nil);
-}
-
-- (BOOL)storeTracklistWithError:(NSError* __autoreleasing _Nullable*)error
-{
-    MediaMetaDataFileFormatType type = [MediaMetaData fileTypeWithURL:self.location error:error];
-
-    // We are using taglib for anything but MP4 for which we use the system
-    // provided functions.
-    // BOOL ret = NO;
-    if (type == MediaMetaDataFileFormatTypeMP4) {
-        return [self writeChaperMarksToMP4FileWithError:error];
-    }
-
-    NSURL* url = [self trackListURL];
-    return [_trackList writeToFile:url error:error];
-}
-
-- (NSString*)readableTracklistWithFrameEncoder:(FrameToString)encoder
-{
-    NSString* global = @"Tracklist: ";
-    if (_title.length > 0 && _artist.length > 0) {
-        global = [NSString stringWithFormat:@"%@%@ - %@", global, _artist, _title];
-    } else if (_title.length > 0) {
-        global = [NSString stringWithFormat:@"%@%@", global, _title];
-    } else if (_artist.length > 0) {
-        global = [NSString stringWithFormat:@"%@%@", global, _artist];
-    }
-    global = [NSString stringWithFormat:@"%@\n\n", global];
-    NSString* tracks = [_trackList beautifulTracksWithFrameEncoder:encoder];
-    return [global stringByAppendingString:tracks];
-}
-
-- (BOOL)exportTracklistToFile:(NSURL*)url frameEncoder:(FrameToString)encoder error:(NSError* __autoreleasing _Nullable*)error
-{
-    NSString* title = _title.length > 0 ? [NSString stringWithFormat:@"TITLE \"%@\"\n", _title] : @"";
-    NSString* performer = _artist.length > 0 ? [NSString stringWithFormat:@"PERFORMER \"%@\"\n", _artist] : @"";
-    NSString* file = [NSString stringWithFormat:@"FILE \"%@\" MP3\n", _location.path];
-
-    NSString* global = @"";
-    global = [global stringByAppendingString:title];
-    global = [global stringByAppendingString:performer];
-    global = [global stringByAppendingString:file];
-
-    NSString* tracks = [_trackList cueTracksWithFrameEncoder:encoder];
-
-    NSString* sheet = [global stringByAppendingString:tracks];
-
-    NSData* ascii = [sheet dataUsingEncoding:NSASCIIStringEncoding allowLossyConversion:YES];
-
-    return [ascii writeToFile:url.path options:NSDataWritingFileProtectionNone error:error];
 }
 
 - (BOOL)readFromFileWithError:(NSError**)error
@@ -1474,7 +1344,7 @@ NSString* const kMediaMetaDataMapTypeNumber = @"number";
 - (BOOL)writeToFileWithError:(NSError**)error
 {
     if (self.location == nil) {
-        NSString* description = @"Cannot sync item back as it lacks a location";
+        NSString* description = PECLocalizedString(@"error.missing_location_sync", @"Error when media item lacks a location for sync");
         if (error) {
             NSDictionary* userInfo = @{
                 NSLocalizedDescriptionKey : description,
